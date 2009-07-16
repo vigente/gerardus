@@ -1,0 +1,85 @@
+2009-07-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* First public release to project Gerardus in Google Code of this
+	Matlab Toolbox.
+
+	- http://code.google.com/p/gerardus
+
+	* Add README with help for functions in the Toolbox.
+
+	* WriteMetaFile.h -> WriteRawFile.h:
+
+	- Correct name, as "Meta" could refer to MetaImage, the format
+	that includes both the mha header and the raw file.
+
+	* dcm2metadata.m -> dcm2metaimage.m, im2metadata.m ->
+	im2metaimage.m:
+	
+	Correct filenames and function names, because we are create
+	MetaImage files, not "metadata".
+
+	* Add LICENCE with text of the GPL v3, and corresponding copyright
+	notices to all files.
+
+2009-04-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add correct_light_blobs_in_microscope_mosaic.m:
+
+	- CORRECT_LIGHT_BLOBS_IN_MICROSCOPE_MOSAIC Correct the colour blob
+	created by the microscope's light in each tile of a mosaic,
+	e.g. for histology.
+
+2009-04-02  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add dcm2metadata.m:
+
+	- DCM2METADATA  Read a batch of DICOM files, collate them and save
+	as a single metadata volume (one .mha and one .raw file).
+
+	* Add matlab2vox_seg3d.m:
+
+	- MATLAB2VOX_SEG3D Convert Matlab file with Seg3D segmentation to
+	vox format (for the Tarantula meshing application).
+
+2009-03-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* im2metadata.m:
+
+	- Add input argument "crop", so that the volume can be cropped
+	before saving.
+
+	* WriteMhaFile.m:
+
+	- Add help comments.
+
+	- Write 'Offset' line to file, so that cropped data is correctly
+	placed.
+
+2009-01-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* WriteMhaFile.m, WriteMetaFile.m:
+	
+	- Increase precission for values of ElementSpacing, from 4 digits
+	to 12 digits, to make sure that we can save spacings in microns.
+
+	* Add im2metadata.m.
+
+	- IM2METADATA Read a batch of image files, collate them and save
+	as a single metadata volume (one .mha and one .raw file).
+
+2009-01-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* WriteMhaFile.m, WriteMetaFile.m: v0.2.
+
+	- Add MET_USHORT as output type for uint16 input data.
+
+	- Add error message if the data type is not one of the expected
+	types. Otherwise, no ElementType header is added to the file, this
+	is not reported, and then Seg3D (and possibly other image
+	visualisation applications) will fail to open the file.
+	
+2009-01-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add files provided by Martin Bishop to write metadata
+	files. These files were actually created originally by Vicente
+	Grau.

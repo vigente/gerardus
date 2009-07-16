@@ -1,0 +1,42 @@
+This file is part of the Matlab Toolbox of project Gerardus.
+
+
+This Matlab Toolbox provides the following main functions:
+==========================================================
+
+dcm2metaimage.m:
+
+	If you have a bunch of DICOM (.dcm) files, one per slice, and
+	you want to create a single MetaImage file with all the slices
+	collated together. Note that a MetaImage file in fact is split
+	into a header file (.mha) and a data file (.raw).
+
+im2metaimage.m:
+
+	If you have a bunch of image files (e.g. TIFF, PNG, JPG,
+	etc.), one per slice, and you want to create a single
+	MetaImage file with all the slices collated together. Note
+	that a MetaImage file in fact is split into a header file
+	(.mha) and a data file (.raw).
+
+matlab2vox_seg3d.m:
+
+	Convert Matlab file with Seg3D segmentation to .vox format (for
+	the Tarantula meshing application).
+
+correct_light_blobs_in_microscope_mosaic.m:
+
+	Correct the colour blob created by the microscope's light in
+	each tile of a mosaic, e.g. for histology.
+
+
+It also provides the following auxiliary functions:
+===================================================
+
+WriteMhaFile.m:
+
+	Write the header part of a MetaImage file (.mha).
+
+WriteRawFile.m:
+
+	Write the binary part of a MetaImage file (.raw).
