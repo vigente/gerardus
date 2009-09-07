@@ -2,7 +2,7 @@
 # paths, if you want to generate the project files that allow to
 # develop this project from the Eclipse IDE
 #
-# cmake -DITK_DIR=/usr/local/lib/InsightToolkit  -G"Eclipse CDT4 - Unix Makefiles" -DCMAKE_BUILD_TYPE=Release  .
+# cmake -DITK_DIR=/usr/local/lib/InsightToolkit  -G"Eclipse CDT4 - Unix Makefiles" -DCMAKE_BUILD_TYPE=Release  ./src
 
 # required by Eclipse CDT4
 cmake_minimum_required( VERSION 2.6 )
