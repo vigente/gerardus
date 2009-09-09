@@ -1,8 +1,20 @@
-This file is part of the Matlab Toolbox of project Gerardus.
+This file is part of the Matlab Toolboxes of project Gerardus.
+
+Toolboxes in Gerardus:
+======================
+
+* FileFormatToolbox
+
+	Functions to create image files or convert image files from
+	one format to another.
+
+* FiltersToolbox
+
+	Filters to enhance or transform images in general.
 
 
-This Matlab Toolbox provides the following main functions:
-==========================================================
+FileFormatToolbox:
+==================
 
 dcm2metaimage.m:
 
@@ -24,15 +36,6 @@ matlab2vox_seg3d.m:
 	Convert Matlab file with Seg3D segmentation to .vox format (for
 	the Tarantula meshing application).
 
-correct_light_blobs_in_microscope_mosaic.m:
-
-	Correct the colour blob created by the microscope's light in
-	each tile of a mosaic, e.g. for histology.
-
-
-It also provides the following auxiliary functions:
-===================================================
-
 WriteMhaFile.m:
 
 	Write the header part of a MetaImage file (.mha).
@@ -40,3 +43,12 @@ WriteMhaFile.m:
 WriteRawFile.m:
 
 	Write the binary part of a MetaImage file (.raw).
+
+
+FiltersToolbox:
+===============
+
+correct_light_blobs_in_microscope_mosaic.m:
+
+	Correct the colour blob created by the microscope's light in
+	each tile of a mosaic, e.g. for histology.
