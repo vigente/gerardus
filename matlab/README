@@ -52,3 +52,11 @@ correct_light_blobs_in_microscope_mosaic.m:
 
 	Correct the colour blob created by the microscope's light in
 	each tile of a mosaic, e.g. for histology.
+
+PointsToolbox:
+==============
+
+cube_stackable_tessellation.m:
+
+	Tessellation in tetrahedra of a cube that can be stacked in a
+	regular mesh.

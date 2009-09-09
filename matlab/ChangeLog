@@ -1,4 +1,13 @@
+2009-09-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/PointsToolbox/cube_stackable_tessellation.m:
+
+	- CUBE_STACKABLE_TESSELLATION  Tessellation in tetrahedra of a
+	cube that can be stacked in a regular mesh.
+
 2009-09-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox for functions that deal with points.
 
 	* Create directories for FileFormatToolbox and FiltersToolbox, and
 	split existing functions accordingly. As more functions are added
