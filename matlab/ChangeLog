@@ -1,3 +1,9 @@
+2009-09-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Create directories for FileFormatToolbox and FiltersToolbox, and
+	split existing functions accordingly. As more functions are added
+	to the project, we'll need to organize them anyway.
+
 2009-07-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* First public release to project Gerardus in Google Code of this
