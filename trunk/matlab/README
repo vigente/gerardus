@@ -12,6 +12,10 @@ Toolboxes in Gerardus:
 
 	Filters to enhance or transform images in general.
 
+* PointsToolbox
+
+	Functions to operate with sets of points.
+
 
 FileFormatToolbox:
 ==================
