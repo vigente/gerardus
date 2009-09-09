@@ -1,4 +1,4 @@
-function tri = cube_stackable_tessellation()
+function [tri, v] = cube_stackable_tessellation()
 % CUBE_STACKABLE_TESSELLATION  Tessellation in tetrahedra of a cube that
 % can be stacked in a regular mesh
 %
@@ -30,6 +30,16 @@ function tri = cube_stackable_tessellation()
 %         | /         | /
 %         |/          |/
 %        1 ----------- 3
+%
+% [TRI, V] = CUBE_STACKABLE_TESSELLATION()
+%
+%   V is a 3-column matrix with the coordinates of the vertices of a cube
+%   in [0, 1].
+%
+%   You can visualize the tessellation running
+%
+%   >> [tri, v] = cube_stackable_tessellation();
+%   >> tetramesh( tri, v )
 
 % Copyright © 2009 University of Oxford
 % 
@@ -63,3 +73,15 @@ tri = [ ...
     2, 3, 4, 8; ...
     2, 3, 7, 8; ...
     2, 7, 8, 6 ];
+
+if ( nargout > 1 )
+v = [ ...
+    0     0     0; ...
+    0     1     0; ...
+    1     0     0; ...
+    1     1     0; ...
+    0     0     1; ...
+    0     1     1; ...
+    1     0     1; ...
+    1     1     1 ];
+end
