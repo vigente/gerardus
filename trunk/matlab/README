@@ -64,3 +64,8 @@ cube_stackable_tessellation.m:
 
 	Tessellation in tetrahedra of a cube that can be stacked in a
 	regular mesh.
+
+cube_five_tessellation.m:
+
+	Tessellation in 5 tetrahedra of a cube with perpendicular
+	diagonals on opposite sides of the cube (non-stackable)

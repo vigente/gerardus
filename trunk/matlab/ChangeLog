@@ -1,3 +1,11 @@
+2009-09-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/PointsToolbox/cube_five_tessellation.m:
+
+	- CUBE_FIVE_TESSELLATION Tessellation in 5 tetrahedra of a cube
+	with perpendicular diagonals on opposite sides of the
+	cube (non-stackable).
+
 2009-09-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add PointsToolbox/PointsToolbox/cube_stackable_tessellation.m:
