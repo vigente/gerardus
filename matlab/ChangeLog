@@ -1,3 +1,11 @@
+2009-11-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FileFormatToolbox/scirunnrrd_world2index.m:
+
+	- SCIRUNNRRD_WORLD2INDEX Convert real world coordinates to data
+	volume indices for NRRD volumes created by SCI
+	applications (e.g. Seg3D).
+
 2009-09-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add PointsToolbox/PointsToolbox/cube_five_tessellation.m:
