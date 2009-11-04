@@ -1,7 +1,7 @@
 function idx = scirunnrrd_world2index(x, axis)
 % SCIRUNNRRD_WORLD2INDEX  Convert real world coordinates to data volume
 % indices for NRRD volumes created by SCI applications (e.g. Seg3D)
-%
+% 
 %   Software applications developed at the University of Utah Scientific
 %   Computing and Imaging (SCI) Institute, e.g. Seg3D, internally use NRRD
 %   volumes to store medical data.
