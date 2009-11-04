@@ -53,6 +53,8 @@ function idx = scirunnrrd_world2index(x, axis)
 % idx =
 %
 %     55   189   780
+%
+% See also: scirunnrrd_index2world.
     
 % Copyright © 2009 University of Oxford
 % 
