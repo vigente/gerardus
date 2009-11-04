@@ -32,6 +32,8 @@ function idx = scirunnrrd_world2index(x, axis)
 %   X is a 3-column matrix where each row contains the real world
 %   (x,y,z)-coordinates of a point.
 %
+%   IDX has the same size as X, and the voxel indices.
+%
 %   AXIS is the 4x1 struct array scirunnrrd.axis seen above. It contains
 %   the following fields:
 %
