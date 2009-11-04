@@ -1,5 +1,9 @@
 2009-11-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* README:
+
+	- Add scirunnrrd_index2world.m and scirunnrrd_world2index.m.
+
 	* Add FileFormatToolbox/scirunnrrd_index2world.m:
 
 	- SCIRUNNRRD_INDEX2WORLD Convert data volume indices to real world

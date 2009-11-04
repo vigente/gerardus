@@ -40,6 +40,16 @@ matlab2vox_seg3d.m:
 	Convert Matlab file with Seg3D segmentation to .vox format (for
 	the Tarantula meshing application).
 
+scirunnrrd_index2world.m:
+
+	Convert data volume indices to real world coordinates for NRRD
+	volumes created by SCI applications (e.g. Seg3D).
+
+scirunnrrd_world2index.m:
+
+	Convert real world coordinates to data volume indices for NRRD
+	volumes created by SCI applications (e.g. Seg3D).
+
 WriteMhaFile.m:
 
 	Write the header part of a MetaImage file (.mha).
