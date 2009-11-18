@@ -16,7 +16,14 @@ IF( ITK_FOUND )
   INCLUDE( ${ITK_USE_FILE} )
 ENDIF( ITK_FOUND )
 
+# extractVoxelCoordinatesFromSegmentationMask
 ADD_EXECUTABLE( extractVoxelCoordinatesFromSegmentationMask
 ExtractVoxelCoordinatesFromSegmentationMask.cxx )
 TARGET_LINK_LIBRARIES(  extractVoxelCoordinatesFromSegmentationMask 
 ITKCommon ITKIO ITKNumerics )
+
+# padImageWithVoxels
+ADD_EXECUTABLE( padSegmentationMaskWithVoxels
+PadSegmentationMaskWithVoxels.cxx )
+TARGET_LINK_LIBRARIES(  padSegmentationMaskWithVoxels
+ITKCommon ITKIO )

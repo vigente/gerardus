@@ -31,9 +31,9 @@ namespace fs = boost::filesystem;
 int main(int argc, char** argv)
 {
 	
-	/*******************************/
-	/** Type definitions          **/
-	/*******************************/
+	/*************************************/
+	/** Types and variables definitions **/
+	/*************************************/
 
 	static const unsigned int	Dimension = 3; // volume data dimension (i.e. 3D volumes)
 	static const unsigned int   MatlabPrecision = 15; // number of decimal figures after the point in Matlab
