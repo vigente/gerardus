@@ -1,5 +1,7 @@
 2009-11-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add copyright and licence notices.
+
 	* Add README file with list of available programs.
 
 	* Add src/PadSegmentationMaskWithVoxels.cxx.
