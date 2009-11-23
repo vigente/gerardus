@@ -1,6 +1,11 @@
 2009-11-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
-	* FileFormatToolbox/dcm2metaimage:
+	* Add FileFormatToolbox/dcm2mat.m:
+
+	- Read a batch of DICOM files, collate them and save as a single
+	volume in a .mat file.
+
+	* FileFormatToolbox/dcm2metaimage.m:
 
 	- Fix bug with wrong function call.
 
