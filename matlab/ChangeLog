@@ -1,3 +1,9 @@
+2009-11-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/dcm2metaimage:
+
+	- Fix bug with wrong function call.
+
 2009-11-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* README:

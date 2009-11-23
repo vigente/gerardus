@@ -6,8 +6,8 @@ function varargout = dcm2metaimage( str, res, scale )
 %
 %   STR is a string with the path and file name expression. For example
 %
-%     STR='/home/john/data/study01/img*.tif'; % linux
-%     STR='C:\data\study01\img*.tif';         % windows
+%     STR='/home/john/data/study01/img*.dcm'; % linux
+%     STR='C:\data\study01\img*.dcm';         % windows
 %
 %   will create two files
 %
@@ -16,6 +16,12 @@ function varargout = dcm2metaimage( str, res, scale )
 %
 %     C:\data\study01\img.mha
 %     C:\data\study01\img.raw
+%
+%   Warning! If the name has no root, e.g. 
+%
+%     STR='/home/john/data/study01/*.dcm'; % linux
+%
+%   then the output file will be called 'im.mat'.
 %
 % DCM2METAIMAGE(STR, RES, SCALE)
 %
@@ -94,7 +100,7 @@ im = zeros( [ size( frame )*scale length( file ) ], ...
     class( frame ) );
 
 % load slices of whole volume
-im( :, :, 1 ) = dicomresize( frame, scale, 'bilinear' );
+im( :, :, 1 ) = imresize( frame, scale, 'bilinear' );
 for I = 2:length( file )
     frame = dicomread( [ dirdata filesep file( I ).name ] );
     % resize frames
