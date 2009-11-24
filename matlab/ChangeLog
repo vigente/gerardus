@@ -1,3 +1,12 @@
+2009-11-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/dcm2mat.m:
+
+	- Add block to detect time series and create 4D volumes, if
+	necessary.
+
+	- If output filename is empty, call it 'im.mat'.
+
 2009-11-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add FileFormatToolbox/dcm2mat.m:
