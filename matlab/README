@@ -20,6 +20,13 @@ Toolboxes in Gerardus:
 FileFormatToolbox:
 ==================
 
+dcm2mat.m:
+
+	If you have a bunch of DICOM (.dcm) files, one per slice, and
+	you want to create a single Matlab (.mat) file with all the
+	slices collated together. It attempts to detect time series
+	too, and in that case, it creates a 4D matrix.
+
 dcm2metaimage.m:
 
 	If you have a bunch of DICOM (.dcm) files, one per slice, and
