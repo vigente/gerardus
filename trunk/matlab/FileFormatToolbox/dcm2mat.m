@@ -17,6 +17,9 @@ function varargout = dcm2mat( str, res, scale )
 %
 %     C:\data\study01\img.mat
 %
+%   The output file contains a 3D volume with the DICOM slices collated, or
+%   a 4D volume if the DICOM files correspond to a time series.
+%
 %   Warning! If the name has no root, e.g. 
 %
 %     STR='/home/john/data/study01/*.dcm'; % linux
@@ -92,6 +95,9 @@ name = strrep( name, '?', '' );
 % adjust the image resolution to the scaling factor
 res( 1:2 ) = res( 1:2 ) / scale;
 
+% read info from DICOM headers
+info = dicominfo( [ dirdata filesep file( 1 ).name ] );
+
 % load first slice
 frame = dicomread( [ dirdata filesep file( 1 ).name ] );
 
@@ -105,6 +111,33 @@ for I = 2:length( file )
     frame = dicomread( [ dirdata filesep file( I ).name ] );
     % resize frames
     im( :, :, I ) = imresize( frame, scale, 'bilinear' );
+end
+
+%% Time series?
+
+% by default, no time series
+f = 1; % number of frames
+
+% do we have any indication that the DICOM set is a time series?
+if isfield( info, 'Private_0009_GroupLength' )
+    f = info.Private_0009_GroupLength;
+elseif isfield( info, 'CardiacNumberOfImages' )
+    f = info.CardiacNumberOfImages;
+end
+
+% number of slices per frame
+n = size( im, 3 ) / f;
+
+% reshape the data into frames
+if ( f > 1 )
+    im = reshape( im, [ size( im, 1 ) size( im, 2 ) n f ] );
+end
+
+%% Output
+
+% check for empty output file name
+if isempty( name )
+    name = 'im';
 end
 
 % write mat file
