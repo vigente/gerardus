@@ -20,6 +20,12 @@ function varargout = dcm2mat( str, res, scale )
 %   The output file contains a 3D volume with the DICOM slices collated, or
 %   a 4D volume if the DICOM files correspond to a time series.
 %
+%   In case of a time series, we assume that all frames for slice 1 are in
+%   consecutive DICOM files. Then all the frames for slice 2, and so on.
+%
+%   Note that the output matrix is permuted to have the indices (I,J,N,F),
+%   where N is the slice index and F is the frame index.
+%
 %   Warning! If the name has no root, e.g. 
 %
 %     STR='/home/john/data/study01/*.dcm'; % linux
@@ -130,8 +136,17 @@ n = size( im, 3 ) / f;
 
 % reshape the data into frames
 if ( f > 1 )
-    im = reshape( im, [ size( im, 1 ) size( im, 2 ) n f ] );
+    
+    % if there is a time series, we assume that all frames for slice 1 are
+    % consecutive. Then all the frames for slice 2, and so on
+    im = reshape( im, [ size( im, 1 ) size( im, 2 ) f n ] );
+    
+    % permute dimensions so that we have first the frame index, and then
+    % the time series frame
+    im = permute( im, [ 1 2 4 3 ] );
 end
+
+% 
 
 %% Output
 
