@@ -60,7 +60,11 @@ scirunnrrd_world2index.m:
 sortdirbynum.m:
 
 	List the files in a directory ordering them by a numerical
-	substring field in the file name.
+	substring field in the file name. This function is useful  to
+	determine the order in which slices will be collated when you
+	have filenames like
+	MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.10.2009.10.23.16.02.38.562500.9699412.BMP.
+
 
 WriteMhaFile.m:
 
