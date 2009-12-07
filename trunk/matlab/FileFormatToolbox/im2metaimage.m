@@ -38,6 +38,22 @@ function varargout = im2metaimage( str, res, scale, crop, ext, file )
 %   want to collate the slices. FILE is expected to have the same struct
 %   format as the output of function DIR().
 %
+%   If you have filenames like
+%
+%    MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.10.2009.10.23.16.02.38.562500.9699412.BMP
+%    MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.11.2009.10.23.16.02.38.562500.9699451.BMP
+%    MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.1.2009.10.23.16.02.38.562500.9699056.BMP
+%    MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.12.2009.10.23.16.02.38.562500.9699490.BMP
+%
+%   where the slice order is given by the field between the "6" and the
+%   "2009", then you can use Gerardus function sortdirbynum() to order the
+%   slices correctly. Example:
+%
+%   >> str1 = 'MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.*.BMP';
+%   >> str2 = 'MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.mha';
+%   >> file = sortdirbynum( str1, 5, '.' );
+%   >> im2metaimage( str2, [], [], [], 'BMP', file );
+%
 % IM = IM2METAIMAGE(...);
 %
 %   IM is the image volume.
