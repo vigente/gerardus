@@ -1,4 +1,4 @@
-function varargout = im2metaimage( str, res, scale, crop )
+function varargout = im2metaimage( str, res, scale, crop, ext, file )
 % IM2METAIMAGE  Read a batch of image files, collate them and save as a
 % single MetaImage "file" (actually, one .mha and one .raw file)
 %
@@ -13,7 +13,7 @@ function varargout = im2metaimage( str, res, scale, crop )
 %   It is assumed that the MetaImage files (.mha and .raw) will be created
 %   from the TIFF files found in the target directory.
 %
-% IM2METAIMAGE(STR, RES, SCALE, CROP)
+% IM2METAIMAGE(STR, RES, SCALE, CROP, EXT, FILE)
 %
 %   RES is a 3-vector with the pixel size in the x-, y- and z-coordinates.
 %   By default RES=[1 1 1];
@@ -27,6 +27,16 @@ function varargout = im2metaimage( str, res, scale, crop )
 %   2 and 3 are selected.
 %   Note that the output MetaImage file will have an offset header so that
 %   the data retains its true coordinates.
+%
+%   EXT is a string with the file extension of the images. By default,
+%   EXT='tif'.
+%
+%   FILE is the list of image files. By default, all the files in the
+%   target directory are read, but FILE allows to change the system listing
+%   order, select a subset of files, etc. This is useful, for example, when
+%   the system listing order does not correspond to the order in which you
+%   want to collate the slices. FILE is expected to have the same struct
+%   format as the output of function DIR().
 %
 % IM = IM2METAIMAGE(...);
 %
@@ -62,18 +72,24 @@ function varargout = im2metaimage( str, res, scale, crop )
 
 
 % check arguments
-error( nargchk( 1, 4, nargin, 'struct' ) );
+error( nargchk( 1, 6, nargin, 'struct' ) );
 error( nargoutchk( 0, 1, nargout, 'struct' ) );
 
 % defaults
-if ( nargin < 2 )
+if ( nargin < 2 || isempty( res ) )
     res = [ 1, 1, 1 ];
 end
-if ( nargin < 3 )
+if ( nargin < 3 || isempty( scale ) )
     scale = 1;
 end
-if ( nargin < 4 )
+if ( nargin < 4 || isempty( crop ) )
     crop = [];
+end
+if ( nargin < 5 || isempty( ext ) )
+    ext = 'tif';
+end
+if ( nargin < 6 || isempty( file ) )
+    file = [];
 end
 
 % check arguments
@@ -85,7 +101,9 @@ end
 [ dirdata, name ] = fileparts( str );
 
 % get list of image files
-file = dir( [ dirdata filesep '*.tif' ] );
+if isempty( file )
+    file = dir( [ dirdata filesep '*.' ext ] );
+end
 
 % adjust the image resolution to the scaling factor
 res( 1:2 ) = res( 1:2 ) / scale;
