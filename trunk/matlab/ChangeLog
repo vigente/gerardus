@@ -1,5 +1,10 @@
 2009-12-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add FileFormatToolbox/sortdirbynum.m:
+
+	- SORTDIRBYNUM List the files in a directory ordering them by a
+	numerical substring field in the file name
+
 	* FileFormatToolbox/im2metaimage.m:
 
 	- Add input arguments for image file extension and the possibility
