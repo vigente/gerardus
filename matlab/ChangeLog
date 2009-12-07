@@ -1,3 +1,11 @@
+2009-12-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/im2metaimage.m:
+
+	- Add input arguments for image file extension and the possibility
+	to contribute the image file listing, intead of using an internal
+	DIR().
+
 2009-11-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FileFormatToolbox/dcm2mat.m:
@@ -6,8 +14,9 @@
 	are in consecutive DICOM files. Then all the frames for slice 2,
 	and so on.
 
-	Note that the output matrix is permuted to have the indices
-	(I,J,N,F), where N is the slice index and F is the frame index.
+	Note that the output matrix is permuted to have the indices in the
+	order (I,J,N,F), where N is the slice index and F is the frame
+	index.
 
 2009-11-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
