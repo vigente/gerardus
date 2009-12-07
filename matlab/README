@@ -57,6 +57,11 @@ scirunnrrd_world2index.m:
 	Convert real world coordinates to data volume indices for NRRD
 	volumes created by SCI applications (e.g. Seg3D).
 
+sortdirbynum.m:
+
+	List the files in a directory ordering them by a numerical
+	substring field in the file name.
+
 WriteMhaFile.m:
 
 	Write the header part of a MetaImage file (.mha).
