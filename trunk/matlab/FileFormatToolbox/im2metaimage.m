@@ -11,7 +11,7 @@ function varargout = im2metaimage( str, res, scale, crop, ext, file )
 %     STR='C:\data\study01\study01.mha';         % windows
 %
 %   It is assumed that the MetaImage files (.mha and .raw) will be created
-%   from the TIFF files found in the target directory.
+%   from the image files found in the target directory.
 %
 % IM2METAIMAGE(STR, RES, SCALE, CROP, EXT, FILE)
 %
