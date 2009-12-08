@@ -1,35 +1,60 @@
-function varargout = dcm2metaimage( str, res, scale )
+function varargout = dcm2metaimage( str, res, scale, crop, ext, file )
 % DCM2METAIMAGE  Read a batch of DICOM files, collate them and save as a
 % single MetaImage volume (one .mha and one .raw file)
 %
 % DCM2METAIMAGE(STR)
 %
-%   STR is a string with the path and file name expression. For example
+%   STR is a string with the path and output mha header file name. For
+%   example,
 %
-%     STR='/home/john/data/study01/img*.dcm'; % linux
-%     STR='C:\data\study01\img*.dcm';         % windows
+%     STR='/home/john/data/study01/study01.mha'; % linux
+%     STR='C:\data\study01\study01.mha';         % windows
 %
-%   will create two files
+%   It is assumed that the MetaImage files (.mha and .raw) will be created
+%   from the DICOM files found in the target directory.
 %
-%     /home/john/data/study01/img.mha
-%     /home/john/data/study01/img.raw
-%
-%     C:\data\study01\img.mha
-%     C:\data\study01\img.raw
-%
-%   Warning! If the name has no root, e.g. 
-%
-%     STR='/home/john/data/study01/*.dcm'; % linux
-%
-%   then the output file will be called 'im.mat'.
-%
-% DCM2METAIMAGE(STR, RES, SCALE)
+% DCM2METAIMAGE(STR, RES, SCALE, CROP, EXT, FILE)
 %
 %   RES is a 3-vector with the pixel size in the x-, y- and z-coordinates.
-%   By default RES=[1 1 1];
+%   If RES is not provided, the function tries to read the values from the
+%   DICOM header. If the resolution values cannot be read, by default
+%   RES=[1 1 1].
 %
 %   SCALE is a factor to reduce the size of each frame (the number of
 %   frames doesn't change). By default, SCALE=1.
+%
+%   CROP is a vector with values [xmin, xmax, ymin, ymax, zmin, zmax].
+%   These values allow to crop the data volume. It follows the same
+%   convention as Seg3D [1]. For example, if xmin=0, xmax=3, then voxels 1,
+%   2 and 3 are selected.
+%   Note that the output MetaImage file will have an offset header so that
+%   the data retains its true coordinates.
+%
+%   EXT is a string with the file extension of the images. By default,
+%   EXT='tif'.
+%
+%   FILE is the list of image files. By default, all the files in the
+%   target directory are read, but FILE allows to change the system listing
+%   order, select a subset of files, etc. This is useful, for example, when
+%   the system listing order does not correspond to the order in which you
+%   want to collate the slices. FILE is expected to have the same struct
+%   format as the output of function DIR().
+%
+%   If you have filenames like
+%
+%    MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.10.2009.10.23.16.02.38.562500.9699412.DCM
+%    MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.11.2009.10.23.16.02.38.562500.9699451.DCM
+%    MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.1.2009.10.23.16.02.38.562500.9699056.DCM
+%    MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.12.2009.10.23.16.02.38.562500.9699490.DCM
+%
+%   where the slice order is given by the field between the "6" and the
+%   "2009", then you can use Gerardus function sortdirbynum() to order the
+%   slices correctly. Example:
+%
+%   >> str1 = 'MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.*.DCM';
+%   >> str2 = 'MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.mha';
+%   >> file = sortdirbynum( str1, 5, '.' );
+%   >> dcm2metaimage( str2, [], [], [], 'DCM', file );
 %
 % IM = DCM2METAIMAGE(...);
 %
@@ -63,15 +88,25 @@ function varargout = dcm2metaimage( str, res, scale )
 
 
 % check arguments
-error( nargchk( 1, 3, nargin, 'struct' ) );
+error( nargchk( 1, 6, nargin, 'struct' ) );
 error( nargoutchk( 0, 1, nargout, 'struct' ) );
 
 % defaults
-if ( nargin < 2 )
-    res = [ 1, 1, 1 ];
-end
-if ( nargin < 3 )
+% if ( nargin < 2 || isempty( res ) )
+%     res = [ 1, 1, 1 ];
+% end
+% "res" default set below
+if ( nargin < 3 || isempty( scale ) )
     scale = 1;
+end
+if ( nargin < 4 || isempty( crop ) )
+    crop = [];
+end
+if ( nargin < 5 || isempty( ext ) )
+    ext = 'tif';
+end
+if ( nargin < 6 || isempty( file ) )
+    file = [];
 end
 
 % check arguments
@@ -83,11 +118,22 @@ end
 [ dirdata, name ] = fileparts( str );
 
 % get list of image files
-file = dir( str );
+if isempty( file )
+    file = dir( [ dirdata filesep '*.' ext ] );
+end
 
-% remove wildcards from file name
-name = strrep( name, '*', '' );
-name = strrep( name, '?', '' );
+% if resolution is not provided, try to read it from DICOM file
+if ( nargin < 2 || isempty( res ) )
+    % get DICOM header
+    info = dicominfo( [ dirdata filesep file( 1 ).name ] );
+    
+    % if resolution is in the DICOM header, read it...
+    if ( isfield( info, 'SliceThickness' ) && isfield( info, 'PixelSpacing' ) )
+        res = [ info.PixelSpacing' info.SliceThickness ];
+    else % ... if not, then fall back to default resolution
+        res = [ 1, 1, 1 ];
+    end
+end
 
 % adjust the image resolution to the scaling factor
 res( 1:2 ) = res( 1:2 ) / scale;
@@ -95,21 +141,44 @@ res( 1:2 ) = res( 1:2 ) / scale;
 % load first slice
 frame = dicomread( [ dirdata filesep file( 1 ).name ] );
 
+% remove alpha channel or other layers if present
+frame = frame( :, :, 1 );
+
 % init volume to load data
-im = zeros( [ size( frame )*scale length( file ) ], ...
-    class( frame ) );
+im = zeros( [ size( frame )*scale length( file ) ], class( frame ) );
 
 % load slices of whole volume
 im( :, :, 1 ) = imresize( frame, scale, 'bilinear' );
 for I = 2:length( file )
     frame = dicomread( [ dirdata filesep file( I ).name ] );
+    frame = frame( :, :, 1 );
     % resize frames
     im( :, :, I ) = imresize( frame, scale, 'bilinear' );
 end
 
+% crop volume (this is less efficient than initialising the volume as
+% cropped, and then cropping each frame, but it makes the code simpler)
+%
+% The "+1" is necessary to follow the Seg3D convention
+if ~isempty( crop )
+    im = im( ...
+        crop( 1 )+1:crop( 2 ), ...
+        crop( 3 )+1:crop( 4 ), ...
+        crop( 5 )+1:crop( 6 ) ...
+        );
+end
+
+% compute offset in the coordinates of the cropped volume
+if isempty( crop )
+    offset = [ 0.0 0.0 0.0 ];
+else
+    offset = crop( [ 1 3 5 ] ) .* res;
+end
+
 % write mha file
 WriteMhaFile( [ dirdata filesep name '.mha' ], ...
-    [ size( im, 1 ), size( im, 2 ), size( im, 3 ) ], res, class( im ) )
+    [ size( im, 1 ), size( im, 2 ), size( im, 3 ) ], res, class( im ), ...
+    offset )
 
 % write raw file
 WriteRawFile( [ dirdata filesep name '.raw' ], ...
