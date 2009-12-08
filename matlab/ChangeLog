@@ -1,3 +1,12 @@
+2009-12-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/dcm2metaimage.m:
+
+	- Read the resolution values from the DICOM header, if possible.
+
+	- Add input arguments crop, ext, file and rewrite the function so
+	that it does the same as im2metaimage().
+
 2009-12-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add FileFormatToolbox/sortdirbynum.m:
