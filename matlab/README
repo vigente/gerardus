@@ -95,3 +95,13 @@ cube_five_tessellation.m:
 
 	Tessellation in 5 tetrahedra of a cube with perpendicular
 	diagonals on opposite sides of the cube (non-stackable)
+
+pts_kmat.m:
+
+	Compute kernel matrix for Linear and Kernel Principal
+	Component Analysis (PCA and KPCA).
+
+pts_pca.m:
+
+	Linear and Kernel Principal Component Analysis (PCA and
+	KPCA).

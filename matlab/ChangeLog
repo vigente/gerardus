@@ -1,3 +1,25 @@
+2010-01-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/pts_pca.m:
+
+	- PTS_PCA Linear and Kernel Principal Component Analysis (PCA and
+	KPCA).
+
+	This function was in my internal repository (r9953, v3.0,
+	2008-06-14 22:07:56 +0100). I started developing it for my DPhil
+	thesis at the Wolfson Medical Vision Laboratory, University of
+	Oxford (2006-08-31 18:56:56 +0100).
+
+	* Add PointsToolbox/pts_kmat.m:
+
+	- PTS_KMAT Compute kernel matrix for Linear and Kernel Principal
+	Component Analysis (PCA and KPCA).
+
+	This function was in my internal repository (r7928, v2.3,
+	2007-08-26 17:20:26 +0100). I started developing it for my DPhil
+	thesis at the Wolfson Medical Vision Laboratory, University of
+	Oxford (2007-06-09 15:27:07 +0100).
+
 2009-12-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FileFormatToolbox/dcm2metaimage.m:
