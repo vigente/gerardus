@@ -1,5 +1,10 @@
 2010-01-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add PointsToolbox/scirunnrrd_pca.m:
+
+	- SCIRUNNRRD_PCA Principal Principal Component Analysis of the
+	selected points in a SCI NRRD segmentation mask.
+
 	* Add PointsToolbox/pts_pca.m:
 
 	- PTS_PCA Linear and Kernel Principal Component Analysis (PCA and
