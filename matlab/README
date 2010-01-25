@@ -105,3 +105,8 @@ pts_pca.m:
 
 	Linear and Kernel Principal Component Analysis (PCA and
 	KPCA).
+
+scirunnrrd_pca.m:
+
+	Principal Principal Component Analysis of the selected points
+	in a SCI NRRD segmentation mask.
