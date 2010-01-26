@@ -204,9 +204,6 @@ int main(int argc, char** argv)
 		// create an output image that will contain the padded image
 		imOut = UCharImageType::New();
 		
-		// copy the metainformation from the input image
-		imOut->CopyInformation( imIn );
-		
 		// make output image big enough to contain the padding
 		sizeOut[0] = sizeIn[0] + padXa + padXb;
 		sizeOut[1] = sizeIn[1] + padYa + padYb; 
