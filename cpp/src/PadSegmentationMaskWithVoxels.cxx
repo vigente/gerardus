@@ -61,7 +61,6 @@ namespace fs = boost::filesystem;
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkPasteImageFilter.h"
-#include "itkImageFileWriter.h"
 #include "itkImageRegionIterator.h"
 
 // entry point for the program
