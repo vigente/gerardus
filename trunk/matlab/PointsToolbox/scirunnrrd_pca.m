@@ -31,7 +31,7 @@ function [v, d] = scirunnrrd_pca(scirunnrrd)
 %      property: []
 %
 
-% Copyright © 2009 University of Oxford
+% Copyright © 2010 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
