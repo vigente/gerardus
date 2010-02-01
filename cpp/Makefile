@@ -168,6 +168,19 @@ padSegmentationMaskWithVoxels/fast:
 	$(MAKE) -f CMakeFiles/padSegmentationMaskWithVoxels.dir/build.make CMakeFiles/padSegmentationMaskWithVoxels.dir/build
 .PHONY : padSegmentationMaskWithVoxels/fast
 
+#=============================================================================
+# Target rules for targets named rotate3DImage
+
+# Build rule for target.
+rotate3DImage: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 rotate3DImage
+.PHONY : rotate3DImage
+
+# fast build rule for target.
+rotate3DImage/fast:
+	$(MAKE) -f CMakeFiles/rotate3DImage.dir/build.make CMakeFiles/rotate3DImage.dir/build
+.PHONY : rotate3DImage/fast
+
 ExtractVoxelCoordinatesFromSegmentationMask.o: ExtractVoxelCoordinatesFromSegmentationMask.cxx.o
 .PHONY : ExtractVoxelCoordinatesFromSegmentationMask.o
 
@@ -216,6 +229,30 @@ PadSegmentationMaskWithVoxels.cxx.s:
 	$(MAKE) -f CMakeFiles/padSegmentationMaskWithVoxels.dir/build.make CMakeFiles/padSegmentationMaskWithVoxels.dir/PadSegmentationMaskWithVoxels.cxx.s
 .PHONY : PadSegmentationMaskWithVoxels.cxx.s
 
+Rotate3DImage.o: Rotate3DImage.cxx.o
+.PHONY : Rotate3DImage.o
+
+# target to build an object file
+Rotate3DImage.cxx.o:
+	$(MAKE) -f CMakeFiles/rotate3DImage.dir/build.make CMakeFiles/rotate3DImage.dir/Rotate3DImage.cxx.o
+.PHONY : Rotate3DImage.cxx.o
+
+Rotate3DImage.i: Rotate3DImage.cxx.i
+.PHONY : Rotate3DImage.i
+
+# target to preprocess a source file
+Rotate3DImage.cxx.i:
+	$(MAKE) -f CMakeFiles/rotate3DImage.dir/build.make CMakeFiles/rotate3DImage.dir/Rotate3DImage.cxx.i
+.PHONY : Rotate3DImage.cxx.i
+
+Rotate3DImage.s: Rotate3DImage.cxx.s
+.PHONY : Rotate3DImage.s
+
+# target to generate assembly for a file
+Rotate3DImage.cxx.s:
+	$(MAKE) -f CMakeFiles/rotate3DImage.dir/build.make CMakeFiles/rotate3DImage.dir/Rotate3DImage.cxx.s
+.PHONY : Rotate3DImage.cxx.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -230,12 +267,16 @@ help:
 	@echo "... list_install_components"
 	@echo "... padSegmentationMaskWithVoxels"
 	@echo "... rebuild_cache"
+	@echo "... rotate3DImage"
 	@echo "... ExtractVoxelCoordinatesFromSegmentationMask.o"
 	@echo "... ExtractVoxelCoordinatesFromSegmentationMask.i"
 	@echo "... ExtractVoxelCoordinatesFromSegmentationMask.s"
 	@echo "... PadSegmentationMaskWithVoxels.o"
 	@echo "... PadSegmentationMaskWithVoxels.i"
 	@echo "... PadSegmentationMaskWithVoxels.s"
+	@echo "... Rotate3DImage.o"
+	@echo "... Rotate3DImage.i"
+	@echo "... Rotate3DImage.s"
 .PHONY : help
 
 

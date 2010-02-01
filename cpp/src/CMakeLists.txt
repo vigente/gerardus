@@ -27,3 +27,9 @@ ADD_EXECUTABLE( padSegmentationMaskWithVoxels
 PadSegmentationMaskWithVoxels.cxx )
 TARGET_LINK_LIBRARIES(  padSegmentationMaskWithVoxels
 ITKCommon ITKIO )
+
+# rotate3DImage
+ADD_EXECUTABLE( rotate3DImage
+Rotate3DImage.cxx )
+TARGET_LINK_LIBRARIES(  rotate3DImage
+ITKCommon ITKIO )

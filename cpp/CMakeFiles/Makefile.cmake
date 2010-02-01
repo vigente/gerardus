@@ -38,4 +38,5 @@ SET(CMAKE_MAKEFILE_OUTPUTS
 SET(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/extractVoxelCoordinatesFromSegmentationMask.dir/DependInfo.cmake"
   "CMakeFiles/padSegmentationMaskWithVoxels.dir/DependInfo.cmake"
+  "CMakeFiles/rotate3DImage.dir/DependInfo.cmake"
   )
