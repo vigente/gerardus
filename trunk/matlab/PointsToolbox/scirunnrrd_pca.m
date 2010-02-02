@@ -14,9 +14,9 @@ function [v, d] = scirunnrrd_pca(scirunnrrd)
 %
 %   Assuming a 3D volume, V is a (3, 3)-matrix and D a 3-vector.
 %
-%   Software applications developed at the University of Utah Scientific
-%   Computing and Imaging (SCI) Institute, e.g. Seg3D, internally use NRRD
-%   volumes to store medical data.
+%   Note on SCI NRRD: Software applications developed at the University of
+%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
+%   internally use NRRD volumes to store medical data.
 %
 %   When label volumes (segmentation masks) are saved to a Matlab file
 %   (.mat), they use a struct called "scirunnrrd" to store all the NRRD
