@@ -2,21 +2,6 @@ function x = scirunnrrd_index2world(idx, axis)
 % SCIRUNNRRD_INDEX2WORLD  Convert data volume indices to real world
 % coordinates for NRRD volumes created by SCI applications (e.g. Seg3D)
 %
-%   Software applications developed at the University of Utah Scientific
-%   Computing and Imaging (SCI) Institute, e.g. Seg3D, internally use NRRD
-%   volumes to store medical data.
-%
-%   When data or label volumes are saved to a Matlab file (.mat), they use
-%   a struct called "scirunnrrd" to store all the NRRD information:
-%
-%   >>  scirunnrrd
-%
-%   scirunnrrd = 
-%
-%          data: [4-D uint8]
-%          axis: [4x1 struct]
-%      property: []
-%
 %   Function SCIRUNNRRD_INDEX2WORLD() maps between the indices of the 
 %   [4-D uint8] used to store the voxel intensity values, and the real
 %   world coordinates of points within the NRRD data volume.
@@ -55,6 +40,23 @@ function x = scirunnrrd_index2world(idx, axis)
 % x =
 %
 %     0.0100    0.0110    0.0200
+%
+%
+%   Note on SCI NRRD: Software applications developed at the University of
+%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
+%   internally use NRRD volumes to store medical data.
+%
+%   When data or label volumes are saved to a Matlab file (.mat), they use
+%   a struct called "scirunnrrd" to store all the NRRD information:
+%
+%   >>  scirunnrrd
+%
+%   scirunnrrd = 
+%
+%          data: [4-D uint8]
+%          axis: [4x1 struct]
+%      property: []
+%
 %
 % See also: scirunnrrd_world2index.
  
