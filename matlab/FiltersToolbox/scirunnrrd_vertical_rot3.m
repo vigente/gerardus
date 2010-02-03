@@ -1,6 +1,6 @@
 function [m, v] = scirunnrrd_vertical_rot3(im)
-% VERTICAL_ROTMAT  Compute the 3D rotation matrix to make a point cloud
-% vertical
+% VERTICAL_ROTMAT  Compute the 3D rotation matrix to make a 3D segmented
+% object vertical
 %
 % [M, A] = VERTICAL_ROTMAT3(IM)
 %
