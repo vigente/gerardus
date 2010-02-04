@@ -1,3 +1,9 @@
+2010-02-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/polycenter.m:
+
+	- POLYCENTER  Compute center of mass of polygon.
+
 2010-01-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add PointsToolbox/scirunnrrd_pca.m:

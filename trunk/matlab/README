@@ -100,6 +100,10 @@ cube_five_tessellation.m:
 	Tessellation in 5 tetrahedra of a cube with perpendicular
 	diagonals on opposite sides of the cube (non-stackable)
 
+polycenter.m:
+
+	Compute center of mass and area of polygon.
+
 pts_kmat.m:
 
 	Compute kernel matrix for Linear and Kernel Principal
