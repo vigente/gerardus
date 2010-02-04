@@ -114,6 +114,10 @@ pts_pca.m:
 	Linear and Kernel Principal Component Analysis (PCA and
 	KPCA).
 
+quaternion2matrix.m:
+
+	Convert quaternion to rotation matrix.
+
 scirunnrrd_pca.m:
 
 	Principal Principal Component Analysis of the selected points

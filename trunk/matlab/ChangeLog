@@ -1,5 +1,10 @@
 2010-02-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add PointsToolbox/quaternion2matrix.m:
+
+	- Convert quaternion to rotation matrix. Function written
+	originally by Vicente Grau.
+
 	* Add PointsToolbox/polycenter.m:
 
 	- POLYCENTER  Compute center of mass of polygon.
