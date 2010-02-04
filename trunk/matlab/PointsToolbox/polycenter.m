@@ -11,7 +11,7 @@ function [m, a] = polycenter(x,y)
 %   X, Y are vectors with the coordinates of the polygon vertices.
 
 % Author: Ramon Casero
-% Copyright © 2009 University of Oxford
+% Copyright © 2010 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
