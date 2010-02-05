@@ -38,7 +38,6 @@ function [m, v] = scirunnrrd_vertical_rot3(im)
 %          data: [4-D uint8]
 %          axis: [4x1 struct]
 %      property: []
-%
 
 % Copyright © 2010 University of Oxford
 % 
