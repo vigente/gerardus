@@ -1,3 +1,10 @@
+2010-02-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scirunnrrd_intersect_plane.m:
+
+	- SCIRUNNRRD_INTERSECT_PLANE  Optimise intersection plane for SCI
+	NRRD segmentation mask.
+
 2010-02-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add PointsToolbox/quaternion2matrix.m:
