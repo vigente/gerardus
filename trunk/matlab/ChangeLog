@@ -1,6 +1,6 @@
 2010-02-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
-	* Add FiltersToolbox/scirunnrrd_intersect_plane.m:
+	* Add FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
 
 	- SCIRUNNRRD_INTERSECT_PLANE  Optimise intersection plane for SCI
 	NRRD segmentation mask.

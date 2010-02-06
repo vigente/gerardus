@@ -1,8 +1,8 @@
-function [ qopt, mopt ] = scirunnrrd_intersect_plane( im, z0 )
-% SCIRUNNRRD_INTERSECT_PLANE  Optimise intersection plane for SCI NRRD
-% segmentation mask
+function [ qopt, mopt ] = scirunnrrd_optimal_intersecting_plane( im, z0 )
+% SCIRUNNRRD_OPTIMAL_INTERSECTING_PLANE  Optimise intersection plane for
+% SCI NRRD segmentation mask
 %
-% [QOPT, MOPT] = SCIRUNNRRD_INTERSECT_PLANE(IM, Z0)
+% [QOPT, MOPT] = SCIRUNNRRD_OPTIMAL_INTERSECTING_PLANE(IM, Z0)
 %
 %   This function computes the plane that intersects a SCI NRRD
 %   segmentation mask in a way that minimizers the segmentation area
