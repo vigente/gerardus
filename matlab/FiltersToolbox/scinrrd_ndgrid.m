@@ -40,17 +40,15 @@ function [xg, yg, zg] = scinrrd_ndgrid(nrrd)
 error( nargchk( 1, 1, nargin, 'struct' ) );
 error( nargoutchk( 0, 3, nargout, 'struct' ) );
 
+% squeeze the non-used first dimension of data
+nrrd = scinrrd_squeeze( nrrd );
+
 % get image vertices
 vmin = [ nrrd.axis.min ];
 vmax = [ nrrd.axis.max ];
 
 % get voxel size
 res = [ nrrd.axis.spacing ];
-
-% squeeze the non-used first dimension of data
-vmin = vmin( 2:end );
-vmax = vmax( 2:end );
-res = res( 2:end );
 
 % generate 3D grid of coordinates
 % note the inversion of x and y so that x values change with columns, and y
