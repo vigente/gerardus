@@ -1,5 +1,10 @@
 2010-02-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add FiltersToolbox/scinrrd_squeeze.m:
+
+	- SCINRRD_SQUEEZE Remove dummy dimension and convert data to
+	double type.
+
 	* Add FiltersToolbox/scinrrd_ndgrid.m:
 
 	- Generation of arrays for 3D SCI NRRD image volumes.
