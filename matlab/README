@@ -91,6 +91,10 @@ scirunnrrd_optimal_intersecting_plane.m:
 
 	Optimise intersection plane for SCI NRRD segmentation mask.
 
+scinrrd_squeeze.m:
+
+	Remove dummy dimension and convert data to double type.
+
 scirunnrrd_vertical_rot3.m:
 
 	Compute the 3D rotation matrix to make a point cloud vertical.
