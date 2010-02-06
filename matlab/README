@@ -10,7 +10,8 @@ Toolboxes in Gerardus:
 
 * FiltersToolbox
 
-	Filters to enhance or transform images in general.
+	Filters to enhance or transform images in general, and SCI
+	NRRD data volumes in particular.
 
 * PointsToolbox
 
@@ -20,21 +21,21 @@ Toolboxes in Gerardus:
 FileFormatToolbox:
 ==================
 
-dcm2mat.m:
+dcm2mat
 
 	If you have a bunch of DICOM (.dcm) files, one per slice, and
 	you want to create a single Matlab (.mat) file with all the
 	slices collated together. It attempts to detect time series
 	too, and in that case, it creates a 4D matrix.
 
-dcm2metaimage.m:
+dcm2metaimage
 
 	If you have a bunch of DICOM (.dcm) files, one per slice, and
 	you want to create a single MetaImage file with all the slices
 	collated together. Note that a MetaImage file in fact is split
 	into a header file (.mha) and a data file (.raw).
 
-im2metaimage.m:
+im2metaimage
 
 	If you have a bunch of image files (e.g. TIFF, PNG, JPG,
 	etc.), one per slice, and you want to create a single
@@ -42,22 +43,22 @@ im2metaimage.m:
 	that a MetaImage file in fact is split into a header file
 	(.mha) and a data file (.raw).
 
-matlab2vox_seg3d.m:
+matlab2vox_seg3d
 
 	Convert Matlab file with Seg3D segmentation to .vox format (for
 	the Tarantula meshing application).
 
-scirunnrrd_index2world.m:
+scirunnrrd_index2world
 
 	Convert data volume indices to real world coordinates for NRRD
 	volumes created by SCI applications (e.g. Seg3D).
 
-scirunnrrd_world2index.m:
+scirunnrrd_world2index
 
 	Convert real world coordinates to data volume indices for NRRD
 	volumes created by SCI applications (e.g. Seg3D).
 
-sortdirbynum.m:
+sortdirbynum
 
 	List the files in a directory ordering them by a numerical
 	substring field in the file name. This function is useful  to
@@ -66,11 +67,11 @@ sortdirbynum.m:
 	MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.10.2009.10.23.16.02.38.562500.9699412.BMP.
 
 
-WriteMhaFile.m:
+WriteMhaFile
 
 	Write the header part of a MetaImage file (.mha).
 
-WriteRawFile.m:
+WriteRawFile
 
 	Write the binary part of a MetaImage file (.raw).
 
@@ -78,12 +79,16 @@ WriteRawFile.m:
 FiltersToolbox:
 ===============
 
-correct_light_blobs_in_microscope_mosaic.m:
+correct_light_blobs_in_microscope_mosaic
 
 	Correct the colour blob created by the microscope's light in
 	each tile of a mosaic, e.g. for histology.
 
-scinrrd_ndgrid.m:
+scinrrd_intersect_plane
+
+	Compute intersection of a plane with an SCI NRRD image volume.
+
+scinrrd_ndgrid
 
 	Generation of arrays for 3D SCI NRRD image volumes.
 
@@ -91,46 +96,46 @@ scirunnrrd_optimal_intersecting_plane.m:
 
 	Optimise intersection plane for SCI NRRD segmentation mask.
 
-scinrrd_squeeze.m:
+scinrrd_squeeze
 
 	Remove dummy dimension and convert data to double type.
 
-scirunnrrd_vertical_rot3.m:
+scirunnrrd_vertical_rot3
 
 	Compute the 3D rotation matrix to make a point cloud vertical.
 
 PointsToolbox:
 ==============
 
-cube_stackable_tessellation.m:
+cube_stackable_tessellation
 
 	Tessellation in tetrahedra of a cube that can be stacked in a
 	regular mesh.
 
-cube_five_tessellation.m:
+cube_five_tessellation
 
 	Tessellation in 5 tetrahedra of a cube with perpendicular
 	diagonals on opposite sides of the cube (non-stackable)
 
-polycenter.m:
+polycenter
 
 	Compute center of mass and area of polygon.
 
-pts_kmat.m:
+pts_kmat
 
 	Compute kernel matrix for Linear and Kernel Principal
 	Component Analysis (PCA and KPCA).
 
-pts_pca.m:
+pts_pca
 
 	Linear and Kernel Principal Component Analysis (PCA and
 	KPCA).
 
-quaternion2matrix.m:
+quaternion2matrix
 
 	Convert quaternion to rotation matrix.
 
-scirunnrrd_pca.m:
+scirunnrrd_pca
 
 	Principal Principal Component Analysis of the selected points
 	in a SCI NRRD segmentation mask.
