@@ -83,6 +83,10 @@ correct_light_blobs_in_microscope_mosaic.m:
 	Correct the colour blob created by the microscope's light in
 	each tile of a mosaic, e.g. for histology.
 
+scinrrd_ndgrid.m:
+
+	Generation of arrays for 3D SCI NRRD image volumes.
+
 scirunnrrd_optimal_intersecting_plane.m:
 
 	Optimise intersection plane for SCI NRRD segmentation mask.
