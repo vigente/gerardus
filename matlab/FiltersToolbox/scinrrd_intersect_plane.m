@@ -86,9 +86,25 @@ if ( (nargin < 6) || isempty( xg ) || isempty( yg ) || isempty( zg ) )
     [ xg, yg, zg ] = scinrrd_ndgrid( nrrd );
 end
 
-% extract one slice from the grid for covenience
+% extract one slice from the grid for covenience to express the x-,
+% y-coordinates of plane points
 xp = xg(:,:,1);
 yp = yg(:,:,1);
+
+% A plane with orthogonal vector n that goes through the centroid m
+% can be expressed by the formula
+% 
+% nx(x-mx) + ny(y-my) + nz(z-mz) = 0
+% 
+% We know the horizontal limits of the image. So in order to
+% compute the intersection height of the rotated plane at each one
+% of 2 vertices that delimitate the image horizontally, we use the
+% derived expression
+% 
+% z = nx/nz(mx-x) + ny/nz(my-y) + mz
+% 
+% This expression is invalid when nz=0, i.e. the plane has been
+% rotated to make it "vertical"
 
 % compute the corresponding heights at the horizontal grid, i.e.
 % the rotated plane
