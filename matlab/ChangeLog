@@ -1,3 +1,14 @@
+2010-02-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
+
+	- Remove quaternions and use the normal vector to the plane as
+	optimization variable. The function has some debugging code, it's
+	still in development. The optimisation is getting trapped in local
+	minima; it's not clear whether this is because of the
+	trabeculations, or because the normal vector is not a good
+	parameter to optimise.
+
 2010-02-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add FiltersToolbox/scinrrd_intersect_plane.m:
