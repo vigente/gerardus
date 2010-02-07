@@ -118,7 +118,7 @@ for I = 1:D
     x( :, I ) = ( idx( :, I ) - 1 ) * dx( I ) + xmin( I );
 end
 
-% find coordinates that outside the volume
+% find coordinates that are outside the volume
 for I = 1:D
     x( x( :, I ) < xmin( I ) | x( :, I ) > xmax( I ), I ) = NaN;
 end
