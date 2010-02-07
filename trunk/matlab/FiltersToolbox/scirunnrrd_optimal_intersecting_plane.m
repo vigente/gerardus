@@ -1,8 +1,8 @@
-function [ qopt, mopt ] = scirunnrrd_optimal_intersecting_plane( im, z0 )
+function [ vopt, mopt, FOO ] = scirunnrrd_optimal_intersecting_plane( nrrd, z0 )
 % SCIRUNNRRD_OPTIMAL_INTERSECTING_PLANE  Optimise intersection plane for
 % SCI NRRD segmentation mask
 %
-% [QOPT, MOPT] = SCIRUNNRRD_OPTIMAL_INTERSECTING_PLANE(IM, Z0)
+% [VOPT, MOPT] = SCIRUNNRRD_OPTIMAL_INTERSECTING_PLANE(NRRD, Z0)
 %
 %   This function computes the plane that intersects a SCI NRRD
 %   segmentation mask in a way that minimizers the segmentation area
@@ -12,13 +12,13 @@ function [ qopt, mopt ] = scirunnrrd_optimal_intersecting_plane( im, z0 )
 %   (Note that the area is computed on the convex hull of the plane
 %   intersection with the volume.)
 %
-%   IM is the SCI NRRD struct.
+%   NRRD is the SCI NRRD struct.
 %
 %   Z0 is a z-coordinate value. The rotation centroid for the plane will be
 %   at Z0 height.
 %
-%   QOPT is the quaternion that describes the optimal rotation of the plane
-%   around centroid MOPT so that the intersection area is minimised.
+%   VOPT is the normal vector that describes the plane at centroid MOPT so
+%   that the intersection area is minimised.
 %
 %
 %   Note on SCI NRRD: Software applications developed at the University of
@@ -64,38 +64,29 @@ function [ qopt, mopt ] = scirunnrrd_optimal_intersecting_plane( im, z0 )
 
 % check arguments
 error( nargchk( 2, 2, nargin, 'struct' ) );
-error( nargoutchk( 0, 2, nargout, 'struct' ) );
+% error( nargoutchk( 0, 2, nargout, 'struct' ) );
+error( nargoutchk( 0, 3, nargout, 'struct' ) );%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% get image vertices
-vmin = [ im.axis.min ];
-vmax = [ im.axis.max ];
-
-% get voxel size
-res = [ im.axis.spacing ];
-
-% squeeze the non-used first dimension of data
-im.data = double( squeeze( im.data ) );
-vmin = vmin( 2:end );
-vmax = vmax( 2:end );
-res = res( 2:end );
+% remove the dummy dimension and convert image data to double
+nrrd = scinrrd_squeeze( nrrd, true );
 
 % compute image size
-sz = size( im.data );
+sz = size( nrrd.data );
 
 % get linear indices of segmented voxels
-idx = find( im.data );
+idx = find( nrrd.data );
 
 % convert the linear indices to volume indices
 [ix, iy, iz] = ind2sub( sz( 2:end ), idx );
 
 % compute real world coordinates for those indices
-coords = scirunnrrd_index2world( [ ix, iy, iz ], im.axis );
+coords = scirunnrrd_index2world( [ ix, iy, iz ], nrrd.axis );
 
 % get tight frame around segmentation
 cmin = min( coords );
 cmax = max( coords );
 
-% compute centroid
+% compute x-, y-coordinates of centroid
 m = mean( coords );
 
 % defaults
@@ -104,28 +95,19 @@ m = mean( coords );
 if ( nargin < 2 || isempty( z0 ) )
     z0 = cmax(3) - ( cmax(3) - cmin(3) ) / 3;
 end
+m(3) = z0;
 
 % generate 3D grid of coordinates
-% note the inversion of x and y so that x values change with columns, and y
-% values change with rows
-[ y, x, z ] = ndgrid( vmin(1):res(1):vmax(1), ...
-    vmin(2):res(2):vmax(2), vmin(3):res(3):vmax(3) );
+[ x, y, z ] = scinrrd_ndgrid( nrrd );
 
-% compute a horizontal 2D plane at the height z0
-[ yp0, xp0, zp0 ] = ndgrid( vmin(1):res(1):vmax(1), ...
-    vmin(2):res(2):vmax(2), z0 );
-
-% compute intersection of image with the 2D plane
+% compute intersection of NRRD volume with the hrozontal 2D plane at height
+% z0
 % (if you want to visualize the image as in Seg3D, you need to do 'axis
 % xy')
-% note: this is counterintuitive, because it seems that the first
-% coordinate (rows) should be sampled by y. But the way x and y are
-% defined, this is how it works
-im2 = interpn( x, y, z, im.data, xp0, yp0, zp0, ...
-    'linear' );
+[ im, zp0, xp0, yp0 ] = scinrrd_intersect_plane(nrrd, m, [0 0 1], x, y, z);
 
 % get linear indices of segmented voxels in the 2D intersection
-idx2 = find( im2 );
+idx2 = find( im );
 
 % get coordinates of segmented voxels
 xp = xp0( idx2 );
@@ -134,7 +116,7 @@ zp = zp0( idx2 );
 
 % % DEBUG: to visualize segmentation mask in real world coordinates
 % hold off
-% imagesc(xp0(:), yp0(:), im2)
+% imagesc(xp0(:), yp0(:), im)
 % hold on
 % plot(xp, yp, 'w*')
 
@@ -155,170 +137,158 @@ vy = yp(idx2);
 % place centroid at correct height
 m(3) = z0;
 
-% initialize quaternion with no rotation
-q0 = [ 1 0 0 0 ];
+% initialize plane as horizontal plane
+%v0 = [ 0 0 1 ];
+%  v0 = [ 0 cosd(80) sind(80) ];
+ v0 = [ 0 cosd(60)*10 sind(60)*10 ];
 
 % Note: zp0 is only used for debugging
-[ qopt, mopt ] = optimise_plane_rotation(q0, im, x, y, z, m, xp0, yp0, zp0);
+[ vopt, mopt, FOO ] = optimise_plane_rotation(v0, nrrd, x, y, z, m);
 
 end % function scirunnrrd_intersect_plane
 
 % function to optimise the rotation of the plane so that it minimises the
 % segmented area
-function [q, m] = optimise_plane_rotation(q0, im, x, y, z, m, xp0, yp0, zp0)
+function [v, m, FOO] = optimise_plane_rotation(v0, nrrd, x, y, z, m)
 
-% we need to do this for the first centroid update
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+FOO = [];%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% we need to do this for the first centroid update (the value of m will be
+% updated from within the optimization function)
 mnew = m;
 
 % run optimisation to find minimum area
-[q,a] = lsqnonlin(@segmented_area, q0);
+v = fminsearch(@segmented_area_of_intersection, v0);
+
+% normalize vector
+v = v / norm( v );
 
 % rotate plane, intersect with image, and compute segmented area
-    function a = segmented_area(q)
-        
+    function a = segmented_area_of_intersection(v)
+
+        % this function cannot deal with vertical planes, because of a
+        % singularity
+        if ( v(3) == 0 )
+            error( 'Intersecting plane cannot be vertical' )
+        end
+
         % update the centroid
         m = mnew;
         
-        % compute image size
-        sz = size( im.data );
-        
-        % normalize quaternion
-        if ( norm(q) ~= 0 )
-            q = q / norm(q);
+        % normalize vector
+        if ( norm(v) == 0 )
+            error( 'Normal vector to plane cannot be (0,0,0)' )
         end
+        v = v / norm(v);
         
-        % compute rotation matrix for quaternion
-        rotmat = quaternion2matrix( q );
         
-        % A plane with orthogonal vector n that goes through the centroid m
-        % can be expressed by the formula
-        %
-        %   nx(x-mx) + ny(y-my) + nz(z-mz) = 0
-        %
-        % We know the horizontal limits of the image. So in order to
-        % compute the intersection height of the rotated plane at each one
-        % of 2 vertices that delimitate the image horizontally, we use the
-        % derived expression
-        %
-        %    z = nx/nz(mx-x) + ny/nz(my-y) + mz
-        %
-        % This expression is invalid when nz=0, i.e. the plane has been
-        % rotated to make it "vertical"
-        
-        % the normal vector associated to a horizontal plane is vertical
-        n = [ 0 0 1 ]';
-        
-        % rotate the normal vector (note that by definition it's at the
-        % centroid already)
-        n = rotmat * n;
-        
-        if ( n(3) == 0 )
-            error( 'Rotation makes plane vertical' )
-        end
-        
-        % the horizontal grid for the rotated plane will be the same as for
-        % the horizontal plane
-        xp = xp0;
-        yp = yp0;
-        
-        % compute the corresponding heights at the horizontal grid, i.e.
-        % the rotated plane
-        zp = n(1)/n(3)*(m(1)-xp0) + n(2)/n(3)*(m(2)-yp0) + m(3);
-        
-        %         % DEBUG: plot horizontal plane
-        %         hold off
-        %         plot3( xp0(:), yp0(:), zp0(:), '.' )
-        %         % DEBUG: plot rotated plane
-        %         hold on
-        %         plot3( xp(:), yp(:), zp(:), '.r' )
-        
-        % reshape coordinates as matrix, otherwise sampling is not in the
-        % right order
-        xp = reshape( xp, sz(1:2) );
-        yp = reshape( yp, sz(1:2) );
-        zp = reshape( zp, sz(1:2) );
-        
-        % compute intersection of image with the 2D plane
-        % (if you want to visualize the image as in Seg3D, you need to do
-        % 'axis xy')
-        % note: this is counterintuitive, because it seems that the first
-        % coordinate (rows) should be sampled by y. But the way x and y are
-        % defined, this is how it works
-        im2 = interpn( x, y, z, im.data, xp, yp, zp, ...
-            'linear', 0 );
+        acosd(v(2))%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        % compute intersection of plane with volume
+        [ im, zp ] = scinrrd_intersect_plane(nrrd, m, v, x, y, z);
+        xp = x( :, :, 1 );
+        yp = y( :, :, 1 );
+
+%         % DEBUG: plot rotated plane
+%         hold off
+%         plot3( xp(:), yp(:), zp(:), '.r' )
         
         % find segmented voxels in the 2D cut
-        idx2 = find( im2 );
+        idx = find( im );
         
         % get coordinates of segmented voxels
-        xp = xp0( idx2 );
-        yp = yp0( idx2 );
-        zp = zp( idx2 );
+        xps = xp( idx );
+        yps = yp( idx );
+        zps = zp( idx );
         
-        %         % DEBUG: to visualize segmentation mask in real world coordinates
-        %         hold off
-        %         imagesc(xp0(:), yp0(:), im2)
-        %         hold on
-        %         plot(xp, yp, 'w*')
-        %         plot(m(1), m(2), 'ko')
+%         % DEBUG: to visualize segmentation mask in real world coordinates
+%         hold off
+%         imagesc(xp(:), yp(:), im)
+%         hold on
+%         plot(xps, yps, 'w*')
+%         plot(m(1), m(2), 'ko')
+        
+        % compute a rotation matrix that will transform the Cartesian
+        % system of reference onto another one where the XY plane is the
+        % rotated plane; note that to compute the area, we can use any pair
+        % of orthogonal vectors on the rotated plane, plus the unique
+        % vector orthogonal to the plane
+        
+        % compute one arbitrary vector contained by the plane, e.g. the
+        % corresponding to coordinates [1, 0, ...]. By definition, any
+        % vector contained in the plane has to be orthogonal to v
+        v2 = [ 1, 0, ...
+            v(1)/v(3)*(m(1)-1) + v(2)/v(3)*(m(2)-0) + m(3) ];
+
+        % normalize the vector
+        v2 = v2 / norm( v2 );
+        
+        % make the third vector orthogonal to the previous two
+        v3 = cross( v, v2 );
+        
+        % normalize vector to correct numerical errors
+        v3 = v3 / norm( v3 );
+        
+        % the rotation matrix is the rotated orthonormal basis, so that if
+        % we do rotmat * eye(3), the Cartesian basis becomes the rotated
+        % basis
+        rotmat = [ v2'  v3'  v' ];
         
         % we are now seeing the rotated plane projected onto the horizontal
         % plane, i.e. we see the segmentation mask in perspective.
         % In order to see the true area of the segmentation mask, we need
-        % to change the system of coordinates so that (0,0,0) is on the
-        % rotation centroid, and the rotated plane becames the XY plane
+        % to change the system of coordinates so that the rotated plane
+        % becames the XY plane
         
-        % first, move plane so that centroid is at (0,0,0)...
-        xp = xp - m(1);
-        yp = yp - m(2);
-        zp = zp - m(3);
+        % first, move segmented points so that centroid is at (0,0,0)...
+        xps = xps - m(1);
+        yps = yps - m(2);
+        zps = zps - m(3);
         
         % ...second, make the rotated plane horizontal, by inverting the
         % rotation...
-        xyzp = [ xp(:) yp(:) zp(:) ] * rotmat;
-        xp = xyzp( :, 1 );
-        yp = xyzp( :, 2 );
-        zp = xyzp( :, 3 );
+        xyzps = [ xps(:) yps(:) zps(:) ] * rotmat;
+        xps = xyzps( :, 1 );
+        yps = xyzps( :, 2 );
+        zps = xyzps( :, 3 );
         
         % if everything has gone alright, then the z-coordinate of xyzp
         % should be zero (+numerical errors), because the rotated plane is
         % now the XY plane
-        assert( abs( min( zp ) ) < 1e-10 )
-        assert( abs( max( zp ) ) < 1e-10 )
+        assert( abs( min( zps ) ) < 1e-10 )
+        assert( abs( max( zps ) ) < 1e-10 )
         
-        % ... and finally, move the plane back to the original centroid
-        xp = xp + m(1);
-        yp = yp + m(2);
-        zp = m(3);
-        
-        %         % DEBUG: visualize segmentation mask in real world coordinates
-        %         hold off
-        %         imagesc(xp0(:), yp0(:), im2)
-        %         hold on
-        %         plot(xp, yp, 'w*')
-        %         pause
+        % DEBUG: visualize segmentation mask in real world coordinates
+        hold off
+        imagesc(xp(:), yp(:), im)
+        hold on
+        plot(xps + m(1), yps + m(2), 'w*')
+%         pause
         
         % compute convex hull (reuse idx2)
-        idx2 = convhull( xp, yp );
-        vx = xp(idx2);
-        vy = yp(idx2);
+        idx2 = convhull( xps, yps );
+        vxs = xps(idx2);
+        vys = yps(idx2);
         
-        % % DEBUG: plot convex hull
-        % plot(vx, vy, 'r')
+%         % DEBUG: plot convex hull
+%         plot(vxs, vys, 'r')
         
         % compute x-,y-coordinates centroid and area of polygon
-        [ mnew, a ] = polycenter( vx, vy );
-        mnew(3) = m(3);
+        [ mnew, a ] = polycenter( vxs, vys );
+        mnew(3) = 0;
+        
+        FOO = [FOO a];%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         % the centroid is now on projected coordinates, but we need to put
         % it back on the real world coordinates
-        mnew = mnew - m;
         mnew = rotmat * mnew';
         mnew = mnew' + m;
         
-        % we also need to ignore the z-coordinate of the new centroid
+        % the new centroid is now on the intersecting plane, generally at a
+        % height ~= z0. Now we project the new centroid on the horizontal
+        % plane at height == z0
         mnew(3) = m(3);
         
     end
 end
-
