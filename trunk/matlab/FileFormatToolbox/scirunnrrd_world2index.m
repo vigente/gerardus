@@ -98,9 +98,12 @@ idx = zeros( size( x ) );
 xmin = [ axis.min ];
 xmax = [ axis.max ];
 dx = [ axis.spacing ];
-xmin = xmin( 2:end );
-xmax = xmax( 2:end );
-dx = dx( 2:end );
+% remove dummy dimension, if present
+if ( length( xmin ) == 4 )
+    xmin = xmin( 2:end );
+    xmax = xmax( 2:end );
+    dx = dx( 2:end );
+end
 
 % number of dimensions (we expect D=3, but in case this gets more general)
 D = length( dx );
