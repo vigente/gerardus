@@ -1,8 +1,8 @@
-function [ vopt, mopt, FOO ] = scirunnrrd_optimal_intersecting_plane( nrrd, z0 )
+function [ vopt, mopt, avals, vvals, mvals ] = scirunnrrd_optimal_intersecting_plane( nrrd, z0, v0, rad )
 % SCIRUNNRRD_OPTIMAL_INTERSECTING_PLANE  Optimise intersection plane for
 % SCI NRRD segmentation mask
 %
-% [VOPT, MOPT] = SCIRUNNRRD_OPTIMAL_INTERSECTING_PLANE(NRRD, Z0)
+% [VOPT, MOPT, AVALS, VVALS, MVALS] = SCIRUNNRRD_OPTIMAL_INTERSECTING_PLANE(NRRD, Z0, V0, RAD)
 %
 %   This function computes the plane that intersects a SCI NRRD
 %   segmentation mask in a way that minimizers the segmentation area
@@ -17,8 +17,26 @@ function [ vopt, mopt, FOO ] = scirunnrrd_optimal_intersecting_plane( nrrd, z0 )
 %   Z0 is a z-coordinate value. The rotation centroid for the plane will be
 %   at Z0 height.
 %
+%   V0 is a 3-vector that describes the normal vector to the initial
+%   intersecting plane. By default, the initial plane is horizontal.
+%
+%   RAD can be a scalar or 2-vector:
+%     scalar:   RAD is the radius of a 2D smoothing disk. The 2D image
+%               obtained from intersecting the 3D volume by the plane at
+%               each optimization iteration will be smoothed out using the
+%               disk before computing the area.
+%     2-vector: The smoothing element is a 3D ball. Instead of smoothing
+%               a 2D image at each iteration, the whole 3D image volume is
+%               smoothed with the ball at the beginning. RAD(1) is the ball
+%               radius in the XY-plane. RAD(2) is the ball height.
+%
 %   VOPT is the normal vector that describes the plane at centroid MOPT so
 %   that the intersection area is minimised.
+%
+%   AVALS is a vector with the record of area values from the optimization.
+%
+%   VVALS is a matrix with the record of normal vectors to the plane from
+%   the optimization.
 %
 %
 %   Note on SCI NRRD: Software applications developed at the University of
@@ -63,9 +81,16 @@ function [ vopt, mopt, FOO ] = scirunnrrd_optimal_intersecting_plane( nrrd, z0 )
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 2, 2, nargin, 'struct' ) );
-% error( nargoutchk( 0, 2, nargout, 'struct' ) );
-error( nargoutchk( 0, 3, nargout, 'struct' ) );%%%%%%%%%%%%%%%%%%%%%%%%%%
+error( nargchk( 2, 4, nargin, 'struct' ) );
+error( nargoutchk( 0, 5, nargout, 'struct' ) );
+
+% defaults
+if ( nargin < 3 || isempty( v0 ) )
+    v0 = [ 0 0 1 ];
+end
+if ( nargin < 4 || isempty( rad ) )
+    rad = [];
+end
 
 % remove the dummy dimension and convert image data to double
 nrrd = scinrrd_squeeze( nrrd, true );
@@ -73,11 +98,26 @@ nrrd = scinrrd_squeeze( nrrd, true );
 % compute image size
 sz = size( nrrd.data );
 
+% convert radius from real world size into number of pixels
+rad = round( rad ./ [ nrrd.axis( 1:length( rad ) ).spacing ] );
+
+% create disk for dilation/erosion if we are going to smooth in 2D
+if ( length( rad ) == 1 )
+    se = strel( 'disk', rad );
+end
+
+% 3D smoothing of the segmentation edges
+if ( length( rad ) == 2 )
+    se = strel( 'ball', rad(1), rad(2) );
+    nrrd.data = imdilate( nrrd.data, se );
+    nrrd.data = imerode( nrrd.data, se );
+end
+
 % get linear indices of segmented voxels
 idx = find( nrrd.data );
 
 % convert the linear indices to volume indices
-[ix, iy, iz] = ind2sub( sz( 2:end ), idx );
+[ix, iy, iz] = ind2sub( sz( 1:end ), idx );
 
 % compute real world coordinates for those indices
 coords = scirunnrrd_index2world( [ ix, iy, iz ], nrrd.axis );
@@ -137,22 +177,20 @@ vy = yp(idx2);
 % place centroid at correct height
 m(3) = z0;
 
-% initialize plane as horizontal plane
-%v0 = [ 0 0 1 ];
-%  v0 = [ 0 cosd(80) sind(80) ];
- v0 = [ 0 cosd(60)*10 sind(60)*10 ];
-
 % Note: zp0 is only used for debugging
-[ vopt, mopt, FOO ] = optimise_plane_rotation(v0, nrrd, x, y, z, m);
+[ vopt, mopt, avals, vvals, mvals ] = optimise_plane_rotation(v0, nrrd, x, y, z, m, rad, se);
 
 end % function scirunnrrd_intersect_plane
 
 % function to optimise the rotation of the plane so that it minimises the
 % segmented area
-function [v, m, FOO] = optimise_plane_rotation(v0, nrrd, x, y, z, m)
+function [ v, m, avals, vvals, mvals ] = optimise_plane_rotation(v0, nrrd, x, y, z, m, rad, se)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-FOO = [];%%%%%%%%%%%%%%%%%%%%%%%%%
+% init variables to keep track of the evolution of area values in the
+% optimisation
+avals = [];
+vvals = [];
+mvals = [];
 
 % we need to do this for the first centroid update (the value of m will be
 % updated from within the optimization function)
@@ -182,21 +220,24 @@ v = v / norm( v );
         end
         v = v / norm(v);
         
-        
-        acosd(v(2))%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
         % compute intersection of plane with volume
         [ im, zp ] = scinrrd_intersect_plane(nrrd, m, v, x, y, z);
         xp = x( :, :, 1 );
         yp = y( :, :, 1 );
-
+        
+        % 2D smoothing of the segmentation edges
+        if ( length( rad ) == 1 )
+            im = imdilate( im, se );
+            im = imerode( im, se );
+        end
+        
 %         % DEBUG: plot rotated plane
 %         hold off
 %         plot3( xp(:), yp(:), zp(:), '.r' )
         
         % find segmented voxels in the 2D cut
         idx = find( im );
-        
+
         % get coordinates of segmented voxels
         xps = xp( idx );
         yps = yp( idx );
@@ -259,12 +300,11 @@ v = v / norm( v );
         assert( abs( min( zps ) ) < 1e-10 )
         assert( abs( max( zps ) ) < 1e-10 )
         
-        % DEBUG: visualize segmentation mask in real world coordinates
-        hold off
-        imagesc(xp(:), yp(:), im)
-        hold on
-        plot(xps + m(1), yps + m(2), 'w*')
-%         pause
+%         % DEBUG: visualize segmentation mask in real world coordinates
+%         hold off
+%         imagesc(xp(:), yp(:), im)
+%         hold on
+%         plot(xps + m(1), yps + m(2), 'w*')
         
         % compute convex hull (reuse idx2)
         idx2 = convhull( xps, yps );
@@ -272,13 +312,12 @@ v = v / norm( v );
         vys = yps(idx2);
         
 %         % DEBUG: plot convex hull
-%         plot(vxs, vys, 'r')
+%         plot(vxs + m(1), vys +m(2), 'r')
+%         pause
         
         % compute x-,y-coordinates centroid and area of polygon
         [ mnew, a ] = polycenter( vxs, vys );
         mnew(3) = 0;
-        
-        FOO = [FOO a];%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         % the centroid is now on projected coordinates, but we need to put
         % it back on the real world coordinates
@@ -289,6 +328,11 @@ v = v / norm( v );
         % height ~= z0. Now we project the new centroid on the horizontal
         % plane at height == z0
         mnew(3) = m(3);
+        
+        % kept track of optimisation evolution
+        avals = [ avals a ];
+        vvals = [ vvals v' ];
+        mvals = [ mvals mnew' ];
         
     end
 end

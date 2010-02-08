@@ -1,3 +1,12 @@
+2010-02-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
+
+	- Remove temporal code. Add avals, vvals, mvals as output
+	arguments to monitor evolution of optimisation algorithm. Add v0,
+	rad as input arguments, so that the initial vector is not hard
+	coded, and radius of smoothing operators.
+
 2010-02-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
