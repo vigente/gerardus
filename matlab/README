@@ -92,7 +92,7 @@ scinrrd_ndgrid
 
 	Generation of arrays for 3D SCI NRRD image volumes.
 
-scirunnrrd_optimal_intersecting_plane.m:
+scirunnrrd_optimal_intersecting_plane
 
 	Optimise intersection plane for SCI NRRD segmentation mask.
 
