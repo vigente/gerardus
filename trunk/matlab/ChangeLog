@@ -1,5 +1,10 @@
 2010-02-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add FileFormatToolbox/scinrrd_seg3d2matlab.m:
+
+	- SCINRRD_SEG3D2MATLAB Correct dimensions of data loaded from SCI
+	NRRD so that rows and columns will follow Matlab's coordinates.
+
 	* FiltersToolbox/scinrrd_ndgrid.m:
 
 	- Fix bug. Limits for x-coordinates were used for y-coordinates
