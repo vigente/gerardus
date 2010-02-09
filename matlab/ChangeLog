@@ -1,5 +1,8 @@
 2010-02-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Rename FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m as
+	FiltersToolbox/scinrrd_optimal_intersecting_plane.m.
+
 	* FiltersToolbox/scinrrd_intersect_plane.m:
 
 	- When sampling with interpn(), it is necessary to provide the
