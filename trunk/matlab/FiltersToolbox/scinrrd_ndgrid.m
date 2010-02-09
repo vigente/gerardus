@@ -53,5 +53,5 @@ res = [ nrrd.axis.spacing ];
 % generate 3D grid of coordinates
 % note the inversion of x and y so that x values change with columns, and y
 % values change with rows
-[ yg, xg, zg ] = ndgrid( vmin(1):res(1):vmax(1), ...
-    vmin(2):res(2):vmax(2), vmin(3):res(3):vmax(3) );
+[ yg, xg, zg ] = ndgrid( vmin(2):res(2):vmax(2), ...
+    vmin(1):res(1):vmax(1), vmin(3):res(3):vmax(3) );
