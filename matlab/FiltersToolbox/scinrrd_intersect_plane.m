@@ -113,7 +113,6 @@ zp = v(1)/v(3)*(m(1)-xp) + v(2)/v(3)*(m(2)-yp) + m(3);
 % compute intersection of image with the 2D plane
 % (if you want to visualize the image as in Seg3D, you need to do
 % 'axis xy')
-% note: this is counterintuitive, because it seems that the first
-% coordinate (rows) should be sampled by y. But the way x and y are
-% defined, this is how it works
-im = interpn( xg, yg, zg, nrrd.data, xp, yp, zp, 'linear', 0 );
+% note: the swapping of xg and yg is because interpn requires the matrices
+% in the same order as they are produced by ndgrid()
+im = interpn( yg, xg, zg, nrrd.data, yp, xp, zp, 'linear', 0 );
