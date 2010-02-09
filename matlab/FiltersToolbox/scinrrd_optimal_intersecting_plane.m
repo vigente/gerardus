@@ -244,12 +244,22 @@ v = v / norm( v );
         yps = yp( idx );
         zps = zp( idx );
         
-%         % DEBUG: to visualize segmentation mask in real world coordinates
-%         hold off
-%         imagesc(xp(:), yp(:), im)
-%         hold on
+        % DEBUG: to visualize segmentation mask in real world coordinates
+        hold off
+        imagesc(xp(:), yp(:), im > 0)
+        hold on
 %         plot(xps, yps, 'w*')
-%         plot(m(1), m(2), 'ko')
+        plot(m(1), m(2), 'wo')
+        % DEBUG: compute convex hull
+        idx2 = convhull( xps, yps );
+        vxs = xps(idx2);
+        vys = yps(idx2);
+        % DEBUG: plot convex hull
+        plot(vxs, vys, 'w')
+        xlabel( 'x (m)' )
+        ylabel( 'y (m)' )
+        pause
+        
         
         % compute a rotation matrix that will transform the Cartesian
         % system of reference onto another one where the XY plane is the
@@ -303,18 +313,15 @@ v = v / norm( v );
         
 %         % DEBUG: visualize segmentation mask in real world coordinates
 %         hold off
-%         imagesc(xp(:), yp(:), im)
+%         imagesc(xp(:), yp(:), im > 0)
 %         hold on
 %         plot(xps + m(1), yps + m(2), 'w*')
         
-        % compute convex hull (reuse idx2)
+        % compute convex hull (reuse idx2): note convex hull coordinates
+        % are on projected space, image is in original space
         idx2 = convhull( xps, yps );
         vxs = xps(idx2);
         vys = yps(idx2);
-        
-%         % DEBUG: plot convex hull
-%         plot(vxs + m(1), vys +m(2), 'r')
-%         pause
         
         % compute x-,y-coordinates centroid and area of polygon
         [ mnew, a ] = polycenter( vxs, vys );
