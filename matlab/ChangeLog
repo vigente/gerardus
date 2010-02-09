@@ -1,3 +1,10 @@
+2010-02-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_ndgrid.m:
+
+	- Fix bug. Limits for x-coordinates were used for y-coordinates
+	and viceversa.
+
 2010-02-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
