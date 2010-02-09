@@ -1,8 +1,8 @@
-function [ vopt, mopt, avals, vvals, mvals ] = scirunnrrd_optimal_intersecting_plane( nrrd, z0, v0, rad )
-% SCIRUNNRRD_OPTIMAL_INTERSECTING_PLANE  Optimise intersection plane for
-% SCI NRRD segmentation mask
+function [ vopt, mopt, avals, vvals, mvals ] = scinrrd_optimal_intersecting_plane( nrrd, z0, v0, rad )
+% SCINRRD_OPTIMAL_INTERSECTING_PLANE  Optimise intersection plane for SCI
+% NRRD segmentation mask
 %
-% [VOPT, MOPT, AVALS, VVALS, MVALS] = SCIRUNNRRD_OPTIMAL_INTERSECTING_PLANE(NRRD, Z0, V0, RAD)
+% [VOPT, MOPT, AVALS, VVALS, MVALS] = SCINRRD_OPTIMAL_INTERSECTING_PLANE(NRRD, Z0, V0, RAD)
 %
 %   This function computes the plane that intersects a SCI NRRD
 %   segmentation mask in a way that minimizers the segmentation area
@@ -55,6 +55,7 @@ function [ vopt, mopt, avals, vvals, mvals ] = scirunnrrd_optimal_intersecting_p
 %          axis: [4x1 struct]
 %      property: []
 
+% Author(s): Ramon Casero, Vicente Grau
 % Copyright © 2010 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
