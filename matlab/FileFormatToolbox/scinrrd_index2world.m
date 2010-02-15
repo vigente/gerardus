@@ -1,8 +1,8 @@
-function x = scirunnrrd_index2world(idx, axis)
-% SCIRUNNRRD_INDEX2WORLD  Convert data volume indices to real world
+function x = scinrrd_index2world(idx, axis)
+% SCINRRD_INDEX2WORLD  Convert data volume indices to real world
 % coordinates for NRRD volumes created by SCI applications (e.g. Seg3D)
 %
-%   Function SCIRUNNRRD_INDEX2WORLD() maps between the indices of the 
+%   Function SCINRRD_INDEX2WORLD() maps between the indices of the 
 %   [4-D uint8] used to store the voxel intensity values, and the real
 %   world coordinates of points within the NRRD data volume.
 %
@@ -12,7 +12,7 @@ function x = scirunnrrd_index2world(idx, axis)
 %   For points that are not within the data volume, the returned indices
 %   are "NaN".
 %
-% X = SCIRUNNRRD_INDEX2WORLD(IDX, AXIS)
+% X = SCINRRD_INDEX2WORLD(IDX, AXIS)
 %
 %   X is a 3-column matrix where each row contains the real world
 %   (x,y,z)-coordinates of a point.
@@ -35,7 +35,7 @@ function x = scirunnrrd_index2world(idx, axis)
 %
 % Example:
 %
-% >> x = scirunnrrd_index2world([55, 189, 780], scirunnrrd.axis)
+% >> x = scinrrd_index2world([55, 189, 780], scirunnrrd.axis)
 %
 % x =
 %
@@ -58,9 +58,9 @@ function x = scirunnrrd_index2world(idx, axis)
 %      property: []
 %
 %
-% See also: scirunnrrd_world2index.
+% See also: scinrrd_world2index.
  
-% Copyright © 2009 University of Oxford
+% Copyright © 2009-2010 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
