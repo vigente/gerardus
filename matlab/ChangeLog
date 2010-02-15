@@ -1,5 +1,13 @@
 2010-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Rename scirunnrrd_world2index.m as
+	scinrrd_world2index.m. Correct variables and help header for
+	consistency with the rest of scinnrd functions.
+
+	* Rename scirunnrrd_index2world.m as
+	scinrrd_index2world.m. Correct variables and help header for
+	consistency with the rest of scinnrd functions.
+
 	* Rename scirunnrrd_pca.m as scinrrd_pca.m. Correct variables and
 	help header for consistency with the rest of scinnrd functions.
 
