@@ -1,13 +1,13 @@
-function [ vopt, mopt, avals, vvals, mvals ] = scinrrd_optimal_intersecting_plane( nrrd, z0, v0, rad )
+function [ aopt, mopt, avals, rotmatvals, mvals ] = scinrrd_optimal_intersecting_plane( nrrd, z0, a0, rad )
 % SCINRRD_OPTIMAL_INTERSECTING_PLANE  Optimise intersection plane for SCI
 % NRRD segmentation mask
 %
-% [VOPT, MOPT, AVALS, VVALS, MVALS] = SCINRRD_OPTIMAL_INTERSECTING_PLANE(NRRD, Z0, V0, RAD)
+% [AOPT, MOPT, AVALS, VVALS, MVALS] = SCINRRD_OPTIMAL_INTERSECTING_PLANE(NRRD, Z0, A0, RAD)
 %
 %   This function computes the plane that intersects a SCI NRRD
 %   segmentation mask in a way that minimizers the segmentation area
-%   intersected by the plane. That is, in some sense in finds the plane
-%   more orthogonal to the segmented volume.
+%   intersected by the plane. That is, in some sense it finds the most
+%   orthogonal plane to the segmented volume.
 %
 %   (Note that the area is computed on the convex hull of the plane
 %   intersection with the volume.)
@@ -121,7 +121,7 @@ idx = find( nrrd.data );
 [ix, iy, iz] = ind2sub( sz( 1:end ), idx );
 
 % compute real world coordinates for those indices
-coords = scirunnrrd_index2world( [ ix, iy, iz ], nrrd.axis );
+coords = scinrrd_index2world( [ ix, iy, iz ], nrrd.axis );
 
 % get tight frame around segmentation
 cmin = min( coords );
@@ -181,7 +181,7 @@ m(3) = z0;
 % Note: zp0 is only used for debugging
 [ vopt, mopt, avals, vvals, mvals ] = optimise_plane_rotation(v0, nrrd, x, y, z, m, rad, se);
 
-end % function scirunnrrd_intersect_plane
+end % function scinrrd_intersect_plane
 
 % function to optimise the rotation of the plane so that it minimises the
 % segmented area
@@ -244,21 +244,20 @@ v = v / norm( v );
         yps = yp( idx );
         zps = zp( idx );
         
-        % DEBUG: to visualize segmentation mask in real world coordinates
-        hold off
-        imagesc(xp(:), yp(:), im > 0)
-        hold on
-%         plot(xps, yps, 'w*')
-        plot(m(1), m(2), 'wo')
-        % DEBUG: compute convex hull
-        idx2 = convhull( xps, yps );
-        vxs = xps(idx2);
-        vys = yps(idx2);
-        % DEBUG: plot convex hull
-        plot(vxs, vys, 'w')
-        xlabel( 'x (m)' )
-        ylabel( 'y (m)' )
-        pause
+%         % DEBUG: to visualize segmentation mask in real world coordinates
+%         hold off
+%         imagesc(xp(:), yp(:), im > 0)
+%         hold on
+%         plot(m(1), m(2), 'wo')
+%         % DEBUG: compute convex hull
+%         idx2 = convhull( xps, yps );
+%         vxs = xps(idx2);
+%         vys = yps(idx2);
+%         % DEBUG: plot convex hull
+%         plot(vxs, vys, 'w')
+%         xlabel( 'x (m)' )
+%         ylabel( 'y (m)' )
+%         pause
         
         
         % compute a rotation matrix that will transform the Cartesian
