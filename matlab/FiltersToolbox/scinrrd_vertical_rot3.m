@@ -1,8 +1,8 @@
-function [m, v] = scinrrd_vertical_rot3(nrrd)
+function [m, v] = scinrrd_vertical_rot3( nrrd, type )
 % SCINRRD_VERTICAL_ROTMAT  Compute the 3D rotation matrix to make a 3D
 % segmented object vertical
 %
-% [M, A] = SCINRRD_VERTICAL_ROTMAT3(NRRD)
+% [M, A] = SCINRRD_VERTICAL_ROTMAT3(NRRD, TYPE)
 %
 %   This function computes a rotation matrix and centroid so that the input
 %   SCI NRRD segmentation mask can be rotated to make the object vertical.
@@ -10,17 +10,21 @@ function [m, v] = scinrrd_vertical_rot3(nrrd)
 %   NRRD is the SCI NRRD struct.
 %
 %   M is a 2-vector with the coordinates of the segmentation mask centroid.
+%   M is also the centre of rotation.
 %
-%   A is a (3,3)-rotation matrix. To make the object outlined by the
-%   segmentation mask vertical, first substract the centroid from their
-%   coordinates, so that the segmentation is centered around (0,0,0).
+%   A is a (3,3)-rotation matrix defined around M.
 %
-%   Second, to follow the ITK (Insight Toolkit) convention, A is the
-%   transformation from output to input voxel coordinates. So if you want
-%   to transform the coordinates of the *input* voxels, you need to use the
-%   inverse of the rotation matrix, i.e. the transpose A'.
+%   TYPE is a string with the transformation direction:
 %
-%   Finally, translate the rotated segmentation to the centroid.
+%     * 'pts': (default) Forward transformation. That is, the rotation is
+%              applied to the input points.
+%
+%     * 'img': Backward transformation. To follow the ITK (Insight Toolkit)
+%              convention, A is the rotation from output to input voxel
+%              coordinates.
+%
+%     The inverse of a rotation matrix is the transpose, so converting from
+%     one type to the other just requires computing the transpose.
 %
 %
 %   Note on SCI NRRD: Software applications developed at the University of
@@ -65,30 +69,19 @@ function [m, v] = scinrrd_vertical_rot3(nrrd)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 1, nargin, 'struct' ) );
+error( nargchk( 1, 2, nargin, 'struct' ) );
 error( nargoutchk( 0, 2, nargout, 'struct' ) );
 
-% compute image size
-sz = size( nrrd.data );
+% default
+if ( nargin < 2 || isempty( type ) )
+    type = 'pts';
+end
 
-% get linear indices of segmented voxels
-idx = find( nrrd.data );
-
-% convert the linear indices to volume indices
-[ix, iy, iz] = ind2sub( sz( 2:end ), idx );
-
-% compute real world coordinates for those indices
-x = scinrrd_index2world( [ ix, iy, iz ], nrrd.axis );
-
-% compute centroid
-m = mean( x );
-
-% compute principal components so that we know the orientation of the
-% points
-v = pts_pca( x' );
+% compute Principal Component Analysis of the segmented voxels
+[v, d, m] = scinrrd_pca( nrrd );
 
 % if we use the eigenvector matrix to rotate the data, then the first
-% eigenvector will be projected on the x-axis, i.e. the object will be
+% eigenvector would be projected on the x-axis, i.e. the object would be
 % turned horizontal. So we need to reorganise the vectors. What we are
 % going to do is make the object vertical (1st eigenvector projects on
 % z-axis), and also that the major horizontal axis is parallel to the
@@ -97,4 +90,6 @@ v = v( :, [ 2 3 1 ] );
 
 % to comply with the ITK convention, we need the inverse rotation, i.e. the
 % transpose
-v = v';
+if strcmp( type, 'img' )
+    v = v';
+end
