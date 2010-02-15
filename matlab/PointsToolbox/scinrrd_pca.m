@@ -1,8 +1,8 @@
-function [v, d] = scinrrd_pca(nrrd)
+function [v, d, m] = scinrrd_pca(nrrd)
 % SCINRRD_PCA Principal Principal Component Analysis of the selected
 % points in a SCI NRRD segmentation mask
 %
-% [V, D] = SCINRRD_PCA(NRRD)
+% [V, D, M] = SCINRRD_PCA(NRRD)
 %
 %   This function computes Principal Component Analysis (PCA) on the
 %   collection of points in a SCI NRRD segmentation mask.
@@ -11,6 +11,10 @@ function [v, d] = scinrrd_pca(nrrd)
 %
 %   V is a matrix with the column eigenvectors ordered in decreasing order
 %   of the corresponding eigenvalues in D.
+%
+%   M is a 3-vector with the coordinates of the dataset centroid. The
+%   centroid is the centre of the coordinate system defined by the
+%   eigenvectors, and the centre of rotation if the data is rotated.
 %
 %   Assuming a 3D volume, V is a (3, 3)-matrix and D a 3-vector.
 %
@@ -58,7 +62,7 @@ function [v, d] = scinrrd_pca(nrrd)
 
 % check arguments
 error( nargchk( 1, 1, nargin, 'struct' ) );
-error( nargoutchk( 0, 2, nargout, 'struct' ) );
+error( nargoutchk( 0, 3, nargout, 'struct' ) );
 
 % extract linear indices of voxels in the segmentation
 idx = find( nrrd.data );
@@ -71,6 +75,9 @@ sz = size( nrrd.data );
 
 % convert indices to real world coordinates
 x = scinrrd_index2world( [ ix, iy, iz ], nrrd.axis );
+
+% compute centroid
+m = mean( x );
 
 % compute PCA
 [ v, d ] = pts_pca( x' );
