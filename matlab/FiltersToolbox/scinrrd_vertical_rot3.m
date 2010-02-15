@@ -78,7 +78,7 @@ idx = find( nrrd.data );
 [ix, iy, iz] = ind2sub( sz( 2:end ), idx );
 
 % compute real world coordinates for those indices
-x = scirunnrrd_index2world( [ ix, iy, iz ], nrrd.axis );
+x = scinrrd_index2world( [ ix, iy, iz ], nrrd.axis );
 
 % compute centroid
 m = mean( x );
