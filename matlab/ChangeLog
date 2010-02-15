@@ -1,3 +1,9 @@
+2010-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Rename scirunnrrd_vertical_rot3.m as
+	scinrrd_vertical_rot3. Correct help header. Rename im argument as
+	nrrd, for consistency with the rest of scinrrd functions.
+
 2010-02-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Rename FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m as

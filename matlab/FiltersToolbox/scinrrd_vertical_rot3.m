@@ -1,13 +1,13 @@
-function [m, v] = scirunnrrd_vertical_rot3(im)
-% VERTICAL_ROTMAT  Compute the 3D rotation matrix to make a 3D segmented
-% object vertical
+function [m, v] = scinrrd_vertical_rot3(nrrd)
+% SCINRRD_VERTICAL_ROTMAT  Compute the 3D rotation matrix to make a 3D
+% segmented object vertical
 %
-% [M, A] = VERTICAL_ROTMAT3(IM)
+% [M, A] = SCINRRD_VERTICAL_ROTMAT3(NRRD)
 %
 %   This function computes a rotation matrix and centroid so that the input
 %   SCI NRRD segmentation mask can be rotated to make the object vertical.
 %
-%   IM is the SCI NRRD struct.
+%   NRRD is the SCI NRRD struct.
 %
 %   M is a 2-vector with the coordinates of the segmentation mask centroid.
 %
@@ -69,16 +69,16 @@ error( nargchk( 1, 1, nargin, 'struct' ) );
 error( nargoutchk( 0, 2, nargout, 'struct' ) );
 
 % compute image size
-sz = size( im.data );
+sz = size( nrrd.data );
 
 % get linear indices of segmented voxels
-idx = find( im.data );
+idx = find( nrrd.data );
 
 % convert the linear indices to volume indices
 [ix, iy, iz] = ind2sub( sz( 2:end ), idx );
 
 % compute real world coordinates for those indices
-x = scirunnrrd_index2world( [ ix, iy, iz ], im.axis );
+x = scirunnrrd_index2world( [ ix, iy, iz ], nrrd.axis );
 
 % compute centroid
 m = mean( x );
