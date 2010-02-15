@@ -1,13 +1,13 @@
-function [v, d] = scirunnrrd_pca(scirunnrrd)
-% SCIRUNNRRD_PCA Principal Principal Component Analysis of the selected
+function [v, d] = scinrrd_pca(nrrd)
+% SCINRRD_PCA Principal Principal Component Analysis of the selected
 % points in a SCI NRRD segmentation mask
 %
-% [V, D] = SCIRUNNRRD_PCA(X)
+% [V, D] = SCINRRD_PCA(NRRD)
 %
 %   This function computes Principal Component Analysis (PCA) on the
 %   collection of points in a SCI NRRD segmentation mask.
 %
-%   X is the SCI NRRD struct.
+%   NRRD is the SCI NRRD struct.
 %
 %   V is a matrix with the column eigenvectors ordered in decreasing order
 %   of the corresponding eigenvalues in D.
@@ -61,16 +61,16 @@ error( nargchk( 1, 1, nargin, 'struct' ) );
 error( nargoutchk( 0, 2, nargout, 'struct' ) );
 
 % extract linear indices of voxels in the segmentation
-idx = find( scirunnrrd.data );
+idx = find( nrrd.data );
 
 % get volume size (first dimension is dummy, e.g. [1    62    81   206])
-sz = size( scirunnrrd.data );
+sz = size( nrrd.data );
 
 % convert linear index to multiple subscripts
 [ix, iy, iz] = ind2sub( sz( 2:end ), idx );
 
 % convert indices to real world coordinates
-x = scirunnrrd_index2world( [ ix, iy, iz ], scirunnrrd.axis );
+x = scinrrd_index2world( [ ix, iy, iz ], nrrd.axis );
 
 % compute PCA
 [ v, d ] = pts_pca( x' );
