@@ -1,5 +1,9 @@
 2010-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* PointsToolbox/scinrrd_pca.m:
+
+	- Compute centroid as output argument.
+
 	* Rename scirunnrrd_world2index.m as
 	scinrrd_world2index.m. Correct variables and help header for
 	consistency with the rest of scinnrd functions.
