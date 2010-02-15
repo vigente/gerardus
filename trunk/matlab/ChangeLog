@@ -1,8 +1,11 @@
 2010-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Rename scirunnrrd_pca.m as scinrrd_pca.m. Correct variables and
+	help header for consistency with the rest of scinnrd functions.
+
 	* Rename scirunnrrd_vertical_rot3.m as
-	scinrrd_vertical_rot3. Correct help header. Rename im argument as
-	nrrd, for consistency with the rest of scinrrd functions.
+	scinrrd_vertical_rot3. Correct help header. Correct variables and
+	help header for consistency with the rest of scinnrd functions.
 
 2010-02-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
