@@ -1,5 +1,12 @@
 2010-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_vertical_rot3.m:
+
+	- Replace code block by scinrrd_vertical_rot3().
+
+	- Add input argument so that you can select whether the rotation
+	is forwards or backwards.
+
 	* PointsToolbox/scinrrd_pca.m:
 
 	- Compute centroid as output argument.
@@ -92,6 +99,12 @@
 	* Add PointsToolbox/polycenter.m:
 
 	- POLYCENTER  Compute center of mass of polygon.
+
+2010-02-02  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scinrrd_vertical_rot3.m:
+
+	- Compute the 3D rotation matrix to make a point cloud vertical.
 
 2010-01-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
