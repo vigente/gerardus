@@ -1,5 +1,10 @@
 2010-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* PointsToolbox/scinrrd_pca.m:
+
+	- Remove assumption that NRRD will have dummy dimension, because
+	it could have been removed by a previous scinrrd function.
+
 	* FiltersToolbox/scinrrd_vertical_rot3.m:
 
 	- Replace code block by scinrrd_vertical_rot3().

@@ -64,14 +64,17 @@ function [v, d, m] = scinrrd_pca(nrrd)
 error( nargchk( 1, 1, nargin, 'struct' ) );
 error( nargoutchk( 0, 3, nargout, 'struct' ) );
 
+% squeeze NRRD variables, if necessary
+nrrd = scinrrd_squeeze( nrrd );
+
 % extract linear indices of voxels in the segmentation
 idx = find( nrrd.data );
 
-% get volume size (first dimension is dummy, e.g. [1    62    81   206])
+% get volume size
 sz = size( nrrd.data );
 
 % convert linear index to multiple subscripts
-[ix, iy, iz] = ind2sub( sz( 2:end ), idx );
+[ix, iy, iz] = ind2sub( sz, idx );
 
 % convert indices to real world coordinates
 x = scinrrd_index2world( [ ix, iy, iz ], nrrd.axis );
