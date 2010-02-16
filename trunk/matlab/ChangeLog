@@ -1,5 +1,10 @@
 2010-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_intersect_plane.m:
+
+	- Force NRRD data to be double, otherwise interpolation for the
+	intersection doesn't work.
+
 	* PointsToolbox/scinrrd_pca.m:
 
 	- Remove assumption that NRRD will have dummy dimension, because
