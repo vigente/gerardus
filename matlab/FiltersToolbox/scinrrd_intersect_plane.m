@@ -74,7 +74,7 @@ error( nargchk( 3, 6, nargin, 'struct' ) );
 error( nargoutchk( 0, 4, nargout, 'struct' ) );
 
 % remove dummy dimension of data if necessary
-nrrd = scinrrd_squeeze( nrrd );
+nrrd = scinrrd_squeeze( nrrd, true );
 
 % this function has a singularity if the plane is vertical
 if ( v(3) == 0 )
