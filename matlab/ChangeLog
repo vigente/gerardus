@@ -1,5 +1,13 @@
 2010-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
+
+	- Undo change of vector arguments to matrices, because we can do
+	the optimisation on the sole vector, and then recompute the
+	rotation matrix.
+
+	But keep renaming of function being used by this function.
+
 	* FiltersToolbox/scinrrd_intersect_plane.m:
 
 	- Force NRRD data to be double, otherwise interpolation for the
