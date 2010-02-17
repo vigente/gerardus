@@ -1,5 +1,25 @@
 2010-02-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_optimal_intersecting_plane.m:
+
+	- Interface change: Change argument order.
+
+	- Now instead of computing a rotation centroid at 2/3 of the
+	volume, the user enters the rotation centroid.
+
+	- The rotation centroid stays fixed and is not recomputed at each
+	iteration of the optimisation algorithm (actually it is, for
+	tracking purposes, but the value used is the initial).
+
+	- Remove big block to compute the instersection area at iteration
+	zero, as this can be now done within the optimisation loop.
+
+	- Optimise the azimuth and elevation angles of the normal vector,
+	instead of the 3 coordinates of the vector.
+
+	- Use new vec2rotmat() function to compute rotation matrix from
+	the normal vector.
+
 	* Add PointsToolbox/vec2rotmat.m:
 
 	- VEC2ROTMAT Compute rotation matrix from Cartesian vector.
