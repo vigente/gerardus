@@ -1,5 +1,9 @@
 2010-02-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add PointsToolbox/vec2rotmat.m:
+
+	- VEC2ROTMAT Compute rotation matrix from Cartesian vector.
+
 	* Add PointsToolbox/plotaxes.m:
 
 	- PLOTAXES Plot axes of 3D coordinate system.
