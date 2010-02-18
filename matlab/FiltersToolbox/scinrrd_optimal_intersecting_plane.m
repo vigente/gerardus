@@ -87,6 +87,8 @@ function [ mopt, vopt, avals, mvals, vvals ] = scinrrd_optimal_intersecting_plan
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+%% Checks and initialization
+
 % check arguments
 error( nargchk( 2, 4, nargin, 'struct' ) );
 error( nargoutchk( 0, 5, nargout, 'struct' ) );
@@ -131,14 +133,7 @@ end
 % % xy')
 % im = scinrrd_intersect_plane(nrrd, m0, v0, x, y, z);
 
-% optimisation of the intersection area
-[ vopt, mopt, avals, vvals, mvals ] = optimise_plane_rotation(v0, nrrd, x, y, z, m0, rad, se);
-
-end % function scirunnrrd_intersect_plane
-
-% function to optimise the rotation of the plane so that it minimises the
-% segmented area
-function [ v, m, avals, vvals, mvals ] = optimise_plane_rotation(v0, nrrd, x, y, z, m0, rad, se)
+%% Optimisation of the intersection area
 
 % init variables to keep track of the evolution of area values in the
 % optimisation
@@ -159,20 +154,22 @@ alpha0 = [ phi0, theta0 ];
 % segmented_area_of_interest() because the latter is a subfunction
 alpha = fminsearch(@segmented_area_of_intersection, alpha0);
 
-% convert spherical to Carterian coordinates
+% convert result from spherical to Carterian coordinates
 [ aux1 aux2 aux3 ] = sph2cart( alpha(1), alpha(2), 1.0 );
-v = [ aux1 aux2 aux3 ];
+vopt = [ aux1 aux2 aux3 ];
 
 % final centroid of the intersecting plane
-m = mvals( :, end );
+mopt = mvals( :, end );
 
+    %% Objective function (the function we are trying to minimise)
+    
     % rotate plane, intersect with image, and compute segmented area
     function a = segmented_area_of_intersection(alpha)
-
+        
         % convert spherical to Carterian coordinates
         [ aux1 aux2 aux3 ] = sph2cart( alpha(1), alpha(2), 1.0 );
         v = [ aux1 aux2 aux3 ];
-
+        
         % normalize vector
         if ( norm(v) == 0 )
             error( 'Normal vector to plane cannot be (0,0,0)' )

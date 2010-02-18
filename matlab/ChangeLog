@@ -1,3 +1,9 @@
+2010-02-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_optimal_intersecting_plane.m:
+
+	- Remove unnecessary function nesting.
+
 2010-02-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_optimal_intersecting_plane.m:
