@@ -2,6 +2,16 @@ function idx = scinrrd_world2index(x, axis)
 % SCINRRD_WORLD2INDEX  Convert real world coordinates to data volume
 % indices for NRRD volumes created by SCI applications (e.g. Seg3D)
 % 
+%   Function SCINRRD_WORLD2INDEX() maps between the real world coordinates
+%   of points within the NRRD data volume and the indices of the 
+%   [4-D uint8] volume used to store the voxel intensity values.
+%
+%      [x, y, z] -> [r, c, s]
+%
+%   Note that the row (r) index corresponds to the y-coordinate, and the
+%   column (c) index corresponds to the y-coordinate.
+%
+%
 %   Software applications developed at the University of Utah Scientific
 %   Computing and Imaging (SCI) Institute, e.g. Seg3D, internally use NRRD
 %   volumes to store medical data.
@@ -90,6 +100,10 @@ error( nargoutchk( 0, 1, nargout, 'struct' ) );
 if ( size( x, 2 ) ~= 3 )
     error( 'X must be a 3-column matrix, so that each row has the 3D coordinates of a point' )
 end
+
+% we have (r, c, s) indices, but r corresponds to y-coords, and c
+% corresponds to x-coords, so we need to swap the columns
+x = x( :, [ 2 1 3 ] );
 
 % init output
 idx = zeros( size( x ) );
