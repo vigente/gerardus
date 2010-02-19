@@ -1,5 +1,12 @@
 2010-02-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FileFormatToolbox/scinrrd_index2world.m,
+	FileFormatToolbox/scinrrd_world2index.m:
+
+	- Real world coordinates are to be presented as (x,y,z), while
+	indices are to be presented as (r,c,s). But note that x <-> c, and
+	y <-> r.
+
 	* PointsToolbox/scinrrd_pca.m:
 
 	- Fix bug: The convention has to be that rows are y-coordinates,
