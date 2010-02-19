@@ -1,10 +1,12 @@
-function h = plotaxes(a, type, col)
+function h = plotaxes(a, m, type, col)
 % PLOTAXES  Plot axes of 3D coordinate system
 %
-% PLOTAXES(A, TYPE, COL)
+% PLOTAXES(A, M, TYPE, COL)
 %
 %   A is a (3,3)-matrix with 3 column vectors. Each vector gives the
 %   direction of one axis of a Coordinate system.
+%
+%   M is a 3-vector with the origin of coordinates. By default, M=[0,0,0].
 %
 %   TYPE is a cell array with the line types to plot (e.g. '--', ':'... see
 %   "help plot" for more details). By default, type='-', i.e. a solid line.
@@ -39,14 +41,17 @@ function h = plotaxes(a, type, col)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 3, nargin, 'struct' ) );
+error( nargchk( 1, 4, nargin, 'struct' ) );
 error( nargoutchk( 0, 1, nargout, 'struct' ) );
 
 % defaults
-if ( nargin < 2 || isempty( type ) )
+if ( nargin < 2 || isempty( m ) )
+    m = [0 0 0];
+end
+if ( nargin < 3 || isempty( type ) )
     type = {'-', '-', '-'};
 end
-if ( nargin < 3 || isempty( col ) )
+if ( nargin < 4 || isempty( col ) )
     col = {'r', 'b', 'g'};
 end
 if ( ~iscell( type ) || length( type ) == 1 )
@@ -67,7 +72,7 @@ PHOLD = ishold;
 
 % plot axes
 for I = 1:size( a, 2 )
-    plot3( [0, a(1, I)], [0, a(2, I)], [0, a(3, I)], [ type{I} col{I} ] )
+    h = plot3( [m(1), a(1, I)], [m(2), a(2, I)], [m(3), a(3, I)], [ type{I} col{I} ] );
     hold on
 end
 
