@@ -1,8 +1,8 @@
 function [m, v] = scinrrd_vertical_rot3( nrrd, type )
-% SCINRRD_VERTICAL_ROTMAT  Compute the 3D rotation matrix to make a 3D
+% SCINRRD_VERTICAL_ROT3  Compute the 3D rotation matrix to make a 3D
 % segmented object vertical
 %
-% [M, A] = SCINRRD_VERTICAL_ROTMAT3(NRRD, TYPE)
+% [M, A] = SCINRRD_VERTICAL_ROT3(NRRD, TYPE)
 %
 %   This function computes a rotation matrix and centroid so that the input
 %   SCI NRRD segmentation mask can be rotated to make the object vertical.
