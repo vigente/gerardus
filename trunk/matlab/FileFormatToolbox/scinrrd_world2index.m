@@ -108,7 +108,7 @@ end
 % number of dimensions (we expect D=3, but in case this gets more general)
 D = length( dx );
 
-% find coordinates that outside the volume
+% find which coordinates are outside the volume
 for I = 1:D
     x( x( :, I ) < xmin( I ) | x( :, I ) > xmax( I ), I ) = NaN;
 end
