@@ -72,7 +72,8 @@ PHOLD = ishold;
 
 % plot axes
 for I = 1:size( a, 2 )
-    h = plot3( [m(1), a(1, I)], [m(2), a(2, I)], [m(3), a(3, I)], [ type{I} col{I} ] );
+    h = plot3( m(1) + [0, a(1, I)], ...
+        m(2) + [0, a(2, I)], m(3) + [0, a(3, I)], [ type{I} col{I} ] );
     hold on
 end
 
