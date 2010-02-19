@@ -3,8 +3,13 @@ function x = scinrrd_index2world(idx, axis)
 % coordinates for NRRD volumes created by SCI applications (e.g. Seg3D)
 %
 %   Function SCINRRD_INDEX2WORLD() maps between the indices of the 
-%   [4-D uint8] used to store the voxel intensity values, and the real
-%   world coordinates of points within the NRRD data volume.
+%   [4-D uint8] volume used to store the voxel intensity values, and the
+%   real world coordinates of points within the NRRD data volume.
+%
+%      [r, c, s] -> [x, y, z]
+%
+%   Note that the row (r) index corresponds to the y-coordinate, and the
+%   column (c) index corresponds to the y-coordinate.
 %
 %   For points that are not exactly on the centre of a voxel, the
 %   coordinates are rounded to the closest centre.
@@ -122,3 +127,6 @@ end
 for I = 1:D
     x( x( :, I ) < xmin( I ) | x( :, I ) > xmax( I ), I ) = NaN;
 end
+
+% change (y, x, z) to (x, y, z) coordinates
+x = x( :, [ 2 1 3 ] );
