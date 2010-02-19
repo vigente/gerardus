@@ -74,10 +74,11 @@ idx = find( nrrd.data );
 sz = size( nrrd.data );
 
 % convert linear index to multiple subscripts
-[ix, iy, iz] = ind2sub( sz, idx );
+% note that rows <-> y, cols <-> x
+[iy, ix, iz] = ind2sub( sz, idx );
 
 % convert indices to real world coordinates
-x = scinrrd_index2world( [ ix, iy, iz ], nrrd.axis );
+x = scinrrd_index2world( [ iy, ix, iz ], nrrd.axis );
 
 % compute centroid
 m = mean( x );

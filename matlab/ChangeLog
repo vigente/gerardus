@@ -1,5 +1,10 @@
 2010-02-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* PointsToolbox/scinrrd_pca.m:
+
+	- Fix bug: The convention has to be that rows are y-coordinates,
+	and columns are x-coordinates.
+
 	* PointsToolbox/plotaxes.m:
 
 	- Add input argument for the origin of coordinates.
