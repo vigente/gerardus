@@ -1,5 +1,19 @@
 2010-02-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_optimal_intersecting_plane.m:
+
+	- Interface change: Change input arguments.
+
+	- Now, instead of intering RAD for smoothing of the segmentation,
+	we enter a struct called param, that contains new options for the
+	optimisation.
+
+	- Added global optimisation, that is, instead of using fminsearch,
+	now you can sweep a whole range of azimuth and elevation angles to
+	compute the area values. Because we are optimising only two
+	variables, this is not much slower than using fminsearch, and it
+	provides a much better insight into the results.
+
 	* PointsToolbox/vec2rotmat.m:
 
 	- Add input argument so that an initial guess for the 2 vectors
