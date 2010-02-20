@@ -1,3 +1,12 @@
+2010-02-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/vec2rotmat.m:
+
+	- Add input argument so that an initial guess for the 2 vectors
+	orthogonal to V is provided (as part of an initial guess for the
+	rotation matrix). This will constrain the infinite space of
+	possible rotations to the closest one to the one we had.
+
 2010-02-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FileFormatToolbox/scinrrd_index2world.m,
