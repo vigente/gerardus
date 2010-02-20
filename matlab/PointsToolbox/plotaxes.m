@@ -12,7 +12,7 @@ function h = plotaxes(a, m, type, col)
 %   "help plot" for more details). By default, type='-', i.e. a solid line.
 %
 %   COL is a cell array with the colours of each axis. By default,
-%   col={'r', 'b', 'g'}. If only one string is provided, all axes are
+%   col={'b', 'r', 'g'}. If only one string is provided, all axes are
 %   displayed with the same colour.
 
 % Copyright © 2010 University of Oxford
@@ -52,7 +52,7 @@ if ( nargin < 3 || isempty( type ) )
     type = {'-', '-', '-'};
 end
 if ( nargin < 4 || isempty( col ) )
-    col = {'r', 'b', 'g'};
+    col = {'b', 'r', 'g'};
 end
 if ( ~iscell( type ) || length( type ) == 1 )
     if iscell( type )
