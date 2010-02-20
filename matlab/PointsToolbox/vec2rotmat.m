@@ -1,4 +1,4 @@
-function a = vec2rotmat(v)
+function a = vec2rotmat(v, a0)
 % VEC2ROTMAT  Compute rotation matrix from Cartesian vector
 %
 % A = VEC2ROTMAT(V)
@@ -14,6 +14,14 @@ function a = vec2rotmat(v)
 %   In particular, A is the solution that maps the Cartesian coordinate
 %   system onto a coordinate system that contains V and where the other two
 %   vectors are closest to A in a Gram-Schmidt sense.
+%
+% A = VEC2ROTMAT(V, A0)
+%
+%   A0 is a (3,3)-matrix that can be seen as a rotation matrix in 3D, as
+%   an orthonormal basis, or a first guess of A. Only the first two columns
+%   are used. The two first columns are used together with V as the initial
+%   non-orthogonal basis. When A0 is not provided, then the identity matrix
+%   is used, i.e.g A0 = eye(3).
 
 % Copyright © 2010 University of Oxford
 % 
@@ -41,8 +49,13 @@ function a = vec2rotmat(v)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 1, nargin, 'struct' ) );
+error( nargchk( 1, 2, nargin, 'struct' ) );
 error( nargoutchk( 0, 1, nargout, 'struct' ) );
+
+% defaults
+if ( nargin < 2 || isempty( a0 ) )
+    a0 = eye( 3 );
+end
 
 % check that V is a vector
 if ( size( v, 2 ) ~= 1 || size( v, 1 ) ~= 3 )
@@ -51,12 +64,13 @@ end
 
 % create a non-orthogonal Cartesian basis where the Z-axis vector is
 % replaced by v
-v = [ [1,0,0]', [0,1,0]', v ];
+v = [ a0( :, 1:2 ), v ];
 
 % now we want to apply Gram-Schmidt to this basis to create an orthonormal
 % basis. We want to keep v, so we start the Gram-Schmidt process fixing it,
 % and then remove the projections of the other two vectors
-[a, foo] = qr( v( :, end:-1:1 ) );
+[a, foo] = qr( v( :, end:-1:1 ) ); % foo is necessary, because the result 
+                                   % from a = qr() is different
 a = a( :, end:-1:1 );
 
 % check whether we want to keep each vector or the negative, so that they
