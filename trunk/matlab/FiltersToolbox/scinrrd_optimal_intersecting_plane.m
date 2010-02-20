@@ -1,11 +1,13 @@
-function [ mopt, vopt, avals, mvals, vvals ] = scinrrd_optimal_intersecting_plane( nrrd, m0, v0, rad )
+function [ mopt, vopt, avals, mvals, vvals ] = ...
+    scinrrd_optimal_intersecting_plane( nrrd, m0, v0, params )
 % SCINRRD_OPTIMAL_INTERSECTING_PLANE  Optimise intersection plane for SCI
 % NRRD segmentation mask
 %
-% [MOPT, VOPT, AVALS, MVALS, VVALS] = SCINRRD_OPTIMAL_INTERSECTING_PLANE(NRRD, M0, V0, RAD)
+% [MOPT, VOPT, AVALS, MVALS, VVALS] = ...
+%      SCINRRD_OPTIMAL_INTERSECTING_PLANE(NRRD, M0, V0, PARAMS)
 %
 %   This function computes the plane that intersects a SCI NRRD
-%   segmentation mask in a way that minimizers the segmentation area
+%   segmentation mask in a way that minimizes the segmentation area
 %   intersected by the plane. That is, in some sense in finds the plane
 %   more orthogonal to the segmented volume.
 %
@@ -19,7 +21,16 @@ function [ mopt, vopt, avals, mvals, vvals ] = scinrrd_optimal_intersecting_plan
 %   V0 is a 3-vector that describes the normal vector to the initial
 %   intersecting plane. By default, the initial plane is horizontal.
 %
-%   RAD can be a scalar or 2-vector:
+%   PARAMS is a struct with optimisation parameters:
+%
+%   * PARAMS.TYPE is a string. 'local' (default) means that the
+%   intersected area will be minimised using multidimensional unconstrained
+%   nonlinear minimization (Nelder-Mead, fminsearch). 'global' means that
+%   area values will be systematically computed over a range of plane
+%   inclination values.
+%
+%   * PARAMS.RAD can be a scalar or 2-vector:
+%
 %     scalar:   RAD is the radius of a 2D smoothing disk. The 2D image
 %               obtained from intersecting the 3D volume by the plane at
 %               each optimization iteration will be smoothed out using the
@@ -28,6 +39,14 @@ function [ mopt, vopt, avals, mvals, vvals ] = scinrrd_optimal_intersecting_plan
 %               a 2D image at each iteration, the whole 3D image volume is
 %               smoothed with the ball at the beginning. RAD(1) is the ball
 %               radius in the XY-plane. RAD(2) is the ball height.
+%
+%   * PARAMS.RANGE (global optimisation only): Angular range. The azimuth
+%     of V0 will be changed RANGE(1) rad in any direction to compute
+%     area values. The elevation of V0 will be changed RANGE(2) rad.
+%     (Default RANGE(1) = RANGE(2) = 0.5236 rad = 30º).
+%     
+%   * PARAMS.N (global optimisation only): Number of azimuth (N(1)) or
+%   elevation (N(2)) samples. (Default N(1) = N(2) = 61).
 %
 %   MOPT is the centroid of the optimal intersection.
 %
@@ -38,11 +57,13 @@ function [ mopt, vopt, avals, mvals, vvals ] = scinrrd_optimal_intersecting_plan
 %
 %   AVALS is a vector with the record of area values from the optimization.
 %
-%   MVALS is a matrix with the coordinates of MOPT at each optimization
-%   iteration.
+%   MVALS is a volume with the coordinates of M at the different tested
+%   values. If optimisation is 'local', then MVALS is a matrix where each
+%   column is the centroid at each iteration step. If optimisation is
+%   'global', then MVALS is a volume where MVALS(T,P,:) is the centroid for
+%   the normal vector VVALS(T,P,:).
 %
-%   VVALS is a matrix with the record of VOPT at each optimization
-%   iteration.
+%   VVALS is a volume like MVALS, only for the normal vectors.
 %
 %
 %   Note on SCI NRRD: Software applications developed at the University of
@@ -97,12 +118,29 @@ error( nargoutchk( 0, 5, nargout, 'struct' ) );
 if ( nargin < 3 || isempty( v0 ) )
     v0 = [ 0 0 1 ];
 end
-if ( nargin < 4 || isempty( rad ) )
-    rad = [];
+if ( nargin < 4 || isempty( params ) )
+    params.type = 'local';
+    params.rad = [];
+    params.range = [ 30 30 ] / 180 * pi;
+    params.n = [ 61 61 ];
     se = [];
 end
+if (~isfield(params, 'type' ))
+    params.type = 'local';
+end
+if (~isfield(params, 'rad' ))
+    params.rad = [];
+    se = [];
+end
+if (~isfield(params, 'range' ))
+    params.range = [ 30 30 ] / 180 * pi;
+end
+if (~isfield(params, 'n' ))
+    params.n = [ 61 61 ];
+end
 
-% prevent user entering rotation matrix instead of initial vector
+% prevent user entering rotation matrix instead of initial vector by
+% mistake
 if ( size( v0, 2 ) ~= 1 || size( v0, 1 ) ~= 3 )
     error( 'V0 must be a column 3-vector' )
 end
@@ -111,16 +149,17 @@ end
 nrrd = scinrrd_squeeze( nrrd, true );
 
 % convert radius from real world size into number of pixels
-rad = round( rad ./ [ nrrd.axis( 1:length( rad ) ).spacing ] );
+params.rad = round( ...
+    params.rad ./ [ nrrd.axis( 1:length( params.rad ) ).spacing ] );
 
 % create disk for dilation/erosion if we are going to smooth in 2D
-if ( length( rad ) == 1 )
-    se = strel( 'disk', rad );
+if ( length( params.rad ) == 1 )
+    se = strel( 'disk', params.rad );
 end
 
 % 3D smoothing of the segmentation edges
-if ( length( rad ) == 2 )
-    se = strel( 'ball', rad(1), rad(2) );
+if ( length( params.rad ) == 2 )
+    se = strel( 'ball', params.rad(1), params.rad(2) );
     nrrd.data = imdilate( nrrd.data, se );
     nrrd.data = imerode( nrrd.data, se );
 end
@@ -135,42 +174,96 @@ end
 
 %% Optimisation of the intersection area
 
-% init variables to keep track of the evolution of area values in the
-% optimisation
-avals = [];
-mvals = [];
-vvals = [];
-
 % convert Cartesian coordinates into spherical coordinates (length has to
 % be one); note: we use phi for azimuth, and theta for elevation, contrary
-% to Matlab's convention
+% to Matlab's naming convention
 [ phi0, theta0 ] = cart2sph( v0(1), v0(2), v0(3) );
 
 % group spherical coordinates into vector
 alpha0 = [ phi0, theta0 ];
 
-% run optimisation to find minimum area; note that v0 is the only variable
-% optimised, but the rest (nrrd, x, y, z, m, rad, se) are available to
-% segmented_area_of_interest() because the latter is a subfunction
-alpha = fminsearch(@segmented_area_of_intersection, alpha0);
+% init variables to keep track of the evolution of area values in the
+% optimisation
+avals = [];
+mvals = [];
+vvals = [];
+    
+% local or global optimisation
+if strcmp( params.type, 'local' )
 
-% convert result from spherical to Carterian coordinates
-[ aux1 aux2 aux3 ] = sph2cart( alpha(1), alpha(2), 1.0 );
-vopt = [ aux1 aux2 aux3 ];
+    % run optimisation to find minimum area; note that v0 is the only
+    % variable optimised, but the rest (nrrd, x, y, z, m, rad, se) are
+    % available to segmented_area_of_intersection() because the latter is a
+    % subfunction
+    alpha = fminsearch(@segmented_area_of_intersection, alpha0);
+    
+    % convert result from spherical to Carterian coordinates
+    [ aux1 aux2 aux3 ] = sph2cart( alpha(1), alpha(2), 1.0 );
+    vopt = [ aux1 aux2 aux3 ];
+    
+    % final centroid of the intersecting plane
+    mopt = mvals( :, end );
 
-% final centroid of the intersecting plane
-mopt = mvals( :, end );
+elseif strcmp( params.type, 'global' )
+    
+    % interval of azimuth angle values, phi \in [-180º, 180º] or \in 
+    % [0, 360º]
+    phimin = phi0 - abs( params.range(1) );
+    phimax = phi0 + abs( params.range(1) );
+    
+    % interval of elevation angle values, theta \in [-90º, 90º]
+    thmin = max( theta0 - abs( params.range(2) ), -pi/2 );
+    thmax = min( theta0 + abs( params.range(2) ), pi/2 );
+    
+    % sample angle intervals
+    phivals = linspace( phimin, phimax, params.n(1) );
+    thetavals = linspace( thmin, thmax, params.n(2) );
+    
+    % create matrices to save outputs; note that for each area value we
+    % need to save a 3-vector with the rotation point, and a 3-vector with
+    % the normal plane
+    avals = zeros( length(thetavals), length(phivals) );
+    mvals = zeros( length(thetavals), length(phivals), 3 );
+    vvals = zeros( length(thetavals), length(phivals), 3 );
+    
+    % compute area for each combination of elevation and azimuth angles
+    for T = 1:length( thetavals ) % elevation
+        for P = 1:length( phivals ) % azimuth
+            [ a, mnew, v ] = segmented_area_of_intersection( ...
+                [ phivals(P) thetavals(T) ] );
+            
+            % put values in output matrices
+            avals(T, P) = a;
+            mvals(T, P, :) = mnew;
+            vvals(T, P, :) = v;
+            
+        end
+    end
+    
+    % find minimum area
+    [foo, idx] = min( avals(:) );
+    
+    % convert linear index to multiple subscripts
+    [T, P] = ind2sub( size(avals), idx );
+    
+    % output optimal plane
+    mopt = squeeze( mvals(T, P, :) );
+    vopt = squeeze( vvals(T, P, :) );
+    
+else
+    error( [ 'Optimisation type not implemented: ' params.type ] )
+end
 
     %% Objective function (the function we are trying to minimise)
     
     % rotate plane, intersect with image, and compute segmented area
-    function a = segmented_area_of_intersection(alpha)
+    function [a, mnew, v] = segmented_area_of_intersection(alpha)
         
         % convert spherical to Carterian coordinates
         [ aux1 aux2 aux3 ] = sph2cart( alpha(1), alpha(2), 1.0 );
-        v = [ aux1 aux2 aux3 ];
+        v = [ aux1 aux2 aux3 ]';
         
-        % normalize vector
+        % vector cannot be zero
         if ( norm(v) == 0 )
             error( 'Normal vector to plane cannot be (0,0,0)' )
         end
@@ -185,7 +278,7 @@ mopt = mvals( :, end );
         [ im, zp, xp, yp ] = scinrrd_intersect_plane(nrrd, m0, v, x, y, z);
         
         % 2D smoothing of the segmentation edges
-        if ( length( rad ) == 1 )
+        if ( length( params.rad ) == 1 )
             im = imdilate( im, se );
             im = imerode( im, se );
         end
@@ -217,7 +310,7 @@ mopt = mvals( :, end );
         
         % compute a rotation matrix from the Cartesian system to the
         % rotated plane
-        rotmat = vec2rotmat( v' );
+        rotmat = vec2rotmat( v );
   
         % we are now seeing the rotated plane projected onto the horizontal
         % plane, i.e. we see the segmentation mask in perspective.
@@ -261,12 +354,15 @@ mopt = mvals( :, end );
         % the centroid is now on projected coordinates, but we need to put
         % it back on the real world coordinates
         mnew = rotmat * mnew';
-        mnew = mnew' + m0;
+        mnew = (mnew' + m0)';
         
-        % kept track of optimisation evolution
-        avals = [ avals a ];
-        vvals = [ vvals v' ];
-        mvals = [ mvals mnew' ];
+        % for the global algorithm, values are recorded in a different way
+        if strcmp( params.type, 'local' )
+            % kept track of optimisation evolution
+            avals = [ avals a ];
+            vvals = [ vvals v ];
+            mvals = [ mvals mnew ];
+        end
         
     end
 end
