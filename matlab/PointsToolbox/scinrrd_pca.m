@@ -77,7 +77,6 @@ sz = size( nrrd.data );
 [ir, ic, iz] = ind2sub( sz, idx );
 
 % convert indices to real world coordinates
-% note that in the NRRD volume, x-coords precede y-coords
 x = scinrrd_index2world( [ ir, ic, iz ], nrrd.axis );
 
 % compute centroid
