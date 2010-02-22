@@ -1,3 +1,9 @@
+2010-02-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scinrrd_box.m:
+
+	- SCINRRD_BOX Compute tight box around SCI NRRD segmentation.
+
 2010-02-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_optimal_intersecting_plane.m:
