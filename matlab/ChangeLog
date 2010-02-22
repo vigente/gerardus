@@ -1,5 +1,9 @@
 2010-02-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add PointsToolbox/intersect_line_plane.m:
+
+	- INTERSECT_LINE_PLANE Find intersection of a line with a plane.
+
 	* Add FiltersToolbox/scinrrd_box.m:
 
 	- SCINRRD_BOX Compute tight box around SCI NRRD segmentation.
