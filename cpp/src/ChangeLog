@@ -1,3 +1,10 @@
+2010-02-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* src/Rotate3DImage.cxx:
+
+	- Make default background colour 0, and add input argument to be
+	able to change it.
+
 2010-01-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* src/PadSegmentationMaskWithVoxels.cxx:

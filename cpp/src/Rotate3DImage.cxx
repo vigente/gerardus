@@ -112,7 +112,8 @@ int main(int argc, char** argv)
     fs::path                            outImPath;
     float                               centroidVal[3]; // rotation centroid
     float                               rotpVal[9]; // rotation matrix
-    float                               cxf, cxt, cyf, cyt, czf, czt;
+    float                               cxf, cxt, cyf, cyt, czf, czt; // cropping coordinates
+    float                               bg; // background intensity
     
     TCLAP::ValueArg< float > cropZToArg( "", "czt", "Crop Z-coordinate upper bound (to)", false, 0.0, "float" );
     TCLAP::ValueArg< float > cropZFromArg( "", "czf", "Crop Z-coordinate lower bound (from)", false, 0.0, "float" );
@@ -172,6 +173,10 @@ int main(int argc, char** argv)
         TCLAP::ValueArg< std::string > outImPathArg( "o", "outfile", "Output image filename", false, "", "file" );
         cmd.add( outImPathArg );
 
+        // input argument: filename of output segmentation mask
+        TCLAP::ValueArg< float > bgArg( "b", "bkg", "Background intensity", false, 0.0, "bkg" );
+        cmd.add( bgArg );
+
         // input argument: verbosity
         TCLAP::SwitchArg verboseSwitch( "v", "verbose", "Increase verbosity of program output", false );
         cmd.add( verboseSwitch );
@@ -183,6 +188,7 @@ int main(int argc, char** argv)
         imPath = fs::path( imPathArg.getValue() );
         outImPath = fs::path( outImPathArg.getValue() );
         verbose = verboseSwitch.getValue();
+        bg = bgArg.getValue();
         
         centroidVal[0] = cxArg.getValue();
         centroidVal[1] = cyArg.getValue();
@@ -454,7 +460,7 @@ int main(int argc, char** argv)
         interpolator = InterpolatorType::New();
         
         // set all the bits and pieces that go into the resampler
-        resampler->SetDefaultPixelValue( 50.0 );
+        resampler->SetDefaultPixelValue( bg );
         resampler->SetInterpolator( interpolator );
         resampler->SetTransform( transform );
         resampler->SetOutputOrigin( originOut );
