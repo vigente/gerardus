@@ -1,3 +1,15 @@
+2010-02-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/extmat2rotmat.m:
+
+	- EXTMAT2ROTMAT Convert rotation in extended matrix form into
+	centroid and matrix pair.
+
+	* Add PointsToolbox/rotmat2extmat.m:
+
+	- ROTMAT2EXTMAT  Convert centroid and rotation matrix pair to
+	extended matrix form.
+
 2010-02-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add PointsToolbox/intersect_line_plane.m:
