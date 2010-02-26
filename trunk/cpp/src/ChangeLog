@@ -1,3 +1,11 @@
+2010-02-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* src/Rotate3DImage.cxx:
+
+	- Change syntax. Instead of giving the centroid and rotation
+	matrix, in that order, we are expecting the (3,4) extended matrix,
+	that contains the rotation matrix and a translation vector.
+
 2010-02-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* src/Rotate3DImage.cxx:
