@@ -9,11 +9,13 @@ function b = rotmat2extmat(m, a)
 %
 %     Y = (A*X - M) + M
 %
-%   B is a (4,4)-matrix that describes the same transformation in extended
+%   B2 is a (4,4)-matrix that describes the same transformation in extended
 %   form
 %
-%     [Y] = B [X]
-%     [1]     [1]
+%     [Y] = B2 [X]
+%     [1]      [1]
+%
+%   B is B2 minus the bottom row.
 %
 % See also: extmat2rotmat.
 
@@ -58,4 +60,4 @@ end
 m = m(:);
 
 % extended format matrix
-b = [a, (eye(3)-a)*m ; 0 0 0 1 ];
+b = [a, (eye(3)-a)*m ];

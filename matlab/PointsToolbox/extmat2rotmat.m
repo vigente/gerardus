@@ -9,15 +9,18 @@ function [m, a] = extmat2rotmat(b)
 %
 %     Y = (A*X - M) + M
 %
-%   B is a (4,4)-matrix that describes the same transformation in extended
+%   B2 is a (4,4)-matrix that describes the same transformation in extended
 %   form
 %
-%     [Y] = B [X]
-%     [1]     [1]
+%     [Y] = B2 [X]
+%     [1]      [1]
 %
-%   Warning: Computing M from B requires the inversion of a matrix that can
-%   be ill-conditioned or singular. In that case, an approximation proposed
-%   by [1] is used, but some errors observed are as large as O(1e-3).
+%   B is B2 minus the bottom row.
+%
+%   Warning: Computing M from B2 requires the inversion of a matrix that
+%   can be ill-conditioned or singular. In that case, an approximation
+%   proposed by [1] is used, but some errors observed are as large as
+%   O(1e-3).
 %
 %  [1] H.J. Kim, et al., “A new algorithm for solving ill-conditioned
 %  linear systems”, IEEE Trans. Magnetics, 33: 1373-1376, 1996

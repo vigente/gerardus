@@ -1,3 +1,9 @@
+2010-02-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/extmat2rotmat.m, PointsToolbox/rotmat2extmat.m:
+
+	- Remove the bottom row of the extended matrix.
+
 2010-02-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add PointsToolbox/extmat2rotmat.m:
