@@ -5,19 +5,31 @@
  * 
  * Example of usage:
  * 
- *  $ ./rotate3DImage image.mha 0.011 0.013 0.014 0.783 0.610 0.118 0.440 -0.679 0.586 -0.437 0.407 0.801
- * ($ ./rotate3DImage image.mha  mx    my     mz   a11   a21   a31   a12    a22   a32    a13   a23   a33 )
+ *  $ ./rotate3DImage image.mha 0.7830 0.6100 0.1180 0.4400 -0.6790 0.5860 -0.4370 0.4070 0.8010 0.0028 0.0094 -0.0061
+ * ($ ./rotate3DImage image.mha  a11   a21   a31   a12    a22   a32    a13   a23   a33    tx   ty   tz )
  * 
- * This rotates the 3D image contained in image.mha around the centroid [0.011 0.013 0.014] using the rotation
- * matrix
+ * This rotates the 3D image contained in image.mha using the rotation matrix
  * 
- *     [ 0.783   0.440  -0.437 ]
- * A = [ 0.610  -0.679   0.407 ]
- *     [ 0.118   0.586   0.801 ]
+ *     [ 0.7830  0.4400 -0.4370  0.0028]
+ * A = [ 0.6100 -0.6790  0.4070  0.0094]
+ *     [ 0.1180  0.5860  0.8010 -0.0061]
+ *     [ 0.0000  0.0000  0.0000  1.0000]
  * 
- * That is, matrix values are provided in row-major (column index changes faster) order.
+ * The rotation in extended form is
  * 
- * Note that this corresponds to first moving the image so that the centroid is placed at (0, 0, 0).
+ *   Y = A*X
+ * 
+ * where Y'=[y' 1]', X'=[x' 1]'. The extended rotation matrix can be expressed as
+ * 
+ *   A = [a   (I-a)*m]
+ *       [0       1  ]
+ * 
+ * where a is a (3,3) rotation matrix, and m is the centre of rotation, or also as
+ * 
+ *   A = [a       t  ]
+ *       [0       1  ]
+ * 
+ * where t can be seen as a translation.
  * 
  * Then the rotation is applied to each voxel coordinate v as v' = A v. But note that because of the way ITK
  * works, the transformation is applied to the voxel coordinates of the *output* image. That is, 
@@ -110,8 +122,7 @@ int main(int argc, char** argv)
     fs::path                            imPath;
     bool                                verbose;
     fs::path                            outImPath;
-    float                               centroidVal[3]; // rotation centroid
-    float                               rotpVal[9]; // rotation matrix
+    float                               rotpVal[12]; // rotation around centroid matrix
     float                               cxf, cxt, cyf, cyt, czf, czt; // cropping coordinates
     float                               bg; // background intensity
     
@@ -130,14 +141,6 @@ int main(int argc, char** argv)
         // input argument: filename of input segmentation mask
         TCLAP::UnlabeledValueArg< std::string > imPathArg( "image", "3D image", true, "", "file" );
         cmd.add( imPathArg );
-
-        // input argument: rotation centroid coordinates
-        TCLAP::UnlabeledValueArg< float > cxArg( "mx", "X-coordinate for rotation centroid", true, 0.0, "mx" );
-        cmd.add( cxArg );
-        TCLAP::UnlabeledValueArg< float > cyArg( "my", "Y-coordinate for rotation centroid", true, 0.0, "my" );
-        cmd.add( cyArg );
-        TCLAP::UnlabeledValueArg< float > czArg( "mz", "Z-coordinate for rotation centroid", true, 0.0, "mz" );
-        cmd.add( czArg );
 
         // input argument: rotation matrix
         TCLAP::UnlabeledValueArg< float > a11Arg( "a11", "(1, 1) element of rotation matrix", true, 0.0, "A11" );
@@ -160,6 +163,13 @@ int main(int argc, char** argv)
         cmd.add( a23Arg );
         TCLAP::UnlabeledValueArg< float > a33Arg( "a33", "(3, 3) element of rotation matrix", true, 0.0, "A33" );
         cmd.add( a33Arg );
+
+        TCLAP::UnlabeledValueArg< float > txArg( "a14", "(1, 4) element of rotation matrix", true, 0.0, "A14" );
+        cmd.add( txArg );
+        TCLAP::UnlabeledValueArg< float > tyArg( "a24", "(2, 4) element of rotation matrix", true, 0.0, "A24" );
+        cmd.add( tyArg );
+        TCLAP::UnlabeledValueArg< float > tzArg( "a34", "(3, 4) element of rotation matrix", true, 0.0, "A34" );
+        cmd.add( tzArg );
 
         // input argument: cropping coordinates
         cmd.add( cropZToArg );
@@ -190,19 +200,21 @@ int main(int argc, char** argv)
         verbose = verboseSwitch.getValue();
         bg = bgArg.getValue();
         
-        centroidVal[0] = cxArg.getValue();
-        centroidVal[1] = cyArg.getValue();
-        centroidVal[2] = czArg.getValue();
         
-        rotpVal[0] = a11Arg.getValue();
-        rotpVal[1] = a21Arg.getValue();
-        rotpVal[2] = a31Arg.getValue();
-        rotpVal[3] = a12Arg.getValue();
-        rotpVal[4] = a22Arg.getValue();
-        rotpVal[5] = a32Arg.getValue();
-        rotpVal[6] = a13Arg.getValue();
-        rotpVal[7] = a23Arg.getValue();
-        rotpVal[8] = a33Arg.getValue();
+        // the matrix is passed to the parameters vectorin row-major order 
+        // (where the column index varies the fastest)
+        rotpVal[0]  = a11Arg.getValue();
+        rotpVal[1]  = a12Arg.getValue();
+        rotpVal[2]  = a13Arg.getValue();
+        rotpVal[3]  = a21Arg.getValue();
+        rotpVal[4]  = a22Arg.getValue();
+        rotpVal[5]  = a23Arg.getValue();
+        rotpVal[6]  = a31Arg.getValue();
+        rotpVal[7]  = a32Arg.getValue();
+        rotpVal[8]  = a33Arg.getValue();
+        rotpVal[9]  = txArg.getValue();
+        rotpVal[10] = tyArg.getValue();
+        rotpVal[11] = tzArg.getValue();
         
         cxf = cropXFromArg.getValue();
         cxt = cropXToArg.getValue();
@@ -339,37 +351,18 @@ int main(int argc, char** argv)
         imIn->TransformIndexToPhysicalPoint( idx, point );
         vertices->SetPoint( 7, point );
   
-        // compute affine transformation that will rotate the image around the 
-        // segmentation mask centroid to make the heart vertical
+        // initialize the affine transform to identity
         transform->SetIdentity();
-        
-        // set as center of rotation the centroid of the tissue voxels
-        centroid[0] = centroidVal[0];
-        centroid[1] = centroidVal[1];
-        centroid[2] = centroidVal[2];
-        transform->Translate( -centroid );
-        
-        TransformType::Pointer rot = TransformType::New();
-        rot->SetIdentity();
-        TransformType::ParametersType rotp = rot->GetParameters();
 
-        rotp[0] = rotpVal[0];
-        rotp[1] = rotpVal[1];
-        rotp[2] = rotpVal[2];
-        rotp[3] = rotpVal[3];
-        rotp[4] = rotpVal[4];
-        rotp[5] = rotpVal[5];
-        rotp[6] = rotpVal[6];
-        rotp[7] = rotpVal[7];
-        rotp[8] = rotpVal[8];
+        // initialize an array for the affine transform parameters
+        transform->SetIdentity();
+        TransformType::ParametersType rotp = transform->GetParameters();
 
-        rot->SetParameters( rotp );
+        for (size_t i=0; i<12; ++i) {
+            rotp[i] = rotpVal[i];
+        }
 
-        // post-compose rotation with existing translation
-        transform->Compose( rot, false );
-        
-        // post-compose translation back to original position
-        transform->Translate( centroid, false );
+        transform->SetParameters( rotp );
         
         // because the affine transformation defined for the image maps coordinates in 
         // the output image to coordinates in the input image, we need the inverse 
