@@ -1,3 +1,12 @@
+2010-03-02  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* src/Rotate3DImage.cxx:
+
+	- Add input argument to select the interpolator type. Now we can
+	choose between bspline or nearest neighbour. The reason is that
+	bspline was giving bad results for binary masks (but works well
+	for grayscale images).
+
 2010-02-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* src/Rotate3DImage.cxx:
