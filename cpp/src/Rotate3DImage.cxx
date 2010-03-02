@@ -106,6 +106,7 @@ namespace fs = boost::filesystem;
 #include "itkResampleImageFilter.h"
 #include "itkAffineTransform.h"
 #include "itkBSplineInterpolateImageFunction.h"
+#include "itkNearestNeighborInterpolateImageFunction.h"
 #include "itkPointSet.h"
 #include "itkTransformMeshFilter.h"
 #include "itkMesh.h"
@@ -125,6 +126,7 @@ int main(int argc, char** argv)
     float                               rotpVal[12]; // rotation around centroid matrix
     float                               cxf, cxt, cyf, cyt, czf, czt; // cropping coordinates
     float                               bg; // background intensity
+    std::string                         interpType; // interpolator type
     
     TCLAP::ValueArg< float > cropZToArg( "", "czt", "Crop Z-coordinate upper bound (to)", false, 0.0, "float" );
     TCLAP::ValueArg< float > cropZFromArg( "", "czf", "Crop Z-coordinate lower bound (from)", false, 0.0, "float" );
@@ -187,6 +189,10 @@ int main(int argc, char** argv)
         TCLAP::ValueArg< float > bgArg( "b", "bkg", "Background intensity", false, 0.0, "bkg" );
         cmd.add( bgArg );
 
+        // input argument: interpolating type
+        TCLAP::ValueArg< std::string > interpTypeArg( "i", "interp", "Interpolator type: bspline (default), nn", false, "bspline", "string" );
+        cmd.add( interpTypeArg );
+
         // input argument: verbosity
         TCLAP::SwitchArg verboseSwitch( "v", "verbose", "Increase verbosity of program output", false );
         cmd.add( verboseSwitch );
@@ -199,6 +205,7 @@ int main(int argc, char** argv)
         outImPath = fs::path( outImPathArg.getValue() );
         verbose = verboseSwitch.getValue();
         bg = bgArg.getValue();
+        interpType = interpTypeArg.getValue();
         
         
         // the matrix is passed to the parameters vectorin row-major order 
@@ -436,21 +443,31 @@ int main(int argc, char** argv)
                   InputImageType, OutputImageType >      ResampleFilterType;
     // cubic spline
     typedef itk::BSplineInterpolateImageFunction< 
-                       InputImageType, TScalarType >     InterpolatorType;
-  
+                  InputImageType, TScalarType >     BSplineInterpolatorType;
+    typedef itk::NearestNeighborInterpolateImageFunction< 
+                  InputImageType, TScalarType >     NearestNeighborInterpolatorType;
+    typedef itk::InterpolateImageFunction< 
+                  InputImageType, TScalarType >     InterpolatorType;
 
     // image variables
     OutputImageType::Pointer                             imOut;
 
     // filters
     ResampleFilterType::Pointer                          resampler;
+
     InterpolatorType::Pointer                            interpolator;
 
     try {
         
         // create objects for rotation
         resampler = ResampleFilterType::New();
-        interpolator = InterpolatorType::New();
+        if (interpType == "bspline") {
+            interpolator = BSplineInterpolatorType::New();
+        } else if (interpType == "nn") {
+            interpolator = NearestNeighborInterpolatorType::New();
+        } else {
+            throw std::string("Invalid interpolator type");
+        }
         
         // set all the bits and pieces that go into the resampler
         resampler->SetDefaultPixelValue( bg );
@@ -470,10 +487,15 @@ int main(int argc, char** argv)
                 << sizeOut[1] << "\t" << sizeOut[2] << std::endl; 
         }
         
-    } catch( const std::exception &e )  // catch any exceptions
+    } catch( const std::exception &e )  // catch exceptions
     {
         std::cerr << "Error rotating input image: " << std::endl 
         << e.what() << std::endl;
+        return EXIT_FAILURE;
+    } catch( const std::string &e )  // catch exceptions
+    {
+        std::cerr << "Error rotating input image: " << std::endl 
+        << e << std::endl;
         return EXIT_FAILURE;
     }
 
