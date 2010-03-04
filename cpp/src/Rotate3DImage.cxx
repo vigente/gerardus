@@ -142,10 +142,33 @@ int main(int argc, char** argv)
         // Define the command line object, program description message, separator, version
         TCLAP::CmdLine cmd( "rotate3DImage: rotate a 3D image in space", ' ', "0.0" );
     
-        // input argument: filename of input segmentation mask
-        TCLAP::UnlabeledValueArg< std::string > imPathArg( "image", "3D image", true, "", "file" );
-        cmd.add( imPathArg );
+        // input argument: cropping coordinates
+        cmd.add( cropZToArg );
+        cmd.add( cropZFromArg );
+        cmd.add( cropYToArg );
+        cmd.add( cropYFromArg );
+        cmd.add( cropXToArg );
+        cmd.add( cropXFromArg );
 
+        // input argument: filename of output segmentation mask
+        TCLAP::ValueArg< std::string > outImPathArg( "o", "outfile", "Output image filename", false, "", "file" );
+        cmd.add( outImPathArg );
+
+        // input argument: filename of output segmentation mask
+        TCLAP::ValueArg< float > bgArg( "b", "bkg", "Background intensity", false, 0.0, "bkg" );
+        cmd.add( bgArg );
+
+        // input argument: auto cropping
+        cmd.add( autoCropArg );
+    
+        // input argument: interpolating type
+        TCLAP::ValueArg< std::string > interpTypeArg( "i", "interp", "Interpolator type: bspline (default), nn", false, "bspline", "string" );
+        cmd.add( interpTypeArg );
+
+        // input argument: verbosity
+        TCLAP::SwitchArg verboseSwitch( "v", "verbose", "Increase verbosity of program output", false );
+        cmd.add( verboseSwitch );
+    
         // input argument: rotation matrix
         TCLAP::UnlabeledValueArg< float > a11Arg( "a11", "(1, 1) element of rotation matrix", true, 0.0, "A11" );
         cmd.add( a11Arg );
@@ -175,33 +198,10 @@ int main(int argc, char** argv)
         TCLAP::UnlabeledValueArg< float > tzArg( "a34", "(3, 4) element of rotation matrix", true, 0.0, "A34" );
         cmd.add( tzArg );
 
-        // input argument: cropping coordinates
-        cmd.add( cropZToArg );
-        cmd.add( cropZFromArg );
-        cmd.add( cropYToArg );
-        cmd.add( cropYFromArg );
-        cmd.add( cropXToArg );
-        cmd.add( cropXFromArg );
+        // input argument: filename of input file
+        TCLAP::UnlabeledValueArg< std::string > imPathArg( "image", "3D image", true, "", "file" );
+        cmd.add( imPathArg );
 
-        // input argument: filename of output segmentation mask
-        TCLAP::ValueArg< std::string > outImPathArg( "o", "outfile", "Output image filename", false, "", "file" );
-        cmd.add( outImPathArg );
-
-        // input argument: filename of output segmentation mask
-        TCLAP::ValueArg< float > bgArg( "b", "bkg", "Background intensity", false, 0.0, "bkg" );
-        cmd.add( bgArg );
-
-        // input argument: auto cropping
-        cmd.add( autoCropArg );
-    
-        // input argument: interpolating type
-        TCLAP::ValueArg< std::string > interpTypeArg( "i", "interp", "Interpolator type: bspline (default), nn", false, "bspline", "string" );
-        cmd.add( interpTypeArg );
-
-        // input argument: verbosity
-        TCLAP::SwitchArg verboseSwitch( "v", "verbose", "Increase verbosity of program output", false );
-        cmd.add( verboseSwitch );
-    
         // Parse the command line arguments
         cmd.parse( argc, argv );
 
