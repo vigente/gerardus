@@ -48,15 +48,19 @@ matlab2vox_seg3d
 	Convert Matlab file with Seg3D segmentation to .vox format (for
 	the Tarantula meshing application).
 
-scinrrd_seg3d2matlab
+scinrrd_load
 
-	Correct dimensions of data loaded from SCI NRRD so that rows
-	and columns will follow Matlab's coordinates.
+	Load a NRRD struct saved to Matlab format.
 
 scinrrd_index2world
 
 	Convert data volume indices to real world coordinates for NRRD
 	volumes created by SCI applications (e.g. Seg3D).
+
+scinrrd_seg3d2matlab
+
+	Correct dimensions of data loaded from SCI NRRD so that rows
+	and columns will follow Matlab's coordinates.
 
 scinrrd_world2index
 
