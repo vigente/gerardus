@@ -8,18 +8,23 @@
  *  $ ./rotate3DImage image.mha 0.7830 0.6100 0.1180 0.4400 -0.6790 0.5860 -0.4370 0.4070 0.8010 0.0028 0.0094 -0.0061
  * ($ ./rotate3DImage image.mha  a11   a21   a31   a12    a22   a32    a13   a23   a33    tx   ty   tz )
  * 
- * This rotates the 3D image contained in image.mha using the rotation matrix
+ * This rotates the 3D image contained in image.mha using the rotation matrix in extended form A
  * 
  *     [ 0.7830  0.4400 -0.4370  0.0028]
  * A = [ 0.6100 -0.6790  0.4070  0.0094]
  *     [ 0.1180  0.5860  0.8010 -0.0061]
  *     [ 0.0000  0.0000  0.0000  1.0000]
  * 
+ * Note: The order a11, a21,... has been selected to make it compatible with Matlab's way of linearizing
+ * matrices.
+ * A is the transformation from input space to output space coordinates.
+ * 
  * The rotation in extended form is
  * 
  *   Y = A*X
  * 
- * where Y'=[y' 1]', X'=[x' 1]'. The extended rotation matrix can be expressed as
+ * where Y'=[y' 1]', X'=[x' 1]' are voxel coordinates in output and input space, respectively. 
+ * The extended rotation matrix can be expressed as
  * 
  *   A = [a   (I-a)*m]
  *       [0       1  ]
@@ -30,14 +35,6 @@
  *       [0       1  ]
  * 
  * where t can be seen as a translation.
- * 
- * Then the rotation is applied to each voxel coordinate v as v' = A v. But note that because of the way ITK
- * works, the transformation is applied to the voxel coordinates of the *output* image. That is, 
- * the rotation will be the opposite of what you expect. This is not a big problem, because
- * the opposite rotation of A is A^T, where T means transpose. Thus, all you have to do is
- * provide the transpose of the rotation matrix if you have that issue.
- * 
- * Finally, the image is translated to the original centroid. 
  * 
  * The results are saved to file image-rotated.mha by default, although it's possible to specify the output
  * file name with argument -o --outfile.
@@ -107,7 +104,7 @@ namespace fs = boost::filesystem;
 #include "itkAffineTransform.h"
 #include "itkBSplineInterpolateImageFunction.h"
 #include "itkNearestNeighborInterpolateImageFunction.h"
-#include "itkPointSet.h"
+//#include "itkPointSet.h"
 #include "itkTransformMeshFilter.h"
 #include "itkMesh.h"
 
@@ -119,6 +116,8 @@ int main(int argc, char** argv)
     /** Command line parser block **/
     /*******************************/
     
+    static const unsigned int   MatlabPrecision = 15; // number of decimal figures after the point in Matlab
+    
     // command line input argument types and variables
     fs::path                            imPath;
     bool                                verbose;
@@ -127,6 +126,7 @@ int main(int argc, char** argv)
     float                               cxf, cxt, cyf, cyt, czf, czt; // cropping coordinates
     float                               bg; // background intensity
     std::string                         interpType; // interpolator type
+    float                               autoCrop;
     
     TCLAP::ValueArg< float > cropZToArg( "", "czt", "Crop Z-coordinate upper bound (to)", false, 0.0, "float" );
     TCLAP::ValueArg< float > cropZFromArg( "", "czf", "Crop Z-coordinate lower bound (from)", false, 0.0, "float" );
@@ -134,6 +134,8 @@ int main(int argc, char** argv)
     TCLAP::ValueArg< float > cropYFromArg( "", "cyf", "Crop Y-coordinate lower bound (from)", false, 0.0, "float" );
     TCLAP::ValueArg< float > cropXToArg( "", "cxt", "Crop X-coordinate upper bound (to)", false, 0.0, "float" );
     TCLAP::ValueArg< float > cropXFromArg( "", "cxf", "Crop X-coordinate lower bound (from)", false, 0.0, "float" );
+
+    TCLAP::ValueArg< float > autoCropArg( "a", "autocrop", "Percent of padding space left around the segmentation mask", false, 0.0, "float" );
     
     try {
         
@@ -189,6 +191,9 @@ int main(int argc, char** argv)
         TCLAP::ValueArg< float > bgArg( "b", "bkg", "Background intensity", false, 0.0, "bkg" );
         cmd.add( bgArg );
 
+        // input argument: auto cropping
+        cmd.add( autoCropArg );
+    
         // input argument: interpolating type
         TCLAP::ValueArg< std::string > interpTypeArg( "i", "interp", "Interpolator type: bspline (default), nn", false, "bspline", "string" );
         cmd.add( interpTypeArg );
@@ -206,10 +211,12 @@ int main(int argc, char** argv)
         verbose = verboseSwitch.getValue();
         bg = bgArg.getValue();
         interpType = interpTypeArg.getValue();
-        
-        
+        autoCrop = autoCropArg.getValue();
+                
         // the matrix is passed to the parameters vectorin row-major order 
-        // (where the column index varies the fastest)
+        // (where the column index varies the fastest),
+        // while the input arguments are in colum-major order, to make it
+        // compatible with Matlab's way of linearizing matrices
         rotpVal[0]  = a11Arg.getValue();
         rotpVal[1]  = a12Arg.getValue();
         rotpVal[2]  = a13Arg.getValue();
@@ -291,9 +298,6 @@ int main(int argc, char** argv)
     /** Rotate vertices of image frame to figure out how big it's going to be  **/
     /****************************************************************************/
 
-    typedef itk::PointSet< TScalarType, 
-                            Dimension >                  PointSetType;
-    typedef PointSetType::PointType                      PointType;
     typedef unsigned short                               UShortPixelType;
     typedef itk::Image< UShortPixelType, 
                         Dimension >                      OutputImageType;
@@ -302,13 +306,16 @@ int main(int argc, char** argv)
                                   Dimension >            TransformType;
     typedef itk::Index< Dimension >                      IndexType;
     typedef itk::Mesh< TScalarType, Dimension >          MeshType;
+    typedef MeshType::PointType                          PointType;
     typedef itk::TransformMeshFilter< MeshType, 
                                       MeshType, 
                                       TransformType >    TransformMeshFilter;
+    typedef itk::ImageRegionConstIterator< InputImageType > ConstIteratorType;
     
     PointType                         point;
+    PointType                         minpoint, maxpoint;
     IndexType                         idx, minidx, maxidx;
-    TransformType::Pointer            transform, transformInv;
+    TransformType::Pointer            transform;
     MeshType::Pointer                 vertices;
     TransformMeshFilter::Pointer      transformMesh;
     OutputSizeType                    sizeOut;
@@ -323,7 +330,6 @@ int main(int argc, char** argv)
         // init objects
         vertices = MeshType::New();
         transform = TransformType::New();
-        transformInv = TransformType::New();
         transformMesh = TransformMeshFilter::New();
         
         // build mesh with the 8 vertices of the frame that contains the image
@@ -357,7 +363,7 @@ int main(int argc, char** argv)
         idx[0] = sizeIn[0]-1; idx[1] = sizeIn[1]-1; idx[2] = sizeIn[2]-1;
         imIn->TransformIndexToPhysicalPoint( idx, point );
         vertices->SetPoint( 7, point );
-  
+
         // initialize the affine transform to identity
         transform->SetIdentity();
 
@@ -371,25 +377,20 @@ int main(int argc, char** argv)
 
         transform->SetParameters( rotp );
         
-        // because the affine transformation defined for the image maps coordinates in 
-        // the output image to coordinates in the input image, we need the inverse 
-        // transformation to figure out where the input frame will go in the output image
-        transform->GetInverse( transformInv );
-        
         // apply affine transformation to the image frame's vertices
-        transformMesh->SetTransform( transformInv );
-        transformMesh->SetInput( vertices );
+        transformMesh->SetTransform(transform);
+        transformMesh->SetInput(vertices);
         
         transformMesh->Update();
-        
+
         // find a Cartesian frame that encloses the rotated image frame
-        PointType minpoint, maxpoint;
         for (int i=0; i<3; i++) // init points that delimitate the rotated frame
         {
             minpoint[i] = std::numeric_limits<TScalarType>::max();
             maxpoint[i] = std::numeric_limits<TScalarType>::min();
         }
         
+        vertices->PrepareForNewData();
         vertices = transformMesh->GetOutput();
 
         for ( int i = 0; i <= 7; i++ )
@@ -405,8 +406,61 @@ int main(int argc, char** argv)
             maxpoint[2] = std::max(maxpoint[2], point[2]);
         }
         
-        // if the user has entered cropping parameters, then the corresponding 
-        // ones computed for the output frame need to be overriden
+        // if the user has entered an autocrop percentage, then we have 
+        // to compute the dimensions of the segmentation mask
+        if (autoCropArg.isSet()) {
+            
+            // swap max and min values, because we know that the segmentation mask has
+            // to be within those values
+            point = minpoint;
+            minpoint = maxpoint;
+            maxpoint = point;
+
+            // we are going to reuse the vertices
+            vertices->PrepareForNewData();
+            
+            // loop all voxels, and find a tight frame around the segmentation mask
+            // (note, we are looping in the input image, but we have to convert the 
+            // coordinates to output space)
+            PointType point;
+            ConstIteratorType iterator(imIn, imIn->GetLargestPossibleRegion());
+            for (iterator.GoToBegin(); !iterator.IsAtEnd(); ++iterator)
+            {
+                
+                // if the voxel has been marked as belonging to a landmark, 
+                // see whether we have to change the cropping area
+                if ( iterator.Get() )
+                {
+                    
+                    // compute point coordinates in input space
+                    imIn->TransformIndexToPhysicalPoint(iterator.GetIndex(), point);
+                    
+                    // convert coordinates to output space
+                    point = transform->TransformPoint(point);
+                    
+                    // update tight frame, if necessary
+                    minpoint[0] = std::min(minpoint[0], point[0]);
+                    minpoint[1] = std::min(minpoint[1], point[1]);
+                    minpoint[2] = std::min(minpoint[2], point[2]);
+        
+                    maxpoint[0] = std::max(maxpoint[0], point[0]);
+                    maxpoint[1] = std::max(maxpoint[1], point[1]);
+                    maxpoint[2] = std::max(maxpoint[2], point[2]);
+                }
+            } 
+            
+            // extend (or reduce) the thight frame according to the autocrop parameter
+            PointType delta;
+            for (size_t i = 0; i <  Dimension; ++i) {
+                delta[i] = (maxpoint[i] - minpoint[i]) * autoCrop / 100.0;
+                minpoint[i] -= delta[i];
+                maxpoint[i] += delta[i];
+            }
+            
+        } // if (autoCropArg.isSet())
+        
+        // if the user has entered cropping parameters, then they override
+        // anything else computed so far
         if ( cropXFromArg.isSet() ) {  minpoint[0] = cxf;  }
         if ( cropYFromArg.isSet() ) {  minpoint[1] = cyf;  }
         if ( cropZFromArg.isSet() ) {  minpoint[2] = czf;  }
@@ -414,10 +468,20 @@ int main(int argc, char** argv)
         if ( cropYToArg.isSet() ) {  maxpoint[1] = cyt;  }
         if ( cropZToArg.isSet() ) {  maxpoint[2] = czt;  }
         
-        // compute the size of the new frame
-        point[0] = maxpoint[0] - minpoint[0];
-        point[1] = maxpoint[1] - minpoint[1];
-        point[2] = maxpoint[2] - minpoint[2];
+        // output cropping parameters used, in case they are needed for another image
+        if (verbose) {
+            std::cout.precision( MatlabPrecision );
+            std::cout << "# --cxf " << minpoint[0]
+                      << " --cxt "  << maxpoint[0]
+                      << " --cyf " << minpoint[1]
+                      << " --cyt "  << maxpoint[1]
+                      << " --czf " << minpoint[2]
+                      << " --czt "  << maxpoint[2] << std::endl;
+        }
+        
+        // compute the size of the new frame (we use imIn because if we assume that the resolution
+        // doesn't change, the out size should be correct even if the indices are obtained in
+        // input space)
         imIn->TransformPhysicalPointToIndex( minpoint, minidx );
         imIn->TransformPhysicalPointToIndex( maxpoint, maxidx );
         sizeOut[0] = maxidx[0] - minidx[0] + 1;
@@ -454,10 +518,13 @@ int main(int argc, char** argv)
 
     // filters
     ResampleFilterType::Pointer                          resampler;
-
+    TransformType::Pointer                               transformInv;
     InterpolatorType::Pointer                            interpolator;
 
     try {
+
+        // init objects
+        transformInv = TransformType::New();
         
         // create objects for rotation
         resampler = ResampleFilterType::New();
@@ -469,10 +536,18 @@ int main(int argc, char** argv)
             throw std::string("Invalid interpolator type");
         }
         
+        // the way ITK works, when you define a transform A and apply it to:
+        //   * an image: it applies A^{-1} to the coordinates of voxels in output space to see
+        //               which input coordinates they correspond to (and interpolate). This is 
+        //               equivalent to applying A to the input coordinates
+        //   * a mesh:   it applies A to the mesh coordinates, i.e. to the points in
+        //               input space. Note that this is consistent with the image behaviour
+        transform->GetInverse( transformInv );
+        
         // set all the bits and pieces that go into the resampler
         resampler->SetDefaultPixelValue( bg );
         resampler->SetInterpolator( interpolator );
-        resampler->SetTransform( transform );
+        resampler->SetTransform( transformInv );
         resampler->SetOutputOrigin( originOut );
         resampler->SetOutputSpacing( spacing );
         resampler->SetSize( sizeOut );
@@ -481,7 +556,7 @@ int main(int argc, char** argv)
         // rotate image
         resampler->Update();
         imOut = resampler->GetOutput();
-        
+
         if ( verbose ) {
             std::cout << "# Output Image dimensions: " << sizeOut[0] << "\t" 
                 << sizeOut[1] << "\t" << sizeOut[2] << std::endl; 
