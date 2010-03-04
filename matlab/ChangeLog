@@ -1,5 +1,10 @@
 2010-03-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add FiltersToolbox/scinrrd_papillary_muscles.m:
+
+	- Extract the papillay muscles from a segmentation of the Left
+	Ventricle's cavity.
+
 	* Add FileFormatToolbox/scinrrd_save.m:
 
 	- SCINRRD_SAVE Save a NRRD struct to a Matlab format that can be
