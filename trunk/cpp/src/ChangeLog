@@ -2,6 +2,10 @@
 
 	* src/Rotate3DImage.cxx:
 
+	- Reorder input arguments, so that now filename is at the
+	end. This way, we can use xargs on the shell and rotate a
+	list of files.
+
 	- Major bug fix. Input transformation was all mixed up. Now the
 	input transformation is expected to be in the intuitive
 	direction. For example, if you want to rotate the volume 30º
