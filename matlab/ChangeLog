@@ -1,5 +1,8 @@
 2010-03-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add CardiacToolbox, a directory to keep functions that are only
+	relevant to cardiac image processing.
+
 	* Add FiltersToolbox/scinrrd_papillary_muscles.m:
 
 	- Extract the papillay muscles from a segmentation of the Left
