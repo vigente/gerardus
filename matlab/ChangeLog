@@ -1,3 +1,9 @@
+2010-03-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FileFormatToolbox/scinrrd_load.m:
+
+	- SCINRRD_LOAD Load a NRRD struct saved to Matlab format.
+
 2010-02-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* PointsToolbox/extmat2rotmat.m, PointsToolbox/rotmat2extmat.m:
