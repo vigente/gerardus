@@ -53,12 +53,12 @@ scinrrd_seg3d2matlab
 	Correct dimensions of data loaded from SCI NRRD so that rows
 	and columns will follow Matlab's coordinates.
 
-scirunnrrd_index2world
+scinrrd_index2world
 
 	Convert data volume indices to real world coordinates for NRRD
 	volumes created by SCI applications (e.g. Seg3D).
 
-scirunnrrd_world2index
+scinrrd_world2index
 
 	Convert real world coordinates to data volume indices for NRRD
 	volumes created by SCI applications (e.g. Seg3D).
@@ -97,7 +97,7 @@ scinrrd_ndgrid
 
 	Generation of arrays for 3D SCI NRRD image volumes.
 
-scirunnrrd_optimal_intersecting_plane
+scinrrd_optimal_intersecting_plane
 
 	Optimise intersection plane for SCI NRRD segmentation mask.
 
@@ -105,7 +105,7 @@ scinrrd_squeeze
 
 	Remove dummy dimension and convert data to double type.
 
-scirunnrrd_vertical_rot3
+scinrrd_vertical_rot3
 
 	Compute the 3D rotation matrix to make a point cloud vertical.
 
@@ -140,7 +140,7 @@ quaternion2matrix
 
 	Convert quaternion to rotation matrix.
 
-scirunnrrd_pca
+scinrrd_pca
 
 	Principal Principal Component Analysis of the selected points
 	in a SCI NRRD segmentation mask.
