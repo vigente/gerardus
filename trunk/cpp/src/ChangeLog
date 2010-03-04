@@ -1,3 +1,17 @@
+2010-03-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* src/Rotate3DImage.cxx:
+
+	- Major bug fix. Input transformation was all mixed up. Now the
+	input transformation is expected to be in the intuitive
+	direction. For example, if you want to rotate the volume 30º
+	clockwise, your transformation should rotate the Cartesian system
+	30º clockwise too.
+
+	- Add input argument to select autocrop, so that the output volume
+	will tightly enclose the selected voxels in a segmentation mask,
+	or you can also define margins by a percentage.
+
 2010-03-02  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* src/Rotate3DImage.cxx:
