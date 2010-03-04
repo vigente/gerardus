@@ -98,6 +98,10 @@ correct_light_blobs_in_microscope_mosaic
 	Correct the colour blob created by the microscope's light in
 	each tile of a mosaic, e.g. for histology.
 
+scinrrd_box
+
+	Compute tight box around SCI NRRD segmentation.
+
 scinrrd_intersect_plane
 
 	Compute intersection of a plane with an SCI NRRD image volume.
@@ -130,15 +134,28 @@ scinrrd_vertical_rot3
 PointsToolbox:
 ==============
 
+cube_five_tessellation
+
+	Tessellation in 5 tetrahedra of a cube with perpendicular
+	diagonals on opposite sides of the cube (non-stackable)
+
 cube_stackable_tessellation
 
 	Tessellation in tetrahedra of a cube that can be stacked in a
 	regular mesh.
 
-cube_five_tessellation
+extmat2rotmat
 
-	Tessellation in 5 tetrahedra of a cube with perpendicular
-	diagonals on opposite sides of the cube (non-stackable)
+	Convert rotation in extended matrix form into centroid and
+	matrix pair.
+
+intersect_line_plane
+
+	Find intersection of a line with a plane.
+
+plotaxes
+
+	Add input argument for the origin of coordinates.
 
 polycenter
 
@@ -158,7 +175,16 @@ quaternion2matrix
 
 	Convert quaternion to rotation matrix.
 
+rotmat2extmat
+
+	Convert centroid and rotation matrix pair to extended matrix
+	form.
+
 scinrrd_pca
 
 	Principal Principal Component Analysis of the selected points
 	in a SCI NRRD segmentation mask.
+
+vec2rotmat
+
+	Compute rotation matrix from Cartesian vector.
