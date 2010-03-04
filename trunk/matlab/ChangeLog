@@ -1,5 +1,10 @@
 2010-03-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add FileFormatToolbox/scinrrd_save.m:
+
+	- SCINRRD_SAVE Save a NRRD struct to a Matlab format that can be
+	imported by Seg3D.
+
 	* Add FiltersToolbox/scinrrd_unsqueeze.m:
 
 	- SCINRRD_UNSQUEEZE  Add dummy dimension and convert data to uint8
