@@ -1,5 +1,10 @@
 2010-03-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add FiltersToolbox/scinrrd_unsqueeze.m:
+
+	- SCINRRD_UNSQUEEZE  Add dummy dimension and convert data to uint8
+	data type.
+
 	* Add FileFormatToolbox/scinrrd_load.m:
 
 	- SCINRRD_LOAD Load a NRRD struct saved to Matlab format.
