@@ -88,6 +88,21 @@ end
 % screen (2nd eigenvector projects on x-axis)
 v = v( :, [ 2 3 1 ] );
 
+% note that v is also valid if we take the negative of any vector. In fact,
+% we cannot be sure that e.g. the vectors in v fulfill X x Y = Z or 
+% X x Y = -Z (where "x" is cross product). In the latter case, we would
+% have a vertical reflection if we use v' to rotate the data. To avoid it,
+% we impose two constraints...
+
+% ... we want the Z axis to be pointing up in all circumstances
+v(:, 3) = v(:, 3) * sign(v(3, 3));
+
+% ... and we make sure that X x Y = Z, i.e. v has the same orientation as
+% the Cartesian system. The Cartesian system fulfills that 
+% cross([1 0 0],[0 1 0]) = [0 0 1]
+aux = cross(v(:, 1), v(:, 2));
+v(:, 1) = v(:, 1) * sign(aux(3));
+
 % to comply with the ITK convention, we need the inverse rotation, i.e. the
 % transpose
 if strcmp( type, 'img' )
