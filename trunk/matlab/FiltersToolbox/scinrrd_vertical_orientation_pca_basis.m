@@ -1,30 +1,34 @@
-function [m, v] = scinrrd_vertical_rot3( nrrd, type )
-% SCINRRD_VERTICAL_ROT3  Compute the 3D rotation matrix to make a 3D
-% segmented object vertical
+function [m, v] = scinrrd_vertical_orientation_pca_basis(nrrd)
+% SCINRRD_VERTICAL_ORIENTATION_PCA_BASIS  Compute a basis from the
+% Principal Components of a set of voxels, such that the vertical axis is
+% assigned to the maximum variability, and the basis is right-hand oriented
 %
-% [M, A] = SCINRRD_VERTICAL_ROT3(NRRD, TYPE)
+% [M, A] = SCINRRD_VERTICAL_ORIENTATION_PCA_BASIS(NRRD)
 %
-%   This function computes a rotation matrix and centroid so that the input
-%   SCI NRRD segmentation mask can be rotated to make the object vertical.
+%   This function computes the centroid of an SCI NRRD segmentation, and a
+%   basis where the axes give the Principal Components of variability of
+%   the voxels. The vertical axis is assigned  to the maximum variability,
+%   and the basis is right-hand oriented
 %
 %   NRRD is the SCI NRRD struct.
 %
-%   M is a 2-vector with the coordinates of the segmentation mask centroid.
-%   M is also the centre of rotation.
+%   M is a 3-vector with the coordinates of the segmentation mask centroid.
 %
-%   A is a (3,3)-rotation matrix defined around M.
+%   A is a (3,3)-matrix. The correspondence between vectors and Principal
+%   Components is:
 %
-%   TYPE is a string with the transformation direction:
+%     * A(:,1): Middle variability, i.e. the major axis of the "horizontal
+%               " ellipse
+%     * A(:,2): Smallest variability
+%     * A(:,3): Maximum variability, i.e. the object is considered to be
+%               "vertical" in its longest axis
 %
-%     * 'pts': (default) Forward transformation. That is, the rotation is
-%              applied to the input points.
+%   Also, the basis A is right-hand oriented, i.e. the cross product
+%   cross(A(:,1), A(:,2)) = A(:,3).
 %
-%     * 'img': Backward transformation. To follow the ITK (Insight Toolkit)
-%              convention, A is the rotation from output to input voxel
-%              coordinates.
-%
-%     The inverse of a rotation matrix is the transpose, so converting from
-%     one type to the other just requires computing the transpose.
+%   Note that you can use M, A to make the segmentation object vertical, if
+%   you rotate the voxel coordinates with the transpose matrix A' around
+%   the centroid M.
 %
 %
 %   Note on SCI NRRD: Software applications developed at the University of
@@ -43,6 +47,7 @@ function [m, v] = scinrrd_vertical_rot3( nrrd, type )
 %          axis: [4x1 struct]
 %      property: []
 
+% Author: Ramon Casero.
 % Copyright © 2010 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
@@ -69,13 +74,8 @@ function [m, v] = scinrrd_vertical_rot3( nrrd, type )
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 2, nargin, 'struct' ) );
+error( nargchk( 1, 1, nargin, 'struct' ) );
 error( nargoutchk( 0, 2, nargout, 'struct' ) );
-
-% default
-if ( nargin < 2 || isempty( type ) )
-    type = 'pts';
-end
 
 % compute Principal Component Analysis of the segmented voxels
 [v, d, m] = scinrrd_pca( nrrd );
@@ -103,8 +103,3 @@ v(:, 3) = v(:, 3) * sign(v(3, 3));
 aux = cross(v(:, 1), v(:, 2));
 v(:, 1) = v(:, 1) * sign(aux(3));
 
-% to comply with the ITK convention, we need the inverse rotation, i.e. the
-% transpose
-if strcmp( type, 'img' )
-    v = v';
-end

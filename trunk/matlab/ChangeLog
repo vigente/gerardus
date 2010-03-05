@@ -1,5 +1,16 @@
 2010-03-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_vertical_orientation_pca_basis.m:
+
+	- Remove input argument "type". We are computing an orientation
+	basis, not a rotation matrix, so there's no point in having "type"
+	to select between A or A'.
+
+	* Rename scinrrd_vertical_rot3.m as
+	scinrrd_vertical_orientation_pca_basis.m:
+
+	- We are computing the orientation basis, not a rotation matrix.
+
 	* FiltersToolbox/scinrrd_vertical_rot3.m:
 
 	- Make sure that the orientation of the resulting basis is the
