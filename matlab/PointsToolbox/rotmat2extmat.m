@@ -1,4 +1,4 @@
-function b = rotmat2extmat(m, a)
+function b = rotmat2extmat(m, a, center)
 % ROTMAT2EXTMAT  Convert centroid and rotation matrix pair to extended
 % matrix form
 %
@@ -7,7 +7,7 @@ function b = rotmat2extmat(m, a)
 %   A is a (3,3)-matrix that describes a rotation around a centroid M,
 %   where M is a column 3-vector.
 %
-%     Y = (A*X - M) + M
+%     Y = A*(X - M) + M
 %
 %   B2 is a (4,4)-matrix that describes the same transformation in extended
 %   form
@@ -17,8 +17,17 @@ function b = rotmat2extmat(m, a)
 %
 %   B is B2 minus the bottom row.
 %
+% B = ROTMAT2EXTMAT(M, A, CENTER)
+%
+%   CENTER is a boolean (default CENTER=false). If true, the transformation
+%   will move the centroid to 0:
+%
+%     Y = A*(X - M)
+%
+%
 % See also: extmat2rotmat.
 
+% Author: Ramon Casero
 % Copyright © 2010 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
@@ -45,7 +54,7 @@ function b = rotmat2extmat(m, a)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 0, 2, nargin, 'struct' ) );
+error( nargchk( 0, 3, nargin, 'struct' ) );
 error( nargoutchk( 0, 1, nargout, 'struct' ) );
 
 % defaults
@@ -55,9 +64,16 @@ end
 if (nargin < 2 || isempty(a))
     a = eye(3);
 end
+if (nargin < 3 || isempty(center))
+    center = false;
+end
 
 % make sure centroid is a column vector
 m = m(:);
 
 % extended format matrix
-b = [a, (eye(3)-a)*m ];
+if (center)
+    b = [a, -a*m];
+else
+    b = [a, (eye(3)-a)*m];
+end
