@@ -1,3 +1,19 @@
+2010-03-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_vertical_rot3.m:
+
+	- Make sure that the orientation of the resulting basis is the
+	same as the Cartesian system. 
+
+	The problem is that the basis is valid if we take the negative of
+	any of its vectors too. For example, the Cartesian system has
+	positive orientation because [1 0 0] x [0 1 0] = [0 0 1]. But
+	scinrrd_vertical_rot3() could also produce the basis with negative
+	orientation [-1 0 0], [0 1 0], [0 0 1].
+
+	To avoid this, we make sure that the "Z" vector is going up,
+	and then change the sign of "X", if necessary.
+
 2010-03-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add CardiacToolbox, a directory to keep functions that are only
