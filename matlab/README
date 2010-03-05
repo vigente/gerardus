@@ -127,9 +127,11 @@ scinrrd_unsqueeze
 
 	Add dummy dimension and convert data to uint8 data type.
 
-scinrrd_vertical_rot3
+scinrrd_vertical_orientation_pca_basis
 
-	Compute the 3D rotation matrix to make a point cloud vertical.
+	Compute a basis from the Principal Components of a set of
+	voxels, such that the vertical axis is assigned to the maximum
+	variability, and the basis is right-hand oriented.
 
 PointsToolbox:
 ==============
