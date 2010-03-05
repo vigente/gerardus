@@ -1,5 +1,12 @@
 2010-03-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* PointsToolbox/extmat2rotmat.m, PointsToolbox/rotmat2extmat.m:
+
+	- Add input argument "center", so that we can choose the
+	transformation A(X-M) instead of A(X-M)+M. This will center the
+	heart around the origin of coordinates, and it also allows to use
+	a well-conditioned system to be used in extmat2rotmat.
+
 	* FiltersToolbox/scinrrd_vertical_orientation_pca_basis.m:
 
 	- Remove input argument "type". We are computing an orientation
