@@ -1,4 +1,4 @@
-function [m, a] = extmat2rotmat(b)
+function [m, a] = extmat2rotmat(b, center)
 % EXTMAT2ROTMAT  Convert rotation in extended matrix form into centroid and
 % matrix pair
 %
@@ -7,7 +7,7 @@ function [m, a] = extmat2rotmat(b)
 %   A is a (3,3)-matrix that describes a rotation around a centroid M,
 %   where M is a column 3-vector.
 %
-%     Y = (A*X - M) + M
+%     Y = A*(X - M) + M
 %
 %   B2 is a (4,4)-matrix that describes the same transformation in extended
 %   form
@@ -25,8 +25,17 @@ function [m, a] = extmat2rotmat(b)
 %  [1] H.J. Kim, et al., “A new algorithm for solving ill-conditioned
 %  linear systems”, IEEE Trans. Magnetics, 33: 1373-1376, 1996
 %
+% [M, A] = EXTMAT2ROTMAT(B, CENTER)
+%
+%   CENTER is a boolean (default CENTER=false). If true, the transformation
+%   that is assumed is:
+%
+%     Y = A*(X - M)
+%
+%
 % See also: rotmat2extmat.
 
+% Author: Ramon Casero
 % Copyright © 2010 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
@@ -53,12 +62,15 @@ function [m, a] = extmat2rotmat(b)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 0, 1, nargin, 'struct' ) );
+error( nargchk( 0, 2, nargin, 'struct' ) );
 error( nargoutchk( 0, 2, nargout, 'struct' ) );
 
 % defaults
 if (nargin < 1 || isempty(b))
     b = eye(4);
+end
+if (nargin < 2 || isempty(center))
+    center = false;
 end
 
 % shift constant
@@ -68,7 +80,11 @@ k = 1e-8;
 a = b(1:3, 1:3);
 
 % linear system that needs to be solved to compute the centroid
-aux = eye(3)-a;
+if (center)
+    aux = -a;
+else
+    aux = eye(3)-a;
+end
 
 % compute translation vector from extended matrix
 % if the linear system is ill-conditioned, we need to use a trick to
