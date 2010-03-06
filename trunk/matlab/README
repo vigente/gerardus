@@ -119,6 +119,10 @@ scinrrd_papillary_muscles
 	Extract the papillay muscles from a segmentation of the Left
 	Ventricle's cavity.
 
+scinrrd_regionprops
+
+	Measure properties of image regions on each slice.
+
 scinrrd_squeeze
 
 	Remove dummy dimension and convert data to double type.
