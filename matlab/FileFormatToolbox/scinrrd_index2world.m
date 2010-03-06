@@ -1,4 +1,4 @@
-function x = scinrrd_index2world(idx, axis)
+function x = scinrrd_index2world(idx, ax)
 % SCINRRD_INDEX2WORLD  Convert data volume indices to real world
 % coordinates for NRRD volumes created by SCI applications (e.g. Seg3D)
 %
@@ -64,7 +64,8 @@ function x = scinrrd_index2world(idx, axis)
 %
 %
 % See also: scinrrd_world2index.
- 
+
+% Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2009-2010 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
@@ -102,9 +103,9 @@ end
 x = zeros( size( idx ) );
 
 % extract parameters
-xmin = [ axis.min ];
-xmax = [ axis.max ];
-dx = [ axis.spacing ];
+xmin = [ ax.min ];
+xmax = [ ax.max ];
+dx = [ ax.spacing ];
 % remove dummy dimension, if present
 if ( length( xmin ) == 4 )
     xmin = xmin( 2:end );
@@ -114,9 +115,6 @@ end
 
 % number of dimensions (we expect D=3, but in case this gets more general)
 D = length( dx );
-
-% round towards closest indices
-idx = round( idx );
 
 % convert indices to real world coordinates
 for I = 1:D

@@ -1,5 +1,13 @@
 2010-03-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* PointsToolbox/extmat2rotmat.m, PointsToolbox/rotmat2extmat.m:
+
+	- Remove rounding of index values to allow for continuous
+	indices. This way, numerical errors are reduced. In case we need
+	integer indices, it's very easy to run round(idx) on the output.
+
+	- Rename argument axis as ax, to avoid clash with function axis().
+
 	* Add FiltersToolbox/scinrrd_regionprops.m:
 
 	- SCINRRD_REGIONPROPS Measure properties of image regions on each
