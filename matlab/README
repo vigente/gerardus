@@ -102,6 +102,10 @@ scinrrd_box
 
 	Compute tight box around SCI NRRD segmentation.
 
+scinrrd_centroids
+
+	Compute centroid of every slice with segmented pixels.
+
 scinrrd_intersect_plane
 
 	Compute intersection of a plane with an SCI NRRD image volume.

@@ -1,3 +1,9 @@
+2010-03-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scinrrd_centroids.m:
+
+	- Compute centroid of every slice with segmented pixels.
+
 2010-03-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* PointsToolbox/extmat2rotmat.m, PointsToolbox/rotmat2extmat.m:
