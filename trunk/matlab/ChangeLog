@@ -1,5 +1,11 @@
 2010-03-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_centroids.m:
+
+	- Instead of skipping them, make [NaN NaN NaN] centroid for empty
+	slices too. This way, it's easier to use them in other functions
+	that iterate all the slices in a volume.
+
 	* Add FiltersToolbox/scinrrd_centroids.m:
 
 	- Compute centroid of every slice with segmented pixels.

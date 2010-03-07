@@ -1,12 +1,13 @@
 function centroids = scinrrd_centroids(nrrd, p)
-% SCINRRD_CENTROIDS  Compute centroid of every slice with segmented pixels
+% SCINRRD_CENTROIDS  Compute centroid of segmentation in each slice
 %
 % X = SCINRRD_CENTROIDS(NRRD)
 %
 %   NRRD is the struct with the segmentation.
 %
 %   X is a 3-column matrix where each row has the real world coordinates of
-%   the centroid of a slice in NRRD. Empty slices are ignored.
+%   the centroid of a slice in NRRD. Empty slices get a 
+%   centroid=[NaN NaN NaN].
 %
 % X = SCINRRD_CENTROIDS(NRRD, P)
 %
@@ -75,11 +76,13 @@ stats = scinrrd_regionprops(nrrd, 'Area', 'Centroid');
 
 % extract centroids (warning: centroid coordinates are given in
 % index units, but with the columns before the rows!)
-centroids = [];
+centroids = zeros(length(stats), 3);
 for I = 1:length(stats)
     if (~isempty(stats{I})) % are there LV pixels in the slice?
         % extract centroid coordinates
-        centroids = [centroids; [stats{I}(1).Centroid, I]];
+        centroids(I, :) = [stats{I}(1).Centroid, I];
+    else
+        centroids(I, :) = [nan nan nan];
     end
 end
 % convert to real world coordinates, taking into account that we have
@@ -88,13 +91,17 @@ centroids = scinrrd_index2world(centroids(:, [2 1 3]), nrrd.axis);
 
 % if smoothing required
 if (p~=1)
+    % slices with a centroid
+    idx = sum(isnan(centroids), 2) == 0;
+    
     % compute Lee's centripetal knot points
-    t = cumsum([0;((diff(centroids).^2)*ones(size(centroids, 2),1)).^(1/4)]).';
+    t = cumsum([0;((diff(centroids(idx, :)).^2)...
+        *ones(size(centroids(idx, :), 2),1)).^(1/4)]).';
     
     % compute smoothing cubic spline for each coordinate
-    ppx = csaps(t,centroids(:,1), p);
-    ppy = csaps(t,centroids(:,2), p);
-    ppz = csaps(t,centroids(:,3), p);
+    ppx = csaps(t,centroids(idx,1), p);
+    ppy = csaps(t,centroids(idx,2), p);
+    ppz = csaps(t,centroids(idx,3), p);
     
-    centroids = [ppval(ppx, t)' ppval(ppy, t)' ppval(ppz, t)'];
+    centroids(idx, :) = [ppval(ppx, t)' ppval(ppy, t)' ppval(ppz, t)'];
 end
