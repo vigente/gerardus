@@ -104,7 +104,7 @@ scinrrd_box
 
 scinrrd_centroids
 
-	Compute centroid of every slice with segmented pixels.
+	Compute centroid of segmentation in each slice.
 
 scinrrd_intersect_plane
 
