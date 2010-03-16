@@ -98,7 +98,10 @@ correct_light_blobs_in_microscope_mosaic
 	Correct the colour blob created by the microscope's light in
 	each tile of a mosaic, e.g. for histology.
 
-scinrrd_box
+img_adjacency_distance
+
+	Convert image to adjacency-distance list in sparse matrix
+	form.scinrrd_box.
 
 	Compute tight box around SCI NRRD segmentation.
 
