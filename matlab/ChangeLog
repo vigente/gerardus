@@ -1,5 +1,10 @@
 2010-03-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add FiltersToolbox/img_adjacency_distance.cpp,
+	FiltersToolbox/img_adjacency_distance.m:
+
+	- Convert image to adjacency-distance list in sparse matrix form.
+
 	* Add PointsToolbox/sparse_breakdown.cpp,
 	PointsToolbox/sparse_breakdown.m:
 
