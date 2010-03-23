@@ -17,6 +17,12 @@ Toolboxes in Gerardus:
 
 	Functions to operate with sets of points.
 
+* ThirdPartyToolbox
+
+	Derivative works or third party functions that cannot be
+	covered by the GPL used elsewhere in Gerardus, or code with an
+	uncertain licence status.
+
 
 FileFormatToolbox:
 ==================
@@ -205,3 +211,11 @@ sparse_breakdown
 vec2rotmat
 
 	Compute rotation matrix from Cartesian vector.
+
+
+ThirdPartyToolbox:
+==================
+
+dijkstra
+
+	Shortests path tree from sparse matrix graph.
