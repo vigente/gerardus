@@ -778,7 +778,7 @@ void dodijk_sparse(
              long int M,
              long int N,
              long int S,
-	     long int *P, // parents
+	     double *P, // parents
              double   *D, // distances
              double   *sr,
              mwSize      *irs,
@@ -804,7 +804,7 @@ void dodijk_sparse(
       if (i!=S) D[ i ] = (double) INF; else D[ i ] = (double) SMALL;
 	  theHeap->Insert( &A[i] );
       A[ i ].SetIndexValue( (long int) i );
-      P[i] = 0;
+      P[i] = mxGetNaN();
    }
    
 
@@ -954,7 +954,7 @@ void mexFunction(
 		 )
 {
   double    *sr,*D,*P,*SS,*Dsmall;
-  long int *Psmall;
+  double *Psmall;
   mwIndex       *irs,*jcs;
   mwSize  M,N,S,MS,NS,i,j,in;
 
@@ -990,8 +990,8 @@ void mexFunction(
    plhs[1] = mxCreateDoubleMatrix( MS,M, mxREAL);
    P = mxGetPr(plhs[1]);
     
-   Dsmall = (double *) mxCalloc( M , sizeof( double ));
-   Psmall = (long int *) mxCalloc(M , sizeof(long int));
+   Dsmall = (double *) mxCalloc( M , sizeof(double));
+   Psmall = (double *) mxCalloc(M , sizeof(double));
 
    if (Dsmall == NULL || Psmall == NULL) {
      mexErrMsgTxt("Memory allocation failed");
