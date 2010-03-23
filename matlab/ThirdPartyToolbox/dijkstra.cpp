@@ -30,9 +30,10 @@
  *   [1]
  *   http://www.ahhf45.com/info/Data_Structures_and_Algorithms/resources/technical_artile/fibonacci_heap/fibonacci.htm
  *
- * Author: Mark Steyvers, Stanford University, 12/19/00 
- * Modified by Ramon Casero <rcasero@gmail.com> 23 Mar 2010 to also
- * provide the predecessor list at the output
+ * Author: Mark Steyvers, Stanford University, 19 Dec 2000.
+ *
+ * Modified by Ramon Casero <rcasero@gmail.com>, University of Oxford,
+ * 23 Mar 2010 to also provide the predecessor list at the output.
  *
  * This file is distributed as a derivative work of a third-party function
  * with project Gerardus.
