@@ -36,4 +36,43 @@ function a = img_adjacency_distance(im)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-error('Compiled MEX function has not been found')
+warning('Warning: Running Matlab version, slower than compiled MEX version')
+
+a = sparse([],[],[], numel(im), numel(im), 26*length(find(im)));
+for S = 1:size(im, 3),
+    for C = 1:size(im, 2),
+        for R = 1:size(im, 1)
+            
+            % linear index of current voxel
+            idx = sub2ind(size(im), R, C, S);
+
+            % if current voxels is Inf, we don't need to include it in the
+            % graph explicitly
+            if (~isinf(im(idx)))
+                
+                % indices of the 27 voxels forming a cube around the
+                % current voxel, incluiding itself
+                [rg, cg, sg] = ndgrid(...
+                    max(1, R-1):min(size(im,1), R+1), ...
+                    max(1, C-1):min(size(im,2), C+1), ...
+                    max(1, S-1):min(size(im,3), S+1));
+                
+                % linear indices of the 27 cube voxels
+                cube = sub2ind(size(im), rg(:), cg(:), sg(:))';
+                
+                % don't connect the central voxel to itself
+                cube = cube(cube ~= idx);
+                
+                % indices of cube voxels that are not Inf
+                cube = cube(~isinf(im(cube)));
+                
+                % the weight of the edge between the current voxel and each
+                % connected voxel is the mean intensity between both voxels
+                a(idx, cube) = (im(idx) + im(cube))/2;
+                a(cube, idx) = (im(idx) + im(cube))/2;
+            
+            end % if (~isinf(im(idx)))
+            
+        end
+    end
+end
