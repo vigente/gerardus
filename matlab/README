@@ -3,6 +3,10 @@ This file is part of the Matlab Toolboxes of project Gerardus.
 Toolboxes in Gerardus:
 ======================
 
+* CardiacToolbox
+
+	Functions specific to cardiac image processing
+
 * FileFormatToolbox
 
 	Functions to create image files or convert image files from
@@ -22,6 +26,20 @@ Toolboxes in Gerardus:
 	Derivative works or third party functions that cannot be
 	covered by the GPL used elsewhere in Gerardus, or code with an
 	uncertain licence status.
+
+
+CardiacToolbox:
+===============
+
+is_lv_on_the_left
+
+	Check whether the left ventricle is on the left hand side of
+	the image.
+
+scinrrd_rv_crescent_tips
+
+	Extract the tips of the crescent-shaped curve in all slices of
+	the Right Ventricle.
 
 
 FileFormatToolbox:
