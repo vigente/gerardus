@@ -1,5 +1,18 @@
 2010-03-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add ThirdPartyToolbox/dijkstra.m,
+	ThirdPartyToolbox/dijkstra.cpp:
+
+	- DIJKSTRA Shortests path tree from sparse matrix graph.
+
+	* Add ThirdPartyToolbox/LICENCE
+
+	- To explan licence difference of files in this subdirectory.
+
+	* Add ThirdPartyToolbox directory for derivative works or third
+	party functions that cannot be covered by the GPL used elsewhere
+	in Gerardus, or code with an uncertain licence status.
+
 	* FiltersToolbox/img_adjacency_distance.m:
 
 	- Add Matlab implementation of the function, to compare with the
