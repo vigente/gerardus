@@ -1,3 +1,10 @@
+2010-03-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/img_adjacency_distance.m:
+
+	- Add Matlab implementation of the function, to compare with the
+	MEX implementation.
+
 2010-03-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add FiltersToolbox/img_adjacency_distance.cpp,
