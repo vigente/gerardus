@@ -1,5 +1,12 @@
 2010-03-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/dijkstra.cpp:
+
+	- Nodes not connected to the source get a NaN as parent. They were
+	getting a 1, which is a bug. By making it NaN, it also mimics the
+	output of Matlog Toolbox's function dijk(), that has a native
+	Matlab implementation of the same algorithm.
+
 	* Add CardiacToolbox/scinrrd_rv_crescent_tips.m:
 
 	- Extract the tips of the crescent-shaped curve in all slices of
