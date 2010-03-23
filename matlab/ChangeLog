@@ -1,5 +1,18 @@
 2010-03-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add CardiacToolbox/scinrrd_rv_crescent_tips.m:
+
+	- Extract the tips of the crescent-shaped curve in all slices of
+	the Right Ventricle.
+
+	* Add CardiacToolbox/is_lv_on_the_left.m:
+
+	- Check whether the left ventricle is on the left hand side of the
+	image.
+
+	* Add CardiacToolbox subdirectory for functions that are specific
+	to cardiac image processing.
+
 	* Add ThirdPartyToolbox/dijkstra.m,
 	ThirdPartyToolbox/dijkstra.cpp, ThirdPartyToolbox/fibheap.h:
 
