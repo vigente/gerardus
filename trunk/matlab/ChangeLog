@@ -1,7 +1,7 @@
 2010-03-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add ThirdPartyToolbox/dijkstra.m,
-	ThirdPartyToolbox/dijkstra.cpp:
+	ThirdPartyToolbox/dijkstra.cpp, ThirdPartyToolbox/fibheap.h:
 
 	- DIJKSTRA Shortests path tree from sparse matrix graph.
 
