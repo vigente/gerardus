@@ -1,4 +1,4 @@
-function [dx, dy, dxx, dyy, dxy] = scinrrd_gradients(nrrd)
+function [dx, dy, dxx, dyy, dxy] = scinrrd_gradients(nrrd, method)
 % SCINRRD_GRADIENTS  Compute 1st and 2nd order image gradients
 %
 % [DX, DY, DXX, DYY, DXY] = SCINRRD_GRADIENTS(NRRD)
@@ -14,8 +14,16 @@ function [dx, dy, dxx, dyy, dxy] = scinrrd_gradients(nrrd)
 %   corresponds to *columns*, and the Y direction corresponds to *rows*).
 %
 %   DXX, DYY, DXY are the second order gradients, d^2(I)/dx^2, d^2(I)/dy^2,
-%   d^2(I)/dxdy.
+%   d^2(I)/dxdy. Second order gradients are computed with an explicit
+%   formula using a 3x3 pixel neighbourhood.
 %
+% ... = SCINRRD_GRADIENTS(NRRD, METHOD)
+%
+%   The second order gradients are computed using a explicit formula by
+%   default (METHOD='default'). However, it is also possible to compute it
+%   running function gradient() twice (METHOD='approx'). Note that 'approx'
+%   uses a 5x5 neighbourhood to compute the gradient, instead of 3x3, so it
+%   is less accurate. It's also slower.
 %
 %   Note on SCI NRRD: Software applications developed at the University of
 %   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
@@ -33,7 +41,7 @@ function [dx, dy, dxx, dyy, dxy] = scinrrd_gradients(nrrd)
 %          axis: [4x1 struct]
 %      property: []
 
-% Author: Ramon Casero <rcasero@gmail.com>
+% Author: Ramon Casero <rcasero@gmail.com>, Vicente Grau
 % Copyright © 2010 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
@@ -60,8 +68,13 @@ function [dx, dy, dxx, dyy, dxy] = scinrrd_gradients(nrrd)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 1, nargin, 'struct' ) );
+error( nargchk( 1, 2, nargin, 'struct' ) );
 error( nargoutchk( 0, 5, nargout, 'struct' ) );
+
+% defaults
+if (nargin < 2)
+    method = 'default';
+end
 
 % compute first order gradients (beware: spacing(1) is for rows, the
 % Y-coordinate)
@@ -69,7 +82,31 @@ error( nargoutchk( 0, 5, nargout, 'struct' ) );
     nrrd.axis(1).spacing, nrrd.axis(3).spacing);
 
 % compute second order gradients (we assume dxy = dyx)
-dxx = gradient(dx, nrrd.axis(2).spacing, ...
-    nrrd.axis(1).spacing, nrrd.axis(3).spacing);
-[dxy, dyy] = gradient(dy, nrrd.axis(2).spacing, ...
-    nrrd.axis(1).spacing, nrrd.axis(3).spacing);
+dxx = zeros(size(dx));
+dyy = zeros(size(dx));
+dxy = zeros(size(dx));
+
+if (strcmp(method, 'default'))
+    dxx(:, 2:end-1, :) = (-2 * nrrd.data(:, 2:end-1, :) ...
+        + nrrd.data(:, 1:end-2, :) + nrrd.data(:, 3:end, :)) ...
+        / nrrd.axis(2).spacing^2;
+    dyy(2:end-1, :, :) = (-2 * nrrd.data(2:end-1, :, :) ...
+        + nrrd.data(1:end-2, :, :) + nrrd.data(3:end, :, :)) ...
+        / nrrd.axis(1).spacing^2;
+    dxy(2:end-1, 2:end-1, :) = (...
+        -nrrd.data(1:end-2, 3:end, :) - ...
+        nrrd.data(3:end, 1:end-2, :) + ...
+        nrrd.data(1:end-2, 1:end-2, :) + ...
+        nrrd.data(3:end, 3:end, :) ...
+        ) ...
+        / nrrd.axis(1).spacing / nrrd.axis(2).spacing;
+
+elseif (strcmp(method, 'approx'))
+    % instead of using the explicit formula for the second order gradients, we
+    % can use function gradient() twice
+    warning('Using inaccurate approximation')
+    dxx = gradient(dx, nrrd.axis(2).spacing, ...
+        nrrd.axis(1).spacing, nrrd.axis(3).spacing);
+    [dxy, dyy] = gradient(dy, nrrd.axis(2).spacing, ...
+        nrrd.axis(1).spacing, nrrd.axis(3).spacing);
+end
