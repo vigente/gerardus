@@ -1,3 +1,11 @@
+2010-04-29  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_gradients.m:
+
+	- Vicente suggested using an explicit formula with a 3x3
+	neighbourhood to compute the second order gradients, instead of
+	running function gradient() twice (which uses a 5x5 neighbourhood).
+
 2010-03-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/dijkstra.cpp:
