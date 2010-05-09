@@ -1,3 +1,16 @@
+2010-05-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/dmatrix.m:
+
+	- Matrix of distances between vectors. Move from Comlab
+	repository, matlab-toolbox/misc/trunk.
+
+2010-04-30  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/dcm2metaimage.m:
+
+	- Fix bug with dir name when data is in the current directory.
+
 2010-04-29  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_gradients.m:

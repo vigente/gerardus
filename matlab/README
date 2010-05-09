@@ -181,6 +181,10 @@ cube_stackable_tessellation
 	Tessellation in tetrahedra of a cube that can be stacked in a
 	regular mesh.
 
+dmatrix
+
+	Matrix of distances between vectors.
+
 extmat2rotmat
 
 	Convert rotation in extended matrix form into centroid and
