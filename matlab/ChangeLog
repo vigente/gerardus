@@ -1,6 +1,14 @@
 2010-05-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
-	* Add PointsToolbox/dmatrix.m:
+	* FileFormatToolbox/WriteMhaFile.m
+
+	- Fix bug, wrong variable name and function in error message.
+
+	* FileFormatToolbox/dcm2metaimage.m
+
+	- Fix bug when directory in path is the current one.
+
+	* Add PointsToolbox/dmatrix.m
 
 	- Matrix of distances between vectors. Move from Comlab
 	repository, matlab-toolbox/misc/trunk.
