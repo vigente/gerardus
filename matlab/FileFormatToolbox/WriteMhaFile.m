@@ -59,7 +59,7 @@ end
 
 fid=fopen(filename, 'w');
 if(fid<=0) 
-    printf('Impossible to open file %s\n', filename);
+    fprintf('Impossible to open file %s\n', name);
 end
 
 ndims=prod(size(resolution));

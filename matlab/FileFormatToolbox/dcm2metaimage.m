@@ -116,6 +116,9 @@ end
 
 % get path to the data files
 [ dirdata, name ] = fileparts( str );
+if (isempty(dirdata))
+    dirdata = '.';
+end
 
 % get list of image files
 if isempty( file )
