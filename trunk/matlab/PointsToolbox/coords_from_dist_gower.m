@@ -45,18 +45,21 @@ function z = coords_from_dist_gower(x, d)
 error( nargchk( 2, 2, nargin, 'struct' ) );
 error( nargoutchk( 0, 1, nargout, 'struct' ) );
 
-if (length(d) ~= size(x, 2))
-    error('There must be a distance value for each landmark')
+if (size(d, 1) ~= size(x, 2))
+    error('Vertical distance vector d must have a value for each landmark')
 end
-
-% make sure distance vector is vertical
-d = d';
 
 % compute centroid of landmarks
 xmean = mean(x, 2);
 
 % center landmarks
-x = x - xmean(:, ones(1, length(d)));
+x = x - xmean(:, ones(1, size(d, 1)));
+
+% compute landmarks squared norm
+xnorm2 = sum(x.^2, 1)';
+
+% replicate squared norm vector
+xnorm2 = xnorm2(:, ones(1, size(d, 2)));
 
 % compute point coordinates
-z = xmean + .5 * pinv(x)' * ( sum(x.^2, 1) - d.^2 )';
+z = xmean(:, ones(1, size(d, 2))) + .5 * pinv(x)' * (xnorm2 - d.^2);
