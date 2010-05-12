@@ -171,10 +171,15 @@ scinrrd_vertical_orientation_pca_basis
 PointsToolbox:
 ==============
 
+coords_from_dist_gower
+
+	Compute point coordinates from distances to a set of
+	landmarks, as described in Gower (1986).
+
 cube_five_tessellation
 
 	Tessellation in 5 tetrahedra of a cube with perpendicular
-	diagonals on opposite sides of the cube (non-stackable)
+	diagonals on opposite sides of the cube (non-stackable).
 
 cube_stackable_tessellation
 
