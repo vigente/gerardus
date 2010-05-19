@@ -1,3 +1,11 @@
+2010-05-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/scinrrd_rv_crescent_tips.m
+
+	- Extend computation of the RV crescent tips to the RV slices that
+	have no corresponding centroid. In that case the first and last
+	centroids in the LV axis are used.
+
 2010-05-12  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add PointsToolbox/coords_from_dist_gower.m
