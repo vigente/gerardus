@@ -78,6 +78,11 @@ end
 tip1 = nan(sz(3), 3);
 tip2 = nan(sz(3), 3);
 
+% search for the first and last centroids in the LV axis
+idx = find(~isnan(sum(m, 2)));
+midx_first = idx(1);
+midx_last = idx(end);
+
 % iterate slices
 for I = 1:sz(3)
     % extract slice
@@ -99,9 +104,21 @@ for I = 1:sz(3)
         nrrd.axis );
     
     % center pixel coordinates around the centroid
-    x(:,1) = x(:,1) - m(I, 1);
-    x(:,2) = x(:,2) - m(I, 2);
-    x(:,3) = x(:,3) - m(I, 3);
+    
+    % point from apex to first centroid point
+    if (I <= midx_first)
+        x(:,1) = x(:,1) - m(midx_first, 1);
+        x(:,2) = x(:,2) - m(midx_first, 2);
+        x(:,3) = x(:,3) - m(midx_first, 3);
+    elseif (I >= midx_last)
+        x(:,1) = x(:,1) - m(midx_last, 1);
+        x(:,2) = x(:,2) - m(midx_last, 2);
+        x(:,3) = x(:,3) - m(midx_last, 3);
+    else
+        x(:,1) = x(:,1) - m(I, 1);
+        x(:,2) = x(:,2) - m(I, 2);
+        x(:,3) = x(:,3) - m(I, 3);
+    end
     
     % compute polar coordinates of the centered pixel coordinates
     [phi, th] = cart2pol(x(:,1), x(:,2));
@@ -110,6 +127,14 @@ for I = 1:sz(3)
     % are the crescent tips
     [foo, idx1] = max(phi);
     [foo, idx2] = min(phi);
-    tip1(I, :) = x(idx1, :) + m(I, :);
-    tip2(I, :) = x(idx2, :) + m(I, :);
+    if (I <= midx_first)
+        tip1(I, :) = x(idx1, :) + m(midx_first, :);
+        tip2(I, :) = x(idx2, :) + m(midx_first, :);
+    elseif (I >= midx_last)
+        tip1(I, :) = x(idx1, :) + m(midx_last, :);
+        tip2(I, :) = x(idx2, :) + m(midx_last, :);
+    else
+        tip1(I, :) = x(idx1, :) + m(I, :);
+        tip2(I, :) = x(idx2, :) + m(I, :);
+    end
 end
