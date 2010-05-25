@@ -1,3 +1,10 @@
+2010-05-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add CardiacToolbox/correct_rv_crescent_tips.m
+
+	- Correct the segmentation of the Right Ventricle's crescent tips
+	using the segmentation of the tricuspid and pulmonary annula.
+
 2010-05-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* CardiacToolbox/scinrrd_rv_crescent_tips.m
