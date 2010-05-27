@@ -82,6 +82,10 @@ end
 % get list of image files
 file = dir( s );
 
+if isempty(file)
+    return
+end
+
 % create vector for the field that we are going to use to sort the file
 % names
 num = zeros( length( file ), 1 );
