@@ -1,5 +1,10 @@
 2010-05-27  Ramon Casero  <ramc@clpc444.comlab>
 
+	* Add CardiacToolbox/process_misas_patient.m
+
+	- Create MetaImage volumes from directory tree of IMA DICOM files,
+	for project with human hearts provided by Kelvin Wong.
+	
 	* FileFormatToolbox/sortdirbynum.m:
 
 	- Fix bug. Exit gracefully when list of input files is empty.
