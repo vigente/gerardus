@@ -1,3 +1,12 @@
+2010-05-28  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/process_misas_patient.m
+
+	- Remove assumption that subdirectories with IMA files are called
+	MISAS*. We need this because Jason will rename the MISAS*
+	directories to NormalMri1, FatMri1, etc. before running this
+	script.
+
 2010-05-27  Ramon Casero  <ramc@clpc444.comlab>
 
 	* Add CardiacToolbox/process_misas_patient.m

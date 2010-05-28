@@ -38,12 +38,8 @@ function process_misas_patient(pathname)
 error( nargchk( 1, 1, nargin, 'struct' ) );
 error( nargoutchk( 0, 0, nargout, 'struct' ) );
 
-% get directory name where all the volumes for this patient are stored
-[dirparent, dirname] = fileparts(pathname);
-
-% get list of all directories and files with a MISAS... name in the parent
-% directory
-dirlist = dir([pathname filesep dirname '*']);
+% get list of all directories and files in the parent directory
+dirlist = dir([pathname filesep '*']);
 
 if isempty(dirlist)
     return
