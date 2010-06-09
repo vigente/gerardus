@@ -1,4 +1,4 @@
-function y = crest_envelope(x, c)
+function y = crest_envelope(x, c, ITER, P)
 % CREST_ENVELOPE  Compute the envelope for the Right Ventricle's crest
 %
 % Y = CREST_ENVELOPE(X, C)
@@ -10,6 +10,16 @@ function y = crest_envelope(x, c)
 %   centroid curve.
 %
 %   Y is a 3-column matrix with the coordinates of the crest envelope.
+%
+% Y = CREST_ENVELOPE(X, C, ITER, P)
+%
+%   ITER is a scalar with the number of times the distance curve is
+%   iterated to remove local maxima. By default, ITER=4.
+%
+%   P is a scalar with the interpolation factor. P=0 means perfect
+%   smoothing (least squares straight line fitting), P=1 means perfect
+%   interpolation (no smoothing at all). That is, the smaller the P, the
+%   bigger the smoothing. By default, P=0.99.
 
 % Author: Ramón Casero <ramon.casero@comlab.ox.ac.uk>
 % Copyright © 2010 University of Oxford
@@ -38,8 +48,17 @@ function y = crest_envelope(x, c)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 2, nargin, 'struct'));
+error(nargchk(2, 4, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
+
+% defaults
+if (nargin < 3 || isempty(ITER))
+    ITER=4;
+end
+if (nargin < 4 || isempty(P))
+    P=.99;
+end
+
 
 % remove NaNs
 x = x(~isnan(sum(x, 2)), :);
@@ -75,66 +94,21 @@ dmin = interp1(idx,d(idx),1:length(d),'linear', 'extrap')';
 idxmin = find((d - dmin) < 0);
 dmin(idxmin) = d(idxmin);
 
-% empirical mode decomposition of the distances
-% using function emd() by Gabriel.Rilling (at) ens-lyon.fr
-% http://perso.ens-lyon.fr/patrick.flandrin/emd.html
-imf = emd(d);
-
-% compute lowpass distance curves
-lp = sum(imf(4:end, :))';
-
-% hold off
-% plot(PAD+1:length(d)-PAD, d(PAD+1:end-PAD))
-% hold on
-% plot(PAD+1:length(d)-PAD, lp(PAD+1:end-PAD),'m', 'LineWidth', 3)
-
-% find local minima in lowpass curve
-lpminidx = localminima(lp);
-
-% plot
-% for I = 1:length(lpminidx)
-%     if (lpminidx(I) < PAD+1 || lpminidx(I) > length(lp)-PAD)
-%         continue
-%     end
-%     plot([1 1]*lpminidx(I), [1.5, 5]*1e-3, 'r')
-% end
-
 % find local minima in the equalized signal
-dminminidx = localminima(dmin);
-
-% % plot
-% hold off
-% % plot(PAD+1:length(d)-PAD, dminlp(PAD+1:end-PAD),'b', 'LineWidth', 1)
-% plot(PAD+1:length(d)-PAD, dmin(PAD+1:end-PAD),'b', 'LineWidth', 1)
-% hold on
-% for I = 1:length(lpminidx)
-%     if (lpminidx(I) < PAD+1 || lpminidx(I) > length(lp)-PAD)
-%         continue
-%     end
-%     plot([1 1]*lpminidx(I), [-1.5, 1]*1e-3, 'r')
-% end
-% plot([PAD+1 length(d)-PAD], [0 0], 'k')
-% plot(dminminidx, dmin(dminminidx), '*')
-
+idx = localminima(dmin);
 
 % for 3 consecutive minima, if they have a "^" shape, remove the minimum in
 % the middle
-for I = 1:4
-    dminminidx = removewaves(dminminidx, dmin);
+for I = 1:ITER
+    idx = removewaves(idx, dmin);
 end
 
 % interpolate
-dmin = interp1(dminminidx,dmin(dminminidx),1:length(dmin),'cubic', 'extrap')';
+dmin = interp1(idx,dmin(idx),1:length(dmin),'cubic', 'extrap')';
 
 % chop off the padding
 d = d(PAD+1:end-PAD);
 dmin = dmin(PAD+1:end-PAD);
-
-% % plot
-% hold off
-% plot(1:length(d), d(1:end))
-% hold on
-% plot(1:length(d), dmin(1:end), 'g')
 
 % direction vector from centroid to crest
 v = x - c(cidx, :);
@@ -144,6 +118,21 @@ v = x - c(cidx, :);
 % point
 k = dmin./d;
 y = c(cidx, :) + k(:, ones(1, size(x, 2))) .* v;
+
+% make envelope cyclic
+y = y([1:end 1], :);
+
+% compute Lee's centripetal knot points
+t = cumsum([0;((diff(y).^2)...
+    *ones(size(y, 2),1)).^(1/4)]).';
+
+% compute smoothing cubic spline for each coordinate
+ppx = csaps(t, y(:, 1), P);
+ppy = csaps(t, y(:, 2), P);
+ppz = csaps(t, y(:, 3), P);
+
+% sample splines
+y = [ppval(ppx, t)' ppval(ppy, t)' ppval(ppz, t)'];
 
 end
 
