@@ -294,9 +294,9 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    /****************************************************************************/
-    /** Rotate vertices of image frame to figure out how big it's going to be  **/
-    /****************************************************************************/
+    /********************************************************************************/
+    /** Rotate vertices of image frame to figure out how big it's going to be      **/
+    /********************************************************************************/
 
     typedef unsigned short                               UShortPixelType;
     typedef itk::Image< UShortPixelType, 
@@ -317,20 +317,25 @@ int main(int argc, char** argv)
     IndexType                         idx, minidx, maxidx;
     TransformType::Pointer            transform;
     MeshType::Pointer                 vertices;
+//    MeshType::Pointer                 spacingOutMesh;
     TransformMeshFilter::Pointer      transformMesh;
+//    TransformMeshFilter::Pointer      spacingTransformMesh;
     OutputSizeType                    sizeOut;
     InputImageType::PointType         originOut;
     TransformType::OutputVectorType   centroid;
 
-    const InputImageType::SpacingType&  spacing = imIn->GetSpacing();
+    InputImageType::SpacingType spacing;  
+    spacing = imIn->GetSpacing();
     const InputImageType::PointType&    origin  = imIn->GetOrigin();
 
     try {
         
         // init objects
         vertices = MeshType::New();
+//        spacingOutMesh = MeshType::New();
         transform = TransformType::New();
         transformMesh = TransformMeshFilter::New();
+//        spacingTransformMesh = TransformMeshFilter::New();
         
         // build mesh with the 8 vertices of the frame that contains the image
         // [0,0,0]
@@ -375,7 +380,8 @@ int main(int argc, char** argv)
             rotp[i] = rotpVal[i];
         }
 
-        transform->SetParameters( rotp );
+        // resplace identity transform by the affine transform we want to apply
+        transform->SetParameters(rotp);
         
         // apply affine transformation to the image frame's vertices
         transformMesh->SetTransform(transform);
@@ -405,6 +411,41 @@ int main(int argc, char** argv)
             maxpoint[1] = std::max(maxpoint[1], point[1]);
             maxpoint[2] = std::max(maxpoint[2], point[2]);
         }
+        
+// COMMENT OUT this block because it produces an incorrect output image        
+//        // Find change in scaling
+//        
+//        // place a (1, 1, 1) on the rotation center
+//        PointType centerRotation = transform->GetCenter();
+//        PointType vec = centerRotation;
+//        vec[0] += 1.0;
+//        vec[1] += 1.0;
+//        vec[2] += 1.0;
+//
+//        // make a mesh with the origin and the (1,1,1) point
+//        spacingOutMesh->SetPoint(0, centerRotation);  
+//        spacingOutMesh->SetPoint(1, vec);
+//        
+//        // apply the transformation to said mesh
+//        spacingTransformMesh->SetTransform(transform);
+//        spacingTransformMesh->SetInput(spacingOutMesh);
+//        spacingTransformMesh->Update();
+//        spacingOutMesh->PrepareForNewData();
+//        spacingOutMesh = spacingTransformMesh->GetOutput();
+//        
+//        // remove the transformed center to see the change in the vector
+//        spacingOutMesh->GetPoint(0, &centerRotation);  
+//        spacingOutMesh->GetPoint(1, &vec);
+//        vec[0] -= centerRotation[0];
+//        vec[1] -= centerRotation[1];
+//        vec[2] -= centerRotation[2];
+//        
+//        // change the scaling of the output image according to the transformation
+//        spacing[0] /= vec[0];
+//        spacing[1] /= vec[1];
+//        spacing[2] /= vec[2];
+        
+        // Autocrop
         
         // if the user has entered an autocrop percentage, then we have 
         // to compute the dimensions of the segmentation mask
