@@ -41,6 +41,9 @@ scinrrd_rv_crescent_tips
 	Extract the tips of the crescent-shaped curve in all slices of
 	the Right Ventricle.
 
+scinrrd_valve_surface
+
+	Inter atrio-ventricular surface.
 
 FileFormatToolbox:
 ==================
