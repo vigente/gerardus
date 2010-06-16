@@ -4,7 +4,8 @@
 
 	- Instead of assigning the top and botton of the crest to the last
 	and first axis points, just compute from each slice the closest
-	axis point.
+	axis point. Now there is no need for the axis and the right
+	ventricle to have the same number of slices.
 
 2010-06-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
