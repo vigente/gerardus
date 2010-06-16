@@ -1,3 +1,11 @@
+2010-06-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/scinrrd_rv_crescent_tips.m
+
+	- Instead of assigning the top and botton of the crest to the last
+	and first axis points, just compute from each slice the closest
+	axis point.
+
 2010-06-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add CardiacToolbox/scinrrd_valve_surface.m.
