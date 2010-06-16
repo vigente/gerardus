@@ -67,9 +67,9 @@ error( nargoutchk( 0, 2, nargout, 'struct' ) );
 % volume size
 sz = [nrrd.axis.size];
 
-if (size(m, 1) ~= sz(3))
-    error('There must be a centroid per slice in NRRD, even if the centroid in NaN')
-end
+% if (size(m, 1) ~= sz(3))
+%     error('There must be a centroid per slice in NRRD, even if the centroid in NaN')
+% end
 if (size(m, 2) ~= 3)
     error('M must be a 3-column matrix')
 end
@@ -77,11 +77,6 @@ end
 % init outputs
 tip1 = nan(sz(3), 3);
 tip2 = nan(sz(3), 3);
-
-% search for the first and last centroids in the LV axis
-idx = find(~isnan(sum(m, 2)));
-midx_first = idx(1);
-midx_last = idx(end);
 
 % iterate slices
 for I = 1:sz(3)
@@ -103,22 +98,17 @@ for I = 1:sz(3)
     x = scinrrd_index2world( [ ir, ic, I+zeros(length(ir), 1) ], ...
         nrrd.axis );
     
-    % center pixel coordinates around the centroid
+    % compute a centroid for the slice
+    xm = mean(x, 1);
     
-    % point from apex to first centroid point
-    if (I <= midx_first)
-        x(:,1) = x(:,1) - m(midx_first, 1);
-        x(:,2) = x(:,2) - m(midx_first, 2);
-        x(:,3) = x(:,3) - m(midx_first, 3);
-    elseif (I >= midx_last)
-        x(:,1) = x(:,1) - m(midx_last, 1);
-        x(:,2) = x(:,2) - m(midx_last, 2);
-        x(:,3) = x(:,3) - m(midx_last, 3);
-    else
-        x(:,1) = x(:,1) - m(I, 1);
-        x(:,2) = x(:,2) - m(I, 2);
-        x(:,3) = x(:,3) - m(I, 3);
-    end
+    % compute the distance from the slice centroid to each axis centroid
+    d = dmatrix(xm', m');
+    
+    % find closest axis centroid to the slice centroid
+    [foo, inn] = min(d);
+    
+    % center the slice points around the axis centroid
+    x = x - m(inn * ones(size(x, 1), 1), :);
     
     % compute polar coordinates of the centered pixel coordinates
     [phi, th] = cart2pol(x(:,1), x(:,2));
@@ -127,14 +117,10 @@ for I = 1:sz(3)
     % are the crescent tips
     [foo, idx1] = max(phi);
     [foo, idx2] = min(phi);
-    if (I <= midx_first)
-        tip1(I, :) = x(idx1, :) + m(midx_first, :);
-        tip2(I, :) = x(idx2, :) + m(midx_first, :);
-    elseif (I >= midx_last)
-        tip1(I, :) = x(idx1, :) + m(midx_last, :);
-        tip2(I, :) = x(idx2, :) + m(midx_last, :);
-    else
-        tip1(I, :) = x(idx1, :) + m(I, :);
-        tip2(I, :) = x(idx2, :) + m(I, :);
-    end
+    
+    % assign the tip points to the output variable, undoing the previous
+    % centering
+    tip1(I, :) = x(idx1, :) + m(inn, :);
+    tip2(I, :) = x(idx2, :) + m(inn, :);
+        
 end
