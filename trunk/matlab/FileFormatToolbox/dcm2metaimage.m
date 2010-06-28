@@ -60,8 +60,8 @@ function varargout = dcm2metaimage( str, res, scale, crop, ext, file )
 %
 %   IM is the image volume.
 
-
-% Copyright © 2009 University of Oxford
+% Author: Ramon Casero
+% Copyright © 2009-2010 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -147,10 +147,6 @@ frame = dicomread( [ dirdata filesep file( 1 ).name ] );
 % remove alpha channel or other layers if present
 frame = frame( :, :, 1 );
 
-% rotate frame so that it fulfills Matlab's convention that the
-% X-coordinates are along columns
-frame = permute(frame, [2, 1]);
-
 % init volume to load data
 im = zeros( [ size( frame )*scale length( file ) ], class( frame ) );
 
@@ -159,7 +155,6 @@ im( :, :, 1 ) = imresize( frame, scale, 'bilinear' );
 for I = 2:length( file )
     frame = dicomread( [ dirdata filesep file( I ).name ] );
     frame = frame( :, :, 1 );
-    frame = permute(frame, [2, 1]);
     % resize frames
     im( :, :, I ) = imresize( frame, scale, 'bilinear' );
 end
