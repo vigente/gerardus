@@ -1,5 +1,12 @@
 2010-06-28  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FileFormatToolbox/WriteRawFile.m,
+	FileFormatToolbox/WriteMhaFile.m
+
+	- Fix bug. DICOM frames are loaded into Matlab with X-coordinates
+	along columns, but they were written along rows, so the image
+	volume was rotated 90º.
+
 	* FileFormatToolbox/dcm2metaimage.m
 
 	- Fix bug. DICOM frames need to be rotated 90º because Matlab's
