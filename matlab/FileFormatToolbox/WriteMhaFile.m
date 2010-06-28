@@ -19,8 +19,8 @@ function WriteMhaFile(filename, img_size, resolution, data_type, offset)
 %
 %   See also: WRITEMETAFILE to write the binary part.
 
-
-% Copyright © 2009 University of Oxford
+% Author(s): Ramon Casero and Vicente Grau
+% Copyright © 2009-2010 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -67,7 +67,7 @@ ndims=prod(size(resolution));
 if(ndims == 3)
     fprintf(fid, 'NDims = 3\n');
 
-    fprintf(fid, 'DimSize = %d %d %d\n', img_size(1), img_size(2), img_size(3));
+    fprintf(fid, 'DimSize = %d %d %d\n', img_size(2), img_size(1), img_size(3));
 
     if(strcmp(data_type, 'char') || strcmp(data_type, 'uint8'))
         fprintf(fid, 'ElementType = MET_UCHAR\n');
@@ -87,7 +87,7 @@ if(ndims == 3)
 elseif(ndims==4)
     fprintf(fid, 'NDims = 4\n');
 
-    fprintf(fid, 'DimSize = %d %d %d %d\n', img_size(1), img_size(2), img_size(3), img_size(4));
+    fprintf(fid, 'DimSize = %d %d %d %d\n', img_size(2), img_size(1), img_size(3), img_size(4));
 
     if(strcmp(data_type, 'char'))
         fprintf(fid, 'ElementType = MET_UCHAR\n');

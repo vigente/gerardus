@@ -15,8 +15,8 @@ function WriteRawFile(filename, img, resolution, data_type)
 %
 %   See also: WRITEMHAFILE to write the header part.
 
-
-% Copyright © 2009 University of Oxford
+% Author(s): Ramon Casero and Vicente Grau
+% Copyright © 2009-2010 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -50,6 +50,11 @@ if(fid<=0)
 end
 
 if(ndims(img) == 3)
+
+    % permute rows and columns so that rows are written to Y-coordinates and
+    % columns are written to X-coordinates
+    img = permute(img, [2 1 3]);
+
     fprintf(fid, 'NDims = 3\n');
 
     fprintf(fid, 'DimSize = %d %d %d\n', size(img,1), size(img,2), size(img,3));
@@ -67,6 +72,11 @@ if(ndims(img) == 3)
     fprintf(fid, 'ElementSpacing = %1.12f %1.12f %1.12f\n', resolution(1), resolution(2), resolution(3));
 
 elseif(ndims(img)==4)
+
+    % permute rows and columns so that rows are written to Y-coordinates and
+    % columns are written to X-coordinates
+    img = permute(img, [2 1 3 4]);
+
     fprintf(fid, 'NDims = 4\n');
 
     fprintf(fid, 'DimSize = %d %d %d %d\n', size(img,1), size(img,2), size(img,3), size(img,4));
@@ -85,6 +95,11 @@ elseif(ndims(img)==4)
        
 
 elseif(ndims(img)==2)
+    
+    % permute rows and columns so that rows are written to Y-coordinates and
+    % columns are written to X-coordinates
+    img = permute(img, [2 1]);
+
     fprintf(fid, 'NDims = 2\n');
 
     fprintf(fid, 'DimSize = %d %d \n', size(img,1), size(img,2));
@@ -100,6 +115,10 @@ elseif(ndims(img)==2)
     end
 
     fprintf(fid, 'ElementSpacing = %1.12f %1.12f\n', resolution(1), resolution(2));
+    
+else
+    
+    error('Number of dimensions in image must be in [2, 4]')
        
 end
 
