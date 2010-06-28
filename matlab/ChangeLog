@@ -7,11 +7,6 @@
 	along columns, but they were written along rows, so the image
 	volume was rotated 90º.
 
-	* FileFormatToolbox/dcm2metaimage.m
-
-	- Fix bug. DICOM frames need to be rotated 90º because Matlab's
-	convention is that X-coordinates go along columns.
-
 2010-06-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* CardiacToolbox/scinrrd_rv_crescent_tips.m
