@@ -1,0 +1,13 @@
+This file is part of the Java code of project Gerardus.
+
+
+The Java code provides the following main functions:
+====================================================
+
+HamamatsuDecoder.java:
+
+	Decoder for Hamamatsu photodiode array.
+
+ImageDecoderAdapter.java: 
+
+	General adapter class.
