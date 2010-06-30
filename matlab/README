@@ -82,7 +82,7 @@ scinrrd_index2world
 
 scinrrd_load
 
-	Load a NRRD struct saved to Matlab format.
+	Load a NRRD struct saved to Matlab or MetaImage format.
 
 scinrrd_save
 
