@@ -1,5 +1,11 @@
 2010-06-30  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* release 0.2.1
+
+	- New minor release given that the bug in WriteRawFile.m and
+	WriteMhaFile.m was quite severe, and the new scinrrd_load()
+	functionality is interesting.
+
 	* FileFormatToolbox/scinrrd_load.m
 
 	- Now this function can also load an nrrd struct from MetaImage
