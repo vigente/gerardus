@@ -75,3 +75,11 @@ for I = 1:length(dirlist)
         pathname)
     
 end
+
+% if we have two NormalMri volumes, combine them with a max() function to
+% remove banding artifacts, as suggested by Matt Robson
+
+fid1 = fopen([pathname filesep 'NormalMri1.mha']);
+fid2 = fopen([pathname filesep 'NormalMri2.mha']);
+
+
