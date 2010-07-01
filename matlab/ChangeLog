@@ -1,3 +1,15 @@
+2010-07-01  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_save.m
+
+	- Add input argument to control whether data is converted to uint8
+	or not before saving.
+
+	* CardiacToolbox/process_misas_patient.m
+
+	- if we have two NormalMri volumes, combine them with a max()
+	function to remove banding artifacts, as suggested by Matt Robson
+
 2010-06-30  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* release 0.2.1
