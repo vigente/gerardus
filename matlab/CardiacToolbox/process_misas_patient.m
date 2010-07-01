@@ -79,7 +79,23 @@ end
 % if we have two NormalMri volumes, combine them with a max() function to
 % remove banding artifacts, as suggested by Matt Robson
 
-fid1 = fopen([pathname filesep 'NormalMri1.mha']);
-fid2 = fopen([pathname filesep 'NormalMri2.mha']);
-
+% check whether the files exist
+fid1 = fopen([pathname filesep 'NormalMri1.mha'], 'r');
+fid2 = fopen([pathname filesep 'NormalMri2.mha'], 'r');
+if (fid1 ~= -1 && fid1 ~= -1)
+    % close the files
+    fclose(fid1)
+    fclose(fid2)
+    
+    % load both files
+    nrrd1 = scinrrd_load([pathname filesep 'NormalMri1.mha']);
+    nrrd2 = scinrrd_load([pathname filesep 'NormalMri2.mha']);
+    
+    % to remove the banding artefacts, we take the maximum value for each voxel
+    nrrd = nrrd1;
+    nrrd.data = max(nrrd1.data, nrrd2.data);
+    
+    % save resulting file
+    scinrrd_save([pathname filesep 'NormalMri.mat'], nrrd);
+end
 
