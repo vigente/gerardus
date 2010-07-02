@@ -84,8 +84,8 @@ fid1 = fopen([pathname filesep 'NormalMri1.mha'], 'r');
 fid2 = fopen([pathname filesep 'NormalMri2.mha'], 'r');
 if (fid1 ~= -1 && fid1 ~= -1)
     % close the files
-    fclose(fid1)
-    fclose(fid2)
+    fclose(fid1);
+    fclose(fid2);
     
     % load both files
     nrrd1 = scinrrd_load([pathname filesep 'NormalMri1.mha']);
