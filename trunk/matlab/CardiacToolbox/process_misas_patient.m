@@ -82,7 +82,7 @@ end
 % check whether the files exist
 fid1 = fopen([pathname filesep 'NormalMri1.mha'], 'r');
 fid2 = fopen([pathname filesep 'NormalMri2.mha'], 'r');
-if (fid1 ~= -1 && fid1 ~= -1)
+if (fid1 ~= -1 && fid2 ~= -1)
     % close the files
     fclose(fid1);
     fclose(fid2);
