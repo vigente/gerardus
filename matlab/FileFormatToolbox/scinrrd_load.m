@@ -135,6 +135,10 @@ elseif strcmp(ext, '.mha') % MetaImage file
                 msb = strcmpi(strtrim(tline(idx+1:end)), 'true');
             case 'elementdatafile'
                 rawfile = strtrim(tline(idx+1:end));
+            case 'compresseddata'
+                if strcmp(lower(strtrim(tline(idx+1:end))), 'true')
+                    error('Cannot read compressed MHA data')
+                end
             otherwise
                 warning(['Unrecognized line: ' tline])
         end
@@ -144,7 +148,7 @@ elseif strcmp(ext, '.mha') % MetaImage file
     % the raw data can be after the text header, or in a separate file. If
     % there's a pointer to an external file, we assume that the data is
     % there
-    if isempty(rawfile) % data after text header
+    if (isempty(rawfile) || strcmp(rawfile, 'LOCAL')) % data after text header
         % move file pointer to the beginning of the raw data
         if (fseek(fid, eoh, 'bof') == -1)
             error('Cannot read file');
