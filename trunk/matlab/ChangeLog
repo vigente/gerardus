@@ -1,3 +1,12 @@
+2010-07-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_load.m
+
+	- Give error if the data is compressed.
+
+	- If ElementDatafile is LOCAL, then raw data is in the file, not
+	an external one.
+
 2010-07-01  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FileFormatToolbox/scinrrd_save.m
