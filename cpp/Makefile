@@ -169,6 +169,19 @@ padSegmentationMaskWithVoxels/fast:
 .PHONY : padSegmentationMaskWithVoxels/fast
 
 #=============================================================================
+# Target rules for targets named resize3DImage
+
+# Build rule for target.
+resize3DImage: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 resize3DImage
+.PHONY : resize3DImage
+
+# fast build rule for target.
+resize3DImage/fast:
+	$(MAKE) -f CMakeFiles/resize3DImage.dir/build.make CMakeFiles/resize3DImage.dir/build
+.PHONY : resize3DImage/fast
+
+#=============================================================================
 # Target rules for targets named rotate3DImage
 
 # Build rule for target.
@@ -229,6 +242,30 @@ PadSegmentationMaskWithVoxels.cxx.s:
 	$(MAKE) -f CMakeFiles/padSegmentationMaskWithVoxels.dir/build.make CMakeFiles/padSegmentationMaskWithVoxels.dir/PadSegmentationMaskWithVoxels.cxx.s
 .PHONY : PadSegmentationMaskWithVoxels.cxx.s
 
+Resize3DImage.o: Resize3DImage.cxx.o
+.PHONY : Resize3DImage.o
+
+# target to build an object file
+Resize3DImage.cxx.o:
+	$(MAKE) -f CMakeFiles/resize3DImage.dir/build.make CMakeFiles/resize3DImage.dir/Resize3DImage.cxx.o
+.PHONY : Resize3DImage.cxx.o
+
+Resize3DImage.i: Resize3DImage.cxx.i
+.PHONY : Resize3DImage.i
+
+# target to preprocess a source file
+Resize3DImage.cxx.i:
+	$(MAKE) -f CMakeFiles/resize3DImage.dir/build.make CMakeFiles/resize3DImage.dir/Resize3DImage.cxx.i
+.PHONY : Resize3DImage.cxx.i
+
+Resize3DImage.s: Resize3DImage.cxx.s
+.PHONY : Resize3DImage.s
+
+# target to generate assembly for a file
+Resize3DImage.cxx.s:
+	$(MAKE) -f CMakeFiles/resize3DImage.dir/build.make CMakeFiles/resize3DImage.dir/Resize3DImage.cxx.s
+.PHONY : Resize3DImage.cxx.s
+
 Rotate3DImage.o: Rotate3DImage.cxx.o
 .PHONY : Rotate3DImage.o
 
@@ -267,6 +304,7 @@ help:
 	@echo "... list_install_components"
 	@echo "... padSegmentationMaskWithVoxels"
 	@echo "... rebuild_cache"
+	@echo "... resize3DImage"
 	@echo "... rotate3DImage"
 	@echo "... ExtractVoxelCoordinatesFromSegmentationMask.o"
 	@echo "... ExtractVoxelCoordinatesFromSegmentationMask.i"
@@ -274,6 +312,9 @@ help:
 	@echo "... PadSegmentationMaskWithVoxels.o"
 	@echo "... PadSegmentationMaskWithVoxels.i"
 	@echo "... PadSegmentationMaskWithVoxels.s"
+	@echo "... Resize3DImage.o"
+	@echo "... Resize3DImage.i"
+	@echo "... Resize3DImage.s"
 	@echo "... Rotate3DImage.o"
 	@echo "... Rotate3DImage.i"
 	@echo "... Rotate3DImage.s"

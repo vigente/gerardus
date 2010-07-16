@@ -1,3 +1,14 @@
+2010-07-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add src/Resize3DImage.cxx
+
+	- Start adding program to resize an image volume, trying an
+	approach of ScaleTransform to resize the image. This is not
+	working very well, because there's no Gaussian filtering, and the
+	coordinate frame is changed. I'm going to switch to using
+	MultiResolutionPyramidImageFilter, but before I'm commiting the
+	code in case I need to roll back.
+
 2010-06-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* src/Rotate3DImage.cxx:
