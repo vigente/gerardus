@@ -1,3 +1,14 @@
+2010-10-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* src/Resize3DImage.cxx
+
+	- After asking in the ITK user mailing list, Dan Mueller suggested
+	using IdentityTransform. I started looking, and found that there's
+	actually an example on how to decimate in ITK, in
+	Examples/Filtering/SubsampleVolume.cxx. I adapted the code, and
+	figured out how to scale the sigma value of the low-pass filter to
+	get a similar result to the Resample tool in Seg3D.
+
 2010-07-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add src/Resize3DImage.cxx
