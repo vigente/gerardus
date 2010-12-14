@@ -105,10 +105,6 @@ if ( size( x, 2 ) ~= 3 )
     error( 'X must be a 3-column matrix, so that each row has the 3D coordinates of a point' )
 end
 
-% we have (r, c, s) indices, but r corresponds to y-coords, and c
-% corresponds to x-coords, so we need to swap the columns
-x = x( :, [ 2 1 3 ] );
-
 % init output
 idx = zeros( size( x ) );
 
@@ -135,3 +131,7 @@ end
 for I = 1:D
     idx( :, I ) = (x( :, I ) - xmin( I )) / dx( I ) + 1;
 end
+
+% we want (r, c, s) indices at the output, but r corresponds to y-coords,
+% and c corresponds to x-coords, so we need to swap the columns
+idx = idx( :, [ 2 1 3 ] );
