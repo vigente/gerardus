@@ -116,6 +116,10 @@ end
 % number of dimensions (we expect D=3, but in case this gets more general)
 D = length( dx );
 
+% i <=> y, j <=> x
+% swap i, j indices so that they can be operated with the x, y spacing
+idx = idx( :, [ 2 1 3 ] );
+
 % convert indices to real world coordinates
 for I = 1:D
     x( :, I ) = ( idx( :, I ) - 1 ) * dx( I ) + xmin( I );
@@ -125,6 +129,3 @@ end
 for I = 1:D
     x( x( :, I ) < xmin( I ) | x( :, I ) > xmax( I ), I ) = NaN;
 end
-
-% change (y, x, z) to (x, y, z) coordinates
-x = x( :, [ 2 1 3 ] );

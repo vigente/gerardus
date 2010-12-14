@@ -1,3 +1,13 @@
+2010-12-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_index2world.m,
+	FileFormatToolbox/scinrrd_world2index.m
+
+	- Fix bug. The x,y coordinates (and, correspondingly, the j, i
+	indices) were being operated with the wrong spacing and limit
+	values. For example, the x-coordinate was being operated with the
+	dy spacing. Now this has been fixed.
+
 2010-07-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FileFormatToolbox/scinrrd_load.m
