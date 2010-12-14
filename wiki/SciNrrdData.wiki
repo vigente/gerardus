@@ -1,0 +1,34 @@
+#summary Notes about SCI NRRD data volumes
+
+= Introduction =
+
+Gerardus provides some Matlab functions to load, process and save images in [http://teem.sourceforge.net/nrrd/format.html SCI NRRD] format. This is the native format used by the platform [http://www.sci.utah.edu/cibc/software/42-seg3d.html Seg3D].
+
+This page contains some notes on the SCI NRRD format.
+
+
+= Details =
+
+== Rows and columns correspondence to x, y-coordinates ==
+
+The way Seg3D stores images in .mat files establishes the following correspondence:
+
+ x <=> rows
+
+ y <=> columns
+
+ z <=> slice
+
+Note that this is different from the Matlab convention of using columns for the x-coordinate and rows for the y-coordinate.
+
+Because Matlab is so widely used, in order to make this discrepancy invisible to the user, functions `scinrrd_load()` and `scinrrd_save()` swap the rows and columns accordingly.
+
+That is, data loaded using `scinrrd_load()` follows the convention
+
+ y <=> rows
+
+ x <=> columns
+
+ z <=> slice
+
+This convention is assumed by all the other [http://code.google.com/p/gerardus/source/browse/#svn/trunk/matlab Gerardus Matlab] functions.
