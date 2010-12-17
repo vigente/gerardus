@@ -13,9 +13,9 @@ This page contains some notes on the SCI NRRD format.
 
 *Summary:* The only thing that changes is that we follow the Matlab convention of having the y-coordinate as rows, and the x-coordinate as columns. The NRRD parameters are ordered so that they are consistent with the image data.
 
-The way Seg3D stores images in .mat files establishes the following correspondence:
+=== Seg3D's convention for voxel coordinates ===
 
-*Seg3D convention*
+The way Seg3D stores images in .mat files establishes the following correspondence:
 
  x <=> rows
 
@@ -23,13 +23,13 @@ The way Seg3D stores images in .mat files establishes the following corresponden
 
  z <=> slice
 
-Note that this is different from the Matlab convention of using columns for the x-coordinate and rows for the y-coordinate.
+=== Matlab and Gerardus' convention for voxel coordinates ===
+
+Note that the Seg3D convention is different from the Matlab convention of using columns for the x-coordinate and rows for the y-coordinate.
 
 Because Matlab is so widely used, in order to make this discrepancy invisible to the user, functions `scinrrd_load()` and `scinrrd_save()` swap the rows and columns accordingly.
 
 That is, data loaded using `scinrrd_load()` follows the convention
-
-*Matlab and Gerardus convention*
 
  y <=> rows
 
@@ -48,3 +48,23 @@ The `nrrd.axis` parameters follow the same convention. For example,
 This way, the NRRD parameters are consistent with the image data.
 
 This convention is assumed by all the other [http://code.google.com/p/gerardus/source/browse/#svn/trunk/matlab Gerardus Matlab] functions.
+
+=== Everyone's convention for point coordinates ===
+
+Point coordinates are always given as
+
+ (x, y, z)
+
+in Matlab, Seg3D, etc.
+
+For example, if you want to plot a curve on an image in Matlab, you use
+
+{{{
+imagesc(im)
+hold on
+plot(x, y)
+}}}
+
+where the pixels in `im` have implicitly the coordinates as (y, x), while the curve is plotted as (x, y).
+
+That's why Gerardus functions `scinrrd_index2world()` and `scinrrd_world2index()` by default consider _index_ as (y, x), and _world_ as (x, y).
