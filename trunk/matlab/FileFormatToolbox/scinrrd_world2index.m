@@ -4,53 +4,32 @@ function idx = scinrrd_world2index(x, ax)
 % 
 %   Function SCINRRD_WORLD2INDEX() maps between the real world coordinates
 %   of points within the NRRD data volume and the indices of the 
-%   [4-D uint8] volume used to store the voxel intensity values.
+%   image volume used to store the voxel intensity values.
 %
 %      [x, y, z] -> [r, c, s]
 %
-%   Note that the row (r) index corresponds to the y-coordinate, and the
-%   column (c) index corresponds to the y-coordinate.
+%   This function assumes that input world coordinates are given in 
+%   (x, y, z)-order. However, output indices are in 
+%   (row, column, slice)-order, corresponding to (y, x, z).
 %
-%   Note also that the indices are not rounded, to reduce numerical errors.
-%   If integer indices are required, then just use round(idx).
+%   For points that are not within the data volume, the returned
+%   indices are "NaN".
 %
-%
-%   Software applications developed at the University of Utah Scientific
-%   Computing and Imaging (SCI) Institute, e.g. Seg3D, internally use NRRD
-%   volumes to store medical data.
-%
-%   When data or label volumes are saved to a Matlab file (.mat), they use
-%   a struct called "scirunnrrd" to store all the NRRD information:
-%
-%   >>  scirunnrrd
-%
-%   scirunnrrd = 
-%
-%          data: [4-D uint8]
-%          axis: [4x1 struct]
-%      property: []
-%
-%   Function SCINRRD_WORLD2INDEX() maps between the real world coordinates
-%   of points within the NRRD data volume, and the indices of the [4-D
-%   uint8] used to store the voxel intensity values.
-%
-%   For points that are not exactly on the centre of a voxel, the
-%   coordinates are rounded to the closest centre.
-%
-%   For points that are not within the data volume, the returned indices
-%   are "NaN".
+%   Note also that the indices are not rounded, to allow for sub-pixel
+%   accuracy. If integer indices are required, then just use round(idx).
 %
 % IDX = SCINRRD_WORLD2INDEX(X, AXIS)
 %
 %   X is a 3-column matrix where each row contains the real world
 %   (x,y,z)-coordinates of a point.
 %
-%   IDX has the same size as X, and the voxel indices.
+%   IDX has the same size as X, and the voxel indices in 
+%   (row, column, slice)-order, that corresponds to (y, x, z)-order.
 %
-%   AXIS is the 4x1 struct array scirunnrrd.axis seen above. It contains
-%   the following fields:
+%   AXIS is the 4x1 struct array nrrd.axis from an SCI NRRD struct. It
+%   contains the following fields:
 %
-%   >> scirunnrrd.axis
+%   >> nrrd.axis
 %
 %   4x1 struct array with fields:
 %       size
@@ -68,6 +47,21 @@ function idx = scinrrd_world2index(x, ax)
 % idx =
 %
 %     55   189   780
+%
+%   Note on SCI NRRD: Software applications developed at the University of
+%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
+%   internally use NRRD volumes to store medical data.
+%
+%   When data or label volumes are saved to a Matlab file (.mat), they use
+%   a struct called "scirunnrrd" to store all the NRRD information:
+%
+%   >>  scirunnrrd
+%
+%   scirunnrrd = 
+%
+%          data: [4-D uint8]
+%          axis: [4x1 struct]
+%      property: []
 %
 % See also: scinrrd_index2world.
     
@@ -122,6 +116,9 @@ end
 % number of dimensions (we expect D=3, but in case this gets more general)
 D = length( dx );
 
+% (x, y, z) => (y, x, z)
+x = x( :, [ 2 1 3 ] );
+
 % find which coordinates are outside the volume
 for I = 1:D
     x( x( :, I ) < xmin( I ) | x( :, I ) > xmax( I ), I ) = NaN;
@@ -131,7 +128,3 @@ end
 for I = 1:D
     idx( :, I ) = (x( :, I ) - xmin( I )) / dx( I ) + 1;
 end
-
-% we want (r, c, s) indices at the output, but r corresponds to y-coords,
-% and c corresponds to x-coords, so we need to swap the columns
-idx = idx( :, [ 2 1 3 ] );
