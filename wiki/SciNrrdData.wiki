@@ -11,6 +11,8 @@ This page contains some notes on the SCI NRRD format.
 
 == Rows and columns correspondence to x, y-coordinates ==
 
+*Summary:* The only thing that changes is that we follow the Matlab convention of having the y-coordinate as rows, and the x-coordinate as columns. The NRRD parameters are ordered so that they are consistent with the image data.
+
 The way Seg3D stores images in .mat files establishes the following correspondence:
 
  x <=> rows
@@ -30,5 +32,15 @@ That is, data loaded using `scinrrd_load()` follows the convention
  x <=> columns
 
  z <=> slice
+
+The `nrrd.axis` parameters follow the same convention. For example,
+
+ nrrd.axis.spacing(1) <=> dy
+
+ nrrd.axis.spacing(2) <=> dx
+
+ nrrd.axis.spacing(3) <=> dz
+
+This way, the NRRD parameters are consistent with the image data.
 
 This convention is assumed by all the other [http://code.google.com/p/gerardus/source/browse/#svn/trunk/matlab Gerardus Matlab] functions.
