@@ -3,31 +3,30 @@ function x = scinrrd_index2world(idx, ax)
 % coordinates for NRRD volumes created by SCI applications (e.g. Seg3D)
 %
 %   Function SCINRRD_INDEX2WORLD() maps between the indices of the 
-%   [4-D uint8] volume used to store the voxel intensity values, and the
+%   image volume used to store the voxel intensity values, and the
 %   real world coordinates of points within the NRRD data volume.
 %
 %      [r, c, s] -> [x, y, z]
 %
-%   Note that the row (r) index corresponds to the y-coordinate, and the
-%   column (c) index corresponds to the y-coordinate.
+%   This function assumes that input indices are in 
+%   (row, column, slice)-order, corresponding to (y, x, z). However, output
+%   world coordinates are given in (x, y, z)-order.
 %
-%   For points that are not exactly on the centre of a voxel, the
-%   coordinates are rounded to the closest centre.
-%
-%   For points that are not within the data volume, the returned indices
-%   are "NaN".
+%   For points that are not within the data volume, the returned
+%   coordinates are "NaN".
 %
 % X = SCINRRD_INDEX2WORLD(IDX, AXIS)
 %
 %   X is a 3-column matrix where each row contains the real world
-%   (x,y,z)-coordinates of a point.
+%   (x, y, z)-coordinates of a point.
 %
-%   IDX has the same size as X, and the voxel indices.
+%   IDX has the same size as X, and the voxel indices in 
+%   (row, column, slice)-order, that corresponds to (y, x, z)-order.
 %
-%   AXIS is the 4x1 struct array scirunnrrd.axis seen above. It contains
-%   the following fields:
+%   AXIS is the 4x1 struct array nrrd.axis from an SCI NRRD struct. It
+%   contains the following fields:
 %
-%   >> scirunnrrd.axis
+%   >> nrrd.axis
 %
 %   4x1 struct array with fields:
 %       size
@@ -40,7 +39,7 @@ function x = scinrrd_index2world(idx, ax)
 %
 % Example:
 %
-% >> x = scinrrd_index2world([55, 189, 780], scirunnrrd.axis)
+% >> x = scinrrd_index2world([55, 189, 780], nrrd.axis)
 %
 % x =
 %
@@ -116,10 +115,6 @@ end
 % number of dimensions (we expect D=3, but in case this gets more general)
 D = length( dx );
 
-% i <=> y, j <=> x
-% swap i, j indices so that they can be operated with the x, y spacing
-idx = idx( :, [ 2 1 3 ] );
-
 % convert indices to real world coordinates
 for I = 1:D
     x( :, I ) = ( idx( :, I ) - 1 ) * dx( I ) + xmin( I );
@@ -129,3 +124,6 @@ end
 for I = 1:D
     x( x( :, I ) < xmin( I ) | x( :, I ) > xmax( I ), I ) = NaN;
 end
+
+% (y, x, z) => (x, y, z)
+x = x( :, [ 2 1 3 ] );
