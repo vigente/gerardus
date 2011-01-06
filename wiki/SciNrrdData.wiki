@@ -68,3 +68,19 @@ plot(x, y)
 where the pixels in `im` have implicitly the coordinates as (y, x), while the curve is plotted as (x, y).
 
 That's why Gerardus functions `scinrrd_index2world()` and `scinrrd_world2index()` by default consider _index_ as (y, x), and _world_ as (x, y).
+
+== Meaning of Offset, point coordinate and index values ==
+
+*Offset* are the point coordinates of the external vertex of the voxel with index (1, 1, 1). For example,
+
+{{{
+Offset = 12.3 45.6 9
+}}}
+
+means that the volume containing the image starts at (12.3 45.6 9.0).
+
+However, note that the centre of the voxel is 0.5 voxels away from the vertex. Thus, assuming a resolution of 0.8 in all directions, the point coordinates of the centre of voxel (1, 1, 1) would be
+
+{{{
+Offset + half voxel = (12.7 46.0 9.4)
+}}}
