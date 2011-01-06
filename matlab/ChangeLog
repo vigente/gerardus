@@ -1,3 +1,12 @@
+2011-01-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_index2world.m,
+	FileFormatToolbox/scinrrd_world2index.m
+
+	- The way indices and coordinates were computed was wrong. Offset
+	gives the coordinates of the first voxel's vertex, not the voxel's
+	centre. Now integer indices correspond to the voxels' centres.
+
 2010-12-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FileFormatToolbox/scinrrd_index2world.m,
