@@ -1,5 +1,9 @@
 2011-01-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field.
+
 	* FileFormatToolbox/scinrrd_index2world.m,
 	FileFormatToolbox/scinrrd_world2index.m
 
