@@ -66,7 +66,7 @@ function idx = scinrrd_world2index(x, ax)
 % See also: scinrrd_index2world.
     
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2009-2010 University of Oxford
+% Copyright © 2009-2011 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -92,39 +92,39 @@ function idx = scinrrd_world2index(x, ax)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 2, 2, nargin, 'struct' ) );
-error( nargoutchk( 0, 1, nargout, 'struct' ) );
+error(nargchk(2, 2, nargin, 'struct'));
+error(nargoutchk(0, 1, nargout, 'struct'));
 
-if ( size( x, 2 ) ~= 3 )
-    error( 'X must be a 3-column matrix, so that each row has the 3D coordinates of a point' )
+if (size(x, 2) ~= 3)
+    error('X must be a 3-column matrix, so that each row has the 3D coordinates of a point')
 end
 
 % init output
-idx = zeros( size( x ) );
+idx = zeros(size(x));
 
 % extract parameters
-xmin = [ ax.min ];
-xmax = [ ax.max ];
-dx = [ ax.spacing ];
+xmin = [ax.min];
+dx = [ax.spacing];
+n = [ax.size];
 % remove dummy dimension, if present
-if ( length( xmin ) == 4 )
-    xmin = xmin( 2:end );
-    xmax = xmax( 2:end );
-    dx = dx( 2:end );
+if (length( xmin ) == 4)
+    xmin = xmin(2:end);
+    dx = dx(2:end);
 end
 
 % number of dimensions (we expect D=3, but in case this gets more general)
-D = length( dx );
+D = length(dx);
 
 % (x, y, z) => (y, x, z)
-x = x( :, [ 2 1 3 ] );
-
-% find which coordinates are outside the volume
-for I = 1:D
-    x( x( :, I ) < xmin( I ) | x( :, I ) > xmax( I ), I ) = NaN;
-end
+x = x(:, [2 1 3]);
 
 % convert real world coordinates to indices
 for I = 1:D
-    idx( :, I ) = (x( :, I ) - xmin( I )) / dx( I ) + 1;
+    idx(:, I) = (x(:, I) - xmin(I)) / dx(I) + .5;
+end
+
+
+% find which coordinates are outside the volume
+for I = 1:D
+    idx( idx( :, I ) < 0.5 | idx( :, I ) > n(I)+0.5, I ) = NaN;
 end
