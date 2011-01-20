@@ -1,4 +1,4 @@
-function nrrd = scinrrd_estimate_bias_field(nrrd, x, k)
+function [nrrd, k] = scinrrd_estimate_bias_field(nrrd, x, a)
 % SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field
 %
 %   This function provides an estimate of the bias field from a magnetic
@@ -26,6 +26,15 @@ function nrrd = scinrrd_estimate_bias_field(nrrd, x, k)
 %   points. Note that each point is rounded to the closest voxel centre.
 %
 %   NRRD2 is the estimated bias field in SCI NRRD format.
+%
+% NRRD2 = SCINRRD_ESTIMATE_BIAS_FIELD(NRRD, X, A)
+%
+%   A is a scaling factor. Because using the TPS to interpolate all voxels
+%   can be rather slow, and the bias field is anyway a slow varying field,
+%   it's convenient to first quickly reduce the image size by A (using
+%   bilinear interpolation), interpolate the bias field in the smaller
+%   image with the TPS, and then expand to the original size. By default, A
+%   = 1.0 and no rescaling is used.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
@@ -54,11 +63,38 @@ function nrrd = scinrrd_estimate_bias_field(nrrd, x, k)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 2, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
+error(nargchk(2, 3, nargin, 'struct'));
+error(nargoutchk(0, 2, nargout, 'struct'));
+
+% defaults
+if (nargin < 3)
+    a = 1.0;
+end
 
 % squeeze volume
 nrrd = scinrrd_squeeze(nrrd);
+
+% save input parameters for the end
+size_in = num2cell([nrrd.axis.size]);
+spacing_in = num2cell([nrrd.axis.spacing]);
+
+% recompute the scaling factor so that we obtain an integer number of
+% voxels in the output volume
+a = a([1 1 1]);
+size_out = num2cell(round([nrrd.axis.size] .* a));
+a = [size_out{:}] ./ [nrrd.axis.size];
+[nrrd.axis.size] = deal(size_out{:});
+
+% recompute the voxel spacing
+spacing_out = num2cell([nrrd.axis.spacing] ./ a);
+[nrrd.axis.spacing] = deal(spacing_out{:});
+
+% reduce volume size
+nrrd.data = tformarray(nrrd.data, ...
+    maketform('affine', [a(1) 0 0 0; 0 a(2) 0 0; 0 0 a(3) 0; 0 0 0 1]), ...
+    makeresampler('linear', 'replicate'), ...
+    1:length(nrrd.axis), 1:length(nrrd.axis), ...
+    [nrrd.axis.size], [], []);
 
 % extract size of the volume
 n = [nrrd.axis.size];
@@ -99,7 +135,17 @@ w = pts_tps_weights( x/K, v );
     linspace(cmin(1)/K, cmax(1)/K, n(1)), ...
     linspace(cmin(2)/K, cmax(2)/K, n(2)), ...
     linspace(cmin(3)/K, cmax(3)/K, n(3)));
-y = pts_tps_map( x/K, v, [ gx(:) gy(:) gz(:) ], w, false, true );
+y = pts_tps_map( x/K, v, [ gx(:) gy(:) gz(:) ], w, false, false );
 
 % create output volume
 nrrd.data = reshape(single(y), n);
+
+% recover original size
+nrrd.data = tformarray(nrrd.data, ...
+    maketform('affine', [1/a(1) 0 0 0; 0 1/a(2) 0 0; 0 0 1/a(3) 0; 0 0 0 1]), ...
+    makeresampler('linear', 'replicate'), ...
+    1:length(nrrd.axis), 1:length(nrrd.axis), ...
+    [size_in{:}], [], []);
+
+[nrrd.axis.size] = deal(size_in{:});
+[nrrd.axis.spacing] = deal(spacing_in{:});
