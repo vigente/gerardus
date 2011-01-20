@@ -71,22 +71,33 @@ That's why Gerardus functions `scinrrd_index2world()` and `scinrrd_world2index()
 
 == Meaning of Offset, point coordinate and index values ==
 
-*Offset* are the point coordinates of the external vertex of the voxel with index (1, 1, 1). For example,
+Correspondence between header fields in the !MetaImage (`.mha`) file and in the Matlab `nrrd` struct.
 
-{{{
-Offset = 12.3 45.6 9
-}}}
+|| *!MetaImage (`.mha`)* || *Matlab `nrrd` struct* || Comment ||
+|| Offset                || `nrrd.axis.min`        || Left edge of first voxel ||
+|| --                    || `nrrd.axis.max`        || Left edge of last voxel ||
+|| !ElementSpacing       || `nrrd.axis.spacing`    || Voxel size ||
+|| DimSize               || `nrrd.axis.size`       || Number of voxels ||
 
-means that the volume containing the image starts at (12.3 45.6 9.0).
+Note that `nrrd.axis.min` and `nrrd.axis.max` both indicate the "left" side of the first and last voxels.
 
-However, note that the centre of the voxel is 0.5 voxels away from the vertex. Thus, assuming a resolution of 0.8 in all directions, the point coordinates of the centre of voxel (1, 1, 1) would be
+For example, suppose we have 3 voxels:
 
-{{{
-Offset + half voxel = (12.7 46.0 9.4)
-}}}
+|| V1 || V2  || V3 ||
 
-*Point coordinates* are continuous over the whole image volume. In the previous example, voxel (1, 1, 1) has point coordinates from (12.3 45.6 9.0) to (13.1 46.4 9.8).
+Let `nrrd.axis.min` = `[0 2 1]`, and `nrrd.axis.spacing` = `[3 3 3]`.
 
-*Indices* are discrete in Seg3D. Thus, voxel (1, 1, 1) has index (1, 1, 1) everywhere within its volume.
+Then, the first voxel is defined by the corners
+ * `[0 2 1]` = `nrrd.axis.min`
+ * `[3 5 4]` = `nrrd.axis.min` + `nrrd.axis.spacing`
+
+The last voxel is defined by the corners
+ * `[6 8 7]` = `nrrd.axis.max` = `nrrd.axis.min` + `(nrrd.axis.size - 1) * nrrd.axis.spacing`
+ * `[9 11 10]` = `nrrd.axis.min` + `nrrd.axis.size * nrrd.axis.spacing`
+
+
+Note that the centre of the voxel is 0.5 voxels away from the vertex.
+
+*Point coordinates* are continuous over the whole image volume, while *Indices* are discrete in Seg3D.
 
 In Gerardus, functions `scinrrd_index2world()` and `scinrrd_world2index()` don't round index values, to avoid introducing numerical errors. To obtain true index values, use Matlab's function `round()`.
