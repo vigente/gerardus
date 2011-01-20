@@ -1,4 +1,4 @@
-function nrrd = scinrrd_estimate_bias_field(nrrd, x)
+function nrrd = scinrrd_estimate_bias_field(nrrd, x, k)
 % SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field
 %
 %   This function provides an estimate of the bias field from a magnetic
@@ -8,7 +8,7 @@ function nrrd = scinrrd_estimate_bias_field(nrrd, x)
 %   user (typically, corresponding to background voxels), and then creates
 %   another image that interpolates the sampled intensity values.
 %
-%   The locations can ge selected e.g. using our Spline Tool extension to
+%   The locations can be selected e.g. using our Spline Tool extension to
 %   the Seg3D platform (click the points, and then export the control
 %   points).
 %
@@ -54,8 +54,8 @@ function nrrd = scinrrd_estimate_bias_field(nrrd, x)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 2, nargin, 'struct'));
-error(nargoutchk(0, 5, nargout, 'struct'));
+error(nargchk(2, 2, nargin, 'struct'));
+error(nargoutchk(0, 1, nargout, 'struct'));
 
 % squeeze volume
 nrrd = scinrrd_squeeze(nrrd);
