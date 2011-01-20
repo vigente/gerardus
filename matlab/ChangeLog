@@ -1,3 +1,15 @@
+2011-01-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- Add input argument to select prescaling. Because using the TPS
+	to interpolate all voxels can be rather slow, and the bias field
+	is anyway a slow varying field, it's convenient to first quickly
+	reduce the image size by A (using bilinear interpolation),
+	interpolate the bias field in the smaller image with the TPS, and
+	then expand to the original size. By default, A = 1.0 and no
+	rescaling is used.
+
 2011-01-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add FiltersToolbox/scinrrd_estimate_bias_field.m
