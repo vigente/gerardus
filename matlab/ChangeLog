@@ -1,5 +1,10 @@
 2011-01-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- Add low-pass anti-aliasing filter before downsampling
+	image. Make it optative, in case filtering is too slow.
+
 	* Add FiltersToolbox/fspecial3.m
 
 	- FSPECIAL3  Create predefined 3-dimensional filters.
