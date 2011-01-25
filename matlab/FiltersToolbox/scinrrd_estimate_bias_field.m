@@ -1,4 +1,4 @@
-function [nrrd, k] = scinrrd_estimate_bias_field(nrrd, x, a)
+function nrrd = scinrrd_estimate_bias_field(nrrd, x, a, ANTIA)
 % SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field
 %
 %   This function provides an estimate of the bias field from a magnetic
@@ -27,7 +27,7 @@ function [nrrd, k] = scinrrd_estimate_bias_field(nrrd, x, a)
 %
 %   NRRD2 is the estimated bias field in SCI NRRD format.
 %
-% NRRD2 = SCINRRD_ESTIMATE_BIAS_FIELD(NRRD, X, A)
+% NRRD2 = SCINRRD_ESTIMATE_BIAS_FIELD(NRRD, X, A, ANTIA)
 %
 %   A is a scaling factor. Because using the TPS to interpolate all voxels
 %   can be rather slow, and the bias field is anyway a slow varying field,
@@ -35,6 +35,9 @@ function [nrrd, k] = scinrrd_estimate_bias_field(nrrd, x, a)
 %   bilinear interpolation), interpolate the bias field in the smaller
 %   image with the TPS, and then expand to the original size. By default, A
 %   = 1.0 and no rescaling is used.
+%
+%   ANTIA is a boolean flag to run an anti-aliasing filter before
+%   downsampling the volume. By default, ANTIA = true.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
@@ -63,14 +66,17 @@ function [nrrd, k] = scinrrd_estimate_bias_field(nrrd, x, a)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 3, nargin, 'struct'));
-error(nargoutchk(0, 2, nargout, 'struct'));
+error(nargchk(2, 4, nargin, 'struct'));
+error(nargoutchk(0, 1, nargout, 'struct'));
 
 % defaults
-if (nargin < 3)
+if (nargin < 3 || isempty(a))
     a = 1.0;
 end
-
+if (nargin < 4 || isempty(ANTIA))
+    ANTIA = true;
+end
+    
 % squeeze volume
 nrrd = scinrrd_squeeze(nrrd);
 
@@ -85,9 +91,26 @@ size_out = num2cell(round([nrrd.axis.size] .* a));
 a = [size_out{:}] ./ [nrrd.axis.size];
 [nrrd.axis.size] = deal(size_out{:});
 
-% recompute the voxel spacing
+% recompute the voxel spacing according to the adjusted scaling factor
 spacing_out = num2cell([nrrd.axis.spacing] ./ a);
 [nrrd.axis.spacing] = deal(spacing_out{:});
+
+if ANTIA
+    % compute low-pass anti-aliasing filter
+    sigma = 1 ./ a;
+    h = fspecial3('gaussian', sigma * 4, sigma);
+    
+    % low pass filtering of the image
+    nrrd.data = imfilter(nrrd.data, h);
+end
+
+% % compute size of image in the frequency domain (*4 to avoid border effects
+% % due to cylic convolution)
+% sz = 2.^ceil(log2([size_in{:}])) * 4;
+% 
+% % low pass filtering of the image (frequency domain)
+% nrrd.data = real(ifftn(fftn(nrrd.data, sz) .* fftn(h, sz)));
+% nrrd.data = nrrd.data(1:size_in{1}, 1:size_in{2}, 1:size_in{3});
 
 % reduce volume size
 nrrd.data = tformarray(nrrd.data, ...
@@ -135,7 +158,7 @@ w = pts_tps_weights( x/K, v );
     linspace(cmin(1)/K, cmax(1)/K, n(1)), ...
     linspace(cmin(2)/K, cmax(2)/K, n(2)), ...
     linspace(cmin(3)/K, cmax(3)/K, n(3)));
-y = pts_tps_map( x/K, v, [ gx(:) gy(:) gz(:) ], w, false, false );
+y = pts_tps_map( x/K, v, [ gx(:) gy(:) gz(:) ], w, true, false );
 
 % create output volume
 nrrd.data = reshape(single(y), n);
