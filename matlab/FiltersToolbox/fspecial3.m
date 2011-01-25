@@ -1,11 +1,13 @@
-function h = fspecial3(type, sz)
+function h = fspecial3(type, sz, param)
 % FSPECIAL3  Create predefined 3-dimensional filters
 %
-% H = FSPECIAL3(TYPE, SZ)
+% H = FSPECIAL3(TYPE, SZ, PARAM)
 %
 %   H is a 3-dimensional (3D) filter of TYPE:
 %
 %     'gaussian'  Rotationally symmetric Gaussian low-pass filter (default)
+%                 PARAM: standard deviation in each dimension (default
+%                 PARAM = [1.0 1.0 1.0])
 %
 %   SZ is a vector with the size of the output filter in each dimension, in
 %   order [rows, columns, slices]. By default, SZ = [3 3 3]. Sizes have to
@@ -40,7 +42,7 @@ function h = fspecial3(type, sz)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(0, 2, nargin, 'struct'));
+error(nargchk(0, 3, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
 % defaults
@@ -49,6 +51,14 @@ if (nargin < 1 || isempty(type))
 end
 if (nargin < 2 || isempty(sz))
     sz = [3 3 3];
+end
+if (nargin < 3 || isempty(param))
+    switch type
+        case 'gaussian'
+            param = [1.0 1.0 1.0];
+        otherwise
+            error('Filter type not implemented')
+    end
 end
 
 % check that sizes are odd numbers
@@ -68,6 +78,9 @@ switch type
         [gr, gc, gs] = ndgrid(-l(1):l(1), -l(2):l(2), -l(3):l(3));
         
         % compute gaussian function
+        gr = gr / param(1);
+        gc = gc / param(2);
+        gs = gs / param(3);
         h = exp(-(gr.*gr + gc.*gc + gs.*gs)*.5);
         
         % normalize filtered intensity
