@@ -12,11 +12,12 @@ function nrrd = scinrrd_estimate_bias_field(nrrd, x, a)
 %   the Seg3D platform (click the points, and then export the control
 %   points).
 %
-%   Note that because the interpolant is an interpolating thin-plate
-%   spline (TPS), this function is not robust in the presence of noise
-%   (this can be solved e.g. by low-pass filtering the image). Ideally, in
-%   the future this function should use an approximating TPS instead of an
-%   interpolating one.
+%   Note that the interpolant is an interpolating thin-plate spline (TPS),
+%   but instead of just sampling the selected voxels, a neighbourhood is
+%   sampled, and used to locally low-pass filter the image with a Gaussian
+%   filter. Thus, this function is somehow robust in the presence of noise.
+%   Alternatively, in the future this function should use an approximating
+%   TPS instead of an interpolating one.
 %
 % NRRD2 = SCINRRD_ESTIMATE_BIAS_FIELD(NRRD, X)
 %
