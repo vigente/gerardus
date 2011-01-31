@@ -1,3 +1,14 @@
+2011-01-31  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- Make function a lot faster, especially with large images.
+
+	Instead of low-pass filtering the image, reducing the size and
+	sampling the background points, now we sample the background
+	points and a region around them, and low-pass filter only the
+	voxels of interest.
+
 2011-01-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_estimate_bias_field.m
