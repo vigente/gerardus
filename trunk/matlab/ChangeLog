@@ -1,5 +1,22 @@
 2011-01-31  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add PointsToolbox/pts_tps_weights.m from svn://edison.comlab.ox.ac.uk/ramc/rcasero/matlab-toolbox/pts/trunk/pts_tps_weights.m
+
+	PTS_TPS_WEIGHTS  Compute weights and affine parameters of
+	thin-plate spline warp for N-dimensional points
+
+	This function is a dependency that I had forgotten for
+	FiltersToolbox/scinrrd_estimate_bias_field.m.
+
+	* Add PointsToolbox/pts_tps_map.m from
+	svn://edison.comlab.ox.ac.uk/ramc/rcasero/matlab-toolbox/pts/trunk/pts_tps_map.m
+
+	PTS_TPS_MAP Interpolate/warp/map N-dimensional points using a
+	thin-plate spline transformation
+
+	This function is a dependency that I had forgotten for
+	FiltersToolbox/scinrrd_estimate_bias_field.m.
+
 	* FiltersToolbox/scinrrd_estimate_bias_field.m
 
 	- Make function a lot faster, especially with large images.
