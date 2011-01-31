@@ -1,4 +1,4 @@
-function nrrd = scinrrd_estimate_bias_field(nrrd, x, a, ANTIA)
+function nrrd = scinrrd_estimate_bias_field(nrrd, x, a)
 % SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field
 %
 %   This function provides an estimate of the bias field from a magnetic
@@ -27,7 +27,7 @@ function nrrd = scinrrd_estimate_bias_field(nrrd, x, a, ANTIA)
 %
 %   NRRD2 is the estimated bias field in SCI NRRD format.
 %
-% NRRD2 = SCINRRD_ESTIMATE_BIAS_FIELD(NRRD, X, A, ANTIA)
+% NRRD2 = SCINRRD_ESTIMATE_BIAS_FIELD(NRRD, X, A)
 %
 %   A is a scaling factor. Because using the TPS to interpolate all voxels
 %   can be rather slow, and the bias field is anyway a slow varying field,
@@ -35,9 +35,6 @@ function nrrd = scinrrd_estimate_bias_field(nrrd, x, a, ANTIA)
 %   bilinear interpolation), interpolate the bias field in the smaller
 %   image with the TPS, and then expand to the original size. By default, A
 %   = 1.0 and no rescaling is used.
-%
-%   ANTIA is a boolean flag to run an anti-aliasing filter before
-%   downsampling the volume. By default, ANTIA = true.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
@@ -66,66 +63,73 @@ function nrrd = scinrrd_estimate_bias_field(nrrd, x, a, ANTIA)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 4, nargin, 'struct'));
+error(nargchk(2, 3, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
 % defaults
 if (nargin < 3 || isempty(a))
     a = 1.0;
 end
-if (nargin < 4 || isempty(ANTIA))
-    ANTIA = true;
-end
     
 % squeeze volume
 nrrd = scinrrd_squeeze(nrrd);
 
-% save input parameters for the end
-size_in = num2cell([nrrd.axis.size]);
-spacing_in = num2cell([nrrd.axis.spacing]);
+% size of input volume
+nin = [nrrd.axis.size];
 
 % recompute the scaling factor so that we obtain an integer number of
 % voxels in the output volume
 a = a([1 1 1]);
-size_out = num2cell(round([nrrd.axis.size] .* a));
-a = [size_out{:}] ./ [nrrd.axis.size];
-[nrrd.axis.size] = deal(size_out{:});
+nout = round(nin .* a);
+a = nout ./ nin;
 
-% recompute the voxel spacing according to the adjusted scaling factor
-spacing_out = num2cell([nrrd.axis.spacing] ./ a);
-[nrrd.axis.spacing] = deal(spacing_out{:});
+% Seg3D provides continuous point coordinates over the whole image volume.
+% But in fact, intensity values correspond to the voxel centre, so we have
+% to convert the coordinates to indices and round them
+x = scinrrd_world2index(x, nrrd.axis);
+x = round(x);
 
-if ANTIA
-    % compute low-pass anti-aliasing filter
-    sigma = 1 ./ a;
-    h = fspecial3('gaussian', sigma * 4, sigma);
+% compute low-pass anti-aliasing filter
+sigma = 1 ./ a;
+halfsz = round(sigma * 4 / 2);
+h = fspecial3('gaussian', halfsz*2+1, sigma);
+
+% loop each sampling point. For each sampling point we want to sample a
+% whole cube around it, so that we can apply a low-pass filter without
+% having to filter the whole image volume
+v = zeros(size(x, 1), 1);
+for I = 1:size(x, 1)
     
-    % low pass filtering of the image
-    nrrd.data = imfilter(nrrd.data, h);
+    % get indices of the area around the sampling point to sample. If the
+    % sampling point is too close to the edge, we have to be careful to not
+    % overflow
+    idxr = max(1, x(I, 1)-halfsz(1)):min(nin(1), x(I, 1)+halfsz(1));
+    idxc = max(1, x(I, 2)-halfsz(2)):min(nin(2), x(I, 2)+halfsz(2));
+    idxs = max(1, x(I, 3)-halfsz(3)):min(nin(3), x(I, 3)+halfsz(3));
+    
+    % if necessary, crop low-pass filter so that it has the same size as
+    % the sampling area
+    hbox = h(...
+        max(1, idxr - x(I, 1) + halfsz(1) + 1), ...
+        max(1, idxc - x(I, 2) + halfsz(2) + 1), ...
+        max(1, idxs - x(I, 3) + halfsz(3) + 1));
+    
+    % extract image area around the sampling point
+    im = nrrd.data(idxr, idxc, idxs);
+    
+    v(I) = sum(hbox(:) .* im(:)) / sum(hbox(:));
+%     v(I) = sum(hbox(:) .* im(:)); % this is how Matlab's imfilter() does
+%     it, which is incorrect near the edges
+    
 end
 
-% % compute size of image in the frequency domain (*4 to avoid border effects
-% % due to cylic convolution)
-% sz = 2.^ceil(log2([size_in{:}])) * 4;
-% 
-% % low pass filtering of the image (frequency domain)
-% nrrd.data = real(ifftn(fftn(nrrd.data, sz) .* fftn(h, sz)));
-% nrrd.data = nrrd.data(1:size_in{1}, 1:size_in{2}, 1:size_in{3});
-
-% reduce volume size
-nrrd.data = tformarray(nrrd.data, ...
-    maketform('affine', [a(1) 0 0 0; 0 a(2) 0 0; 0 0 a(3) 0; 0 0 0 1]), ...
-    makeresampler('linear', 'replicate'), ...
-    1:length(nrrd.axis), 1:length(nrrd.axis), ...
-    [nrrd.axis.size], [], []);
-
-% extract size of the volume
-n = [nrrd.axis.size];
+% convert back to coordinates
+x = scinrrd_index2world(x, nrrd.axis);
 
 % compute coordinates of the two extreme voxels that define the image
 % volume
 cmin = scinrrd_index2world([1 1 1], nrrd.axis);
-cmax = scinrrd_index2world(n, nrrd.axis);
+cmax = scinrrd_index2world(nin, nrrd.axis);
 
 % if we have point coordinates with values like 100, 400, matrix L for the
 % thin-plate spline weight computation is badly scaled. Thus, we make use
@@ -134,41 +138,28 @@ cmax = scinrrd_index2world(n, nrrd.axis);
 % saying that they grid is not monotonic)
 K = max(cmax)/5;
 
-% Seg3D provides continuous point coordinates over the whole image volume.
-% But in fact, intensity values correspond to the voxel centre, so we have
-% to convert the coordinates to indices and round them
-x = scinrrd_world2index(x, nrrd.axis);
-x = round(x);
-
-% % get intensity values corresponding to the sampling points
-idx = sub2ind(n, x(:, 1), x(:, 2), x(:, 3));
-v = nrrd.data(idx);
-
-% convert back to coordinates
-x = scinrrd_index2world(x, nrrd.axis);
-
 % the warp will be defined as from the xyz-points to the corresponding
 % intensity values
+
+% compute what would be the size of the image if we downsample it
+nmid = round(nin .* a);
 
 % compute weights for thin-plate spline interpolation
 w = pts_tps_weights( x/K, v );
 
 % interpolate intensity values for each point in the grid
 [gx, gy, gz] = meshgrid(...
-    linspace(cmin(1)/K, cmax(1)/K, n(1)), ...
-    linspace(cmin(2)/K, cmax(2)/K, n(2)), ...
-    linspace(cmin(3)/K, cmax(3)/K, n(3)));
-y = pts_tps_map( x/K, v, [ gx(:) gy(:) gz(:) ], w, true, false );
+    linspace(cmin(1)/K, cmax(1)/K, nmid(1)), ...
+    linspace(cmin(2)/K, cmax(2)/K, nmid(2)), ...
+    linspace(cmin(3)/K, cmax(3)/K, nmid(3)));
+nrrd.data = pts_tps_map( x/K, v, [ gx(:) gy(:) gz(:) ], w, true, false );
 
-% create output volume
-nrrd.data = reshape(single(y), n);
+% reshape the interpolated values to go from a vector to an image volume
+nrrd.data = reshape(single(nrrd.data), nmid);
 
 % recover original size
 nrrd.data = tformarray(nrrd.data, ...
     maketform('affine', [1/a(1) 0 0 0; 0 1/a(2) 0 0; 0 0 1/a(3) 0; 0 0 0 1]), ...
     makeresampler('linear', 'replicate'), ...
     1:length(nrrd.axis), 1:length(nrrd.axis), ...
-    [size_in{:}], [], []);
-
-[nrrd.axis.size] = deal(size_in{:});
-[nrrd.axis.spacing] = deal(spacing_in{:});
+    nin, [], []);
