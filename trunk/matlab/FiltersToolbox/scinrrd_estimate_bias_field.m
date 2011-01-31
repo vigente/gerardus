@@ -16,8 +16,8 @@ function nrrd = scinrrd_estimate_bias_field(nrrd, x, a)
 %   but instead of just sampling the selected voxels, a neighbourhood is
 %   sampled, and used to locally low-pass filter the image with a Gaussian
 %   filter. Thus, this function is somehow robust in the presence of noise.
-%   Alternatively, in the future this function should use an approximating
-%   TPS instead of an interpolating one.
+%   Alternatively, this function could use an approximating TPS instead of
+%   an interpolating one.
 %
 % NRRD2 = SCINRRD_ESTIMATE_BIAS_FIELD(NRRD, X)
 %
