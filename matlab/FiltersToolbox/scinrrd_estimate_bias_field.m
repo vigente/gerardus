@@ -1,4 +1,4 @@
-function nrrd = scinrrd_estimate_bias_field(nrrd, x, a)
+function nrrd = scinrrd_estimate_bias_field(nrrd, x, a, sigma)
 % SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field
 %
 %   This function provides an estimate of the bias field from a magnetic
@@ -28,7 +28,7 @@ function nrrd = scinrrd_estimate_bias_field(nrrd, x, a)
 %
 %   NRRD2 is the estimated bias field in SCI NRRD format.
 %
-% NRRD2 = SCINRRD_ESTIMATE_BIAS_FIELD(NRRD, X, A)
+% NRRD2 = SCINRRD_ESTIMATE_BIAS_FIELD(NRRD, X, A, SIGMA)
 %
 %   A is a scaling factor. Because using the TPS to interpolate all voxels
 %   can be rather slow, and the bias field is anyway a slow varying field,
@@ -36,6 +36,63 @@ function nrrd = scinrrd_estimate_bias_field(nrrd, x, a)
 %   bilinear interpolation), interpolate the bias field in the smaller
 %   image with the TPS, and then expand to the original size. By default, A
 %   = 1.0 and no rescaling is used.
+%
+%   SIGMA is the standard deviation of the Gaussian filter. By default,
+%   sigma = 2*sqrt(-2 ln(alpha)) / a, alpha=1/sqrt(2)*ones(1,3), so that
+%   the Gaussian filter has a 3dB drop at the cut-off frequency in each
+%   dimension (see Note 1 for details).
+%
+% ======
+% Note 1
+% ======
+%
+% The Gaussian filter in the frequency domain is
+%
+%   F(u) = 1/sqrt(2*pi) * exp(-u^2 *sigma^2 / 2)
+%
+% So if we want our filter to have a drop alpha at cut-off frequency B'
+%
+%   exp(-B'^2 * sigma^2 / 2) = alpha
+%
+% then
+%
+%   sigma = sqrt(-2 ln(alpha)) / B'
+%
+% Because of the Nyquist theorem, in order to prevent aliasing, we require
+% the cut-off frequency to be
+%
+%   B' < fs' / 2 = a / (2*dx)
+%
+% then the standard deviation for the Gaussian must be
+%
+%   sigma > 2*sqrt(-2 ln(alpha)) / fs
+%
+%   sigma > 2*sqrt(-2 ln(alpha)) * dx / a
+%
+% There are two free parameters:
+%
+%   * alpha: filter drop at cut-off frequency (alpha=1/sqrt(2) makes a 3 dB
+%            cut-off point)
+%
+%   * a: scaling factor for the image (a=.5, image becomes half size)
+%
+%  and a parameter that depends on the image
+%
+%   * dx: voxel size, image resolution; because sigma is given in pixel
+%     units, dx = 1 for any image.
+%
+% ======
+% Note 2
+% ======
+%
+% The Gaussian filter in the space domain is
+%
+%   f(x) = 1/(sqrt(2*pi)*sigma) * exp(-x^2 / (2*sigma^2))
+%
+% The Gaussian tails tend asymptotically to 0, so we need to truncate the
+% filter at some point. For sigma = 1.0, the filter tail at
+% f(4)=1.3383e-04, which is a good compromise between having a small
+% numerical error and a small filter.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
@@ -64,12 +121,16 @@ function nrrd = scinrrd_estimate_bias_field(nrrd, x, a)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 3, nargin, 'struct'));
+error(nargchk(2, 4, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
 % defaults
+alpha = 1/sqrt(2)*ones(1,3);
 if (nargin < 3 || isempty(a))
     a = 1.0;
+end
+if (nargin < 4 || isempty(sigma))
+    sigma = 2*sqrt(-2*log(alpha)) / a;
 end
     
 % squeeze volume
@@ -91,8 +152,9 @@ x = scinrrd_world2index(x, nrrd.axis);
 x = round(x);
 
 % compute low-pass anti-aliasing filter
-sigma = 1 ./ a;
-halfsz = round(sigma * 4 / 2);
+% sigma = 2 * sqrt(-2 * log(alpha)) ./ a .* dx; % dx not needed, sigma
+% given in pixel units
+halfsz = round(4 * sigma);
 h = fspecial3('gaussian', halfsz*2+1, sigma);
 
 % loop each sampling point. For each sampling point we want to sample a
@@ -120,7 +182,8 @@ for I = 1:size(x, 1)
     
     v(I) = sum(hbox(:) .* im(:)) / sum(hbox(:));
 %     v(I) = sum(hbox(:) .* im(:)); % this is how Matlab's imfilter() does
-%     it, which is incorrect near the edges
+%     it, which is incorrect near the edges because it reduces the value of
+%     the pixels
     
 end
 
@@ -146,12 +209,12 @@ K = max(cmax)/5;
 nmid = round(nin .* a);
 
 % compute weights for thin-plate spline interpolation
-w = pts_tps_weights( x/K, v );
+w = pts_tps_weights(x/K, v);
 
 % interpolate intensity values for each point in the grid
 [gx, gy, gz] = meshgrid(...
-    linspace(cmin(1)/K, cmax(1)/K, nmid(1)), ...
-    linspace(cmin(2)/K, cmax(2)/K, nmid(2)), ...
+    linspace(cmin(1)/K, cmax(1)/K, nmid(2)), ...
+    linspace(cmin(2)/K, cmax(2)/K, nmid(1)), ...
     linspace(cmin(3)/K, cmax(3)/K, nmid(3)));
 nrrd.data = pts_tps_map( x/K, v, [ gx(:) gy(:) gz(:) ], w, true, false );
 
