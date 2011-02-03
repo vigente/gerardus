@@ -1,3 +1,17 @@
+2011-02-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- Now the standard deviation necessary to prevent aliasing is
+	computed based on proper formulas, instead of guessing. Notes
+	about the computations have been added to the help header.
+
+	- Add input argument sigma to force bandwidth of Gaussian filter.
+
+	- Fix bug, the number of rows and columns were swapped, so that
+	after reshaping the interpolated intensity vector, the voxels were
+	in the wrong place.
+
 2011-01-31  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add PointsToolbox/pts_tps_weights.m from svn://edison.comlab.ox.ac.uk/ramc/rcasero/matlab-toolbox/pts/trunk/pts_tps_weights.m
