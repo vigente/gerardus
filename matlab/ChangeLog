@@ -1,3 +1,10 @@
+2011-02-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/img_tps_map.m
+
+	- IMG_TPS_MAP Warp an image using a thin-plate spline
+	transformation
+
 2011-02-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_estimate_bias_field.m
