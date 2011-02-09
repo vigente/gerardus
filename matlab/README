@@ -31,10 +31,25 @@ Toolboxes in Gerardus:
 CardiacToolbox:
 ===============
 
+correct_rv_crescent_tips.m
+
+	Correct the segmentation of the Right Ventricle's crescent
+	tips using the segmentation of the tricuspid and pulmonary
+	annula.
+
+crest_envelope.m
+
+	Compute the envelope for the Right Ventricle's crest.
+
 is_lv_on_the_left
 
 	Check whether the left ventricle is on the left hand side of
 	the image.
+
+process_misas_patient.m
+
+	Create MetaImage volumes from directory tree of IMA DICOM
+	files, for project with human hearts provided by Kelvin Wong.
 
 scinrrd_rv_crescent_tips
 
@@ -125,16 +140,30 @@ correct_light_blobs_in_microscope_mosaic
 	Correct the colour blob created by the microscope's light in
 	each tile of a mosaic, e.g. for histology.
 
+fspecial3
+
+	Create predefined 3-dimensional filters.
+
 img_adjacency_distance
 
 	Convert image to adjacency-distance list in sparse matrix
 	form.scinrrd_box.
+
+scinrrd_box
 
 	Compute tight box around SCI NRRD segmentation.
 
 scinrrd_centroids
 
 	Compute centroid of segmentation in each slice.
+
+scinrrd_estimate_bias_field
+
+	Estimate MRI bias field.
+
+scinrrd_gradients
+
+	Compute 1st and 2nd order image gradients.
 
 scinrrd_intersect_plane
 
@@ -219,6 +248,16 @@ pts_pca
 
 	Linear and Kernel Principal Component Analysis (PCA and
 	KPCA).
+
+pts_tps_map
+
+	Interpolate/warp/map N-dimensional points using a thin-plate
+	spline transformation.
+
+pts_tps_weights
+
+	Compute weights and affine parameters of thin-plate spline
+	warp for N-dimensional points.
 
 quaternion2matrix
 

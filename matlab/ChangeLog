@@ -1,5 +1,9 @@
 2011-02-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* README
+
+	- Add some function names and descriptions that I had forgotten.
+
 	* Add FiltersToolbox/img_tps_map.m
 
 	- IMG_TPS_MAP Warp an image using a thin-plate spline
