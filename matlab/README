@@ -149,6 +149,10 @@ img_adjacency_distance
 	Convert image to adjacency-distance list in sparse matrix
 	form.scinrrd_box.
 
+img_tps_map
+
+	Warp an image using a thin-plate spline transformation.
+
 scinrrd_box
 
 	Compute tight box around SCI NRRD segmentation.
