@@ -1,3 +1,16 @@
+2011-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- Fix bug, force scaling factor to be a 3-vector so that it can be
+	different in each coordinate.
+
+	- Clear memory as it's no longer needed, so that we can process
+	bigger images.
+
+	- Add sigma as output argument so that we now how many voxels we
+	are using to low-pass filter the image.
+
 2011-02-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* README
