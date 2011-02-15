@@ -77,83 +77,83 @@ function [y, w] = pts_tps_map( s, t, x, w, FAST, PROGRESS )
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 3, 6, nargin ) );
-error( nargoutchk( 0, 2, nargout ) );
+error(nargchk(3, 6, nargin));
+error(nargoutchk(0, 2, nargout));
 
 % defaults
-if ( nargin < 5 || isempty( FAST ) )
+if (nargin < 5 || isempty(FAST))
     FAST = true;
 end
-if ( nargin < 6 || isempty( PROGRESS ) )
+if (nargin < 6 || isempty(PROGRESS))
     PROGRESS = false;
 end
 
 % struct and sizes check
-P = size( s, 1 ); % number of control points
-if ( P ~= size( t, 1 ) )
-    error( 'S and T must have the same number of points' )
+P = size(s, 1); % number of control points
+if (P ~= size(t, 1))
+    error('S and T must have the same number of points')
 end
 
 % compute weights if needed
-N = size( s, 3 ); % number of frames
-if ( nargin < 4 || isempty( w ) )
-    if isstruct( x ) % triple warp
+N = size(s, 3); % number of frames
+if (nargin < 4 || isempty(w))
+    if isstruct(x) % triple warp
         
         for I = 1:N
-            w( I ).in = pts_tps_weights( s( :, :, I ), t( :, :, I ) );
-            w( I ).endo = pts_tps_weights( s( 1:(P/2), :, I ), ...
-                t( 1:(P/2), :, I ) );
-            w( I ).epi = pts_tps_weights( s( (P/2+1):end, :, I ), ...
-                t( (P/2+1):end, :, I ) );
+            w(I).in = pts_tps_weights(s(:, :, I), t(:, :, I));
+            w(I).endo = pts_tps_weights(s(1:(P/2), :, I), ...
+                t(1:(P/2), :, I));
+            w(I).epi = pts_tps_weights(s((P/2+1):end, :, I), ...
+                t((P/2+1):end, :, I));
         end
         
     else
-        w = pts_tps_weights( s, t );
+        w = pts_tps_weights(s, t);
     end
 end
 
 % deal with empty point sets
-if isempty( x )
+if isempty(x)
     y = [];
     return;
 end
 
-if isstruct( x ) % triple warp
-    if any( ~isfield( x, {'endo', 'epi', 'in'} ) )
-        error( 'Invalid fields for struct in X' )
+if isstruct(x) % triple warp
+    if any(~isfield(x, {'endo', 'epi', 'in'}))
+        error('Invalid fields for struct in X')
     end
     
     % compute each warp separately
-    y( N ) = struct( ...
-        'in', zeros( size( x( 1 ).in ) ), ...
-        'endo', zeros( size( x( 1 ).endo ) ), ...
-        'epi', zeros( size( x( 1 ).epi ) ) );
+    y(N) = struct( ...
+        'in', zeros(size(x(1).in)), ...
+        'endo', zeros(size(x(1).endo)), ...
+        'epi', zeros(size(x(1).epi)));
     for I = 1:N
-        y( I ).in = pts_tps_map( s( :, :, I ), t( :, :, I ), ...
-            x( I ).in, w( I ).in, FAST );
-        y( I ).endo = pts_tps_map( s( 1:(P/2), :, I ), ...
-            t( 1:(P/2), :, I ), x( I ).endo, w( I ).endo, FAST );
-        y( I ).epi = pts_tps_map( s( (P/2+1):end, :, I ), ...
-            t( (P/2+1):end, :, I ), x( I ).epi, w( I ).epi, FAST );
+        y(I).in = pts_tps_map(s(:, :, I), t(:, :, I), ...
+            x(I).in, w(I).in, FAST);
+        y(I).endo = pts_tps_map(s(1:(P/2), :, I), ...
+            t(1:(P/2), :, I), x(I).endo, w(I).endo, FAST);
+        y(I).epi = pts_tps_map(s((P/2+1):end, :, I), ...
+            t((P/2+1):end, :, I), x(I).epi, w(I).epi, FAST);
     end
     
     return
 end
 
 % dimensionality of points
-D = size( s, 2 );
+D = size(s, 2);
 
-if ( D ~= size( x, 2 ) )
-    error( [ 'Dimensionality of S is ' num2str( D ) ', of X is ' num2str( size( x, 2 ) ) ] )
+if (D ~= size(x, 2))
+    error(['Dimensionality of S is ' num2str(D) ', of X is ' num2str(size(x, 2))])
 end
-if ( N ~= size( t, 3 ) || N ~= size( x, 3 ) )
-    error( 'S, T and X must have the same number of point configurations' )
+if (N ~= size(t, 3) || N ~= size(x, 3))
+    error('S, T and X must have the same number of point configurations')
 end
 
 % init output
-y = zeros( size( x, 1 ), size( w, 2 ) );
+y = zeros(size(x, 1), size(w, 2));
 
-PP = size( x, 1 ); % PP: number of points to be interpolated
+PP = size(x, 1); % PP: number of points to be interpolated
 
 if FAST
 
@@ -161,29 +161,29 @@ if FAST
     for I = 1:N % loop frames
 
         % init aux matrix
-        u = zeros( P * PP, D );
+        u = zeros(P * PP, D);
 
         % interleave points to be warped
         for J = 1:D
-            u( :, J ) = reshape( repmat( x( :, J, I ), 1, P )', P * PP, 1 );
+            u(:, J) = reshape(repmat(x(:, J, I), 1, P)', P * PP, 1);
         end
 
         % compute norm(Pi - (x,y)).^2
-        u = sum( ( u - repmat( s( :, :, I ), PP, 1 ) ) .^ 2, 2 );
+        u = sum((u - repmat(s(:, :, I), PP, 1)) .^ 2, 2);
 
         % reshape to have 1 row vector per point to be interpolated
-        u = reshape( u, P, PP )';
+        u = reshape(u, P, PP)';
 
         % thin-plate spline distance function
         % U(r) = r^2 log10(r)
         % note: it's faster to compute the log10 this way than directly
-        warning( 'off', 'MATLAB:log:logOfZero' );
-        u = 0.5 * u .* log( u ) * ( 1/log(10) );
-        u( isnan( u ) ) = 0;
-        warning( 'on', 'MATLAB:log:logOfZero' );
+        warning('off', 'MATLAB:log:logOfZero');
+        u = 0.5 * u .* log(u) * (1/log(10));
+        u(isnan(u)) = 0;
+        warning('on', 'MATLAB:log:logOfZero');
 
-        % factor by weights f(x,y) = a1 + ax*x + ay*y + sum( wi*U(|Pi - (x,y)|) )
-        y( :, :, I ) = [ u , ones( PP, 1 ) , x( :, :, I ) ] * w( :, :, I );
+        % factor by weights f(x,y) = a1 + ax*x + ay*y + sum(wi*U(|Pi - (x,y)|))
+        y(:, :, I) = [u , ones(PP, 1) , x(:, :, I)] * w(:, :, I);
 
     end
 
@@ -191,8 +191,8 @@ else % loop throug each point; this is slower but less memory consuming
     
     % show status bar
     if PROGRESS
-        delete( statusbar )
-        bar = statusbar( 'Progress bar...' );
+        delete(statusbar)
+        bar = statusbar('Progress bar...');
     else
         bar = [];
     end
@@ -203,22 +203,22 @@ else % loop throug each point; this is slower but less memory consuming
             % compute norm(Pi - (x,y)).^2
             % U(r) = r^2 log10(r)
             % note: it's faster to compute the log10 this way than directly
-            u = sum( ...
-                ( repmat( x( J, :, I ), P, 1 ) - s( :, :, I ) ) .^ 2, 2 )';
-            warning( 'off', 'MATLAB:log:logOfZero' );
-            u = 0.5 * u .* log( u ) * ( 1/log(10) );
-            u( isnan( u ) ) = 0;
-            warning( 'on', 'MATLAB:log:logOfZero' );
+            u = sum(...
+                (repmat(x(J, :, I), P, 1) - s(:, :, I)) .^ 2, 2)';
+            warning('off', 'MATLAB:log:logOfZero');
+            u = 0.5 * u .* log(u) * (1/log(10));
+            u(isnan(u)) = 0;
+            warning('on', 'MATLAB:log:logOfZero');
 
-            % factor by weights f(x,y) = a1 + ax*x + ay*y + sum( wi*U(|Pi - (x,y)|) )
-            y( J, :, I ) = ...
-                [ u , ...
+            % factor by weights f(x,y) = a1 + ax*x + ay*y + sum(wi*U(|Pi - (x,y)|))
+            y(J, :, I) = ...
+                [u , ...
                 1 , ...
-                x( J, :, I ) ] ... % x, y, z, etc
-                * w( :, :, I );
+                x(J, :, I)] ... % x, y, z, etc
+                * w(:, :, I);
 
             % update progress bar every 10th of the total number of points
-            if mod( J, round(PP/10) )
+            if mod(J, round(PP/10))
                 if (PROGRESS && isempty(statusbar(((I-1)*PP+J)/(N*PP), bar)))
                     break
                 end
@@ -227,13 +227,13 @@ else % loop throug each point; this is slower but less memory consuming
         end
         
 %         % update progress bar every frame
-%         if isempty( statusbar( I/N, bar ) )
+%         if isempty(statusbar(I/N, bar))
 %             break
 %         end
         
     end
     
     % delete progress bar
-    delete( bar );
+    delete(bar);
 
 end
