@@ -2,8 +2,10 @@
 
 	* PointsToolbox/pts_tps_map.m v6.4
 
+	- Remove whitespace before or after bracket.
+
 	- Fix bug. A bad testing condition prevented the computation of
-	interpolated points apart from the first one.
+	interpolated points apart from the first one in the SLOW mode.
 
 	* FiltersToolbox/scinrrd_estimate_bias_field.m
 
