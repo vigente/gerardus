@@ -1,4 +1,4 @@
-function nrrd = scinrrd_estimate_bias_field(nrrd, x, a, sigma)
+function [nrrd, sigma] = scinrrd_estimate_bias_field(nrrd, x, a, sigma)
 % SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field
 %
 %   This function provides an estimate of the bias field from a magnetic
@@ -35,12 +35,19 @@ function nrrd = scinrrd_estimate_bias_field(nrrd, x, a, sigma)
 %   it's convenient to first quickly reduce the image size by A (using
 %   bilinear interpolation), interpolate the bias field in the smaller
 %   image with the TPS, and then expand to the original size. By default, A
-%   = 1.0 and no rescaling is used.
+%   = 1.0 and no rescaling is used. If A has 1 value, then the same scaling
+%   is applied to all dimensions. If A has 3 values, each value is used to
+%   scale one dimension.
 %
 %   SIGMA is the standard deviation of the Gaussian filter. By default,
 %   sigma = 2*sqrt(-2 ln(alpha)) / a, alpha=1/sqrt(2)*ones(1,3), so that
 %   the Gaussian filter has a 3dB drop at the cut-off frequency in each
 %   dimension (see Note 1 for details).
+%
+% [NRRD2, SIGMA] = ...
+%
+%   SIGMA as an output is the sigma value (in voxel units) used for the
+%   Gaussian filter.
 %
 % ======
 % Note 1
@@ -122,15 +129,20 @@ function nrrd = scinrrd_estimate_bias_field(nrrd, x, a, sigma)
 
 % check arguments
 error(nargchk(2, 4, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
+error(nargoutchk(0, 2, nargout, 'struct'));
 
 % defaults
 alpha = 1/sqrt(2)*ones(1,3);
 if (nargin < 3 || isempty(a))
     a = 1.0;
 end
+if (length(a) == 1)
+    a = a([1 1 1]);
+elseif (length(a) ~= 3)
+    error('A must have 1 or 3 values')
+end
 if (nargin < 4 || isempty(sigma))
-    sigma = 2*sqrt(-2*log(alpha)) / a;
+    sigma = 2*sqrt(-2*log(alpha)) ./ a;
 end
     
 % squeeze volume
@@ -141,7 +153,6 @@ nin = [nrrd.axis.size];
 
 % recompute the scaling factor so that we obtain an integer number of
 % voxels in the output volume
-a = a([1 1 1]);
 nout = round(nin .* a);
 a = nout ./ nin;
 
@@ -180,12 +191,17 @@ for I = 1:size(x, 1)
     % extract image area around the sampling point
     im = nrrd.data(idxr, idxc, idxs);
     
+    % compute low-pass filtered intensity of current voxel
     v(I) = sum(hbox(:) .* im(:)) / sum(hbox(:));
+    
 %     v(I) = sum(hbox(:) .* im(:)); % this is how Matlab's imfilter() does
 %     it, which is incorrect near the edges because it reduces the value of
 %     the pixels
     
 end
+
+% clear memory
+clear h hbox im
 
 % convert back to coordinates
 x = scinrrd_index2world(x, nrrd.axis);
@@ -211,12 +227,20 @@ nmid = round(nin .* a);
 % compute weights for thin-plate spline interpolation
 w = pts_tps_weights(x/K, v);
 
-% interpolate intensity values for each point in the grid
+% generate grid
 [gx, gy, gz] = meshgrid(...
     linspace(cmin(1)/K, cmax(1)/K, nmid(2)), ...
     linspace(cmin(2)/K, cmax(2)/K, nmid(1)), ...
     linspace(cmin(3)/K, cmax(3)/K, nmid(3)));
+
+% clear memory
+nrrd.data = [];
+
+% interpolate intensity values for each point in the grid
 nrrd.data = pts_tps_map( x/K, v, [ gx(:) gy(:) gz(:) ], w, true, false );
+
+% clear memory
+clear gx gy gz
 
 % reshape the interpolated values to go from a vector to an image volume
 nrrd.data = reshape(single(nrrd.data), nmid);
