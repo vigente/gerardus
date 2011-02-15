@@ -1,4 +1,4 @@
-function [nrrd, sigma] = scinrrd_estimate_bias_field(nrrd, x, a, sigma)
+function [nrrd, sigma] = scinrrd_estimate_bias_field(nrrd, x, a, sigma, FASTINTERP)
 % SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field
 %
 %   This function provides an estimate of the bias field from a magnetic
@@ -28,7 +28,7 @@ function [nrrd, sigma] = scinrrd_estimate_bias_field(nrrd, x, a, sigma)
 %
 %   NRRD2 is the estimated bias field in SCI NRRD format.
 %
-% NRRD2 = SCINRRD_ESTIMATE_BIAS_FIELD(NRRD, X, A, SIGMA)
+% NRRD2 = SCINRRD_ESTIMATE_BIAS_FIELD(NRRD, X, A, SIGMA, FASTINTERP)
 %
 %   A is a scaling factor. Because using the TPS to interpolate all voxels
 %   can be rather slow, and the bias field is anyway a slow varying field,
@@ -43,6 +43,10 @@ function [nrrd, sigma] = scinrrd_estimate_bias_field(nrrd, x, a, sigma)
 %   sigma = 2*sqrt(-2 ln(alpha)) / a, alpha=1/sqrt(2)*ones(1,3), so that
 %   the Gaussian filter has a 3dB drop at the cut-off frequency in each
 %   dimension (see Note 1 for details).
+%
+%   FASTINTERP is a boolean to decide whether fast (more memory consuming)
+%   thin-plate spline interpolation should be used. By default,
+%   FASTINTERP=true. If you run out of memory, try setting it to false.
 %
 % [NRRD2, SIGMA] = ...
 %
@@ -128,7 +132,7 @@ function [nrrd, sigma] = scinrrd_estimate_bias_field(nrrd, x, a, sigma)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 4, nargin, 'struct'));
+error(nargchk(2, 5, nargin, 'struct'));
 error(nargoutchk(0, 2, nargout, 'struct'));
 
 % defaults
@@ -143,6 +147,9 @@ elseif (length(a) ~= 3)
 end
 if (nargin < 4 || isempty(sigma))
     sigma = 2*sqrt(-2*log(alpha)) ./ a;
+end
+if (nargin < 5 || isempty(FASTINTERP))
+    FASTINTERP = true;
 end
     
 % squeeze volume
@@ -237,7 +244,7 @@ w = pts_tps_weights(x/K, v);
 nrrd.data = [];
 
 % interpolate intensity values for each point in the grid
-nrrd.data = pts_tps_map( x/K, v, [ gx(:) gy(:) gz(:) ], w, true, false );
+nrrd.data = pts_tps_map(x/K, v, [gx(:) gy(:) gz(:)], w, FASTINTERP, false);
 
 % clear memory
 clear gx gy gz
