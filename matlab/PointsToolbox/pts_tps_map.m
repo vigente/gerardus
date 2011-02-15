@@ -50,7 +50,7 @@ function [y, w] = pts_tps_map( s, t, x, w, FAST, PROGRESS )
 % See also: pts_tps_weights.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% v6.3 - 25 Jan 2011
+% v6.4 - 15 Feb 2011
 % Copyright © 2006-2011 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
@@ -189,9 +189,6 @@ if FAST
 
 else % loop throug each point; this is slower but less memory consuming
     
-    % DEBUG
-    error('Implementation of SLOW mode is broken and needs to be fixed. Use FAST mode')
-
     % show status bar
     if PROGRESS
         delete( statusbar )
@@ -222,7 +219,7 @@ else % loop throug each point; this is slower but less memory consuming
 
             % update progress bar every 10th of the total number of points
             if mod( J, round(PP/10) )
-                if isempty( statusbar( ((I-1)*PP+J)/(N*PP), bar ) )
+                if (PROGRESS && isempty(statusbar(((I-1)*PP+J)/(N*PP), bar)))
                     break
                 end
             end
