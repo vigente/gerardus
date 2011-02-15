@@ -9,6 +9,9 @@
 
 	* FiltersToolbox/scinrrd_estimate_bias_field.m
 
+	- Add input argument to switch between fast (and more memory
+	consuming) and slow thin-plate spline interpolation.
+
 	- Fix bug, force scaling factor to be a 3-vector so that it can be
 	different in each coordinate.
 
