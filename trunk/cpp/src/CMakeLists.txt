@@ -20,22 +20,22 @@ ENDIF( ITK_FOUND )
 ADD_EXECUTABLE( extractVoxelCoordinatesFromSegmentationMask
 ExtractVoxelCoordinatesFromSegmentationMask.cxx )
 TARGET_LINK_LIBRARIES( extractVoxelCoordinatesFromSegmentationMask 
-ITKCommon ITKIO ITKNumerics )
+boost_system ITKCommon ITKIO ITKNumerics )
 
 # padImageWithVoxels
 ADD_EXECUTABLE( padSegmentationMaskWithVoxels
 PadSegmentationMaskWithVoxels.cxx )
 TARGET_LINK_LIBRARIES( padSegmentationMaskWithVoxels
-ITKCommon ITKIO )
+boost_system ITKCommon ITKIO )
 
 # rotate3DImage
 ADD_EXECUTABLE( rotate3DImage
 Rotate3DImage.cxx )
 TARGET_LINK_LIBRARIES( rotate3DImage
-ITKCommon ITKIO )
+boost_system ITKCommon ITKIO )
 
 # resize3DImage
 ADD_EXECUTABLE( resize3DImage
 Resize3DImage.cxx )
 TARGET_LINK_LIBRARIES( resize3DImage
-ITKCommon ITKIO )
+boost_system ITKCommon ITKIO )

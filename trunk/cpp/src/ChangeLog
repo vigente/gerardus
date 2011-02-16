@@ -1,3 +1,11 @@
+2011-02-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CMakeLists.txt
+
+	- Add boost_system to the list of libraries each program has to be
+	linked too. I have no idea why linking has been working in the
+	past without this.
+
 2010-10-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* src/Resize3DImage.cxx
