@@ -1,3 +1,12 @@
+2011-02-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* src/Resize3DImage.cxx
+
+	- Add input arguments to override the automatically computed
+	standard deviations for the Gaussian low-pass filtering. This way,
+	it's possible to blur more or less. If the std=0, the Gaussian
+	filtering is skipped for that coordinate.
+
 2011-02-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* CMakeLists.txt
