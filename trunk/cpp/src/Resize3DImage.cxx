@@ -38,13 +38,23 @@ int main(int argc, char** argv)
     fs::path                            outImPath;
     std::string                         interpType; // interpolator type
     size_t                              sX, sY, sZ; // output size
+    float                               sigX, sigY, sigZ; // user-defined Gaussian std
     bool                                sigmaSeg3D; // whether to use a very similar blurring to Seg3D's
     
     try {
         
         // Define the command line object, program description message, separator, version
         TCLAP::CmdLine cmd( "resize3DImage: resize a 3D image", ' ', "0.0" );
-    
+
+	// input argument: override automatically computed sigma values for Gaussian
+        // filter by user input
+        TCLAP::ValueArg< float > sigXArg("", "sigx", "Gaussian std X", false, -1.0, "float");
+        TCLAP::ValueArg< float > sigYArg("", "sigy", "Gaussian std Y", false, -1.0, "float");
+        TCLAP::ValueArg< float > sigZArg("", "sigz", "Gaussian std Z", false, -1.0, "float");
+	cmd.add(sigXArg);
+	cmd.add(sigYArg);
+	cmd.add(sigZArg);
+
         // input argument: verbosity
         TCLAP::SwitchArg sigmaSeg3DSwitch("", "sigmaSeg3D", "Use similar low-pass blurring as Seg3D's Resample tool", false);
         cmd.add(sigmaSeg3DSwitch);
@@ -84,6 +94,9 @@ int main(int argc, char** argv)
         sX = sXArg.getValue();
         sY = sYArg.getValue();
         sZ = sZArg.getValue();
+        sigX = sigXArg.getValue();
+        sigY = sigYArg.getValue();
+        sigZ = sigZArg.getValue();
         sigmaSeg3D = sigmaSeg3DSwitch.getValue();
         
     } catch (const TCLAP::ArgException &e)  // catch any exceptions
@@ -93,6 +106,7 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
     
+
     /*******************************/
     /** Load input image block    **/
     /*******************************/
@@ -168,6 +182,11 @@ int main(int argc, char** argv)
     GaussianFilterType::Pointer                          smootherY;
     GaussianFilterType::Pointer                          smootherZ;
 
+    // standard deviation for smoother 
+    double sigmaX;
+    double sigmaY;
+    double sigmaZ;
+
     try {
 
         // get parameter values
@@ -184,23 +203,37 @@ int main(int argc, char** argv)
         smootherZ = GaussianFilterType::New();
         
         // set image to smooth
-        smootherX->SetInput(imIn);
-        smootherY->SetInput(smootherX->GetOutput());
-        smootherZ->SetInput(smootherY->GetOutput());
-        
+	// this is delayed until 
+
         // set standard deviation for smoother 
-        double sigmaX = spacingIn[0] * (double)sizeIn[0] / (double)sizeOut[0];
-        double sigmaY = spacingIn[1] * (double)sizeIn[1] / (double)sizeOut[1];
-        double sigmaZ = spacingIn[2] * (double)sizeIn[2] / (double)sizeOut[2];
+        sigmaX = spacingIn[0] * (double)sizeIn[0] / (double)sizeOut[0];
+        sigmaY = spacingIn[1] * (double)sizeIn[1] / (double)sizeOut[1];
+        sigmaZ = spacingIn[2] * (double)sizeIn[2] / (double)sizeOut[2];
         if (sigmaSeg3D) {
             sigmaX *= 0.61;
             sigmaY *= 0.61;
             sigmaZ *= 0.61;
         }
 
+	// override automatically computed values of Gaussian standard
+	// deviation by user parameters
+	if (sigX >= 0.0) {
+	  sigmaX = sigX;
+	}
+	if (sigY >= 0.0) {
+	  sigmaY = sigY;
+	}
+	if (sigZ >= 0.0) {
+	  sigmaZ = sigZ;
+	}
+
         smootherX->SetSigma(sigmaX);
         smootherY->SetSigma(sigmaY);
         smootherZ->SetSigma(sigmaZ);
+        
+        // smootherX->SetSigma(0.0);
+        // smootherY->SetSigma(0.0);
+        // smootherZ->SetSigma(0.0);
         
         // "we instruct each one of the smoothing filters to act along a particular
         // direction of the image, and set them to use normalization across scale space
@@ -210,9 +243,9 @@ int main(int argc, char** argv)
         smootherY->SetDirection(1);
         smootherZ->SetDirection(2);
 
-        smootherX->SetNormalizeAcrossScale(false);
-        smootherY->SetNormalizeAcrossScale(false);
-        smootherZ->SetNormalizeAcrossScale(false);
+        smootherX->SetNormalizeAcrossScale(true);
+        smootherY->SetNormalizeAcrossScale(true);
+        smootherZ->SetNormalizeAcrossScale(true);
         
         
     } catch( const std::exception &e )  // catch exceptions
@@ -271,7 +304,39 @@ int main(int argc, char** argv)
         resampler->SetOutputOrigin(imIn->GetOrigin());
         resampler->SetOutputSpacing(spacingOut);
         resampler->SetSize(sizeOut);
-        resampler->SetInput(smootherZ->GetOutput()); 
+
+	// create a pipeline for the image depending on which Gaussian
+	// filters we are going to use
+	if (sigmaZ > 0.0) {
+	  resampler->SetInput(smootherZ->GetOutput());
+	  if (sigmaY > 0.0) {
+	    smootherZ->SetInput(smootherY->GetOutput());
+	    if (sigmaX > 0.0) {
+	      smootherY->SetInput(smootherX->GetOutput());
+	      smootherX->SetInput(imIn);
+	    } else {
+	      smootherY->SetInput(imIn);
+	    }
+	  } else if (sigmaX > 0.0) {
+	    smootherZ->SetInput(smootherX->GetOutput());
+	    smootherX->SetInput(imIn);
+	  } else {
+	    smootherZ->SetInput(imIn);
+	  }
+	} else if (sigmaY > 0.0) {
+	  resampler->SetInput(smootherY->GetOutput());
+	  if (sigmaX > 0.0) {
+	    smootherY->SetInput(smootherX->GetOutput());
+	    smootherX->SetInput(imIn);
+	  } else {
+	    smootherY->SetInput(imIn);
+	  }
+	} else if (sigmaX > 0.0) {
+	  resampler->SetInput(smootherX->GetOutput());
+	  smootherX->SetInput(imIn);
+	} else {
+	  resampler->SetInput(imIn);
+	}
         
         // rotate image
         resampler->Update();
