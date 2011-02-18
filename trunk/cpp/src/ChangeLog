@@ -1,3 +1,10 @@
+2011-02-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* src/Resize3DImage.cxx
+
+	- Add input argument so that the user can give the Gaussian
+	standard deviation in voxel units.
+
 2011-02-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* src/Resize3DImage.cxx
