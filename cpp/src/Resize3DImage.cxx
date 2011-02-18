@@ -40,6 +40,7 @@ int main(int argc, char** argv)
     size_t                              sX, sY, sZ; // output size
     float                               sigX, sigY, sigZ; // user-defined Gaussian std
     bool                                sigmaSeg3D; // whether to use a very similar blurring to Seg3D's
+    bool                                sigmaInVoxels; // whether sigma units are in voxels or real world coordinates
     
     try {
         
@@ -55,9 +56,13 @@ int main(int argc, char** argv)
 	cmd.add(sigYArg);
 	cmd.add(sigZArg);
 
-        // input argument: verbosity
+        // input argument: Seg3D's low-pass blurring
         TCLAP::SwitchArg sigmaSeg3DSwitch("", "sigmaSeg3D", "Use similar low-pass blurring as Seg3D's Resample tool", false);
         cmd.add(sigmaSeg3DSwitch);
+        
+        // input argument: sigma units in voxels
+        TCLAP::SwitchArg sigmaInVoxelsSwitch("", "sigmaInVoxels", "Sigma values provided by user are in voxels instead of real world coordinates", false);
+        cmd.add(sigmaInVoxelsSwitch);
         
         // input argument: filename of output image
         TCLAP::ValueArg< std::string > outImPathArg("o", "outfile", "Output image filename", false, "", "file");
@@ -98,6 +103,7 @@ int main(int argc, char** argv)
         sigY = sigYArg.getValue();
         sigZ = sigZArg.getValue();
         sigmaSeg3D = sigmaSeg3DSwitch.getValue();
+	sigmaInVoxels = sigmaInVoxelsSwitch.getValue();
         
     } catch (const TCLAP::ArgException &e)  // catch any exceptions
     {
@@ -218,22 +224,18 @@ int main(int argc, char** argv)
 	// override automatically computed values of Gaussian standard
 	// deviation by user parameters
 	if (sigX >= 0.0) {
-	  sigmaX = sigX;
+	  sigmaInVoxels ? sigmaX = spacingIn[0] * sigX : sigmaX = sigX;
 	}
 	if (sigY >= 0.0) {
-	  sigmaY = sigY;
+	  sigmaInVoxels ? sigmaY = spacingIn[1] * sigY : sigmaY = sigY;
 	}
 	if (sigZ >= 0.0) {
-	  sigmaZ = sigZ;
+	  sigmaInVoxels ? sigmaZ = spacingIn[2] * sigZ : sigmaZ = sigZ;
 	}
 
         smootherX->SetSigma(sigmaX);
         smootherY->SetSigma(sigmaY);
         smootherZ->SetSigma(sigmaZ);
-        
-        // smootherX->SetSigma(0.0);
-        // smootherY->SetSigma(0.0);
-        // smootherZ->SetSigma(0.0);
         
         // "we instruct each one of the smoothing filters to act along a particular
         // direction of the image, and set them to use normalization across scale space
