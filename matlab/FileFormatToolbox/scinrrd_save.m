@@ -79,4 +79,4 @@ nrrd = scinrrd_unsqueeze(nrrd, touint8);
 scirunnrrd = nrrd;
 
 % save data
-save(file, 'scirunnrrd');
+save(file, 'scirunnrrd', '-v7.3');
