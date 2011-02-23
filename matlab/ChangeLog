@@ -1,3 +1,10 @@
+2011-02-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+ 	* FileFormatToolbox/scinrrd_save.m
+
+	- Force saving with flag -v7.3 to avoid warning message.
+
+
 2011-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* PointsToolbox/pts_tps_map.m v6.4
