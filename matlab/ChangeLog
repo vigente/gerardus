@@ -1,9 +1,17 @@
+2011-02-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_save.m
+
+	- Undo last change. The flag -v7.3 is not necessary, and prevents
+	Seg3D from loading the segmentations. I don't know what the
+	problem was when trying to save the NRRD volumes, but it's no
+	longer an issue.
+
 2011-02-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
  	* FileFormatToolbox/scinrrd_save.m
 
 	- Force saving with flag -v7.3 to avoid warning message.
-
 
 2011-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
