@@ -1,4 +1,4 @@
-function scinrrd_save(file, nrrd, touint8)
+function scirunnrrd = scinrrd_save(file, scirunnrrd, touint8)
 % SCINRRD_SAVE  Save a NRRD struct to a Matlab format that can be imported
 % by Seg3D
 %
@@ -15,6 +15,11 @@ function scinrrd_save(file, nrrd, touint8)
 %
 %   TOUINT8 is a flag to convert the image data from double to uint8. This
 %   will make the volume 8 times smaller. By default, TOUINT8=false.
+%
+% NRRD = SCINRRD_SAVE(...)
+%
+%   NRRD as an output argument gives the reformatted data volume actually
+%   saved.
 %
 %
 %   Note on SCI NRRD: Software applications developed at the University of
@@ -35,7 +40,7 @@ function scinrrd_save(file, nrrd, touint8)
 %
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010 University of Oxford
+% Copyright © 2010-2011 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -61,8 +66,8 @@ function scinrrd_save(file, nrrd, touint8)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 2, 3, nargin, 'struct' ) );
-error( nargoutchk( 0, 0, nargout, 'struct' ) );
+error(nargchk(2, 3, nargin, 'struct'));
+error(nargoutchk(0, 1, nargout, 'struct'));
 
 % defaults
 if (nargin < 3 || isempty(touint8))
@@ -70,13 +75,10 @@ if (nargin < 3 || isempty(touint8))
 end
 
 % make x-,y-coordinates compatible with the Seg3D convention
-nrrd = scinrrd_seg3d2matlab(nrrd);
+scirunnrrd = scinrrd_seg3d2matlab(scirunnrrd);
 
 % add dummy dimension, if necessary, and convert data to uint8
-nrrd = scinrrd_unsqueeze(nrrd, touint8);
-
-% rename NRRD volume to Seg3D convention
-scirunnrrd = nrrd;
+scirunnrrd = scinrrd_unsqueeze(scirunnrrd, touint8);
 
 % save data
 save(file, 'scirunnrrd');
