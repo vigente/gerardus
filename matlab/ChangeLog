@@ -2,10 +2,16 @@
 
 	* FileFormatToolbox/scinrrd_save.m
 
+	- Rename the input argument nrrd to scirunnrrd so that we don't
+	need to duplicate the memory.
+
+	- Add output argument nrrd to give the reformatted data volume
+	actually saved.
+
 	- Undo last change. The flag -v7.3 is not necessary, and prevents
-	Seg3D from loading the segmentations. I don't know what the
-	problem was when trying to save the NRRD volumes, but it's no
-	longer an issue.
+	Seg3D from loading the segmentations. I think the problem was that
+	if Matlab runs out of memory while trying to save the NRRD volume,
+	it gives the flag -v7.3 error.
 
 2011-02-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
