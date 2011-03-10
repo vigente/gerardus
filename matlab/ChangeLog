@@ -1,3 +1,9 @@
+2011-03-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/plot_dmatrix.m
+
+	- PLOT_DMATRIX Plot the connections implied by a distance matrix.
+
 2011-02-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FileFormatToolbox/scinrrd_save.m
