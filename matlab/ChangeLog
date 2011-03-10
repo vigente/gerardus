@@ -1,5 +1,12 @@
 2011-03-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* PointsToolbox/dmatrix.m: v3.0
+
+	- Fix copyright notice to be uniform with the rest of Gerardus.
+
+	- Add input argument METHOD to select other distances than
+	Euclidean.
+
 	* Add PointsToolbox/plot_dmatrix.m
 
 	- PLOT_DMATRIX Plot the connections implied by a distance matrix.
