@@ -1,4 +1,4 @@
-function nrrd = scinrrd_valve_surface(nrrd, x, HOR)
+function nrrd = scinrrd_valve_surface(nrrd, x, PARAM, INTERP, KLIM)
 % SCINRRD_VALVE_SURFACE  Inter atrio-ventricular surface
 %
 % NRRD = SCINRRD_VALVE_SURFACE(NRRD0, X)
@@ -12,11 +12,32 @@ function nrrd = scinrrd_valve_surface(nrrd, x, HOR)
 %   NRRD is a SCI NRRD struct with a segmentation of the surface that
 %   interpolates the valve annula points.
 %
-% NRRD = SCINRRD_VALVE_SURFACE(NRRD0, X, HOR)
+% NRRD = SCINRRD_VALVE_SURFACE(NRRD0, X, PARAM, INTERP, KLIM)
 %
-%   HOR is a flag. If HOR=true, the valve points are rotated to make the
-%   first 2 eigenvectors of their principal components horizontal. By
-%   default, HOR=false.
+%   PARAM is a string with the method used to parametrize the surface and
+%   X:
+%
+%     'xy' (default): No change, the X coordinates are kept the same.
+%
+%     'pca': X points are rotated according to their eigenvectors to make
+%     the valve surface as horizontal as possible before interpolating.
+%
+%     'isomap': Use the Isomap method by [1] to "unfold" the curved surface
+%     defined by the valves before interpolating.
+%
+%   INTERP is a string with the interpolation method:
+%
+%      'tps' (default): Thin-plate spline.
+%
+%   KLIM is a scalar factor for the extension of the interpolation domain.
+%   By default, KLIM=1 and the interpolation domain is a rectangle that
+%   tightly contains X. Sections of the interpolated surface that protude
+%   from the image volume are removed.
+%
+%
+% [1] J.B. Tenenbaum, V. de Silva and J.C. Langford, "A Global Geometric
+% Framework for Nonlinear Dimensionality Reduction", Science 290(5500):
+% 2319-2323, 2000.
 %
 %   Note on SCI NRRD: Software applications developed at the University of
 %   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
@@ -34,8 +55,9 @@ function nrrd = scinrrd_valve_surface(nrrd, x, HOR)
 %          axis: [4x1 struct]
 %      property: []
 
-% Author: Ramon Casero.
-% Copyright © 2010 University of Oxford
+% Author: Ramon Casero <rcasero@gmail.com>
+% Copyright © 2010-2011 University of Oxford
+% Version: 0.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -61,85 +83,101 @@ function nrrd = scinrrd_valve_surface(nrrd, x, HOR)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 2, 3, nargin, 'struct' ) );
-error( nargoutchk( 0, 1, nargout, 'struct' ) );
+error(nargchk(2, 5, nargin, 'struct'));
+error(nargoutchk(0, 1, nargout, 'struct'));
 
 % defaults
-if (nargin < 3 || isempty(HOR))
-    HOR=false;
+if (nargin < 3 || isempty(PARAM))
+    PARAM='xy';
+end
+if (nargin < 4 || isempty(INTERP))
+    INTERP='tps';
+end
+if (nargin < 5 || isempty(KLIM))
+    KLIM=1;
 end
 
 % extract data volume and convert to boolean to save space
-mask = boolean(nrrd.data);
+nrrd.data = boolean(nrrd.data);
 
-% we want the valve plane to be as horizontal as possible before doing the
-% interpolation
-if HOR
-    m = mean(x, 2);
-    x = x - m(:, ones(1, size(x, 2)));
-    eigv = pts_pca(x);
-    x = eigv' * x;
-else
-    m = zeros(3, 1);
-    eigv = eye(3);
+%% map the 3D points (x,y,z) to a 2D domain (u,v)
+
+% this is analogous to computing the knot vector for a curve interpolation.
+% The idea is that (x,y)->z is not necessarily a function, due to the valve
+% folding over. However, we hope that (x,y,z)->(u,v) is a function
+switch PARAM
+    
+    case 'xy'
+        
+        % (u,v) is simply (x,y)
+        em = x(1:2, :);
+        
+    case 'pca'
+        
+        % rotate valve points to make the valve surface as horizontal as
+        % possible
+        m = mean(x, 2);
+        em = x - m(:, ones(1, size(x, 2)));
+        eigv = pts_pca(em);
+        em = eigv' * em;
+        em = em(1:2, :);
+        
+    case 'isomap'
+    
+    otherwise
+        error('Parametrization method not implemented')
 end
 
-% the warp will be defined as from the xy-plane to the surface defined by
-% the valves
-s = x(1:2, :);
-t = x(3, :);
-
-% find the rotation on the XY axes
-vx = eigv' * [1 0 0]';
-vy = eigv' * [0 1 0]';
-
-% get the projection of the rotated vectors on the z-axis. From this, we
-% can compute how much we need to enlarge the pre-rotated domain so that
-% the rotated domain covers all the region of interest
-K = 1/min(cosd(asind(vx(3))), cosd(asind(vy(3))));
-
-%% create grid of points that covers the axial plane
-
-% get image vertices
-vmin = [nrrd.axis.min];
-vmax = [nrrd.axis.max];
-
-delta = (vmax - vmin)/2;
-vmin = vmin - delta;
-vmax = vmax + delta;
+%% compute interpolation domain
 
 % get voxel size
 res = [nrrd.axis.spacing];
 
-% generate 3D grid of coordinates: note the inversion of coordinates,
-% necessary so that xg will change with columns, and yg with rows
-[gy, gx] = ndgrid( vmin(1):res(1):vmax(1), ...
-    vmin(2):res(2):vmax(2));
+% find box that contains embedded coordinates
+emmin = min(em, [], 2);
+emmax = max(em, [], 2);
 
-% rotate grid
-gxy = [gx(:)'; gy(:)'; m(3)+zeros(1, numel(gx))];
-gxy = gxy - m(:, ones(1, size(gxy, 2)));
-gxy = eigv' * gxy;
+% box size and centroid
+delta = emmax - emmin;
+boxm = mean([emmax emmin], 2);
 
-% compute interpolating surface
-y = pts_tps_map(s', t', gxy(1:2, :)');
+% extend the box
+emmin = boxm - delta/2*KLIM;
+emmax = boxm + delta/2*KLIM;
 
-% transform the interpolated surface to the original coordinate system
-gxy(3, :) = y;
-gxy = eigv * gxy;
-gxy = gxy + m(:, ones(1, size(gxy, 2)));
+% generate grid for the embedding box
+[gy, gx] = ndgrid(emmin(2):res(1):emmax(2), emmin(1):res(2):emmax(1));
+
+
+%% compute interpolating surface
+
+% source and target points that will define the warp
+%s = em; % don't duplicate data in memory
+%t = x; % don't duplicate data in memory
+
+% interpolate
+switch INTERP
+    case 'tps'
+        y = pts_tps_map(em', x', [gx(:) gy(:)])';
+    otherwise
+        error('Interpolation method not implemented')
+end
+
+%% map interpolated surface points to voxels
 
 % convert real world coordinates to indices
-idx = round(scinrrd_world2index(gxy', nrrd.axis));
+idx = round(scinrrd_world2index(y', nrrd.axis));
 
 % remove points outside the volume
 badidx = isnan(sum(idx, 2));
 idx = idx(~badidx, :);
 
 % construct new segmentation mask. Note that zz has type double.
-mask = mask * 0;
-mask( sub2ind( size( mask ), ...
-    idx(:, 1 ), idx(:, 2 ), floor(idx(:, 3)) ) ) = 1;
-mask( sub2ind( size( mask ), ...
-    idx(:, 1 ), idx(:, 2 ), ceil(idx(:, 3)) ) ) = 1;
-nrrd.data = mask;
+nrrd.data = nrrd.data * 0;
+nrrd.data(sub2ind(size(nrrd.data), ...
+    idx(:, 1), idx(:, 2), floor(idx(:, 3)))) = 1;
+nrrd.data(sub2ind(size(nrrd.data), ...
+    idx(:, 1), idx(:, 2), ceil(idx(:, 3)))) = 1;
+
+
+end
