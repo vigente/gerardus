@@ -23,7 +23,8 @@ function nrrd = scinrrd_valve_surface(nrrd, x, PARAM, INTERP, KLIM)
 %     the valve surface as horizontal as possible before interpolating.
 %
 %     'isomap': Use the Isomap method by [1] to "unfold" the curved surface
-%     defined by the valves before interpolating.
+%     defined by the valves before interpolating. (This option requires
+%     function IsomapII).
 %
 %   INTERP is a string with the interpolation method:
 %
@@ -38,6 +39,8 @@ function nrrd = scinrrd_valve_surface(nrrd, x, PARAM, INTERP, KLIM)
 % [1] J.B. Tenenbaum, V. de Silva and J.C. Langford, "A Global Geometric
 % Framework for Nonlinear Dimensionality Reduction", Science 290(5500):
 % 2319-2323, 2000.
+%
+% [2] Isomap Homepage, http://isomap.stanford.edu/
 %
 %   Note on SCI NRRD: Software applications developed at the University of
 %   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
@@ -123,6 +126,17 @@ switch PARAM
         em = em(1:2, :);
         
     case 'isomap'
+        
+        % compute distance matrix
+        d = dmatrix(x, x, 'euclidean');
+        
+        % compute 2-d projection of the 3-d data
+        options.dims = 2;
+        options.display = 0;
+        options.overlay = 0;
+        options.verbose = 0;
+        em = IsomapII(d, 'k', round(size(x, 2)/3), options);
+        em = em.coords{1};
     
     otherwise
         error('Parametrization method not implemented')
