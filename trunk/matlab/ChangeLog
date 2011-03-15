@@ -9,6 +9,8 @@
 
 	* CardiacToolbox/scinrrd_valve_surface.m: v0.1
 
+	- Add Isomap function to compute interpolation domain.
+
 	- Rewrite the function to be able to use different methods to
 	compute the interpolation domain, use different interpolants and
 	the factor for the interpolation domain size.
