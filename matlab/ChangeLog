@@ -1,5 +1,12 @@
 2011-03-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add ThirdPartyToolbox/Isomap.m, ThirdPartyToolbox/IsomapII.m
+
+	- Add modified code from Josh Tenenbaum, to compute Isomap
+	embedding using an advanced version of the algorithm in Tenenbaum,
+	de Silva, and Langford (2000), which can take advantage of
+	sparsity in the graph and redundancy in the distances.
+
 	* CardiacToolbox/scinrrd_valve_surface.m: v0.1
 
 	- Rewrite the function to be able to use different methods to
