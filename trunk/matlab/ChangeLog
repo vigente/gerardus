@@ -2,6 +2,9 @@
 
 	* CardiacToolbox/scinrrd_valve_surface.m: v0.2
 
+	- Add 'gridfit' option to interpolate (actually, approximate)
+	using John D'Errico's gridfit() function.
+
 	- Add 'tsi' option to interpolate using Matlab's
 	TriScatteredInterp() function.
 

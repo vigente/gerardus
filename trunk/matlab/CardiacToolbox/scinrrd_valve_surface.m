@@ -28,9 +28,12 @@ function nrrd = scinrrd_valve_surface(nrrd, x, PARAM, INTERP, KLIM)
 %
 %   INTERP is a string with the interpolation method:
 %
-%      'tps' (default): Thin-plate spline.
+%      'tps' (default): Thin-plate spline. Global support.
 %
-%      'tsi': Matlab's TriScatteredInterp() function.
+%      'tsi': Matlab's TriScatteredInterp() function. Global support.
+%
+%      'gridfit': John D'Errico's gridfit() function (note: approximation,
+%      rather than interpolation). Local support.
 %
 %   KLIM is a scalar factor for the extension of the interpolation domain.
 %   By default, KLIM=1 and the interpolation domain is a rectangle that
@@ -43,6 +46,10 @@ function nrrd = scinrrd_valve_surface(nrrd, x, PARAM, INTERP, KLIM)
 % 2319-2323, 2000.
 %
 % [2] Isomap Homepage, http://isomap.stanford.edu/
+%
+% [3] Surface Fitting using gridfit by John D'Errico 11 Nov 2005 (Updated
+% 29 Jul 2010). Code covered by the BSD License
+% http://www.mathworks.com/matlabcentral/fileexchange/8998-surface-fitting-using-gridfit
 %
 %   Note on SCI NRRD: Software applications developed at the University of
 %   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
@@ -180,6 +187,17 @@ switch INTERP
         fy = TriScatteredInterp(em(1, :)', em(2, :)', x(2, :)');
         fz = TriScatteredInterp(em(1, :)', em(2, :)', x(3, :)');
         y = [fx(gx, gy) fy(gx, gy) fz(gx, gy)]';
+    case 'gridfit'
+        fx = gridfit(em(1, :)', em(2, :)', x(1, :)', ...
+            emmin(1):res(2):emmax(1), emmin(2):res(1):emmax(2), ...
+            'tilesize', 150);
+        fy = gridfit(em(1, :)', em(2, :)', x(2, :)', ...
+            emmin(1):res(2):emmax(1), emmin(2):res(1):emmax(2), ...
+            'tilesize', 150);
+        fz = gridfit(em(1, :)', em(2, :)', x(3, :)', ...
+            emmin(1):res(2):emmax(1), emmin(2):res(1):emmax(2), ...
+            'tilesize', 150);
+        y = [fx(:) fy(:) fz(:)]';
     otherwise
         error('Interpolation method not implemented')
 end
