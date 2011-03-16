@@ -1,5 +1,18 @@
 2011-03-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add ThirdPartyToolbox/gridfit.m: v2.0
+
+	- By John D'Errico
+
+	- estimates a surface on a 2d grid, based on scattered data
+	Replicates are allowed. All methods extrapolate to the grid
+	boundaries. Gridfit uses a modified ridge estimator to generate
+	the surface, where the bias is toward smoothness.
+ 
+        Gridfit is not an interpolant. Its goal is a smooth surface that
+	approximates your data, but allows you to control the amount of
+	smoothing.
+
 	* Add ThirdPartyToolbox/L2_distance.m
 
 	- L2_DISTANCE - computes Euclidean distance matrix
