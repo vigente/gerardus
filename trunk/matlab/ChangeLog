@@ -1,5 +1,10 @@
 2011-03-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* CardiacToolbox/scinrrd_valve_surface.m: v0.2
+
+	- Add 'tsi' option to interpolate using Matlab's
+	TriScatteredInterp() function.
+
 	* Add ThirdPartyToolbox/gridfit.m: v2.0
 
 	- By John D'Errico

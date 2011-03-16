@@ -30,6 +30,8 @@ function nrrd = scinrrd_valve_surface(nrrd, x, PARAM, INTERP, KLIM)
 %
 %      'tps' (default): Thin-plate spline.
 %
+%      'tsi': Matlab's TriScatteredInterp() function.
+%
 %   KLIM is a scalar factor for the extension of the interpolation domain.
 %   By default, KLIM=1 and the interpolation domain is a rectangle that
 %   tightly contains X. Sections of the interpolated surface that protude
@@ -60,7 +62,7 @@ function nrrd = scinrrd_valve_surface(nrrd, x, PARAM, INTERP, KLIM)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.1
+% Version: 0.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -171,8 +173,13 @@ emmax = boxm + delta/2*KLIM;
 
 % interpolate
 switch INTERP
-    case 'tps'
+    case 'tps' % thin-plate spline
         y = pts_tps_map(em', x', [gx(:) gy(:)])';
+    case 'tsi' % Matlab's TriScatteredInterp
+        fx = TriScatteredInterp(em(1, :)', em(2, :)', x(1, :)');
+        fy = TriScatteredInterp(em(1, :)', em(2, :)', x(2, :)');
+        fz = TriScatteredInterp(em(1, :)', em(2, :)', x(3, :)');
+        y = [fx(gx, gy) fy(gx, gy) fz(gx, gy)]';
     otherwise
         error('Interpolation method not implemented')
 end
