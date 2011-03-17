@@ -1,0 +1,85 @@
+\section{MBAdata Class Reference}
+\label{classMBAdata}\index{MBAdata@{MBAdata}}
+
+
+Holds the scattered data.  
+
+
+
+
+{\ttfamily \#include $<$MBAdata.h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bf init} (boost::shared\_\-ptr$<$ {\bf dVec} $>$ U, boost::shared\_\-ptr$<$ {\bf dVec} $>$ V, boost::shared\_\-ptr$<$ {\bf dVec} $>$ Z)\label{classMBAdata_ae9d69d4bcfe1cb966fb5eb8a2a6218f2}
+
+\begin{DoxyCompactList}\small\item\em Initialize with scattered data. \item\end{DoxyCompactList}\item 
+const double \& {\bf umin} () const \label{classMBAdata_a0f0e1cca87822691dd148a465161b302}
+
+\begin{DoxyCompactList}\small\item\em min u-\/value of the actual data domain \item\end{DoxyCompactList}\item 
+const double \& {\bf vmin} () const \label{classMBAdata_ae9cc27568bb499681cbe65f0fedacb3d}
+
+\begin{DoxyCompactList}\small\item\em min v-\/value of the actual data domain \item\end{DoxyCompactList}\item 
+const double \& {\bf umax} () const \label{classMBAdata_a8405068adfdbdeb50f74a2dbbd9e88cf}
+
+\begin{DoxyCompactList}\small\item\em max u-\/value of the actual data domain \item\end{DoxyCompactList}\item 
+const double \& {\bf vmax} () const \label{classMBAdata_a97aa98ee693e1bd928f434e7f8ba619f}
+
+\begin{DoxyCompactList}\small\item\em max v-\/value of the actual data domain \item\end{DoxyCompactList}\item 
+const double \& {\bfseries rangeUInv} () const \label{classMBAdata_a8318271df8f1fff2765fadeb4db7f45e}
+
+\item 
+const double \& {\bfseries rangeVInv} () const \label{classMBAdata_a6515347480c35a6cf7c653c2180da79d}
+
+\item 
+const boost::shared\_\-ptr$<$ {\bf dVec} $>$ \& {\bfseries U} () const \label{classMBAdata_aa2b8587d5e5553549093a209c3862f72}
+
+\item 
+const boost::shared\_\-ptr$<$ {\bf dVec} $>$ \& {\bfseries V} () const \label{classMBAdata_adbb67a13bcecce94ec7061a063a10c17}
+
+\item 
+const boost::shared\_\-ptr$<$ {\bf dVec} $>$ \& {\bfseries Zorig} () const \label{classMBAdata_ab07e638c8e0fa770a1f0a867d3ddf22a}
+
+\item 
+const std::vector$<$ double $>$ \& {\bfseries Z} () const \label{classMBAdata_ad09121c8426acfde8fe52d8d4074e3e3}
+
+\item 
+double {\bfseries U} (int i) const \label{classMBAdata_a195b3e1f615323febfcaa41ccbe11347}
+
+\item 
+double {\bfseries V} (int i) const \label{classMBAdata_ace8f5e16a11985640a8d77d56c5aef81}
+
+\item 
+int {\bf size} () const \label{classMBAdata_aac9243959d7492fe4bf7f8d500cb66be}
+
+\begin{DoxyCompactList}\small\item\em Number of scattered data points. \item\end{DoxyCompactList}\item 
+double {\bfseries f} () const \label{classMBAdata_a0bd9f53325d6eacc7ea82b0a46ed5bb8}
+
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class {\bf MBA}\label{classMBAdata_afab20644ea49c2c01644b11979aa4338}
+
+\item 
+class {\bfseries MBAadaptive}\label{classMBAdata_abf717a79299de744141ff5d4125eaeb2}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Holds the scattered data. \doxyref{MBAdata}{p.}{classMBAdata} -\/ Holds scattered data for Multilevel B-\/spline approximation (and interpolation) for functional surfaces. Note that this is a (mathematical) lower level interface; thus there is no check for the validity of given scattered data or of arguments passed to member functions. See further documentation in \doxyref{MBA}{p.}{classMBA} and MBAadaptive
+
+\begin{DoxyAuthor}{Author}
+Øyvind Hjelle $<${\tt Oyvind.Hjelle@math.sintef.no}$>$ 
+\end{DoxyAuthor}
+\begin{DoxySeeAlso}{See also}
+\doxyref{MBA}{p.}{classMBA}, MBAadaptive, MBAdataPar 
+\end{DoxySeeAlso}
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+MBAdata.h\item 
+MBAdata.cpp\end{DoxyCompactItemize}
