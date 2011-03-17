@@ -1,0 +1,138 @@
+\section{GenMatrix$<$ Type $>$ Class Template Reference}
+\label{classGenMatrix}\index{GenMatrix@{GenMatrix}}
+
+
+A customized matrix class.  
+
+
+
+
+{\ttfamily \#include $<$foo.h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries GenMatrix} (int noX, int noY)\label{classGenMatrix_a3112059f6332bef9504d402c29eef045}
+
+\item 
+{\bfseries GenMatrix} (const {\bf GenMatrix} \&G)\label{classGenMatrix_a57f9aaaa882eabfab78b5db4e0a6e3e4}
+
+\item 
+void {\bfseries init} (const {\bf GenMatrix} \&G)\label{classGenMatrix_ac2a57becb1fa9cacad7d207875ad1545}
+
+\item 
+void {\bfseries swap} ({\bf GenMatrix} \&mat)\label{classGenMatrix_a3886ca56fce2ae01e262549a707c5334}
+
+\item 
+void {\bfseries operator+=} ({\bf GenMatrix} \&mat)\label{classGenMatrix_a190a2a9fa349ce0f075cefb7bc294d61}
+
+\item 
+Type {\bfseries norm\_\-2} () const \label{classGenMatrix_ab82b24517179d66d13f51e8a2e615805}
+
+\item 
+void {\bfseries operator+=} (double offset)\label{classGenMatrix_ac94f3895b098b8c4bafb256af1d1c0b9}
+
+\item 
+void {\bfseries resize} (int noX, int noY)\label{classGenMatrix_a155abb8fc9f5c0b2467bae64fa62b22d}
+
+\item 
+void {\bfseries reserve} (int rX, int rY)\label{classGenMatrix_a23a194458069dd8bc87bc7690f3299f6}
+
+\item 
+void {\bfseries clear} ()\label{classGenMatrix_a6ac0dce40d89bdf0d483c01315847d52}
+
+\item 
+int {\bfseries noX} () const \label{classGenMatrix_a1752626ef246107adf3569a33371676f}
+
+\item 
+int {\bfseries noY} () const \label{classGenMatrix_a0d97d740ecc693b903b21c8744e81332}
+
+\item 
+void {\bfseries capacity} (int \&rX, int \&rY) const \label{classGenMatrix_acec5229614408c0317acebdd8956a91b}
+
+\item 
+const Type \& {\bfseries operator()} (int ii, int jj) const \label{classGenMatrix_a14b53a599b7d4c69f43e2ff67bf615f2}
+
+\item 
+Type \& {\bfseries operator()} (int ii, int jj)\label{classGenMatrix_a323f35a468c76b0a4898668968c9764f}
+
+\item 
+void {\bfseries fill} (Type val)\label{classGenMatrix_af94891da94e298899df3973c0ad35fcb}
+
+\item 
+void {\bfseries print} () const \label{classGenMatrix_a3ec6e010c65f8c183f599dd9269e657d}
+
+\item 
+void {\bfseries printBitmap} () const \label{classGenMatrix_a6ce8d63b49a3c3efdb89922069188a95}
+
+\item 
+{\bfseries GenMatrix} (int noX, int noY)\label{classGenMatrix_a3112059f6332bef9504d402c29eef045}
+
+\item 
+{\bfseries GenMatrix} (const {\bf GenMatrix} \&G)\label{classGenMatrix_a57f9aaaa882eabfab78b5db4e0a6e3e4}
+
+\item 
+void {\bfseries init} (const {\bf GenMatrix} \&G)\label{classGenMatrix_ac2a57becb1fa9cacad7d207875ad1545}
+
+\item 
+void {\bfseries swap} ({\bf GenMatrix} \&mat)\label{classGenMatrix_a3886ca56fce2ae01e262549a707c5334}
+
+\item 
+void {\bfseries operator+=} ({\bf GenMatrix} \&mat)\label{classGenMatrix_a190a2a9fa349ce0f075cefb7bc294d61}
+
+\item 
+Type {\bfseries norm\_\-2} () const \label{classGenMatrix_ab82b24517179d66d13f51e8a2e615805}
+
+\item 
+void {\bfseries operator+=} (double offset)\label{classGenMatrix_ac94f3895b098b8c4bafb256af1d1c0b9}
+
+\item 
+void {\bfseries resize} (int noX, int noY)\label{classGenMatrix_a155abb8fc9f5c0b2467bae64fa62b22d}
+
+\item 
+void {\bfseries reserve} (int rX, int rY)\label{classGenMatrix_a23a194458069dd8bc87bc7690f3299f6}
+
+\item 
+void {\bfseries clear} ()\label{classGenMatrix_a6ac0dce40d89bdf0d483c01315847d52}
+
+\item 
+int {\bfseries noX} () const \label{classGenMatrix_a1752626ef246107adf3569a33371676f}
+
+\item 
+int {\bfseries noY} () const \label{classGenMatrix_a0d97d740ecc693b903b21c8744e81332}
+
+\item 
+void {\bfseries capacity} (int \&rX, int \&rY) const \label{classGenMatrix_acec5229614408c0317acebdd8956a91b}
+
+\item 
+const Type \& {\bfseries operator()} (int ii, int jj) const \label{classGenMatrix_a14b53a599b7d4c69f43e2ff67bf615f2}
+
+\item 
+Type \& {\bfseries operator()} (int ii, int jj)\label{classGenMatrix_a323f35a468c76b0a4898668968c9764f}
+
+\item 
+void {\bfseries fill} (Type val)\label{classGenMatrix_af94891da94e298899df3973c0ad35fcb}
+
+\item 
+void {\bfseries print} () const \label{classGenMatrix_a3ec6e010c65f8c183f599dd9269e657d}
+
+\item 
+void {\bfseries printBitmap} () const \label{classGenMatrix_a6ce8d63b49a3c3efdb89922069188a95}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$class Type$>$ class GenMatrix$<$ Type $>$}
+
+A customized matrix class. \doxyref{GenMatrix}{p.}{classGenMatrix} -\/ Matrix for storing B-\/spline coefficients in Multilevel B-\/spline approximation. The indices goes from -\/1. The class has reserve (and capasity) functionality similar to std::vector.
+
+\begin{DoxyAuthor}{Author}
+Øyvind Hjelle $<${\tt Oyvind.Hjelle@math.sintef.no}$>$ 
+\end{DoxyAuthor}
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+foo.h\item 
+GenMatrix.h\end{DoxyCompactItemize}
