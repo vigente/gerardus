@@ -39,3 +39,10 @@ ADD_EXECUTABLE( resize3DImage
 Resize3DImage.cxx )
 TARGET_LINK_LIBRARIES( resize3DImage
 boost_system ITKCommon ITKIO )
+
+# mbaSurfaceInterpolation
+#ADD_EXECUTABLE( mbaSurfaceInterpolation
+#MbaSurfaceInterpolation.cxx )
+#INCLUDE_DIRECTORIES(./third-party/mba/include)
+#LINK_DIRECTORIES(./third-party/mba/lib)
+#TARGET_LINK_LIBRARIES(mbaSurfaceInterpolation MBA)
