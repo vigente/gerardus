@@ -118,6 +118,7 @@
             LDFLAGS="-pthread -shared -Wl,--version-script,$TMW_ROOT/extern/lib/glnxa64/mexFunction.map -Wl,--no-undefined"
             LDOPTIMFLAGS='-O'
             LDDEBUGFLAGS='-g'
+	    LDEXTENSION='.mexa64'
 #
             POSTLINK_CMDS=':'
 #----------------------------------------------------------------------------
