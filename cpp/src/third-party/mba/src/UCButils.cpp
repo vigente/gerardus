@@ -1,4 +1,6 @@
 //===========================================================================
+// File modified by Ramón Casero <rcasero@gmail.com> for project Gerardus
+//===========================================================================
 // SINTEF Multilevel B-spline Approximation library - version 1.1
 //
 // Copyright (C) 2000-2005 SINTEF ICT, Applied Mathematics, Norway.
@@ -132,6 +134,32 @@ void UCBspl::printGNUgrid (const char filename[], const UCBspl::SplineSurface& s
       double u = surf.umin() + i*du;
       
       ofile << surf.f(u,v) << "\n";
+    }
+    ofile << endl;
+  }  
+}
+
+// rcasero: method to print the grid to a CSV file
+void UCBspl::printCSVgrid (const char filename[], const UCBspl::SplineSurface& surf, int noU, int noV) {
+  
+#ifdef MBA_DEBUG
+  cout << "Printing grid to: " << filename << endl;
+#endif
+  
+  double du = (surf.umax() - surf.umin())/(double)(noU-1);
+  double dv = (surf.vmax() - surf.vmin())/(double)(noV-1);  
+  ofstream ofile(filename);
+  
+  for (int i = 0; i < noU; i++) {
+    double u = surf.umin() + i*du;
+    for (int j = 0; j < noV; j++) {      
+      double v = surf.vmin() + j*dv;
+      
+      if (i == 0) {
+	ofile << surf.f(u,v);
+      } else {
+	ofile << "," << surf.f(u,v);
+      }
     }
     ofile << endl;
   }  
