@@ -1,4 +1,6 @@
 //===========================================================================
+// File modified by Ramón Casero <rcasero@gmail.com> for project Gerardus
+//===========================================================================
 // SINTEF Multilevel B-spline Approximation library - version 1.1
 //
 // Copyright (C) 2000-2005 SINTEF ICT, Applied Mathematics, Norway.
@@ -52,6 +54,7 @@ namespace UCBspl {
   void printVTKgrid(const char filename[], const UCBspl::SplineSurface& surf, int noU, int noV, double scale = 1.0);
   void printVTKtriangleStrips(const char filename[], const UCBspl::SplineSurface& surf, int noU, int noV, double scale = 1.0);
   void printGNUgrid (const char filename[], const UCBspl::SplineSurface& surf, int noU, int noV);  
+  void printCSVgrid (const char filename[], const UCBspl::SplineSurface& surf, int noU, int noV);  
   void printIRAPgrid(const char filename[], const UCBspl::SplineSurface& surf, int noU, int noV);
   void printGLgrid(const char filename[], const UCBspl::SplineSurface& surf, int noU, int noV);
   void printGLgridBin(const char filename[], const UCBspl::SplineSurface& surf, int noU, int noV,
