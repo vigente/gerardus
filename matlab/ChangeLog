@@ -1,3 +1,12 @@
+2011-03-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add engopts.sh:
+
+	- Matlab's configuration file modified so that we can compile and
+	link PointsToolbox/mba_surface_interpolation doing
+
+	>>  mex -v -largeArrayDims -f ../engopts.sh mba_surface_interpolation.cpp
+
 2011-03-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* CardiacToolbox/scinrrd_valve_surface.m: v0.2
