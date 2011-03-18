@@ -1,3 +1,23 @@
+2011-03-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* third-party/mba/include/UCButils.h,
+	third-party/mba/src/UCButils.cpp:
+
+	- Add UCBspl::printCSVgrid() method so that I can output the
+	interpolated grid points to a CSV file that Matlab can read.
+
+	* third-party/mba/CMakeLists.txt:
+
+	- Remove dependencies to OpenGL, that were giving linking problems
+	and don't seem to be necessary for mbaSurfaceInterpolation to run. 
+
+	* Add MbaSurfaceInterpolation.cxx:
+
+	- So far, I copied the example provided by the original MBA
+	developers, and made some changes for a quick and dirty test of
+	the interpolation code. It throws a segmentation fault if you try
+	to interpolate outside the square that contains the grid.
+
 2011-03-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Rename third-party/mba/Makefile provided by original developers as
