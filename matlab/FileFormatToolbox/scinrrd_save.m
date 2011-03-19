@@ -7,6 +7,16 @@ function scirunnrrd = scinrrd_save(file, scirunnrrd, touint8)
 %   This function formats the NRRD volume and saves it to a .mat file that
 %   can be imported as a segmentation or opened as a volume by Seg3D.
 %
+%      Note: If you volume is very large, Matlab gives a spurious warning
+%      message
+%
+%      "Warning: Variable 'scirunnrrd' cannot be saved to a MAT-file whose
+%      version is older than 7.3.
+%      To save this variable, use the -v7.3 switch.
+%      Skipping..."
+%
+%      This has nothing to do with versions, it's some kind of memory bug.
+%
 %   FILE is a string with the path and name of the .mat file.
 %
 %   NRRD is the SCI NRRD struct.
