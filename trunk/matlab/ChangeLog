@@ -1,9 +1,9 @@
 2011-03-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
-	* FileFormatToolbox/scinrrd_save.m:
+	* FileFormatToolbox/scinrrd_save.m: v0.2
 
-	- Add a note to the help header about a spurious warning message
-	that Matlab gives when trying to save a very large volume.
+	- Add input argument v73, a flag to save to v7.3 format, so that
+	we can save volumes larger than 2GB.
 
 	* CardiacToolbox/scinrrd_valve_surface.m: v0.3
 
