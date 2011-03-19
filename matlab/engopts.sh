@@ -29,8 +29,8 @@
     MFLAGS="-I$TMW_ROOT/extern/include"
     MLIBS="-L$TMW_ROOT/bin/$Arch -lmx -lmex -lmat"
     MCXXFLAGS="-I$TMW_ROOT/extern/include/cpp $MFLAGS"
-    MBAFLAGS="-I../../cpp/src/third-party/mba/include/"
-    MBALIBS="-L. -lMBA"
+    MBAFLAGS="-I`pwd`/../cpp/src/third-party/mba/include/"
+    MBALIBS="-L`pwd`/PointsToolbox -lMBA"
     MCXXLIBS="$MBALIBS $MLIBS"
     LDEXTENSION=''
     case "$Arch" in
@@ -46,7 +46,7 @@
             ;;
         glnx86)
 #----------------------------------------------------------------------------
-            RPATH="-Wl,-rpath=$TMW_ROOT/bin/$Arch -Wl,-rpath=."
+            RPATH="-Wl,-rpath=$TMW_ROOT/bin/$Arch -Wl,-rpath=`pwd`/PointsToolbox"
             CC='gcc-4.3'
             CFLAGS='-ansi -D_GNU_SOURCE'
             CFLAGS="$CFLAGS -fexceptions"
@@ -80,12 +80,12 @@
             LDDEBUGFLAGS='-g'
 	    LDEXTENSION='.mexglx'
 #
-            POSTLINK_CMDS=':'
+            POSTLINK_CMDS=""
 #----------------------------------------------------------------------------
             ;;
         glnxa64)
 #----------------------------------------------------------------------------
-            RPATH="-Wl,-rpath=$TMW_ROOT/bin/$Arch -Wl,-rpath=."
+            RPATH="-Wl,-rpath=$TMW_ROOT/bin/$Arch -Wl,-rpath=`pwd`/PointsToolbox"
             CC='gcc-4.3'
             CFLAGS='-ansi -D_GNU_SOURCE'
             CFLAGS="$CFLAGS -fexceptions"
@@ -119,7 +119,7 @@
             LDDEBUGFLAGS='-g'
 	    LDEXTENSION='.mexa64'
 #
-            POSTLINK_CMDS=':'
+            POSTLINK_CMDS=''
 #----------------------------------------------------------------------------
             ;;
         sol64)
