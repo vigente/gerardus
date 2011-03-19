@@ -1,3 +1,17 @@
+2011-03-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* third-party/mba/CMakeLists.txt:
+
+	- Now libMBA.so is installed in matlab/PointsToolbox, so that it's
+	in the same directory as the MEX function that makes use of it.
+
+	* CMakeLists.txt:
+
+	- Force the gcc and g++ compilers version to be 4.3. This is the
+	version that Matlab currently requires, and we have to compile the
+	libMBA library with the same version as the MEX file in the matlab
+	directory.
+
 2011-03-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* third-party/mba/include/UCButils.h,
