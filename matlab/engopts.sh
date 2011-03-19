@@ -27,10 +27,11 @@
 	TMW_ROOT="$MATLAB"
     fi
     MFLAGS="-I$TMW_ROOT/extern/include"
-#    MLIBS="-L$TMW_ROOT/bin/$Arch -leng -lmx"
     MLIBS="-L$TMW_ROOT/bin/$Arch -lmx -lmex -lmat"
     MCXXFLAGS="-I$TMW_ROOT/extern/include/cpp $MFLAGS"
-    MCXXLIBS="$MLIBS"
+    MBAFLAGS="-I../../cpp/src/third-party/mba/include/"
+    MBALIBS="-L. -lMBA"
+    MCXXLIBS="$MBALIBS $MLIBS"
     LDEXTENSION=''
     case "$Arch" in
         Undetermined)
@@ -45,49 +46,9 @@
             ;;
         glnx86)
 #----------------------------------------------------------------------------
-            RPATH="-Wl,-rpath-link,$TMW_ROOT/bin/$Arch"
-            CC='gcc'
-            CFLAGS='-ansi -D_GNU_SOURCE'
-            CFLAGS="$CFLAGS -fexceptions"
-            CFLAGS="$CFLAGS -D_FILE_OFFSET_BITS=64" 
-            CFLAGS="$CFLAGS $MFLAGS"
-            CLIBS="$RPATH $MLIBS -lm"
-            COPTIMFLAGS='-O -DNDEBUG'
-            CDEBUGFLAGS='-g'
-            CLIBS="$CLIBS -lstdc++"
-#           
-            CXX='g++'
-            CXXFLAGS='-ansi -D_GNU_SOURCE'
-            CXXFLAGS="$CXXFLAGS -D_FILE_OFFSET_BITS=64" 
-            CXXFLAGS="$CXXFLAGS $MCXXFLAGS -DGLNX86 -DGCC"
-            CXXLIBS="$RPATH $MCXXLIBS -lm"
-            CXXOPTIMFLAGS='-O -DNDEBUG'
-            CXXDEBUGFLAGS='-g'
-#
-#
-            FC='g95'
-            FFLAGS='-fexceptions'
-            FFLAGS="$FFLAGS $MFLAGS"
-            FLIBS="$RPATH $MLIBS -lm"
-            FOPTIMFLAGS='-O'
-            FDEBUGFLAGS='-g'
-#
-            LD="$COMPILER"
-            LDFLAGS=''
-            LDOPTIMFLAGS='-O'
-            LDDEBUGFLAGS='-g'
-#
-            POSTLINK_CMDS=':'
-#----------------------------------------------------------------------------
-            ;;
-        glnxa64)
-#----------------------------------------------------------------------------
-            RPATH="-Wl,-rpath-link,$TMW_ROOT/bin/$Arch"
-#            RPATH="-Wl,-rpath,/usr/local/matlab/R2010b/bin/glnxa64"
-#            CC='gcc'
+            RPATH="-Wl,-rpath=$TMW_ROOT/bin/$Arch -Wl,-rpath=."
             CC='gcc-4.3'
             CFLAGS='-ansi -D_GNU_SOURCE'
-#            CFLAGS="$CFLAGS  -fexceptions"
             CFLAGS="$CFLAGS -fexceptions"
             CFLAGS="$CFLAGS -fPIC -fno-omit-frame-pointer -pthread"
             CFLAGS="$CFLAGS $MFLAGS"
@@ -95,13 +56,11 @@
             COPTIMFLAGS='-O -DNDEBUG'
             CDEBUGFLAGS='-g'
             CLIBS="$CLIBS -lstdc++"
-#
-#            CXX='g++'
+#           
             CXX='g++-4.3'
             CXXFLAGS='-ansi -D_GNU_SOURCE'
-#            CXXFLAGS="$CXXFLAGS $MCXXFLAGS -DGLNXA64 -DGCC"
             CXXFLAGS="$CXXFLAGS -fPIC -fno-omit-frame-pointer -pthread"
-            CXXFLAGS="$CXXFLAGS $MCXXFLAGS -DGLNXA64 -DGCC"
+            CXXFLAGS="$CXXFLAGS $MCXXFLAGS $MBAFLAGS -DGLNX86 -DGCC"
             CXXLIBS="$RPATH $MCXXLIBS -lm"
             CXXOPTIMFLAGS='-O -DNDEBUG'
             CXXDEBUGFLAGS='-g'
@@ -116,6 +75,46 @@
 #
             LD="$COMPILER"
             LDFLAGS="-pthread -shared -Wl,--version-script,$TMW_ROOT/extern/lib/glnxa64/mexFunction.map -Wl,--no-undefined"
+	    LDFLAGS="$LDFLAGS"
+            LDOPTIMFLAGS='-O'
+            LDDEBUGFLAGS='-g'
+	    LDEXTENSION='.mexglx'
+#
+            POSTLINK_CMDS=':'
+#----------------------------------------------------------------------------
+            ;;
+        glnxa64)
+#----------------------------------------------------------------------------
+            RPATH="-Wl,-rpath=$TMW_ROOT/bin/$Arch -Wl,-rpath=."
+            CC='gcc-4.3'
+            CFLAGS='-ansi -D_GNU_SOURCE'
+            CFLAGS="$CFLAGS -fexceptions"
+            CFLAGS="$CFLAGS -fPIC -fno-omit-frame-pointer -pthread"
+            CFLAGS="$CFLAGS $MFLAGS"
+            CLIBS="$RPATH $MLIBS -lm"
+            COPTIMFLAGS='-O -DNDEBUG'
+            CDEBUGFLAGS='-g'
+            CLIBS="$CLIBS -lstdc++"
+#
+            CXX='g++-4.3'
+            CXXFLAGS='-ansi -D_GNU_SOURCE'
+            CXXFLAGS="$CXXFLAGS -fPIC -fno-omit-frame-pointer -pthread"
+            CXXFLAGS="$CXXFLAGS $MCXXFLAGS $MBAFLAGS -DGLNXA64 -DGCC"
+            CXXLIBS="$RPATH $MCXXLIBS -lm"
+            CXXOPTIMFLAGS='-O -DNDEBUG'
+            CXXDEBUGFLAGS='-g'
+#
+#
+            FC='g95'
+            FFLAGS='-fexceptions'
+            FFLAGS="$FFLAGS $MFLAGS"
+            FLIBS="$RPATH $MLIBS -lm"
+            FOPTIMFLAGS='-O'
+            FDEBUGFLAGS='-g'
+#
+            LD="$COMPILER"
+            LDFLAGS="-pthread -shared -Wl,--version-script,$TMW_ROOT/extern/lib/glnxa64/mexFunction.map -Wl,--no-undefined"
+	    LDFLAGS="$LDFLAGS"
             LDOPTIMFLAGS='-O'
             LDDEBUGFLAGS='-g'
 	    LDEXTENSION='.mexa64'
