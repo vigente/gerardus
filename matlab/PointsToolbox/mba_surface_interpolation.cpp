@@ -21,11 +21,11 @@
  * To compile this MEX-file in a 64-bit linux architecture, run from
  * your gerardus/matlab directory
  *
- * >> mex -v -largeArrayDims -outdir PointsToolbox -f ../engopts.sh mba_surface_interpolation.cpp
+ * >> mex -v -largeArrayDims -outdir PointsToolbox/ -f ./engopts.sh PointsToolbox/mba_surface_interpolation.cpp
  *
  * To compile in a 32-bit linux architecture, run (untested)
  *
- * >> mex -v -outdir PointsToolbox -f ../engopts.sh mba_surface_interpolation.cpp
+ * >> mex -v -outdir PointsToolbox/ -f ./engopts.sh PointsToolbox/mba_surface_interpolation.cpp
  *
  * For Windows, Mac or other architectures, the corresponding section
  * in the ../engopts.sh file will need to be edited before it
