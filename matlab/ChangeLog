@@ -7,6 +7,8 @@
 
 	* CardiacToolbox/scinrrd_valve_surface.m: v0.3
 
+	- Add new otions to header file.
+
 	- Add 'mba' interpolation, that makes use of the new MEX-file
 	mba_surface_interpolation.cpp to provide Multilevel B-Spline
 	Approximation interpolation.

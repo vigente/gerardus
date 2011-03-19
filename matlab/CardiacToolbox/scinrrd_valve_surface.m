@@ -30,10 +30,17 @@ function nrrd = scinrrd_valve_surface(nrrd, x, PARAM, INTERP, KLIM)
 %
 %      'tps' (default): Thin-plate spline. Global support.
 %
-%      'tsi': Matlab's TriScatteredInterp() function. Global support.
+%      'tsi': Matlab's TriScatteredInterp() function. Local support,
+%      limited to the convex hull of the scattered points 2D projection on
+%      the interpolation domain.
 %
-%      'gridfit': John D'Errico's gridfit() function (note: approximation,
-%      rather than interpolation). Local support.
+%      'gridfit': John D'Errico's gridfit() function [3] (note:
+%      approximation, rather than interpolation). Local support with
+%      extrapolation outside the convex hull.
+%
+%      'mba' Multilevel B-Spline Approximation Library by SINTEF ICT [4].
+%      Local support, limited to a rectangle that tighly contains the
+%      scattered points 2D projection on the interpolation domain.
 %
 %   KLIM is a scalar factor for the extension of the interpolation domain.
 %   By default, KLIM=1 and the interpolation domain is a rectangle that
@@ -50,6 +57,9 @@ function nrrd = scinrrd_valve_surface(nrrd, x, PARAM, INTERP, KLIM)
 % [3] Surface Fitting using gridfit by John D'Errico 11 Nov 2005 (Updated
 % 29 Jul 2010). Code covered by the BSD License
 % http://www.mathworks.com/matlabcentral/fileexchange/8998-surface-fitting-using-gridfit
+%
+% [4] MBA - Multilevel B-Spline Approximation Library
+% http://www.sintef.no/Projectweb/Geometry-Toolkits/MBA/
 %
 %   Note on SCI NRRD: Software applications developed at the University of
 %   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
