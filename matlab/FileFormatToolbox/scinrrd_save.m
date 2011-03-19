@@ -1,4 +1,4 @@
-function scirunnrrd = scinrrd_save(file, scirunnrrd, touint8)
+function scirunnrrd = scinrrd_save(file, scirunnrrd, touint8, v73)
 % SCINRRD_SAVE  Save a NRRD struct to a Matlab format that can be imported
 % by Seg3D
 %
@@ -6,16 +6,6 @@ function scirunnrrd = scinrrd_save(file, scirunnrrd, touint8)
 %
 %   This function formats the NRRD volume and saves it to a .mat file that
 %   can be imported as a segmentation or opened as a volume by Seg3D.
-%
-%      Note: If you volume is very large, Matlab gives a spurious warning
-%      message
-%
-%      "Warning: Variable 'scirunnrrd' cannot be saved to a MAT-file whose
-%      version is older than 7.3.
-%      To save this variable, use the -v7.3 switch.
-%      Skipping..."
-%
-%      This has nothing to do with versions, it's some kind of memory bug.
 %
 %   FILE is a string with the path and name of the .mat file.
 %
@@ -25,6 +15,24 @@ function scirunnrrd = scinrrd_save(file, scirunnrrd, touint8)
 %
 %   TOUINT8 is a flag to convert the image data from double to uint8. This
 %   will make the volume 8 times smaller. By default, TOUINT8=false.
+%
+% SCINRRD_SAVE(FILE, NRRD, TOUINT8, V73)
+%
+%   V73 is a flag to save the data to Matlab's HDF5-based MAT file format
+%   v7.3. The reason is that if you volume is >= 2GB, Matlab skips saving
+%   it and gives the warning message:
+%
+%      "Warning: Variable 'scirunnrrd' cannot be saved to a MAT-file whose
+%      version is older than 7.3.
+%      To save this variable, use the -v7.3 switch.
+%      Skipping..."
+%
+%   This is a limitation of the v7 format. Read more here
+%
+%      http://www.mathworks.com/help/techdoc/rn/bqt6wls.html
+%
+%   However, note that Seg3D 1.x cannot read v7.3 files. By default,
+%   V73=false.
 %
 % NRRD = SCINRRD_SAVE(...)
 %
@@ -50,6 +58,8 @@ function scirunnrrd = scinrrd_save(file, scirunnrrd, touint8)
 %
 
 % Author: Ramon Casero <rcasero@gmail.com>
+% Version: 0.2
+%
 % Copyright © 2010-2011 University of Oxford
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
@@ -76,12 +86,15 @@ function scirunnrrd = scinrrd_save(file, scirunnrrd, touint8)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 3, nargin, 'struct'));
+error(nargchk(2, 4, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
 % defaults
 if (nargin < 3 || isempty(touint8))
     touint8 = false;
+end
+if (nargin < 4 || isempty(v73))
+    v73 = false;
 end
 
 % make x-,y-coordinates compatible with the Seg3D convention
@@ -91,4 +104,8 @@ scirunnrrd = scinrrd_seg3d2matlab(scirunnrrd);
 scirunnrrd = scinrrd_unsqueeze(scirunnrrd, touint8);
 
 % save data
-save(file, 'scirunnrrd');
+if (v73)
+    save(file, 'scirunnrrd', '-v7.3');
+else
+    save(file, 'scirunnrrd');
+end
