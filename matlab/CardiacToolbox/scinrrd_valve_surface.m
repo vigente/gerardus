@@ -69,7 +69,7 @@ function nrrd = scinrrd_valve_surface(nrrd, x, PARAM, INTERP, KLIM)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.2
+% Version: 0.3
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -181,12 +181,15 @@ emmax = boxm + delta/2*KLIM;
 % interpolate
 switch INTERP
     case 'tps' % thin-plate spline
-        y = pts_tps_map(em', x', [gx(:) gy(:)])';
+        y = pts_tps_map(em', x', [gx(:) gy(:)]);
     case 'tsi' % Matlab's TriScatteredInterp
-        fx = TriScatteredInterp(em(1, :)', em(2, :)', x(1, :)');
-        fy = TriScatteredInterp(em(1, :)', em(2, :)', x(2, :)');
-        fz = TriScatteredInterp(em(1, :)', em(2, :)', x(3, :)');
-        y = [fx(gx, gy) fy(gx, gy) fz(gx, gy)]';
+        fx = TriScatteredInterp(em(1, :)', em(2, :)', x(1, :)', 'natural');
+        fy = TriScatteredInterp(em(1, :)', em(2, :)', x(2, :)', 'natural');
+        fz = TriScatteredInterp(em(1, :)', em(2, :)', x(3, :)', 'natural');
+        fx = fx(gx, gy);
+        fy = fy(gx, gy);
+        fz = fz(gx, gy);
+        y = [fx(:) fy(:) fz(:)];
     case 'gridfit'
         fx = gridfit(em(1, :)', em(2, :)', x(1, :)', ...
             emmin(1):res(2):emmax(1), emmin(2):res(1):emmax(2), ...
@@ -197,7 +200,12 @@ switch INTERP
         fz = gridfit(em(1, :)', em(2, :)', x(3, :)', ...
             emmin(1):res(2):emmax(1), emmin(2):res(1):emmax(2), ...
             'tilesize', 150);
-        y = [fx(:) fy(:) fz(:)]';
+        y = [fx(:) fy(:) fz(:)];
+    case 'mba' % Multilevel B-Spline Approximation Library
+        y = [...
+            mba_surface_interpolation(em(1, :)', em(2, :)', x(1, :)', gx(:), gy(:)) ...
+            mba_surface_interpolation(em(1, :)', em(2, :)', x(2, :)', gx(:), gy(:)) ...
+            mba_surface_interpolation(em(1, :)', em(2, :)', x(3, :)', gx(:), gy(:))];
     otherwise
         error('Interpolation method not implemented')
 end
@@ -205,7 +213,7 @@ end
 %% map interpolated surface points to voxels
 
 % convert real world coordinates to indices
-idx = round(scinrrd_world2index(y', nrrd.axis));
+idx = round(scinrrd_world2index(y, nrrd.axis));
 
 % remove points outside the volume
 badidx = isnan(sum(idx, 2));
@@ -217,6 +225,3 @@ nrrd.data(sub2ind(size(nrrd.data), ...
     idx(:, 1), idx(:, 2), floor(idx(:, 3)))) = 1;
 nrrd.data(sub2ind(size(nrrd.data), ...
     idx(:, 1), idx(:, 2), ceil(idx(:, 3)))) = 1;
-
-
-end
