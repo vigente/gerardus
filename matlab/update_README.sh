@@ -53,11 +53,11 @@ do
 	echo `basename "$FILE"`
 	echo ''
 	# get first text block in the header
-	# remove the line that declares the function
+	# remove the line(s) that declares the function
 	# remove the comment characters %
 	# keep only the summary of the help header, not the syntax
 	grep -m 1 -B 1000  "^$" "$FILE" \
-	    | grep -v 'function' \
+	    | grep '%' \
 	    | tr -d '%' \
 	    | grep -m 1 -B 100  "^$" \
 	    | sed 's/^/\t/'
