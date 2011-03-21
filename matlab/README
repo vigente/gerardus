@@ -1,7 +1,8 @@
 This file is part of the Matlab Toolboxes of project Gerardus.
 
+=============================================================
 Toolboxes in Gerardus:
-======================
+=============================================================
 
 * CardiacToolbox
 
@@ -28,267 +29,310 @@ Toolboxes in Gerardus:
 	uncertain licence status.
 
 
-CardiacToolbox:
-===============
+CardiacToolbox
+-------------------------------------------------------------
 
 correct_rv_crescent_tips.m
 
-	Correct the segmentation of the Right Ventricle's crescent
-	tips using the segmentation of the tricuspid and pulmonary
-	annula.
-
+	 CORRECT_RV_CRESCENT_TIPS  Correct the segmentation of the Right
+	 Ventricle's crescent tips using the segmentation of the tricuspid and
+	 pulmonary annula
+	
 crest_envelope.m
 
-	Compute the envelope for the Right Ventricle's crest.
+	 CREST_ENVELOPE  Compute the envelope for the Right Ventricle's crest
+	
+dmatrix_cardiac_valves.m
 
-is_lv_on_the_left
+	 DMATRIX_CARDIAC_VALVES  Distance matrix for cardiac valves
+	
+is_lv_on_the_left.m
 
-	Check whether the left ventricle is on the left hand side of
-	the image.
-
+	 IS_LV_ON_THE_LEFT  Check whether the left ventricle is on the left hand
+	 side of the image
+	
 process_misas_patient.m
 
-	Create MetaImage volumes from directory tree of IMA DICOM
-	files, for project with human hearts provided by Kelvin Wong.
+	 PROCESS_MISAS_PATIENT  Create MetaImage volumes from directory tree of
+	 IMA DICOM files, for project with human hearts provided by Kelvin Wong
+	
+scinrrd_rv_crescent_tips.m
+
+	 SCINRRD_RV_CRESCENT_TIPS  Extract the tips of the crescent-shaped curve
+	 in all slices of the Right Ventricle
+	
+scinrrd_valve_surface.m
+
+	 SCINRRD_VALVE_SURFACE  Inter atrio-ventricular surface
+	
+
+FileFormatToolbox
+-------------------------------------------------------------
+
+dcm2mat.m
+
+	 DCM2MAT  Read a batch of DICOM files, collate them and save as a
+	 single volume in a .mat file
+	
+dcm2metaimage.m
+
+	 DCM2METAIMAGE  Read a batch of DICOM files, collate them and save as a
+	 single MetaImage volume (one .mha and one .raw file)
+	
+im2metaimage.m
+
+	 IM2METAIMAGE  Read a batch of image files, collate them and save as a
+	 single MetaImage "file" (actually, one .mha and one .raw file)
+	
+matlab2vox_seg3d.m
+
+	 MATLAB2VOX_SEG3D  Convert Matlab file with Seg3D segmentation to vox
+	 format (for the Tarantula meshing application)
+	
+scinrrd_index2world.m
+
+	 SCINRRD_INDEX2WORLD  Convert data volume indices to real world
+	 coordinates for NRRD volumes created by SCI applications (e.g. Seg3D)
+	
+scinrrd_load.m
+
+	 SCINRRD_LOAD  Load a NRRD struct saved to Matlab or MetaImage format
+	
+scinrrd_save.m
+
+	 SCINRRD_SAVE  Save a NRRD struct to a Matlab format that can be imported
+	 by Seg3D
+	
+scinrrd_seg3d2matlab.m
+
+	 SCINRRD_SEG3D2MATLAB  Correct dimensions of data loaded from SCI NRRD so
+	 that rows and columns will follow Matlab's coordinates
+	
+scinrrd_world2index.m
+
+	 SCINRRD_WORLD2INDEX  Convert real world coordinates to data volume
+	 indices for NRRD volumes created by SCI applications (e.g. Seg3D)
+	 
+	   Function SCINRRD_WORLD2INDEX() maps between the real world coordinates
+	   of points within the NRRD data volume and the indices of the 
+	   image volume used to store the voxel intensity values.
+	
+sortdirbynum.m
+
+	 SORTDIRBYNUM  List the files in a directory ordering them by a numerical
+	 substring field in the file name
+	
+WriteMhaFile.m
+
+	 WRITEMHAFILE  Write the header part of a MetaImage file (.mha)
+	
+WriteRawFile.m
+
+	 WRITERAWFILE  Write the binary part of a MetaImage file (.raw)
+	
+
+FiltersToolbox
+-------------------------------------------------------------
+
+correct_light_blobs_in_microscope_mosaic.m
+
+	 CORRECT_LIGHT_BLOBS_IN_MICROSCOPE_MOSAIC  Correct the colour blob created
+	 by the microscope's light in each tile of a mosaic, e.g. for histology.
+	
+fspecial3.m
+
+	 FSPECIAL3  Create predefined 3-dimensional filters
+	
+img_adjacency_distance.m
+
+	 ADJACENCY_DISTANCE  Convert image to adjacency-distance list in sparse matrix form
+	
+img_tps_map.m
+
+	 IMG_TPS_MAP Warp an image using a thin-plate spline transformation
+	
+scinrrd_box.m
+
+	 SCINRRD_BOX  Compute tight box around SCI NRRD segmentation
+	
+scinrrd_centroids.m
+
+	 SCINRRD_CENTROIDS  Compute centroid of segmentation in each slice
+	
+scinrrd_estimate_bias_field.m
+
+	 SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field
+	
+scinrrd_gradients.m
+
+	 SCINRRD_GRADIENTS  Compute 1st and 2nd order image gradients
+	
+scinrrd_intersect_plane.m
+
+	 SCINRRD_INTERSECT_PLANE  Compute intersection of a plane with an SCI
+	 NRRD image volume
+	
+scinrrd_ndgrid.m
+
+	 SCINRRD_NDGRID  Generation of arrays for 3D SCI NRRD image volumes
+	
+scinrrd_optimal_intersecting_plane.m
+
+	 SCINRRD_OPTIMAL_INTERSECTING_PLANE  Optimise intersection plane for SCI
+	 NRRD segmentation mask
+	
+scinrrd_optimal_intersecting_plane_old.m
+
+	 Note: Old implementation of function
+	 scinrrd_optimal_intersecting_plane(). Backup while we transition to
+	 a definite method.
+	
+scinrrd_papillary_muscles.m
+
+	 SCINRRD_PAPILLARY_MUSCLES  Extract the papillay muscles from a
+	 segmentation of the Left Ventricle's cavity
+	
+scinrrd_regionprops.m
+
+	 SCINRRD_REGIONPROPS  Measure properties of image regions on each slice
+	
+scinrrd_squeeze.m
+
+	 SCINRRD_SQUEEZE  Remove dummy dimension and convert data to double type
+	
+scinrrd_unsqueeze.m
+
+	 SCINRRD_UNSQUEEZE  Add dummy dimension and convert data to uint8 data
+	 type
+	
+scinrrd_vertical_orientation_pca_basis.m
+
+	 SCINRRD_VERTICAL_ORIENTATION_PCA_BASIS  Compute a basis from the
+	 Principal Components of a set of voxels, such that the vertical axis is
+	 assigned to the maximum variability, and the basis is right-hand oriented
+	
+
+PointsToolbox
+-------------------------------------------------------------
+
+coords_from_dist_gower.m
+
+	 COORDS_FROM_DIST_GOWER  Compute point coordinates from distances to a set
+	 of landmarks, as described in Gower (1986)
+	
+cube_five_tessellation.m
+
+	 CUBE_FIVE_TESSELLATION  Tessellation in 5 tetrahedra of a cube with
+	 perpendicular diagonals on opposite sides of the cube (non-stackable)
+	
+cube_stackable_tessellation.m
+
+	 CUBE_STACKABLE_TESSELLATION  Tessellation in tetrahedra of a cube that
+	 can be stacked in a regular mesh
+	
+dmatrix.m
+
+	 DMATRIX  Matrix of distances between vectors
+	
+extmat2rotmat.m
+
+	 EXTMAT2ROTMAT  Convert rotation in extended matrix form into centroid and
+	 matrix pair
+	
+intersect_line_plane.m
+
+	 INTERSECT_LINE_PLANE  Find intersection of a line with a plane
+	
+mba_surface_interpolation.m
+
+	 MBA_SURFACE_INTERPOLATION  Scattered data Multilevel B-spline interpolation
+	
+plotaxes.m
+
+	 PLOTAXES  Plot axes of 3D coordinate system
+	
+plot_dmatrix.m
+
+	 PLOT_DMATRIX  Plot the connections implied by a distance matrix
+	
+polycenter.m
+
+	 POLYCENTER  Compute center of mass and area of polygon
+	
+pts_kmat.m
+
+	 PTS_KMAT  Compute kernel matrix for Linear and Kernel Principal Component
+	 Analysis (PCA and KPCA)
+	
+pts_pca.m
+
+	 PTS_PCA  Linear and Kernel Principal Component Analysis (PCA and KPCA)
+	
+pts_tps_map.m
+
+	 PTS_TPS_MAP  Interpolate/warp/map N-dimensional points using a thin-plate
+	 spline transformation
+	
+pts_tps_weights.m
+
+	 PTS_TPS_WEIGHTS  Compute weights and affine parameters of thin-plate
+	 spline warp for N-dimensional points
+	
+quaternion2matrix.m
+
+	 QUATERNION2MATRIX  Convert quaternion to rotation matrix
+	
+rotmat2extmat.m
+
+	 ROTMAT2EXTMAT  Convert centroid and rotation matrix pair to extended
+	 matrix form
+	
+scinrrd_pca.m
+
+	 SCINRRD_PCA Principal Principal Component Analysis of the selected
+	 points in a SCI NRRD segmentation mask
+	
+sparse_breakdown.m
+
+	 SPARSE_BREAKDOWN  Extract internal arrays from sparse matrix
+	
+vec2rotmat.m
+
+	 VEC2ROTMAT  Compute rotation matrix from Cartesian vector
+	
+
+ThirdPartyToolbox
+-------------------------------------------------------------
+
+dijkstra.m
+
+	 DIJKSTRA  Shortests path tree from sparse matrix graph
+	
+gridfit.m
+
+	 gridfit: estimates a surface on a 2d grid, based on scattered data
+	          Replicates are allowed. All methods extrapolate to the grid
+	          boundaries. Gridfit uses a modified ridge estimator to
+	          generate the surface, where the bias is toward smoothness.
+	 
+	          Gridfit is not an interpolant. Its goal is a smooth surface
+	          that approximates your data, but allows you to control the
+	          amount of smoothing.
+	
+IsomapII.m
+
+	 ISOMAPII   Computes Isomap embedding using an advanced version of
+	             the algorithm in Tenenbaum, de Silva, and Langford (2000), 
+	             which can take advantage of sparsity in the graph and 
+	             redundancy in the distances. 
+	
+Isomap.m
+
+	 ISOMAP   Computes Isomap embedding using the algorithm of 
+	             Tenenbaum, de Silva, and Langford (2000). 
+	
+L2_distance.m
+
+	 L2_DISTANCE - computes Euclidean distance matrix
+	
 
-scinrrd_rv_crescent_tips
-
-	Extract the tips of the crescent-shaped curve in all slices of
-	the Right Ventricle.
-
-scinrrd_valve_surface
-
-	Inter atrio-ventricular surface.
-
-FileFormatToolbox:
-==================
-
-dcm2mat
-
-	If you have a bunch of DICOM (.dcm) files, one per slice, and
-	you want to create a single Matlab (.mat) file with all the
-	slices collated together. It attempts to detect time series
-	too, and in that case, it creates a 4D matrix.
-
-dcm2metaimage
-
-	If you have a bunch of DICOM (.dcm) files, one per slice, and
-	you want to create a single MetaImage file with all the slices
-	collated together. Note that a MetaImage file in fact is split
-	into a header file (.mha) and a data file (.raw).
-
-im2metaimage
-
-	If you have a bunch of image files (e.g. TIFF, PNG, JPG,
-	etc.), one per slice, and you want to create a single
-	MetaImage file with all the slices collated together. Note
-	that a MetaImage file in fact is split into a header file
-	(.mha) and a data file (.raw).
-
-matlab2vox_seg3d
-
-	Convert Matlab file with Seg3D segmentation to .vox format (for
-	the Tarantula meshing application).
-
-scinrrd_index2world
-
-	Convert data volume indices to real world coordinates for NRRD
-	volumes created by SCI applications (e.g. Seg3D).
-
-scinrrd_load
-
-	Load a NRRD struct saved to Matlab or MetaImage format.
-
-scinrrd_save
-
-	Save a NRRD struct to a Matlab format that can be imported by
-	Seg3D.
-
-scinrrd_seg3d2matlab
-
-	Correct dimensions of data loaded from SCI NRRD so that rows
-	and columns will follow Matlab's coordinates.
-
-scinrrd_world2index
-
-	Convert real world coordinates to data volume indices for NRRD
-	volumes created by SCI applications (e.g. Seg3D).
-
-sortdirbynum
-
-	List the files in a directory ordering them by a numerical
-	substring field in the file name. This function is useful  to
-	determine the order in which slices will be collated when you
-	have filenames like
-	MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.10.2009.10.23.16.02.38.562500.9699412.BMP.
-
-
-WriteMhaFile
-
-	Write the header part of a MetaImage file (.mha).
-
-WriteRawFile
-
-	Write the binary part of a MetaImage file (.raw).
-
-
-FiltersToolbox:
-===============
-
-correct_light_blobs_in_microscope_mosaic
-
-	Correct the colour blob created by the microscope's light in
-	each tile of a mosaic, e.g. for histology.
-
-fspecial3
-
-	Create predefined 3-dimensional filters.
-
-img_adjacency_distance
-
-	Convert image to adjacency-distance list in sparse matrix
-	form.scinrrd_box.
-
-img_tps_map
-
-	Warp an image using a thin-plate spline transformation.
-
-scinrrd_box
-
-	Compute tight box around SCI NRRD segmentation.
-
-scinrrd_centroids
-
-	Compute centroid of segmentation in each slice.
-
-scinrrd_estimate_bias_field
-
-	Estimate MRI bias field.
-
-scinrrd_gradients
-
-	Compute 1st and 2nd order image gradients.
-
-scinrrd_intersect_plane
-
-	Compute intersection of a plane with an SCI NRRD image volume.
-
-scinrrd_ndgrid
-
-	Generation of arrays for 3D SCI NRRD image volumes.
-
-scinrrd_optimal_intersecting_plane
-
-	Optimise intersection plane for SCI NRRD segmentation mask.
-
-scinrrd_papillary_muscles
-
-	Extract the papillay muscles from a segmentation of the Left
-	Ventricle's cavity.
-
-scinrrd_regionprops
-
-	Measure properties of image regions on each slice.
-
-scinrrd_squeeze
-
-	Remove dummy dimension and convert data to double type.
-
-scinrrd_unsqueeze
-
-	Add dummy dimension and convert data to uint8 data type.
-
-scinrrd_vertical_orientation_pca_basis
-
-	Compute a basis from the Principal Components of a set of
-	voxels, such that the vertical axis is assigned to the maximum
-	variability, and the basis is right-hand oriented.
-
-PointsToolbox:
-==============
-
-coords_from_dist_gower
-
-	Compute point coordinates from distances to a set of
-	landmarks, as described in Gower (1986).
-
-cube_five_tessellation
-
-	Tessellation in 5 tetrahedra of a cube with perpendicular
-	diagonals on opposite sides of the cube (non-stackable).
-
-cube_stackable_tessellation
-
-	Tessellation in tetrahedra of a cube that can be stacked in a
-	regular mesh.
-
-dmatrix
-
-	Matrix of distances between vectors.
-
-extmat2rotmat
-
-	Convert rotation in extended matrix form into centroid and
-	matrix pair.
-
-intersect_line_plane
-
-	Find intersection of a line with a plane.
-
-plotaxes
-
-	Add input argument for the origin of coordinates.
-
-polycenter
-
-	Compute center of mass and area of polygon.
-
-pts_kmat
-
-	Compute kernel matrix for Linear and Kernel Principal
-	Component Analysis (PCA and KPCA).
-
-pts_pca
-
-	Linear and Kernel Principal Component Analysis (PCA and
-	KPCA).
-
-pts_tps_map
-
-	Interpolate/warp/map N-dimensional points using a thin-plate
-	spline transformation.
-
-pts_tps_weights
-
-	Compute weights and affine parameters of thin-plate spline
-	warp for N-dimensional points.
-
-quaternion2matrix
-
-	Convert quaternion to rotation matrix.
-
-rotmat2extmat
-
-	Convert centroid and rotation matrix pair to extended matrix
-	form.
-
-scinrrd_pca
-
-	Principal Principal Component Analysis of the selected points
-	in a SCI NRRD segmentation mask.
-
-sparse_breakdown
-
-	Extract internal arrays from sparse matrix.
-
-vec2rotmat
-
-	Compute rotation matrix from Cartesian vector.
-
-
-ThirdPartyToolbox:
-==================
-
-dijkstra
-
-	Shortests path tree from sparse matrix graph.
