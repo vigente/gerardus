@@ -1,5 +1,4 @@
 function [Y, R, E] = IsomapII(D, n_fcn, n_size, options); 
-
 % ISOMAPII   Computes Isomap embedding using an advanced version of
 %             the algorithm in Tenenbaum, de Silva, and Langford (2000), 
 %             which can take advantage of sparsity in the graph and 
