@@ -1,18 +1,18 @@
-function nrrd = scinrrd_valve_surface(nrrd, x, PARAM, INTERP, KLIM)
-% SCINRRD_VALVE_SURFACE  Inter atrio-ventricular surface
+function nrrd = scinrrd_surface_interpolation(nrrd, x, PARAM, INTERP, KLIM)
+% SCINRRD_SURFACE_INTERPOLATION  Interpolate a surface and create a
+% segmentation mask from a scattered set of points
 %
-% NRRD = SCINRRD_VALVE_SURFACE(NRRD0, X)
+% NRRD = SCINRRD_SURFACE_INTERPOLATION(NRRD0, X)
 %
-%   NRRD0 is the SCI NRRD struct that contains the cardiac Magnetic
-%   Resonance Image (MRI).
+%   NRRD0 is the SCI NRRD struct that contains the image.
 %
-%   X is a 3-row matrix. Each column has the coordinates of a point from
-%   one of the valve annula.
+%   X is a 3-row matrix. Each column has the coordinates of a point that
+%   belongs to the surface we want to interpolate.
 %
 %   NRRD is a SCI NRRD struct with a segmentation of the surface that
-%   interpolates the valve annula points.
+%   interpolates the points in X.
 %
-% NRRD = SCINRRD_VALVE_SURFACE(NRRD0, X, PARAM, INTERP, KLIM)
+% NRRD = SCINRRD_SURFACE_INTERPOLATION(NRRD0, X, PARAM, INTERP, KLIM)
 %
 %   PARAM is a string with the method used to parametrize the surface and
 %   X:
@@ -20,11 +20,12 @@ function nrrd = scinrrd_valve_surface(nrrd, x, PARAM, INTERP, KLIM)
 %     'xy' (default): No change, the X coordinates are kept the same.
 %
 %     'pca': X points are rotated according to their eigenvectors to make
-%     the valve surface as horizontal as possible before interpolating.
+%     the dominant plane of the points X as horizontal as possible before
+%     interpolating.
 %
 %     'isomap': Use the Isomap method by [1] to "unfold" the curved surface
-%     defined by the valves before interpolating. (This option requires
-%     function IsomapII).
+%     defined by X before interpolating. (This option requires function
+%     IsomapII).
 %
 %   INTERP is a string with the interpolation method:
 %

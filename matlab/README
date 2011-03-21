@@ -61,10 +61,6 @@ scinrrd_rv_crescent_tips.m
 	 SCINRRD_RV_CRESCENT_TIPS  Extract the tips of the crescent-shaped curve
 	 in all slices of the Right Ventricle
 	
-scinrrd_valve_surface.m
-
-	 SCINRRD_VALVE_SURFACE  Inter atrio-ventricular surface
-	
 
 FileFormatToolbox
 -------------------------------------------------------------
@@ -291,6 +287,11 @@ scinrrd_pca.m
 
 	 SCINRRD_PCA Principal Principal Component Analysis of the selected
 	 points in a SCI NRRD segmentation mask
+	
+scinrrd_surface_interpolation.m
+
+	 SCINRRD_SURFACE_INTERPOLATION  Interpolate a surface and create a
+	 segmentation mask from a scattered set of points
 	
 sparse_breakdown.m
 
