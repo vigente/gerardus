@@ -297,6 +297,10 @@ sparse_breakdown.m
 
 	 SPARSE_BREAKDOWN  Extract internal arrays from sparse matrix
 	
+surface_interpolation.m
+
+	 SURFACE_INTERPOLATION  Interpolate a surface from a scattered set of points
+	
 vec2rotmat.m
 
 	 VEC2ROTMAT  Compute rotation matrix from Cartesian vector

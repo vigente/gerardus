@@ -123,103 +123,11 @@ end
 % extract data volume and convert to boolean to save space
 nrrd.data = boolean(nrrd.data);
 
-%% map the 3D points (x,y,z) to a 2D domain (u,v)
-
-% this is analogous to computing the knot vector for a curve interpolation.
-% The idea is that (x,y)->z is not necessarily a function, due to the valve
-% folding over. However, we hope that (x,y,z)->(u,v) is a function
-switch PARAM
-    
-    case 'xy'
-        
-        % (u,v) is simply (x,y)
-        em = x(1:2, :);
-        
-    case 'pca'
-        
-        % rotate valve points to make the valve surface as horizontal as
-        % possible
-        m = mean(x, 2);
-        em = x - m(:, ones(1, size(x, 2)));
-        eigv = pts_pca(em);
-        em = eigv' * em;
-        em = em(1:2, :);
-        
-    case 'isomap'
-        
-        % compute distance matrix
-        d = dmatrix(x, x, 'euclidean');
-        
-        % compute 2-d projection of the 3-d data
-        options.dims = 2;
-        options.display = 0;
-        options.overlay = 0;
-        options.verbose = 0;
-        em = IsomapII(d, 'k', round(size(x, 2)/3), options);
-        em = em.coords{1};
-    
-    otherwise
-        error('Parametrization method not implemented')
-end
-
-%% compute interpolation domain
-
 % get voxel size
 res = [nrrd.axis.spacing];
 
-% find box that contains embedded coordinates
-emmin = min(em, [], 2);
-emmax = max(em, [], 2);
-
-% box size and centroid
-delta = emmax - emmin;
-boxm = mean([emmax emmin], 2);
-
-% extend the box
-emmin = boxm - delta/2*KLIM;
-emmax = boxm + delta/2*KLIM;
-
-% generate grid for the embedding box
-[gy, gx] = ndgrid(emmin(2):res(1):emmax(2), emmin(1):res(2):emmax(1));
-
-
 %% compute interpolating surface
-
-% source and target points that will define the warp
-%s = em; % don't duplicate data in memory
-%t = x; % don't duplicate data in memory
-
-% interpolate
-switch INTERP
-    case 'tps' % thin-plate spline
-        y = pts_tps_map(em', x', [gx(:) gy(:)]);
-    case 'tsi' % Matlab's TriScatteredInterp
-        fx = TriScatteredInterp(em(1, :)', em(2, :)', x(1, :)', 'natural');
-        fy = TriScatteredInterp(em(1, :)', em(2, :)', x(2, :)', 'natural');
-        fz = TriScatteredInterp(em(1, :)', em(2, :)', x(3, :)', 'natural');
-        fx = fx(gx, gy);
-        fy = fy(gx, gy);
-        fz = fz(gx, gy);
-        y = [fx(:) fy(:) fz(:)];
-    case 'gridfit'
-        fx = gridfit(em(1, :)', em(2, :)', x(1, :)', ...
-            emmin(1):res(2):emmax(1), emmin(2):res(1):emmax(2), ...
-            'tilesize', 150);
-        fy = gridfit(em(1, :)', em(2, :)', x(2, :)', ...
-            emmin(1):res(2):emmax(1), emmin(2):res(1):emmax(2), ...
-            'tilesize', 150);
-        fz = gridfit(em(1, :)', em(2, :)', x(3, :)', ...
-            emmin(1):res(2):emmax(1), emmin(2):res(1):emmax(2), ...
-            'tilesize', 150);
-        y = [fx(:) fy(:) fz(:)];
-    case 'mba' % Multilevel B-Spline Approximation Library
-        y = [...
-            mba_surface_interpolation(em(1, :)', em(2, :)', x(1, :)', gx(:), gy(:)) ...
-            mba_surface_interpolation(em(1, :)', em(2, :)', x(2, :)', gx(:), gy(:)) ...
-            mba_surface_interpolation(em(1, :)', em(2, :)', x(3, :)', gx(:), gy(:))];
-    otherwise
-        error('Interpolation method not implemented')
-end
+y = surface_interpolation(x, PARAM, INTERP, res, KLIM);
 
 %% map interpolated surface points to voxels
 
