@@ -1,7 +1,7 @@
-function [xi, em] = surface_interpolation(x, PARAM, INTERP, res, KLIM)
+function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM)
 % SURFACE_INTERPOLATION  Interpolate a surface from a scattered set of points
 %
-% [XI, EM] = SURFACE_INTERPOLATION(X)
+% [XI, EM, GX, GY] = SURFACE_INTERPOLATION(X)
 %
 %   X is a 3-row matrix. Each column has the coordinates of a point that
 %   belongs to the surface we want to interpolate.
@@ -11,7 +11,9 @@ function [xi, em] = surface_interpolation(x, PARAM, INTERP, res, KLIM)
 %   EM is a 2-row matrix with the coordinates of the X points projected
 %   onto the interpolation domain.
 %
-% [XI, EM] = SURFACE_INTERPOLATION(X, PARAM, INTERP, RES, KLIM)
+%   GX, GY are the grid for the box that contains EM.
+%
+% ... = SURFACE_INTERPOLATION(X, PARAM, INTERP, RES, KLIM)
 %
 %   PARAM is a string with the method used to parametrize the surface and
 %   X:
@@ -93,7 +95,7 @@ function [xi, em] = surface_interpolation(x, PARAM, INTERP, res, KLIM)
 
 % check arguments
 error(nargchk(2, 5, nargin, 'struct'));
-error(nargoutchk(0, 2, nargout, 'struct'));
+error(nargoutchk(0, 4, nargout, 'struct'));
 
 % defaults
 if (nargin < 2 || isempty(PARAM))
