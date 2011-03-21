@@ -1,17 +1,17 @@
-function [y, em] = surface_interpolation(x, PARAM, INTERP, res, KLIM)
+function [xi, em] = surface_interpolation(x, PARAM, INTERP, res, KLIM)
 % SURFACE_INTERPOLATION  Interpolate a surface from a scattered set of points
 %
-% [Y, EM] = SURFACE_INTERPOLATION(X)
+% [XI, EM] = SURFACE_INTERPOLATION(X)
 %
 %   X is a 3-row matrix. Each column has the coordinates of a point that
 %   belongs to the surface we want to interpolate.
 %
-%   Y is a 3-row matrix with the coordinates of the interpolated points.
+%   XI is a 3-row matrix with the coordinates of the interpolated points.
 %
 %   EM is a 2-row matrix with the coordinates of the X points projected
 %   onto the interpolation domain.
 %
-% [Y, EM] = SURFACE_INTERPOLATION(X, PARAM, INTERP, RES, KLIM)
+% [XI, EM] = SURFACE_INTERPOLATION(X, PARAM, INTERP, RES, KLIM)
 %
 %   PARAM is a string with the method used to parametrize the surface and
 %   X:
@@ -175,7 +175,7 @@ emmax = boxm + delta/2*KLIM;
 % interpolate
 switch INTERP
     case 'tps' % thin-plate spline
-        y = pts_tps_map(em', x', [gx(:) gy(:)]);
+        xi = pts_tps_map(em', x', [gx(:) gy(:)]);
     case 'tsi' % Matlab's TriScatteredInterp
         fx = TriScatteredInterp(em(1, :)', em(2, :)', x(1, :)', 'natural');
         fy = TriScatteredInterp(em(1, :)', em(2, :)', x(2, :)', 'natural');
@@ -183,7 +183,7 @@ switch INTERP
         fx = fx(gx, gy);
         fy = fy(gx, gy);
         fz = fz(gx, gy);
-        y = [fx(:) fy(:) fz(:)];
+        xi = [fx(:) fy(:) fz(:)];
     case 'gridfit'
         fx = gridfit(em(1, :)', em(2, :)', x(1, :)', ...
             emmin(1):res(2):emmax(1), emmin(2):res(1):emmax(2), ...
@@ -194,9 +194,9 @@ switch INTERP
         fz = gridfit(em(1, :)', em(2, :)', x(3, :)', ...
             emmin(1):res(2):emmax(1), emmin(2):res(1):emmax(2), ...
             'tilesize', 150);
-        y = [fx(:) fy(:) fz(:)];
+        xi = [fx(:) fy(:) fz(:)];
     case 'mba' % Multilevel B-Spline Approximation Library
-        y = [...
+        xi = [...
             mba_surface_interpolation(em(1, :)', em(2, :)', x(1, :)', gx(:), gy(:)) ...
             mba_surface_interpolation(em(1, :)', em(2, :)', x(2, :)', gx(:), gy(:)) ...
             mba_surface_interpolation(em(1, :)', em(2, :)', x(3, :)', gx(:), gy(:))];
