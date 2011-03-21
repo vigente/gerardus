@@ -1,5 +1,19 @@
 2011-03-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* CardiacToolbox/scinrrd_surface_interpolation.m:
+
+	- Remove the surface interpolation code to create new function
+	CardiacToolbox/surface_interpolation.m.
+
+	* Add CardiacToolbox/surface_interpolation.m:
+
+	- SURFACE_INTERPOLATION Interpolate a surface from a scattered set
+	of points.
+
+	- Create this fuction from part of the code in
+	CardiacToolbox/scinrrd_surface_interpolation.m. It didn't make
+	sense to have all that code depending on using SCI volumes.
+
 	* Rename CardiacToolbox/scinrrd_valve_surface.m as
 	PointsToolbox/scinrrd_surface_interpolation.
 
