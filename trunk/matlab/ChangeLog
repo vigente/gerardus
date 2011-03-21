@@ -1,3 +1,11 @@
+2011-03-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add update_README.sh:
+
+	- Script to automatically extract the summary of the help headers
+	of all the Matlab functions in this toolbox, and generate a README
+	file.
+
 2011-03-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FileFormatToolbox/scinrrd_save.m: v0.2
