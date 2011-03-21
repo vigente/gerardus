@@ -3,7 +3,7 @@ function [zgrid,xgrid,ygrid] = gridfit(x,y,z,xnodes,ynodes,varargin)
 %          Replicates are allowed. All methods extrapolate to the grid
 %          boundaries. Gridfit uses a modified ridge estimator to
 %          generate the surface, where the bias is toward smoothness.
-%
+% 
 %          Gridfit is not an interpolant. Its goal is a smooth surface
 %          that approximates your data, but allows you to control the
 %          amount of smoothing.
@@ -1020,6 +1020,3 @@ close(h)
 if warncount>0
   warning('GRIDFIT:tiling',[num2str(warncount),' tiles were underpopulated & filled with NaNs'])
 end
-
-
-
