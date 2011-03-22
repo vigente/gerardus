@@ -117,7 +117,7 @@ end
 
 % this is analogous to computing the knot vector for a curve interpolation.
 % The idea is that (x,y)->z is not necessarily a function, due to the valve
-% folding over. However, we hope that (x,y,z)->(u,v) is a function
+% folding over. However, we hope that (u,v)->(x,y,z) is a function
 switch PARAM
     
     case 'xy'
