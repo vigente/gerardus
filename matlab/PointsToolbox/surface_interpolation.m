@@ -9,7 +9,9 @@ function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM)
 %   XI is a 3-row matrix with the coordinates of the interpolated points.
 %
 %   EM is a 2-row matrix with the coordinates of the X points projected
-%   onto the interpolation domain.
+%   onto the interpolation domain. Note that the interpolation domain may
+%   change between methods, so don't expect results to be aligned if you do
+%   e.g. plot3(gx(:), gy(:), y(:, 3), 'o').
 %
 %   GX, GY are the grid for the box that contains EM.
 %
@@ -205,3 +207,4 @@ switch INTERP
     otherwise
         error('Interpolation method not implemented')
 end
+
