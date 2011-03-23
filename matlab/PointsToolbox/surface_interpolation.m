@@ -46,7 +46,7 @@ function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM)
 %      Local support, limited to a rectangle that tighly contains the
 %      scattered points 2D projection on the interpolation domain.
 %
-%      'mbag': Like the 'mba' method, but first a thin-plate spline is used 
+%      'mbae': Like the 'mba' method, but first a thin-plate spline is used 
 %      to extrapolate values on the interpolation domain boundary. Then MBA
 %      is used for the local support interpolation of X and the boundary
 %      values set by the thin-plate spline.
@@ -75,7 +75,7 @@ function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.2
+% Version: 0.1.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -209,7 +209,7 @@ switch INTERP
             mba_surface_interpolation(em(1, :)', em(2, :)', x(1, :)', gx(:), gy(:)) ...
             mba_surface_interpolation(em(1, :)', em(2, :)', x(2, :)', gx(:), gy(:)) ...
             mba_surface_interpolation(em(1, :)', em(2, :)', x(3, :)', gx(:), gy(:))];
-    case 'mbag' % MBA extrapolated using a TPS
+    case 'mbae' % MBA extrapolated using a TPS
         % use TPS to interpolate the points, but we are only interested in
         % the edges and corners of the interpolation, where the TPS is
         % extrapolating linearly; also, we decimate the points in the edges
