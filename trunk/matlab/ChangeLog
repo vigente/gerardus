@@ -1,8 +1,8 @@
 2011-03-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
-	* CardiacToolbox/surface_interpolation.m: v0.2
+	* CardiacToolbox/surface_interpolation.m: v0.1.2
 
-	- Add 'mbag' interpolation: Like the 'mba' method, but first a
+	- Add 'mbae' interpolation: Like the 'mba' method, but first a
 	thin-plate spline is used to extrapolate values on the
 	interpolation domain boundary. Then MBA is used for the local
 	support interpolation of X and the boundary values set by the
