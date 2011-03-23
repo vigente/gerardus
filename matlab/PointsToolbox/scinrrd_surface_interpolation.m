@@ -15,52 +15,16 @@ function nrrd = scinrrd_surface_interpolation(nrrd, x, PARAM, INTERP, KLIM)
 % NRRD = SCINRRD_SURFACE_INTERPOLATION(NRRD0, X, PARAM, INTERP, KLIM)
 %
 %   PARAM is a string with the method used to parametrize the surface and
-%   X:
+%   X. For options, see help surface_interpolation.m.
 %
-%     'xy' (default): No change, the X coordinates are kept the same.
-%
-%     'pca': X points are rotated according to their eigenvectors to make
-%     the dominant plane of the points X as horizontal as possible before
-%     interpolating.
-%
-%     'isomap': Use the Isomap method by [1] to "unfold" the curved surface
-%     defined by X before interpolating. (This option requires function
-%     IsomapII).
-%
-%   INTERP is a string with the interpolation method:
-%
-%      'tps' (default): Thin-plate spline. Global support.
-%
-%      'tsi': Matlab's TriScatteredInterp() function. Local support,
-%      limited to the convex hull of the scattered points 2D projection on
-%      the interpolation domain.
-%
-%      'gridfit': John D'Errico's gridfit() function [3] (note:
-%      approximation, rather than interpolation). Local support with
-%      extrapolation outside the convex hull.
-%
-%      'mba' Multilevel B-Spline Approximation Library by SINTEF ICT [4].
-%      Local support, limited to a rectangle that tighly contains the
-%      scattered points 2D projection on the interpolation domain.
+%   INTERP is a string with the interpolation method. For options, see help
+%   surface_interpolation.m.
 %
 %   KLIM is a scalar factor for the extension of the interpolation domain.
 %   By default, KLIM=1 and the interpolation domain is a rectangle that
 %   tightly contains X. Sections of the interpolated surface that protude
 %   from the image volume are removed.
 %
-%
-% [1] J.B. Tenenbaum, V. de Silva and J.C. Langford, "A Global Geometric
-% Framework for Nonlinear Dimensionality Reduction", Science 290(5500):
-% 2319-2323, 2000.
-%
-% [2] Isomap Homepage, http://isomap.stanford.edu/
-%
-% [3] Surface Fitting using gridfit by John D'Errico 11 Nov 2005 (Updated
-% 29 Jul 2010). Code covered by the BSD License
-% http://www.mathworks.com/matlabcentral/fileexchange/8998-surface-fitting-using-gridfit
-%
-% [4] MBA - Multilevel B-Spline Approximation Library
-% http://www.sintef.no/Projectweb/Geometry-Toolkits/MBA/
 %
 %   Note on SCI NRRD: Software applications developed at the University of
 %   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
