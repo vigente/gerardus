@@ -1,3 +1,8 @@
+2011-03-29  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CMakeLists.txt: Add CMAKE_BUILD_TYPE variable so that the code
+	is optimized for speed.
+
 2011-03-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* third-party/mba/CMakeLists.txt:
