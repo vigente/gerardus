@@ -5,6 +5,7 @@
 # cmake -DITK_DIR=/usr/local/lib/InsightToolkit  -G"Eclipse CDT4 - Unix Makefiles" -DCMAKE_BUILD_TYPE=Release  ./src
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+SET(CMAKE_BUILD_TYPE RELEASE)
 
 # Matlab's mex compiler requires an older version of gcc than the
 # default at the time of this writing, so we have to force the version
