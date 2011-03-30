@@ -73,11 +73,3 @@ Resize3DImage.cxx)
 TARGET_LINK_LIBRARIES(resize3DImage
 boost_system ITKCommon ITKIO)
 
-# mbaSurfaceInterpolation
-FIND_PACKAGE(OpenGL REQUIRED)
-INCLUDE_DIRECTORIES(${OpenGL_INCLUDE_DIR})
-ADD_SUBDIRECTORY(third-party/mba)
-ADD_EXECUTABLE( mbaSurfaceInterpolation
-MbaSurfaceInterpolation.cxx )
-INCLUDE_DIRECTORIES(third-party/mba/include)
-TARGET_LINK_LIBRARIES(mbaSurfaceInterpolation MBA)
