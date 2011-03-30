@@ -14,6 +14,7 @@
  */ 
  
  /*
+  * Author: Ramón Casero <rcasero@gmail.com>
   * Copyright © 2009 University of Oxford
   *
   * University of Oxford means the Chancellor, Masters and Scholars of

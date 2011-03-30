@@ -1,5 +1,12 @@
 2011-03-30  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* ExtractVoxelCoordinatesFromSegmentationMask.cxx,
+	PadSegmentationMaskWithVoxels.cxx, Resize3DImage.cxx: Add author.
+
+	* CMakeLists.txt: Add comment licence headers.
+
+	* Resize3DImage.cxx: Add comment and licence headers.
+
 	* Delete MbaSurfaceInterpolation.cxx: Test code no longer needed.
 
 2011-03-29  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
