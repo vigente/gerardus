@@ -1,3 +1,7 @@
+2011-03-30  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Delete MbaSurfaceInterpolation.cxx: Test code no longer needed.
+
 2011-03-29  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* CMakeLists.txt: Add CMAKE_BUILD_TYPE variable so that the code
