@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
     
     // Define the command line object, program description message,
     // separator, version
-    TCLAP::CmdLine cmd( "skeletonize3DImage: resize a 3D image", ' ', "0.0" );
+    TCLAP::CmdLine cmd( "skeletonize3DSegmentation: Reduce segmentation to its skeleton", ' ', "0.0" );
     
     // input argument: filename of output image
     TCLAP::ValueArg< std::string > 
