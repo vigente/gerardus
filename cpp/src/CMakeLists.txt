@@ -73,3 +73,9 @@ Resize3DImage.cxx)
 TARGET_LINK_LIBRARIES(resize3DImage
 boost_system ITKCommon ITKIO)
 
+# skeletonize3DSegmentation
+ADD_EXECUTABLE(skeletonize3DSegmentation
+Skeletonize3DSegmentation.cxx)
+INCLUDE_DIRECTORIES(third-party/itkBinaryThinningImageFilter3D/Source)
+TARGET_LINK_LIBRARIES(skeletonize3DSegmentation
+boost_system ITKCommon ITKIO)
