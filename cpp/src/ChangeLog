@@ -1,4 +1,17 @@
+2011-03-31  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add Skeletonize3DSegmentation.cxx: 
+
+	- Program to reduce a segmentation to its skeleton.
+
 2011-03-30  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add src/third-party/itkBinaryThinningImageFilter3D
+
+	- Code from H Homann, "Implementation of a 3D thinning algorithm",
+	The Insight Journal, Jul 2007.
+
+	http://hdl.handle.net/1926/1292
 
 	* ExtractVoxelCoordinatesFromSegmentationMask.cxx,
 	PadSegmentationMaskWithVoxels.cxx, Resize3DImage.cxx: Add author.
