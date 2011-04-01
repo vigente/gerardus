@@ -79,3 +79,9 @@ Skeletonize3DSegmentation.cxx)
 INCLUDE_DIRECTORIES(third-party/itkBinaryThinningImageFilter3D/Source)
 TARGET_LINK_LIBRARIES(skeletonize3DSegmentation
 boost_system ITKCommon ITKIO)
+
+# vesselness3DImage
+ADD_EXECUTABLE(vesselness3DImage
+Vesselness3DImage.cxx)
+TARGET_LINK_LIBRARIES(vesselness3DImage
+boost_system ITKCommon ITKIO)
