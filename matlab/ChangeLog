@@ -1,3 +1,10 @@
+2011-04-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/plotaxes.m: v0.2.0
+
+	- Add varargin to be able to pass extra arguments to the plot
+	function.
+
 2011-03-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* CardiacToolbox/surface_interpolation.m: v0.1.2
