@@ -1,4 +1,4 @@
-function h = plotaxes(a, m, type, col)
+function h = plotaxes(a, m, type, col, varargin)
 % PLOTAXES  Plot axes of 3D coordinate system
 %
 % PLOTAXES(A, M, TYPE, COL)
@@ -14,8 +14,14 @@ function h = plotaxes(a, m, type, col)
 %   COL is a cell array with the colours of each axis. By default,
 %   col={'b', 'r', 'g'}. If only one string is provided, all axes are
 %   displayed with the same colour.
+%
+% PLOTAXES(A, M, TYPE, COL, ...)
+%
+%   ... Any extra input arguments will be passed to the plot function.
 
-% Copyright © 2010 University of Oxford
+% Author: Ramon Casero <rcasero@gmail.com>
+% Copyright © 2010-2011 University of Oxford
+% Version: 0.2.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -41,39 +47,40 @@ function h = plotaxes(a, m, type, col)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 4, nargin, 'struct' ) );
-error( nargoutchk( 0, 1, nargout, 'struct' ) );
+error(nargchk(1, Inf, nargin, 'struct'));
+error(nargoutchk(0, 1, nargout, 'struct'));
 
 % defaults
-if ( nargin < 2 || isempty( m ) )
+if (nargin < 2 || isempty(m))
     m = [0 0 0];
 end
-if ( nargin < 3 || isempty( type ) )
+if (nargin < 3 || isempty(type))
     type = {'-', '-', '-'};
 end
-if ( nargin < 4 || isempty( col ) )
+if (nargin < 4 || isempty(col))
     col = {'b', 'r', 'g'};
 end
-if ( ~iscell( type ) || length( type ) == 1 )
-    if iscell( type )
+if (~iscell(type) || length(type) == 1)
+    if iscell(type)
         type = type{:};
     end
-    type = { type, type, type };
+    type = {type, type, type};
 end
-if ( ~iscell( col ) || length( col ) == 1 )
-    if iscell( col )
+if (~iscell(col) || length(col) == 1)
+    if iscell(col)
         col = col{:};
     end
-    col = { col, col, col };
+    col = {col, col, col};
 end
 
 % save hold state for later
 PHOLD = ishold;
 
 % plot axes
-for I = 1:size( a, 2 )
-    h = plot3( m(1) + [0, a(1, I)], ...
-        m(2) + [0, a(2, I)], m(3) + [0, a(3, I)], [ type{I} col{I} ] );
+for I = 1:size(a, 2)
+    h = plot3(m(1) + [0, a(1, I)], ...
+        m(2) + [0, a(2, I)], m(3) + [0, a(3, I)], [ type{I} col{I} ], ...
+        varargin{:});
     hold on
 end
 
