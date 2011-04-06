@@ -9,6 +9,8 @@ function a = img_adjacency_distance(im)
 %   (i,j) is the mean intensity between voxels with linear indices i and j.
 %
 %   Voxels with an Inf intensity are skipped.
+%
+% See also: seg2dmat.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010 University of Oxford
