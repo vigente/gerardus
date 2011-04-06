@@ -111,7 +111,7 @@ idx = idx0;
 [gr, gc, gs] = ndgrid(-1:1, -1:1, -1:1);
 
 % compute distances from each point to the origin
-dlocal = res .* sqrt(gr.^2 + gc.^2 + gs.^2);
+dlocal = sqrt((res(1)*gr).^2 + (res(2)*gc).^2 + (res(3)*gs).^2);
 
 % convert volume of distances and coordinates into vectors
 dlocal = dlocal(:);
