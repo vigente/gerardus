@@ -57,8 +57,6 @@ function [stats, idx] = scinrrd_seg2vesselness(nrrd, RAD, idx)
 %
 %     STATS.DC:   Distance between the centroid of the connected component
 %                 and the target voxel.
-%
-% See also: img_adjacency_distance.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
