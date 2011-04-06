@@ -1,5 +1,6 @@
 function a = img_adjacency_distance(im)
-% ADJACENCY_DISTANCE  Convert image to adjacency-distance list in sparse matrix form
+% IMG_ADJACENCY_DISTANCE  Local neighbourhood mean intensity matrix between
+% segmentation voxels
 %
 % A = IMG_ADJACENCY_DISTANCE(IM)
 %
@@ -10,10 +11,14 @@ function a = img_adjacency_distance(im)
 %
 %   Voxels with an Inf intensity are skipped.
 %
+%   This function has a slow Matlab implementation (using loops), but a
+%   fast MEX version is provided too.
+%
 % See also: seg2dmat.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010 University of Oxford
+% Copyright © 2010-2011 University of Oxford
+% Version: 0.1.1.
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

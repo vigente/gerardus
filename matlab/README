@@ -141,7 +141,8 @@ fspecial3.m
 	
 img_adjacency_distance.m
 
-	 ADJACENCY_DISTANCE  Convert image to adjacency-distance list in sparse matrix form
+	 IMG_ADJACENCY_DISTANCE  Local neighbourhood mean intensity matrix between
+	 segmentation voxels
 	
 img_tps_map.m
 
