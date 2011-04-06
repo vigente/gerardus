@@ -1,4 +1,4 @@
-function [d, dict] = seg2dmat(im, outformat)
+function [d, dict, idict] = seg2dmat(im, outformat)
 % SEG2DMAT  Local neighbourhood distance matrix between segmentation voxels
 %
 % D = SEG2DMAT(IM)
@@ -19,7 +19,7 @@ function [d, dict] = seg2dmat(im, outformat)
 %   although some of the intermediate steps are not as efficient
 %   memory-wise as they could be.
 %
-% [D, DICT] = SEG2DMAT(IM, OUTFORMAT)
+% [D, DICT, IDICT] = SEG2DMAT(IM, OUTFORMAT)
 %
 %   OUTFORMAT is a string. By default, D(i,j) gives the distance between
 %   voxels i and j in IM. However, for large image volumes, it can be more
@@ -30,9 +30,12 @@ function [d, dict] = seg2dmat(im, outformat)
 %
 %     'seg': Indices correspond only to the segmentation (smaller matrix).
 %
-%   DICT is a column vector. DICT(i) == j means that position i in the
-%   distance matrix corresponds to voxel j in the image. If OUTFORMAT='im',
-%   then i==j, so there's no need for DICT and it's returned empty.
+%   DICT and IDICT are column vectors used to convert to whole image and
+%   segmentation indices. If OUTFORMAT='im', then i==j, so there's no need
+%   for conversion and DICT and IDICT are returned empty.
+%
+%     DICT(i) is the matrix index for voxel i in the image
+%     IDICT(i) is the image index for matrix index i.
 %
 % See also: im2imat.
 
@@ -65,7 +68,7 @@ function [d, dict] = seg2dmat(im, outformat)
 
 % check arguments
 error(nargchk(1, 2, nargin, 'struct'));
-error(nargoutchk(0, 2, nargout, 'struct'));
+error(nargoutchk(0, 3, nargout, 'struct'));
 
 % defaults
 if (nargin < 2 || isempty(outformat))
@@ -163,14 +166,14 @@ switch outformat
         % in this case, the i-th position in the matrix corresponds to the
         % i-th voxel in the image, so no dictionary is necessary
         dict = [];
+        idict = [];
     case 'seg'
         % create sparse matrix for distances between all voxels in the
         % image
         d = sparse(dict(idx), dict(nn), dlocal);
         
-        % recompute dictionary so that the i-th position in the matrix
-        % corresponds to voxel dict(i) in the image
-        dict = find(dict);
+        % compute inverse dictionary
+        idict = find(dict);
     otherwise
         error('Unrecognized output format string')
 end
