@@ -1,5 +1,10 @@
 2011-04-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/img_adjacency_distance.m: v0.1.1
+
+	- Small rewrite of help header to make it more consistent with new
+	function seg2dmat.
+
 	* Add FiltersToolbox/seg2dmat.m: v0.1.0
 
 	- SEG2DMAT Local neighbourhood distance matrix between
