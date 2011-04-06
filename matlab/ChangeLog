@@ -2,6 +2,8 @@
 
 	* FiltersToolbox/seg2dmat.m: v0.2.0
 
+	- Add input variable for voxel size different from [1 1 1].
+
 	- Add input flag to create a smaller output matrix, but indexing
 	only the segmented voxels of the image, not all the voxels in the
 	image.
