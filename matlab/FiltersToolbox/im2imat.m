@@ -1,8 +1,8 @@
-function a = img_adjacency_distance(im)
-% IMG_ADJACENCY_DISTANCE  Local neighbourhood mean intensity matrix between
-% segmentation voxels
+function a = im2imat(im)
+% IM2IMAT  Local neighbourhood mean intensity matrix between segmentation
+% voxels
 %
-% A = IMG_ADJACENCY_DISTANCE(IM)
+% A = IM2IMAT(IM)
 %
 %   IM is an image volume with dimensions (R, C, S).
 %
@@ -12,7 +12,14 @@ function a = img_adjacency_distance(im)
 %   Voxels with an Inf intensity are skipped.
 %
 %   This function has a slow Matlab implementation (using loops), but a
-%   fast MEX version is provided too.
+%   fast MEX version is provided too. To compile it in a 64 bit
+%   architecture, run
+%
+%   >> mex -largeArrayDims im2imat.cpp
+%
+%   To compile in a 32 bit architecture, use
+%
+%   >> mex im2imat.cpp
 %
 % See also: seg2dmat.
 
