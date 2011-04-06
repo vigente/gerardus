@@ -91,8 +91,9 @@ idx0 = find(im);
 % referred to the whole image, and indices of segmented voxels
 %
 % note that if you do dict(i) == 0 means that voxel i is not segmented
-dict = zeros(numel(im),1);
-dict(idx0) = (1:length(idx0))';
+% dict = zeros(numel(im),1);
+% dict(idx0) = (1:length(idx0))';
+dict = sparse(idx0, ones(length(idx0), 1), (1:length(idx0)));
 
 % convert to r, c, s indices
 idx = idx0;
@@ -141,16 +142,24 @@ dlocal = dlocal([1:13 15:end]);
 dlocal = repmat(dlocal', length(idx), 1);
 idx = repmat(idx, 1, 26);
 
-% find the not out of range connections
+% find the out of range connections
 ok = ~isnan(nn);
 
-% remove connections to out of range voxels
+% remove them
+idx = idx(ok);
+nn = nn(ok);
+dlocal = dlocal(ok);
+
+% find indices larger than the largest one in the segmentation
+ok = (nn <= max(idx0));
+
+% remove them
 idx = idx(ok);
 nn = nn(ok);
 dlocal = dlocal(ok);
 
 % find connections to voxels that are not part of the segmentation
-ok = dict(nn) ~= 0;
+ok = (dict(nn) ~= 0);
 
 % remove them
 idx = idx(ok);
@@ -169,8 +178,16 @@ switch outformat
         idict = [];
     case 'seg'
         % create sparse matrix for distances between all voxels in the
-        % image
+        % segmentation
         d = sparse(dict(idx), dict(nn), dlocal);
+        
+        % find segmentation voxels that aren't connected to any other
+        ok = any(d, 2);
+        
+        % remove them
+        d = d(ok, ok);
+        idx0 = idx0(ok);
+        dict = sparse(idx0, ones(length(idx0), 1), (1:length(idx0)));
         
         % compute inverse dictionary
         idict = find(dict);
