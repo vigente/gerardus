@@ -18,6 +18,8 @@ function d = seg2dmat(im)
 %   This function can be used with 2D images instead of 3D volumes too,
 %   although some of the intermediate steps are not as efficient
 %   memory-wise as they could be.
+%
+% See also: im2imat.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
