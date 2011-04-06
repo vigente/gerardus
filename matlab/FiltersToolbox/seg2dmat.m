@@ -1,4 +1,4 @@
-function [d, dict, idict] = seg2dmat(im, outformat)
+function [d, dict, idict] = seg2dmat(im, outformat, res)
 % SEG2DMAT  Local neighbourhood distance matrix between segmentation voxels
 %
 % D = SEG2DMAT(IM)
@@ -37,6 +37,11 @@ function [d, dict, idict] = seg2dmat(im, outformat)
 %     DICT(i) is the matrix index for voxel i in the image
 %     IDICT(i) is the image index for matrix index i.
 %
+% ... = SEG2DMAT(IM, OUTFORMAT, RES)
+%
+%    RES is a 3-vector with the voxel size given as [row, col, slice]. By
+%    default, RES=[1 1 1].
+%
 % See also: im2imat.
 
 % Author: Ramon Casero <rcasero@gmail.com>
@@ -67,12 +72,15 @@ function [d, dict, idict] = seg2dmat(im, outformat)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 2, nargin, 'struct'));
+error(nargchk(1, 3, nargin, 'struct'));
 error(nargoutchk(0, 3, nargout, 'struct'));
 
 % defaults
 if (nargin < 2 || isempty(outformat))
     outformat = 'im';
+end
+if (nargin < 3 || isempty(res))
+    res = [1 1 1];
 end
 
 % total number of voxels in the image
@@ -103,7 +111,7 @@ idx = idx0;
 [gr, gc, gs] = ndgrid(-1:1, -1:1, -1:1);
 
 % compute distances from each point to the origin
-dlocal = sqrt(gr.^2 + gc.^2 + gs.^2);
+dlocal = res .* sqrt(gr.^2 + gc.^2 + gs.^2);
 
 % convert volume of distances and coordinates into vectors
 dlocal = dlocal(:);
