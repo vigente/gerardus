@@ -1,5 +1,9 @@
 2011-04-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Rename img_adjacency_distance.m as im2imat.m.
+
+	* Rename img_adjacency_distance.cpp as im2imat.cpp.
+
 	* FiltersToolbox/img_adjacency_distance.m: v0.1.1
 
 	- Small rewrite of help header to make it more consistent with new

@@ -139,10 +139,10 @@ fspecial3.m
 
 	 FSPECIAL3  Create predefined 3-dimensional filters
 	
-img_adjacency_distance.m
+im2imat.m
 
-	 IMG_ADJACENCY_DISTANCE  Local neighbourhood mean intensity matrix between
-	 segmentation voxels
+	 IM2IMAT  Local neighbourhood mean intensity matrix between segmentation
+	 voxels
 	
 img_tps_map.m
 
