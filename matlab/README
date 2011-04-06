@@ -211,6 +211,10 @@ scinrrd_vertical_orientation_pca_basis.m
 	 Principal Components of a set of voxels, such that the vertical axis is
 	 assigned to the maximum variability, and the basis is right-hand oriented
 	
+seg2dmat.m
+
+	 SEG2DMAT  Local neighbourhood distance matrix between segmentation voxels
+	
 
 PointsToolbox
 -------------------------------------------------------------
