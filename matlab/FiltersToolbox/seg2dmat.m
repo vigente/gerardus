@@ -64,7 +64,7 @@ function [d, dict] = seg2dmat(im, outformat)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 1, nargin, 'struct'));
+error(nargchk(1, 2, nargin, 'struct'));
 error(nargoutchk(0, 2, nargout, 'struct'));
 
 % defaults
