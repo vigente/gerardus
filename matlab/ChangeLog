@@ -1,5 +1,11 @@
 2011-04-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/seg2dmat.m: v0.2.0
+
+	- Add input flag to create a smaller output matrix, but indexing
+	only the segmented voxels of the image, not all the voxels in the
+	image.
+	
 	* Rename img_adjacency_distance.m as im2imat.m.
 
 	* Rename img_adjacency_distance.cpp as im2imat.cpp.

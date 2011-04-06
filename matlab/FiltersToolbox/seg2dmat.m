@@ -1,4 +1,4 @@
-function d = seg2dmat(im)
+function [d, dict] = seg2dmat(im, outformat)
 % SEG2DMAT  Local neighbourhood distance matrix between segmentation voxels
 %
 % D = SEG2DMAT(IM)
@@ -19,11 +19,26 @@ function d = seg2dmat(im)
 %   although some of the intermediate steps are not as efficient
 %   memory-wise as they could be.
 %
+% [D, DICT] = SEG2DMAT(IM, OUTFORMAT)
+%
+%   OUTFORMAT is a string. By default, D(i,j) gives the distance between
+%   voxels i and j in IM. However, for large image volumes, it can be more
+%   convenient to compute a smaller D where D(m, n) is the distance between
+%   the m-th and n-th voxels of the segmentation:
+%
+%     'im' (default): Indices correspond to the whole image volume.
+%
+%     'seg': Indices correspond only to the segmentation (smaller matrix).
+%
+%   DICT is a column vector. DICT(i) == j means that position i in the
+%   distance matrix corresponds to voxel j in the image. If OUTFORMAT='im',
+%   then i==j, so there's no need for DICT and it's returned empty.
+%
 % See also: im2imat.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -50,7 +65,12 @@ function d = seg2dmat(im)
 
 % check arguments
 error(nargchk(1, 1, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
+error(nargoutchk(0, 2, nargout, 'struct'));
+
+% defaults
+if (nargin < 2 || isempty(outformat))
+    outformat = 'im';
+end
 
 % total number of voxels in the image
 N = numel(im);
@@ -62,9 +82,17 @@ if (length(sz) == 2)
 end
 
 % get linear indices of segmented voxels
-idx = find(im);
+idx0 = find(im);
+
+% create dictionary vector that will allow us to convert between indices
+% referred to the whole image, and indices of segmented voxels
+%
+% note that if you do dict(i) == 0 means that voxel i is not segmented
+dict = zeros(numel(im),1);
+dict(idx0) = (1:length(idx0))';
 
 % convert to r, c, s indices
+idx = idx0;
 [r, c, s] = ind2sub(sz, idx);
 
 % compute neighbourhood with connectivity 26 around origin
@@ -118,10 +146,31 @@ idx = idx(ok);
 nn = nn(ok);
 dlocal = dlocal(ok);
 
-% create sparse matrix for distances between all voxels in the image
-d = sparse(idx, nn, dlocal, N, N);
+% find connections to voxels that are not part of the segmentation
+ok = dict(nn) ~= 0;
 
-% remove the connections to voxels that are not segmented
-notidx = find(~im);
-d(notidx, :) = 0;
-d(:, notidx) = 0;
+% remove them
+idx = idx(ok);
+nn = nn(ok);
+dlocal = dlocal(ok);
+
+switch outformat
+    case 'im'
+        % create sparse matrix for distances between all voxels in the
+        % image
+        d = sparse(idx, nn, dlocal, N, N);
+        
+        % in this case, the i-th position in the matrix corresponds to the
+        % i-th voxel in the image, so no dictionary is necessary
+        dict = [];
+    case 'seg'
+        % create sparse matrix for distances between all voxels in the
+        % image
+        d = sparse(dict(idx), dict(nn), dlocal);
+        
+        % recompute dictionary so that the i-th position in the matrix
+        % corresponds to voxel dict(i) in the image
+        dict = find(dict);
+    otherwise
+        error('Unrecognized output format string')
+end
