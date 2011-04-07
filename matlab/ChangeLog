@@ -1,3 +1,9 @@
+2011-04-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/skeleton_label.m:
+
+	- SKELETON_LABEL Give each branch of a skeleton a different label.
+
 2011-04-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/seg2dmat.m: v0.2.0

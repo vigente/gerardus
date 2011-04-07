@@ -216,6 +216,10 @@ seg2dmat.m
 
 	 SEG2DMAT  Local neighbourhood distance matrix between segmentation voxels
 	
+skeleton_label.m
+
+	 SKELETON_LABEL  Give each branch of a skeleton a different label
+	
 
 PointsToolbox
 -------------------------------------------------------------
