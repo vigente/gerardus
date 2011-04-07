@@ -1,5 +1,9 @@
 2011-04-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add test directory.
+
+	- Directory to keep data and scripts for tests.
+
 	* Add FiltersToolbox/skeleton_label.m:
 
 	- SKELETON_LABEL Give each branch of a skeleton a different label.
