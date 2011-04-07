@@ -13,8 +13,9 @@ function [im, cc] = skeleton_label(im)
 %   voxel is the label of the branch it belongs to.
 %
 %   Voxels in bifurcations are labelled as the nearest branch. Voxels
-%   completely surrounded by other bifurcation voxels are assigned of the
-%   the nearest labels arbitrarily.
+%   completely surrounded by other bifurcation voxels are assigned the
+%   nearest label arbitrarily. Some voxels may remain unlabelled, e.g. if
+%   they are not connected to any others in the segmentation.
 %
 %   CC is a struct like those provided by Matlab's function bwconncomp().
 %   Each vector in CC.PixelIdxList{i} has the list of image indices of the
@@ -110,17 +111,16 @@ for v = find(~withlab)'
     % get its first neighbour's label
     vnlab = im(idict(vn(1)));
     
-    % give it the neighbour's label
-    cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idict(vn)];
-    im(idict(v)) = vnlab;
-    
-    % record this in the log
-    withlab(v) = true;
-end
-
-% check that all voxels have been labelled
-if any(~withlab)
-    warning('Assertion fail: Not all voxels have been labelled')
+    % if the label is 0, that means that this voxel is surrounded by voxels
+    % that have not been labelled yet, and we leave it unlabelled
+    if vnlab
+        % give it the neighbour's label
+        cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idict(vn)];
+        im(idict(v)) = vnlab;
+        
+        % record this in the log
+        withlab(v) = true;
+    end
 end
 
 % % Debug (2D image) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
