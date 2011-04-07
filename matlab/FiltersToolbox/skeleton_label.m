@@ -71,6 +71,28 @@ im(idx) = 0;
 % get connected components in the image
 cc = bwconncomp(im);
 
+% set amount of memory allowed for labels
+req_bits = ceil(log2(cc.NumObjects));
+if (req_bits == 1)
+    lab_class = 'bool';
+elseif (req_bits < 8)
+    lab_class = 'uint8';
+elseif (req_bits < 16)
+    lab_class = 'uint16';
+elseif (req_bits < 32)
+    lab_class = 'uint32';
+elseif (req_bits < 64)
+    lab_class = 'uint64';
+else
+    lab_class = 'uint64';
+    warning('Too many labels. There are more than 2^64 labels. Using uint64, some labels will be lost');
+end
+if ~strcmp(lab_class, class(im)) % we need a different class than the input image so that we can represent all labels
+    im = zeros(size(im), lab_class);
+else
+    im = im * 0;
+end
+
 % give each voxel in the image its label
 for lab = 1:cc.NumObjects
     im(cc.PixelIdxList{lab}) = lab;
