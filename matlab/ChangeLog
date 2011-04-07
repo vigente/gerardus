@@ -1,5 +1,10 @@
 2011-04-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add test/veins-tree-skeleton.mat, test/veins-tree-skeleton.mha:
+
+	- A 2D segmentation that looks like a tree of veins (with a
+	cycle), to test skeleton_label().
+
 	* Add test directory.
 
 	- Directory to keep data and scripts for tests.
