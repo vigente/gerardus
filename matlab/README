@@ -248,6 +248,11 @@ extmat2rotmat.m
 	 EXTMAT2ROTMAT  Convert rotation in extended matrix form into centroid and
 	 matrix pair
 	
+graph_nn.m
+
+	 GRAPH_NN  Nearest neighbours from a subset of nodes in a graph to another
+	 subset
+	
 intersect_line_plane.m
 
 	 INTERSECT_LINE_PLANE  Find intersection of a line with a plane
