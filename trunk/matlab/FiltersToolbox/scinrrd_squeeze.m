@@ -28,7 +28,9 @@ function nrrd = scinrrd_squeeze(nrrd, todouble)
 %          axis: [4x1 struct]
 %      property: []
 
-% Copyright © 2010 University of Oxford
+% Author: Ramon Casero <rcasero@gmail.com>
+% Copyright © 2010-2011 University of Oxford
+% Version: 0.1.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -54,23 +56,19 @@ function nrrd = scinrrd_squeeze(nrrd, todouble)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 2, nargin, 'struct' ) );
-error( nargoutchk( 0, 1, nargout, 'struct' ) );
+error(nargchk(1, 2, nargin, 'struct'));
+error(nargoutchk(0, 1, nargout, 'struct'));
 
 % defaults
-if ( nargin < 2 || isempty( todouble ) )
+if (nargin < 2 || isempty(todouble))
     todouble = false;
 end
 
 % remove dummy dimension
-if ( ndims( nrrd.data ) == 4 )
-    nrrd.data = squeeze( nrrd.data );
-end
-if ( length( nrrd.axis ) == 4 )
-    nrrd.axis = nrrd.axis( 2:end );
-end
+nrrd.data = squeeze(nrrd.data);
+nrrd.axis = nrrd.axis(2:end);
 
 % convert data to double
-if ( todouble )
-    nrrd.data = double( nrrd.data );
+if (todouble)
+    nrrd.data = double(nrrd.data);
 end
