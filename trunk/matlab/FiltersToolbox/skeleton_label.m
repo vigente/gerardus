@@ -1,4 +1,4 @@
-function [sk, cc] = skeleton_label(sk)
+function [sk, cc] = skeleton_label(sk, im, res)
 % SKELETON_LABEL  Give each branch of a skeleton a different label
 %
 % [LAB, CC] = SKELETON_LABEL(SK)
@@ -20,10 +20,21 @@ function [sk, cc] = skeleton_label(sk)
 %   CC is a struct like those provided by Matlab's function bwconncomp().
 %   Each vector in CC.PixelIdxList{i} has the list of image indices of the
 %   voxels with label i.
+%
+% ... = SKELETON_LABEL(SK, IM, RES)
+%
+%   IM is the original 3D the skeleton SK was computed from. In this case,
+%   LAB has the labelling of IM. If you want to extract the labelling for
+%   SK, just run
+%
+%     >> LAB .* SK
+%
+%   RES is a 3-vector with the voxel size as [row, column, slice]. By
+%   default, RES=[1 1 1].
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -49,12 +60,24 @@ function [sk, cc] = skeleton_label(sk)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 1, nargin, 'struct'));
+error(nargchk(1, 3, nargin, 'struct'));
 error(nargoutchk(0, 2, nargout, 'struct'));
 
-% get sparse matrix of distances between voxels. We don't care about the
-% actual distances, just need to know which voxels are connected to others
-[d, ~, idict] = seg2dmat(sk, 'seg');
+% defaults
+if (nargin < 2)
+    im = [];
+end
+if (nargin < 3 || isempty(res))
+    res = [1 1 1];
+end
+
+%% Labelling of the skeleton
+
+% get sparse matrix of distances between voxels. To label the skeleton we
+% don't care about the actual distances, just need to know which voxels are
+% connected to others. Actual distances will be needed if we have to
+% segment the original segmentation, though
+[d, ~, idictsk] = seg2dmat(sk, 'seg');
 
 % compute degree of each voxel
 deg = sum(d > 0, 2);
@@ -63,7 +86,7 @@ deg = sum(d > 0, 2);
 idx = deg >= 3;
 
 % convert distance matrix index to image index
-idx = idict(idx);
+idx = idictsk(idx);
 
 % remove bifurcation voxels from image
 sk(idx) = 0;
@@ -113,11 +136,11 @@ for v = find(deg >= 3)'
     % other bifurcation voxels, we are not going to label it
     if ~isempty(vn)
         % get its first neighbour's label
-        vnlab = sk(idict(vn(1)));
+        vnlab = sk(idictsk(vn(1)));
         
         % give it the neighbour's label
-        cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idict(vn)];
-        sk(idict(v)) = vnlab;
+        cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idictsk(vn)];
+        sk(idictsk(v)) = vnlab;
         
         % record this in the log
         withlab(v) = true;
@@ -131,19 +154,36 @@ for v = find(~withlab)'
     vn = find(d(v, :));
     
     % get its first neighbour's label
-    vnlab = sk(idict(vn(1)));
+    vnlab = sk(idictsk(vn(1)));
     
     % if the label is 0, that means that this voxel is surrounded by voxels
     % that have not been labelled yet, and we leave it unlabelled
     if vnlab
         % give it the neighbour's label
-        cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idict(vn)];
-        sk(idict(v)) = vnlab;
+        cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idictsk(vn)];
+        sk(idictsk(v)) = vnlab;
         
         % record this in the log
         withlab(v) = true;
     end
 end
+
+% if we don't have the original image, we don't need to do anything else
+if (isempty(im))
+    return
+end
+
+%% Labelling of the original segmentation
+
+% now we need the distances between neighbours for the whole segmentation
+[d, dict] = seg2dmat(im, 'seg', res);
+
+% for each original segmentation voxel, find the closest skeleton voxel
+nn = graph_nn(d, [], dict(sk(:)>0));
+
+% label each segmentation voxel with the same label as the corresponding
+% skeleton voxel
+sk(im(:)>0) = sk(idictsk(nn));
 
 % % Debug (2D image) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 

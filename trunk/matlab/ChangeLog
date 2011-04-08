@@ -1,5 +1,15 @@
 2011-04-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/skeleton_label.m: v0.2.0
+
+	- Add input arguments so that besides the skeleton, we can pass
+	the original segmentation. Now, the whole segmentation and not
+	only the skeleton will get labelled.
+
+	* Add matlab/test/veins-tree.mat, matlab/test/veins-tree.mha:
+
+	- To test the new functionality in skeleton_label().
+
 	* FiltersToolbox/scinrrd_squeeze.m: v0.1.1
 
 	- Fix bug. Remove dummy dimension also when nrrd.data has only 3
@@ -24,7 +34,7 @@
 
 	- Directory to keep data and scripts for tests.
 
-	* Add FiltersToolbox/skeleton_label.m:
+	* Add FiltersToolbox/skeleton_label.m: v0.1.0
 
 	- SKELETON_LABEL Give each branch of a skeleton a different label.
 
