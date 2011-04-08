@@ -1,15 +1,15 @@
-function [im, cc] = skeleton_label(im)
+function [sk, cc] = skeleton_label(sk)
 % SKELETON_LABEL  Give each branch of a skeleton a different label
 %
-% [LAB, CC] = SKELETON_LABEL(IM)
+% [LAB, CC] = SKELETON_LABEL(SK)
 %
-%   IM is a 3D segmentation mask. IM is assumed to be a skeleton resulting
+%   SK is a 3D segmentation mask. SK is assumed to be a skeleton resulting
 %   from some kind of thinning algorithm, e.g. the C++ program
 %   skeletonize3DSegmentation provided by Gerardus. That is, the
 %   segmentation looks like a series of 1 voxel-thick branches connected
 %   between them (cycles are allowed).
 %
-%   LAB is an image of the same dimensions of IM where the value of each
+%   LAB is an image of the same dimensions of SK where the value of each
 %   voxel is the label of the branch it belongs to.
 %
 %   Voxels in bifurcations are labelled as the nearest branch. Voxels
@@ -54,7 +54,7 @@ error(nargoutchk(0, 2, nargout, 'struct'));
 
 % get sparse matrix of distances between voxels. We don't care about the
 % actual distances, just need to know which voxels are connected to others
-[d, ~, idict] = seg2dmat(im, 'seg');
+[d, ~, idict] = seg2dmat(sk, 'seg');
 
 % compute degree of each voxel
 deg = sum(d > 0, 2);
@@ -66,10 +66,10 @@ idx = deg >= 3;
 idx = idict(idx);
 
 % remove bifurcation voxels from image
-im(idx) = 0;
+sk(idx) = 0;
 
 % get connected components in the image
-cc = bwconncomp(im);
+cc = bwconncomp(sk);
 
 % set amount of memory allowed for labels
 req_bits = ceil(log2(cc.NumObjects));
@@ -87,15 +87,15 @@ else
     lab_class = 'uint64';
     warning('Too many labels. There are more than 2^64 labels. Using uint64, some labels will be lost');
 end
-if ~strcmp(lab_class, class(im)) % we need a different class than the input image so that we can represent all labels
-    im = zeros(size(im), lab_class);
+if ~strcmp(lab_class, class(sk)) % we need a different class than the input image so that we can represent all labels
+    sk = zeros(size(sk), lab_class);
 else
-    im = im * 0;
+    sk = sk * 0;
 end
 
 % give each voxel in the image its label
 for lab = 1:cc.NumObjects
-    im(cc.PixelIdxList{lab}) = lab;
+    sk(cc.PixelIdxList{lab}) = lab;
 end
 
 % keep log of voxels that have been given a label
@@ -113,11 +113,11 @@ for v = find(deg >= 3)'
     % other bifurcation voxels, we are not going to label it
     if ~isempty(vn)
         % get its first neighbour's label
-        vnlab = im(idict(vn(1)));
+        vnlab = sk(idict(vn(1)));
         
         % give it the neighbour's label
         cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idict(vn)];
-        im(idict(v)) = vnlab;
+        sk(idict(v)) = vnlab;
         
         % record this in the log
         withlab(v) = true;
@@ -131,14 +131,14 @@ for v = find(~withlab)'
     vn = find(d(v, :));
     
     % get its first neighbour's label
-    vnlab = im(idict(vn(1)));
+    vnlab = sk(idict(vn(1)));
     
     % if the label is 0, that means that this voxel is surrounded by voxels
     % that have not been labelled yet, and we leave it unlabelled
     if vnlab
         % give it the neighbour's label
         cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idict(vn)];
-        im(idict(v)) = vnlab;
+        sk(idict(v)) = vnlab;
         
         % record this in the log
         withlab(v) = true;
@@ -148,13 +148,13 @@ end
 % % Debug (2D image) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
 % hold off
-% imagesc(im)
+% imagesc(sk)
 % 
 % % find tree leaves: convert matrix indices to image linear indices
 % idx = idict(deg == 1);
 % 
 % % convert image linear indices to row, col, slice
-% [r, c, s] = ind2sub(size(im), idx);
+% [r, c, s] = ind2sub(size(sk), idx);
 % 
 % % plot leaves
 % hold on
@@ -164,7 +164,7 @@ end
 % idx = idict(deg >= 3);
 % 
 % % convert image linear indices to row, col, slice
-% [r, c, s] = ind2sub(size(im), idx);
+% [r, c, s] = ind2sub(size(sk), idx);
 % 
 % % plot leaves
 % plot(c, r, 'go')
