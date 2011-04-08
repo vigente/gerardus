@@ -1,5 +1,13 @@
 2011-04-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_squeeze.m: v0.1.1
+
+	- Fix bug. Remove dummy dimension also when nrrd.data has only 3
+	dimensions. If you have a single slice, Seg3D saves it with a
+	3-dimensional matrix (with a first dummy dimension), but 4
+	elements for the nrrd.axis. So this function was working wrong for
+	1-slice volumes.
+
 	* Add PointToolbox/graph_nn.m: v0.1.0
 
 	- GRAPH_NN Nearest neighbours from a subset of nodes in a graph to
