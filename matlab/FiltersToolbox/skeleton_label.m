@@ -34,7 +34,7 @@ function [sk, cc] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -139,7 +139,7 @@ for v = find(deg >= 3)'
         vnlab = sk(idictsk(vn(1)));
         
         % give it the neighbour's label
-        cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idictsk(vn)];
+        cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idictsk(v)];
         sk(idictsk(v)) = vnlab;
         
         % record this in the log
@@ -160,7 +160,7 @@ for v = find(~withlab)'
     % that have not been labelled yet, and we leave it unlabelled
     if vnlab
         % give it the neighbour's label
-        cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idictsk(vn)];
+        cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idictsk(v)];
         sk(idictsk(v)) = vnlab;
         
         % record this in the log
