@@ -1,3 +1,10 @@
+2011-04-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointToolbox/graph_nn.m: v0.1.0
+
+	- GRAPH_NN Nearest neighbours from a subset of nodes in a graph to
+	another subset.
+
 2011-04-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add test/veins-tree-skeleton.mat, test/veins-tree-skeleton.mha:
