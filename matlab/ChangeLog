@@ -1,6 +1,9 @@
 2011-04-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
-	* FiltersToolbox/skeleton_label.m: v0.2.0
+	* FiltersToolbox/skeleton_label.m: v0.2.1
+
+	- Fix bug. Instead of adding the bifurcation voxel, we were adding
+	its neighbour.
 
 	- Add input arguments so that besides the skeleton, we can pass
 	the original segmentation. Now, the whole segmentation and not
