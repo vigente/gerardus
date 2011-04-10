@@ -1,3 +1,12 @@
+2011-04-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m: v0.2.2
+
+	- Add bifurcation points to every branch they terminate. This way,
+	it will be easier to sort the points in the branch, as we will
+	have 2 termination points (leaf/bifurcation or
+	bifurcation/bifurcation) in every branch.
+
 2011-04-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_label.m: v0.2.1
