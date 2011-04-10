@@ -135,12 +135,15 @@ for v = find(deg >= 3)'
     % if this is a bifurcation voxel that is completely surroundered by
     % other bifurcation voxels, we are not going to label it
     if ~isempty(vn)
-        % get its first neighbour's label
-        vnlab = sk(idictsk(vn(1)));
+        % get all its neighbour's labels
+        vnlab = sk(idictsk(vn));
         
-        % give it the neighbour's label
-        cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idictsk(v)];
-        sk(idictsk(v)) = vnlab;
+        % add the bifurcation point to each branch that it finishes
+        for I = 1:length(vnlab)
+            cc.PixelIdxList{vnlab(I)} = ...
+                [cc.PixelIdxList{vnlab(I)}; idictsk(v)];
+            sk(idictsk(v)) = vnlab(I);
+        end
         
         % record this in the log
         withlab(v) = true;
@@ -159,9 +162,12 @@ for v = find(~withlab)'
     % if the label is 0, that means that this voxel is surrounded by voxels
     % that have not been labelled yet, and we leave it unlabelled
     if vnlab
-        % give it the neighbour's label
-        cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idictsk(v)];
+        % give it the neighbour's label (we need every voxel in the tree to
+        % have a label, otherwise we cannot extend the segmentation)
+        % but don't add it to the list of voxels in the branch (we want
+        % every branch to contain no more than one bifurcation point)
         sk(idictsk(v)) = vnlab;
+%         cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idictsk(v)];
         
         % record this in the log
         withlab(v) = true;
