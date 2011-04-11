@@ -1,5 +1,9 @@
 2011-04-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add FiltersToolbox/skeleton_plot.m: v0.1.0
+
+	- SKELETON_PLOT Plot a labelled segmentation and its skeleton.
+
 	* FiltersToolbox/skeleton_label.m: v0.3.1
 
 	- Add as output arguments skeleton distance matrix, and

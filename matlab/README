@@ -218,7 +218,12 @@ seg2dmat.m
 	
 skeleton_label.m
 
-	 SKELETON_LABEL  Give each branch of a skeleton a different label
+	 SKELETON_LABEL  Give each branch of a skeleton a different label, and
+	 sort the voxels within each branch
+	
+skeleton_plot.m
+
+	 SKELETON_PLOT  Plot a labelled segmentation and its skeleton
 	
 
 PointsToolbox
