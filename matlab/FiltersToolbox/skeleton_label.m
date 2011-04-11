@@ -1,4 +1,4 @@
-function [sk, cc] = skeleton_label(sk, im, res)
+function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 % SKELETON_LABEL  Give each branch of a skeleton a different label, and
 % sort the voxels within each branch
 %
@@ -33,6 +33,14 @@ function [sk, cc] = skeleton_label(sk, im, res)
 %     bifurcation voxels. The former are not included in CC, but they are
 %     given a label in SK.
 %
+% [LAB, CC, D, DICT, IDICT] = SKELETON_LABEL(SK)
+%
+%   D is the sparse distance matrix between skeleton points.
+%
+%   DICT, IDICT are vectors to convert between image and distance matrix
+%   indices. i=DICT(I), I=IDICT(i), where I is an image linear index, and i
+%   is a distance matrix index, i.e. you use them e.g. SK(I) or D(i, :).
+%
 % ... = SKELETON_LABEL(SK, IM, RES)
 %
 %   IM is the original 3D the skeleton SK was computed from. In this case,
@@ -46,7 +54,7 @@ function [sk, cc] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -73,7 +81,7 @@ function [sk, cc] = skeleton_label(sk, im, res)
 
 % check arguments
 error(nargchk(1, 3, nargin, 'struct'));
-error(nargoutchk(0, 2, nargout, 'struct'));
+error(nargoutchk(0, 5, nargout, 'struct'));
 
 % defaults
 if (nargin < 2)
