@@ -1,6 +1,9 @@
 2011-04-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
-	* FiltersToolbox/skeleton_label.m: v0.3.0
+	* FiltersToolbox/skeleton_label.m: v0.3.1
+
+	- Add as output arguments skeleton distance matrix, and
+	dictionaries to convert between image and distance matrix indices.
 
 	- Now voxels in each branch are sorted, so that we can walk from
 	one termination point to the other without "jumps".
