@@ -267,8 +267,8 @@ for I = 1:cc.NumObjects
     v0 = idx(1);
     v1 = idx(2);
     
-    % compute shortest from the extreme voxel to every other voxel in the
-    % branch, and reuse variable
+    % compute shortest distance from the extreme voxel to every other voxel
+    % in the branch, and reuse variable
     [dbr, p] = dijkstra(dbr, v0);
     
     % convert Inf values in dbr to 0
