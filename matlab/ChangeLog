@@ -1,3 +1,10 @@
+2011-04-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m: v0.3.0
+
+	- Now voxels in each branch are sorted, so that we can walk from
+	one termination point to the other without "jumps".
+
 2011-04-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_label.m: v0.2.2
