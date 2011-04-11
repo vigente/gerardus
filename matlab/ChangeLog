@@ -1,5 +1,11 @@
 2011-04-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/skeleton_label.m: v0.3.2
+
+	- Add PixelParam field to CC output, with the parameterization
+	value for each branch voxel computed as the accumulated chord
+	distance between consecutive voxels.
+
 	* Add FiltersToolbox/skeleton_plot.m: v0.1.0
 
 	- SKELETON_PLOT Plot a labelled segmentation and its skeleton.
