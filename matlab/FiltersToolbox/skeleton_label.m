@@ -1,5 +1,6 @@
 function [sk, cc] = skeleton_label(sk, im, res)
-% SKELETON_LABEL  Give each branch of a skeleton a different label
+% SKELETON_LABEL  Give each branch of a skeleton a different label, and
+% sort the voxels within each branch
 %
 % [LAB, CC] = SKELETON_LABEL(SK)
 %
@@ -18,8 +19,19 @@ function [sk, cc] = skeleton_label(sk, im, res)
 %   they are not connected to any others in the segmentation.
 %
 %   CC is a struct like those provided by Matlab's function bwconncomp().
-%   Each vector in CC.PixelIdxList{i} has the list of image indices of the
-%   voxels with label i.
+%   Each vector in CC.PixelIdxList{i} has more or less the list of image
+%   indices of the voxels with label i. The reason why it's not exactly the
+%   same is because:
+%
+%     - We impose each branch to have two termination voxels. Termination
+%     voxels can be leaves or bifurcation points. Bifurcation points can be
+%     shared by more than one branch, so in that case they need to be
+%     repeated in CC, while in SK the bifurcation voxel is assigned to only
+%     one branch.
+%
+%     - Some bifurcation voxels are completely surrounded by other
+%     bifurcation voxels. The former are not included in CC, but they are
+%     given a label in SK.
 %
 % ... = SKELETON_LABEL(SK, IM, RES)
 %
@@ -34,7 +46,7 @@ function [sk, cc] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.1
+% Version: 0.3.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -71,16 +83,16 @@ if (nargin < 3 || isempty(res))
     res = [1 1 1];
 end
 
-%% Labelling of the skeleton
+%% Label skeleton voxels
 
 % get sparse matrix of distances between voxels. To label the skeleton we
 % don't care about the actual distances, just need to know which voxels are
 % connected to others. Actual distances will be needed if we have to
 % segment the original segmentation, though
-[d, ~, idictsk] = seg2dmat(sk, 'seg');
+[dsk, dictsk, idictsk] = seg2dmat(sk, 'seg');
 
 % compute degree of each voxel
-deg = sum(d > 0, 2);
+deg = sum(dsk > 0, 2);
 
 % get distance matrix index of the bifurcation voxels
 idx = deg >= 3;
@@ -129,7 +141,7 @@ withlab(deg < 3) = true;
 % indices)
 for v = find(deg >= 3)'
     % get its neighbours that are not bifurcation voxels
-    vn = find(d(v, :));
+    vn = find(dsk(v, :));
     vn = vn(deg(vn) < 3);
     
     % if this is a bifurcation voxel that is completely surroundered by
@@ -154,7 +166,7 @@ end
 % of a neighbour's
 for v = find(~withlab)'
     % get its neighbours that are not bifurcation voxels
-    vn = find(d(v, :));
+    vn = find(dsk(v, :));
     
     % get its first neighbour's label
     vnlab = sk(idictsk(vn(1)));
@@ -174,30 +186,32 @@ for v = find(~withlab)'
     end
 end
 
-% if we don't have the original image, we don't need to do anything else
-if (isempty(im))
-    return
+%% Label all voxels in the original segmentation, not only skeleton
+
+if (~isempty(im))
+    
+    % now we need the distances between neighbours for the whole segmentation
+    [d, dict] = seg2dmat(im, 'seg', res);
+    
+    % for each original segmentation voxel, find the closest skeleton voxel
+    nn = graph_nn(d, [], dict(sk(:)>0));
+    
+    % label each segmentation voxel with the same label as the corresponding
+    % skeleton voxel
+    sk(im(:)>0) = sk(idictsk(nn));
+    
+    % free up memory
+    clear d dict    
 end
-
-%% Labelling of the original segmentation
-
-% now we need the distances between neighbours for the whole segmentation
-[d, dict] = seg2dmat(im, 'seg', res);
-
-% for each original segmentation voxel, find the closest skeleton voxel
-nn = graph_nn(d, [], dict(sk(:)>0));
-
-% label each segmentation voxel with the same label as the corresponding
-% skeleton voxel
-sk(im(:)>0) = sk(idictsk(nn));
 
 % % Debug (2D image) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
 % hold off
 % imagesc(sk)
+% axis xy
 % 
 % % find tree leaves: convert matrix indices to image linear indices
-% idx = idict(deg == 1);
+% idx = idictsk(deg == 1);
 % 
 % % convert image linear indices to row, col, slice
 % [r, c, s] = ind2sub(size(sk), idx);
@@ -207,12 +221,87 @@ sk(im(:)>0) = sk(idictsk(nn));
 % plot(c, r, 'ro')
 % 
 % % find tree bifurcations: convert matrix indices to image linear indices
-% idx = idict(deg >= 3);
+% idx = idictsk(deg >= 3);
 % 
 % % convert image linear indices to row, col, slice
 % [r, c, s] = ind2sub(size(sk), idx);
 % 
 % % plot leaves
 % plot(c, r, 'go')
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Sort the voxels in each branch
+
+% loop each branch in the skeleton
+for I = 1:cc.NumObjects
+    % list of voxels in current branch
+    br = cc.PixelIdxList{I};
+    
+    % number of voxels in the current branch
+    N = length(br);
+    
+    % find the two extreme voxels of the current branch
+    idx = dictsk(br(deg(dictsk(br)) ~= 2));
+    
+    if (length(idx) ~= 2)
+        error('Assertion fail: Each branch is expected to have two termination nodes')
+    end
+
+    % create a distance matrix for only the voxels in the branch
+    dbr = 0 * dsk;
+    aux = dictsk(br);
+    dbr(aux, aux) = dsk(aux, aux);
+
+    % save the initial extreme points for later
+    v0 = idx(1);
+    v1 = idx(2);
+    
+    % compute shortest from the extreme voxel to every other voxel in the
+    % branch, and reuse variable
+    [dbr, p] = dijkstra(dbr, v0);
+    
+    % convert Inf values in dbr to 0
+    dbr(isinf(dbr)) = 0;
+    
+    % get the voxel that is furthest from the origin
+    [~, idx] = max(dbr);
+    
+    if (idx ~= v1)
+        error('Assertion fail: there is a voxel in the branch furthest from an extreme point than the other extreme point');
+    end
+    
+    % backtrack the whole branch in order from the furthest point to the
+    % original extreme point
+    cc.PixelIdxList{I}(:) = 0;
+    cc.PixelIdxList{I}(1) = idictsk(v1);
+    J = 2;
+    while (idx ~= v0)
+        idx = p(idx);
+        cc.PixelIdxList{I}(J) = idictsk(idx);
+        J = J + 1;
+    end
+    
+    if any(cc.PixelIdxList{I} == 0)
+        error(['Assertion fail: We have lost at least 1 voxel in branch ' num2str(I)])
+    end
+    if (N ~= length(cc.PixelIdxList{I}))
+        error(['Assertion fail: Sorting has changed the number of voxels in branch ' num2str(I)])
+    end
+    
+end
+
+% % Debug (2D image) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% for I = 1:cc.NumObjects
+%     % list of voxels in current branch
+%     br = cc.PixelIdxList{I};
+%     
+%     % convert image linear indices to image r, c, s indices
+%     [r, c, s] = ind2sub(size(sk), br);
+%     
+%     % plot branch in order
+%     plot(c, r, 'w')
+% end
 % 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
