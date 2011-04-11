@@ -19,9 +19,21 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 %   they are not connected to any others in the segmentation.
 %
 %   CC is a struct like those provided by Matlab's function bwconncomp().
-%   Each vector in CC.PixelIdxList{i} has more or less the list of image
-%   indices of the voxels with label i. The reason why it's not exactly the
-%   same is because:
+%   Each vector in CC.PixelIdxList{i} has the indices of all the voxels in
+%   branch i. These indices are image indices, so the row, column, slice
+%   coordinates of e.g. branch 5 can be obtained doing
+%
+%     [r, c, s] = ind2sub(size(sk), cc.PixelIdxList{5});
+%
+%   We have added a new field to CC:
+%
+%     CC.PixelParam{i} contains the parameterization values for the voxels
+%     in cc.PixelIdxList{i}. The parameterization is computed as the
+%     accumulated chord distance between consecutive branch voxels. This
+%     parameterization can be used, e.g. for spline interpolation.
+%
+%   There may be a small discrepancy between cc.PixelIdxList and the voxels
+%   labelled in LAB. The reason is that:
 %
 %     - We impose each branch to have two termination voxels. Termination
 %     voxels can be leaves or bifurcation points. Bifurcation points can be
@@ -56,7 +68,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.1
+% Version: 0.3.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -97,9 +109,9 @@ end
 
 % get sparse matrix of distances between voxels. To label the skeleton we
 % don't care about the actual distances, just need to know which voxels are
-% connected to others. Actual distances will be needed if we have to
-% segment the original segmentation, though
-[dsk, dictsk, idictsk] = seg2dmat(sk, 'seg');
+% connected to others. Actual distances are needed to parameterize the
+% branches, though
+[dsk, dictsk, idictsk] = seg2dmat(sk, 'seg', res);
 
 % compute degree of each voxel
 deg = sum(dsk > 0, 2);
@@ -284,11 +296,14 @@ for I = 1:cc.NumObjects
     % backtrack the whole branch in order from the furthest point to the
     % original extreme point
     cc.PixelIdxList{I}(:) = 0;
+    cc.PixelParam{I} = cc.PixelIdxList{I};
     cc.PixelIdxList{I}(1) = idictsk(v1);
+    cc.PixelParam{I}(1) = dbr(v1);
     J = 2;
     while (idx ~= v0)
         idx = p(idx);
         cc.PixelIdxList{I}(J) = idictsk(idx);
+        cc.PixelParam{I}(J) = dbr(idx);
         J = J + 1;
     end
     
@@ -298,6 +313,10 @@ for I = 1:cc.NumObjects
     if (N ~= length(cc.PixelIdxList{I}))
         error(['Assertion fail: Sorting has changed the number of voxels in branch ' num2str(I)])
     end
+    
+    % reorder voxels so that the parameterization increases monotonically
+    cc.PixelIdxList{I} = cc.PixelIdxList{I}(end:-1:1);
+    cc.PixelParam{I} = cc.PixelParam{I}(end:-1:1);
     
 end
 
