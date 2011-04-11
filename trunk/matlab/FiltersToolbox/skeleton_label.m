@@ -51,6 +51,8 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 %
 %   RES is a 3-vector with the voxel size as [row, column, slice]. By
 %   default, RES=[1 1 1].
+%
+% See also: skeleton_plot.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
