@@ -248,6 +248,10 @@ dmatrix2coords.m
 
 	 DMATRIX2COORDS  Point coordinates from distance matrix
 	
+dmatrix_complete.m
+
+	 DMATRIX_COMPLETE  Fill in empty elements of non-Euclidean distance matrix
+	
 dmatrix.m
 
 	 DMATRIX  Matrix of distances between vectors
