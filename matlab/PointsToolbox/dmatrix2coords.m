@@ -13,10 +13,10 @@ function v = dmatrix2coords(d, m)
 %   be extracted from the distance matrix). For example, if the points are
 %   3D, then M=3. By default, M=N.
 %
-%   X is an (M, N)-matrix where each column has the coordinates of a point.
+%   X is an (N, M)-matrix where each row has the coordinates of a point.
 %   If you compute the distance matrix of V, you obtain D again.
 %
-%     >> D = dmatrix(X);
+%     >> D = dmatrix(X');
 %
 %   Note that any rotation or translation on X produces the same D. Thus, X
 %   is not necessarily the same configuration that produced D originally.
@@ -91,4 +91,4 @@ B = A - am - am' + amm;
 v = v * sqrt(d);
 
 % remove extra dimensions
-v = v(:, 1:m)';
+v = v(:, 1:m);
