@@ -244,6 +244,10 @@ cube_stackable_tessellation.m
 	 CUBE_STACKABLE_TESSELLATION  Tessellation in tetrahedra of a cube that
 	 can be stacked in a regular mesh
 	
+dmatrix2coords.m
+
+	 DMATRIX2COORDS  Point coordinates from distance matrix
+	
 dmatrix.m
 
 	 DMATRIX  Matrix of distances between vectors
