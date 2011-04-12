@@ -19,6 +19,7 @@ function plot_dmatrix(x, d, LABELS)
 
 % Author: Ramon Casero.
 % Copyright © 2011 University of Oxford
+% Version: 0.1.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -58,7 +59,7 @@ end
 
 if (size(x, 1) == 2) % 2D
     
-    plot(x(1, :), x(2, :))
+    plot(x(1, :), x(2, :), '.')
     hold on
     plot(x(1, 1), x(2, 1), 'ko')
     for I = 1:size(d, 1)
@@ -77,7 +78,7 @@ if (size(x, 1) == 2) % 2D
 
 elseif (size(x, 1) == 3) %3D
     
-    plot3(x(1, :), x(2, :), x(3, :))
+    plot3(x(1, :), x(2, :), x(3, :), '.')
     hold on
     plot3(x(1, 1), x(2, 1), x(3, 1), 'ko')
     for I = 1:size(d, 1)
