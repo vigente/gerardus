@@ -1,5 +1,9 @@
 2011-04-12  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* PointsToolbox/dmatrix2coords.m: v0.1.0
+
+	- DMATRIX2COORDS Point coordinates from distance matrix.
+
 	* PointsToolbox/plot_dmatrix.m: v0.1.1
 
 	- Plot vertices as disconnected dots, so that their connections
