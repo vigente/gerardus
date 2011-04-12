@@ -1,5 +1,10 @@
 2011-04-12  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* PointsToolbox/dmatrix_complete: v0.1.0
+
+	- DMATRIX_COMPLETE Fill in empty elements of non-Euclidean
+	distance matrix.
+
 	* PointsToolbox/dmatrix2coords.m: v0.1.0
 
 	- DMATRIX2COORDS Point coordinates from distance matrix.
