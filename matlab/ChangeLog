@@ -1,5 +1,9 @@
 2011-04-13  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* PointsToolbox/coords_from_dist_gower.m: v0.2.0
+
+	- Add collinearity test.
+
 	* Add PointsToolbox/iscollinear.m: v0.1.0
 
 	- ISCOLLINEAR Test to determine whether a set of points are
