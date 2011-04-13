@@ -270,6 +270,10 @@ intersect_line_plane.m
 
 	 INTERSECT_LINE_PLANE  Find intersection of a line with a plane
 	
+iscollinear.m
+
+	 ISCOLLINEAR  Test to determine whether a set of points are collinear
+	
 mba_surface_interpolation.m
 
 	 MBA_SURFACE_INTERPOLATION  Scattered data Multilevel B-spline interpolation
