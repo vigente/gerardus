@@ -74,7 +74,9 @@ function [ v, d ] = pts_pca( x, kernel )
 % Schölkopf, C.J.C. Burges and A.J. Smola, eds. pp. 327--352, MIT Press,
 % 1999.
 
-% Copyright © 2009 University of Oxford
+% Author: Ramon Casero <rcasero@gmail.com>
+% Copyright © 2009-2011 University of Oxford
+% Version: 1.1.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -138,15 +140,10 @@ switch kernel.type
         % save memory by reducing eigenvalues to a vector
         d = diag( d );
 
-        % reoder in decreasing order
-        [ d, idx ] = sort( d, 1, 'descend' );
-        v = v( :, idx );
-        
-        % tiny eigenvalues can give numerical errors, so chop them off
-        % we are also going to assume that negative eigenvalues are due to
-        % numerical errors and chop them off too
-        d = d( d >= 1e-13 );
-        v = v( :, 1:length( d ) );
+        % reoder in decreasing order of signed modulus value
+        [~, idx] = sort(abs(d).*sign(d), 1, 'descend');
+        d = d(idx);
+        v = v(:, idx);
         
         % if "kernel matrix" trick was used, it is necessary to convert the
         % coefficient eigenvectors and eigenvalues to feature space
@@ -183,14 +180,9 @@ switch kernel.type
         % save memory by reducing eigenvalues to a vector
         d = diag( d );
 
-        % reoder in decreasing order
-        [ d, idx ] = sort( d, 1, 'descend' );
-        v = v( :, idx );
+        % reoder in decreasing order of signed modulus value
+        [~, idx] = sort(abs(d).*sign(d), 1, 'descend');
+        d = d(idx);
+        v = v(:, idx);
         
-        % tiny eigenvalues can give numerical errors, so chop them off
-        % we are also going to assume that negative eigenvalues are due to
-        % numerical errors and chop them off too
-        d = d( d >= 1e-13 );
-        v = v( :, 1:length( d ) );
-
 end
