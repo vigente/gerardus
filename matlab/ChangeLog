@@ -1,5 +1,14 @@
 2011-04-13  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* PointsToolbox/pts_pca.m: v1.1.0
+
+	- Don't chop off small eigenvalues. First, because depending on
+	the scaling of the data, a small eigenvalue may actually be
+	significant. Second, because small or negative eigenvalues may
+	indicate interesting features in the data. Third, because it's
+	easy to remove them afterwards if they are creating numerical
+	errors in some application.
+
 	* PointsToolbox/coords_from_dist_gower.m: v0.2.0
 
 	- Add collinearity test.
