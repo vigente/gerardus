@@ -1,6 +1,13 @@
+2011-04-13  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/iscollinear.m: v0.1.0
+
+	- ISCOLLINEAR Test to determine whether a set of points are
+	collinear.
+
 2011-04-12  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
-	* PointsToolbox/dmatrix_complete: v0.1.0
+	* Add PointsToolbox/dmatrix_complete: v0.1.0
 
 	- DMATRIX_COMPLETE Fill in empty elements of non-Euclidean
 	distance matrix.
