@@ -43,7 +43,7 @@ function [rforms, rformh, rformt] = pts_simil_map_params(y, x)
 % matrices in structs.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2007-2011 University of Oxford
+% Copyright © 2011 University of Oxford
 % Version: 1.0.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
