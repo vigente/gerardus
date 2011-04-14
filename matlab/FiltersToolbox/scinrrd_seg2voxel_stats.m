@@ -4,7 +4,7 @@ function [stats, idx] = scinrrd_seg2voxel_stats(nrrd, RAD, idx)
 %
 % [STATS, IDX] = SCINRRD_SEG2VOXEL_STATS(NRRD, RAD, IDX)
 %
-%   NRRD is an SCI NRRD struct with a segmentation mask of different
+%   NRRD is an SCI NRRD struct with a binary segmentation mask of different
 %   structures, e.g. blobs, tubes, etc.
 %
 %   This function computes certain parameters (STATS) that can be used to
