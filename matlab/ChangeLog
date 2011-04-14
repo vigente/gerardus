@@ -1,3 +1,34 @@
+2011-04-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/pts_rotmat.m: v1.0.0
+
+	- PTS_ROTMAT Compute rotation matrix to minimize least squares
+	error.
+
+	* PointsToolbox/pts_procrustes.m: v1.0.0
+
+	- PTS_PROCRUSTES Least-Squares Fit Orthogonal Procrustes Analysis
+	between two sets of points.
+
+	* PointsToolbox/pts_procrustes_gen.m: v1.0.0
+
+	- PTS_PROCRUSTES_GEN Generalized Least-Squares Fit Orthogonal
+	Procrustes Analysis.
+
+	* PointsToolbox/pts_cn.m: v1.0.0
+
+	- PTS_CN Center and normalize a set of points.
+
+	* PointsToolbox/pts_simil_map.m: v1.0.0
+
+	- PTS_SIMIL_MAP Apply similarity transformation to points.
+
+	* PointsToolbox/pts_simil_map_params.m: v1.0.0
+
+	- PTS_SIMIL_MAP_PARAMS Compute similarity transformation
+	parameters between sets of points with unknown
+	correspondence (Procrustes is used).
+
 2011-04-13  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* PointsToolbox/pts_pca.m: v1.1.0
