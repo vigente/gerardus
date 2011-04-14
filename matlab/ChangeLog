@@ -1,5 +1,8 @@
 2011-04-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Rename FiltersToolbox/scinrrd_seg2vesselness.m as
+	FiltersToolbox/scinrrd_seg2voxel_stats.m.
+
 	* PointsToolbox/pts_rotmat.m: v1.0.0
 
 	- PTS_ROTMAT Compute rotation matrix to minimize least squares

@@ -193,10 +193,13 @@ scinrrd_regionprops.m
 
 	 SCINRRD_REGIONPROPS  Measure properties of image regions on each slice
 	
-scinrrd_seg2vesselness.m
+scinrrd_seg2voxel_stats.m
 
-	 SCINRRD_SEG2VESSELNESS  Vesselness parameters from a segmentation mask
+	 SCINRRD_SEG2VOXEL_STATS  Shape stats for each voxel in a segmentation
+	 based on a windowed neighbourhood
 	
+scinrrd_skeleton_label_eigd.m
+
 scinrrd_squeeze.m
 
 	 SCINRRD_SQUEEZE  Remove dummy dimension and convert data to double type
