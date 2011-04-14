@@ -290,6 +290,10 @@ polycenter.m
 
 	 POLYCENTER  Compute center of mass and area of polygon
 	
+pts_cn.m
+
+	 PTS_CN  Center and normalize sets of points
+	
 pts_kmat.m
 
 	 PTS_KMAT  Compute kernel matrix for Linear and Kernel Principal Component
@@ -298,6 +302,29 @@ pts_kmat.m
 pts_pca.m
 
 	 PTS_PCA  Linear and Kernel Principal Component Analysis (PCA and KPCA)
+	
+pts_procrustes_gen.m
+
+	 PTS_PROCRUSTES_GEN Generalized Least-Squares Fit Orthogonal Procrustes
+	 Analysis
+	
+pts_procrustes.m
+
+	 PTS_PROCRUSTES Least-Squares Fit Orthogonal Procrustes Analysis between
+	 two sets of points
+	
+pts_rotmat.m
+
+	 PTS_ROTMAT  Compute rotation matrix to minimize least squares error
+	
+pts_simil_map.m
+
+	 PTS_SIMIL_MAP  Apply similarity transformation to points
+	
+pts_simil_map_params.m
+
+	 PTS_SIMIL_MAP_PARAMS  Compute similarity transformation parameters
+	 between sets of points with unknown correspondence (Procrustes is used)
 	
 pts_tps_map.m
 
