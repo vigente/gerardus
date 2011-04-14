@@ -1,5 +1,10 @@
 2011-04-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add FiltersToolbox/scinrrd_seg2label_stats.m: v0.1.0
+
+	- SCINRRD_SEG2LABEL_STATS  Shape stats for each label in a
+	multi-label segmentation.
+
 	* Rename FiltersToolbox/scinrrd_seg2vesselness.m as
 	FiltersToolbox/scinrrd_seg2voxel_stats.m.
 
