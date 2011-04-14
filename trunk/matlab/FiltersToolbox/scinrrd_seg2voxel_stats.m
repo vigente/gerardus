@@ -60,7 +60,7 @@ function [stats, idx] = scinrrd_seg2voxel_stats(nrrd, RAD, idx)
 %     STATS.DC:   Distance between the centroid of the connected component
 %                 and the target voxel.
 %
-% See also: scinrrd_seg2branch_stats.
+% See also: scinrrd_seg2label_stats.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
