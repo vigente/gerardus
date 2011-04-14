@@ -1,13 +1,14 @@
-function [stats, idx] = scinrrd_seg2vesselness(nrrd, RAD, idx)
-% SCINRRD_SEG2VESSELNESS  Vesselness parameters from a segmentation mask
+function [stats, idx] = scinrrd_seg2voxel_stats(nrrd, RAD, idx)
+% SCINRRD_SEG2VOXEL_STATS  Shape stats for each voxel in a segmentation
+% based on a windowed neighbourhood
 %
-% [STATS, IDX] = SCINRRD_SEG2VESSELNESS(NRRD, RAD, IDX)
+% [STATS, IDX] = SCINRRD_SEG2VOXEL_STATS(NRRD, RAD, IDX)
 %
-%   NRRD is an SCI NRRD struct with a segmentation of different structures,
-%   of which we want to extract those that look like vessels.
+%   NRRD is an SCI NRRD struct with a segmentation mask of different
+%   structures, e.g. blobs, tubes, etc.
 %
-%   This function does not segment the vessels, but computes certain
-%   parameters (STATS) that can be used to segment them.
+%   This function computes certain parameters (STATS) that can be used to
+%   decide whether a voxel belongs to a blob, a tube, etc.
 %
 %   RAD is a scalar with the window size (in real world coordinates) used
 %   to define local neighbourhoods for computations. The local
@@ -18,12 +19,13 @@ function [stats, idx] = scinrrd_seg2vesselness(nrrd, RAD, idx)
 %   connected component that includes the target voxel in that
 %   neighbourhood.
 %
-%   IDX is a vector with linear index values. If you want to read the
-%   voxels, you can do
+%   IDX is a vector with linear index values of the segmented voxels. If
+%   you want to read the voxels, you can do
 %
 %   >> nrrd.data(idx)
 %
-%   The row, column and slice coordinates of the voxels are given by
+%   The row, column and slice coordinates of the segmented voxels are given
+%   by
 %
 %   >> [r, c, s] = ind2sub(size(nrrd.data), idx);
 %
@@ -36,7 +38,7 @@ function [stats, idx] = scinrrd_seg2vesselness(nrrd, RAD, idx)
 %   >> nrrd = scinrrd_load('im.mat');
 %   >> nrrdsk = scinrrd_load('imsk.mat');
 %   >> idxsk = find(nrrdsk.data);
-%   >> stats = scinrrd_seg2vesselness(nrrd, 25e-4, idxsk);
+%   >> stats = scinrrd_seg2voxel_stats(nrrd, 25e-4, idxsk);
 %
 %   The measures provided by STATS are:
 %
@@ -60,7 +62,7 @@ function [stats, idx] = scinrrd_seg2vesselness(nrrd, RAD, idx)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
