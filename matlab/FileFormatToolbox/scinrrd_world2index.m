@@ -1,4 +1,4 @@
-function idx = scinrrd_world2index(x, ax)
+function idx = scinrrd_world2index(x, ax, CHOP)
 % SCINRRD_WORLD2INDEX  Convert real world coordinates to data volume
 % indices for NRRD volumes created by SCI applications (e.g. Seg3D)
 % 
@@ -40,6 +40,12 @@ function idx = scinrrd_world2index(x, ax)
 %       label
 %       unit
 %
+% IDX = SCINRRD_WORLD2INDEX(..., CHOP)
+%
+%   CHOP is a flag to convert points outside the image volume to NaNs. By
+%   default, CHOP=true.
+%
+%
 % Example:
 %
 % >> idx = scinrrd_world2index([.01, .011, .02], scirunnrrd.axis)
@@ -67,6 +73,7 @@ function idx = scinrrd_world2index(x, ax)
     
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2009-2011 University of Oxford
+% Version: 0.2.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -92,7 +99,7 @@ function idx = scinrrd_world2index(x, ax)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 2, nargin, 'struct'));
+error(nargchk(2, 3, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
 if (size(x, 2) ~= 3)
@@ -125,6 +132,8 @@ end
 
 
 % find which coordinates are outside the volume
-for I = 1:D
-    idx( idx( :, I ) < 0.5 | idx( :, I ) > n(I)+0.5, I ) = NaN;
+if CHOP
+    for I = 1:D
+        idx( idx( :, I ) < 0.5 | idx( :, I ) > n(I)+0.5, I ) = NaN;
+    end
 end
