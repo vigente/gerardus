@@ -1,5 +1,10 @@
 2011-04-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/skeleton_plot.m: v0.2.0
+
+	- Add input arguments varargin so that we can pass extra options
+	to the plots.
+
 	* FileFormatToolbox/scinrrd_world2index.m: v0.2.0
 
 	- Add input argument CHOP so that we can deactivate the conversion
