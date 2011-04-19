@@ -51,37 +51,37 @@ ENDIF(ITK_FOUND)
 
 # extractVoxelCoordinatesFromSegmentationMask
 ADD_EXECUTABLE( extractVoxelCoordinatesFromSegmentationMask
-ExtractVoxelCoordinatesFromSegmentationMask.cxx )
+  ExtractVoxelCoordinatesFromSegmentationMask.cxx )
 TARGET_LINK_LIBRARIES( extractVoxelCoordinatesFromSegmentationMask 
-boost_system ITKCommon ITKIO ITKNumerics )
+  boost_system ITKCommon ITKIO ITKNumerics )
 
 # padImageWithVoxels
 ADD_EXECUTABLE( padSegmentationMaskWithVoxels
-PadSegmentationMaskWithVoxels.cxx )
+  PadSegmentationMaskWithVoxels.cxx )
 TARGET_LINK_LIBRARIES( padSegmentationMaskWithVoxels
-boost_system ITKCommon ITKIO )
+  boost_system ITKCommon ITKIO )
 
 # rotate3DImage
 ADD_EXECUTABLE( rotate3DImage
-Rotate3DImage.cxx )
+  Rotate3DImage.cxx )
 TARGET_LINK_LIBRARIES( rotate3DImage
-boost_system ITKCommon ITKIO )
+  boost_system ITKCommon ITKIO )
 
 # resize3DImage
 ADD_EXECUTABLE(resize3DImage
-Resize3DImage.cxx)
+  Resize3DImage.cxx)
 TARGET_LINK_LIBRARIES(resize3DImage
-boost_system ITKCommon ITKIO)
+  boost_system ITKCommon ITKIO)
 
 # skeletonize3DSegmentation
 ADD_EXECUTABLE(skeletonize3DSegmentation
-Skeletonize3DSegmentation.cxx)
+  Skeletonize3DSegmentation.cxx)
 INCLUDE_DIRECTORIES(third-party/itkBinaryThinningImageFilter3D/Source)
 TARGET_LINK_LIBRARIES(skeletonize3DSegmentation
-boost_system ITKCommon ITKIO)
+  boost_system ITKCommon ITKIO)
 
 # vesselness3DImage
 ADD_EXECUTABLE(vesselness3DImage
-Vesselness3DImage.cxx)
+  Vesselness3DImage.cxx)
 TARGET_LINK_LIBRARIES(vesselness3DImage
-boost_system ITKCommon ITKIO)
+  boost_system ITKCommon ITKIO)
