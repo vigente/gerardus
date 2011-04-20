@@ -29,6 +29,10 @@ Toolboxes in Gerardus:
 	uncertain licence status.
 
 
+binPointsToolbox
+-------------------------------------------------------------
+
+
 CardiacToolbox
 -------------------------------------------------------------
 
@@ -148,6 +152,8 @@ img_tps_map.m
 
 	 IMG_TPS_MAP Warp an image using a thin-plate spline transformation
 	
+landlocked_stats.m
+
 scinrrd_box.m
 
 	 SCINRRD_BOX  Compute tight box around SCI NRRD segmentation
@@ -279,6 +285,11 @@ intersect_line_plane.m
 iscollinear.m
 
 	 ISCOLLINEAR  Test to determine whether a set of points are collinear
+	
+itk_kernel_transform.m
+
+	 ITK_KERNEL_TRANSFORM  ITK warps between 3D point sets with a known
+	 correspondence
 	
 mba_surface_interpolation.m
 
