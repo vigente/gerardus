@@ -154,6 +154,9 @@ img_tps_map.m
 	
 landlocked_stats.m
 
+	 LANDLOCKED_STATS  Assess whether sections of voxels are surrounded by
+	 other sections (land) or by background (water)
+	
 scinrrd_box.m
 
 	 SCINRRD_BOX  Compute tight box around SCI NRRD segmentation
