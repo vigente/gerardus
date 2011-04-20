@@ -1,5 +1,10 @@
 2011-04-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add FiltersToolbox/landlocked_stats.m: v0.1.0
+
+	- LANDLOCKED_STATS Assess whether sections of voxels are
+	surrounded by other sections (land) or by background (water).
+
 	* Add PointsToolbox/ItkKernelTransform.cpp,
 	PointsToolbox/itk_kernel_transform.m: v0.1.0
 
