@@ -1,3 +1,21 @@
+2011-04-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/ItkKernelTransform.cpp,
+	PointsToolbox/itk_kernel_transform.m: v0.1.0
+
+	- ITK_KERNEL_TRANSFORM ITK warps between 3D point sets with a
+	known correspondence.
+
+	* Add CMakeLists.txt, PointsToolbox/CMakeLists.txt,
+	MatlabMakeMacros.cmake:
+
+	- Cmake files to build PointsToolbox/itk_kernel_transform.mexa64.
+
+	- This is a big development for the project, because now we know
+	how to write C++ code with ITK functions, and compile it as a MEX
+	file so that we can run it directly from Matlab. Also, we can
+	build the files using cmake, and we don't need mex.
+
 2011-04-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_plot.m: v0.2.0
