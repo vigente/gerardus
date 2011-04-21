@@ -1,5 +1,10 @@
 2011-04-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add PointsToolbox/pts_local_rigid.m: v0.1.0
+
+	- PTS_LOCAL_RIGID Non-rigid transformation that is locally rigid
+	between two sets of points with known correspondence.
+
 	* FileFormatToolbox/scinrrd_world2index.m: v0.2.1
 
 	- Add default for CHOP input argument.
