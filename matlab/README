@@ -319,6 +319,11 @@ pts_kmat.m
 	 PTS_KMAT  Compute kernel matrix for Linear and Kernel Principal Component
 	 Analysis (PCA and KPCA)
 	
+pts_local_rigid.m
+
+	 PTS_LOCAL_RIGID  Non-rigid transformation that is locally rigid between
+	 two sets of points with known correspondence
+	
 pts_pca.m
 
 	 PTS_PCA  Linear and Kernel Principal Component Analysis (PCA and KPCA)
