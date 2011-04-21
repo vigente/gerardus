@@ -2,7 +2,7 @@
 
 	* Add some test data to matlab/test
 
-	- bent-vessel.mat
+	- bent-vessel-2d.mat
 	- veins-tree-blob.mat
 	- veins-tree-blob.mha
 	- veins-tree-blob-skeleton.mat
