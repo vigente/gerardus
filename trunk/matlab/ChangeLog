@@ -1,5 +1,13 @@
 2011-04-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add some test data to matlab/test
+
+	- bent-vessel.mat
+	- veins-tree-blob.mat
+	- veins-tree-blob.mha
+	- veins-tree-blob-skeleton.mat
+	- veins-tree-blob-skeleton.mha
+
 	* Add PointsToolbox/pts_local_rigid.m: v0.1.0
 
 	- PTS_LOCAL_RIGID Non-rigid transformation that is locally rigid
