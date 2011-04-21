@@ -73,7 +73,7 @@ function idx = scinrrd_world2index(x, ax, CHOP)
     
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2009-2011 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -101,6 +101,11 @@ function idx = scinrrd_world2index(x, ax, CHOP)
 % check arguments
 error(nargchk(2, 3, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
+
+% defaults
+if (nargin < 3 || isempty(CHOP))
+    CHOP = true;
+end
 
 if (size(x, 2) ~= 3)
     error('X must be a 3-column matrix, so that each row has the 3D coordinates of a point')

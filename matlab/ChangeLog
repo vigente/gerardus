@@ -1,3 +1,9 @@
+2011-04-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_world2index.m: v0.2.1
+
+	- Add default for CHOP input argument.
+
 2011-04-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add FiltersToolbox/landlocked_stats.m: v0.1.0
