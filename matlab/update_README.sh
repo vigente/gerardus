@@ -26,6 +26,10 @@ echo ''
 echo '	Filters to enhance or transform images in general, and SCI'
 echo '	NRRD data volumes in particular.'
 echo ''
+echo '* ItkToolbox'
+echo ''
+echo '	ITK functions running as MEX files in Matlab.'
+echo ''
 echo '* PointsToolbox'
 echo ''
 echo '	Functions to operate with sets of points.'
@@ -41,8 +45,9 @@ echo ''
 
 # loop every toolbox
 {
-for DIR in `find . -name "*Toolbox" | sort` 
+for DIR in `find . -maxdepth 1 -name "*Toolbox" | sort` 
 do
+
     echo "$DIR" | tr -d './'
     echo '-------------------------------------------------------------'
     echo ''
