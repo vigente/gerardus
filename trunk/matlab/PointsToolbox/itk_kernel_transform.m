@@ -34,8 +34,9 @@ function itk_kernel_transform
 %  To compile and install this function to PointToolbox, you need to have
 %  installed the Insight Toolkit C++ files and Matlab.
 %
-%  Then if Gerardus' root directory is e.g. ~/gerardus, type from a
-%  linux shell
+% This function must be compiled before it can be used from Matlab.
+% If Gerardus' root directory is e.g. ~/gerardus, type from a
+% linux shell
 %
 %    $ cd ~/gerardus/matlab
 %    $ mkdir bin
@@ -43,13 +44,13 @@ function itk_kernel_transform
 %    $ cmake ..
 %    $ make install
 %
-%  If cmake throws an error because it cannot find Matlab, then edit
-%  gerardus/matlab/CMakeLists.txt, and where it says
+% If cmake throws an error because it cannot find Matlab, then edit
+% gerardus/matlab/CMakeLists.txt, and where it says
 %
 %    SET(MATLAB_ROOT "/usr/local/matlab/R2010b/")
 %
 %  change to your own Matlab root path.
- 
+
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
 % Version: 0.1.0
@@ -78,5 +79,4 @@ function itk_kernel_transform
 % along with this program.  If not, see
 % <http://www.gnu.org/licenses/>.
 
-% if the compiled MEX-file is not found
-error('MEX file not found. You need to compile kernelTransform.cpp into a MEX file')
+error('MEX file not found')
