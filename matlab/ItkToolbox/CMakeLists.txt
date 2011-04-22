@@ -25,16 +25,40 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-ADD_MEX_FILE(itk_kernel_transform ItkKernelTransform.cpp)
+################################################################
+## Post-compilation for all targets
+################################################################
+
+ADD_DEFINITIONS("-O2 -Wall")
 SET(Libraries
   ITKCommon ITKIO
-)
+  )
+
+################################################################
+## itk_imfilter()
+################################################################
+
+ADD_MEX_FILE(itk_imfilter ItkImFilter.cpp)
+INCLUDE_DIRECTORIES(
+  ../../cpp/src/third-party/itkBinaryThinningImageFilter3D/Source
+  )
+TARGET_LINK_LIBRARIES(itk_imfilter
+  ${Libraries})
+
+################################################################
+## itk_kernel_transform
+################################################################
+
+ADD_MEX_FILE(itk_kernel_transform ItkKernelTransform.cpp)
 TARGET_LINK_LIBRARIES(itk_kernel_transform
   ${Libraries})
 
-ADD_DEFINITIONS("-O2 -Wall")
+################################################################
+## Post-compilation for all targets
+################################################################
 
-# where to install the MEX file
-INSTALL(TARGETS itk_kernel_transform
+INSTALL(TARGETS 
+  itk_kernel_transform
+  itk_imfilter
   LIBRARY DESTINATION 
   ${CMAKE_CURRENT_SOURCE_DIR})

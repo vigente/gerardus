@@ -37,7 +37,7 @@ SET(CMAKE_BUILD_TYPE RELEASE)
 SET(CMAKE_CC_COMPILER gcc-4.3)
 SET(CMAKE_CXX_COMPILER g++-4.3)
 
-PROJECT(MATLAB_CMAKE)
+PROJECT(GERARDUS_MATLAB)
 
 # Find ITK.
 FIND_PACKAGE(ITK REQUIRED)
@@ -57,22 +57,6 @@ IF(MATLAB_FOUND)
 ELSE(MATLAB_FOUND)
   MESSAGE(FATAL_ERROR "Matlab not found")
 ENDIF(MATLAB_FOUND)
-
-# SET(MATLAB_ROOT
-#   /usr/local/matlab/R2010b/
-#   )
-# FIND_LIBRARY(MATLAB_MEX_LIBRARY
-#   mex
-#   ${MATLAB_ROOT}/bin/glnxa64
-#   )
-# FIND_LIBRARY(MATLAB_MX_LIBRARY
-#   mx
-#   ${MATLAB_ROOT}/bin/glnxa64
-#   )
-# FIND_PATH(MATLAB_INCLUDE_DIR
-#   "mex.h"
-#   "${MATLAB_ROOT}/extern/include/"
-#   )
 
 INCLUDE_DIRECTORIES(${MATLAB_INCLUDE_DIR})
 
@@ -108,5 +92,4 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 ##################################################################
 
 # build mex functions in the toolboxes
-ADD_SUBDIRECTORY(PointsToolbox)
-ADD_SUBDIRECTORY(FiltersToolbox)
+ADD_SUBDIRECTORY(ItkToolbox)
