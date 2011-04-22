@@ -107,5 +107,6 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 ## End rpath block
 ##################################################################
 
-# build mex functions in the Points Toolbox
+# build mex functions in the toolboxes
 ADD_SUBDIRECTORY(PointsToolbox)
+ADD_SUBDIRECTORY(FiltersToolbox)

@@ -1,3 +1,20 @@
+2011-04-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/ItkImFilter.cpp,
+	FiltersToolbox/CMakeLists.txt, FiltersToolbox/itk_imfilter.m:
+
+	- ITK_IMFILTER: Run ITK filter on a 2D or 3D image.
+
+	- This is also a big development in the project, because even
+	though this function currently implements only the skeleton
+	filter, it is templated so that it can use many of Matlab's matrix
+	classes (double, boolean, uint8, etc), and it's generic enough
+	that adding new filters should be easy.
+
+	* CMakeLists.txt:
+
+	- Build new function itk_imfilter().
+
 2011-04-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add some test data to matlab/test
