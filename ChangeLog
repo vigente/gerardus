@@ -1,3 +1,10 @@
+2011-04-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* release 0.3
+
+	- After releasing first versions of functions in matlab/ItkToolbox
+	that allow to run ITK code from Matlab.
+
 2010-06-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* release 0.2
@@ -13,4 +20,3 @@
 	* release 0.1
 
 	- First code release.
-	
