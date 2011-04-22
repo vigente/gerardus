@@ -1,5 +1,10 @@
 2011-04-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* update_README.sh:
+
+	- Avod recursing into directories. This avoids that it finds the
+	*Toolbox directories in bin/
+
 	* Move itk functions to new ItkToolbox directory
 
 	- FiltersToolbox/ItkImFilter.cpp
