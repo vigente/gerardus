@@ -1,0 +1,22 @@
+2011-04-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* release 0.3
+
+	- After releasing first versions of functions in matlab/ItkToolbox
+	that allow to run ITK code from Matlab.
+
+2010-06-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* release 0.2
+
+	- After submission of paper to MICCAI STACOM 2010: R. Casero,
+	R.A.B. Burton, T.A. Quinn, C. Bollensdorff, P. Hales,
+	J.E. Schneider, P. Kohl, and V. Grau, "Towards high-resolution
+	cardiac atlases: ventricular anatomy descriptors for a
+	standardized reference frame", STACOM MICCAI'10, Beijing, 2010.
+
+2009-07-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* release 0.1
+
+	- First code release.

@@ -1,0 +1,1290 @@
+2011-04-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* update_README.sh:
+
+	- Avod recursing into directories. This avoids that it finds the
+	*Toolbox directories in bin/
+
+	* Move itk functions to new ItkToolbox directory
+
+	- FiltersToolbox/ItkImFilter.cpp
+	- FiltersToolbox/CMakeLists.txt
+	- FiltersToolbox/itk_imfilter.m
+	- PointsToolbox/ItkKernelTransform.cpp
+	- PointsToolbox/CMakeLists.txt
+	- PointsToolbox/itk_kernel_transform.m
+	- CMakeLists.txt
+
+	* Add new directory ItkToolbox
+
+	* Add FiltersToolbox/ItkImFilter.cpp,
+	FiltersToolbox/CMakeLists.txt, FiltersToolbox/itk_imfilter.m:
+
+	- ITK_IMFILTER: Run ITK filter on a 2D or 3D image.
+
+	- This is also a big development in the project, because even
+	though this function currently implements only the skeleton
+	filter, it is templated so that it can use many of Matlab's matrix
+	classes (double, boolean, uint8, etc), and it's generic enough
+	that adding new filters should be easy.
+
+	* CMakeLists.txt:
+
+	- Build new function itk_imfilter().
+
+2011-04-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add some test data to matlab/test
+
+	- bent-vessel-2d.mat
+	- veins-tree-blob.mat
+	- veins-tree-blob.mha
+	- veins-tree-blob-skeleton.mat
+	- veins-tree-blob-skeleton.mha
+
+	* Add PointsToolbox/pts_local_rigid.m: v0.1.0
+
+	- PTS_LOCAL_RIGID Non-rigid transformation that is locally rigid
+	between two sets of points with known correspondence.
+
+	* FileFormatToolbox/scinrrd_world2index.m: v0.2.1
+
+	- Add default for CHOP input argument.
+
+2011-04-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/landlocked_stats.m: v0.1.0
+
+	- LANDLOCKED_STATS Assess whether sections of voxels are
+	surrounded by other sections (land) or by background (water).
+
+	* Add PointsToolbox/ItkKernelTransform.cpp,
+	PointsToolbox/itk_kernel_transform.m: v0.1.0
+
+	- ITK_KERNEL_TRANSFORM ITK warps between 3D point sets with a
+	known correspondence.
+
+	* Add CMakeLists.txt, PointsToolbox/CMakeLists.txt,
+	MatlabMakeMacros.cmake:
+
+	- Cmake files to build PointsToolbox/itk_kernel_transform.mexa64.
+
+	- This is a big development for the project, because now we know
+	how to write C++ code with ITK functions, and compile it as a MEX
+	file so that we can run it directly from Matlab. Also, we can
+	build the files using cmake, and we don't need mex.
+
+2011-04-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_plot.m: v0.2.0
+
+	- Add input arguments varargin so that we can pass extra options
+	to the plots.
+
+	* FileFormatToolbox/scinrrd_world2index.m: v0.2.0
+
+	- Add input argument CHOP so that we can deactivate the conversion
+	of points outside the image to NaN.
+
+2011-04-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scinrrd_seg2label_stats.m: v0.1.0
+
+	- SCINRRD_SEG2LABEL_STATS  Shape stats for each label in a
+	multi-label segmentation.
+
+	* Rename FiltersToolbox/scinrrd_seg2vesselness.m as
+	FiltersToolbox/scinrrd_seg2voxel_stats.m.
+
+	* PointsToolbox/pts_rotmat.m: v1.0.0
+
+	- PTS_ROTMAT Compute rotation matrix to minimize least squares
+	error.
+
+	* PointsToolbox/pts_procrustes.m: v1.0.0
+
+	- PTS_PROCRUSTES Least-Squares Fit Orthogonal Procrustes Analysis
+	between two sets of points.
+
+	* PointsToolbox/pts_procrustes_gen.m: v1.0.0
+
+	- PTS_PROCRUSTES_GEN Generalized Least-Squares Fit Orthogonal
+	Procrustes Analysis.
+
+	* PointsToolbox/pts_cn.m: v1.0.0
+
+	- PTS_CN Center and normalize a set of points.
+
+	* PointsToolbox/pts_simil_map.m: v1.0.0
+
+	- PTS_SIMIL_MAP Apply similarity transformation to points.
+
+	* PointsToolbox/pts_simil_map_params.m: v1.0.0
+
+	- PTS_SIMIL_MAP_PARAMS Compute similarity transformation
+	parameters between sets of points with unknown
+	correspondence (Procrustes is used).
+
+2011-04-13  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/pts_pca.m: v1.1.0
+
+	- Don't chop off small eigenvalues. First, because depending on
+	the scaling of the data, a small eigenvalue may actually be
+	significant. Second, because small or negative eigenvalues may
+	indicate interesting features in the data. Third, because it's
+	easy to remove them afterwards if they are creating numerical
+	errors in some application.
+
+	* PointsToolbox/coords_from_dist_gower.m: v0.2.0
+
+	- Add collinearity test.
+
+	* Add PointsToolbox/iscollinear.m: v0.1.0
+
+	- ISCOLLINEAR Test to determine whether a set of points are
+	collinear.
+
+2011-04-12  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/dmatrix_complete: v0.1.0
+
+	- DMATRIX_COMPLETE Fill in empty elements of non-Euclidean
+	distance matrix.
+
+	* PointsToolbox/dmatrix2coords.m: v0.1.0
+
+	- DMATRIX2COORDS Point coordinates from distance matrix.
+
+	* PointsToolbox/plot_dmatrix.m: v0.1.1
+
+	- Plot vertices as disconnected dots, so that their connections
+	don't get confused with distance matrix connetions.
+
+2011-04-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m: v0.3.2
+
+	- Add PixelParam field to CC output, with the parameterization
+	value for each branch voxel computed as the accumulated chord
+	distance between consecutive voxels.
+
+	* Add FiltersToolbox/skeleton_plot.m: v0.1.0
+
+	- SKELETON_PLOT Plot a labelled segmentation and its skeleton.
+
+	* FiltersToolbox/skeleton_label.m: v0.3.1
+
+	- Add as output arguments skeleton distance matrix, and
+	dictionaries to convert between image and distance matrix indices.
+
+	- Now voxels in each branch are sorted, so that we can walk from
+	one termination point to the other without "jumps".
+
+2011-04-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m: v0.2.2
+
+	- Add bifurcation points to every branch they terminate. This way,
+	it will be easier to sort the points in the branch, as we will
+	have 2 termination points (leaf/bifurcation or
+	bifurcation/bifurcation) in every branch.
+
+2011-04-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m: v0.2.1
+
+	- Fix bug. Instead of adding the bifurcation voxel, we were adding
+	its neighbour.
+
+	- Add input arguments so that besides the skeleton, we can pass
+	the original segmentation. Now, the whole segmentation and not
+	only the skeleton will get labelled.
+
+	* Add matlab/test/veins-tree.mat, matlab/test/veins-tree.mha:
+
+	- To test the new functionality in skeleton_label().
+
+	* FiltersToolbox/scinrrd_squeeze.m: v0.1.1
+
+	- Fix bug. Remove dummy dimension also when nrrd.data has only 3
+	dimensions. If you have a single slice, Seg3D saves it with a
+	3-dimensional matrix (with a first dummy dimension), but 4
+	elements for the nrrd.axis. So this function was working wrong for
+	1-slice volumes.
+
+	* Add PointToolbox/graph_nn.m: v0.1.0
+
+	- GRAPH_NN Nearest neighbours from a subset of nodes in a graph to
+	another subset.
+
+2011-04-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add test/veins-tree-skeleton.mat, test/veins-tree-skeleton.mha:
+
+	- A 2D segmentation that looks like a tree of veins (with a
+	cycle), to test skeleton_label().
+
+	* Add test directory.
+
+	- Directory to keep data and scripts for tests.
+
+	* Add FiltersToolbox/skeleton_label.m: v0.1.0
+
+	- SKELETON_LABEL Give each branch of a skeleton a different label.
+
+2011-04-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/seg2dmat.m: v0.2.0
+
+	- Add input variable for voxel size different from [1 1 1].
+
+	- Add input flag to create a smaller output matrix, but indexing
+	only the segmented voxels of the image, not all the voxels in the
+	image.
+	
+	* Rename img_adjacency_distance.m as im2imat.m.
+
+	* Rename img_adjacency_distance.cpp as im2imat.cpp.
+
+	* FiltersToolbox/img_adjacency_distance.m: v0.1.1
+
+	- Small rewrite of help header to make it more consistent with new
+	function seg2dmat.
+
+	* Add FiltersToolbox/seg2dmat.m: v0.1.0
+
+	- SEG2DMAT Local neighbourhood distance matrix between
+	segmentation voxels.
+
+2011-04-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scinrrd_seg2vesselness.m: v0.1.0
+
+	- SCINRRD_SEG2VESSELNESS Vesselness parameters from a segmentation
+	mask.
+
+	* PointsToolbox/plotaxes.m: v0.2.0
+
+	- Add varargin to be able to pass extra arguments to the plot
+	function.
+
+2011-03-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/surface_interpolation.m: v0.1.2
+
+	- Add 'mbae' interpolation: Like the 'mba' method, but first a
+	thin-plate spline is used to extrapolate values on the
+	interpolation domain boundary. Then MBA is used for the local
+	support interpolation of X and the boundary values set by the
+	thin-plate spline.
+
+2011-03-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/scinrrd_surface_interpolation.m:
+
+	- Remove the surface interpolation code to create new function
+	CardiacToolbox/surface_interpolation.m.
+
+	* Add CardiacToolbox/surface_interpolation.m:
+
+	- SURFACE_INTERPOLATION Interpolate a surface from a scattered set
+	of points.
+
+	- Create this fuction from part of the code in
+	CardiacToolbox/scinrrd_surface_interpolation.m. It didn't make
+	sense to have all that code depending on using SCI volumes.
+
+	* Rename CardiacToolbox/scinrrd_valve_surface.m as
+	PointsToolbox/scinrrd_surface_interpolation.
+
+	- As this is a function for general surface interpolation, it
+	doesn't make much sense to give it such an specific name as
+	"vale_surface".
+
+	* README
+
+	- First time the README file is automatically generated by
+	update_README.sh. From now on, we will not point the updates in
+	the ChangeLog, but they will be part of changes to the toolboxes.
+
+	* Add update_README.sh:
+
+	- Script to automatically extract the summary of the help headers
+	of all the Matlab functions in this toolbox, and generate a README
+	file.
+
+2011-03-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_save.m: v0.2
+
+	- Add input argument v73, a flag to save to v7.3 format, so that
+	we can save volumes larger than 2GB.
+
+	* CardiacToolbox/scinrrd_valve_surface.m: v0.3
+
+	- Add new otions to header file.
+
+	- Add 'mba' interpolation, that makes use of the new MEX-file
+	mba_surface_interpolation.cpp to provide Multilevel B-Spline
+	Approximation interpolation.
+
+	-Use 'natural' option for TriScatteredInterp(), so that the
+	interpolant is smoother.
+
+	* Add matlab/PointsToolbox/mba_surface_interpolation.cpp,
+	matlab/PointsToolbox/mba_surface_interpolation.m:
+
+	- MBA_SURFACE_INTERPOLATION Scattered data Multilevel B-spline
+	interpolation.
+
+2011-03-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add engopts.sh:
+
+	- Matlab's configuration file modified so that we can compile and
+	link PointsToolbox/mba_surface_interpolation doing
+
+	>> mex -v -largeArrayDims -outdir PointsToolbox/ -f ./engopts.sh PointsToolbox/mba_surface_interpolation.cpp
+
+2011-03-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/scinrrd_valve_surface.m: v0.2
+
+	- Add 'gridfit' option to interpolate (actually, approximate)
+	using John D'Errico's gridfit() function.
+
+	- Add 'tsi' option to interpolate using Matlab's
+	TriScatteredInterp() function.
+
+	* Add ThirdPartyToolbox/gridfit.m: v2.0
+
+	- By John D'Errico
+
+	- estimates a surface on a 2d grid, based on scattered data
+	Replicates are allowed. All methods extrapolate to the grid
+	boundaries. Gridfit uses a modified ridge estimator to generate
+	the surface, where the bias is toward smoothness.
+ 
+        Gridfit is not an interpolant. Its goal is a smooth surface that
+	approximates your data, but allows you to control the amount of
+	smoothing.
+
+	* Add ThirdPartyToolbox/L2_distance.m
+
+	- L2_DISTANCE - computes Euclidean distance matrix
+
+	- By Roland Bunschoten
+
+	- Requirement of the isomap functions.
+
+2011-03-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add ThirdPartyToolbox/Isomap.m, ThirdPartyToolbox/IsomapII.m
+
+	- Add modified code from Josh Tenenbaum, to compute Isomap
+	embedding using an advanced version of the algorithm in Tenenbaum,
+	de Silva, and Langford (2000), which can take advantage of
+	sparsity in the graph and redundancy in the distances.
+
+	* CardiacToolbox/scinrrd_valve_surface.m: v0.1
+
+	- Add Isomap function to compute interpolation domain.
+
+	- Rewrite the function to be able to use different methods to
+	compute the interpolation domain, use different interpolants and
+	the factor for the interpolation domain size.
+
+	- Correct the way the interpolation is computed for the PCA
+	method. I was rotating the horizontal domain, interpolation and
+	rotating back, but this is incorrect because it does not give you
+	the same point.
+
+2011-03-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/dmatrix.m: v3.0
+
+	- Fix copyright notice to be uniform with the rest of Gerardus.
+
+	- Add input argument METHOD to select other distances than
+	Euclidean.
+
+	* Add PointsToolbox/plot_dmatrix.m
+
+	- PLOT_DMATRIX Plot the connections implied by a distance matrix.
+
+2011-02-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_save.m
+
+	- Rename the input argument nrrd to scirunnrrd so that we don't
+	need to duplicate the memory.
+
+	- Add output argument nrrd to give the reformatted data volume
+	actually saved.
+
+	- Undo last change. The flag -v7.3 is not necessary, and prevents
+	Seg3D from loading the segmentations. I think the problem was that
+	if Matlab runs out of memory while trying to save the NRRD volume,
+	it gives the flag -v7.3 error.
+
+2011-02-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+ 	* FileFormatToolbox/scinrrd_save.m
+
+	- Force saving with flag -v7.3 to avoid warning message.
+
+2011-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/pts_tps_map.m v6.4
+
+	- Remove whitespace before or after bracket.
+
+	- Fix bug. A bad testing condition prevented the computation of
+	interpolated points apart from the first one in the SLOW mode.
+
+	* FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- Add input argument to switch between fast (and more memory
+	consuming) and slow thin-plate spline interpolation.
+
+	- Fix bug, force scaling factor to be a 3-vector so that it can be
+	different in each coordinate.
+
+	- Clear memory as it's no longer needed, so that we can process
+	bigger images.
+
+	- Add sigma as output argument so that we now how many voxels we
+	are using to low-pass filter the image.
+
+2011-02-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* README
+
+	- Add entry for img_tps_map
+
+2011-02-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* README
+
+	- Add some function names and descriptions that I had forgotten.
+
+	* Add FiltersToolbox/img_tps_map.m
+
+	- IMG_TPS_MAP Warp an image using a thin-plate spline
+	transformation
+
+2011-02-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- Now the standard deviation necessary to prevent aliasing is
+	computed based on proper formulas, instead of guessing. Notes
+	about the computations have been added to the help header.
+
+	- Add input argument sigma to force bandwidth of Gaussian filter.
+
+	- Fix bug, the number of rows and columns were swapped, so that
+	after reshaping the interpolated intensity vector, the voxels were
+	in the wrong place.
+
+2011-01-31  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/pts_tps_weights.m from svn://edison.comlab.ox.ac.uk/ramc/rcasero/matlab-toolbox/pts/trunk/pts_tps_weights.m
+
+	PTS_TPS_WEIGHTS  Compute weights and affine parameters of
+	thin-plate spline warp for N-dimensional points
+
+	This function is a dependency that I had forgotten for
+	FiltersToolbox/scinrrd_estimate_bias_field.m.
+
+	* Add PointsToolbox/pts_tps_map.m from
+	svn://edison.comlab.ox.ac.uk/ramc/rcasero/matlab-toolbox/pts/trunk/pts_tps_map.m
+
+	PTS_TPS_MAP Interpolate/warp/map N-dimensional points using a
+	thin-plate spline transformation
+
+	This function is a dependency that I had forgotten for
+	FiltersToolbox/scinrrd_estimate_bias_field.m.
+
+	* FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- Make function a lot faster, especially with large images.
+
+	Instead of low-pass filtering the image, reducing the size and
+	sampling the background points, now we sample the background
+	points and a region around them, and low-pass filter only the
+	voxels of interest.
+
+2011-01-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- Add low-pass anti-aliasing filter before downsampling
+	image. Make it optative, in case filtering is too slow.
+
+	* Add FiltersToolbox/fspecial3.m
+
+	- FSPECIAL3  Create predefined 3-dimensional filters.
+
+2011-01-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- Add input argument to select prescaling. Because using the TPS
+	to interpolate all voxels can be rather slow, and the bias field
+	is anyway a slow varying field, it's convenient to first quickly
+	reduce the image size by A (using bilinear interpolation),
+	interpolate the bias field in the smaller image with the TPS, and
+	then expand to the original size. By default, A = 1.0 and no
+	rescaling is used.
+
+2011-01-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field.
+
+	* FileFormatToolbox/scinrrd_index2world.m,
+	FileFormatToolbox/scinrrd_world2index.m
+
+	- The way indices and coordinates were computed was wrong. Offset
+	gives the coordinates of the first voxel's vertex, not the voxel's
+	centre. Now integer indices correspond to the voxels' centres.
+
+2010-12-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_index2world.m,
+	FileFormatToolbox/scinrrd_world2index.m
+
+	- Roll back last change, it was not a bug. Rewrite help header to
+	clarify the coordinate and index order.
+
+2010-12-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_index2world.m,
+	FileFormatToolbox/scinrrd_world2index.m
+
+	- Fix bug. The x,y coordinates (and, correspondingly, the j, i
+	indices) were being operated with the wrong spacing and limit
+	values. For example, the x-coordinate was being operated with the
+	dy spacing. Now this has been fixed.
+
+2010-07-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_load.m
+
+	- Give error if the data is compressed.
+
+	- If ElementDatafile is LOCAL, then raw data is in the file, not
+	an external one.
+
+2010-07-01  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_save.m
+
+	- Add input argument to control whether data is converted to uint8
+	or not before saving.
+
+	* CardiacToolbox/process_misas_patient.m
+
+	- if we have two NormalMri volumes, combine them with a max()
+	function to remove banding artifacts, as suggested by Matt Robson
+
+2010-06-30  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* release 0.2.1
+
+	- New minor release given that the bug in WriteRawFile.m and
+	WriteMhaFile.m was quite severe, and the new scinrrd_load()
+	functionality is interesting.
+
+	* FileFormatToolbox/scinrrd_load.m
+
+	- Now this function can also load an nrrd struct from MetaImage
+	(.mha) files, and not only Matlab (.mat). This should save us from
+	a lot of time wasted having to load .mha files in Seg3D and
+	exported as .mat.
+
+2010-06-28  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/WriteRawFile.m,
+	FileFormatToolbox/WriteMhaFile.m
+
+	- Fix bug. DICOM frames are loaded into Matlab with X-coordinates
+	along columns, but they were written along rows, so the image
+	volume was rotated 90º.
+
+2010-06-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/scinrrd_rv_crescent_tips.m
+
+	- Instead of assigning the top and botton of the crest to the last
+	and first axis points, just compute from each slice the closest
+	axis point. Now there is no need for the axis and the right
+	ventricle to have the same number of slices.
+
+2010-06-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add CardiacToolbox/scinrrd_valve_surface.m.
+
+	- Inter atrio-ventricular surface.
+
+2010-06-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/crest_envelope.m:
+
+	- Compute the envelope for the Right Ventricle's crest.
+
+2010-05-28  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/process_misas_patient.m
+
+	- Remove assumption that subdirectories with IMA files are called
+	MISAS*. We need this because Jason will rename the MISAS*
+	directories to NormalMri1, FatMri1, etc. before running this
+	script.
+
+2010-05-27  Ramon Casero  <ramc@clpc444.comlab>
+
+	* Add CardiacToolbox/process_misas_patient.m
+
+	- Create MetaImage volumes from directory tree of IMA DICOM files,
+	for project with human hearts provided by Kelvin Wong.
+	
+	* FileFormatToolbox/sortdirbynum.m:
+
+	- Fix bug. Exit gracefully when list of input files is empty.
+
+2010-05-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add CardiacToolbox/correct_rv_crescent_tips.m
+
+	- Correct the segmentation of the Right Ventricle's crescent tips
+	using the segmentation of the tricuspid and pulmonary annula.
+
+2010-05-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/scinrrd_rv_crescent_tips.m
+
+	- Extend computation of the RV crescent tips to the RV slices that
+	have no corresponding centroid. In that case the first and last
+	centroids in the LV axis are used.
+
+2010-05-12  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/coords_from_dist_gower.m
+
+	- Compute point coordinates from distances to a set of landmarks,
+	as described in Gower (1986).
+	
+2010-05-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/WriteMhaFile.m
+
+	- Fix bug, wrong variable name and function in error message.
+
+	* FileFormatToolbox/dcm2metaimage.m
+
+	- Fix bug when directory in path is the current one.
+
+	* Add PointsToolbox/dmatrix.m
+
+	- Matrix of distances between vectors. Move from Comlab
+	repository, matlab-toolbox/misc/trunk.
+
+2010-04-30  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/dcm2metaimage.m:
+
+	- Fix bug with dir name when data is in the current directory.
+
+2010-04-29  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_gradients.m:
+
+	- Vicente suggested using an explicit formula with a 3x3
+	neighbourhood to compute the second order gradients, instead of
+	running function gradient() twice (which uses a 5x5 neighbourhood).
+
+2010-03-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/dijkstra.cpp:
+
+	- Nodes not connected to the source get a NaN as parent. They were
+	getting a 1, which is a bug. By making it NaN, it also mimics the
+	output of Matlog Toolbox's function dijk(), that has a native
+	Matlab implementation of the same algorithm.
+
+	* Add CardiacToolbox/scinrrd_rv_crescent_tips.m:
+
+	- Extract the tips of the crescent-shaped curve in all slices of
+	the Right Ventricle.
+
+	* Add CardiacToolbox/is_lv_on_the_left.m:
+
+	- Check whether the left ventricle is on the left hand side of the
+	image.
+
+	* Add CardiacToolbox subdirectory for functions that are specific
+	to cardiac image processing.
+
+	* Add ThirdPartyToolbox/dijkstra.m,
+	ThirdPartyToolbox/dijkstra.cpp, ThirdPartyToolbox/fibheap.h:
+
+	- DIJKSTRA Shortests path tree from sparse matrix graph.
+
+	* Add ThirdPartyToolbox/LICENCE
+
+	- To explan licence difference of files in this subdirectory.
+
+	* Add ThirdPartyToolbox directory for derivative works or third
+	party functions that cannot be covered by the GPL used elsewhere
+	in Gerardus, or code with an uncertain licence status.
+
+	* FiltersToolbox/img_adjacency_distance.m:
+
+	- Add Matlab implementation of the function, to compare with the
+	MEX implementation.
+
+2010-03-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/img_adjacency_distance.cpp,
+	FiltersToolbox/img_adjacency_distance.m:
+
+	- Convert image to adjacency-distance list in sparse matrix form.
+
+	* Add PointsToolbox/sparse_breakdown.cpp,
+	PointsToolbox/sparse_breakdown.m:
+
+	- Extract internal arrays from sparse matrix.
+
+2010-03-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scinrrd_gradients.m:
+
+	- Compute 1st and 2nd order image gradients.
+
+2010-03-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_centroids.m:
+
+	- Instead of skipping them, make [NaN NaN NaN] centroid for empty
+	slices too. This way, it's easier to use them in other functions
+	that iterate all the slices in a volume.
+
+	* Add FiltersToolbox/scinrrd_centroids.m:
+
+	- Compute centroid of every slice with segmented pixels.
+
+2010-03-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/extmat2rotmat.m, PointsToolbox/rotmat2extmat.m:
+
+	- Remove rounding of index values to allow for continuous
+	indices. This way, numerical errors are reduced. In case we need
+	integer indices, it's very easy to run round(idx) on the output.
+
+	- Rename argument axis as ax, to avoid clash with function axis().
+
+	* Add FiltersToolbox/scinrrd_regionprops.m:
+
+	- SCINRRD_REGIONPROPS Measure properties of image regions on each
+	slice.
+
+2010-03-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/extmat2rotmat.m, PointsToolbox/rotmat2extmat.m:
+
+	- Add input argument "center", so that we can choose the
+	transformation A(X-M) instead of A(X-M)+M. This will center the
+	heart around the origin of coordinates, and it also allows to use
+	a well-conditioned system to be used in extmat2rotmat.
+
+	* FiltersToolbox/scinrrd_vertical_orientation_pca_basis.m:
+
+	- Remove input argument "type". We are computing an orientation
+	basis, not a rotation matrix, so there's no point in having "type"
+	to select between A or A'.
+
+	* Rename scinrrd_vertical_rot3.m as
+	scinrrd_vertical_orientation_pca_basis.m:
+
+	- We are computing the orientation basis, not a rotation matrix.
+
+	* FiltersToolbox/scinrrd_vertical_rot3.m:
+
+	- Make sure that the orientation of the resulting basis is the
+	same as the Cartesian system. 
+
+	The problem is that the basis is valid if we take the negative of
+	any of its vectors too. For example, the Cartesian system has
+	positive orientation because [1 0 0] x [0 1 0] = [0 0 1]. But
+	scinrrd_vertical_rot3() could also produce the basis with negative
+	orientation [-1 0 0], [0 1 0], [0 0 1].
+
+	To avoid this, we make sure that the "Z" vector is going up,
+	and then change the sign of "X", if necessary.
+
+2010-03-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add CardiacToolbox, a directory to keep functions that are only
+	relevant to cardiac image processing.
+
+	* Add FiltersToolbox/scinrrd_papillary_muscles.m:
+
+	- Extract the papillay muscles from a segmentation of the Left
+	Ventricle's cavity.
+
+	* Add FileFormatToolbox/scinrrd_save.m:
+
+	- SCINRRD_SAVE Save a NRRD struct to a Matlab format that can be
+	imported by Seg3D.
+
+	* Add FiltersToolbox/scinrrd_unsqueeze.m:
+
+	- SCINRRD_UNSQUEEZE  Add dummy dimension and convert data to uint8
+	data type.
+
+	* Add FileFormatToolbox/scinrrd_load.m:
+
+	- SCINRRD_LOAD Load a NRRD struct saved to Matlab format.
+
+2010-02-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/extmat2rotmat.m, PointsToolbox/rotmat2extmat.m:
+
+	- Remove the bottom row of the extended matrix.
+
+2010-02-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/extmat2rotmat.m:
+
+	- EXTMAT2ROTMAT Convert rotation in extended matrix form into
+	centroid and matrix pair.
+
+	* Add PointsToolbox/rotmat2extmat.m:
+
+	- ROTMAT2EXTMAT  Convert centroid and rotation matrix pair to
+	extended matrix form.
+
+2010-02-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/intersect_line_plane.m:
+
+	- INTERSECT_LINE_PLANE Find intersection of a line with a plane.
+
+	* Add FiltersToolbox/scinrrd_box.m:
+
+	- SCINRRD_BOX Compute tight box around SCI NRRD segmentation.
+
+2010-02-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_optimal_intersecting_plane.m:
+
+	- Interface change: Change input arguments.
+
+	- Now, instead of intering RAD for smoothing of the segmentation,
+	we enter a struct called param, that contains new options for the
+	optimisation.
+
+	- Added global optimisation, that is, instead of using fminsearch,
+	now you can sweep a whole range of azimuth and elevation angles to
+	compute the area values. Because we are optimising only two
+	variables, this is not much slower than using fminsearch, and it
+	provides a much better insight into the results.
+
+	* PointsToolbox/vec2rotmat.m:
+
+	- Add input argument so that an initial guess for the 2 vectors
+	orthogonal to V is provided (as part of an initial guess for the
+	rotation matrix). This will constrain the infinite space of
+	possible rotations to the closest one to the one we had.
+
+2010-02-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_index2world.m,
+	FileFormatToolbox/scinrrd_world2index.m:
+
+	- Real world coordinates are to be presented as (x,y,z), while
+	indices are to be presented as (r,c,s). But note that x <-> c, and
+	y <-> r.
+
+	* PointsToolbox/scinrrd_pca.m:
+
+	- Fix bug: The convention has to be that rows are y-coordinates,
+	and columns are x-coordinates.
+
+	* PointsToolbox/plotaxes.m:
+
+	- Add input argument for the origin of coordinates.
+
+2010-02-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_optimal_intersecting_plane.m:
+
+	- Remove unnecessary function nesting.
+
+2010-02-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_optimal_intersecting_plane.m:
+
+	- Interface change: Change argument order.
+
+	- Now instead of computing a rotation centroid at 2/3 of the
+	volume, the user enters the rotation centroid.
+
+	- The rotation centroid stays fixed and is not recomputed at each
+	iteration of the optimisation algorithm (actually it is, for
+	tracking purposes, but the value used is the initial).
+
+	- Remove big block to compute the instersection area at iteration
+	zero, as this can be now done within the optimisation loop.
+
+	- Optimise the azimuth and elevation angles of the normal vector,
+	instead of the 3 coordinates of the vector.
+
+	- Use new vec2rotmat() function to compute rotation matrix from
+	the normal vector.
+
+	* Add PointsToolbox/vec2rotmat.m:
+
+	- VEC2ROTMAT Compute rotation matrix from Cartesian vector.
+
+	* Add PointsToolbox/plotaxes.m:
+
+	- PLOTAXES Plot axes of 3D coordinate system.
+
+2010-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
+
+	- Undo change of vector arguments to matrices, because we can do
+	the optimisation on the sole vector, and then recompute the
+	rotation matrix.
+
+	But keep renaming of function being used by this function.
+
+	* FiltersToolbox/scinrrd_intersect_plane.m:
+
+	- Force NRRD data to be double, otherwise interpolation for the
+	intersection doesn't work.
+
+	* PointsToolbox/scinrrd_pca.m:
+
+	- Remove assumption that NRRD will have dummy dimension, because
+	it could have been removed by a previous scinrrd function.
+
+	* FiltersToolbox/scinrrd_vertical_rot3.m:
+
+	- Replace code block by scinrrd_vertical_rot3().
+
+	- Add input argument so that you can select whether the rotation
+	is forwards or backwards.
+
+	* PointsToolbox/scinrrd_pca.m:
+
+	- Compute centroid as output argument.
+
+	* Rename scirunnrrd_world2index.m as
+	scinrrd_world2index.m. Correct variables and help header for
+	consistency with the rest of scinnrd functions.
+
+	* Rename scirunnrrd_index2world.m as
+	scinrrd_index2world.m. Correct variables and help header for
+	consistency with the rest of scinnrd functions.
+
+	* Rename scirunnrrd_pca.m as scinrrd_pca.m. Correct variables and
+	help header for consistency with the rest of scinnrd functions.
+
+	* Rename scirunnrrd_vertical_rot3.m as
+	scinrrd_vertical_rot3. Correct help header. Correct variables and
+	help header for consistency with the rest of scinnrd functions.
+
+2010-02-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Rename FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m as
+	FiltersToolbox/scinrrd_optimal_intersecting_plane.m.
+
+	* FiltersToolbox/scinrrd_intersect_plane.m:
+
+	- When sampling with interpn(), it is necessary to provide the
+	grid matrices in the same order as they are generated by ndgrid().
+
+	* Add FileFormatToolbox/scinrrd_seg3d2matlab.m:
+
+	- SCINRRD_SEG3D2MATLAB Correct dimensions of data loaded from SCI
+	NRRD so that rows and columns will follow Matlab's coordinates.
+
+	* FiltersToolbox/scinrrd_ndgrid.m:
+
+	- Fix bug. Limits for x-coordinates were used for y-coordinates
+	and viceversa.
+
+2010-02-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
+
+	- Remove temporal code. Add avals, vvals, mvals as output
+	arguments to monitor evolution of optimisation algorithm. Add v0,
+	rad as input arguments, so that the initial vector is not hard
+	coded, and radius of smoothing operators.
+
+2010-02-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
+
+	- Remove quaternions and use the normal vector to the plane as
+	optimization variable. The function has some debugging code, it's
+	still in development. The optimisation is getting trapped in local
+	minima; it's not clear whether this is because of the
+	trabeculations, or because the normal vector is not a good
+	parameter to optimise.
+
+2010-02-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scinrrd_intersect_plane.m:
+
+	- SCINRRD_INTERSECT_PLANE  Compute intersection of a plane with an
+	SCI NRRD image volume.
+
+	* Add FiltersToolbox/scinrrd_squeeze.m:
+
+	- SCINRRD_SQUEEZE Remove dummy dimension and convert data to
+	double type.
+
+	* Add FiltersToolbox/scinrrd_ndgrid.m:
+
+	- Generation of arrays for 3D SCI NRRD image volumes.
+
+2010-02-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
+
+	- SCIRUNNRRD_INTERSECT_PLANE  Optimise intersection plane for SCI
+	NRRD segmentation mask.
+
+2010-02-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/quaternion2matrix.m:
+
+	- Convert quaternion to rotation matrix. Function written
+	originally by Vicente Grau.
+
+	* Add PointsToolbox/polycenter.m:
+
+	- POLYCENTER  Compute center of mass of polygon.
+
+2010-02-02  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scinrrd_vertical_rot3.m:
+
+	- Compute the 3D rotation matrix to make a point cloud vertical.
+
+2010-01-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/scirunnrrd_pca.m:
+
+	- SCIRUNNRRD_PCA Principal Principal Component Analysis of the
+	selected points in a SCI NRRD segmentation mask.
+
+	* Add PointsToolbox/pts_pca.m:
+
+	- PTS_PCA Linear and Kernel Principal Component Analysis (PCA and
+	KPCA).
+
+	This function was in my internal repository (r9953, v3.0,
+	2008-06-14 22:07:56 +0100). I started developing it for my DPhil
+	thesis at the Wolfson Medical Vision Laboratory, University of
+	Oxford (2006-08-31 18:56:56 +0100).
+
+	* Add PointsToolbox/pts_kmat.m:
+
+	- PTS_KMAT Compute kernel matrix for Linear and Kernel Principal
+	Component Analysis (PCA and KPCA).
+
+	This function was in my internal repository (r7928, v2.3,
+	2007-08-26 17:20:26 +0100). I started developing it for my DPhil
+	thesis at the Wolfson Medical Vision Laboratory, University of
+	Oxford (2007-06-09 15:27:07 +0100).
+
+2009-12-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/dcm2metaimage.m:
+
+	- Read the resolution values from the DICOM header, if possible.
+
+	- Add input arguments crop, ext, file and rewrite the function so
+	that it does the same as im2metaimage().
+
+2009-12-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FileFormatToolbox/sortdirbynum.m:
+
+	- SORTDIRBYNUM List the files in a directory ordering them by a
+	numerical substring field in the file name
+
+	* FileFormatToolbox/im2metaimage.m:
+
+	- Add input arguments for image file extension and the possibility
+	to contribute the image file listing, intead of using an internal
+	DIR().
+
+2009-11-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/dcm2mat.m:
+
+	- In case of a time series, we assume that all frames for slice 1
+	are in consecutive DICOM files. Then all the frames for slice 2,
+	and so on.
+
+	Note that the output matrix is permuted to have the indices in the
+	order (I,J,N,F), where N is the slice index and F is the frame
+	index.
+
+2009-11-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/dcm2mat.m:
+
+	- Add block to detect time series and create 4D volumes, if
+	necessary.
+
+	- If output filename is empty, call it 'im.mat'.
+
+2009-11-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FileFormatToolbox/dcm2mat.m:
+
+	- Read a batch of DICOM files, collate them and save as a single
+	volume in a .mat file.
+
+	* FileFormatToolbox/dcm2metaimage.m:
+
+	- Fix bug with wrong function call.
+
+2009-11-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* README:
+
+	- Add scirunnrrd_index2world.m and scirunnrrd_world2index.m.
+
+	* Add FileFormatToolbox/scirunnrrd_index2world.m:
+
+	- SCIRUNNRRD_INDEX2WORLD Convert data volume indices to real world
+	coordinates for NRRD volumes created by SCI
+	applications (e.g. Seg3D).
+
+	* Add FileFormatToolbox/scirunnrrd_world2index.m:
+
+	- SCIRUNNRRD_WORLD2INDEX Convert real world coordinates to data
+	volume indices for NRRD volumes created by SCI
+	applications (e.g. Seg3D).
+
+2009-09-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/PointsToolbox/cube_five_tessellation.m:
+
+	- CUBE_FIVE_TESSELLATION Tessellation in 5 tetrahedra of a cube
+	with perpendicular diagonals on opposite sides of the
+	cube (non-stackable).
+
+2009-09-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/PointsToolbox/cube_stackable_tessellation.m:
+
+	- CUBE_STACKABLE_TESSELLATION  Tessellation in tetrahedra of a
+	cube that can be stacked in a regular mesh.
+
+2009-09-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox for functions that deal with points.
+
+	* Create directories for FileFormatToolbox and FiltersToolbox, and
+	split existing functions accordingly. As more functions are added
+	to the project, we'll need to organize them anyway.
+
+2009-07-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* First public release to project Gerardus in Google Code of this
+	Matlab Toolbox.
+
+	- http://code.google.com/p/gerardus
+
+	* Add README with help for functions in the Toolbox.
+
+	* WriteMetaFile.h -> WriteRawFile.h:
+
+	- Correct name, as "Meta" could refer to MetaImage, the format
+	that includes both the mha header and the raw file.
+
+	* dcm2metadata.m -> dcm2metaimage.m, im2metadata.m ->
+	im2metaimage.m:
+	
+	Correct filenames and function names, because we are create
+	MetaImage files, not "metadata".
+
+	* Add LICENCE with text of the GPL v3, and corresponding copyright
+	notices to all files.
+
+2009-04-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add correct_light_blobs_in_microscope_mosaic.m:
+
+	- CORRECT_LIGHT_BLOBS_IN_MICROSCOPE_MOSAIC Correct the colour blob
+	created by the microscope's light in each tile of a mosaic,
+	e.g. for histology.
+
+2009-04-02  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add dcm2metadata.m:
+
+	- DCM2METADATA  Read a batch of DICOM files, collate them and save
+	as a single metadata volume (one .mha and one .raw file).
+
+	* Add matlab2vox_seg3d.m:
+
+	- MATLAB2VOX_SEG3D Convert Matlab file with Seg3D segmentation to
+	vox format (for the Tarantula meshing application).
+
+2009-03-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* im2metadata.m:
+
+	- Add input argument "crop", so that the volume can be cropped
+	before saving.
+
+	* WriteMhaFile.m:
+
+	- Add help comments.
+
+	- Write 'Offset' line to file, so that cropped data is correctly
+	placed.
+
+2009-01-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* WriteMhaFile.m, WriteMetaFile.m:
+	
+	- Increase precission for values of ElementSpacing, from 4 digits
+	to 12 digits, to make sure that we can save spacings in microns.
+
+	* Add im2metadata.m.
+
+	- IM2METADATA Read a batch of image files, collate them and save
+	as a single metadata volume (one .mha and one .raw file).
+
+2009-01-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* WriteMhaFile.m, WriteMetaFile.m: v0.2.
+
+	- Add MET_USHORT as output type for uint16 input data.
+
+	- Add error message if the data type is not one of the expected
+	types. Otherwise, no ElementType header is added to the file, this
+	is not reported, and then Seg3D (and possibly other image
+	visualisation applications) will fail to open the file.
+	
+2009-01-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add files provided by Martin Bishop to write metadata
+	files. These files were actually created originally by Vicente
+	Grau.

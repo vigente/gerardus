@@ -1,0 +1,20 @@
+This file is part of the C++ command line programs of project Gerardus.
+
+C++ Command line programs:
+==========================
+
+extractVoxelCoordinatesFromSegmentationMask:
+
+	Program to extract the coordinates of voxels selected in a
+	segmentation mask.
+
+padSegmentationMaskWithVoxels:
+
+	Program to pad the sides of a 3D segmentation mask
+	(e.g. produced by Seg3D) with new voxels.
+
+
+
+rotate3DImage:
+
+	Program to rotate a 3D image in space
