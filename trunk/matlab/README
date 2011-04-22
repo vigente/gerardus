@@ -18,6 +18,10 @@ Toolboxes in Gerardus:
 	Filters to enhance or transform images in general, and SCI
 	NRRD data volumes in particular.
 
+* ItkToolbox
+
+	ITK functions running as MEX files in Matlab.
+
 * PointsToolbox
 
 	Functions to operate with sets of points.
@@ -41,10 +45,6 @@ correct_rv_crescent_tips.m
 crest_envelope.m
 
 	 CREST_ENVELOPE  Compute the envelope for the Right Ventricle's crest
-	
-dmatrix_cardiac_valves.m
-
-	 DMATRIX_CARDIAC_VALVES  Distance matrix for cardiac valves
 	
 is_lv_on_the_left.m
 
