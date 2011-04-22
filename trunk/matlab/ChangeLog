@@ -1,5 +1,17 @@
 2011-04-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Move itk functions to new ItkToolbox directory
+
+	- FiltersToolbox/ItkImFilter.cpp
+	- FiltersToolbox/CMakeLists.txt
+	- FiltersToolbox/itk_imfilter.m
+	- PointsToolbox/ItkKernelTransform.cpp
+	- PointsToolbox/CMakeLists.txt
+	- PointsToolbox/itk_kernel_transform.m
+	- CMakeLists.txt
+
+	* Add new directory ItkToolbox
+
 	* Add FiltersToolbox/ItkImFilter.cpp,
 	FiltersToolbox/CMakeLists.txt, FiltersToolbox/itk_imfilter.m:
 
