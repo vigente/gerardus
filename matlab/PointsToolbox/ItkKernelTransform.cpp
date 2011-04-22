@@ -33,8 +33,9 @@
  *   'tpsr2':    itk::ThinPlateR2LogRSplineKernelTransform
  *   'volume':   itk::VolumeSplineKernelTransform
  *
- *  Then if Gerardus' root directory is e.g. ~/gerardus, type from a
- *  linux shell
+ * This function must be compiled before it can be used from Matlab.
+ * If Gerardus' root directory is e.g. ~/gerardus, type from a
+ * linux shell
  *
  *    $ cd ~/gerardus/matlab
  *    $ mkdir bin
@@ -42,12 +43,12 @@
  *    $ cmake ..
  *    $ make install
  *
- *  If cmake throws an error because it cannot find Matlab, then edit
- *  gerardus/matlab/CMakeLists.txt, and where it says
+ * If cmake throws an error because it cannot find Matlab, then edit
+ * gerardus/matlab/CMakeLists.txt, and where it says
  *
  *    SET(MATLAB_ROOT "/usr/local/matlab/R2010b/")
  *
- *  change to your own Matlab root path.
+ * change to your own Matlab root path.
  */
 
  /*
