@@ -29,10 +29,6 @@ Toolboxes in Gerardus:
 	uncertain licence status.
 
 
-binPointsToolbox
--------------------------------------------------------------
-
-
 CardiacToolbox
 -------------------------------------------------------------
 
@@ -241,6 +237,19 @@ skeleton_plot.m
 	 SKELETON_PLOT  Plot a labelled segmentation and its skeleton
 	
 
+ItkToolbox
+-------------------------------------------------------------
+
+itk_imfilter.m
+
+	 ITK_IMFILTER: Run ITK filter on a 2D or 3D image
+	
+itk_kernel_transform.m
+
+	 ITK_KERNEL_TRANSFORM  ITK warps between 3D point sets with a known
+	 correspondence
+	
+
 PointsToolbox
 -------------------------------------------------------------
 
@@ -288,11 +297,6 @@ intersect_line_plane.m
 iscollinear.m
 
 	 ISCOLLINEAR  Test to determine whether a set of points are collinear
-	
-itk_kernel_transform.m
-
-	 ITK_KERNEL_TRANSFORM  ITK warps between 3D point sets with a known
-	 correspondence
 	
 mba_surface_interpolation.m
 
