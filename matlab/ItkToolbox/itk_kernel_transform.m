@@ -11,7 +11,7 @@ function itk_kernel_transform
 %   itk::ThinPlateR2LogRSplineKernelTransform
 %   itk::VolumeSplineKernelTransform
 %
-% YI = KERNELTRANSFORM(X, Y, XI, TYPE)
+% YI = ITK_KERNEL_TRANSFORM(X, Y, XI, TYPE)
 %
 %   X, Y are 3-column matrices with N rows. Each row has the
 %   coordinates of a point. The warp is defined so that
