@@ -1,5 +1,13 @@
 2011-04-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_seg2label_stats.m: v0.2.0
+
+	- Big rewrite, tidy up, and remove all the code about
+	straightening, that is now under function pts_local_rigid().
+
+	- Remove STRAIGHT input argument, that is now implicit if CC is
+	provided.
+
 	* PointsToolbox/pts_local_rigid.m: v0.1.1
 
 	- Fix bug. The rotation and translation was wrong, and it became
