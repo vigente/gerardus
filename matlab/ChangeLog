@@ -1,6 +1,16 @@
 2011-04-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Delete matlab/test/bent-vessel-2d.mat
+
+	- Not an image, just some vectors and matrices that are difficult
+	to use.
+
 	* FiltersToolbox/scinrrd_seg2label_stats.m: v0.2.0
+
+	- Fix bug. Skeleton voxels that are not part of the branch voxels
+	need to be added to the branch. This can happen because a labelled
+	segmentation voxel can belong only to one object, but a skeleton
+	bifurcation voxel can be actually shared by more than one.
 
 	- Big rewrite, tidy up, and remove all the code about
 	straightening, that is now under function pts_local_rigid().

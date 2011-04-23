@@ -127,8 +127,6 @@ eigd = nan(3, N);
 % loop every branch
 for I = 1:N
     
-    %% find the 3 closest skeleton points for each branch voxel
-    
     % list of voxels in current branch
     br = find(nrrd.data == I);
     
@@ -137,16 +135,20 @@ for I = 1:N
         continue
     end
         
+    % straighten all branch voxels using a local rigid transformation
+    if (~isempty(cc))
+        % list of voxels that are part of the skeleton in the branch
+        sk = cc.PixelIdxList{I};
+        
+        % add skeleton voxels to the branch, in case they are not already
+        br = union(sk, br);
+    end
+        
     % coordinates of branch voxels
     [r, c, s] = ind2sub(size(nrrd.data), br);
     xi = scinrrd_index2world([r, c, s], nrrd.axis)';
     
-    % straighten all branch voxels using a local rigid transformation
     if (~isempty(cc))
-        
-        % list of voxels that are part of the skeleton in the branch
-        sk = cc.PixelIdxList{I};
-        
         % coordinates of skeleton voxels
         [r, c, s] = ind2sub(size(nrrd.data), sk);
         x = scinrrd_index2world([r, c, s], nrrd.axis)';
