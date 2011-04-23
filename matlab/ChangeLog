@@ -1,3 +1,13 @@
+2011-04-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/pts_local_rigid.m: v0.1.1
+
+	- Fix bug. The rotation and translation was wrong, and it became
+	apparent when running the function on the 3D example
+	bent-vessel-3d-2.mat. Now the points are correctly translated
+	before and after rotation, and the procrustes registration is
+	unnecessary within the loop.
+
 2011-04-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* update_README.sh:
