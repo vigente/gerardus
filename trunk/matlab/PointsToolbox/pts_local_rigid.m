@@ -28,7 +28,7 @@ function yi = pts_local_rigid(x, y, xi, idx)
 
 % Authors: Ramon Casero <rcasero@gmail.com>, Vicente Grau
 % Copyright © 2011 University of Oxford
-% Version: v0.1.0
+% Version: v0.1.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -94,9 +94,6 @@ todo = ~(idx == 1 | idx == 2);
 
 % loop skeleton points
 for I = 3:n
-    % compute rigid transformation to match match the previous and current
-    % skeleton points
-    [~, ~, t] = procrustes(y(I-1:I, :), x(I-1:I, :), 'Scaling', false);
     
     % compute unit vectors between two points of the straight skeleton and
     % of the bent skeleton. These two points are the current and previous
@@ -117,17 +114,41 @@ for I = 3:n
         ax = [0 0 0];
     end
     
-    % compute rotation matrix. We ignore the rotation matrix computed by
-    % procrustes because there is an infinite number of solutions for it
-    % due to rotational symmetry around the x-axis. With this way of
-    % computing the rotation matrix, we make sure that the vessel points
-    % are moving parallel to the plane defined by the 2 bent skeleton
-    % voxels and the 2 straight skeleton voxels
-    t.T = vrrotvec2mat([ax theta]);
+    % compute rotation matrix. We cannot use the rotation matrix and
+    % translation computed by procrustes because there is an infinite
+    % number of solutions for it due to rotational symmetry around the
+    % x-axis. 
+    %
+    % On the other hand, with our way of computing the rotation matrix, we
+    % make sure that the vessel points are moving parallel to the plane
+    % defined by the 2 bent skeleton voxels and the 2 straight skeleton
+    % voxels
+    rot = vrrotvec2mat([ax theta]);
+     
+    % number of points left to warp in the branch
+    Nb = nnz(todo);
     
-    % straighten the points that haven't been straightened yet
-    yi(todo, :) = yi(todo, :) * t.T + repmat(t.c(1, :), nnz(todo), 1);
-    x(I:end, :) = x(I:end, :) * t.T + repmat(t.c(1, :), n-I+1, 1);
+    % number of points left to warp in the skeleton
+    nb = n - I + 1;
+    
+%     % DEBUG: If you want to see the random twisting that happens if you use
+%     % a rigid transformation instead, without being careful to constrain
+%     % the plane of rotation as we do, uncomment this block and comment out the
+%     % next one
+%     [~, ~, t] = procrustes(y(I-1:I, :), x(I-1:I, :), 'Scaling', false); % DEBUG
+%     yi(todo, :) = yi(todo, :) * t.T + repmat(t.c(1, :), Nb, 1); % DEBUG
+%     x(I:end, :) = x(I:end, :) * t.T + repmat(t.c(1, :), nb, 1); % DEBUG
+    
+    % straighten the points that haven't been straightened yet:
+    %
+    %   x(I, :) == y(I, :) from the previous step
+    %   x(I-1, :) is the centre of rotation
+    %   we translate the centre of rotation to the origin, rotate the
+    %   points and translate them back
+    yi(todo, :) = (yi(todo, :) - repmat(x(I-1, :), Nb, 1)) * rot ...
+        + repmat(x(I-1, :), Nb, 1);
+    x(I:end, :) = (x(I:end, :) - repmat(x(I-1, :), nb, 1)) * rot ...
+        + repmat(x(I-1, :), nb, 1);
     
     % branch points that belong to the current skeleton point don't need to
     % be straightened anymore
