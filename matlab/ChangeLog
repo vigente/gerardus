@@ -1,3 +1,10 @@
+2011-04-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointToolbox/graph_nn.m: v0.1.1
+
+	- Remove predecessors list, we don't need it, and it needs a lot
+	of memory.
+
 2011-04-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Delete matlab/test/bent-vessel-2d.mat
