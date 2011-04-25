@@ -26,7 +26,7 @@ function nn = graph_nn(d, idxfrom, idxto)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -65,7 +65,7 @@ end
 
 % compute minimum distances from the skeleton points to every other node in
 % the graph
-[mind, p] = dijkstra(d, idxto);
+mind = dijkstra(d, idxto);
 
 % we want each point in the segmentation linked only to one point in the
 % skeleton. This is the closest point in the skeleton (nnidx has the index
