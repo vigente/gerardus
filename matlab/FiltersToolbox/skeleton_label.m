@@ -68,7 +68,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.2
+% Version: 0.3.3
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -216,7 +216,8 @@ if (~isempty(im))
     [d, dict] = seg2dmat(im, 'seg', res);
     
     % for each original segmentation voxel, find the closest skeleton voxel
-    nn = graph_nn(d, [], dict(sk(:)>0));
+    % (use slow mode to avoid running out of memory)
+    nn = graph_nn(d, [], dict(sk(:)>0), false);
     
     % label each segmentation voxel with the same label as the corresponding
     % skeleton voxel
