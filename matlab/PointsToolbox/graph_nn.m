@@ -1,4 +1,4 @@
-function nn = graph_nn(d, idxfrom, idxto)
+function nn = graph_nn(d, idxfrom, idxto, FAST)
 % GRAPH_NN  Nearest neighbours from a subset of nodes in a graph to another
 % subset
 %
@@ -21,12 +21,19 @@ function nn = graph_nn(d, idxfrom, idxto)
 %   NN is a vector with the same length as IDXFROM. NN(i)==j means that j
 %   is the closest node to node i.
 %
+% NN = GRAPH_NN(..., FAST)
+%
+%   FAST is a flag to choose whether you want to run the function in
+%   vectorized mode (faster), or using a loop (less memory). By default,
+%   FAST=true.
+%
+%
 % This function uses a very fast C++ implementation of the Dijkstra
-% algorithm by Mark Steyvers.
+% algorithm by John Boyer and Mark Steyvers.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -52,7 +59,7 @@ function nn = graph_nn(d, idxfrom, idxto)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 3, nargin, 'struct'));
+error(nargchk(1, 4, nargin, 'struct'));
 error(nargoutchk(0, 2, nargout, 'struct'));
 
 % default
@@ -62,15 +69,50 @@ end
 if (nargin < 3 || isempty(idxto))
     idxto = 1:size(d, 1);
 end
+if (nargin < 4 || isempty(FAST))
+    FAST = true;
+end
 
-% compute minimum distances from the skeleton points to every other node in
-% the graph
-mind = dijkstra(d, idxto);
+if FAST % use vectorized method, that uses more memory
+    
+    % compute minimum distances from the skeleton points to every other
+    % node in the graph
+    mind = dijkstra(d, idxto);
+    
+    % we want each point in the segmentation linked only to one point in
+    % the skeleton. This is the closest point in the skeleton (nnidx has
+    % the index of the nearest neighbour in the skeleton to each
+    % segmentation point)
+    [mind, nn] = min(mind, [], 1);
+    
+    % voxels not connected to the skeleton have been given nn=1, because 
+    % nn = [Inf Inf Inf...], so we have to remove those
+    nn(isinf(mind) | isnan(mind)) = nan;
+    
+else % use loop, slower, but using less memory
+    
+    % final vector of minimum distances
+    mind = inf(1, size(d, 2));
+    
+    % final vector of nearest skeleton index
+    nn = nan(size(mind));
+    
+    % loop every skeleton point
+    for I = 1:length(idxto)
 
-% we want each point in the segmentation linked only to one point in the
-% skeleton. This is the closest point in the skeleton (nnidx has the index
-% of the nearest neighbour in the skeleton to each segmentation point)
-[~, nn] = min(mind, [], 1);
+        % compute minimum distances from current skeleton point to every
+        % other node in the graph
+        mind_now = dijkstra(d, idxto(I));
+        
+        % if we have found a closer skeleton point for a certain voxel,
+        % make it its current nearest neighbour
+        ok = mind_now < mind;
+        mind(ok) = mind_now(ok);
+        nn(ok) = I;
+
+    end
+    
+end
 
 % keep only nodes we are interested in
 nn = nn(idxfrom);

@@ -1,6 +1,12 @@
 2011-04-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
-	* PointToolbox/graph_nn.m: v0.1.1
+	* PointToolbox/graph_nn.m: v0.2.0
+
+	- Add new input argument FAST, to choose between running it in
+	vectorized mode (faster), or using a loop (less memory).
+
+	- Fix bug. Voxels not connected to the skeleton (min distance =
+	Inf) were being assigned skeleton index 1. Now they get NaN.
 
 	- Remove predecessors list, we don't need it, and it needs a lot
 	of memory.
