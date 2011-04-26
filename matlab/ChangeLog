@@ -1,5 +1,13 @@
 2011-04-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/seg2dmat.m: v0.2.1
+
+	- We were removing voxels not connected to other voxels from the
+	dictionary and the distance matrix. This creates all sorts of
+	problems with other functions, because when they find an isolated
+	voxel, they try to index a non-existent entry in dict or the
+	distance matrix.
+
 	* Add FiltersToolbox/bwregiongrow.m: v0.1.0
 
 	- BWREGIONGROW  Region grow segmentation of binary image from
@@ -297,7 +305,7 @@
 	- Add input flag to create a smaller output matrix, but indexing
 	only the segmented voxels of the image, not all the voxels in the
 	image.
-	
+
 	* Rename img_adjacency_distance.m as im2imat.m.
 
 	* Rename img_adjacency_distance.cpp as im2imat.cpp.
