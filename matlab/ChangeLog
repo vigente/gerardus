@@ -1,3 +1,10 @@
+2011-04-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/bwregiongrow.m: v0.1.0
+
+	- BWREGIONGROW  Region grow segmentation of binary image from
+	multiple seeds.
+
 2011-04-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_label.m: v0.3.3
