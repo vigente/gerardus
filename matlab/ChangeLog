@@ -1,5 +1,10 @@
 2011-04-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- Change a type that was int to mwSize, so that it can be compiled
+	for 64 bit architectures.
+
 	* matlab/MatlabMakeMacros.cmake:
 
 	- In 64 bit architectures, we need to remove the flag
