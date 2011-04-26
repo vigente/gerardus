@@ -1,5 +1,10 @@
 2011-04-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* matlab/MatlabMakeMacros.cmake:
+
+	- In 64 bit architectures, we need to remove the flag
+	-DMX_COMPAT_32 (this is what mex -largeArrayDims does).
+
 	* FiltersToolbox/seg2dmat.m: v0.2.1
 
 	- We were removing voxels not connected to other voxels from the
