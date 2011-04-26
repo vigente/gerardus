@@ -122,7 +122,7 @@ void runFilter(char *filterType, const mxArray *imIn, mxArray* &imOut) {
   mwSize Rin = 0; // rows
   mwSize Cin = 0; // cols
   mwSize Sin = 0; // slices
-  const int *dims = mxGetDimensions(imIn);
+  const mwSize *dims = mxGetDimensions(imIn);
   Rin = dims[0];
   if (ndim > 3) {
     mexErrMsgTxt("Input segmentation mask must be 2D or 3D");
