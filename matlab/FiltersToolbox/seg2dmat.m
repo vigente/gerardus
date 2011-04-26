@@ -46,7 +46,7 @@ function [d, dict, idict] = seg2dmat(im, outformat, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -189,12 +189,9 @@ switch outformat
         % segmentation
         d = sparse(dict(idx), dict(nn), dlocal);
         
-        % find segmentation voxels that aren't connected to any other
-        ok = any(d, 2);
-        
-        % remove them
-        d = d(ok, ok);
-        idx0 = idx0(ok);
+        % create dictionary to translate from image linear indices to
+        % distance matrix indices. For example, distances to voxel im(3)
+        % are dict(dict(3), :)
         dict = sparse(idx0, ones(length(idx0), 1), (1:length(idx0)));
         
         % compute inverse dictionary
