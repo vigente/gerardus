@@ -1,3 +1,16 @@
+2011-04-28  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/bwregiongrow.m:
+
+	- BWREGIONGROW  Region grow segmentation of binary image from
+	multiple seeds.
+
+	* Add FiltersToolbox/bwregiongrow_aux.cpp:
+
+	- This is an auxiliary function to bwregiongrow.m, to implement
+	part of the algorithm in C++ so that we can avoid a costly loop in
+	Matlab.
+
 2011-04-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* ItkToolbox/ItkImFilter.cpp:
