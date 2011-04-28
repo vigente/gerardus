@@ -67,7 +67,11 @@ if (size(im, 3) == 1)
     nnsize = 8;
 else
     nnsize = 26;
-end    
+end
+
+% convert im data type to be the same as the seeds, so that we are
+% guaranteed that all label values can be represented in the output image
+im = cast(im, class(seed));
 
 % compute distance matrix for the whole image segmentation so that we have
 % voxel connectivity
@@ -102,6 +106,7 @@ im(idx) = seed(idx);
 
 % loop until all voxels have been labelled
 imiter = 1;
+
 while (any(imiter(:)))
     
     % get indices of all voxels already labelled
@@ -146,6 +151,7 @@ while (any(imiter(:)))
     % iteration, i.e. voxels that are next to the boundary and haven't been
     % labelled yet
     imiter = false(size(im));
+
     % loop boundary voxels
     for I = 1:length(idxperim)
         % get indices of voxels attached to this boundary voxel
@@ -161,27 +167,35 @@ while (any(imiter(:)))
     idxtodo = find(imiter);
     idxtodo = idxtodo(im(idxtodo) == TODO);
     
-    % loop candidates that need to be labelled
-    new_labels = zeros(1, length(idxtodo));
-    for I = 1:length(idxtodo)
-        % get d matrix indices of voxels adjacent to this one
-        idxnn = find(d(dict(idxtodo(I)), :) > 0);
-        
-        % keep only adjacent voxels that are labelled already
-        idxnn = idxnn(im(idict(idxnn)) ~= TODO);
-        
-        % of all the adjacent voxels with labels, choose the closest one
-        [~, idx] = min(d(dict(idxtodo(I)), idxnn));
-        
-        % save label for this candidate voxel
-        new_labels(I) = im(idict(idxnn(idx)));
-        
-    end
+    % image index => d matrix index
+    idxtodo = full(dict(idxtodo));
     
-    % actually label the voxels (it's important to wait until now, because
-    % if we label the voxels within the loop, we get spill overs of some
-    % regions into other regions
-    im(idxtodo) = new_labels;
+    % fast MEX loop to compute new_labels
+    % compute the new labels that the boundary voxels are getting from
+    % the closest adjacent labelled voxel
+    bwregiongrow_aux(im, idxtodo, d, idict, TODO);
+
+%     % slow Matlab loop to compute new_labels
+%     % loop candidates that need to be labelled
+%     new_labels = zeros(1, length(idxtodo));
+%     for I = 1:length(idxtodo)
+%         % get d matrix indices of voxels adjacent to the current candidate
+%         idxnn = find(d(idxtodo(I), :) > 0);
+%         
+%         % keep only adjacent voxels that are labelled already
+%         idxnn = idxnn(im(idict(idxnn)) ~= TODO);
+%         
+%         % of all the adjacent voxels with labels, choose the closest one
+%         [~, idx] = min(d(idxtodo(I), idxnn));
+%         
+%         % save label for this candidate voxel
+%         new_labels(I) = im(idict(idxnn(idx)));
+%     end
+    
+%     % actually label the voxels (it's important to wait until now, because
+%     % if we label the voxels within the loop, we get spill overs of some
+%     % regions into other regions
+%     im(idict(idxtodo)) = new_labels;
     
 %     % DEBUG: plot voxels to label
 %     imagesc(im)

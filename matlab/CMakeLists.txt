@@ -93,3 +93,4 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 
 # build mex functions in the toolboxes
 ADD_SUBDIRECTORY(ItkToolbox)
+ADD_SUBDIRECTORY(FiltersToolbox)
