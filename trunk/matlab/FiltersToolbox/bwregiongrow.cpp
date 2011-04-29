@@ -10,6 +10,8 @@
  *   IM contains a background and several objects, each object represented
  *   by all the connected voxels with the same label.
  *
+ *   IM can have any Matlab numeric type (double, uint8, etc).
+ *
  *   Numerical voxel values in IM are interpreted in the following way:
  *
  *     0:               background voxel, don't label
