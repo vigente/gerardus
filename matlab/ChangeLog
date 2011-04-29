@@ -1,5 +1,29 @@
 2011-04-29  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/skeleton_label.m: v0.4.0
+
+	- Replace slow Dijkstra-based labelling of the whole image by new
+	very fast region grow algorithm bwregiongrow().
+
+	* FiltersToolbox/bwregiongrow.m: v0.2.0
+
+	- Remove all Matlab code, that was very slow and inefficient. This
+	function is now fully implemented in C++ in the corresponding MEX
+	function, that is very fast.
+
+	* FiltersToolbox/bwregiongrow.cpp: v0.2.1
+
+	- Add input argument maxiter, to limit the number of grow
+	iterations of the algorithm.
+
+	* FiltersToolbox/CMakeLists.txt:
+
+	- Rename FiltersToolbox/bwregiongrow_aux.cpp as
+	FiltersToolbox/bwregiongrow.cpp.
+
+	* Rename FiltersToolbox/bwregiongrow_aux.cpp as
+	FiltersToolbox/bwregiongrow.cpp.
+
 	* FiltersToolbox/bwregiongrow_aux.cpp: v0.2.0
 
 	- Complete rewrite of the function. Now instead of implementing
