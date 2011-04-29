@@ -1403,7 +1403,7 @@
 	types. Otherwise, no ElementType header is added to the file, this
 	is not reported, and then Seg3D (and possibly other image
 	visualisation applications) will fail to open the file.
-	
+
 2009-01-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add files provided by Martin Bishop to write metadata
