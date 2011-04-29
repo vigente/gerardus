@@ -486,7 +486,7 @@
 	Replicates are allowed. All methods extrapolate to the grid
 	boundaries. Gridfit uses a modified ridge estimator to generate
 	the surface, where the bias is toward smoothness.
- 
+
         Gridfit is not an interpolant. Its goal is a smooth surface that
 	approximates your data, but allows you to control the amount of
 	smoothing.
@@ -772,7 +772,7 @@
 
 	- Create MetaImage volumes from directory tree of IMA DICOM files,
 	for project with human hearts provided by Kelvin Wong.
-	
+
 	* FileFormatToolbox/sortdirbynum.m:
 
 	- Fix bug. Exit gracefully when list of input files is empty.
@@ -1340,7 +1340,7 @@
 
 	* dcm2metadata.m -> dcm2metaimage.m, im2metadata.m ->
 	im2metaimage.m:
-	
+
 	Correct filenames and function names, because we are create
 	MetaImage files, not "metadata".
 
