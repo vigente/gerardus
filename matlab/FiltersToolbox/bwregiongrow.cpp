@@ -1,14 +1,47 @@
 /*
- * bwregiongrow_aux.cpp
+ * bwregiongrow.cpp
  *
- * This is an auxiliary function to bwregiongrow.m, to implement part
- * of the algorithm in C++ so that we can avoid a costly loop in Matlab
- */
+ * BWREGIONGROW  Region grow labelling of binary image from multiple
+ * seeds
+ *
+ * LAB = BWREGIONGROW(IM, TODO)
+ *
+ *   IM is a 2D matrix or 3D array with a multi-label segmentation. That is,
+ *   IM contains a background and several objects, each object represented
+ *   by all the connected voxels with the same label.
+ *
+ *   Numerical voxel values in IM are interpreted in the following way:
+ *
+ *     0:               background voxel, don't label
+ *     TODO:            this voxel needs to be labelled using the region
+ *                      grow algorithm
+ *     Any other value: this voxel is a seed, and its value will be
+ *                      propagated using the region grow algorithm
+ *
+ *   LAB has the same size as IM, and has the label values that partition
+ *   the original binary image IM. Each partition has a different label.
+ *   Partitions are computed with a region grow algorithm that expands the
+ *   labels from the seeds.
+ *
+ *   At each iteration, partitions grow 1 voxel until the whole IM is
+ *   labelled.
+ *
+ * LAB = BWREGIONGROW(..., RES)
+ *
+ *   RES is a 2-vector (in 2D) or 3-vector (in 3D) with the voxel size in
+ *   each dimension. By default, it is assumed that RES=[1, 1, 1]. Voxel
+ *   size is used to compute distances between voxels in the labelling
+ *   process.
+ *
+ *   MAXITER is a scalar to tell the algorithm to stop after a number of
+ *   region grow iterations. If MAXITER < 0, the algorithm iterates until
+ *   all TODO voxels have been labelled. By default, MAXITER = -1.
+*/
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.2.1
   *
   * University of Oxford means the Chancellor, Masters and Scholars of
   * the University of Oxford, having an administrative office at
@@ -208,7 +241,10 @@ std::vector<mwIndex> getNeighbours(mwSize R, mwSize C, mwSize S,
  */
 template <class VoxelType>
 void run(mxArray* &im, const mxArray* _TODO,
-	 const mxArray* _res) {
+	 const mxArray* _res, const mwIndex _maxiter=-1) {
+
+  // local variables
+  mwIndex maxiter = _maxiter;
 
   // full array pointers
   VoxelType *imp = (VoxelType *)mxGetPr(im);
@@ -296,8 +332,15 @@ void run(mxArray* &im, const mxArray* _TODO,
     }
   }
 
-  // loop until all voxels have been labelled
-  while (1) {
+  // loop until all voxels have been labelled or until the maximum
+  // number of iterations
+  while (maxiter != 0) {
+
+    // decrease maxiter counter if we have to stop after a maximum
+    // number of iterations
+    if (maxiter > 0) {
+      maxiter--;
+    }
     
     /*
      * expand the boundary by 1 voxel at every iteration
@@ -431,12 +474,13 @@ void run(mxArray* &im, const mxArray* _TODO,
 //   prhs[0]: (in) im: input image
 //   prhs[1]: (in) TODO: label of the voxels that need to be labelled
 //   prhs[2]: (in) res: 3-vector with resolution values
-//   plhs[0]: (out) im2
+//   prhs[3]: (in) maxiter: maximum number of iterations
+//   plhs[0]: (out) lab: labelled input image
 void mexFunction(int nlhs, mxArray *plhs[], 
 		 int nrhs, const mxArray *prhs[]) {
   // check number of input and output arguments
-  if ((nrhs != 2) && (nrhs != 3)) {
-    mexErrMsgTxt("Two or three input arguments required");
+  if ((nrhs < 2) || (nrhs > 4)) {
+    mexErrMsgTxt("Two or four input arguments required");
   }
   else if (nlhs > 1) {
     mexErrMsgTxt("Too many output arguments");
@@ -452,7 +496,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // where the processing will happen
   plhs[0] = mxDuplicateArray(prhs[0]);
 
-  // if res was not provided, or it's empty, create an empty array to
+  // if res was not provided, or is empty, create an empty array to
   // pass it to run()
   mxArray *res = NULL;
   if (nrhs < 3 || mxIsEmpty(prhs[2])) {
@@ -460,68 +504,60 @@ void mexFunction(int nlhs, mxArray *plhs[],
   }
   res = const_cast<mxArray *>(prhs[2]);
 
-
-
-  //   if ((mxGetM(prhs[2]) == 1) 
-  // 	&& (mxGetN(prhs[2]) == 2)) { // 2D
-  //     double *resp = (double *)mxGetPr(prhs[2]);
-  //     res.push_back(resp[0]);
-  //     res.push_back(resp[1]);
-  //   } else if ((mxGetM(prhs[2]) == 1) 
-  // 	&& (mxGetN(prhs[2]) == 3)) { // 3D
-  //     double *resp = (double *)mxGetPr(prhs[2]);
-  //     res.push_back(resp[0]);
-  //     res.push_back(resp[1]);
-  //     res.push_back(resp[3]);
-  //   } else {
-  //     mexErrMsgTxt("RES must be a 2-vector (for a 2D image) or a 3-vector (3D image)");
-  //   }
-    
-  // }
+  // defaults
+  mwIndex maxiter = -1;
+  if (nrhs < 4 || mxIsEmpty(prhs[3])) {
+    maxiter = -1;
+  } else {
+    if (!mxIsDouble(prhs[3])) {
+      mexErrMsgTxt("MAXITER must be a double scalar");
+    }
+    maxiter = (mwIndex)mxGetPr(prhs[3])[0];
+  }
   
   // run function, templated according to the input matrix type
   switch(imClassId)  {
   case mxLOGICAL_CLASS:
     run<bool>(plhs[0], prhs[1], 
-	      const_cast<const mxArray *>(res));
+	      const_cast<const mxArray *>(res), maxiter);
     break;
   case mxDOUBLE_CLASS:
     run<double>(plhs[0], prhs[1], 
-		const_cast<const mxArray *>(res));
+		const_cast<const mxArray *>(res), maxiter);
     break;
   case mxSINGLE_CLASS:
     run<float>(plhs[0], prhs[1], 
-	       const_cast<const mxArray *>(res));
+	       const_cast<const mxArray *>(res), maxiter);
     break;
   case mxINT8_CLASS:
     run<int8_T>(plhs[0], prhs[1], 
-		const_cast<const mxArray *>(res));
+		const_cast<const mxArray *>(res), maxiter);
     break;
   case mxUINT8_CLASS:
     run<uint8_T>(plhs[0], prhs[1], 
-		 const_cast<const mxArray *>(res));
+		 const_cast<const mxArray *>(res), maxiter);
     break;
   case mxINT16_CLASS:
     run<int16_T>(plhs[0], prhs[1], 
-		 const_cast<const mxArray *>(res));
+		 const_cast<const mxArray *>(res), maxiter);
     break;
   case mxUINT16_CLASS:
     run<uint16_T>(plhs[0], prhs[1], 
-		  const_cast<const mxArray *>(res));
+		  const_cast<const mxArray *>(res), maxiter);
     break;
   case mxINT32_CLASS:
     run<int32_T>(plhs[0], prhs[1], 
-		 const_cast<const mxArray *>(res));
+		 const_cast<const mxArray *>(res), maxiter);
     break;
   // case mxUINT32_CLASS:
-  // run<uint32_T>(plhs[0], prhs[1], const_cast<const mxArray *>(res));
+  // run<uint32_T>(plhs[0], prhs[1], const_cast<const mxArray *>(res), maxiter);
   //   break;
   case mxINT64_CLASS:
     run<int64_T>(plhs[0], prhs[1], 
-		 const_cast<const mxArray *>(res));
+		 const_cast<const mxArray *>(res), maxiter);
     break;
   // case mxUINT64_CLASS:
-  //   run<uint64_T>(plhs[0], prhs[1], const_cast<const mxArray *>(res));
+  //   run<uint64_T>(plhs[0], prhs[1], const_cast<const mxArray *>(res), maxiter);
   //   break;
   case mxUNKNOWN_CLASS:
     mexErrMsgTxt("Input matrix has unknown type.");

@@ -68,7 +68,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.3
+% Version: 0.4.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -212,19 +212,39 @@ end
 
 if (~isempty(im))
     
-    % now we need the distances between neighbours for the whole segmentation
-    [d, dict] = seg2dmat(im, 'seg', res);
+    % check that the image data type size is large enough to add the TODO
+    % label
+    MAXLAB = zeros(1, class(sk));
+    MAXLAB(1) = Inf; % this casts Inf to the image data type. E.g., if 
+                     % image is uint8, then MAXLAB==255
+
+    % get highest label in the skeleton
+    N = max(sk(:));
+    if (N >= MAXLAB)
+        error('Current image data type size doesn''t allow to add a new label. Cast to a larger data type, e.g. uint16 instead of uint8')
+    end
+
+    % convert im data type to be the same as the seeds, so that we are
+    % guaranteed that all label values can be represented in the output
+    % image
+    im = cast(im, class(sk));
     
-    % for each original segmentation voxel, find the closest skeleton voxel
-    % (use slow mode to avoid running out of memory)
-    nn = graph_nn(d, [], dict(sk(:)>0), false);
+    % label for voxels that need to be labelled
+    TODO = N+1;
     
-    % label each segmentation voxel with the same label as the corresponding
-    % skeleton voxel
-    sk(im(:)>0) = sk(idictsk(nn));
+    % mark segmentation voxels with the highest label, so that we know that
+    % they still need to be labelled, but belong to the segmentation as
+    % opposed to the background
+    im(im > 0) = TODO;
     
-    % free up memory
-    clear d dict    
+    % init algorithm by copying the labelled skeleton to the segmentation
+    idx = sk > 0;
+    im(idx) = sk(idx);
+  
+    % region grow algorithm to label all segmented voxels
+    % overwrite skeleton image
+    sk = bwregiongrow(im, TODO, res);
+
 end
 
 % % Debug (2D image) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -254,31 +274,33 @@ end
 % 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Sort the voxels in each branch
+%% Sort the skeleton voxels in each branch
 
 % loop each branch in the skeleton
 for I = 1:cc.NumObjects
+
     % list of voxels in current branch
     br = cc.PixelIdxList{I};
     
     % number of voxels in the current branch
     N = length(br);
     
+    % degenerate case in which the branch has only one voxel
+    if (N == 1)
+        cc.PixelParam{I} = 0;
+        continue
+    end
+    
     % find the two extreme voxels of the current branch
     idx = dictsk(br(deg(dictsk(br)) ~= 2));
     
-    if (length(idx) ~= 2)
-        error('Assertion fail: Each branch is expected to have two termination nodes')
-    end
-
     % create a distance matrix for only the voxels in the branch
     dbr = 0 * dsk;
     aux = dictsk(br);
     dbr(aux, aux) = dsk(aux, aux);
 
-    % save the initial extreme points for later
+    % save the initial extreme point for later
     v0 = idx(1);
-    v1 = idx(2);
     
     % compute shortest distance from the extreme voxel to every other voxel
     % in the branch, and reuse variable
@@ -290,9 +312,11 @@ for I = 1:cc.NumObjects
     % get the voxel that is furthest from the origin
     [~, idx] = max(dbr);
     
-    if (idx ~= v1)
-        error('Assertion fail: there is a voxel in the branch furthest from an extreme point than the other extreme point');
-    end
+    % it can happen that 4 voxels are connected forming a rhombus. This
+    % will make that v1 doesn't necessarily correspond to the branches
+    % extreme point. This is a degenerate case, and shouldn't affect the
+    % results
+    v1 = idx;
     
     % backtrack the whole branch in order from the furthest point to the
     % original extreme point
@@ -308,12 +332,10 @@ for I = 1:cc.NumObjects
         J = J + 1;
     end
     
-    if any(cc.PixelIdxList{I} == 0)
-        error(['Assertion fail: We have lost at least 1 voxel in branch ' num2str(I)])
-    end
-    if (N ~= length(cc.PixelIdxList{I}))
-        error(['Assertion fail: Sorting has changed the number of voxels in branch ' num2str(I)])
-    end
+    % in the degenerate case explained above, it's possible to lose a voxel
+    % in the branch reordering. In this case, we have an spurious 0 index,
+    % that we want to remove
+    cc.PixelIdxList{I} = cc.PixelIdxList{I}(cc.PixelIdxList{I} ~= 0);
     
     % reorder voxels so that the parameterization increases monotonically
     cc.PixelIdxList{I} = cc.PixelIdxList{I}(end:-1:1);
