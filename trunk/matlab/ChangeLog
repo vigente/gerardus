@@ -1,3 +1,14 @@
+2011-04-29  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/bwregiongrow_aux.cpp: v0.2.0
+
+	- Complete rewrite of the function. Now instead of implementing
+	only a loop of the Matlab function, it implements the whole region
+	grow algorithm. We don't need to use a distance matrix, and the
+	algorithm is super fast (6 sec with the right.mha image that
+	would've probably taken over 35 min with the Dijkstra Matlab
+	method, and a lot more with the region grow implemented in Matlab).
+
 2011-04-28  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add FiltersToolbox/bwregiongrow.m:
@@ -5,7 +16,7 @@
 	- BWREGIONGROW  Region grow segmentation of binary image from
 	multiple seeds.
 
-	* Add FiltersToolbox/bwregiongrow_aux.cpp:
+	* Add FiltersToolbox/bwregiongrow_aux.cpp: v0.1.0
 
 	- This is an auxiliary function to bwregiongrow.m, to implement
 	part of the algorithm in C++ so that we can avoid a costly loop in
