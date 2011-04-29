@@ -1,7 +1,7 @@
 /*
  * bwregiongrow.cpp
  *
- * BWREGIONGROW  Region grow labelling of binary image from multiple
+ * BWREGIONGROW  Fast region grow labelling of binary image from multiple
  * seeds
  *
  * LAB = BWREGIONGROW(IM, TODO)
