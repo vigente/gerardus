@@ -130,6 +130,11 @@ WriteRawFile.m
 FiltersToolbox
 -------------------------------------------------------------
 
+bwregiongrow.m
+
+	 BWREGIONGROW  Region grow labelling of binary image from multiple
+	 seeds
+	
 correct_light_blobs_in_microscope_mosaic.m
 
 	 CORRECT_LIGHT_BLOBS_IN_MICROSCOPE_MOSAIC  Correct the colour blob created
@@ -200,8 +205,9 @@ scinrrd_regionprops.m
 	
 scinrrd_seg2label_stats.m
 
-	 SCINRRD_SEG2LABEL_STATS  Shape stats for each label in a multi-label
-	 segmentation
+	 SCINRRD_SEG2LABEL_STATS  Shape stats for each object in a multi-label
+	 segmentation; objects can be straightened with an skeleton or medial line
+	 before computing the stats
 	
 scinrrd_seg2voxel_stats.m
 
