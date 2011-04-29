@@ -8,11 +8,11 @@ SET(Libraries
   )
 
 ################################################################
-## itk_imfilter()
+## bwregiongrow()
 ################################################################
 
-ADD_MEX_FILE(bwregiongrow_aux bwregiongrow_aux.cpp)
-TARGET_LINK_LIBRARIES(bwregiongrow_aux
+ADD_MEX_FILE(bwregiongrow bwregiongrow.cpp)
+TARGET_LINK_LIBRARIES(bwregiongrow
   ${Libraries})
 
 ################################################################
@@ -20,6 +20,6 @@ TARGET_LINK_LIBRARIES(bwregiongrow_aux
 ################################################################
 
 INSTALL(TARGETS 
-  bwregiongrow_aux
+  bwregiongrow
   LIBRARY DESTINATION 
   ${CMAKE_CURRENT_SOURCE_DIR})
