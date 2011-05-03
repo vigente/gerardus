@@ -1,3 +1,10 @@
+2011-05-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_squeeze.m: v0.1.2
+
+	- Don't remove dimension from nrrd.axis if it's not a dummy
+	dimension.
+
 2011-04-29  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_label.m: v0.4.0
