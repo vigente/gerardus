@@ -30,7 +30,7 @@ function nrrd = scinrrd_squeeze(nrrd, todouble)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -66,7 +66,9 @@ end
 
 % remove dummy dimension
 nrrd.data = squeeze(nrrd.data);
-nrrd.axis = nrrd.axis(2:end);
+if (length(nrrd.axis) > 3)
+    nrrd.axis = nrrd.axis(2:end);
+end
 
 % convert data to double
 if (todouble)
