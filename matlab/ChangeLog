@@ -1,3 +1,17 @@
+2011-05-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m: v0.3.0
+
+	- SCINRRD_SEG2LABEL_STATS Shape stats for each object in a
+	multi-label segmentation; objects can be straightened with an
+	skeleton or medial line before computing the stats.
+
+	* Delete FiltersToolbox/landlocked_stats.m:
+
+	- Move its functionality to
+	FiltersToolbox/scinrrd_seg2label_stats.m to avoid having different
+	functions that do similar things.
+
 2011-05-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_squeeze.m: v0.1.2

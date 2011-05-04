@@ -1,13 +1,16 @@
 function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 % SCINRRD_SEG2LABEL_STATS  Shape stats for each object in a multi-label
 % segmentation; objects can be straightened with an skeleton or medial line
-% before computing the stats
+% before computing some measures
 %
 %   This function was developed to measure the dimensions of different
 %   objects found in a segmentation. 
 %
 %   Each voxel in the input segmentation has to be labelled as belonging to
 %   the different objects or the background.
+%
+%   Boundary voxels are counted to assess whether each label is next to the
+%   background ("water"), or interior ("landlocked").
 %
 %   This function then computes Principal Component Analysis (PCA) on the
 %   voxels of each object, to estimate the variance in the 3 principal
@@ -25,6 +28,8 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 %   misleading values of variance, the function can also straighten the
 %   objects using a skeleton or medial line prior to computing PCA.
 %
+%   Boundary voxel counting is performed without straightening the labels.
+%
 % STATS = SCINRRD_SEG2LABEL_STATS(NRRD)
 %
 %   NRRD is an SCI NRRD struct with a labelled segmentation mask.
@@ -34,12 +39,21 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 %   2, and so on.
 %
 %   STATS is a struct with the shape parameters computed for each object in
-%   the segmentation. The only measure provided currently is
+%   the segmentation. The measures provided are
 %
-%     STATS.VAR: Variance in the three principal components of the cloud
+%     STATS.var: Variance in the three principal components of the cloud
 %                of voxels that belong to each object. These are the
 %                ordered eigenvalues obtained from computing Principal
 %                Component Analysis on the voxel coordinates.
+%
+%     STATS.islandlocked: bool to tell whether the corresponding section is
+%                         landlocked
+%
+%     STATS.nbound:       number of voxels in the outer boundary of the
+%                         section
+%
+%     STATS.nwater:       number of voxels in the outer boundary that are
+%                         touching the background
 %
 %   If an object has no voxels, the corresponding STATS values are NaN.
 %
@@ -76,7 +90,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.0
+% Version: 0.3.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -115,14 +129,30 @@ if (nargin < 4 || isempty(d) || isempty(dict))
     [d, dict] = seg2dmat(nrrd.data, 'seg', [nrrd.axis.spacing]);
 end
 
+% figure out whether the data is 2D or 3D, because if it's 2D, a landlocked
+% voxel has degree 8, but if it's 3D, it needs degree 26
+if (size(nrrd.data, 3) > 1)
+    % data is 3D
+    degmax = 26;
+else
+    % data is 2D
+    degmax = 8;
+end
+
 % number of objects
 N = max(nrrd.data(:));
 if (~isempty(cc) && (N ~= cc.NumObjects))
     error('If CC is provided, then it must have one element per object in NRRD')
 end
 
-% init matrix to store the eigenvalues of each branch
+% compute degree of each voxel in the segmentation
+deg = sum(d>0, 2);
+
+% init output
 eigd = nan(3, N);
+stats.islandlocked = nan(1, N);
+stats.nbound = nan(1, N);
+stats.nwater = nan(1, N);
 
 % loop every branch
 for I = 1:N
@@ -134,6 +164,32 @@ for I = 1:N
     if (isempty(br))
         continue
     end
+    
+    %% compute boundary stats
+    
+    % image indices => distance matrix indices
+    idx = dict(br);
+    
+    % number of voxels that are on the outer boundary of the label, but not
+    % touching other labels
+    stats.nwater(I) = nnz(deg(idx) ~= degmax);
+    
+    % if all the voxels have maximum degree, then the label is landlocked
+    stats.islandlocked(I) = stats.nwater(I) == 0;
+    
+    % create a smaller connectivity/distance matrix for only the voxels in
+    % the label
+    dlab = d(idx, idx)>0;
+    
+    % compute degree of each voxel in the label if the label is
+    % disconnected
+    deglab = sum(full(dlab), 2);
+    
+    % total number of voxels in the outer boundary of the label, whether
+    % they touch other labels or not
+    stats.nbound(I) = nnz(deglab ~= degmax);
+    
+    %% compute eigenvalues using PCA
         
     % straighten all branch voxels using a local rigid transformation
     if (~isempty(cc))
