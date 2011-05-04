@@ -132,7 +132,7 @@ FiltersToolbox
 
 bwregiongrow.m
 
-	 BWREGIONGROW  Region grow labelling of binary image from multiple
+	 BWREGIONGROW  Fast region grow labelling of binary image from multiple
 	 seeds
 	
 correct_light_blobs_in_microscope_mosaic.m
@@ -152,11 +152,6 @@ im2imat.m
 img_tps_map.m
 
 	 IMG_TPS_MAP Warp an image using a thin-plate spline transformation
-	
-landlocked_stats.m
-
-	 LANDLOCKED_STATS  Assess whether sections of voxels are surrounded by
-	 other sections (land) or by background (water)
 	
 scinrrd_box.m
 
@@ -207,7 +202,7 @@ scinrrd_seg2label_stats.m
 
 	 SCINRRD_SEG2LABEL_STATS  Shape stats for each object in a multi-label
 	 segmentation; objects can be straightened with an skeleton or medial line
-	 before computing the stats
+	 before computing some measures
 	
 scinrrd_seg2voxel_stats.m
 
