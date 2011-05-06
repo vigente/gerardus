@@ -43,7 +43,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.1
+  * Version: 0.2.2
   *
   * University of Oxford means the Chancellor, Masters and Scholars of
   * the University of Oxford, having an administrative office at
@@ -177,12 +177,28 @@ std::vector<mwIndex> getNeighbours(mwSize R, mwSize C, mwSize S,
 
   // convert linear index to image array indices
   std::vector<mwIndex> rcs = ind2sub(R, C, S, idx);
+
+  // // DEBUG
+  // std::cout << "getNeighbours(): input index " << idx << " is "
+  // 	    << rcs[0] << ", " << rcs[1] << ", "
+  // 	    << rcs[2] << std::endl;
   
   std::vector<mwIndex> rcsn(3);
   if (S == 1) { // 2D image
     
-    for (mwIndex c = rcs[1]-1; c <= rcs[1]+1; ++c) {
-      for (mwIndex r = rcs[0]-1; r <= rcs[0]+1; ++r) {
+    // // DEBUG
+    // std::cout << "getNeighbours(): 2D image" << std::endl;
+
+    // compute starting values for the indices in the loop. Because
+    // mwIndex is a long unsigned int, if we do rcs[2]-1 when
+    // rcs[2]==0, then instead of the expected -1 we obtain
+    // 18446744073709551615 because the number wraps over
+    mwIndex rmin, cmin;
+    (rcs[0] > 0) ? rmin = rcs[0]-1 : rmin = 0;
+    (rcs[1] > 0) ? cmin = rcs[1]-1 : cmin = 0;
+
+    for (mwIndex c = cmin; c <= rcs[1]+1; ++c) {
+      for (mwIndex r = rmin; r <= rcs[0]+1; ++r) {
 	// input index cannot be an index of itself
 	if ((r == rcs[0]) && (c == rcs[1])) {
 	  continue;
@@ -204,18 +220,40 @@ std::vector<mwIndex> getNeighbours(mwSize R, mwSize C, mwSize S,
     
   } else { // 3D image
     
-    for (mwIndex s = rcs[2]-1; s <= rcs[2]+1; ++s) {
-      for (mwIndex c = rcs[1]-1; c <= rcs[1]+1; ++c) {
-	for (mwIndex r = rcs[0]-1; r <= rcs[0]+1; ++r) {
+    // // DEBUG
+    // std::cout << "getNeighbours(): 3D image" << std::endl;
+
+    // compute starting values for the indices in the loop. Because
+    // mwIndex is a long unsigned int, if we do rcs[2]-1 when
+    // rcs[2]==0, then instead of the expected -1 we obtain
+    // 18446744073709551615 because the number wraps over
+    mwIndex rmin, cmin, smin;
+    (rcs[0] > 0) ? rmin = rcs[0]-1 : rmin = 0;
+    (rcs[1] > 0) ? cmin = rcs[1]-1 : cmin = 0;
+    (rcs[2] > 0) ? smin = rcs[2]-1 : smin = 0;
+
+    // loop every neighbour candidate
+    for (mwIndex s = smin; s <= rcs[2]+1; ++s) {
+      for (mwIndex c = cmin; c <= rcs[1]+1; ++c) {
+	for (mwIndex r = rmin; r <= rcs[0]+1; ++r) {
+
+	  // // DEBUG
+	  // std::cout << "getNeighbours(): Potential neighbour " 
+	  // 	    << r << ", " << c << ", " << s
+	  // 	    << std::endl;
+	  // std::cout << "getNeighbours(): Image bounds " 
+	  // 	    << R << ", " << C << ", " << S << std::endl;
+	  
 	  // input index cannot be an index of itself
 	  if ((r == rcs[0]) && (c == rcs[1]) && (s == rcs[2])) {
 	    continue;
 	  }
-	  
+
 	  // is the potential neighbour within the image bounds?
 	  if ((r >= 0) && (r < R) 
 	      && (c >= 0) && (c < C)
 	      && (s >= 0) && (s < S)) {
+
 	    // convert array indices to linear index
 	    rcsn[0] = r;
 	    rcsn[1] = c;
@@ -243,10 +281,10 @@ std::vector<mwIndex> getNeighbours(mwSize R, mwSize C, mwSize S,
  */
 template <class VoxelType>
 void run(mxArray* &im, const mxArray* _TODO,
-	 const mxArray* _res, const mwIndex _maxiter=-1) {
+	 const mxArray* _res, const long signed int _maxiter=-1) {
 
   // local variables
-  mwIndex maxiter = _maxiter;
+  long signed int maxiter = _maxiter;
 
   // full array pointers
   VoxelType *imp = (VoxelType *)mxGetPr(im);
@@ -334,6 +372,12 @@ void run(mxArray* &im, const mxArray* _TODO,
     }
   }
 
+  // // DEBUG
+  // std::cout << "run(): Initial boundary" << std::endl;
+  // for (mwIndex i = 0; i < boundary.size(); ++i) {
+  //   std::cout << "run(): index = " << boundary[i] << std::endl;
+  // }
+
   // loop until all voxels have been labelled or until the maximum
   // number of iterations
   while (maxiter != 0) {
@@ -358,9 +402,24 @@ void run(mxArray* &im, const mxArray* _TODO,
     // loop every boundary voxel
     for (mwIndex i = 0; i < boundary.size(); ++i) {
 
+      // // DEBUG
+      // std::vector<mwIndex> rcs = ind2sub(R, C, S, boundary[i]);
+      // std::cout << "run(): Neighbours of boundary index " 
+      // 		<< boundary[i] << " = " 
+      // 		<< rcs[0] << ", " << rcs[1] << ", " << rcs[2]
+      // 		<< std::endl;
+
       // get neighbours of current voxel
       neighbour = getNeighbours(R, C, S, boundary[i]);
      
+      // // DEBUG
+      // std::cout << "run(): Begin Neighbours" << std::endl;
+      // for (mwIndex i = 0; i < neighbour.size(); ++i) {
+      // 	std::cout << "run(): index = " << neighbour[i] << std::endl;
+      // }
+      // std::cout << "run(): End Neighbours" << std::endl;
+      // std::cout << "run(): --------------------------------" << std::endl;
+
       // loop every neighbour
       for (mwIndex j = 0; j < neighbour.size(); ++j) {
 
@@ -381,6 +440,10 @@ void run(mxArray* &im, const mxArray* _TODO,
     if (newBoundary.size() == 0) {
       return;
     }
+
+    // // DEBUG
+    // std::cout << "run(): ================================================="
+    // 	      << std::endl;
 
     /*
      * find labels for the voxels in the new boundary. For each new
@@ -508,14 +571,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
   }
 
   // defaults
-  mwIndex maxiter = -1;
+  long signed int maxiter = -1;
   if (nrhs < 4 || mxIsEmpty(prhs[3])) {
     maxiter = -1;
   } else {
     if (!mxIsDouble(prhs[3])) {
       mexErrMsgTxt("MAXITER must be a double scalar");
     }
-    maxiter = (mwIndex)mxGetPr(prhs[3])[0];
+    maxiter = (long signed int)mxGetPr(prhs[3])[0];
   }
   
   // run function, templated according to the input matrix type
