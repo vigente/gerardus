@@ -185,6 +185,12 @@ for v = find(deg >= 3)'
     end
 end
 
+% if cc.PixelIdxList{I} had only 1 element, now it is a row vector, instead
+% of a column vector. Make sure that they are all column vectors
+for I = 1:cc.NumObjects
+    cc.PixelIdxList{I} = cc.PixelIdxList{I}(:);
+end
+
 % loop any voxels that have been left without a label, and assign them one
 % of a neighbour's
 for v = find(~withlab)'
