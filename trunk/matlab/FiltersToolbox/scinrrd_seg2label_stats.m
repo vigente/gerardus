@@ -170,8 +170,7 @@ for I = 1:N
     % image indices => distance matrix indices
     idx = dict(br);
     
-    % number of voxels that are on the outer boundary of the label, but not
-    % touching other labels
+    % number of voxels that are touching the background
     stats.nwater(I) = nnz(deg(idx) ~= degmax);
     
     % if all the voxels have maximum degree, then the label is landlocked
@@ -199,7 +198,7 @@ for I = 1:N
         % add skeleton voxels to the branch, in case they are not already
         br = union(sk, br);
     end
-        
+    
     % coordinates of branch voxels
     [r, c, s] = ind2sub(size(nrrd.data), br);
     xi = scinrrd_index2world([r, c, s], nrrd.axis)';
@@ -215,10 +214,10 @@ for I = 1:N
         dbr = d(aux, aux);
         dictbr = sparse(br, ones(length(br), 1), 1:length(br));
         
-        % convert image indices to distance matrix indices
+        % image indices => distance matrix indices
         sk = dictbr(sk);
         
-        % compute distance from each branch voxels to all skeleton points
+        % compute distance from each branch voxel to all skeleton points
         dbrsk = dijkstra(dbr, sk);
         
         % keep only the closest skeleton point association
