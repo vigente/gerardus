@@ -1,5 +1,14 @@
 2011-05-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/skeleton_label.m: v0.4.1
+
+	- Fix bug. Branches forming a loop were not correctly
+	parameterized. We were choosing an extreme voxel, and then finding
+	the furtherst voxel. In a "linear" branch this works fine, but in
+	a loop, the furthest voxel is at the other end of the loop, so
+	half the loop was being dropped. Now, we break loops open before
+	computing Dijkstra, so all the voxels are included.
+
 	* FiltersToolbox/bwregiongrow.cpp (MexFunction, getNeighbours):
 	v0.2.2
 
