@@ -68,7 +68,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -113,7 +113,7 @@ end
 % branches, though
 [dsk, dictsk, idictsk] = seg2dmat(sk, 'seg', res);
 
-% compute degree of each voxel
+% compute degree of each skeleton voxel
 deg = sum(dsk > 0, 2);
 
 % get distance matrix index of the bifurcation voxels
@@ -290,17 +290,39 @@ for I = 1:cc.NumObjects
         cc.PixelParam{I} = 0;
         continue
     end
+
+    % image index => skeleton distance matrix index
+    idx = dictsk(br);
     
-    % find the two extreme voxels of the current branch
-    idx = dictsk(br(deg(dictsk(br)) ~= 2));
+    % image indices of skeleton voxels that either terminate or connect the
+    % branch to the rest of the skeleton. We call these extreme points
+    idx = br(deg(idx) ~= 2);
+   
+    % image index => skeleton distance matrix index
+    idx = dictsk(idx);
     
-    % create a distance matrix for only the voxels in the branch
+    % select any extreme point
+    v0 = idx(1);
+    
+    % create a "branch distance matrix" for only the voxels in the branch
     dbr = 0 * dsk;
     aux = dictsk(br);
     dbr(aux, aux) = dsk(aux, aux);
-
-    % save the initial extreme point for later
-    v0 = idx(1);
+    
+    % the branch's skeleton can have two shapes: a "wire" or a "loop". If
+    % any of the extreme points is connected to more than 1 voxel in the
+    % branch distance matrix, it means that we have a loop that needs to be
+    % broken
+    for J = 1:length(idx)
+        
+        % branch voxels the extreme point is connected to
+        idxconn = find(dbr(idx(J), :));
+        
+        % keep only 1 connection, to break possible loops
+        dbr(idx(J), idxconn(2:end)) = 0;
+        dbr(idxconn(2:end), idx(J)) = 0;
+        
+    end
     
     % compute shortest distance from the extreme voxel to every other voxel
     % in the branch, and reuse variable
@@ -310,13 +332,7 @@ for I = 1:cc.NumObjects
     dbr(isinf(dbr)) = 0;
     
     % get the voxel that is furthest from the origin
-    [~, idx] = max(dbr);
-    
-    % it can happen that 4 voxels are connected forming a rhombus. This
-    % will make that v1 doesn't necessarily correspond to the branches
-    % extreme point. This is a degenerate case, and shouldn't affect the
-    % results
-    v1 = idx;
+    [~, v1] = max(dbr);
     
     % backtrack the whole branch in order from the furthest point to the
     % original extreme point
@@ -325,17 +341,12 @@ for I = 1:cc.NumObjects
     cc.PixelIdxList{I}(1) = idictsk(v1);
     cc.PixelParam{I}(1) = dbr(v1);
     J = 2;
-    while (idx ~= v0)
-        idx = p(idx);
-        cc.PixelIdxList{I}(J) = idictsk(idx);
-        cc.PixelParam{I}(J) = dbr(idx);
+    while (v1 ~= v0)
+        v1 = p(v1);
+        cc.PixelIdxList{I}(J) = idictsk(v1);
+        cc.PixelParam{I}(J) = dbr(v1);
         J = J + 1;
     end
-    
-    % in the degenerate case explained above, it's possible to lose a voxel
-    % in the branch reordering. In this case, we have an spurious 0 index,
-    % that we want to remove
-    cc.PixelIdxList{I} = cc.PixelIdxList{I}(cc.PixelIdxList{I} ~= 0);
     
     % reorder voxels so that the parameterization increases monotonically
     cc.PixelIdxList{I} = cc.PixelIdxList{I}(end:-1:1);
