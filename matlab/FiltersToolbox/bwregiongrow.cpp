@@ -327,7 +327,7 @@ void run(mxArray* &im, const mxArray* _TODO,
     }
 
     // is this voxel a seed voxel?
-    addedToNewBoundary[i] = imp[i] != 0 && imp[i] != TODO;
+    addedToNewBoundary[i] = (imp[i] != 0) && (imp[i] != TODO);
     if (addedToNewBoundary[i]) {
       // if so, add it to the list of boundary voxels
       boundary.push_back(i);
@@ -503,8 +503,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
   mxArray *res = NULL;
   if (nrhs < 3 || mxIsEmpty(prhs[2])) {
     res = mxCreateDoubleMatrix(0, 0, mxREAL);
+  } else {
+    res = const_cast<mxArray *>(prhs[2]);
   }
-  res = const_cast<mxArray *>(prhs[2]);
 
   // defaults
   mwIndex maxiter = -1;
