@@ -1,3 +1,10 @@
+2011-05-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/bwregiongrow.cpp (MexFunction): 
+
+	- Fix bug. If res was not provided, we were passing a NULL pointer
+	to run(), that gave a segfault.
+
 2011-05-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m: v0.3.0
