@@ -1,6 +1,9 @@
 2011-05-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
-	* FiltersToolbox/skeleton_label.m: v0.4.1
+	* FiltersToolbox/skeleton_label.m: v0.4.2
+
+	- Fix bug. When adding bifurcation points to branches, in some
+	cases voxels could get duplicated.
 
 	- Fix bug. Branches forming a loop were not correctly
 	parameterized. We were choosing an extreme voxel, and then finding

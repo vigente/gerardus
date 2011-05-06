@@ -68,7 +68,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.1
+% Version: 0.4.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -172,10 +172,11 @@ for v = find(deg >= 3)'
         % get all its neighbour's labels
         vnlab = sk(idictsk(vn));
         
-        % add the bifurcation point to each branch that it finishes
+        % add the bifurcation point to each branch that it finishes,
+        % without duplicating voxels
         for I = 1:length(vnlab)
             cc.PixelIdxList{vnlab(I)} = ...
-                [cc.PixelIdxList{vnlab(I)}; idictsk(v)];
+                union(cc.PixelIdxList{vnlab(I)}, idictsk(v));
             sk(idictsk(v)) = vnlab(I);
         end
         
@@ -279,7 +280,7 @@ end
 % loop each branch in the skeleton
 for I = 1:cc.NumObjects
 
-    % list of voxels in current branch
+    % list of skeleton voxels in current branch
     br = cc.PixelIdxList{I};
     
     % number of voxels in the current branch
