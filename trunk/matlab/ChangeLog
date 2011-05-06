@@ -1,6 +1,12 @@
 2011-05-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
-	* FiltersToolbox/bwregiongrow.cpp (MexFunction): 
+	* FiltersToolbox/bwregiongrow.cpp (MexFunction, getNeighbours):
+	v0.2.2
+
+	- Fix bug. As the neighbour r, c, s indices we are using a
+	mwIndex, that is a long unsigned int. So when we were doing
+	rcs[2]-1 and rcs[2]==0, instead of getting -1, the number wrapped
+	around due to an implicit cast and gave 18446744073709551615.
 
 	- Fix bug. If res was not provided, we were passing a NULL pointer
 	to run(), that gave a segfault.
