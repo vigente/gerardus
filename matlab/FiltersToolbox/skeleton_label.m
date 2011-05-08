@@ -25,12 +25,24 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 %
 %     [r, c, s] = ind2sub(size(sk), cc.PixelIdxList{5});
 %
-%   We have added a new field to CC:
+%   We have added new fields to CC:
 %
-%     CC.PixelParam{i} contains the parameterization values for the voxels
-%     in cc.PixelIdxList{i}. The parameterization is computed as the
-%     accumulated chord distance between consecutive branch voxels. This
-%     parameterization can be used, e.g. for spline interpolation.
+%     CC.PixelParam{i}: parameterization values for the voxels in
+%                       cc.PixelIdxList{i}. The parameterization is
+%                       computed as the accumulated chord distance between
+%                       consecutive branch voxels. This parameterization
+%                       can be used, e.g. for spline interpolation
+%
+%     CC.IsLeaf(i):     flags indicating whether each section is a "leaf",
+%                       i.e. whether it's a branch with a free extreme
+%
+%     CC.IsLoop(i):     flags indicating whether each section is a "loop",
+%                       i.e. whether it's a branch around a hole
+%
+%     CC.BranchLength(i): chord-length of each skeleton branch. This is
+%                         different from the branch length that can be
+%                         estimated from the variance because the skeleton
+%                         doesn't go all the way to the end of the branch
 %
 %   There may be a small discrepancy between cc.PixelIdxList and the voxels
 %   labelled in LAB. The reason is that:
@@ -68,7 +80,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.2
+% Version: 0.6.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -283,9 +295,16 @@ end
 
 %% Sort the skeleton voxels in each branch
 
+% init output
+cc.IsLeaf = false(1, N);
+cc.IsLoop = false(1, N);
+cc.BranchLenght = nan(1, N);
+
 % loop each branch in the skeleton
 for I = 1:cc.NumObjects
 
+    I%%%
+    
     % list of skeleton voxels in current branch
     br = cc.PixelIdxList{I};
     
@@ -304,10 +323,26 @@ for I = 1:cc.NumObjects
     % image indices of skeleton voxels that either terminate or connect the
     % branch to the rest of the skeleton. We call these extreme points
     idx = br(deg(idx) ~= 2);
-   
-    % image index => skeleton distance matrix index
-    idx = dictsk(idx);
     
+    % if the branch is a loop that is not connected to any other branches,
+    % then idx==[]. In this case, any voxel can be used 
+    if isempty(idx)
+        idx = br(1);
+        
+        % image index => skeleton distance matrix index
+        idx = dictsk(idx);
+    
+        cc.IsLeaf(I) = true;
+        cc.IsLoop(I) = true;
+    else
+        % image index => skeleton distance matrix index
+        idx = dictsk(idx);
+    
+        % if any extreme point has degree==1, it means that this branch is a
+        % "leaf", i.e. one extreme is not connected to the rest of the skeleton
+        cc.IsLeaf(I) = any(deg(idx) == 1);
+    end
+   
     % select any extreme point
     v0 = idx(1);
     
@@ -324,6 +359,11 @@ for I = 1:cc.NumObjects
         
         % branch voxels the extreme point is connected to
         idxconn = find(dbr(idx(J), :));
+        
+        % the branch contains a loop
+        if (length(idxconn) > 1)
+            cc.IsLoop(I) = true;
+        end
         
         % keep only 1 connection, to break possible loops
         dbr(idx(J), idxconn(2:end)) = 0;
@@ -358,6 +398,9 @@ for I = 1:cc.NumObjects
     % reorder voxels so that the parameterization increases monotonically
     cc.PixelIdxList{I} = cc.PixelIdxList{I}(end:-1:1);
     cc.PixelParam{I} = cc.PixelParam{I}(end:-1:1);
+    
+    % extract length of each branch
+    cc.BranchLenght(I) = cc.PixelParam{I}(end);
     
 end
 
