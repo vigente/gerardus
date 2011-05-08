@@ -1,11 +1,23 @@
+2011-05-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.6.0) Add field cc.IsLoop to output.
+
+	- Fix bug. For branches that were a loop not connected to any
+	other part of the skeleton, there were no extreme points and this
+	gave an error when trying to index an empty array.
+
 2011-05-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
-	* FiltersToolbox/skeleton_label.m: v0.4.2
+	* FiltersToolbox/skeleton_label.m:
 
-	- Fix bug. When adding bifurcation points to branches, in some
-	cases voxels could get duplicated.
+	- (v0.5.0) Add fields cc.IsLeaf, cc..BranchLength to output.
 
-	- Fix bug. Branches forming a loop were not correctly
+	- (v0.4.2) Fix bug. When adding bifurcation points to branches, in
+	some cases voxels could get duplicated.
+
+	- (v0.4.1) Fix bug. Branches forming a loop were not correctly
 	parameterized. We were choosing an extreme voxel, and then finding
 	the furtherst voxel. In a "linear" branch this works fine, but in
 	a loop, the furthest voxel is at the other end of the loop, so
