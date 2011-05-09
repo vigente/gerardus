@@ -1,5 +1,11 @@
 2011-05-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.3.1) Don't try to straighten branches that cannot be
+	parameterized (at the moment, the only case I can think of are
+	branches with loops).
+
 	* FiltersToolbox/skeleton_label.m:
 
 	- (v0.6.1) We no longer split up loops, because it doesn't really

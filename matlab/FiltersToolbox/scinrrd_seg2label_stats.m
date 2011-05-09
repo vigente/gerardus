@@ -90,7 +90,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -203,7 +203,7 @@ for I = 1:N
     [r, c, s] = ind2sub(size(nrrd.data), br);
     xi = scinrrd_index2world([r, c, s], nrrd.axis)';
     
-    if (~isempty(cc))
+    if (~isempty(cc) && all(~isnan(cc.PixelParam{I})))
         % coordinates of skeleton voxels
         [r, c, s] = ind2sub(size(nrrd.data), sk);
         x = scinrrd_index2world([r, c, s], nrrd.axis)';
