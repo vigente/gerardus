@@ -1,3 +1,10 @@
+2011-05-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.6.1) We no longer split up loops, because it doesn't really
+	make sense to try to parameterize a loop as a 1-D spline.
+
 2011-05-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_label.m:
