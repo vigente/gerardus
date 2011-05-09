@@ -303,8 +303,6 @@ cc.BranchLenght = nan(1, N);
 % loop each branch in the skeleton
 for I = 1:cc.NumObjects
 
-    I%%%
-    
     % list of skeleton voxels in current branch
     br = cc.PixelIdxList{I};
     
