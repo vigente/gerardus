@@ -31,7 +31,10 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 %                       cc.PixelIdxList{i}. The parameterization is
 %                       computed as the accumulated chord distance between
 %                       consecutive branch voxels. This parameterization
-%                       can be used, e.g. for spline interpolation
+%                       can be used, e.g. for spline interpolation.
+%                       Branches that contain a loop cannot be
+%                       parameterized as a 1-D spline, and thus
+%                       CC.PixelParam(i)=NaN
 %
 %     CC.IsLeaf(i):     flags indicating whether each section is a "leaf",
 %                       i.e. whether it's a branch with a free extreme
@@ -39,10 +42,10 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 %     CC.IsLoop(i):     flags indicating whether each section is a "loop",
 %                       i.e. whether it's a branch around a hole
 %
-%     CC.BranchLength(i): chord-length of each skeleton branch. This is
-%                         different from the branch length that can be
-%                         estimated from the variance because the skeleton
-%                         doesn't go all the way to the end of the branch
+%     CC.BranchLength(i): chord-length of each skeleton branch. This is a
+%                         parameterization of the branch's skeleton as a
+%                         1-D spline. Branches that contain a loop cannot
+%                         be parameterize, and thus CC.IsLoop(i)=NaN.
 %
 %   There may be a small discrepancy between cc.PixelIdxList and the voxels
 %   labelled in LAB. The reason is that:
@@ -80,7 +83,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.6.0
+% Version: 0.6.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -351,54 +354,71 @@ for I = 1:cc.NumObjects
     
     % the branch's skeleton can have two shapes: a "wire" or a "loop". If
     % any of the extreme points is connected to more than 1 voxel in the
-    % branch distance matrix, it means that we have a loop that needs to be
-    % broken
+    % branch distance matrix, it means that we have a loop. In principle,
+    % we could try to break up loops, but there's not a real good reason to
+    % do so, because does it really make sense to straighten a loop as if
+    % it were a "wire"? A loop can have the following topology
+    %
+    %                         --
+    %                         ||
+    %                         ||
+    %                       ------
+    %
+    % In this case, the loop cannot even be broken in a meaningful way.
+    %
+    % Thus, if we find a loop, we flag the branch as such, and leave the
+    % skeleton voxels unsorted
     for J = 1:length(idx)
-        
         % branch voxels the extreme point is connected to
         idxconn = find(dbr(idx(J), :));
         
         % the branch contains a loop
         if (length(idxconn) > 1)
             cc.IsLoop(I) = true;
+            break
         end
         
-        % keep only 1 connection, to break possible loops
-        dbr(idx(J), idxconn(2:end)) = 0;
-        dbr(idxconn(2:end), idx(J)) = 0;
+    end
+    
+    % sort the skeleton voxels in the branch only if the branch is a "wire"
+    % without loops
+    if (~cc.IsLoop(I))
+        % compute shortest distance from the extreme voxel to every other
+        % voxel in the branch, and reuse variable
+        [dbr, p] = dijkstra(dbr, v0);
         
+        % convert Inf values in dbr to 0
+        dbr(isinf(dbr)) = 0;
+        
+        % get the voxel that is furthest from the origin
+        [~, v1] = max(dbr);
+        
+        % backtrack the whole branch in order from the furthest point to
+        % the original extreme point
+        cc.PixelIdxList{I}(:) = 0;
+        cc.PixelParam{I} = cc.PixelIdxList{I};
+        cc.PixelIdxList{I}(1) = idictsk(v1);
+        cc.PixelParam{I}(1) = dbr(v1);
+        J = 2;
+        while (v1 ~= v0)
+            v1 = p(v1);
+            cc.PixelIdxList{I}(J) = idictsk(v1);
+            cc.PixelParam{I}(J) = dbr(v1);
+            J = J + 1;
+        end
+        
+        % reorder voxels so that the parameterization increases monotonically
+        cc.PixelIdxList{I} = cc.PixelIdxList{I}(end:-1:1);
+        cc.PixelParam{I} = cc.PixelParam{I}(end:-1:1);
+        
+        % extract length of each branch
+        cc.BranchLenght(I) = cc.PixelParam{I}(end);
+    else
+        % the branch contains a loop, so it doesn't make sense to
+        % parameterize or sort the skeleton voxels as a line
+        cc.BranchLenght(I) = nan;
+        cc.PixelParam{I} = nan;
     end
-    
-    % compute shortest distance from the extreme voxel to every other voxel
-    % in the branch, and reuse variable
-    [dbr, p] = dijkstra(dbr, v0);
-    
-    % convert Inf values in dbr to 0
-    dbr(isinf(dbr)) = 0;
-    
-    % get the voxel that is furthest from the origin
-    [~, v1] = max(dbr);
-    
-    % backtrack the whole branch in order from the furthest point to the
-    % original extreme point
-    cc.PixelIdxList{I}(:) = 0;
-    cc.PixelParam{I} = cc.PixelIdxList{I};
-    cc.PixelIdxList{I}(1) = idictsk(v1);
-    cc.PixelParam{I}(1) = dbr(v1);
-    J = 2;
-    while (v1 ~= v0)
-        v1 = p(v1);
-        cc.PixelIdxList{I}(J) = idictsk(v1);
-        cc.PixelParam{I}(J) = dbr(v1);
-        J = J + 1;
-    end
-    
-    % reorder voxels so that the parameterization increases monotonically
-    cc.PixelIdxList{I} = cc.PixelIdxList{I}(end:-1:1);
-    cc.PixelParam{I} = cc.PixelParam{I}(end:-1:1);
-    
-    % extract length of each branch
-    cc.BranchLenght(I) = cc.PixelParam{I}(end);
     
 end
 
