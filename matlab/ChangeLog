@@ -1,3 +1,14 @@
+2011-05-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (v0.2.0) Add DanielssonDistanceMapImageFilter. This basically
+	meant creating another runFilter() for the case where the input
+	and output images don't have the same type, and some template
+	tricks to e.g. be able to test the output image type using the
+	templated type. Now it should be very easy to add new filters that
+	produce an result with a different type than the input image.
+
 2011-05-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
