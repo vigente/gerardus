@@ -1,17 +1,29 @@
-function itk_imfilter
+function im = itk_imfilter(~, ~)
 % ITK_IMFILTER: Run ITK filter on a 2D or 3D image
 %
-% This function is a multiple-purpose wrapper to be able to run all
-% ITK filters that inherit from itk::ImageToImageFilter on a Matlab
-% 2D image or 3D image volume.
+% This MEX function is a multiple-purpose wrapper to be able to run
+% all ITK filters that inherit from itk::ImageToImageFilter on a
+% Matlab 2D image or 3D image volume.
 %
 % B = ITK_IMFILTER(TYPE, A)
 %
 %   TYPE is a string with the filter we want to run. Currently, only
 %   the following options are implemented:
 %
-%     'skel': (BinaryThinningImageFilter3D) Skeletonize a
-%             segmentation mask
+%     'skel':    (BinaryThinningImageFilter3D) Skeletonize a
+%                binary mask
+%
+%                B has the same size and class as A
+%
+%     'dandist': (DanielssonDistanceMapImageFilter) Compute unsigned
+%                distance map for a binary mask. Distance values are
+%                given in voxel coordinates
+%
+%                B has the same size as A. B has a type large enough
+%                to store the maximum distance in the image. The
+%                largest available type is double. If this is not
+%                enough, a warning message is displayed, and double
+%                is used as the output type
 %
 %   A is a 2D matrix or 3D volume with the image or
 %   segmentation. Currently, A can be of any of the following
@@ -27,8 +39,23 @@ function itk_imfilter
 %     int32
 %     int64
 %
-%   B has the same size and class as A, and contains the filtered
-%   image or segmentation mask.
+%   A can also be a SCI NRRD struct, A = nrrd, with the following fields:
+%
+%     nrrd.data: 2D or 3D array with the image or segmentation, as above
+%     nrrd.axis: 3x1 struct array with fields:
+%       nnrd.axis.size:    number of voxels in the image
+%       nnrd.axis.spacing: voxel size, image resolution
+%       nnrd.axis.min:     real world coordinates of image origin
+%       nnrd.axis.max:     ignored
+%       nnrd.axis.center:  ignored
+%       nnrd.axis.label:   ignored
+%       nnrd.axis.unit:    ignored
+%
+%   An SCI NRRD struct is the output of Matlab's function
+%   scinrrd_load(), also available from Gerardus.
+%
+%   B has the same size and class as the image in A, and contains the
+%   filtered image or segmentation mask.
 %
 % This function must be compiled before it can be used from Matlab.
 % If Gerardus' root directory is e.g. ~/gerardus, type from a
@@ -40,6 +67,9 @@ function itk_imfilter
 %    $ cmake ..
 %    $ make install
 %
+% Cmake has equivalents for Windows and MacOS, but I have not tried
+% them.
+%
 % If cmake throws an error because it cannot find Matlab, then edit
 % gerardus/matlab/CMakeLists.txt, and where it says
 %
@@ -49,7 +79,7 @@ function itk_imfilter
  
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.3.0
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
