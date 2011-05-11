@@ -40,8 +40,23 @@
  *     int32
  *     int64
  *
- *   B has the same size and class as A, and contains the filtered
- *   image or segmentation mask.
+ *   A can also be a SCI NRRD struct, A = nrrd, with the following fields:
+ *
+ *     nrrd.data: 2D or 3D array with the image or segmentation, as above
+ *     nrrd.axis: 3x1 struct array with fields:
+ *       nnrd.axis.size:    number of voxels in the image
+ *       nnrd.axis.spacing: voxel size, image resolution
+ *       nnrd.axis.min:     real world coordinates of image origin
+ *       nnrd.axis.max:     ignored
+ *       nnrd.axis.center:  ignored
+ *       nnrd.axis.label:   ignored
+ *       nnrd.axis.unit:    ignored
+ *
+ *   An SCI NRRD struct is the output of Matlab's function
+ *   scinrrd_load(), also available from Gerardus.
+ *
+ *   B has the same size and class as the image in A, and contains the
+ *   filtered image or segmentation mask.
  *
  * This function must be compiled before it can be used from Matlab.
  * If Gerardus' root directory is e.g. ~/gerardus, type from a
@@ -67,7 +82,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.3.0
   *
   * University of Oxford means the Chancellor, Masters and Scholars of
   * the University of Oxford, having an administrative office at
@@ -160,6 +175,157 @@ struct TypeIsDouble< double >
 
 
 /*
+ * NrrdImage: class to contain an image following the SCI NRRD format
+ */
+class NrrdImage {
+private:
+  
+  mxArray *data; // pointer to the image data in Matlab format
+  mwSize ndim; // number of elements in the dimensions array dims
+  mwSize *dims; // dimensions array
+  // we use r, c, s instead of y, x, z, to avoid confusions (in Matlab,
+  // x corresponds to columns, not rows)
+  std::vector<mwSize> size; // number of voxels in each dimension
+  std::vector<double> spacing; // voxel size in each dimension
+  std::vector<double> min; // real world coordinates of the image origin
+
+public:
+  NrrdImage(const mxArray * nrrd);
+  mxArray * getData() {return data;}
+  std::vector<mwSize> getSize() {return size;}
+  std::vector<double> getSpacing() {return spacing;}
+  std::vector<double> getMin() {return min;}
+  mwSize getR() {return size[0];}
+  mwSize getC() {return size[1];}
+  mwSize getS() {return size[2];}
+  mwSize getDr() {return spacing[0];}
+  mwSize getDc() {return spacing[1];}
+  mwSize getDs() {return spacing[2];}
+  mwSize getDx() {return spacing[1];}
+  mwSize getDy() {return spacing[0];}
+  mwSize getDz() {return spacing[2];}
+  mwSize getMinR() {return min[0];}
+  mwSize getMinC() {return min[1];}
+  mwSize getMinS() {return min[2];}
+  mwSize getMinX() {return min[1];}
+  mwSize getMinY() {return min[0];}
+  mwSize getMinZ() {return min[2];}
+  mwSize getNdim() {return ndim;}
+  mwSize *getDims() {return dims;}
+  mwSize maxVoxDistance();
+  mwSize numEl();
+};
+
+NrrdImage::NrrdImage(const mxArray * nrrd) {
+
+  // initialize memory for member variables
+  spacing.resize(3);
+  min.resize(3);
+  size.resize(3);
+
+  // check whether the input image is an SCI NRRD struct instead of
+  // only the array. The SCI NRRD struct has information about the
+  // scaling, offset, etc. of the image
+  if (mxIsStruct(nrrd)) { // input is a struct
+    // read struct fields...
+
+    // ... data field (where the image is contained)
+    data = mxGetField(nrrd, 0, "data");
+    if (data == NULL) {
+      mexErrMsgTxt("NRRD format error: Missing or invalid data field");
+    }
+
+    // ... axis field
+    mxArray *axis = mxGetField(nrrd, 0, "axis");
+    if (axis == NULL) {
+      mexErrMsgTxt("NRRD format error: Missing or invalid axis field");
+    }
+    if (!mxIsStruct(axis)) {
+      mexErrMsgTxt("NRRD format error: axis field is not a struct");
+    }
+    if (mxGetM(axis) != 3) {
+      mexErrMsgTxt("NRRD format error: axis field must be a 3x1 struct array");
+    }
+
+    // ... spacing field (image resolution)
+    // ... min field (image origin)
+    mxArray *spacingMx, *minMx;
+    double *spacingMxp, *minMxp;
+    for (mwIndex i = 0; i < 3; ++i) {
+      spacingMx = mxGetField(axis, i, "spacing");
+      if (spacingMx == NULL) {
+	mexErrMsgTxt("NRRD format error: Missing or invalid axis.spacing field");
+      }
+      minMx = mxGetField(axis, i, "min");
+      if (minMx == NULL) {
+	mexErrMsgTxt("NRRD format error: Missing or invalid axis.min field");
+      }
+      spacingMxp = (double *)mxGetData(spacingMx);
+      minMxp = (double *)mxGetData(minMx);
+      if (mxIsFinite(spacingMxp[0]) && !mxIsNaN(spacingMxp[0])) {
+	spacing[i] = spacingMxp[0];
+      } else {
+	spacing[i] = 1.0;
+      }
+      if (mxIsFinite(minMxp[0]) && !mxIsNaN(minMxp[0])) {
+	min[i] = minMxp[0];
+      } else {
+	min[i] = 0.0;
+      }
+    }
+
+  } else { // input is not a struct, but just an image array
+    data = const_cast<mxArray *>(nrrd);
+    spacing[0] = 1.0;
+    spacing[1] = 1.0;
+    spacing[2] = 1.0;
+    min[0] = 0.0;
+    min[1] = 0.0;
+    min[2] = 0.0;
+  }
+
+
+  // get number of dimensions in the input image
+  if (!mxIsNumeric(data) 
+      && !mxIsLogical(data)) {
+    mexErrMsgTxt("IM must be a 2D or 3D numeric or boolean matrix");
+  }
+  ndim = mxGetNumberOfDimensions(data);
+  
+  // get size of input arguments
+  dims = const_cast<mwSize *>(mxGetDimensions(data));
+  if (dims == NULL) {
+    mexErrMsgTxt("Invalid input image dimensions array");
+  }
+  size[0] = dims[0];
+  if (ndim > 3) {
+    mexErrMsgTxt("Input segmentation mask must be 2D or 3D");
+  } else if (ndim == 2) {
+    size[1] = dims[1];
+    size[2] = 1;
+  } else if (ndim == 3) {
+    size[1] = dims[1];
+    size[2] = dims[2];
+  } else {
+    mexErrMsgTxt("Assertion fail: number of dimensions is " + ndim);
+  }
+
+}
+
+// compute the maximum distance between any two voxels in this image
+// (in voxel units)
+mwSize NrrdImage::maxVoxDistance() {
+  return std::sqrt(size[0]*size[0] 
+		   + size[1]*size[1] 
+		   + size[2]*size[2]);
+}
+
+// compute the number of voxels in the image volume
+mwSize NrrdImage::numEl() {
+  return size[0]*size[1]*size[2];
+}
+
+/*
  * runFilter(): function in charge of processing. We cannot do this in
  *              the body of mexFunction() because we need to template
  *              the function so that we can operate with different
@@ -176,40 +342,17 @@ struct TypeIsDouble< double >
  * with the same type as the input image (e.g. thinning algorithm)
  */
 template <class VoxelType>
-void runFilter(char *filterType, const mxArray *imIn, mxArray* &imOut) {
+void runFilter(char *filterType, NrrdImage &nrrd, mxArray* &imOut) {
 
-  // get number of dimensions in the input segmentation
-  if (!mxIsNumeric(imIn) && !mxIsLogical(imIn)) {
-    mexErrMsgTxt("IM must be a 2D or 3D numeric or boolean matrix");
-  }
-  mwSize ndim = mxGetNumberOfDimensions(imIn);
-
-  // get size of input arguments
-  mwSize Rin = 0; // rows
-  mwSize Cin = 0; // cols
-  mwSize Sin = 0; // slices
-  const mwSize *dims = mxGetDimensions(imIn);
-  Rin = dims[0];
-  if (ndim > 3) {
-    mexErrMsgTxt("Input segmentation mask must be 2D or 3D");
-  } else if (ndim == 2) {
-    Cin = dims[1];
-    Sin = 1;
-  } else if (ndim == 3) {
-    Cin = dims[1];
-    Sin = dims[2];
-  } else {
-    mexErrMsgTxt("Assertion fail: number of dimensions is " + ndim);
-  }
 
   // create empty segmentation mask for output
-  if (Rin == 0 || Cin == 0) {
+  if (nrrd.getR() == 0 || nrrd.getC() == 0) {
     imOut = mxCreateDoubleMatrix(0, 0, mxREAL);
     return;
   }
 
   // get pointer to input segmentation mask
-  const VoxelType *im = (VoxelType *)mxGetPr(imIn);
+  const VoxelType *im = (VoxelType *)mxGetPr(nrrd.getData());
   
   // image type definitions
   static const unsigned int Dimension = 3; // volume data dimension
@@ -227,6 +370,7 @@ void runFilter(char *filterType, const mxArray *imIn, mxArray* &imOut) {
   typename ImageType::RegionType region;
   typename ImageType::IndexType start;
   typename ImageType::SizeType size; 
+  typename ImageType::SpacingType spacing;
 
   // note that:
   //
@@ -236,15 +380,15 @@ void runFilter(char *filterType, const mxArray *imIn, mxArray* &imOut) {
   // they are read by rows, 
   //
   // So both things cancel each other.
-  start[0] = 0;
-  start[1] = 0;
-  start[2] = 0;
-  size[0] = Rin;
-  size[1] = Cin;
-  size[2] = Sin;
+  for (mwIndex i = 0; i < 3; ++i) {
+    start[i] = nrrd.getMin()[i];
+    size[i] = nrrd.getSize()[i];
+    spacing[i] = nrrd.getSpacing()[i];
+  }
   region.SetIndex(start);
   region.SetSize(size);
   image->SetRegions(region);
+  image->SetSpacing(spacing);
   image->Allocate();
   image->Update();
 
@@ -280,9 +424,9 @@ void runFilter(char *filterType, const mxArray *imIn, mxArray* &imOut) {
   filter->Update();
   
   // create output matrix for Matlab's result
-  imOut = (mxArray *)mxCreateNumericArray(ndim, dims,
-					    mxGetClassID(imIn),
-					    mxREAL);
+  imOut = (mxArray *)mxCreateNumericArray(nrrd.getNdim(), nrrd.getDims(),
+					  mxGetClassID(nrrd.getData()),
+					  mxREAL);
   if (imOut == NULL) {
     mexErrMsgTxt("Cannot allocate memory for output matrix");
   }
@@ -291,7 +435,7 @@ void runFilter(char *filterType, const mxArray *imIn, mxArray* &imOut) {
   // populate output image
   ConstIteratorType citer(filter->GetOutput(), 
 			  filter->GetOutput()->GetLargestPossibleRegion());
-  for (citer.GoToBegin(), i=0; i < Rin*Cin*Sin; ++citer, ++i) {
+  for (citer.GoToBegin(), i=0; i < nrrd.numEl(); ++citer, ++i) {
     imOutp[i] = (VoxelType)citer.Get();
   }
 
@@ -308,40 +452,16 @@ void runFilter(char *filterType, const mxArray *imIn, mxArray* &imOut) {
  * different types for the input and output
  */
 template <class InVoxelType, class OutVoxelType>
-void runFilter(char *filterType, const mxArray *imIn, mxArray* &imOut) {
-
-  // get number of dimensions in the input segmentation
-  if (!mxIsNumeric(imIn) && !mxIsLogical(imIn)) {
-    mexErrMsgTxt("IM must be a 2D or 3D numeric or boolean matrix");
-  }
-  mwSize ndim = mxGetNumberOfDimensions(imIn);
-
-  // get size of input arguments
-  mwSize Rin = 0; // rows
-  mwSize Cin = 0; // cols
-  mwSize Sin = 0; // slices
-  const mwSize *dims = mxGetDimensions(imIn);
-  Rin = dims[0];
-  if (ndim > 3) {
-    mexErrMsgTxt("Input segmentation mask must be 2D or 3D");
-  } else if (ndim == 2) {
-    Cin = dims[1];
-    Sin = 1;
-  } else if (ndim == 3) {
-    Cin = dims[1];
-    Sin = dims[2];
-  } else {
-    mexErrMsgTxt("Assertion fail: number of dimensions is " + ndim);
-  }
+void runFilter(char *filterType, NrrdImage &nrrd, mxArray* &imOut) {
 
   // create empty segmentation mask for output
-  if (Rin == 0 || Cin == 0) {
+  if (nrrd.getR() == 0 || nrrd.getC() == 0) {
     imOut = mxCreateDoubleMatrix(0, 0, mxREAL);
     return;
   }
 
   // get pointer to input segmentation mask
-  const InVoxelType *im = (InVoxelType *)mxGetPr(imIn);
+  const InVoxelType *im = (InVoxelType *)mxGetPr(nrrd.getData());
   
   // image type definitions
   static const unsigned int Dimension = 3; // volume data dimension
@@ -361,6 +481,7 @@ void runFilter(char *filterType, const mxArray *imIn, mxArray* &imOut) {
   typename InImageType::RegionType region;
   typename InImageType::IndexType start;
   typename InImageType::SizeType size; 
+  typename InImageType::SpacingType spacing;
 
   // note that:
   //
@@ -370,15 +491,15 @@ void runFilter(char *filterType, const mxArray *imIn, mxArray* &imOut) {
   // they are read by rows, 
   //
   // So both things cancel each other.
-  start[0] = 0;
-  start[1] = 0;
-  start[2] = 0;
-  size[0] = Rin;
-  size[1] = Cin;
-  size[2] = Sin;
+  for (mwIndex i = 0; i < 3; ++i) {
+    start[i] = nrrd.getMin()[i];
+    size[i] = nrrd.getSize()[i];
+    spacing[i] = nrrd.getSpacing()[i];
+  }
   region.SetIndex(start);
   region.SetSize(size);
   image->SetRegions(region);
+  //  image->SetSpacing(spacing);
   image->Allocate();
   image->Update();
 
@@ -437,9 +558,9 @@ void runFilter(char *filterType, const mxArray *imIn, mxArray* &imOut) {
   }
 
   // create output matrix for Matlab's result
-  imOut = (mxArray *)mxCreateNumericArray(ndim, dims,
-					    outputVoxelClassId,
-					    mxREAL);
+  imOut = (mxArray *)mxCreateNumericArray(nrrd.getNdim(), nrrd.getDims(),
+					  outputVoxelClassId,
+					  mxREAL);
   if (imOut == NULL) {
     mexErrMsgTxt("Cannot allocate memory for output matrix");
   }
@@ -448,14 +569,16 @@ void runFilter(char *filterType, const mxArray *imIn, mxArray* &imOut) {
   // populate output image
   OutConstIteratorType citer(filter->GetOutput(), 
 			  filter->GetOutput()->GetLargestPossibleRegion());
-  for (citer.GoToBegin(), i=0; i < Rin*Cin*Sin; ++citer, ++i) {
+  for (citer.GoToBegin(), i=0; i < nrrd.numEl(); ++citer, ++i) {
     imOutp[i] = (OutVoxelType)citer.Get();
   }
 
   return;
 }
 
-// entry point for the mex function
+/*
+ * mexFunction(): entry point for the mex function
+ */
 void mexFunction(int nlhs, mxArray *plhs[], 
 		 int nrhs, const mxArray *prhs[]) {
   // check number of input and output arguments
@@ -466,29 +589,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mexErrMsgTxt("Too many output arguments");
   }
 
-  // get number of dimensions in the input segmentation
-  if (!mxIsNumeric(prhs[1]) && !mxIsLogical(prhs[1])) {
-    mexErrMsgTxt("IM must be a 2D or 3D numeric or boolean matrix");
-  }
-  mwSize ndim = mxGetNumberOfDimensions(prhs[1]);
-
-  // get size of input arguments
-  mwSize Rin = 0; // rows
-  mwSize Cin = 0; // cols
-  mwSize Sin = 0; // slices
-  const mwSize *dims = mxGetDimensions(prhs[1]);
-  Rin = dims[0];
-  if (ndim > 3) {
-    mexErrMsgTxt("Input segmentation mask must be 2D or 3D");
-  } else if (ndim == 2) {
-    Cin = dims[1];
-    Sin = 1;
-  } else if (ndim == 3) {
-    Cin = dims[1];
-    Sin = dims[2];
-  } else {
-    mexErrMsgTxt("Assertion fail: number of dimensions is " + ndim);
-  }
+  // read image and its parameters, whether it's in NRRD format, or
+  // just a 2D or 3D array
+  NrrdImage nrrd(prhs[1]);
 
   // get type of filter
   char *filter = mxArrayToString(prhs[0]);
@@ -502,11 +605,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
   if (!strcmp(filter, "skel")) {
     outVoxelType = SAME;
   } else if (!strcmp(filter, "dandist")) {
-    // compute the maximum distance in voxel units that the image can have
-    mwSize dmax = std::sqrt(Rin*Rin + Cin*Cin + Sin*Sin);
-
-    // find how many bits we need to represent that distance
-    mwSize nbit = (mwSize)ceil(log2(dmax));
+    // find how many bits we need to represent the maximum distance
+    // that two voxels can have between them (in voxel units)
+    mwSize nbit = (mwSize)ceil(log2(nrrd.maxVoxDistance()));
 
     // select an output voxel size enough to save the maximum distance
     // value
@@ -527,143 +628,143 @@ void mexFunction(int nlhs, mxArray *plhs[],
   }
 
   // run filter, templated according to the input and output image types
-  mxClassID inputVoxelClassId = mxGetClassID(prhs[1]);
+  mxClassID inputVoxelClassId = mxGetClassID(nrrd.getData());
   switch(inputVoxelClassId)  { // swith input image type
   case mxLOGICAL_CLASS:
     if (outVoxelType == SAME) { // if block with output image type
-      runFilter<bool>(filter, prhs[1], plhs[0]);
+      runFilter<bool>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == BOOL) {
-      runFilter<bool, bool>(filter, prhs[1], plhs[0]);
+      runFilter<bool, bool>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT8) {
-      runFilter<bool, uint8_T>(filter, prhs[1], plhs[0]);
+      runFilter<bool, uint8_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT16) {
-      runFilter<bool, uint16_T>(filter, prhs[1], plhs[0]);
+      runFilter<bool, uint16_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == SINGLE) {
-      runFilter<bool, float>(filter, prhs[1], plhs[0]);
+      runFilter<bool, float>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == DOUBLE) {
-      runFilter<bool, double>(filter, prhs[1], plhs[0]);
+      runFilter<bool, double>(filter, nrrd, plhs[0]);
     }
     break;
   case mxDOUBLE_CLASS:
     if (outVoxelType == SAME) {
-      runFilter<double>(filter, prhs[1], plhs[0]);
+      runFilter<double>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == BOOL) {
-      runFilter<double, bool>(filter, prhs[1], plhs[0]);
+      runFilter<double, bool>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT8) {
-      runFilter<double, uint8_T>(filter, prhs[1], plhs[0]);
+      runFilter<double, uint8_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT16) {
-      runFilter<double, uint16_T>(filter, prhs[1], plhs[0]);
+      runFilter<double, uint16_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == SINGLE) {
-      runFilter<double, float>(filter, prhs[1], plhs[0]);
+      runFilter<double, float>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == DOUBLE) {
-      runFilter<double, double>(filter, prhs[1], plhs[0]);
+      runFilter<double, double>(filter, nrrd, plhs[0]);
     }
     break;
   case mxSINGLE_CLASS:
     if (outVoxelType == SAME) {
-      runFilter<float>(filter, prhs[1], plhs[0]);
+      runFilter<float>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == BOOL) {
-      runFilter<float, bool>(filter, prhs[1], plhs[0]);
+      runFilter<float, bool>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT8) {
-      runFilter<float, uint8_T>(filter, prhs[1], plhs[0]);
+      runFilter<float, uint8_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT16) {
-      runFilter<float, uint16_T>(filter, prhs[1], plhs[0]);
+      runFilter<float, uint16_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == SINGLE) {
-      runFilter<float, float>(filter, prhs[1], plhs[0]);
+      runFilter<float, float>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == DOUBLE) {
-      runFilter<float, double>(filter, prhs[1], plhs[0]);
+      runFilter<float, double>(filter, nrrd, plhs[0]);
     }
     break;
   case mxINT8_CLASS:
     if (outVoxelType == SAME) {
-      runFilter<int8_T>(filter, prhs[1], plhs[0]);
+      runFilter<int8_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == BOOL) {
-      runFilter<int8_T, bool>(filter, prhs[1], plhs[0]);
+      runFilter<int8_T, bool>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT8) {
-      runFilter<int8_T, uint8_T>(filter, prhs[1], plhs[0]);
+      runFilter<int8_T, uint8_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT16) {
-      runFilter<int8_T, uint16_T>(filter, prhs[1], plhs[0]);
+      runFilter<int8_T, uint16_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == SINGLE) {
-      runFilter<int8_T, float>(filter, prhs[1], plhs[0]);
+      runFilter<int8_T, float>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == DOUBLE) {
-      runFilter<int8_T, double>(filter, prhs[1], plhs[0]);
+      runFilter<int8_T, double>(filter, nrrd, plhs[0]);
     }
     break;
   case mxUINT8_CLASS:
     if (outVoxelType == SAME) {
-      runFilter<uint8_T>(filter, prhs[1], plhs[0]);
+      runFilter<uint8_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == BOOL) {
-      runFilter<uint8_T, bool>(filter, prhs[1], plhs[0]);
+      runFilter<uint8_T, bool>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT8) {
-      runFilter<uint8_T, uint8_T>(filter, prhs[1], plhs[0]);
+      runFilter<uint8_T, uint8_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT16) {
-      runFilter<uint8_T, uint16_T>(filter, prhs[1], plhs[0]);
+      runFilter<uint8_T, uint16_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == SINGLE) {
-      runFilter<uint8_T, float>(filter, prhs[1], plhs[0]);
+      runFilter<uint8_T, float>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == DOUBLE) {
-      runFilter<uint8_T, double>(filter, prhs[1], plhs[0]);
+      runFilter<uint8_T, double>(filter, nrrd, plhs[0]);
     }
     break;
   case mxINT16_CLASS:
     if (outVoxelType == SAME) {
-      runFilter<int16_T>(filter, prhs[1], plhs[0]);
+      runFilter<int16_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == BOOL) {
-      runFilter<int16_T, bool>(filter, prhs[1], plhs[0]);
+      runFilter<int16_T, bool>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT8) {
-      runFilter<int16_T, uint8_T>(filter, prhs[1], plhs[0]);
+      runFilter<int16_T, uint8_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT16) {
-      runFilter<int16_T, uint16_T>(filter, prhs[1], plhs[0]);
+      runFilter<int16_T, uint16_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == SINGLE) {
-      runFilter<int16_T, float>(filter, prhs[1], plhs[0]);
+      runFilter<int16_T, float>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == DOUBLE) {
-      runFilter<int16_T, double>(filter, prhs[1], plhs[0]);
+      runFilter<int16_T, double>(filter, nrrd, plhs[0]);
     }
     break;
   case mxUINT16_CLASS:
     if (outVoxelType == SAME) {
-      runFilter<uint16_T>(filter, prhs[1], plhs[0]);
+      runFilter<uint16_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == BOOL) {
-      runFilter<uint16_T, bool>(filter, prhs[1], plhs[0]);
+      runFilter<uint16_T, bool>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT8) {
-      runFilter<uint16_T, uint8_T>(filter, prhs[1], plhs[0]);
+      runFilter<uint16_T, uint8_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT16) {
-      runFilter<uint16_T, uint16_T>(filter, prhs[1], plhs[0]);
+      runFilter<uint16_T, uint16_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == SINGLE) {
-      runFilter<uint16_T, float>(filter, prhs[1], plhs[0]);
+      runFilter<uint16_T, float>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == DOUBLE) {
-      runFilter<uint16_T, double>(filter, prhs[1], plhs[0]);
+      runFilter<uint16_T, double>(filter, nrrd, plhs[0]);
     }
     break;
   case mxINT32_CLASS:
     if (outVoxelType == SAME) {
-      runFilter<int32_T>(filter, prhs[1], plhs[0]);
+      runFilter<int32_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == BOOL) {
-      runFilter<int32_T, bool>(filter, prhs[1], plhs[0]);
+      runFilter<int32_T, bool>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT8) {
-      runFilter<int32_T, uint8_T>(filter, prhs[1], plhs[0]);
+      runFilter<int32_T, uint8_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT16) {
-      runFilter<int32_T, uint16_T>(filter, prhs[1], plhs[0]);
+      runFilter<int32_T, uint16_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == SINGLE) {
-      runFilter<int32_T, float>(filter, prhs[1], plhs[0]);
+      runFilter<int32_T, float>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == DOUBLE) {
-      runFilter<int32_T, double>(filter, prhs[1], plhs[0]);
+      runFilter<int32_T, double>(filter, nrrd, plhs[0]);
     }
     break;
   // case mxUINT32_CLASS:
   //   break;
   case mxINT64_CLASS:
     if (outVoxelType == SAME) {
-      runFilter<int64_T>(filter, prhs[1], plhs[0]);
+      runFilter<int64_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == BOOL) {
-      runFilter<int64_T, bool>(filter, prhs[1], plhs[0]);
+      runFilter<int64_T, bool>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT8) {
-      runFilter<int64_T, uint8_T>(filter, prhs[1], plhs[0]);
+      runFilter<int64_T, uint8_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == UINT16) {
-      runFilter<int64_T, uint16_T>(filter, prhs[1], plhs[0]);
+      runFilter<int64_T, uint16_T>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == SINGLE) {
-      runFilter<int64_T, float>(filter, prhs[1], plhs[0]);
+      runFilter<int64_T, float>(filter, nrrd, plhs[0]);
     } else if (outVoxelType == DOUBLE) {
-      runFilter<int64_T, double>(filter, prhs[1], plhs[0]);
+      runFilter<int64_T, double>(filter, nrrd, plhs[0]);
     }
     break;
   // case mxUINT64_CLASS:
