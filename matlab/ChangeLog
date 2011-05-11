@@ -1,3 +1,13 @@
+2011-05-12  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (v0.3.0) Accept SCI NRRD structs created by scinrrd_load() as
+	input, so that we can pass image resolution and offset to the
+	filter. This has been a substantial rewrite, because we had to
+	create an NrrdImage class to parse the NRRD fields and pass them
+	to runFilter().
+
 2011-05-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FileFormatToolbox/scinrrd_load.m:
