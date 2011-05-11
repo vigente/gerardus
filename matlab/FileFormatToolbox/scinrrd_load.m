@@ -15,6 +15,10 @@ function nrrd = scinrrd_load(file)
 %
 %   NRRD is the SCI NRRD struct.
 %
+%     NRRD.axis(1) ==> rows
+%     NRRD.axis(2) ==> columns
+%     NRRD.axis(3) ==> slices
+%
 %   Note on SCI NRRD: Software applications developed at the University of
 %   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
 %   internally use NRRD volumes to store medical data.
@@ -30,10 +34,10 @@ function nrrd = scinrrd_load(file)
 %          data: [4-D uint8]
 %          axis: [4x1 struct]
 %      property: []
-%
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010 University of Oxford
+% Copyright © 2010-2011 University of Oxford
+% Version: 0.1.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

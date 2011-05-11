@@ -1,3 +1,11 @@
+2011-05-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_load.m:
+
+	- (v0.1.0) Add version number and note on help header to make
+	clear that nrrd.axis(1) corresponds to rows, not to the
+	x-coordinate.
+
 2011-05-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* ItkToolbox/ItkImFilter.cpp:
