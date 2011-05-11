@@ -67,7 +67,7 @@ error(nargchk(1, 1, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
 % extract extension of filename in lower case
-[pathstr, name, ext] = fileparts(file);
+[pathstr, ~, ext] = fileparts(file);
 ext = lower(ext);
 
 if strcmp(ext, '.mat') % Matlab file
@@ -140,7 +140,7 @@ elseif strcmp(ext, '.mha') % MetaImage file
             case 'elementdatafile'
                 rawfile = strtrim(tline(idx+1:end));
             case 'compresseddata'
-                if strcmp(lower(strtrim(tline(idx+1:end))), 'true')
+                if strcmpi(strtrim(tline(idx+1:end)), 'true')
                     error('Cannot read compressed MHA data')
                 end
             otherwise
