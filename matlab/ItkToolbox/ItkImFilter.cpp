@@ -125,9 +125,17 @@
 #include "itkImage.h"
 #include "itkBinaryThinningImageFilter3D.h"
 #include "itkDanielssonDistanceMapImageFilter.h"
+// #include "itkSignedMaurerDistanceMapImageFilter.h"
 
 #ifndef ITKIMFILTER_CPP
 #define ITKIMFILTER_CPP
+
+/*
+ * Global variables and declarations
+ */
+static const unsigned int Dimension = 3; // image dimension (we assume
+					 // a 3D volume also for 2D images)
+
 
 /*
  * TypeIsUint16(): Block of functions to allow testing of template
@@ -175,7 +183,8 @@ struct TypeIsDouble< double >
 
 
 /*
- * NrrdImage: class to contain an image following the SCI NRRD format
+ * NrrdImage: class to parse and contain an image following the SCI
+ * NRRD format
  */
 class NrrdImage {
 private:
@@ -219,9 +228,9 @@ public:
 NrrdImage::NrrdImage(const mxArray * nrrd) {
 
   // initialize memory for member variables
-  spacing.resize(3);
-  min.resize(3);
-  size.resize(3);
+  spacing.resize(Dimension);
+  min.resize(Dimension);
+  size.resize(Dimension);
 
   // check whether the input image is an SCI NRRD struct instead of
   // only the array. The SCI NRRD struct has information about the
@@ -325,123 +334,6 @@ mwSize NrrdImage::numEl() {
   return size[0]*size[1]*size[2];
 }
 
-/*
- * runFilter(): function in charge of processing. We cannot do this in
- *              the body of mexFunction() because we need to template
- *              the function so that we can operate with different
- *              types of Matlab matrices (double, uint8, etc)
- *
- * filter: string with the name of the filter we want to run
- * imIn:   input image, read-only
- * imOut:  output image, taken by reference so that we can allocate
- *         memory and populate it from here
- */
-
-/* 
- * runFilter<VoxelType> is for filters that produce an output image
- * with the same type as the input image (e.g. thinning algorithm)
- */
-template <class VoxelType>
-void runFilter(char *filterType, NrrdImage &nrrd, mxArray* &imOut) {
-
-
-  // create empty segmentation mask for output
-  if (nrrd.getR() == 0 || nrrd.getC() == 0) {
-    imOut = mxCreateDoubleMatrix(0, 0, mxREAL);
-    return;
-  }
-
-  // get pointer to input segmentation mask
-  const VoxelType *im = (VoxelType *)mxGetPr(nrrd.getData());
-  
-  // image type definitions
-  static const unsigned int Dimension = 3; // volume data dimension
-                                           // (3D volume)
-  typedef double TScalarType; // data type for scalars
-  typedef itk::Image< VoxelType, Dimension > 
-    ImageType;
-  typedef itk::ImageRegionIterator< ImageType > 
-    IteratorType;
-  typedef itk::ImageRegionConstIterator< ImageType > 
-    ConstIteratorType;
-
-  // create ITK image to hold the segmentation mask
-  typename ImageType::Pointer image = ImageType::New();
-  typename ImageType::RegionType region;
-  typename ImageType::IndexType start;
-  typename ImageType::SizeType size; 
-  typename ImageType::SpacingType spacing;
-
-  // note that:
-  //
-  // 1) in ITK we have X,Y,Z indices, while in Matlab we have R,C,S
-  //
-  // 2) matrices in ITK are read by columns, while in Matlab
-  // they are read by rows, 
-  //
-  // So both things cancel each other.
-  for (mwIndex i = 0; i < 3; ++i) {
-    start[i] = nrrd.getMin()[i];
-    size[i] = nrrd.getSize()[i];
-    spacing[i] = nrrd.getSpacing()[i];
-  }
-  region.SetIndex(start);
-  region.SetSize(size);
-  image->SetRegions(region);
-  image->SetSpacing(spacing);
-  image->Allocate();
-  image->Update();
-
-  // loop through every voxel in the image and copy it to the ITK image
-  IteratorType iter(image, image->GetLargestPossibleRegion());
-  mwIndex i = 0; // index for the input image
-  for (iter.GoToBegin(), i=0; !iter.IsAtEnd(); ++iter, ++i) {
-    iter.Set(im[i]);
-    
-    // Note: If you need to debug this loop, take into account that
-    //   std::cout << im[i] << std::endl;
-    // doesn't work as expected if im is e.g. a 
-    // (uint8_T *) pointer. Instead, you need to do
-    //   std::cout << (double)im[i] << std::endl;
-
-  }
-
-  // select filter
-  typedef itk::ImageToImageFilter< ImageType, ImageType > 
-    FilterType;
-  typename FilterType::Pointer filter;
-  if (!strcmp(filterType, "skel")) {
-    // select skeletonize filter
-    typedef itk::BinaryThinningImageFilter3D< ImageType, ImageType > 
-      ThinningFilterType;
-    filter = ThinningFilterType::New();
-  } else {
-    mexErrMsgTxt("Filter not implemented");
-  }
-
-  // run filter on input image
-  filter->SetInput(image);
-  filter->Update();
-  
-  // create output matrix for Matlab's result
-  imOut = (mxArray *)mxCreateNumericArray(nrrd.getNdim(), nrrd.getDims(),
-					  mxGetClassID(nrrd.getData()),
-					  mxREAL);
-  if (imOut == NULL) {
-    mexErrMsgTxt("Cannot allocate memory for output matrix");
-  }
-  VoxelType *imOutp =  (VoxelType *)mxGetPr(imOut);
-
-  // populate output image
-  ConstIteratorType citer(filter->GetOutput(), 
-			  filter->GetOutput()->GetLargestPossibleRegion());
-  for (citer.GoToBegin(), i=0; i < nrrd.numEl(); ++citer, ++i) {
-    imOutp[i] = (VoxelType)citer.Get();
-  }
-
-  return;
-}
-
 /* 
  * runFilter<InVoxelType, OutVoxelType> is for filters that produce an
  * output image with a different type than the input image
@@ -451,21 +343,492 @@ void runFilter(char *filterType, NrrdImage &nrrd, mxArray* &imOut) {
  * the thinning filter will not compile if it is templated with
  * different types for the input and output
  */
-template <class InVoxelType, class OutVoxelType>
-void runFilter(char *filterType, NrrdImage &nrrd, mxArray* &imOut) {
 
+// class FilterFactory
+template <class InVoxelType, class OutVoxelType, class FilterType>
+class FilterFactory {
+public:
+  FilterFactory(char *filterType, NrrdImage &nrrd, mxArray* &imOut);
+};
+
+// Combinations of input/output data types that give a compilation
+// error or that for some reason are not available for each filter
+typedef itk::BinaryThinningImageFilter3D< itk::Image<bool, Dimension>,
+					  itk::Image<uint8_T, Dimension>
+					  > ThinningFilter_bool_uint8_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<bool, Dimension>,
+					  itk::Image<uint16_T, Dimension>
+					  > ThinningFilter_bool_uint16_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<bool, Dimension>,
+					  itk::Image<float, Dimension>
+					  > ThinningFilter_bool_float;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<bool, Dimension>,
+					  itk::Image<double, Dimension>
+					  > ThinningFilter_bool_double;
+
+typedef itk::BinaryThinningImageFilter3D< itk::Image<uint8_T, Dimension>,
+					  itk::Image<bool, Dimension>
+					  > ThinningFilter_uint8_T_bool;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<uint8_T, Dimension>,
+					  itk::Image<uint16_T, Dimension>
+					  > ThinningFilter_uint8_T_uint16_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<uint8_T, Dimension>,
+					  itk::Image<float, Dimension>
+					  > ThinningFilter_uint8_T_float;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<uint8_T, Dimension>,
+					  itk::Image<double, Dimension>
+					  > ThinningFilter_uint8_T_double;
+
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int8_T, Dimension>,
+					  itk::Image<bool, Dimension>
+					  > ThinningFilter_int8_T_bool;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int8_T, Dimension>,
+					  itk::Image<uint8_T, Dimension>
+					  > ThinningFilter_int8_T_uint8_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int8_T, Dimension>,
+					  itk::Image<uint16_T, Dimension>
+					  > ThinningFilter_int8_T_uint16_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int8_T, Dimension>,
+					  itk::Image<float, Dimension>
+					  > ThinningFilter_int8_T_float;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int8_T, Dimension>,
+					  itk::Image<double, Dimension>
+					  > ThinningFilter_int8_T_double;
+
+typedef itk::BinaryThinningImageFilter3D< itk::Image<uint16_T, Dimension>,
+					  itk::Image<bool, Dimension>
+					  > ThinningFilter_uint16_T_bool;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<uint16_T, Dimension>,
+					  itk::Image<uint8_T, Dimension>
+					  > ThinningFilter_uint16_T_uint8_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<uint16_T, Dimension>,
+					  itk::Image<float, Dimension>
+					  > ThinningFilter_uint16_T_float;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<uint16_T, Dimension>,
+					  itk::Image<double, Dimension>
+					  > ThinningFilter_uint16_T_double;
+
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int16_T, Dimension>,
+					  itk::Image<bool, Dimension>
+					  > ThinningFilter_int16_T_bool;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int16_T, Dimension>,
+					  itk::Image<uint8_T, Dimension>
+					  > ThinningFilter_int16_T_uint8_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int16_T, Dimension>,
+					  itk::Image<uint16_T, Dimension>
+					  > ThinningFilter_int16_T_uint16_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int16_T, Dimension>,
+					  itk::Image<float, Dimension>
+					  > ThinningFilter_int16_T_float;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int16_T, Dimension>,
+					  itk::Image<double, Dimension>
+					  > ThinningFilter_int16_T_double;
+
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int32_T, Dimension>,
+					  itk::Image<bool, Dimension>
+					  > ThinningFilter_int32_T_bool;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int32_T, Dimension>,
+					  itk::Image<uint8_T, Dimension>
+					  > ThinningFilter_int32_T_uint8_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int32_T, Dimension>,
+					  itk::Image<uint16_T, Dimension>
+					  > ThinningFilter_int32_T_uint16_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int32_T, Dimension>,
+					  itk::Image<float, Dimension>
+					  > ThinningFilter_int32_T_float;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int32_T, Dimension>,
+					  itk::Image<double, Dimension>
+					  > ThinningFilter_int32_T_double;
+
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int64_T, Dimension>,
+					  itk::Image<bool, Dimension>
+					  > ThinningFilter_int64_T_bool;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int64_T, Dimension>,
+					  itk::Image<uint8_T, Dimension>
+					  > ThinningFilter_int64_T_uint8_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int64_T, Dimension>,
+					  itk::Image<uint16_T, Dimension>
+					  > ThinningFilter_int64_T_uint16_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int64_T, Dimension>,
+					  itk::Image<float, Dimension>
+					  > ThinningFilter_int64_T_float;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<int64_T, Dimension>,
+					  itk::Image<double, Dimension>
+					  > ThinningFilter_int64_T_double;
+
+typedef itk::BinaryThinningImageFilter3D< itk::Image<float, Dimension>,
+					  itk::Image<bool, Dimension>
+					  > ThinningFilter_float_bool;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<float, Dimension>,
+					  itk::Image<uint8_T, Dimension>
+					  > ThinningFilter_float_uint8_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<float, Dimension>,
+					  itk::Image<uint16_T, Dimension>
+					  > ThinningFilter_float_uint16_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<float, Dimension>,
+					  itk::Image<double, Dimension>
+					  > ThinningFilter_float_double;
+
+typedef itk::BinaryThinningImageFilter3D< itk::Image<double, Dimension>,
+					  itk::Image<bool, Dimension>
+					  > ThinningFilter_double_bool;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<double, Dimension>,
+					  itk::Image<uint8_T, Dimension>
+					  > ThinningFilter_double_uint8_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<double, Dimension>,
+					  itk::Image<uint16_T, Dimension>
+					  > ThinningFilter_double_uint16_T;
+typedef itk::BinaryThinningImageFilter3D< itk::Image<double, Dimension>,
+					  itk::Image<float, Dimension>
+					  > ThinningFilter_double_float;
+
+template <>
+class FilterFactory< bool, uint8_T, ThinningFilter_bool_uint8_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< bool, uint16_T, ThinningFilter_bool_uint16_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< bool, float, ThinningFilter_bool_float >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< bool, double, ThinningFilter_bool_double >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+
+template <>
+class FilterFactory< uint8_T, bool, ThinningFilter_uint8_T_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< uint8_T, uint16_T, ThinningFilter_uint8_T_uint16_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< uint8_T, float, ThinningFilter_uint8_T_float >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< uint8_T, double, ThinningFilter_uint8_T_double >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+
+template <>
+class FilterFactory< int8_T, bool, ThinningFilter_int8_T_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int8_T, uint8_T, ThinningFilter_int8_T_uint8_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int8_T, uint16_T, ThinningFilter_int8_T_uint16_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int8_T, float, ThinningFilter_int8_T_float >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int8_T, double, ThinningFilter_int8_T_double >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+
+template <>
+class FilterFactory< uint16_T, bool, ThinningFilter_uint16_T_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< uint16_T, uint8_T, ThinningFilter_uint16_T_uint8_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< uint16_T, float, ThinningFilter_uint16_T_float >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< uint16_T, double, ThinningFilter_uint16_T_double >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+
+template <>
+class FilterFactory< int16_T, bool, ThinningFilter_int16_T_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int16_T, uint8_T, ThinningFilter_int16_T_uint8_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int16_T, uint16_T, ThinningFilter_int16_T_uint16_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int16_T, float, ThinningFilter_int16_T_float >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int16_T, double, ThinningFilter_int16_T_double >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+
+template <>
+class FilterFactory< int32_T, bool, ThinningFilter_int32_T_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int32_T, uint8_T, ThinningFilter_int32_T_uint8_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int32_T, uint16_T, ThinningFilter_int32_T_uint16_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int32_T, float, ThinningFilter_int32_T_float >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int32_T, double, ThinningFilter_int32_T_double >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+
+template <>
+class FilterFactory< int64_T, bool, ThinningFilter_int64_T_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int64_T, uint8_T, ThinningFilter_int64_T_uint8_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int64_T, uint16_T, ThinningFilter_int64_T_uint16_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int64_T, float, ThinningFilter_int64_T_float >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< int64_T, double, ThinningFilter_int64_T_double >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+
+template <>
+class FilterFactory< float, bool, ThinningFilter_float_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< float, uint8_T, ThinningFilter_float_uint8_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< float, uint16_T, ThinningFilter_float_uint16_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< float, double, ThinningFilter_float_double >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+
+template <>
+class FilterFactory< double, bool, ThinningFilter_double_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< double, uint8_T, ThinningFilter_double_uint8_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< double, uint16_T, ThinningFilter_double_uint16_T >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+template <>
+class FilterFactory< double, float, ThinningFilter_double_float >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
+  }
+};
+
+
+
+
+// constructor
+template <class InVoxelType, class OutVoxelType, class FilterType>
+FilterFactory<InVoxelType, OutVoxelType, FilterType>::FilterFactory
+(char *filterType, NrrdImage &nrrd, mxArray* &imOut) {
+  
   // create empty segmentation mask for output
   if (nrrd.getR() == 0 || nrrd.getC() == 0) {
     imOut = mxCreateDoubleMatrix(0, 0, mxREAL);
     return;
   }
-
+  
   // get pointer to input segmentation mask
   const InVoxelType *im = (InVoxelType *)mxGetPr(nrrd.getData());
   
   // image type definitions
-  static const unsigned int Dimension = 3; // volume data dimension
-                                           // (3D volume)
   typedef double TScalarType; // data type for scalars
   typedef itk::Image< InVoxelType, Dimension > 
     InImageType;
@@ -475,14 +838,14 @@ void runFilter(char *filterType, NrrdImage &nrrd, mxArray* &imOut) {
     InIteratorType;
   typedef itk::ImageRegionConstIterator< OutImageType > 
     OutConstIteratorType;
-
+  
   // create ITK image to hold the segmentation mask
   typename InImageType::Pointer image = InImageType::New();
   typename InImageType::RegionType region;
   typename InImageType::IndexType start;
   typename InImageType::SizeType size; 
   typename InImageType::SpacingType spacing;
-
+  
   // note that:
   //
   // 1) in ITK we have X,Y,Z indices, while in Matlab we have R,C,S
@@ -491,7 +854,7 @@ void runFilter(char *filterType, NrrdImage &nrrd, mxArray* &imOut) {
   // they are read by rows, 
   //
   // So both things cancel each other.
-  for (mwIndex i = 0; i < 3; ++i) {
+  for (mwIndex i = 0; i < Dimension; ++i) {
     start[i] = nrrd.getMin()[i];
     size[i] = nrrd.getSize()[i];
     spacing[i] = nrrd.getSpacing()[i];
@@ -502,7 +865,7 @@ void runFilter(char *filterType, NrrdImage &nrrd, mxArray* &imOut) {
   //  image->SetSpacing(spacing);
   image->Allocate();
   image->Update();
-
+  
   // loop through every voxel in the image and copy it to the ITK image
   InIteratorType iter(image, image->GetLargestPossibleRegion());
   mwIndex i = 0; // index for the input image
@@ -514,35 +877,18 @@ void runFilter(char *filterType, NrrdImage &nrrd, mxArray* &imOut) {
     // doesn't work as expected if im is e.g. a 
     // (uint8_T *) pointer. Instead, you need to do
     //   std::cout << (double)im[i] << std::endl;
-
+    
   }
-
+  
   // select filter
-  typedef itk::ImageToImageFilter< InImageType, OutImageType > 
-    FilterType;
-  typename FilterType::Pointer filter;
-  if (!strcmp(filterType, "dandist")) {
-    
-    // select Danielsson unsigned distance map
-    typedef itk::DanielssonDistanceMapImageFilter< InImageType, 
-      OutImageType > DanielssonDistanceFilterType;
-    filter = DanielssonDistanceFilterType::New();
-
-    // only needed if we want the Voronoi regions of the different
-    // nonzero pixels
-    // dynamic_cast<DanielssonDistanceFilterType *>(
-    // 		 filter.GetPointer())->InputIsBinaryOn();
-    
-  } else {
-    mexErrMsgTxt("Filter not implemented");
-  }
-
+  typename FilterType::Pointer filter = FilterType::New();
+  
   // run filter on input image
   filter->SetInput(image);
   filter->Update();
   
   // convert output data type to output class ID
-  mxClassID outputVoxelClassId;
+  mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
   if (TypeIsBool< OutVoxelType >::value) {
     outputVoxelClassId = mxLOGICAL_CLASS;
   } else if (TypeIsUint8< OutVoxelType >::value) {
@@ -556,7 +902,7 @@ void runFilter(char *filterType, NrrdImage &nrrd, mxArray* &imOut) {
   } else {
     mexErrMsgTxt("Assertion fail: Unrecognised output voxel type");
   }
-
+  
   // create output matrix for Matlab's result
   imOut = (mxArray *)mxCreateNumericArray(nrrd.getNdim(), nrrd.getDims(),
 					  outputVoxelClassId,
@@ -565,15 +911,177 @@ void runFilter(char *filterType, NrrdImage &nrrd, mxArray* &imOut) {
     mexErrMsgTxt("Cannot allocate memory for output matrix");
   }
   OutVoxelType *imOutp =  (OutVoxelType *)mxGetPr(imOut);
-
+  
   // populate output image
   OutConstIteratorType citer(filter->GetOutput(), 
-			  filter->GetOutput()->GetLargestPossibleRegion());
+			     filter->GetOutput()->GetLargestPossibleRegion());
   for (citer.GoToBegin(), i=0; i < nrrd.numEl(); ++citer, ++i) {
     imOutp[i] = (OutVoxelType)citer.Get();
   }
+  
 
-  return;
+}
+
+/*
+ * Functions that allow to convert a run-time type to a templated
+ * type, avoiding the need of nesting in mexFunction()
+ */
+
+template <class InVoxelType, class OutVoxelType>
+void runTimeFilterTypeToTemplate(char *filter,
+				 NrrdImage nrrd,
+				 mxArray* &imOut) {
+
+  // image type definitions
+  static const unsigned int Dimension = 3; // volume data dimension
+                                           // (3D volume)
+  typedef double TScalarType; // data type for scalars
+  typedef itk::Image< InVoxelType, Dimension > 
+    InImageType;
+  typedef itk::Image< OutVoxelType, Dimension > 
+    OutImageType;
+
+
+  // convert run-time filter string to template
+  if (!strcmp(filter, "skel")) {
+    FilterFactory<InVoxelType, OutVoxelType, 
+      itk::BinaryThinningImageFilter3D< InImageType, OutImageType >
+      > filterFactory(filter, nrrd, imOut);
+  }  else if (!strcmp(filter, "dandist")) {
+    FilterFactory<InVoxelType, OutVoxelType, 
+      itk::DanielssonDistanceMapImageFilter< InImageType, OutImageType >
+      > filterFactory(filter, nrrd, imOut);
+  }
+  
+}
+
+// this function allows us to conver the type of the output image, that
+// is a run-time variable, to a template that can be known at
+// compiling time (basically, we just tell the compiler to prepare all
+// possible situations, and then we'll choose the right one at run-time)
+template <class InVoxelType>
+void runTimeOutputTypeToTemplate(char *filter,
+				 NrrdImage nrrd,
+				 mxArray* &imOut) {
+
+  // make it easier to remember the different cases for the output
+  // voxel type
+  enum OutVoxelType {
+    SAME, BOOL, UINT8, UINT16, SINGLE, DOUBLE
+  };
+
+  // establish output voxel type according to the filter
+  OutVoxelType outVoxelType = DOUBLE;
+  if (!strcmp(filter, "skel")) {
+
+    outVoxelType = SAME;
+
+  } else if (!strcmp(filter, "dandist")) {
+    // find how many bits we need to represent the maximum distance
+    // that two voxels can have between them (in voxel units)
+    mwSize nbit = (mwSize)ceil(log2(nrrd.maxVoxDistance()));
+
+    // select an output voxel size enough to save the maximum distance
+    // value
+    if (nbit <= 2) {
+      outVoxelType = BOOL;
+    } else if (nbit <= 8) {
+      outVoxelType = UINT8;
+    } else if (nbit <= 16) {
+      outVoxelType = UINT16;
+    } else if (nbit <= 128) {
+      outVoxelType = SINGLE;
+    } else {
+      outVoxelType = DOUBLE;
+    }
+    
+  } else if (!strcmp(filter, "maudist")) {
+
+    outVoxelType = DOUBLE;
+
+  } else {
+    mexErrMsgTxt("Invalid FILTER string");
+  }
+
+  switch(outVoxelType) {
+  case SAME:
+    runTimeFilterTypeToTemplate<InVoxelType, 
+      InVoxelType>(filter, nrrd, imOut);
+    break;
+  case BOOL:
+    runTimeFilterTypeToTemplate<InVoxelType, 
+      bool>(filter, nrrd, imOut);
+    break;
+  case UINT8:
+    runTimeFilterTypeToTemplate<InVoxelType, 
+      uint8_T>(filter, nrrd, imOut);
+    break;
+  case UINT16:
+    runTimeFilterTypeToTemplate<InVoxelType, 
+      uint16_T>(filter, nrrd, imOut);
+    break;
+  case SINGLE:
+    runTimeFilterTypeToTemplate<InVoxelType, 
+      float>(filter, nrrd, imOut);
+    break;
+  case DOUBLE:
+    runTimeFilterTypeToTemplate<InVoxelType, 
+      double>(filter, nrrd, imOut);
+    break;
+  default:
+    mexErrMsgTxt("Invalid output type.");
+    break;
+  }
+}
+
+// this function allows us to conver the type of the input image, that
+// is a run-time variable, to a template that can be known at
+// compiling time (basically, we just tell the compiler to prepare all
+// possible situations, and then we'll choose the right one at run-time)
+void runTimeInputTypeToTemplate(mxClassID inputVoxelClassId, 
+				char *filter,
+				NrrdImage nrrd,
+				mxArray* &imOut) {
+  
+  switch(inputVoxelClassId)  { // swith input image type
+  case mxLOGICAL_CLASS:
+    runTimeOutputTypeToTemplate<bool>(filter, nrrd, imOut);
+    break;
+  case mxDOUBLE_CLASS:
+    runTimeOutputTypeToTemplate<double>(filter, nrrd, imOut);
+    break;
+  case mxSINGLE_CLASS:
+    runTimeOutputTypeToTemplate<float>(filter, nrrd, imOut);
+    break;
+  case mxINT8_CLASS:
+    runTimeOutputTypeToTemplate<int8_T>(filter, nrrd, imOut);
+    break;
+  case mxUINT8_CLASS:
+    runTimeOutputTypeToTemplate<uint8_T>(filter, nrrd, imOut);
+    break;
+  case mxINT16_CLASS:
+    runTimeOutputTypeToTemplate<int16_T>(filter, nrrd, imOut);
+    break;
+  case mxUINT16_CLASS:
+    runTimeOutputTypeToTemplate<uint16_T>(filter, nrrd, imOut);
+    break;
+  case mxINT32_CLASS:
+    runTimeOutputTypeToTemplate<int32_T>(filter, nrrd, imOut);
+    break;
+  // case mxUINT32_CLASS:
+  //   break;
+  case mxINT64_CLASS:
+    runTimeOutputTypeToTemplate<int64_T>(filter, nrrd, imOut);
+    break;
+  // case mxUINT64_CLASS:
+  //   break;
+  case mxUNKNOWN_CLASS:
+    mexErrMsgTxt("Input matrix has unknown type.");
+    break;
+  default:
+    mexErrMsgTxt("Input matrix has invalid type.");
+    break;
+  }
 }
 
 /*
@@ -599,183 +1107,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mexErrMsgTxt("Invalid FILTER string");
   }
 
-  // establish output voxel type according to the filter
-  enum OutVoxelType {SAME, BOOL, UINT8, UINT16, SINGLE, DOUBLE};
-  OutVoxelType outVoxelType = DOUBLE;
-  if (!strcmp(filter, "skel")) {
-    outVoxelType = SAME;
-  } else if (!strcmp(filter, "dandist")) {
-    // find how many bits we need to represent the maximum distance
-    // that two voxels can have between them (in voxel units)
-    mwSize nbit = (mwSize)ceil(log2(nrrd.maxVoxDistance()));
-
-    // select an output voxel size enough to save the maximum distance
-    // value
-    if (nbit <= 2) {
-      outVoxelType = BOOL;
-    } else if (nbit <= 8) {
-      outVoxelType = UINT8;
-    } else if (nbit <= 16) {
-      outVoxelType = UINT16;
-    } else if (nbit <= 128) {
-      outVoxelType = SINGLE;
-    } else {
-      outVoxelType = DOUBLE;
-    }
-    
-  } else {
-    mexErrMsgTxt("Invalid FILTER string");
-  }
-
-  // run filter, templated according to the input and output image types
+  // input image type
   mxClassID inputVoxelClassId = mxGetClassID(nrrd.getData());
-  switch(inputVoxelClassId)  { // swith input image type
-  case mxLOGICAL_CLASS:
-    if (outVoxelType == SAME) { // if block with output image type
-      runFilter<bool>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == BOOL) {
-      runFilter<bool, bool>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT8) {
-      runFilter<bool, uint8_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT16) {
-      runFilter<bool, uint16_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == SINGLE) {
-      runFilter<bool, float>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == DOUBLE) {
-      runFilter<bool, double>(filter, nrrd, plhs[0]);
-    }
-    break;
-  case mxDOUBLE_CLASS:
-    if (outVoxelType == SAME) {
-      runFilter<double>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == BOOL) {
-      runFilter<double, bool>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT8) {
-      runFilter<double, uint8_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT16) {
-      runFilter<double, uint16_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == SINGLE) {
-      runFilter<double, float>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == DOUBLE) {
-      runFilter<double, double>(filter, nrrd, plhs[0]);
-    }
-    break;
-  case mxSINGLE_CLASS:
-    if (outVoxelType == SAME) {
-      runFilter<float>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == BOOL) {
-      runFilter<float, bool>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT8) {
-      runFilter<float, uint8_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT16) {
-      runFilter<float, uint16_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == SINGLE) {
-      runFilter<float, float>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == DOUBLE) {
-      runFilter<float, double>(filter, nrrd, plhs[0]);
-    }
-    break;
-  case mxINT8_CLASS:
-    if (outVoxelType == SAME) {
-      runFilter<int8_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == BOOL) {
-      runFilter<int8_T, bool>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT8) {
-      runFilter<int8_T, uint8_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT16) {
-      runFilter<int8_T, uint16_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == SINGLE) {
-      runFilter<int8_T, float>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == DOUBLE) {
-      runFilter<int8_T, double>(filter, nrrd, plhs[0]);
-    }
-    break;
-  case mxUINT8_CLASS:
-    if (outVoxelType == SAME) {
-      runFilter<uint8_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == BOOL) {
-      runFilter<uint8_T, bool>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT8) {
-      runFilter<uint8_T, uint8_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT16) {
-      runFilter<uint8_T, uint16_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == SINGLE) {
-      runFilter<uint8_T, float>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == DOUBLE) {
-      runFilter<uint8_T, double>(filter, nrrd, plhs[0]);
-    }
-    break;
-  case mxINT16_CLASS:
-    if (outVoxelType == SAME) {
-      runFilter<int16_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == BOOL) {
-      runFilter<int16_T, bool>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT8) {
-      runFilter<int16_T, uint8_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT16) {
-      runFilter<int16_T, uint16_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == SINGLE) {
-      runFilter<int16_T, float>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == DOUBLE) {
-      runFilter<int16_T, double>(filter, nrrd, plhs[0]);
-    }
-    break;
-  case mxUINT16_CLASS:
-    if (outVoxelType == SAME) {
-      runFilter<uint16_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == BOOL) {
-      runFilter<uint16_T, bool>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT8) {
-      runFilter<uint16_T, uint8_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT16) {
-      runFilter<uint16_T, uint16_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == SINGLE) {
-      runFilter<uint16_T, float>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == DOUBLE) {
-      runFilter<uint16_T, double>(filter, nrrd, plhs[0]);
-    }
-    break;
-  case mxINT32_CLASS:
-    if (outVoxelType == SAME) {
-      runFilter<int32_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == BOOL) {
-      runFilter<int32_T, bool>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT8) {
-      runFilter<int32_T, uint8_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT16) {
-      runFilter<int32_T, uint16_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == SINGLE) {
-      runFilter<int32_T, float>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == DOUBLE) {
-      runFilter<int32_T, double>(filter, nrrd, plhs[0]);
-    }
-    break;
-  // case mxUINT32_CLASS:
-  //   break;
-  case mxINT64_CLASS:
-    if (outVoxelType == SAME) {
-      runFilter<int64_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == BOOL) {
-      runFilter<int64_T, bool>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT8) {
-      runFilter<int64_T, uint8_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == UINT16) {
-      runFilter<int64_T, uint16_T>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == SINGLE) {
-      runFilter<int64_T, float>(filter, nrrd, plhs[0]);
-    } else if (outVoxelType == DOUBLE) {
-      runFilter<int64_T, double>(filter, nrrd, plhs[0]);
-    }
-    break;
-  // case mxUINT64_CLASS:
-  //   break;
-  case mxUNKNOWN_CLASS:
-    mexErrMsgTxt("Input matrix has unknown type.");
-    break;
-  default:
-    mexErrMsgTxt("Input matrix has invalid type.");
-    break;
-  }
+
+  // run filter (this function starts a cascade of functions design to
+  // translate the run-time type variables like inputVoxelClassId to
+  // templates, so that we don't need to nest lots of switch of if
+  // clauses
+  runTimeInputTypeToTemplate(inputVoxelClassId, 
+			     filter,
+			     nrrd,
+			     plhs[0]);
 
   // exit successfully
   return;

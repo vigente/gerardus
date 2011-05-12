@@ -2,6 +2,17 @@
 
 	* ItkToolbox/ItkImFilter.cpp:
 
+	- (v0.3.1) Very big internal change in architecture, that doesn't
+	change the interface. Now, instead of nesting switch and if
+	clauses in mexFunction() to instantiate the different combinations
+	of input/output image type, we have created functions that allow
+	us to translate from the type variables to type templates. Now we
+	can run all filters with one FilterFactory, because types not
+	supported by each filter can be explicitely removed from the
+	compilation. These changes came after a lengthly discussion with
+	Miguel Bernabeu who figured out the problem I had to solve, and
+	then we found a solution together.
+
 	- (v0.3.0) Accept SCI NRRD structs created by scinrrd_load() as
 	input, so that we can pass image resolution and offset to the
 	filter. This has been a substantial rewrite, because we had to
