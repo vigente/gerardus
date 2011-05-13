@@ -2,7 +2,7 @@
  * FilterFactoryExclusions.hpp
  *
  * This is a file to remove some cluttering from file
- * ItkImFilter.cpp. It contains the template partial specialization
+ * ItkImFilter.cpp. It contains the template explicit specialization
  * code that prevents the compiler from trying to instantiate certain
  * input/output image types for certain filters.
  *
@@ -18,7 +18,7 @@
  * BinaryThinningImageFilter3D must have the same input and output
  * types.
  *
- * We solve this problem with template partial specialization. That
+ * We solve this problem with template explicit specialization. That
  * is, by default all data type combinations are compiled. If we want
  * to prevent the compiler from compiling a particular case, we
  * have to add a definition of FilterFactory for that particular
@@ -28,8 +28,42 @@
  *
  */
 
+ /*
+  * Author: Ramon Casero <rcasero@gmail.com>
+  * Copyright © 2011 University of Oxford
+  * Version: 0.1.0
+  *
+  * University of Oxford means the Chancellor, Masters and Scholars of
+  * the University of Oxford, having an administrative office at
+  * Wellington Square, Oxford OX1 2JD, UK. 
+  *
+  * This file is part of Gerardus.
+  *
+  * This program is free software: you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation, either version 3 of the License, or
+  * (at your option) any later version.
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details. The offer of this
+  * program under the terms of the License is subject to the License
+  * being interpreted in accordance with English Law and subject to any
+  * action against the University of Oxford being under the jurisdiction
+  * of the English Courts.
+  *
+  * You should have received a copy of the GNU General Public License
+  * along with this program.  If not, see
+  * <http://www.gnu.org/licenses/>.
+  */
+
 #ifndef FILTERFACTORYEXCLUSIONS_HPP
 #define FILTERFACTORYEXCLUSIONS_HPP
+
+/*
+ * BinaryThinningImageFilter3D
+ */
 
 typedef itk::BinaryThinningImageFilter3D< itk::Image<bool, Dimension>,
 					  itk::Image<uint8_T, Dimension>
@@ -488,5 +522,132 @@ public:
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
+
+/*
+ * SignedMaurerDistanceMapImageFilter
+ */
+
+typedef itk::SignedMaurerDistanceMapImageFilter< 
+  itk::Image<bool, Dimension>,
+  itk::Image<bool, Dimension>
+  > MaurerFilter_bool_bool;
+typedef itk::SignedMaurerDistanceMapImageFilter< 
+  itk::Image<uint8_T, Dimension>,
+  itk::Image<bool, Dimension>
+  > MaurerFilter_uint8_T_bool;
+typedef itk::SignedMaurerDistanceMapImageFilter< 
+  itk::Image<int8_T, Dimension>,
+  itk::Image<bool, Dimension>
+  > MaurerFilter_int8_T_bool;
+typedef itk::SignedMaurerDistanceMapImageFilter< 
+  itk::Image<uint16_T, Dimension>,
+  itk::Image<bool, Dimension>
+  > MaurerFilter_uint16_T_bool;
+typedef itk::SignedMaurerDistanceMapImageFilter< 
+  itk::Image<int16_T, Dimension>,
+  itk::Image<bool, Dimension>
+  > MaurerFilter_int16_T_bool;
+typedef itk::SignedMaurerDistanceMapImageFilter< 
+  itk::Image<uint32_T, Dimension>,
+  itk::Image<bool, Dimension>
+  > MaurerFilter_uint32_T_bool;
+typedef itk::SignedMaurerDistanceMapImageFilter< 
+  itk::Image<int32_T, Dimension>,
+  itk::Image<bool, Dimension>
+  > MaurerFilter_int32_T_bool;
+typedef itk::SignedMaurerDistanceMapImageFilter< 
+  itk::Image<int64_T, Dimension>,
+  itk::Image<bool, Dimension>
+  > MaurerFilter_int64_T_bool;
+typedef itk::SignedMaurerDistanceMapImageFilter< 
+  itk::Image<float, Dimension>,
+  itk::Image<bool, Dimension>
+  > MaurerFilter_float_bool;
+typedef itk::SignedMaurerDistanceMapImageFilter< 
+  itk::Image<double, Dimension>,
+  itk::Image<bool, Dimension>
+  > MaurerFilter_double_bool;
+
+template <>
+class FilterFactory< bool, bool, MaurerFilter_bool_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
+  }
+};
+template <>
+class FilterFactory< uint8_T, bool, MaurerFilter_uint8_T_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
+  }
+};
+template <>
+class FilterFactory< int8_T, bool, MaurerFilter_int8_T_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
+  }
+};
+template <>
+class FilterFactory< uint16_T, bool, MaurerFilter_uint16_T_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
+  }
+};
+template <>
+class FilterFactory< int16_T, bool, MaurerFilter_int16_T_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
+  }
+};
+template <>
+class FilterFactory< uint32_T, bool, MaurerFilter_uint32_T_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
+  }
+};
+template <>
+class FilterFactory< int32_T, bool, MaurerFilter_int32_T_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
+  }
+};
+template <>
+class FilterFactory< int64_T, bool, MaurerFilter_int64_T_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
+  }
+};
+template <>
+class FilterFactory< float, bool, MaurerFilter_float_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
+  }
+};
+template <>
+class FilterFactory< double, bool, MaurerFilter_double_bool >
+{
+public:
+  FilterFactory(char *, NrrdImage, mxArray*) {
+    mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
+  }
+};
+
 
 #endif // FILTERFACTORYEXCLUSIONS_HPP
