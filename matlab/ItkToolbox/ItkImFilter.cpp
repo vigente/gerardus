@@ -138,8 +138,7 @@ static const unsigned int Dimension = 3; // image dimension (we assume
 
 
 /*
- * TypeIsUint16(): Block of functions to allow testing of template
- *                 types
+ * Block of functions to allow testing of template types
  */
 template< class T >
 struct TypeIsBool
