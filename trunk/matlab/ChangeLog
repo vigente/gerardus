@@ -1,15 +1,27 @@
 2011-05-13  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* ItkToolbox/FilterFactoryExclusions.hpp:
+
+	- (v0.1.0) Add exclusions for SignedMaurerDistanceMapImageFilter.
+
 	* ItkToolbox/ItkImFilter.cpp:
 
-	- (v0.3.2) Move template partial specialization code to
+	- Add SignedMaurerDistanceMapImageFilter to compute signed
+	distances in real world coordinates.
+
+	- (v0.3.3) Thanks to a new FilterParamFactory class with explicit
+	specialization, we can treat each filter type differently in terms
+	of parameters. So e.g. we can run filter->SetAlpha1(0.3) for a
+	certain filter type, but don't do it for the rest.
+
+	- (v0.3.2) Move template explicit specialization code to
 	ItkToolbox/FilterFactoryExclusions.hpp, add comments so that the
 	code can be well understood and tidy up.
 
 	* Add ItkToolbox/FilterFactoryExclusions.hpp:
 
 	-  This is a file to remove some cluttering from file
-	ItkImFilter.cpp. It contains the template partial specialization
+	ItkImFilter.cpp. It contains the template explicit specialization
 	code that prevents the compiler from trying to instantiate certain
 	input/output image types for certain filters.
 

@@ -26,6 +26,13 @@
  *                enough, a warning message is displayed, and double
  *                is used as the output type
  *
+ *     'maudist': (SignedMaurerDistanceMapImageFilter) Compute signed
+ *                distance map for a binary mask. Distance values are
+ *                given in real world coordinates, if the input image
+ *                is given as an NRRD struct, or in voxel units, if
+ *                the input image is a normal array. The output type
+ *                is always double.
+ *
  *   A is a 2D matrix or 3D volume with the image or
  *   segmentation. Currently, A can be of any of the following
  *   Matlab classes:
@@ -82,7 +89,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.2
+  * Version: 0.3.3
   *
   * University of Oxford means the Chancellor, Masters and Scholars of
   * the University of Oxford, having an administrative office at
@@ -125,7 +132,7 @@
 #include "itkImage.h"
 #include "itkBinaryThinningImageFilter3D.h"
 #include "itkDanielssonDistanceMapImageFilter.h"
-// #include "itkSignedMaurerDistanceMapImageFilter.h"
+#include "itkSignedMaurerDistanceMapImageFilter.h"
 
 #ifndef ITKIMFILTER_CPP
 #define ITKIMFILTER_CPP
@@ -346,10 +353,11 @@ mwSize NrrdImage::numEl() {
  * Instead of having a function (e.g. runFilter), we have the code in
  * the constructor of class FilterFactory.
  *
- * The reason is that template partial specialization is only possible
- * in classes, not in functions. We need partial specialization to
- * prevent the compiler from compiling certain input/output image data
- * types for some filters that don't accept them.
+ * The reason is that template explicit specialization is only
+ * possible in classes, not in functions. We need explicit
+ * specialization to prevent the compiler from compiling certain
+ * input/output image data types for some filters that don't accept
+ * them.
  */
 
 template <class InVoxelType, class OutVoxelType, class FilterType>
@@ -358,16 +366,54 @@ public:
   FilterFactory(char *filterType, NrrdImage &nrrd, mxArray* &imOut);
 };
 
+/*
+ * FilterParamFactory: class to pass parameters specific to one filter
+ * but not the others
+ */
+
+// default: any filter without an explicit specialization
+template <class InVoxelType, class OutVoxelType, 
+	  class FilterType>
+class FilterParamFactory {
+public:
+  FilterParamFactory(typename FilterType::Pointer filter) {
+    // by default, we assume that filters do not need parameters. If a
+    // filter needs some specific parameters, or setting any flags, we
+    // need to declare a explicit specialization of this class, and
+    // put the corresponding code there
+    //
+    // Hence, this constructor is empty
+    ;
+  }
+};
+
+// SignedMaurerDistanceMapImageFilter: Specific parameters
+template <class InVoxelType, class OutVoxelType>
+class FilterParamFactory<InVoxelType, OutVoxelType,
+			 itk::SignedMaurerDistanceMapImageFilter< 
+			   itk::Image<InVoxelType, Dimension>,
+			   itk::Image<OutVoxelType, Dimension> > 
+			 > {
+public:
+  FilterParamFactory(typename itk::SignedMaurerDistanceMapImageFilter< 
+		     itk::Image<InVoxelType, Dimension>,
+		     itk::Image<OutVoxelType, Dimension> >::Pointer filter) {
+    // We want the output in real world coordinates by default. If the
+    // user wants voxel units, then provide a plain image at the
+    // input, or make the spacing in the NRRD struct = [1.0, 1.0, 1.0]
+    filter->SetUseImageSpacing(true);
+  }
+};
+
 // Avoid compiling combinations of input/output data types that are
 // not available for some filters.  Read the header help of
 // FilterFactoryExclusions.hpp for more info
 #import "FilterFactoryExclusions.hpp"
 
-
 // Constructor: where the actual filtering code lives
 template <class InVoxelType, class OutVoxelType, class FilterType>
 FilterFactory<InVoxelType, OutVoxelType, FilterType>::FilterFactory
-(char *filterType, NrrdImage &nrrd, mxArray* &imOut) {
+(char *filterName, NrrdImage &nrrd, mxArray* &imOut) {
   
   // if the input image is empty, create empty segmentation mask for
   // output. We don't need to do any processing
@@ -413,7 +459,7 @@ FilterFactory<InVoxelType, OutVoxelType, FilterType>::FilterFactory
   region.SetIndex(start);
   region.SetSize(size);
   image->SetRegions(region);
-  //  image->SetSpacing(spacing);
+  image->SetSpacing(spacing);
   image->Allocate();
   image->Update();
   
@@ -431,9 +477,16 @@ FilterFactory<InVoxelType, OutVoxelType, FilterType>::FilterFactory
     
   }
   
-  // select filter
+  // instantiate filter
   typename FilterType::Pointer filter = FilterType::New();
   
+  // pass any parameters specific to this filter. We have to do it
+  // with explicit specialization of class FilterParamFactory to
+  // prevent the compiler from compiling e.g. filter->SetAlpha1(0.3)
+  // for filters that don't declare that member function
+  FilterParamFactory<InVoxelType, OutVoxelType, 
+    FilterType> filterParam(filter);
+
   // run filter on input image
   filter->SetInput(image);
   filter->Update();
@@ -544,6 +597,12 @@ void runTimeFilterTypeToTemplate(char *filter,
     FilterFactory<InVoxelType, OutVoxelType, 
       itk::DanielssonDistanceMapImageFilter< InImageType, OutImageType >
       > filterFactory(filter, nrrd, imOut);
+  }  else if (!strcmp(filter, "maudist")) {
+    FilterFactory<InVoxelType, OutVoxelType, 
+      itk::SignedMaurerDistanceMapImageFilter< InImageType, OutImageType >
+      > filterFactory(filter, nrrd, imOut);
+  } else {
+    mexErrMsgTxt("Filter type not implemented");
   }
   
 }
@@ -590,7 +649,7 @@ void runTimeOutputTypeToTemplate(char *filter,
     outVoxelType = DOUBLE;
 
   } else {
-    mexErrMsgTxt("Invalid FILTER string");
+    mexErrMsgTxt("Filter type not implemented");
   }
 
   switch(outVoxelType) {
