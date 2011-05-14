@@ -47,6 +47,10 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 %                         1-D spline. Branches that contain a loop cannot
 %                         be parameterize, and thus CC.IsLoop(i)=NaN.
 %
+%     CC.BifurcationPixelIdx(i): index of the bifurcation voxel for
+%                                branches that are leaves. Branches that
+%                                are not leaves get a 0 index.
+%
 %   There may be a small discrepancy between cc.PixelIdxList and the voxels
 %   labelled in LAB. The reason is that:
 %
@@ -83,7 +87,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.6.1
+% Version: 0.7.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -436,3 +440,30 @@ end
 % end
 % 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% find bifurcation voxels for each branch
+
+cc.BifurcationPixelIdx = zeros(1, cc.NumObjects);
+
+% loop each branch in the skeleton
+for I = 1:cc.NumObjects
+
+    % skip branches that are not leaves
+    if (~cc.IsLeaf(I))
+        continue
+    end
+    
+    % find the bifurcation point index
+    idx = cc.PixelIdxList{I}(deg(dictsk(cc.PixelIdxList{I})) > 2);
+    
+    if (length(idx) > 1)
+        warning(['Branch ' num2str(I) ' has more than 1 bifurcation voxel'])
+    end
+    
+    % if there are no bifurcation points, this branch is floating in the
+    % air
+    if (~isempty(idx))
+        cc.BifurcationPixelIdx(I) = idx;
+    end
+    
+end
