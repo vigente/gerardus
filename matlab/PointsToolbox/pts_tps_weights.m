@@ -46,8 +46,10 @@ function w = pts_tps_weights( s, t )
 % Pattern Recognition, 26(2):375--376, 1993.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% v4.0 - 3 Nov 2009
 % Copyright © 2006-2011 University of Oxford
+% Version: 0.4.0
+% $Rev$
+% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

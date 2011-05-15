@@ -10,6 +10,9 @@ function process_misas_patient(pathname)
 
 % Author: Ramon Casero <ramon.casero@comlab.ox.ac.uk>
 % Copyright © 2009 University of Oxford
+% Version: 0.1.0
+% $Rev$
+% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
