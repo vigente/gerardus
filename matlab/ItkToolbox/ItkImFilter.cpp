@@ -398,14 +398,17 @@ public:
   FilterParamFactory(typename itk::SignedMaurerDistanceMapImageFilter< 
 		     itk::Image<InVoxelType, Dimension>,
 		     itk::Image<OutVoxelType, Dimension> >::Pointer filter) {
-    // We want the output in real world coordinates by default. If the
+    // we want the output in real world coordinates by default. If the
     // user wants voxel units, then provide a plain image at the
     // input, or make the spacing in the NRRD struct = [1.0, 1.0, 1.0]
     filter->SetUseImageSpacing(true);
+  
+    // we want actual Euclidean distances, not squared ones
+    filter->SquaredDistanceOff();
   }
 };
 
-// Avoid compiling combinations of input/output data types that are
+// avoid compiling combinations of input/output data types that are
 // not available for some filters.  Read the header help of
 // FilterFactoryExclusions.hpp for more info
 #import "FilterFactoryExclusions.hpp"
