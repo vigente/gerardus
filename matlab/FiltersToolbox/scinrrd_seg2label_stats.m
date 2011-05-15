@@ -90,7 +90,8 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.1
+% Version: 0.3.2
+% $Rev$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -145,6 +146,9 @@ if (~isempty(cc) && (N ~= cc.NumObjects))
     error('If CC is provided, then it must have one element per object in NRRD')
 end
 
+% compute Maurer distance map for the segmentation
+dmap = itk_imfilter('maudist', nrrd);
+
 % compute degree of each voxel in the segmentation
 deg = sum(d>0, 2);
 
@@ -153,6 +157,7 @@ eigd = nan(3, N);
 stats.islandlocked = nan(1, N);
 stats.nbound = nan(1, N);
 stats.nwater = nan(1, N);
+stats.dbif = nan(1, N);
 
 % loop every branch
 for I = 1:N
@@ -237,10 +242,13 @@ for I = 1:N
         
     end
     
-    %% compute statistics about the shape of the branch
-    
     % compute eigenvalues of branch
     [~, eigd(:, I)] = pts_pca(yi);
+    
+    %% for each leaf, get the distance map value for the bifurcation voxel
+    if (cc.IsLeaf(I))
+        stats.dbif(I) = abs(dmap(cc.BifurcationPixelIdx(I)));
+    end
     
 end
 
