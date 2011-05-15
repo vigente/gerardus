@@ -18,9 +18,11 @@ function d = dmatrix(x, y, METHOD)
 % [1] ETY Lee, "Choosing nodes in parametric curve interpolation",
 % Computer-Aided Design, 21:363–370, 1989.
 
-% Author: Ramon Casero.
+% Author: Ramon Casero <rcasero@gmail.com>.
 % Copyright © 2011 University of Oxford
-% v3.0 - 10 Mar 2011
+% v0.3.0
+% $Rev$
+% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

@@ -12,8 +12,11 @@ function im2 = correct_light_blobs_in_microscope_mosaic( im, tilesz, N )
 %
 %   N is a 2-vector with the number of tiles in (rows, cols).
 
-
+% Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2009 University of Oxford
+% Version: 0.1.0
+% $Rev$
+% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
