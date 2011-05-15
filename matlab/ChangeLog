@@ -2,7 +2,7 @@
 
 	* ItkToolbox/ItkImFilter.cpp (FilterParamFactory):
 
-	- Make Maurer filter give the output in actual Euclidean
+	- (v0.3.4) Make Maurer filter give the output in actual Euclidean
 	distances, not squared ones.
 
 2011-05-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
