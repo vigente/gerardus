@@ -1,5 +1,12 @@
 2011-05-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.3.2) Maurer distances inside the object are negative by
+	default, so we have to convert them to the positive value.
+
+	- Add svn:keywords Rev.
+
 	* ItkToolbox/ItkImFilter.cpp (FilterParamFactory):
 
 	- (v0.3.4) Make Maurer filter give the output in actual Euclidean
