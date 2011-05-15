@@ -154,7 +154,7 @@ dmap = itk_imfilter('maudist', nrrd);
 deg = sum(d>0, 2);
 
 % init output
-eigd = nan(3, N);
+eigd = zeros(3, N);
 stats.islandlocked = nan(1, N);
 stats.nbound = nan(1, N);
 stats.nwater = nan(1, N);
@@ -209,7 +209,7 @@ for I = 1:N
     [r, c, s] = ind2sub(size(nrrd.data), br);
     xi = scinrrd_index2world([r, c, s], nrrd.axis)';
     
-    if (~isempty(cc) && all(~isnan(cc.PixelParam{I})))
+    if (~isempty(cc) && all(~isnan(cc.PixelParam{I})) && (length(br) > 2))
         % coordinates of skeleton voxels
         [r, c, s] = ind2sub(size(nrrd.data), sk);
         x = scinrrd_index2world([r, c, s], nrrd.axis)';
@@ -233,7 +233,7 @@ for I = 1:N
         % create a straightened section of the skeleton of the same length
         % and with the same spacing between voxels
         y = [cc.PixelParam{I}' ; zeros(2, length(sk))];
-        
+
         % straighten branch voxels
         yi = pts_local_rigid(x', y', xi', idx)';
 
@@ -243,11 +243,15 @@ for I = 1:N
         
     end
     
-    % compute eigenvalues of branch
-    [~, eigd(:, I)] = pts_pca(yi);
+    % compute eigenvalues of branch (most of the time we are going to get 3
+    % eigenvalues, but not always, e.g. if we have only two voxels in the
+    % branch)
+    [~, aux] = pts_pca(yi);
+    eigd(1:(length(aux)), I) = aux;
     
-    %% for each leaf, get the distance map value for the bifurcation voxel
-    if (cc.IsLeaf(I))
+    %% for each leaf that is not isolated floating in the air, get the 
+    %% distance map value for the bifurcation voxel
+    if (cc.IsLeaf(I) && cc.BifurcationPixelIdx(I))
         stats.dbif(I) = abs(dmap(cc.BifurcationPixelIdx(I)));
     end
     

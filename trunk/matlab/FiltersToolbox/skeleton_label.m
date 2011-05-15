@@ -87,7 +87,9 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.7.0
+% Version: 0.7.1
+% $Rev$
+% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -272,6 +274,10 @@ if (~isempty(im))
     sk = bwregiongrow(im, TODO, res);
 
 end
+
+% in some very particular cases, a small patch of voxels may be left
+% unlabelled. We are just going to remove them from the segmentation
+sk(sk == TODO) = 0;
 
 % % Debug (2D image) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
