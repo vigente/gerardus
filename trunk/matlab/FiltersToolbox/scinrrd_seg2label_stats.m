@@ -91,7 +91,8 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
 % Version: 0.3.2
-% $Rev$
+% $Rev: 377 $
+% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
