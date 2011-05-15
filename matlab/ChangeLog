@@ -2,8 +2,10 @@
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
-	- (v0.3.2) Maurer distances inside the object are negative by
-	default, so we have to convert them to the positive value.
+	- (v0.3.2) Add svn:keywords Date.
+
+	- Maurer distances inside the object are negative by default, so
+	we have to convert them to the positive value.
 
 	- Add svn:keywords Rev.
 
