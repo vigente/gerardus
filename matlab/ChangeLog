@@ -1,5 +1,9 @@
 2011-05-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* All *.m, *.cpp, *.hpp files:
+
+	- Add svn:keywords Rev, Date.
+
 	* FiltersToolbox/skeleton_label.m:
 
 	- (v0.7.1) In some very particular cases, a small patch of voxels
