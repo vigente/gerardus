@@ -1,5 +1,9 @@
 2011-05-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* ItkToolbox/FilterFactoryExclusions.hpp:
+
+	- Add svn:keywords Rev, Date.
+
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
 	- (v0.3.2) Add svn:keywords Date.
