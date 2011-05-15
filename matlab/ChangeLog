@@ -1,12 +1,24 @@
 2011-05-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.7.1) In some very particular cases, a small patch of voxels
+	may be left unlabelled. We are just going to remove them from the
+	segmentation
+
+	- Add svn:keywords Rev, Date.
+
 	* ItkToolbox/FilterFactoryExclusions.hpp:
 
 	- Add svn:keywords Rev, Date.
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
-	- (v0.3.2) Add svn:keywords Date.
+	- (v0.3.2) Fix bugs. Avoid trying to straighten branches with 1 or
+	2 voxels. Deal with the case when the branch produces less than 3
+	eigenvalues.
+
+	- Add svn:keywords Date.
 
 	- Maurer distances inside the object are negative by default, so
 	we have to convert them to the positive value.
