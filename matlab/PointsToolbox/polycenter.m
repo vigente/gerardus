@@ -12,6 +12,9 @@ function [m, a] = polycenter(x,y)
 
 % Author: Ramon Casero
 % Copyright © 2010 University of Oxford
+% Version: 0.1.0
+% $Rev$
+% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

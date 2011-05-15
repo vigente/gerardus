@@ -74,6 +74,8 @@ function idx = scinrrd_world2index(x, ax, CHOP)
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2009-2011 University of Oxford
 % Version: 0.2.1
+% $Rev$
+% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

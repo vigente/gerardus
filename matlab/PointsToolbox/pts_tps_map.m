@@ -50,8 +50,10 @@ function [y, w] = pts_tps_map( s, t, x, w, FAST, PROGRESS )
 % See also: pts_tps_weights.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% v6.4 - 15 Feb 2011
 % Copyright © 2006-2011 University of Oxford
+% Version: 0.6.4
+% $Rev$
+% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

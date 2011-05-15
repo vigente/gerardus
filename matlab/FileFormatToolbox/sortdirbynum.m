@@ -38,7 +38,11 @@ function [file, dirdata] = sortdirbynum(s, f, sep)
 %    MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.11.2009.10.23.16.02.38.562500.9699451.BMP
 %    MISAS_DT_22_10_2009.MR.HEAD_GENERAL.6.12.2009.10.23.16.02.38.562500.9699490.BMP
 
+% Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2009 University of Oxford
+% Version: 0.1.0
+% $Rev$
+% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

@@ -58,9 +58,10 @@ function scirunnrrd = scinrrd_save(file, scirunnrrd, touint8, v73)
 %
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Version: 0.2
-%
 % Copyright © 2010-2011 University of Oxford
+% Version: 0.2.0
+% $Rev$
+% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
