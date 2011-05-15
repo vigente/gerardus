@@ -82,8 +82,11 @@ function [ mopt, vopt, avals, mvals, vvals ] = ...
 %          axis: [4x1 struct]
 %      property: []
 
-% Author(s): Ramon Casero, Vicente Grau
+% Author(s): Ramon Casero <rcasero@gmail.com>, Vicente Grau
 % Copyright © 2010 University of Oxford
+% Version: 0.1.0
+% $Rev$
+% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

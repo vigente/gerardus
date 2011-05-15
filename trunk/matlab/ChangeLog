@@ -2,6 +2,9 @@
 
 	* All *.m, *.cpp, *.hpp files:
 
+	- Add missing help headers, authour, version, $Rev$ and $Date$, if
+	necessary.
+
 	- Add svn:keywords Rev, Date.
 
 	* FiltersToolbox/skeleton_label.m:

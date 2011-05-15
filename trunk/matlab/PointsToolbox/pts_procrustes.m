@@ -39,6 +39,8 @@ function [y1, y2, sse, s1, s2, h, t1, t2] = pts_procrustes(x1, x2)
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
 % Version: 1.0.0
+% $Rev$
+% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
