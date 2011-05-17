@@ -90,7 +90,7 @@
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
   * Version: 0.3.5
-  * $Rev: 376 $
+  * $Rev$
   * $Date$
   *
   * University of Oxford means the Chancellor, Masters and Scholars of
