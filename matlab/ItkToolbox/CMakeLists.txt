@@ -1,5 +1,7 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
+# $Rev$
+# $Date$
 #
 # University of Oxford means the Chancellor, Masters and Scholars of
 # the University of Oxford, having an administrative office at
@@ -38,7 +40,7 @@ SET(Libraries
 ## itk_imfilter()
 ################################################################
 
-ADD_MEX_FILE(itk_imfilter ItkImFilter.cpp)
+ADD_MEX_FILE(itk_imfilter ItkImFilter.cpp NrrdImage.cpp)
 INCLUDE_DIRECTORIES(
   ../../cpp/src/third-party/itkBinaryThinningImageFilter3D/Source
   )
