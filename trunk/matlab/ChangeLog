@@ -1,3 +1,20 @@
+2011-05-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* ItkToolbox/FilterFactoryExclusions.hpp:
+
+	- (0.1.1) Pass the number of output arguments from the entry
+	mexFunction all the way to the FilterFactory. We are going to need
+	it for filters that give more than one output argument.
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (0.3.5) Pass the number of output arguments from the entry
+	mexFunction all the way to the FilterFactory. We are going to need
+	it for filters that give more than one output argument.
+
+	- Rename runTime* functions to parse*, as this describes better
+	what they do.
+
 2011-05-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FilterFactoryExclusions.hpp:
