@@ -1,3 +1,38 @@
+2011-05-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FilterFactoryExclusions.hpp:
+
+	- We are going to pass the pointer to the array of all output
+	arguments instead of just the first output argument to the
+	FilterFactory.
+
+	* CMakeLists.txt, FiltersToolbox/CMakeLists.txt,
+	ItkToolbox/CMakeLists.txt:
+
+	- Move the NrrdImage class to ItkToolbox/NrrdImage.hpp,
+	ItkToolbox/NrrdImage.cpp.
+
+	- Add svn:keywords Rev, Date.
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- Move the NrrdImage class to ItkToolbox/NrrdImage.hpp,
+	ItkToolbox/NrrdImage.cpp.
+
+	- We are going to pass the pointer to the array of all output
+	arguments instead of just the first output argument to the
+	FilterFactory.
+
+	* Add ItkToolbox/NrrdImage.hpp, ItkToolbox/NrrdImage.cpp:
+
+	- Create these two files to remove the NrrdImage class from
+	ItkImFilter.cpp.
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.7.2) Fix bug. Remove small patch of voxels only of we are
+	labelling the image.
+
 2011-05-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* All *.m, *.cpp, *.hpp files:
