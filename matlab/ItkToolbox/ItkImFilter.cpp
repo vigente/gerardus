@@ -89,7 +89,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.4
+  * Version: 0.3.5
   * $Rev: 376 $
   * $Date$
   *
@@ -144,6 +144,12 @@
 #include "NrrdImage.hpp"
 
 /*
+ * Global variables
+ */
+static const unsigned int Dimension = 3; // volume data dimension
+                                         // (3D volume)
+
+/*
  * Block of functions to allow testing of template types
  */
 template< class T >
@@ -188,12 +194,6 @@ struct TypeIsDouble< double >
 
 
 /*
- * Global variables and declarations
- */
-static const unsigned int Dimension = 3; // image dimension (we assume
-					 // a 3D volume also for 2D images)
-
-/*
  * FilterParamFactory: class to pass parameters specific to one filter
  * but not the others
  */
@@ -235,17 +235,29 @@ public:
   }
 };
 
-/*
- * FilterOutputFactory<FilterType>: Create outputs that are specific
- * to each filter.
- */
+// /*
+//  * FilterParam<FilterType>: parameters specific to each filter
+//  */
+// template <class FilterType>
+// class FilterParam {
+// private:
+//   int nargout; // Matlab uses an int for nargout (nlhs)
+// public:
+//   FilterParam(int _nargout) : nargout(_nargout) {;}
+//   int getNargout() {return nargout;}
+// };
 
-template <class FilterType>
-class FilterOutputFactory {
-public:
-  FilterOutputFactory(typename FilterType::Pointer filter, 
-		      mxArray** &argOut) {;}
-};
+// /*
+//  * FilterOutputFactory<FilterType>: Create outputs that are specific
+//  * to each filter.
+//  */
+
+// template <class FilterType>
+// class FilterOutputFactory {
+// public:
+//   FilterOutputFactory(typename FilterType::Pointer filter, 
+// 		      mxArray** &argOut) {;}
+// };
 
 /* 
  * FilterFactory<InVoxelType, OutVoxelType, FilterType>: This is where
@@ -263,8 +275,11 @@ public:
 
 template <class InVoxelType, class OutVoxelType, class FilterType>
 class FilterFactory {
+private:
+  int nargout;
 public:
-  FilterFactory(char *filterType, NrrdImage &nrrd, mxArray** &argOut);
+  FilterFactory(char *filterType, NrrdImage &nrrd, 
+		int _nargout, mxArray** &argOut);
 };
 
 // avoid compiling combinations of input/output data types that are
@@ -275,7 +290,8 @@ public:
 // Constructor: where the actual filtering code lives
 template <class InVoxelType, class OutVoxelType, class FilterType>
 FilterFactory<InVoxelType, OutVoxelType, FilterType>::FilterFactory
-(char *filterName, NrrdImage &nrrd, mxArray** &argOut) {
+(char *filterName, NrrdImage &nrrd, int _nargout, mxArray** &argOut) 
+  : nargout(_nargout) {
   
   // if the input image is empty, create empty segmentation mask for
   // output. We don't need to do any processing
@@ -286,7 +302,7 @@ FilterFactory<InVoxelType, OutVoxelType, FilterType>::FilterFactory
   
   // get pointer to input segmentation mask
   const InVoxelType *im = (InVoxelType *)mxGetPr(nrrd.getData());
-  
+
   // image type definitions
   typedef double TScalarType; // data type for scalars
   typedef itk::Image< InVoxelType, Dimension > 
@@ -369,6 +385,8 @@ FilterFactory<InVoxelType, OutVoxelType, FilterType>::FilterFactory
     mexErrMsgTxt("Assertion fail: Unrecognised output voxel type");
   }
   
+  std::cout << "nargout = " << nargout << std::endl;
+
   // create output matrix for Matlab's result
   argOut[0] = (mxArray *)mxCreateNumericArray(nrrd.getNdim(), nrrd.getDims(),
 					  outputVoxelClassId,
@@ -385,16 +403,16 @@ FilterFactory<InVoxelType, OutVoxelType, FilterType>::FilterFactory
     imOutp[i] = (OutVoxelType)citer.Get();
   }
   
-  // create outputs that are specific to each filter
+  // // create outputs that are specific to each filter
+  // // FilterOutputFactory<FilterType> filterOutput(filter, argOut);
   // FilterOutputFactory<FilterType> filterOutput(filter, argOut);
-  FilterOutputFactory<FilterType> filterOutput(filter, argOut);
 
 }
 
 /*
- * runTimeInputTypeToTemplate()
- * runTimeOutputTypeToTemplate< InVoxelType >()
- * runTimeFilterTypeToTemplate< InVoxelType, OutVoxelType >()
+ * parseInputTypeToTemplate()
+ * parseOutputTypeToTemplate< InVoxelType >()
+ * parseFilterTypeToTemplate< InVoxelType, OutVoxelType >()
  *
  * These functions are used to be able to map between the input/output
  * data types that are only know at run-time, and the input/output
@@ -411,41 +429,40 @@ FilterFactory<InVoxelType, OutVoxelType, FilterType>::FilterFactory
  * }
  *
  * we split the conversion in 3 steps. The first function,
- * runTimeInputTypeToTemplate() reads the input data type and the
+ * parseInputTypeToTemplate() reads the input data type and the
  * filter type, and instantiates
- * runTimeOutputTypeToTemplate<InVoxelType>() for each input data
+ * parseOutputTypeToTemplate<InVoxelType>() for each input data
  * type.
  *
  * This way, we have effectively mapped the input type from a run-time
  * variable to a set of compilation time templates.
  *
- * Then runTimeOutputTypeToTemplate<InVoxelType>() decides on the
+ * Then parseOutputTypeToTemplate<InVoxelType>() decides on the
  * output data type depending on the filter and the input, and
  * instantiates one
- * runTimeFilterTypeToTemplate<InVoxelType, OutVoxelType>() for each
+ * parseFilterTypeToTemplate<InVoxelType, OutVoxelType>() for each
  * output data type.
  *
  * This way, we have instantiated all combinations of input/output
  * data types, without having to code them explicitly.
  *
- * Finally, runTimeFilterTypeToTemplate<InVoxelType, OutVoxelType>()
+ * Finally, parseFilterTypeToTemplate<InVoxelType, OutVoxelType>()
  * checks that the requested filter is implemented and maps the filter
  * variable to all filter templates.
  *
  * Note that the actual filtering is done in the constructor of
  * FilterFactory, that is instantiated from
- * runTimeFilterTypeToTemplate.
+ * parseFilterTypeToTemplate.
  */
 
-// runTimeFilterTypeToTemplate<InVoxelType, OutVoxelType>()
+// parseFilterTypeToTemplate<InVoxelType, OutVoxelType>()
 template <class InVoxelType, class OutVoxelType>
-void runTimeFilterTypeToTemplate(char *filter,
+void parseFilterTypeToTemplate(char *filter,
 				 NrrdImage nrrd,
+				 int nargout,
 				 mxArray** &argOut) {
 
   // image type definitions
-  static const unsigned int Dimension = 3; // volume data dimension
-                                           // (3D volume)
   typedef double TScalarType; // data type for scalars
   typedef itk::Image< InVoxelType, Dimension > 
     InImageType;
@@ -457,25 +474,26 @@ void runTimeFilterTypeToTemplate(char *filter,
   if (!strcmp(filter, "skel")) {
     FilterFactory<InVoxelType, OutVoxelType, 
       itk::BinaryThinningImageFilter3D< InImageType, OutImageType >
-      > filterFactory(filter, nrrd, argOut);
+      > filterFactory(filter, nrrd, nargout, argOut);
   }  else if (!strcmp(filter, "dandist")) {
     FilterFactory<InVoxelType, OutVoxelType, 
       itk::DanielssonDistanceMapImageFilter< InImageType, OutImageType >
-      > filterFactory(filter, nrrd, argOut);
+      > filterFactory(filter, nrrd, nargout, argOut);
   }  else if (!strcmp(filter, "maudist")) {
     FilterFactory<InVoxelType, OutVoxelType, 
       itk::SignedMaurerDistanceMapImageFilter< InImageType, OutImageType >
-      > filterFactory(filter, nrrd, argOut);
+      > filterFactory(filter, nrrd, nargout, argOut);
   } else {
     mexErrMsgTxt("Filter type not implemented");
   }
   
 }
 
-// runTimeOutputTypeToTemplate<InVoxelType>()
+// parseOutputTypeToTemplate<InVoxelType>()
 template <class InVoxelType>
-void runTimeOutputTypeToTemplate(char *filter,
+void parseOutputTypeToTemplate(char *filter,
 				 NrrdImage nrrd,
+				 int nargout,
 				 mxArray** &argOut) {
 
   // make it easier to remember the different cases for the output
@@ -519,28 +537,28 @@ void runTimeOutputTypeToTemplate(char *filter,
 
   switch(outVoxelType) {
   case SAME:
-    runTimeFilterTypeToTemplate<InVoxelType, 
-      InVoxelType>(filter, nrrd, argOut);
+    parseFilterTypeToTemplate<InVoxelType, 
+      InVoxelType>(filter, nrrd, nargout, argOut);
     break;
   case BOOL:
-    runTimeFilterTypeToTemplate<InVoxelType, 
-      bool>(filter, nrrd, argOut);
+    parseFilterTypeToTemplate<InVoxelType, 
+      bool>(filter, nrrd, nargout, argOut);
     break;
   case UINT8:
-    runTimeFilterTypeToTemplate<InVoxelType, 
-      uint8_T>(filter, nrrd, argOut);
+    parseFilterTypeToTemplate<InVoxelType, 
+      uint8_T>(filter, nrrd, nargout, argOut);
     break;
   case UINT16:
-    runTimeFilterTypeToTemplate<InVoxelType, 
-      uint16_T>(filter, nrrd, argOut);
+    parseFilterTypeToTemplate<InVoxelType, 
+      uint16_T>(filter, nrrd, nargout, argOut);
     break;
   case SINGLE:
-    runTimeFilterTypeToTemplate<InVoxelType, 
-      float>(filter, nrrd, argOut);
+    parseFilterTypeToTemplate<InVoxelType, 
+      float>(filter, nrrd, nargout, argOut);
     break;
   case DOUBLE:
-    runTimeFilterTypeToTemplate<InVoxelType, 
-      double>(filter, nrrd, argOut);
+    parseFilterTypeToTemplate<InVoxelType, 
+      double>(filter, nrrd, nargout, argOut);
     break;
   default:
     mexErrMsgTxt("Invalid output type.");
@@ -548,41 +566,42 @@ void runTimeOutputTypeToTemplate(char *filter,
   }
 }
 
-// runTimeInputTypeToTemplate()
-void runTimeInputTypeToTemplate(mxClassID inputVoxelClassId, 
+// parseInputTypeToTemplate()
+void parseInputTypeToTemplate(mxClassID inputVoxelClassId, 
 				char *filter,
 				NrrdImage nrrd,
+				int nargout,
 				mxArray** &argOut) {
   
   switch(inputVoxelClassId)  { // swith input image type
   case mxLOGICAL_CLASS:
-    runTimeOutputTypeToTemplate<bool>(filter, nrrd, argOut);
+    parseOutputTypeToTemplate<bool>(filter, nrrd, nargout, argOut);
     break;
   case mxDOUBLE_CLASS:
-    runTimeOutputTypeToTemplate<double>(filter, nrrd, argOut);
+    parseOutputTypeToTemplate<double>(filter, nrrd, nargout, argOut);
     break;
   case mxSINGLE_CLASS:
-    runTimeOutputTypeToTemplate<float>(filter, nrrd, argOut);
+    parseOutputTypeToTemplate<float>(filter, nrrd, nargout, argOut);
     break;
   case mxINT8_CLASS:
-    runTimeOutputTypeToTemplate<int8_T>(filter, nrrd, argOut);
+    parseOutputTypeToTemplate<int8_T>(filter, nrrd, nargout, argOut);
     break;
   case mxUINT8_CLASS:
-    runTimeOutputTypeToTemplate<uint8_T>(filter, nrrd, argOut);
+    parseOutputTypeToTemplate<uint8_T>(filter, nrrd, nargout, argOut);
     break;
   case mxINT16_CLASS:
-    runTimeOutputTypeToTemplate<int16_T>(filter, nrrd, argOut);
+    parseOutputTypeToTemplate<int16_T>(filter, nrrd, nargout, argOut);
     break;
   case mxUINT16_CLASS:
-    runTimeOutputTypeToTemplate<uint16_T>(filter, nrrd, argOut);
+    parseOutputTypeToTemplate<uint16_T>(filter, nrrd, nargout, argOut);
     break;
   case mxINT32_CLASS:
-    runTimeOutputTypeToTemplate<int32_T>(filter, nrrd, argOut);
+    parseOutputTypeToTemplate<int32_T>(filter, nrrd, nargout, argOut);
     break;
   // case mxUINT32_CLASS:
   //   break;
   case mxINT64_CLASS:
-    runTimeOutputTypeToTemplate<int64_T>(filter, nrrd, argOut);
+    parseOutputTypeToTemplate<int64_T>(filter, nrrd, nargout, argOut);
     break;
   // case mxUINT64_CLASS:
   //   break;
@@ -622,9 +641,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // to translate the run-time type variables like inputVoxelClassId
   // to templates, so that we don't need to nest lots of "switch" or
   // "if" statements)
-  runTimeInputTypeToTemplate(inputVoxelClassId, 
+  parseInputTypeToTemplate(inputVoxelClassId, 
 			     filter,
 			     nrrd,
+			     nlhs,
 			     plhs);
 
   // exit successfully
