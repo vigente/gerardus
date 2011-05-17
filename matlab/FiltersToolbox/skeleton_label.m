@@ -87,7 +87,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.7.1
+% Version: 0.7.2
 % $Rev$
 % $Date$
 % 
@@ -273,11 +273,11 @@ if (~isempty(im))
     % overwrite skeleton image
     sk = bwregiongrow(im, TODO, res);
 
+    % in some very particular cases, a small patch of voxels may be left
+    % unlabelled. We are just going to remove them from the segmentation
+    sk(sk == TODO) = 0;
 end
 
-% in some very particular cases, a small patch of voxels may be left
-% unlabelled. We are just going to remove them from the segmentation
-sk(sk == TODO) = 0;
 
 % % Debug (2D image) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
@@ -309,9 +309,9 @@ sk(sk == TODO) = 0;
 %% Sort the skeleton voxels in each branch
 
 % init output
-cc.IsLeaf = false(1, N);
-cc.IsLoop = false(1, N);
-cc.BranchLenght = nan(1, N);
+cc.IsLeaf = false(1, cc.NumObjects);
+cc.IsLoop = false(1, cc.NumObjects);
+cc.BranchLenght = nan(1, cc.NumObjects);
 
 % loop each branch in the skeleton
 for I = 1:cc.NumObjects
