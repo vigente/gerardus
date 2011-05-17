@@ -118,17 +118,21 @@
   * <http://www.gnu.org/licenses/>.
   */
 
+#ifndef ITKIMFILTER_CPP
+#define ITKIMFILTER_CPP
+
 #ifdef _MSC_VER
 #pragma warning ( disable : 4786 )
 #endif
 
 /* mex headers */
-#include <math.h>
-#include <matrix.h>
 #include <mex.h>
 
 /* C++ headers */
 #include <iostream>
+#include <cmath>
+#include <matrix.h>
+#include <vector>
 
 /* ITK headers */
 #include "itkImage.h"
@@ -136,15 +140,8 @@
 #include "itkDanielssonDistanceMapImageFilter.h"
 #include "itkSignedMaurerDistanceMapImageFilter.h"
 
-#ifndef ITKIMFILTER_CPP
-#define ITKIMFILTER_CPP
-
-/*
- * Global variables and declarations
- */
-static const unsigned int Dimension = 3; // image dimension (we assume
-					 // a 3D volume also for 2D images)
-
+/* Gerardus headers */
+#include "NrrdImage.hpp"
 
 /*
  * Block of functions to allow testing of template types
@@ -191,182 +188,10 @@ struct TypeIsDouble< double >
 
 
 /*
- * NrrdImage: class to parse an image that follows the SCI NRRD format
- * obtained from saving an image in Seg3D to a Matlab file
+ * Global variables and declarations
  */
-class NrrdImage {
-private:
-  
-  mxArray *data; // pointer to the image data in Matlab format
-  mwSize ndim; // number of elements in the dimensions array dims
-  mwSize *dims; // dimensions array
-  // size[0] -> rows
-  // size[1] -> columns
-  // size[2] -> slices
-  std::vector<mwSize> size; // number of voxels in each dimension
-  std::vector<double> spacing; // voxel size in each dimension
-  std::vector<double> min; // real world coordinates of the image origin
-
-public:
-  NrrdImage(const mxArray * nrrd);
-  mxArray * getData() {return data;}
-  std::vector<mwSize> getSize() {return size;}
-  std::vector<double> getSpacing() {return spacing;}
-  std::vector<double> getMin() {return min;}
-  mwSize getR() {return size[0];}
-  mwSize getC() {return size[1];}
-  mwSize getS() {return size[2];}
-  mwSize getDr() {return spacing[0];}
-  mwSize getDc() {return spacing[1];}
-  mwSize getDs() {return spacing[2];}
-  mwSize getDx() {return spacing[1];}
-  mwSize getDy() {return spacing[0];}
-  mwSize getDz() {return spacing[2];}
-  mwSize getMinR() {return min[0];}
-  mwSize getMinC() {return min[1];}
-  mwSize getMinS() {return min[2];}
-  mwSize getMinX() {return min[1];}
-  mwSize getMinY() {return min[0];}
-  mwSize getMinZ() {return min[2];}
-  mwSize getNdim() {return ndim;}
-  mwSize *getDims() {return dims;}
-  mwSize maxVoxDistance();
-  mwSize numEl();
-};
-
-// The constructor works as a parser. It figures out whether the input
-// data is a normal array with the image, or an NRRD struct. In the
-// latter case, it reads the struct fields to extract the spacing and
-// offset of the image
-NrrdImage::NrrdImage(const mxArray * nrrd) {
-
-  // initialize memory for member variables
-  spacing.resize(Dimension);
-  min.resize(Dimension);
-  size.resize(Dimension);
-
-  // check whether the input image is an SCI NRRD struct instead of
-  // only the array. The SCI NRRD struct has information about the
-  // scaling, offset, etc. of the image
-  if (mxIsStruct(nrrd)) { // input is a struct
-    // read struct fields...
-
-    // ... data field (where the image is contained)
-    data = mxGetField(nrrd, 0, "data");
-    if (data == NULL) {
-      mexErrMsgTxt("NRRD format error: Missing or invalid data field");
-    }
-
-    // ... axis field
-    mxArray *axis = mxGetField(nrrd, 0, "axis");
-    if (axis == NULL) {
-      mexErrMsgTxt("NRRD format error: Missing or invalid axis field");
-    }
-    if (!mxIsStruct(axis)) {
-      mexErrMsgTxt("NRRD format error: axis field is not a struct");
-    }
-    if (mxGetM(axis) != 3) {
-      mexErrMsgTxt("NRRD format error: axis field must be a 3x1 struct array");
-    }
-
-    // ... spacing field (image resolution)
-    // ... min field (image origin)
-    mxArray *spacingMx, *minMx;
-    double *spacingMxp, *minMxp;
-    for (mwIndex i = 0; i < 3; ++i) {
-      spacingMx = mxGetField(axis, i, "spacing");
-      if (spacingMx == NULL) {
-	mexErrMsgTxt("NRRD format error: Missing or invalid axis.spacing field");
-      }
-      minMx = mxGetField(axis, i, "min");
-      if (minMx == NULL) {
-	mexErrMsgTxt("NRRD format error: Missing or invalid axis.min field");
-      }
-      spacingMxp = (double *)mxGetData(spacingMx);
-      minMxp = (double *)mxGetData(minMx);
-      if (mxIsFinite(spacingMxp[0]) && !mxIsNaN(spacingMxp[0])) {
-	spacing[i] = spacingMxp[0];
-      } else {
-	spacing[i] = 1.0;
-      }
-      if (mxIsFinite(minMxp[0]) && !mxIsNaN(minMxp[0])) {
-	min[i] = minMxp[0];
-      } else {
-	min[i] = 0.0;
-      }
-    }
-
-  } else { // input is not a struct, but just an image array
-    data = const_cast<mxArray *>(nrrd);
-    spacing[0] = 1.0;
-    spacing[1] = 1.0;
-    spacing[2] = 1.0;
-    min[0] = 0.0;
-    min[1] = 0.0;
-    min[2] = 0.0;
-  }
-
-
-  // get number of dimensions in the input image
-  if (!mxIsNumeric(data) 
-      && !mxIsLogical(data)) {
-    mexErrMsgTxt("IM must be a 2D or 3D numeric or boolean matrix");
-  }
-  ndim = mxGetNumberOfDimensions(data);
-  
-  // get size of input arguments
-  dims = const_cast<mwSize *>(mxGetDimensions(data));
-  if (dims == NULL) {
-    mexErrMsgTxt("Invalid input image dimensions array");
-  }
-  size[0] = dims[0];
-  if (ndim > 3) {
-    mexErrMsgTxt("Input segmentation mask must be 2D or 3D");
-  } else if (ndim == 2) {
-    size[1] = dims[1];
-    size[2] = 1;
-  } else if (ndim == 3) {
-    size[1] = dims[1];
-    size[2] = dims[2];
-  } else {
-    mexErrMsgTxt("Assertion fail: number of dimensions is " + ndim);
-  }
-
-}
-
-// compute the maximum distance between any two voxels in this image
-// (in voxel units). This is the length of the largest diagonal in the
-// cube
-mwSize NrrdImage::maxVoxDistance() {
-  return std::sqrt((size[0]-1)*(size[0]-1)
-		   + (size[1]-1)*(size[1]-1)
-		   + (size[2]-1)*(size[2]-1));
-}
-
-// compute the number of voxels in the image volume
-mwSize NrrdImage::numEl() {
-  return size[0]*size[1]*size[2];
-}
-
-/* 
- * FilterFactory<InVoxelType, OutVoxelType, FilterType>: This is where
- * the code to actually run the filter on the image lives.
- *
- * Instead of having a function (e.g. runFilter), we have the code in
- * the constructor of class FilterFactory.
- *
- * The reason is that template explicit specialization is only
- * possible in classes, not in functions. We need explicit
- * specialization to prevent the compiler from compiling certain
- * input/output image data types for some filters that don't accept
- * them.
- */
-
-template <class InVoxelType, class OutVoxelType, class FilterType>
-class FilterFactory {
-public:
-  FilterFactory(char *filterType, NrrdImage &nrrd, mxArray* &imOut);
-};
+static const unsigned int Dimension = 3; // image dimension (we assume
+					 // a 3D volume also for 2D images)
 
 /*
  * FilterParamFactory: class to pass parameters specific to one filter
@@ -410,6 +235,38 @@ public:
   }
 };
 
+/*
+ * FilterOutputFactory<FilterType>: Create outputs that are specific
+ * to each filter.
+ */
+
+template <class FilterType>
+class FilterOutputFactory {
+public:
+  FilterOutputFactory(typename FilterType::Pointer filter, 
+		      mxArray** &argOut) {;}
+};
+
+/* 
+ * FilterFactory<InVoxelType, OutVoxelType, FilterType>: This is where
+ * the code to actually run the filter on the image lives.
+ *
+ * Instead of having a function (e.g. runFilter), we have the code in
+ * the constructor of class FilterFactory.
+ *
+ * The reason is that template explicit specialization is only
+ * possible in classes, not in functions. We need explicit
+ * specialization to prevent the compiler from compiling certain
+ * input/output image data types for some filters that don't accept
+ * them.
+ */
+
+template <class InVoxelType, class OutVoxelType, class FilterType>
+class FilterFactory {
+public:
+  FilterFactory(char *filterType, NrrdImage &nrrd, mxArray** &argOut);
+};
+
 // avoid compiling combinations of input/output data types that are
 // not available for some filters.  Read the header help of
 // FilterFactoryExclusions.hpp for more info
@@ -418,12 +275,12 @@ public:
 // Constructor: where the actual filtering code lives
 template <class InVoxelType, class OutVoxelType, class FilterType>
 FilterFactory<InVoxelType, OutVoxelType, FilterType>::FilterFactory
-(char *filterName, NrrdImage &nrrd, mxArray* &imOut) {
+(char *filterName, NrrdImage &nrrd, mxArray** &argOut) {
   
   // if the input image is empty, create empty segmentation mask for
   // output. We don't need to do any processing
   if (nrrd.getR() == 0 || nrrd.getC() == 0) {
-    imOut = mxCreateDoubleMatrix(0, 0, mxREAL);
+    argOut[0] = mxCreateDoubleMatrix(0, 0, mxREAL);
     return;
   }
   
@@ -513,13 +370,13 @@ FilterFactory<InVoxelType, OutVoxelType, FilterType>::FilterFactory
   }
   
   // create output matrix for Matlab's result
-  imOut = (mxArray *)mxCreateNumericArray(nrrd.getNdim(), nrrd.getDims(),
+  argOut[0] = (mxArray *)mxCreateNumericArray(nrrd.getNdim(), nrrd.getDims(),
 					  outputVoxelClassId,
 					  mxREAL);
-  if (imOut == NULL) {
+  if (argOut[0] == NULL) {
     mexErrMsgTxt("Cannot allocate memory for output matrix");
   }
-  OutVoxelType *imOutp =  (OutVoxelType *)mxGetPr(imOut);
+  OutVoxelType *imOutp =  (OutVoxelType *)mxGetPr(argOut[0]);
   
   // populate output image
   OutConstIteratorType citer(filter->GetOutput(), 
@@ -528,6 +385,9 @@ FilterFactory<InVoxelType, OutVoxelType, FilterType>::FilterFactory
     imOutp[i] = (OutVoxelType)citer.Get();
   }
   
+  // create outputs that are specific to each filter
+  // FilterOutputFactory<FilterType> filterOutput(filter, argOut);
+  FilterOutputFactory<FilterType> filterOutput(filter, argOut);
 
 }
 
@@ -581,7 +441,7 @@ FilterFactory<InVoxelType, OutVoxelType, FilterType>::FilterFactory
 template <class InVoxelType, class OutVoxelType>
 void runTimeFilterTypeToTemplate(char *filter,
 				 NrrdImage nrrd,
-				 mxArray* &imOut) {
+				 mxArray** &argOut) {
 
   // image type definitions
   static const unsigned int Dimension = 3; // volume data dimension
@@ -597,15 +457,15 @@ void runTimeFilterTypeToTemplate(char *filter,
   if (!strcmp(filter, "skel")) {
     FilterFactory<InVoxelType, OutVoxelType, 
       itk::BinaryThinningImageFilter3D< InImageType, OutImageType >
-      > filterFactory(filter, nrrd, imOut);
+      > filterFactory(filter, nrrd, argOut);
   }  else if (!strcmp(filter, "dandist")) {
     FilterFactory<InVoxelType, OutVoxelType, 
       itk::DanielssonDistanceMapImageFilter< InImageType, OutImageType >
-      > filterFactory(filter, nrrd, imOut);
+      > filterFactory(filter, nrrd, argOut);
   }  else if (!strcmp(filter, "maudist")) {
     FilterFactory<InVoxelType, OutVoxelType, 
       itk::SignedMaurerDistanceMapImageFilter< InImageType, OutImageType >
-      > filterFactory(filter, nrrd, imOut);
+      > filterFactory(filter, nrrd, argOut);
   } else {
     mexErrMsgTxt("Filter type not implemented");
   }
@@ -616,7 +476,7 @@ void runTimeFilterTypeToTemplate(char *filter,
 template <class InVoxelType>
 void runTimeOutputTypeToTemplate(char *filter,
 				 NrrdImage nrrd,
-				 mxArray* &imOut) {
+				 mxArray** &argOut) {
 
   // make it easier to remember the different cases for the output
   // voxel type
@@ -660,27 +520,27 @@ void runTimeOutputTypeToTemplate(char *filter,
   switch(outVoxelType) {
   case SAME:
     runTimeFilterTypeToTemplate<InVoxelType, 
-      InVoxelType>(filter, nrrd, imOut);
+      InVoxelType>(filter, nrrd, argOut);
     break;
   case BOOL:
     runTimeFilterTypeToTemplate<InVoxelType, 
-      bool>(filter, nrrd, imOut);
+      bool>(filter, nrrd, argOut);
     break;
   case UINT8:
     runTimeFilterTypeToTemplate<InVoxelType, 
-      uint8_T>(filter, nrrd, imOut);
+      uint8_T>(filter, nrrd, argOut);
     break;
   case UINT16:
     runTimeFilterTypeToTemplate<InVoxelType, 
-      uint16_T>(filter, nrrd, imOut);
+      uint16_T>(filter, nrrd, argOut);
     break;
   case SINGLE:
     runTimeFilterTypeToTemplate<InVoxelType, 
-      float>(filter, nrrd, imOut);
+      float>(filter, nrrd, argOut);
     break;
   case DOUBLE:
     runTimeFilterTypeToTemplate<InVoxelType, 
-      double>(filter, nrrd, imOut);
+      double>(filter, nrrd, argOut);
     break;
   default:
     mexErrMsgTxt("Invalid output type.");
@@ -692,37 +552,37 @@ void runTimeOutputTypeToTemplate(char *filter,
 void runTimeInputTypeToTemplate(mxClassID inputVoxelClassId, 
 				char *filter,
 				NrrdImage nrrd,
-				mxArray* &imOut) {
+				mxArray** &argOut) {
   
   switch(inputVoxelClassId)  { // swith input image type
   case mxLOGICAL_CLASS:
-    runTimeOutputTypeToTemplate<bool>(filter, nrrd, imOut);
+    runTimeOutputTypeToTemplate<bool>(filter, nrrd, argOut);
     break;
   case mxDOUBLE_CLASS:
-    runTimeOutputTypeToTemplate<double>(filter, nrrd, imOut);
+    runTimeOutputTypeToTemplate<double>(filter, nrrd, argOut);
     break;
   case mxSINGLE_CLASS:
-    runTimeOutputTypeToTemplate<float>(filter, nrrd, imOut);
+    runTimeOutputTypeToTemplate<float>(filter, nrrd, argOut);
     break;
   case mxINT8_CLASS:
-    runTimeOutputTypeToTemplate<int8_T>(filter, nrrd, imOut);
+    runTimeOutputTypeToTemplate<int8_T>(filter, nrrd, argOut);
     break;
   case mxUINT8_CLASS:
-    runTimeOutputTypeToTemplate<uint8_T>(filter, nrrd, imOut);
+    runTimeOutputTypeToTemplate<uint8_T>(filter, nrrd, argOut);
     break;
   case mxINT16_CLASS:
-    runTimeOutputTypeToTemplate<int16_T>(filter, nrrd, imOut);
+    runTimeOutputTypeToTemplate<int16_T>(filter, nrrd, argOut);
     break;
   case mxUINT16_CLASS:
-    runTimeOutputTypeToTemplate<uint16_T>(filter, nrrd, imOut);
+    runTimeOutputTypeToTemplate<uint16_T>(filter, nrrd, argOut);
     break;
   case mxINT32_CLASS:
-    runTimeOutputTypeToTemplate<int32_T>(filter, nrrd, imOut);
+    runTimeOutputTypeToTemplate<int32_T>(filter, nrrd, argOut);
     break;
   // case mxUINT32_CLASS:
   //   break;
   case mxINT64_CLASS:
-    runTimeOutputTypeToTemplate<int64_T>(filter, nrrd, imOut);
+    runTimeOutputTypeToTemplate<int64_T>(filter, nrrd, argOut);
     break;
   // case mxUINT64_CLASS:
   //   break;
@@ -744,9 +604,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
   if (nrhs != 2) {
     mexErrMsgTxt("Two input arguments required");
   }
-  else if (nlhs > 1) {
-    mexErrMsgTxt("Too many output arguments");
-  }
 
   // read image and its parameters, whether it's in NRRD format, or
   // just a 2D or 3D array
@@ -761,14 +618,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // input image type
   mxClassID inputVoxelClassId = mxGetClassID(nrrd.getData());
 
-  // run filter (this function starts a cascade of functions design to
-  // translate the run-time type variables like inputVoxelClassId to
-  // templates, so that we don't need to nest lots of switch of if
-  // clauses
+  // run filter (this function starts a cascade of functions designed
+  // to translate the run-time type variables like inputVoxelClassId
+  // to templates, so that we don't need to nest lots of "switch" or
+  // "if" statements)
   runTimeInputTypeToTemplate(inputVoxelClassId, 
 			     filter,
 			     nrrd,
-			     plhs[0]);
+			     plhs);
 
   // exit successfully
   return;

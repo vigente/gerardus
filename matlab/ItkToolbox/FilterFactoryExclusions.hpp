@@ -200,7 +200,7 @@ template <>
 class FilterFactory< bool, uint8_T, ThinningFilter_bool_uint8_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -208,7 +208,7 @@ template <>
 class FilterFactory< bool, uint16_T, ThinningFilter_bool_uint16_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -216,7 +216,7 @@ template <>
 class FilterFactory< bool, float, ThinningFilter_bool_float >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -224,7 +224,7 @@ template <>
 class FilterFactory< bool, double, ThinningFilter_bool_double >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -233,7 +233,7 @@ template <>
 class FilterFactory< uint8_T, bool, ThinningFilter_uint8_T_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -241,7 +241,7 @@ template <>
 class FilterFactory< uint8_T, uint16_T, ThinningFilter_uint8_T_uint16_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -249,7 +249,7 @@ template <>
 class FilterFactory< uint8_T, float, ThinningFilter_uint8_T_float >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -257,7 +257,7 @@ template <>
 class FilterFactory< uint8_T, double, ThinningFilter_uint8_T_double >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -266,7 +266,7 @@ template <>
 class FilterFactory< int8_T, bool, ThinningFilter_int8_T_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -274,7 +274,7 @@ template <>
 class FilterFactory< int8_T, uint8_T, ThinningFilter_int8_T_uint8_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -282,7 +282,7 @@ template <>
 class FilterFactory< int8_T, uint16_T, ThinningFilter_int8_T_uint16_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -290,7 +290,7 @@ template <>
 class FilterFactory< int8_T, float, ThinningFilter_int8_T_float >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -298,7 +298,7 @@ template <>
 class FilterFactory< int8_T, double, ThinningFilter_int8_T_double >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -307,7 +307,7 @@ template <>
 class FilterFactory< uint16_T, bool, ThinningFilter_uint16_T_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -315,7 +315,7 @@ template <>
 class FilterFactory< uint16_T, uint8_T, ThinningFilter_uint16_T_uint8_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -323,7 +323,7 @@ template <>
 class FilterFactory< uint16_T, float, ThinningFilter_uint16_T_float >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -331,7 +331,7 @@ template <>
 class FilterFactory< uint16_T, double, ThinningFilter_uint16_T_double >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -340,7 +340,7 @@ template <>
 class FilterFactory< int16_T, bool, ThinningFilter_int16_T_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -348,7 +348,7 @@ template <>
 class FilterFactory< int16_T, uint8_T, ThinningFilter_int16_T_uint8_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -356,7 +356,7 @@ template <>
 class FilterFactory< int16_T, uint16_T, ThinningFilter_int16_T_uint16_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -364,7 +364,7 @@ template <>
 class FilterFactory< int16_T, float, ThinningFilter_int16_T_float >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -372,7 +372,7 @@ template <>
 class FilterFactory< int16_T, double, ThinningFilter_int16_T_double >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -381,7 +381,7 @@ template <>
 class FilterFactory< int32_T, bool, ThinningFilter_int32_T_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -389,7 +389,7 @@ template <>
 class FilterFactory< int32_T, uint8_T, ThinningFilter_int32_T_uint8_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -397,7 +397,7 @@ template <>
 class FilterFactory< int32_T, uint16_T, ThinningFilter_int32_T_uint16_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -405,7 +405,7 @@ template <>
 class FilterFactory< int32_T, float, ThinningFilter_int32_T_float >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -413,7 +413,7 @@ template <>
 class FilterFactory< int32_T, double, ThinningFilter_int32_T_double >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -422,7 +422,7 @@ template <>
 class FilterFactory< int64_T, bool, ThinningFilter_int64_T_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -430,7 +430,7 @@ template <>
 class FilterFactory< int64_T, uint8_T, ThinningFilter_int64_T_uint8_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -438,7 +438,7 @@ template <>
 class FilterFactory< int64_T, uint16_T, ThinningFilter_int64_T_uint16_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -446,7 +446,7 @@ template <>
 class FilterFactory< int64_T, float, ThinningFilter_int64_T_float >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -454,7 +454,7 @@ template <>
 class FilterFactory< int64_T, double, ThinningFilter_int64_T_double >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -463,7 +463,7 @@ template <>
 class FilterFactory< float, bool, ThinningFilter_float_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -471,7 +471,7 @@ template <>
 class FilterFactory< float, uint8_T, ThinningFilter_float_uint8_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -479,7 +479,7 @@ template <>
 class FilterFactory< float, uint16_T, ThinningFilter_float_uint16_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -487,7 +487,7 @@ template <>
 class FilterFactory< float, double, ThinningFilter_float_double >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -496,7 +496,7 @@ template <>
 class FilterFactory< double, bool, ThinningFilter_double_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -504,7 +504,7 @@ template <>
 class FilterFactory< double, uint8_T, ThinningFilter_double_uint8_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -512,7 +512,7 @@ template <>
 class FilterFactory< double, uint16_T, ThinningFilter_double_uint16_T >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -520,7 +520,7 @@ template <>
 class FilterFactory< double, float, ThinningFilter_double_float >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");
   }
 };
@@ -574,7 +574,7 @@ template <>
 class FilterFactory< bool, bool, MaurerFilter_bool_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
   }
 };
@@ -582,7 +582,7 @@ template <>
 class FilterFactory< uint8_T, bool, MaurerFilter_uint8_T_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
   }
 };
@@ -590,7 +590,7 @@ template <>
 class FilterFactory< int8_T, bool, MaurerFilter_int8_T_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
   }
 };
@@ -598,7 +598,7 @@ template <>
 class FilterFactory< uint16_T, bool, MaurerFilter_uint16_T_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
   }
 };
@@ -606,7 +606,7 @@ template <>
 class FilterFactory< int16_T, bool, MaurerFilter_int16_T_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
   }
 };
@@ -614,7 +614,7 @@ template <>
 class FilterFactory< uint32_T, bool, MaurerFilter_uint32_T_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
   }
 };
@@ -622,7 +622,7 @@ template <>
 class FilterFactory< int32_T, bool, MaurerFilter_int32_T_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
   }
 };
@@ -630,7 +630,7 @@ template <>
 class FilterFactory< int64_T, bool, MaurerFilter_int64_T_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
   }
 };
@@ -638,7 +638,7 @@ template <>
 class FilterFactory< float, bool, MaurerFilter_float_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
   }
 };
@@ -646,7 +646,7 @@ template <>
 class FilterFactory< double, bool, MaurerFilter_double_bool >
 {
 public:
-  FilterFactory(char *, NrrdImage, mxArray*) {
+  FilterFactory(char *, NrrdImage, mxArray**) {
     mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapImageFilter");
   }
 };
