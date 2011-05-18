@@ -49,9 +49,10 @@
 #ifndef BASEFILTER_HPP
 #define BASEFILTER_HPP
 
-/*
- * Global variables
- */
+/* Gerardus headers */
+#import "NrrdImage.hpp"
+
+/* Global variables */
 static const unsigned int Dimension = 3; // volume data dimension
                                          // (3D volume)
 
@@ -138,27 +139,6 @@ public:
   }
 };
 
-// SignedMaurerDistanceMapImageFilter: Specific parameters
-template <class InVoxelType, class OutVoxelType>
-class FilterParamFactory<InVoxelType, OutVoxelType,
-			 itk::SignedMaurerDistanceMapImageFilter< 
-			   itk::Image<InVoxelType, Dimension>,
-			   itk::Image<OutVoxelType, Dimension> > 
-			 > {
-public:
-  FilterParamFactory(typename itk::SignedMaurerDistanceMapImageFilter< 
-		     itk::Image<InVoxelType, Dimension>,
-		     itk::Image<OutVoxelType, Dimension> >::Pointer filter) {
-    // we want the output in real world coordinates by default. If the
-    // user wants voxel units, then provide a plain image at the
-    // input, or make the spacing in the NRRD struct = [1.0, 1.0, 1.0]
-    filter->SetUseImageSpacing(true);
-  
-    // we want actual Euclidean distances, not squared ones
-    filter->SquaredDistanceOff();
-  }
-};
-
 /* 
  * BaseFilter
  */
@@ -169,6 +149,7 @@ private:
 public:
   BaseFilter(char *filterType, NrrdImage &nrrd, 
 		int _nargout, mxArray** &argOut);
+  virtual void SetSpecificParameters();
 };
 
 #endif /* BASEFILTER_HPP */

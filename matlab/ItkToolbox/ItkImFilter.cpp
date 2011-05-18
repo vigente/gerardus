@@ -89,7 +89,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.6
+  * Version: 0.3.7
   * $Rev$
   * $Date$
   *
@@ -143,19 +143,6 @@
 /* Gerardus headers */
 #include "NrrdImage.hpp"
 #include "BaseFilter.hpp"
-
-// /*
-//  * FilterParam<FilterType>: parameters specific to each filter
-//  */
-// template <class FilterType>
-// class FilterParam {
-// private:
-//   int nargout; // Matlab uses an int for nargout (nlhs)
-// public:
-//   FilterParam(int _nargout) : nargout(_nargout) {;}
-//   int getNargout() {return nargout;}
-// };
-
 
 /*
  * mexFunction(): entry point for the mex function

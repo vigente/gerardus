@@ -1,3 +1,50 @@
+2011-05-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* ItkToolbox/ItkImFilter.cpp, ItkToolbox/CMakeLists.txt:
+
+	- (0.3.7) New substantial change in the architecture. Now we have
+	a BaseFilter class that implements in its constructor the
+	filtering of the Matlab image, as before.
+
+	  But now each filter is a class derived from BaseFilter. So if a
+	filter has some specific requirements (input arguments, member
+	methods or secondary outputs), we can add code just for it.
+
+	  Besides, because we have moved each filter's code to a .cpp and
+	.hpp pair of files, we only need to compile the filter we are
+	modifying. Previously, every compilation had to recompile all the
+	code.
+
+	* Add ItkToolbox/BaseFilter.cpp, ItkToolbox/BaseFilter.hpp,
+	ItkToolbox/SignedMaurerFilter.hpp,
+	ItkToolbox/SignedMaurerFilter.cpp,
+	ItkToolbox/DanielssonFilter.cpp, ItkToolbox/DanielssonFilter.hpp,
+	ItkToolbox/ThinningFilter.cpp, ItkToolbox/ThinningFilter.hpp
+
+	- Files to hold code that is specific to each filter. Each filter
+	is a class derived from BaseFilter. There are two blocks of code
+	that we need to put in these files:
+
+	  The EXCLUDEFILTER macros in *.hpp/*.cpp make the compiler
+	compile the class with an empty constructor and empty methods, so
+	that the filter is not instantiated for not allowed input/output
+	types.
+
+	  The FILTERINST macros at the end of *.cpp instantiate the filter
+	for valid input/output types. This is necessary to avoid errors
+	with the linker. The reason is that templated classes either need
+	to be completely defined in the header file (which makes the
+	compilation slower and possibly the executable larger), or
+	instantiated explicitly, as we are doing. This solution was found
+	in the following link
+
+	  http://www.parashift.com/c++-faq-lite/templates.html#faq-35.15
+
+	* Delete ItkToolbox/FilterExclusions.cpp:
+
+	- This file is no longer needed. Now the filter exclusions are in
+	the new files that are specific to each filter.
+
 2011-05-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* ItkToolbox/ItkImFilter.cpp:
