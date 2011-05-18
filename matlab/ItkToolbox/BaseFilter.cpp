@@ -65,6 +65,9 @@
 /* Gerardus headers */
 #import "NrrdImage.hpp"
 #import "BaseFilter.hpp"
+#import "DanielssonFilter.hpp"
+#import "SignedMaurerFilter.hpp"
+#import "ThinningFilter.hpp"
 
 /*
  * parseInputTypeToTemplate()
@@ -129,17 +132,14 @@ void parseFilterTypeToTemplate(char *filter,
 
   // convert run-time filter string to template
   if (!strcmp(filter, "skel")) {
-    BaseFilter<InVoxelType, OutVoxelType, 
-      itk::BinaryThinningImageFilter3D< InImageType, OutImageType >
-      > filterFactory(filter, nrrd, nargout, argOut);
+    ThinningFilter<InVoxelType, OutVoxelType>
+      runFilter(filter, nrrd, nargout, argOut);
   }  else if (!strcmp(filter, "dandist")) {
-    BaseFilter<InVoxelType, OutVoxelType, 
-      itk::DanielssonDistanceMapImageFilter< InImageType, OutImageType >
-      > filterFactory(filter, nrrd, nargout, argOut);
+    DanielssonFilter<InVoxelType, OutVoxelType>
+      runFilter(filter, nrrd, nargout, argOut);
   }  else if (!strcmp(filter, "maudist")) {
-    BaseFilter<InVoxelType, OutVoxelType, 
-      itk::SignedMaurerDistanceMapImageFilter< InImageType, OutImageType >
-      > filterFactory(filter, nrrd, nargout, argOut);
+    SignedMaurerFilter<InVoxelType, OutVoxelType>
+      runFilter(filter, nrrd, nargout, argOut);
   } else {
     mexErrMsgTxt("Filter type not implemented");
   }
@@ -383,12 +383,10 @@ BaseFilter<InVoxelType, OutVoxelType, FilterType>::BaseFilter
     mexErrMsgTxt("Assertion fail: Unrecognised output voxel type");
   }
   
-  std::cout << "nargout = " << nargout << std::endl;
-
   // create output matrix for Matlab's result
   argOut[0] = (mxArray *)mxCreateNumericArray(nrrd.getNdim(), nrrd.getDims(),
-					  outputVoxelClassId,
-					  mxREAL);
+					      outputVoxelClassId,
+					      mxREAL);
   if (argOut[0] == NULL) {
     mexErrMsgTxt("Cannot allocate memory for output matrix");
   }
@@ -403,9 +401,127 @@ BaseFilter<InVoxelType, OutVoxelType, FilterType>::BaseFilter
   
 }
 
-// some filters don't accept certain input or output types. File
-// FilterExclusions.cpp uses explicit template specialization to tell
-// the compiler to compile an empty constructor in those cases
-#import "FilterExclusions.cpp"
+// BaseFilter.SetSpecificParameters(): By default, filters don't have
+// any specific parameters
+template <class InVoxelType, class OutVoxelType, class FilterType>
+void BaseFilter<InVoxelType, OutVoxelType, 
+		FilterType>::SetSpecificParameters() {
+}
+
+/*
+ * Instantiate filter with all the input/output combinations that it
+ * accepts. This is necessary for the linker. The alternative is to
+ * have all the code in the header files, but this makes compilation
+ * slower and maybe the executable larger
+ */
+
+#define FILTERINST(T1, T2)						\
+  template class BaseFilter<T1, T2,					\
+			    itk::BinaryThinningImageFilter3D<		\
+				  itk::Image<T1, Dimension>, \
+				  itk::Image<T2, Dimension> > \
+			    >;
+
+FILTERINST(bool, bool)
+FILTERINST(uint8_T, uint8_T)
+FILTERINST(int8_T, int8_T)
+FILTERINST(uint16_T, uint16_T)
+FILTERINST(int16_T, int16_T)
+FILTERINST(int32_T, int32_T)
+FILTERINST(int64_T, int64_T)
+FILTERINST(float, float)
+FILTERINST(double, double)
+
+#undef FILTERINST
+
+#define FILTERINST(T1, T2)						\
+  template class BaseFilter<T1, T2,					\
+			    itk::SignedMaurerDistanceMapImageFilter<		\
+				  itk::Image<T1, Dimension>, \
+				  itk::Image<T2, Dimension> > \
+			    >;
+
+FILTERINST(bool, uint8_T)
+FILTERINST(bool, int8_T)
+FILTERINST(bool, uint16_T)
+FILTERINST(bool, int16_T)
+FILTERINST(bool, int32_T)
+FILTERINST(bool, int64_T)
+FILTERINST(bool, float)
+FILTERINST(bool, double)
+
+FILTERINST(uint8_T, uint8_T)
+FILTERINST(uint8_T, int8_T)
+FILTERINST(uint8_T, uint16_T)
+FILTERINST(uint8_T, int16_T)
+FILTERINST(uint8_T, int32_T)
+FILTERINST(uint8_T, int64_T)
+FILTERINST(uint8_T, float)
+FILTERINST(uint8_T, double)
+
+FILTERINST(int8_T, uint8_T)
+FILTERINST(int8_T, int8_T)
+FILTERINST(int8_T, uint16_T)
+FILTERINST(int8_T, int16_T)
+FILTERINST(int8_T, int32_T)
+FILTERINST(int8_T, int64_T)
+FILTERINST(int8_T, float)
+FILTERINST(int8_T, double)
+
+FILTERINST(uint16_T, uint8_T)
+FILTERINST(uint16_T, int8_T)
+FILTERINST(uint16_T, uint16_T)
+FILTERINST(uint16_T, int16_T)
+FILTERINST(uint16_T, int32_T)
+FILTERINST(uint16_T, int64_T)
+FILTERINST(uint16_T, float)
+FILTERINST(uint16_T, double)
+
+FILTERINST(int16_T, uint8_T)
+FILTERINST(int16_T, int8_T)
+FILTERINST(int16_T, uint16_T)
+FILTERINST(int16_T, int16_T)
+FILTERINST(int16_T, int32_T)
+FILTERINST(int16_T, int64_T)
+FILTERINST(int16_T, float)
+FILTERINST(int16_T, double)
+
+FILTERINST(int32_T, uint8_T)
+FILTERINST(int32_T, int8_T)
+FILTERINST(int32_T, uint16_T)
+FILTERINST(int32_T, int16_T)
+FILTERINST(int32_T, int32_T)
+FILTERINST(int32_T, int64_T)
+FILTERINST(int32_T, float)
+FILTERINST(int32_T, double)
+
+FILTERINST(int64_T, uint8_T)
+FILTERINST(int64_T, int8_T)
+FILTERINST(int64_T, uint16_T)
+FILTERINST(int64_T, int16_T)
+FILTERINST(int64_T, int32_T)
+FILTERINST(int64_T, int64_T)
+FILTERINST(int64_T, float)
+FILTERINST(int64_T, double)
+
+FILTERINST(float, uint8_T)
+FILTERINST(float, int8_T)
+FILTERINST(float, uint16_T)
+FILTERINST(float, int16_T)
+FILTERINST(float, int32_T)
+FILTERINST(float, int64_T)
+FILTERINST(float, float)
+FILTERINST(float, double)
+
+FILTERINST(double, uint8_T)
+FILTERINST(double, int8_T)
+FILTERINST(double, uint16_T)
+FILTERINST(double, int16_T)
+FILTERINST(double, int32_T)
+FILTERINST(double, int64_T)
+FILTERINST(double, float)
+FILTERINST(double, double)
+
+#undef FILTERINST
 
 #endif /* BASEFILTER_CPP */
