@@ -1,5 +1,30 @@
 2011-05-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (0.3.6) Move some code to ItkToolbox/BaseFilter.cpp.
+
+	* CMakeLists.txt, ItkToolbox/CMakeLists.txt:
+
+	- Code has been moved from ItkToolbox/ItkImFilter.cpp to the new
+	files ItkToolbox/BaseFilter.hpp, ItkToolbox/BaseFilter.cpp.
+
+	* Add ItkToolbox/BaseFilter.hpp, ItkToolbox/BaseFilter.cpp:
+
+	- To contain the BaseFilter class and the auxiliary parsing
+	functions that map from type variables to type templates. The
+	parsers have to be included here because BaseFilter needs to be
+	available for them at compile time. Otherwise, the linker doesn't
+	know how to link them together. This is a template problem, as
+	pointer out by Raf Bordas. The only solutions, he says, are either
+	to put the code together, or to use explicit instantiation of
+	every template type, but that's what we are trying to avoid,
+	because we can have a large number of combinations. The trade off
+	for code simplicity is that compilation will be slower.
+
+	* Rename ItkToolbox/FilterFactoryExclusions.hpp as
+	ItkToolbox/FilterExclusions.hpp.
+
 	* ItkToolbox/FilterFactoryExclusions.hpp:
 
 	- (0.1.1) Pass the number of output arguments from the entry
