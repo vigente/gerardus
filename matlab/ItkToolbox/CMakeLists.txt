@@ -40,7 +40,10 @@ SET(Libraries
 ## itk_imfilter()
 ################################################################
 
-ADD_MEX_FILE(itk_imfilter ItkImFilter.cpp NrrdImage.cpp)
+ADD_MEX_FILE(itk_imfilter 
+  NrrdImage.cpp
+  BaseFilter.cpp
+  ItkImFilter.cpp)
 INCLUDE_DIRECTORIES(
   ../../cpp/src/third-party/itkBinaryThinningImageFilter3D/Source
   )
