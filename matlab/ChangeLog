@@ -1,8 +1,15 @@
 2011-05-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* ItkToolbox/BaseFilter.hpp, ItkToolbox/BaseFilter.cpp
+	(BaseFilter):
+
+	- (v0.1.1) Remove class FilterParamFactory. Now parameters
+	specific to each filter are passed through the derived filter
+	classes.
+
 	* ItkToolbox/ItkImFilter.cpp, ItkToolbox/CMakeLists.txt:
 
-	- (0.3.7) New substantial change in the architecture. Now we have
+	- (v0.3.7) New substantial change in the architecture. Now we have
 	a BaseFilter class that implements in its constructor the
 	filtering of the Matlab image, as before.
 
