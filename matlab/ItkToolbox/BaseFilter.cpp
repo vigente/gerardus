@@ -17,7 +17,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -356,12 +356,8 @@ BaseFilter<InVoxelType, OutVoxelType, FilterType>::BaseFilter
   // instantiate filter
   typename FilterType::Pointer filter = FilterType::New();
   
-  // pass any parameters specific to this filter. We have to do it
-  // with explicit specialization of class FilterParamFactory to
-  // prevent the compiler from compiling e.g. filter->SetAlpha1(0.3)
-  // for filters that don't declare that member function
-  FilterParamFactory<InVoxelType, OutVoxelType, 
-    FilterType> filterParam(filter);
+  // pass any parameters specific to this filter
+  this->SetSpecificParameters(filter);
 
   // run filter on input image
   filter->SetInput(image);
@@ -405,7 +401,8 @@ BaseFilter<InVoxelType, OutVoxelType, FilterType>::BaseFilter
 // any specific parameters
 template <class InVoxelType, class OutVoxelType, class FilterType>
 void BaseFilter<InVoxelType, OutVoxelType, 
-		FilterType>::SetSpecificParameters() {
+		FilterType>::SetSpecificParameters(
+			     typename FilterType::Pointer filter) {
 }
 
 /*

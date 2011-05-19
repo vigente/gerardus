@@ -17,7 +17,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -118,27 +118,6 @@ void parseInputTypeToTemplate(mxClassID inputVoxelClassId,
 			      int nargout,
 			      mxArray** &argOut);
 
-/*
- * FilterParamFactory: class to pass parameters specific to one filter
- * but not the others
- */
-
-// default: any filter without an explicit specialization
-template <class InVoxelType, class OutVoxelType, 
-	  class FilterType>
-class FilterParamFactory {
-public:
-  FilterParamFactory(typename FilterType::Pointer filter) {
-    // by default, we assume that filters do not need parameters. If a
-    // filter needs some specific parameters, or setting any flags, we
-    // need to declare a explicit specialization of this class, and
-    // put the corresponding code there
-    //
-    // Hence, this constructor is empty
-    ;
-  }
-};
-
 /* 
  * BaseFilter
  */
@@ -149,7 +128,7 @@ private:
 public:
   BaseFilter(char *filterType, NrrdImage &nrrd, 
 		int _nargout, mxArray** &argOut);
-  virtual void SetSpecificParameters();
+  virtual void SetSpecificParameters(typename FilterType::Pointer filter);
 };
 
 #endif /* BASEFILTER_HPP */
