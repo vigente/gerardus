@@ -1,13 +1,13 @@
 /*
  * ThinningFilter.hpp
  *
- * Code that is specific to the SignedMaurerDistanceMapImageFilter
+ * Code that is specific to the BinaryThinningImageFilter3D
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -67,7 +67,6 @@ public:
 		 itk::Image<InVoxelType, Dimension>,
 		 itk::Image<OutVoxelType, Dimension> >
 	       > (filterType, nrrd, _nargout, argOut) {;}
-  void SetSpecificParameters();
 };
 
 /*
@@ -75,13 +74,15 @@ public:
  * allowed for this filter
  */
 
-#define EXCLUDEFILTER(T1, T2)				\
-  template <>						\
-  class ThinningFilter< T1, T2 >			\
-  {							\
-  public:						\
-    ThinningFilter(char *, NrrdImage, int, mxArray**);	\
-    void SetSpecificParameters();			\
+#define EXCLUDEFILTER(T1, T2)					\
+  template <>							\
+  class ThinningFilter< T1, T2 > {				\
+  public:							\
+  ThinningFilter(char *, NrrdImage, int, mxArray**) {;}		\
+  void CopyMatlabInputsToFilter() {;}				\
+  void FilterSetup() {;}					\
+  void RunFilter() {;}						\
+  void CopyFilterOutputsToMatlab() {;}				\
   };
 
 EXCLUDEFILTER(bool, uint8_T);

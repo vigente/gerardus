@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -48,99 +48,63 @@
  * slower and maybe the executable larger
  */
 
-// #define FILTERINST(T1, T2)						\
-//   template class DanielssonFilter<T1, T2>;				\
+#define FILTERINST(T1, T2)						\
+  template class DanielssonFilter<T1, T2>;				\
 
-// FILTERINST(bool, bool);
-// FILTERINST(bool, uint8_T)
-// FILTERINST(bool, int8_T)
-// FILTERINST(bool, uint16_T)
-// FILTERINST(bool, int16_T)
-// FILTERINST(bool, int32_T)
-// FILTERINST(bool, int64_T)
-// FILTERINST(bool, float)
-// FILTERINST(bool, double)
+FILTERINST(bool, bool);
+FILTERINST(bool, uint8_T)
+FILTERINST(bool, uint16_T)
+FILTERINST(bool, float)
+FILTERINST(bool, double)
 
-// FILTERINST(uint8_T, bool);
-// FILTERINST(uint8_T, uint8_T)
-// FILTERINST(uint8_T, int8_T)
-// FILTERINST(uint8_T, uint16_T)
-// FILTERINST(uint8_T, int16_T)
-// FILTERINST(uint8_T, int32_T)
-// FILTERINST(uint8_T, int64_T)
-// FILTERINST(uint8_T, float)
-// FILTERINST(uint8_T, double)
+FILTERINST(uint8_T, bool);
+FILTERINST(uint8_T, uint8_T)
+FILTERINST(uint8_T, uint16_T)
+FILTERINST(uint8_T, float)
+FILTERINST(uint8_T, double)
 
-// FILTERINST(int8_T, bool);
-// FILTERINST(int8_T, uint8_T)
-// FILTERINST(int8_T, int8_T)
-// FILTERINST(int8_T, uint16_T)
-// FILTERINST(int8_T, int16_T)
-// FILTERINST(int8_T, int32_T)
-// FILTERINST(int8_T, int64_T)
-// FILTERINST(int8_T, float)
-// FILTERINST(int8_T, double)
+FILTERINST(int8_T, bool);
+FILTERINST(int8_T, uint8_T)
+FILTERINST(int8_T, uint16_T)
+FILTERINST(int8_T, float)
+FILTERINST(int8_T, double)
 
-// FILTERINST(uint16_T, bool);
-// FILTERINST(uint16_T, uint8_T)
-// FILTERINST(uint16_T, int8_T)
-// FILTERINST(uint16_T, uint16_T)
-// FILTERINST(uint16_T, int16_T)
-// FILTERINST(uint16_T, int32_T)
-// FILTERINST(uint16_T, int64_T)
-// FILTERINST(uint16_T, float)
-// FILTERINST(uint16_T, double)
+FILTERINST(uint16_T, bool);
+FILTERINST(uint16_T, uint8_T)
+FILTERINST(uint16_T, uint16_T)
+FILTERINST(uint16_T, float)
+FILTERINST(uint16_T, double)
 
-// FILTERINST(int16_T, bool);
-// FILTERINST(int16_T, uint8_T)
-// FILTERINST(int16_T, int8_T)
-// FILTERINST(int16_T, uint16_T)
-// FILTERINST(int16_T, int16_T)
-// FILTERINST(int16_T, int32_T)
-// FILTERINST(int16_T, int64_T)
-// FILTERINST(int16_T, float)
-// FILTERINST(int16_T, double)
+FILTERINST(int16_T, bool);
+FILTERINST(int16_T, uint8_T)
+FILTERINST(int16_T, uint16_T)
+FILTERINST(int16_T, float)
+FILTERINST(int16_T, double)
 
-// FILTERINST(int32_T, bool);
-// FILTERINST(int32_T, uint8_T)
-// FILTERINST(int32_T, int8_T)
-// FILTERINST(int32_T, uint16_T)
-// FILTERINST(int32_T, int16_T)
-// FILTERINST(int32_T, int32_T)
-// FILTERINST(int32_T, int64_T)
-// FILTERINST(int32_T, float)
-// FILTERINST(int32_T, double)
+FILTERINST(int32_T, bool);
+FILTERINST(int32_T, uint8_T)
+FILTERINST(int32_T, uint16_T)
+FILTERINST(int32_T, float)
+FILTERINST(int32_T, double)
 
-// FILTERINST(int64_T, bool);
-// FILTERINST(int64_T, uint8_T)
-// FILTERINST(int64_T, int8_T)
-// FILTERINST(int64_T, uint16_T)
-// FILTERINST(int64_T, int16_T)
-// FILTERINST(int64_T, int32_T)
-// FILTERINST(int64_T, int64_T)
-// FILTERINST(int64_T, float)
-// FILTERINST(int64_T, double)
+FILTERINST(int64_T, bool);
+FILTERINST(int64_T, uint8_T)
+FILTERINST(int64_T, uint16_T)
+FILTERINST(int64_T, float)
+FILTERINST(int64_T, double)
 
-// FILTERINST(float, bool);
-// FILTERINST(float, uint8_T)
-// FILTERINST(float, int8_T)
-// FILTERINST(float, uint16_T)
-// FILTERINST(float, int16_T)
-// FILTERINST(float, int32_T)
-// FILTERINST(float, int64_T)
-// FILTERINST(float, float)
-// FILTERINST(float, double)
+FILTERINST(float, bool);
+FILTERINST(float, uint8_T)
+FILTERINST(float, uint16_T)
+FILTERINST(float, float)
+FILTERINST(float, double)
 
-// FILTERINST(double, bool);
-// FILTERINST(double, uint8_T)
-// FILTERINST(double, int8_T)
-// FILTERINST(double, uint16_T)
-// FILTERINST(double, int16_T)
-// FILTERINST(double, int32_T)
-// FILTERINST(double, int64_T)
-// FILTERINST(double, float)
-// FILTERINST(double, double)
+FILTERINST(double, bool);
+FILTERINST(double, uint8_T)
+FILTERINST(double, uint16_T)
+FILTERINST(double, float)
+FILTERINST(double, double)
 
-// #undef FILTERINST
+#undef FILTERINST
 
 #endif /* DANIELSSONFILTER_CPP */

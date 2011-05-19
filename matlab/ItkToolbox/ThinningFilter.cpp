@@ -1,13 +1,13 @@
 /*
  * ThinningFilter.cpp
  *
- * Code that is specific to the SignedMaurerDistanceMapImageFilter
+ * Code that is specific to the BinaryThinningImageFilter3D
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -44,71 +44,6 @@
 /* 
  * ThinningFilter : BaseFilter
  */
-template <class InVoxelType, class OutVoxelType>
-void ThinningFilter<InVoxelType, OutVoxelType>::SetSpecificParameters() {
-  std::cout << "Do something here" << std::endl;
-}
-
-/*
- * Filter exclusions: input/output data type combinations that are not
- * allowed for this filter
- */
-
-#define EXCLUDEFILTER(T1, T2)			\
-  ThinningFilter<T1, T2>::ThinningFilter        \
-(char *, NrrdImage, int, mxArray**) {		\
-  mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");}
-
-EXCLUDEFILTER(bool, uint8_T)
-EXCLUDEFILTER(bool, uint16_T)
-EXCLUDEFILTER(bool, float)
-EXCLUDEFILTER(bool, double)
-
-EXCLUDEFILTER(uint8_T, bool)
-EXCLUDEFILTER(uint8_T, uint16_T)
-EXCLUDEFILTER(uint8_T, float)
-EXCLUDEFILTER(uint8_T, double)
-
-EXCLUDEFILTER(int8_T, bool)
-EXCLUDEFILTER(int8_T, uint8_T)
-EXCLUDEFILTER(int8_T, uint16_T)
-EXCLUDEFILTER(int8_T, float)
-EXCLUDEFILTER(int8_T, double)
-
-EXCLUDEFILTER(uint16_T, bool)
-EXCLUDEFILTER(uint16_T, uint8_T)
-EXCLUDEFILTER(uint16_T, float)
-EXCLUDEFILTER(uint16_T, double)
-
-EXCLUDEFILTER(int16_T, bool)
-EXCLUDEFILTER(int16_T, uint8_T)
-EXCLUDEFILTER(int16_T, uint16_T)
-EXCLUDEFILTER(int16_T, float)
-EXCLUDEFILTER(int16_T, double)
-
-EXCLUDEFILTER(int32_T, bool)
-EXCLUDEFILTER(int32_T, uint8_T)
-EXCLUDEFILTER(int32_T, uint16_T)
-EXCLUDEFILTER(int32_T, float)
-EXCLUDEFILTER(int32_T, double)
-
-EXCLUDEFILTER(int64_T, bool)
-EXCLUDEFILTER(int64_T, uint8_T)
-EXCLUDEFILTER(int64_T, uint16_T)
-EXCLUDEFILTER(int64_T, float)
-EXCLUDEFILTER(int64_T, double)
-
-EXCLUDEFILTER(float, bool)
-EXCLUDEFILTER(float, uint8_T)
-EXCLUDEFILTER(float, uint16_T)
-EXCLUDEFILTER(float, double)
-
-EXCLUDEFILTER(double, bool)
-EXCLUDEFILTER(double, uint8_T)
-EXCLUDEFILTER(double, uint16_T)
-EXCLUDEFILTER(double, float)
-
-#undef EXCLUDEFILTER
 
 /*
  * Instantiate filter with all the input/output combinations that it
