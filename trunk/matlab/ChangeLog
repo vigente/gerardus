@@ -1,5 +1,11 @@
 2011-05-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* ItkToolbox/SignedMaurerFilter.cpp, ItkToolbox/BaseFilter.hpp,
+	ItkToolbox/BaseFilter.cpp, SignedMaurerFilter.hpp:
+
+	- Rename member function SetSpecificParameters() as
+	SetSpecificFilterParameters().
+
 	* ItkToolbox/BaseFilter.hpp, ItkToolbox/BaseFilter.cpp
 	(BaseFilter):
 
