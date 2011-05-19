@@ -154,7 +154,8 @@ void BaseFilter<InVoxelType, OutVoxelType, FilterType>::CopyMatlabInputsToFilter
 
 template <class InVoxelType, class OutVoxelType, class FilterType>
 void BaseFilter<InVoxelType, OutVoxelType, FilterType>::FilterSetup() {
-  
+
+  // pass image to filter
   filter->SetInput(image);
 }
 
