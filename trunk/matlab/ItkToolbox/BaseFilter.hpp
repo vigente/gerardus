@@ -99,25 +99,6 @@ template<>
 struct TypeIsDouble< double >
 { static const bool value = true; };
 
-/*
- * Parser functions to map type variables to type templates
- */
-
-void parseFilterTypeToTemplate(char *filter,
-			       NrrdImage nrrd,
-			       int nargout,
-			       mxArray** &argOut);
-template <class InVoxelType>
-void parseOutputTypeToTemplate(char *filter,
-			       NrrdImage nrrd,
-			       int nargout,
-			       mxArray** &argOut);
-void parseInputTypeToTemplate(mxClassID inputVoxelClassId, 
-			      char *filter,
-			      NrrdImage nrrd,
-			      int nargout,
-			      mxArray** &argOut);
-
 /* 
  * BaseFilter
  */
