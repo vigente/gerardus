@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -67,7 +67,7 @@ public:
 		 itk::Image<InVoxelType, Dimension>,
 		 itk::Image<OutVoxelType, Dimension> >
 	       > (filterType, nrrd, _nargout, argOut) {;}
-  void SetSpecificFilterParameters();
+  void FilterSetup();
 };
 
 /*
@@ -75,13 +75,15 @@ public:
  * allowed for this filter
  */
 
-#define EXCLUDEFILTER(T1, T2)					\
-  template <>							\
-  class SignedMaurerFilter< T1, T2 >				\
-  {								\
-  public:							\
-    SignedMaurerFilter(char *, NrrdImage, int, mxArray**);	\
-    void SetSpecificFilterParameters();				\
+#define EXCLUDEFILTER(T1, T2)						\
+  template <>								\
+  class SignedMaurerFilter< T1, T2 > {					\
+  public:								\
+  SignedMaurerFilter(char *, NrrdImage, int, mxArray**) {;}		\
+  void CopyMatlabInputsToFilter() {;}					\
+  void FilterSetup() {;}						\
+  void RunFilter() {;}							\
+  void CopyFilterOutputsToMatlab() {;}					\
   };
 
 EXCLUDEFILTER(bool, bool);
