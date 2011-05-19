@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -68,5 +68,68 @@ public:
 		 itk::Image<OutVoxelType, Dimension> >
 	       > (filterType, nrrd, _nargout, argOut) {;}
 };
+
+/*
+ * Filter exclusions: input/output data type combinations that are not
+ * allowed for this filter
+ */
+
+#define EXCLUDEFILTER(T1, T2)						\
+  template <>								\
+  class DanielssonFilter< T1, T2 > {					\
+  public:								\
+  DanielssonFilter(char *, NrrdImage, int, mxArray**) {;}		\
+  void CopyMatlabInputsToFilter() {;}					\
+  void FilterSetup() {;}						\
+  void RunFilter() {;}							\
+  void CopyFilterOutputsToMatlab() {;}					\
+  };
+
+EXCLUDEFILTER(bool, int8_T);
+EXCLUDEFILTER(bool, int16_T)
+EXCLUDEFILTER(bool, int32_T)
+EXCLUDEFILTER(bool, int64_T)
+
+EXCLUDEFILTER(uint8_T, int8_T)
+EXCLUDEFILTER(uint8_T, int16_T)
+EXCLUDEFILTER(uint8_T, int32_T)
+EXCLUDEFILTER(uint8_T, int64_T)
+
+EXCLUDEFILTER(int8_T, int8_T)
+EXCLUDEFILTER(int8_T, int16_T)
+EXCLUDEFILTER(int8_T, int32_T)
+EXCLUDEFILTER(int8_T, int64_T)
+
+EXCLUDEFILTER(uint16_T, int8_T)
+EXCLUDEFILTER(uint16_T, int16_T)
+EXCLUDEFILTER(uint16_T, int32_T)
+EXCLUDEFILTER(uint16_T, int64_T)
+
+EXCLUDEFILTER(int16_T, int8_T)
+EXCLUDEFILTER(int16_T, int16_T)
+EXCLUDEFILTER(int16_T, int32_T)
+EXCLUDEFILTER(int16_T, int64_T)
+
+EXCLUDEFILTER(int32_T, int8_T)
+EXCLUDEFILTER(int32_T, int16_T)
+EXCLUDEFILTER(int32_T, int32_T)
+EXCLUDEFILTER(int32_T, int64_T)
+
+EXCLUDEFILTER(int64_T, int8_T)
+EXCLUDEFILTER(int64_T, int16_T)
+EXCLUDEFILTER(int64_T, int32_T)
+EXCLUDEFILTER(int64_T, int64_T)
+
+EXCLUDEFILTER(float, int8_T)
+EXCLUDEFILTER(float, int16_T)
+EXCLUDEFILTER(float, int32_T)
+EXCLUDEFILTER(float, int64_T)
+
+EXCLUDEFILTER(double, int8_T)
+EXCLUDEFILTER(double, int16_T)
+EXCLUDEFILTER(double, int32_T)
+EXCLUDEFILTER(double, int64_T)
+
+#undef EXCLUDEFILTER
 
 #endif /* DANIELSSONFILTER_HPP */

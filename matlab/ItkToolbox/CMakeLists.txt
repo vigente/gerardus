@@ -45,8 +45,9 @@ ADD_MEX_FILE(itk_imfilter
   BaseFilter.cpp
   ThinningFilter.cpp
   SignedMaurerFilter.cpp
+  DanielssonFilter.cpp
+  ArgumentParsers.cpp
   ItkImFilter.cpp)
-#  DanielssonFilter.cpp
 
 INCLUDE_DIRECTORIES(
   ../../cpp/src/third-party/itkBinaryThinningImageFilter3D/Source

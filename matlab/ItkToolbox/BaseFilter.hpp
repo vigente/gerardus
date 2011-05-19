@@ -17,7 +17,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.1.2
   * $Rev$
   * $Date$
   *
@@ -123,23 +123,25 @@ void parseInputTypeToTemplate(mxClassID inputVoxelClassId,
  */
 template <class InVoxelType, class OutVoxelType, class FilterType>
 class BaseFilter {
-protected:
-  int nargout;
-  typename FilterType::Pointer filter;
-  // image type definitions
+private:
   typedef double TScalarType; // data type for scalars
-  typedef itk::Image< InVoxelType, Dimension > 
-    InImageType;
-  typedef itk::Image< OutVoxelType, Dimension > 
-    OutImageType;
-  typedef itk::ImageRegionIterator< InImageType > 
-    InIteratorType;
-  typedef itk::ImageRegionConstIterator< OutImageType > 
-    OutConstIteratorType;
+  typedef itk::Image< InVoxelType, Dimension > InImageType;
+  typedef itk::Image< OutVoxelType, Dimension > OutImageType;
+  
+protected:
+  typename InImageType::Pointer image;
+  typename FilterType::Pointer filter;
+  NrrdImage nrrd;
+  int nargout;
+  mxArray** argOut;
+
 public:
-  BaseFilter(char *filterType, NrrdImage &nrrd, 
-		int _nargout, mxArray** &argOut);
-  virtual void SetSpecificFilterParameters();
+  BaseFilter(char *filterType, NrrdImage &_nrrd, 
+		int _nargout, mxArray** &_argOut);
+  virtual void CopyMatlabInputsToFilter();
+  virtual void FilterSetup();
+  virtual void RunFilter();
+  virtual void CopyFilterOutputsToMatlab();
 };
 
 #endif /* BASEFILTER_HPP */
