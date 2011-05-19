@@ -116,18 +116,6 @@
  */
 
 // parseFilterTypeToTemplate<InVoxelType, OutVoxelType>()
-template <class InVoxelType, class OutVoxelType, class FilterType>
-void runFilter(char *filter,
-	       NrrdImage nrrd,
-	       int nargout,
-	       mxArray** &argOut) {
-
-  ThinningFilter<InVoxelType, OutVoxelType>
-    runFilter(filter, nrrd, nargout, argOut);
-
-}
-
-// parseFilterTypeToTemplate<InVoxelType, OutVoxelType>()
 template <class InVoxelType, class OutVoxelType>
 void parseFilterTypeToTemplate(char *filter,
 			       NrrdImage nrrd,
