@@ -143,6 +143,7 @@
 /* Gerardus headers */
 #include "NrrdImage.hpp"
 #include "BaseFilter.hpp"
+#include "ArgumentParsers.hpp"
 
 /*
  * mexFunction(): entry point for the mex function
