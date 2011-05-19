@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -46,9 +46,9 @@
  */
 template <class InVoxelType, class OutVoxelType>
 void SignedMaurerFilter<InVoxelType, 
-			OutVoxelType>::SetSpecificFilterParameters() {
+			OutVoxelType>::FilterSetup() {
   
-  std::cout << "SignedMaurerFilter::SetSpecificFilterParameters" 
+  std::cout << "SignedMaurerFilter::FilterSetup" 
 	    << std::endl;////////////////
 
   // compute distances using real world coordinates, instead of voxel
@@ -59,99 +59,6 @@ void SignedMaurerFilter<InVoxelType,
   this->filter->SquaredDistanceOff();
 
 }
-
-/*
- * Filter exclusions: input/output data type combinations that are not
- * allowed for this filter
- */
-
-#define EXCLUDEFILTER(T1, T2)						\
-  SignedMaurerFilter<T1, T2>::SignedMaurerFilter			\
-  (char *, NrrdImage, int, mxArray**) {					\
-    mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapFilter");}
-
-EXCLUDEFILTER(bool, bool);
-EXCLUDEFILTER(bool, uint8_T)
-EXCLUDEFILTER(bool, int8_T)
-EXCLUDEFILTER(bool, uint16_T)
-EXCLUDEFILTER(bool, int16_T)
-EXCLUDEFILTER(bool, int32_T)
-EXCLUDEFILTER(bool, int64_T)
-EXCLUDEFILTER(bool, float)
-
-EXCLUDEFILTER(uint8_T, bool);
-EXCLUDEFILTER(uint8_T, uint8_T)
-EXCLUDEFILTER(uint8_T, int8_T)
-EXCLUDEFILTER(uint8_T, uint16_T)
-EXCLUDEFILTER(uint8_T, int16_T)
-EXCLUDEFILTER(uint8_T, int32_T)
-EXCLUDEFILTER(uint8_T, int64_T)
-EXCLUDEFILTER(uint8_T, float)
-
-EXCLUDEFILTER(int8_T, bool);
-EXCLUDEFILTER(int8_T, uint8_T)
-EXCLUDEFILTER(int8_T, int8_T)
-EXCLUDEFILTER(int8_T, uint16_T)
-EXCLUDEFILTER(int8_T, int16_T)
-EXCLUDEFILTER(int8_T, int32_T)
-EXCLUDEFILTER(int8_T, int64_T)
-EXCLUDEFILTER(int8_T, float)
-
-EXCLUDEFILTER(uint16_T, bool);
-EXCLUDEFILTER(uint16_T, uint8_T)
-EXCLUDEFILTER(uint16_T, int8_T)
-EXCLUDEFILTER(uint16_T, uint16_T)
-EXCLUDEFILTER(uint16_T, int16_T)
-EXCLUDEFILTER(uint16_T, int32_T)
-EXCLUDEFILTER(uint16_T, int64_T)
-EXCLUDEFILTER(uint16_T, float)
-
-EXCLUDEFILTER(int16_T, bool);
-EXCLUDEFILTER(int16_T, uint8_T)
-EXCLUDEFILTER(int16_T, int8_T)
-EXCLUDEFILTER(int16_T, uint16_T)
-EXCLUDEFILTER(int16_T, int16_T)
-EXCLUDEFILTER(int16_T, int32_T)
-EXCLUDEFILTER(int16_T, int64_T)
-EXCLUDEFILTER(int16_T, float)
-
-EXCLUDEFILTER(int32_T, bool);
-EXCLUDEFILTER(int32_T, uint8_T)
-EXCLUDEFILTER(int32_T, int8_T)
-EXCLUDEFILTER(int32_T, uint16_T)
-EXCLUDEFILTER(int32_T, int16_T)
-EXCLUDEFILTER(int32_T, int32_T)
-EXCLUDEFILTER(int32_T, int64_T)
-EXCLUDEFILTER(int32_T, float)
-
-EXCLUDEFILTER(int64_T, bool);
-EXCLUDEFILTER(int64_T, uint8_T)
-EXCLUDEFILTER(int64_T, int8_T)
-EXCLUDEFILTER(int64_T, uint16_T)
-EXCLUDEFILTER(int64_T, int16_T)
-EXCLUDEFILTER(int64_T, int32_T)
-EXCLUDEFILTER(int64_T, int64_T)
-EXCLUDEFILTER(int64_T, float)
-
-EXCLUDEFILTER(float, bool);
-EXCLUDEFILTER(float, uint8_T)
-EXCLUDEFILTER(float, int8_T)
-EXCLUDEFILTER(float, uint16_T)
-EXCLUDEFILTER(float, int16_T)
-EXCLUDEFILTER(float, int32_T)
-EXCLUDEFILTER(float, int64_T)
-EXCLUDEFILTER(float, float)
-
-EXCLUDEFILTER(double, bool);
-EXCLUDEFILTER(double, uint8_T)
-EXCLUDEFILTER(double, int8_T)
-EXCLUDEFILTER(double, uint16_T)
-EXCLUDEFILTER(double, int16_T)
-EXCLUDEFILTER(double, int32_T)
-EXCLUDEFILTER(double, int64_T)
-EXCLUDEFILTER(double, float)
-
-#undef EXCLUDEFILTER
 
 /*
  * Instantiate filter with all the input/output combinations that it

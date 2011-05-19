@@ -1,5 +1,32 @@
 2011-05-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* ItkToolbox/ItkKernelTransform.cpp:
+
+	- Add svn:keywords Rev, Date.
+
+	* ItkToolbox/SignedMaurerFilter.hpp,
+	ItkToolbox/SignedMaurerFilter.cpp,
+	ItkToolbox/DanielssonFilter.hpp, ItkToolbox/DanielssonFilter.cpp,
+	ItkToolbox/NrrdImage.hpp, ItkToolbox/NrrdImage.cpp,
+	ItkToolbox/BaseFilter.hpp, ItkToolbox/BaseFilter.cpp,
+	ItkToolbox/ThinningFilter.hpp, ItkToolbox/ThinningFilter.cpp:
+
+	- Move parser functions to new files.
+
+	- Create member functions for BaseFilter to split the filtering in
+	different stages. These functions are virtual, so they can be
+	redifined by derived classes to introduce functionality specific
+	to each fiter.
+
+	- Remove function SetSpecificParameters(), because now its
+	functionality will be part of FilterSetup().
+
+	* Add ItkToolbox/ArgumentParsers.hpp,
+	ItkToolbox/ArgumentParsers.cpp, CMakeLists.txt:
+
+	- Files to contain the functions that parse the input type
+	variables to type templates.
+
 	* ItkToolbox/SignedMaurerFilter.cpp, ItkToolbox/BaseFilter.hpp,
 	ItkToolbox/BaseFilter.cpp, SignedMaurerFilter.hpp:
 
