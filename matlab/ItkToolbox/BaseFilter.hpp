@@ -123,12 +123,23 @@ void parseInputTypeToTemplate(mxClassID inputVoxelClassId,
  */
 template <class InVoxelType, class OutVoxelType, class FilterType>
 class BaseFilter {
-private:
+protected:
   int nargout;
+  typename FilterType::Pointer filter;
+  // image type definitions
+  typedef double TScalarType; // data type for scalars
+  typedef itk::Image< InVoxelType, Dimension > 
+    InImageType;
+  typedef itk::Image< OutVoxelType, Dimension > 
+    OutImageType;
+  typedef itk::ImageRegionIterator< InImageType > 
+    InIteratorType;
+  typedef itk::ImageRegionConstIterator< OutImageType > 
+    OutConstIteratorType;
 public:
   BaseFilter(char *filterType, NrrdImage &nrrd, 
 		int _nargout, mxArray** &argOut);
-  virtual void SetSpecificParameters(typename FilterType::Pointer filter);
+  virtual void SetSpecificFilterParameters();
 };
 
 #endif /* BASEFILTER_HPP */
