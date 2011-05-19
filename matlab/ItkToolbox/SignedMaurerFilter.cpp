@@ -51,6 +51,9 @@ void SignedMaurerFilter<InVoxelType,
   std::cout << "SignedMaurerFilter::FilterSetup" 
 	    << std::endl;////////////////
 
+  // pass image to filter
+  this->filter->SetInput(this->image);
+
   // compute distances using real world coordinates, instead of voxel
   // indices
   this->filter->SetUseImageSpacing(true);
