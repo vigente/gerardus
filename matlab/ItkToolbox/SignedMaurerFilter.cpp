@@ -45,8 +45,19 @@
  * SignedMaurerFilter : BaseFilter
  */
 template <class InVoxelType, class OutVoxelType>
-void SignedMaurerFilter<InVoxelType, OutVoxelType>::SetSpecificParameters() {
-  std::cout << "Do something here" << std::endl;
+void SignedMaurerFilter<InVoxelType, 
+			OutVoxelType>::SetSpecificFilterParameters() {
+  
+  std::cout << "SignedMaurerFilter::SetSpecificFilterParameters" 
+	    << std::endl;////////////////
+
+  // compute distances using real world coordinates, instead of voxel
+  // indices
+  this->filter->SetUseImageSpacing(true);
+
+  // give output as actual distances, instead of squared distances
+  this->filter->SquaredDistanceOff();
+
 }
 
 /*
@@ -57,7 +68,7 @@ void SignedMaurerFilter<InVoxelType, OutVoxelType>::SetSpecificParameters() {
 #define EXCLUDEFILTER(T1, T2)						\
   SignedMaurerFilter<T1, T2>::SignedMaurerFilter			\
   (char *, NrrdImage, int, mxArray**) {					\
-    mexErrMsgTxt("Invalid input or output image type for itk::BinaryThinningImageFilter3D");}
+    mexErrMsgTxt("Invalid input or output image type for itk::SignedMaurerDistanceMapFilter");}
 
 EXCLUDEFILTER(bool, bool);
 EXCLUDEFILTER(bool, uint8_T)

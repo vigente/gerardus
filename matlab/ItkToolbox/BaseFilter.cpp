@@ -116,6 +116,18 @@
  */
 
 // parseFilterTypeToTemplate<InVoxelType, OutVoxelType>()
+template <class InVoxelType, class OutVoxelType, class FilterType>
+void runFilter(char *filter,
+	       NrrdImage nrrd,
+	       int nargout,
+	       mxArray** &argOut) {
+
+  ThinningFilter<InVoxelType, OutVoxelType>
+    runFilter(filter, nrrd, nargout, argOut);
+
+}
+
+// parseFilterTypeToTemplate<InVoxelType, OutVoxelType>()
 template <class InVoxelType, class OutVoxelType>
 void parseFilterTypeToTemplate(char *filter,
 			       NrrdImage nrrd,
@@ -129,17 +141,34 @@ void parseFilterTypeToTemplate(char *filter,
   typedef itk::Image< OutVoxelType, Dimension > 
     OutImageType;
 
+  // pointer to the filter object
 
   // convert run-time filter string to template
   if (!strcmp(filter, "skel")) {
+    
+    // typedef itk::BinaryThinningImageFilter3D<
+    // itk::Image<InVoxelType, Dimension>,
+    //   itk::Image<OutVoxelType, Dimension> > FilterType;
+    
     ThinningFilter<InVoxelType, OutVoxelType>
       runFilter(filter, nrrd, nargout, argOut);
   }  else if (!strcmp(filter, "dandist")) {
+    
+    // typedef itk::DanielssonDistanceMapImageFilter< 
+    // itk::Image<InVoxelType, Dimension>,
+    //   itk::Image<OutVoxelType, Dimension> > FilterType;
+
     DanielssonFilter<InVoxelType, OutVoxelType>
       runFilter(filter, nrrd, nargout, argOut);
   }  else if (!strcmp(filter, "maudist")) {
+
+    // typedef itk::SignedMaurerDistanceMapImageFilter<
+    // itk::Image<InVoxelType, Dimension>,
+    //   itk::Image<OutVoxelType, Dimension> > FilterType;
+
     SignedMaurerFilter<InVoxelType, OutVoxelType>
       runFilter(filter, nrrd, nargout, argOut);
+    // runFilter.SetSpecificFilterParameters();
   } else {
     mexErrMsgTxt("Filter type not implemented");
   }
@@ -301,17 +330,6 @@ BaseFilter<InVoxelType, OutVoxelType, FilterType>::BaseFilter
   // get pointer to input segmentation mask
   const InVoxelType *im = (InVoxelType *)mxGetPr(nrrd.getData());
 
-  // image type definitions
-  typedef double TScalarType; // data type for scalars
-  typedef itk::Image< InVoxelType, Dimension > 
-    InImageType;
-  typedef itk::Image< OutVoxelType, Dimension > 
-    OutImageType;
-  typedef itk::ImageRegionIterator< InImageType > 
-    InIteratorType;
-  typedef itk::ImageRegionConstIterator< OutImageType > 
-    OutConstIteratorType;
-  
   // create ITK image to hold the segmentation mask
   typename InImageType::Pointer image = InImageType::New();
   typename InImageType::RegionType region;
@@ -354,10 +372,10 @@ BaseFilter<InVoxelType, OutVoxelType, FilterType>::BaseFilter
   }
   
   // instantiate filter
-  typename FilterType::Pointer filter = FilterType::New();
+  filter = FilterType::New();
   
   // pass any parameters specific to this filter
-  this->SetSpecificParameters(filter);
+  SetSpecificFilterParameters();
 
   // run filter on input image
   filter->SetInput(image);
@@ -401,8 +419,12 @@ BaseFilter<InVoxelType, OutVoxelType, FilterType>::BaseFilter
 // any specific parameters
 template <class InVoxelType, class OutVoxelType, class FilterType>
 void BaseFilter<InVoxelType, OutVoxelType, 
-		FilterType>::SetSpecificParameters(
-			     typename FilterType::Pointer filter) {
+		FilterType>::SetSpecificFilterParameters() {
+
+  std::cout << "BaseFilter::SetSpecificFilterParameters" 
+	    << std::endl;////////////////
+
+
 }
 
 /*
