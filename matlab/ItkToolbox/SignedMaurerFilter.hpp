@@ -67,7 +67,7 @@ public:
 		 itk::Image<InVoxelType, Dimension>,
 		 itk::Image<OutVoxelType, Dimension> >
 	       > (filterType, nrrd, _nargout, argOut) {;}
-  void SetSpecificParameters();
+  void SetSpecificFilterParameters();
 };
 
 /*
@@ -81,7 +81,7 @@ public:
   {								\
   public:							\
     SignedMaurerFilter(char *, NrrdImage, int, mxArray**);	\
-    void SetSpecificParameters();				\
+    void SetSpecificFilterParameters();				\
   };
 
 EXCLUDEFILTER(bool, bool);
