@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -48,19 +48,29 @@ template <class InVoxelType, class OutVoxelType>
 void SignedMaurerFilter<InVoxelType, 
 			OutVoxelType>::FilterSetup() {
   
-  std::cout << "SignedMaurerFilter::FilterSetup" 
-	    << std::endl;////////////////
+  // the filter member variable is declared in BaseFilter as a general
+  // ImageToImageFilter, but we want to use some methods that belong
+  // only to the derived filter class
+  // SignedMaurerDistanceMapImageFilter. In order to do this, we need
+  // to declare a local filter variable that is of type
+  // SignedMaurerDistanceMapImageFilter, and dynamic cast it to filter
+  // in the BaseFilter class
+  typedef itk::SignedMaurerDistanceMapImageFilter< 
+  itk::Image<InVoxelType, Dimension>,
+    itk::Image<OutVoxelType, Dimension> > FilterType;
+
+  typename FilterType::Pointer localFilter = 
+    dynamic_cast<FilterType *>(this->filter.GetPointer());
 
   // pass image to filter
-  this->filter->SetInput(this->image);
+  localFilter->SetInput(this->image);
 
   // compute distances using real world coordinates, instead of voxel
   // indices
-  this->filter->SetUseImageSpacing(true);
+  localFilter->SetUseImageSpacing(true);
 
   // give output as actual distances, instead of squared distances
-  this->filter->SquaredDistanceOff();
-
+  localFilter->SquaredDistanceOff();
 }
 
 /*

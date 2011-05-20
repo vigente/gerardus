@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -54,19 +54,21 @@
  */
 template <class InVoxelType, class OutVoxelType>
 class ThinningFilter : 
-  public BaseFilter<InVoxelType, OutVoxelType, 
-		    itk::BinaryThinningImageFilter3D< 
-		      itk::Image<InVoxelType, Dimension>,
-		      itk::Image<OutVoxelType, Dimension> > 
-		    > {
+  public BaseFilter<InVoxelType, OutVoxelType> {
+private:
+  typedef itk::BinaryThinningImageFilter3D< 
+  itk::Image<InVoxelType, Dimension>,
+  itk::Image<OutVoxelType, Dimension> > FilterType;
+
+protected:
+
 public:
-  ThinningFilter(char *filterType, NrrdImage &nrrd, 
-		 int _nargout, mxArray** &argOut) :
-    BaseFilter<InVoxelType, OutVoxelType, 
-	       itk::BinaryThinningImageFilter3D< 
-		 itk::Image<InVoxelType, Dimension>,
-		 itk::Image<OutVoxelType, Dimension> >
-	       > (filterType, nrrd, _nargout, argOut) {;}
+  ThinningFilter(NrrdImage nrrd, 
+		 int _nargout, mxArray** argOut) :
+    BaseFilter<InVoxelType, OutVoxelType>(nrrd, _nargout, argOut) {
+    // instantiate filter
+    this->filter = FilterType::New();
+  }
 };
 
 /*
@@ -76,9 +78,10 @@ public:
 
 #define EXCLUDEFILTER(T1, T2)					\
   template <>							\
-  class ThinningFilter< T1, T2 > {				\
+  class ThinningFilter< T1, T2 > :				\
+    public BaseFilter<T1, T2> {					\
   public:							\
-  ThinningFilter(char *, NrrdImage, int, mxArray**) {;}		\
+  ThinningFilter(NrrdImage, int, mxArray**) {;}			\
   void CopyMatlabInputsToFilter() {;}				\
   void FilterSetup() {;}					\
   void RunFilter() {;}						\

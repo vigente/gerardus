@@ -3,21 +3,12 @@
  *
  * BaseFilter<InVoxelType, OutVoxelType, FilterType>: This is where
  * the code to actually run the filter on the image lives.
- *
- * Instead of having a function (e.g. runFilter), we have the code in
- * the constructor of class FilterFactory.
- *
- * The reason is that template explicit specialization is only
- * possible in classes, not in functions. We need explicit
- * specialization to prevent the compiler from compiling certain
- * input/output image data types for some filters that don't accept
- * them.
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.2
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -48,6 +39,11 @@
 
 #ifndef BASEFILTER_HPP
 #define BASEFILTER_HPP
+
+/* ITK headers */
+// #include "itkImageToImageFilter.h"
+#include "itkDanielssonDistanceMapImageFilter.h"
+
 
 /* Gerardus headers */
 #import "NrrdImage.hpp"
@@ -102,24 +98,26 @@ struct TypeIsDouble< double >
 /* 
  * BaseFilter
  */
-template <class InVoxelType, class OutVoxelType, class FilterType>
+template <class InVoxelType, class OutVoxelType>
 class BaseFilter {
 private:
   typedef double TScalarType; // data type for scalars
   typedef itk::Image< InVoxelType, Dimension > InImageType;
   typedef itk::Image< OutVoxelType, Dimension > OutImageType;
+  typedef itk::ImageToImageFilter<InImageType, OutImageType> FilterType;
   
 protected:
   typename InImageType::Pointer image;
-  typename FilterType::Pointer filter;
   NrrdImage nrrd;
   int nargout;
   mxArray** argOut;
+  typename FilterType::Pointer filter;
 
 public:
-  BaseFilter(char *filterType, NrrdImage &_nrrd, 
-		int _nargout, mxArray** &_argOut);
-  virtual void CopyMatlabInputsToFilter();
+  BaseFilter(NrrdImage _nrrd, int _nargout, mxArray** _argOut);
+  BaseFilter() {;}
+  virtual ~BaseFilter() {;}
+  virtual void CopyMatlabInputsToItkImages();
   virtual void FilterSetup();
   virtual void RunFilter();
   virtual void CopyFilterOutputsToMatlab();
