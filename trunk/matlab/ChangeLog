@@ -1,5 +1,37 @@
 2011-05-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* ItkToolbox/SignedMaurerFilter.cpp:
+
+	- (v0.2.1) Filter types are defined in the base header file, not
+	here. Also, to avoid problems in the future, when we refer to a
+	FilterType we specify which one,
+	e.g. SignedMaurerFilter<InVoxelType,OutVoxelType>::FilterType.
+
+	* ItkToolbox/BaseFilter.cpp, ItkToolbox/BaseFilter.hpp:
+
+	- (v0.3.0) Move code that returns an empty output for empty input
+	from the constructor to CopyFilterImageOutputToMatlab(). This is
+	the right place for it to be.
+
+	* ItkToolbox/DanielssonFilter.hpp, ItkToolbox/DanielssonFilter.cpp:
+
+	- (v0.3.0) Substantial change. Now filters can output more than
+	one image. As a proof of concept, I have modified the
+	DanielssonFilter to output not only the distance map, but also an
+	array of the same size as the image with the linear index of the
+	closest object voxel to each image voxel. This is a reformatting
+	of the output provided by
+	itk::DanielssonDistanceMapImageFilter::GetVectorDistanceMap().
+
+	* ItkToolbox/SignedMaurerFilter.hpp,
+	ItkToolbox/ArgumentParsers.cpp, ItkToolbox/ThinningFilter.hpp:
+
+	- (v0.2.1) Fix bug. Method had the wrong name.
+
+	* ItkToolbox/CMakeLists.txt:
+
+	- Add GerardusCommon.cpp to the itk_imfilter project.
+
 	* ItkToolbox/GerardusCommon.hpp, ItkToolbox/GerardusCommon.cpp:
 
 	- (v0.3.0) Add ind2sub_itkOffset() so that we can have an
@@ -16,10 +48,11 @@
 	- Miscellaneous functions of general use. Functions to convert
 	between linear indices and r, c, s indices: sub2ind(), ind2sub().
 
-	* ItkToolbox/SignedMaurerFilter.hpp, DanielssonFilter.hpp,
-	NrrdImage.hpp, BaseFilter.cpp, ArgumentParsers.cpp,
-	BaseFilter.hpp, ArgumentParsers.hpp, ThinningFilter.hpp,
-	SignedMaurerFilter.cpp:
+	* ItkToolbox/SignedMaurerFilter.hpp,
+	ItkToolbox/DanielssonFilter.hpp, ItkToolbox/NrrdImage.hpp,
+	ItkToolbox/BaseFilter.cpp, ItkToolbox/ArgumentParsers.cpp,
+	ItkToolbox/BaseFilter.hpp, ItkToolbox/ArgumentParsers.hpp,
+	ItkToolbox/ThinningFilter.hpp, ItkToolbox/SignedMaurerFilter.cpp:
 
 	- (v0.2.0) Big change in architecture. BaseFilter declares the
 	filter variable as an ImageToImageFilter, but then it's the

@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.2.1
   * $Rev$
   * $Date$
   *
@@ -55,12 +55,10 @@ void SignedMaurerFilter<InVoxelType,
   // to declare a local filter variable that is of type
   // SignedMaurerDistanceMapImageFilter, and dynamic cast it to filter
   // in the BaseFilter class
-  typedef itk::SignedMaurerDistanceMapImageFilter< 
-  itk::Image<InVoxelType, Dimension>,
-    itk::Image<OutVoxelType, Dimension> > FilterType;
 
   typename FilterType::Pointer localFilter = 
-    dynamic_cast<FilterType *>(this->filter.GetPointer());
+    dynamic_cast<typename SignedMaurerFilter<InVoxelType,
+    OutVoxelType>::FilterType *>(this->filter.GetPointer());
 
   // pass image to filter
   localFilter->SetInput(this->image);
