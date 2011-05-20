@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -45,6 +45,9 @@
 /* C++ headers */
 #import <vector>
 
+/* ITK headers */
+#include "itkOffset.h"
+
 /* Gerardus headers */
 #import "GerardusCommon.hpp"
 
@@ -72,6 +75,30 @@ mwIndex sub2ind(mwSize R, mwSize C, mwSize S,
   // check that input vector has 3 elements
   if (rcs.size() != 3) {
     mexErrMsgTxt("Input vector must have 3 elements");
+  }
+
+  // convert r, c, s to linear index
+  mwIndex idx = rcs[0] + rcs[1] * R + rcs[2] * R * C;
+
+  // // DEBUG
+  // std::cout << "idx = " << idx
+  // 	    << std::endl;
+  
+  return idx;
+}
+
+mwIndex sub2ind(mwSize R, mwSize C, mwSize S,
+		itk::Offset<Dimension> rcs) {
+  // check for out of range index
+  if (
+      ((mwSize)rcs[0] < 0) || ((mwSize)rcs[0] >= R) 
+      || ((mwSize)rcs[1] < 0) || ((mwSize)rcs[1] >= C)
+      || ((mwSize)rcs[2] < 0) || ((mwSize)rcs[2] >= S)
+      ) {
+    mexErrMsgTxt("Out of range index");
+  }
+  if ((R*C*S == 0) || (R < 0) || (C < 0) || (S < 0)) {
+    mexErrMsgTxt("Size values cannot be 0 or negative");
   }
 
   // convert r, c, s to linear index
