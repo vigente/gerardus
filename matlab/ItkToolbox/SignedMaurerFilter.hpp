@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -54,19 +54,20 @@
  */
 template <class InVoxelType, class OutVoxelType>
 class SignedMaurerFilter : 
-  public BaseFilter<InVoxelType, OutVoxelType, 
-		    itk::SignedMaurerDistanceMapImageFilter< 
-		      itk::Image<InVoxelType, Dimension>,
-		      itk::Image<OutVoxelType, Dimension> > 
-		    > {
+  public BaseFilter<InVoxelType, OutVoxelType> {
+private:
+  typedef itk::SignedMaurerDistanceMapImageFilter< 
+  itk::Image<InVoxelType, Dimension>,
+  itk::Image<OutVoxelType, Dimension> > FilterType;
+
+protected:
+
 public:
-  SignedMaurerFilter(char *filterType, NrrdImage &nrrd, 
-		     int _nargout, mxArray** &argOut) :
-    BaseFilter<InVoxelType, OutVoxelType, 
-	       itk::SignedMaurerDistanceMapImageFilter< 
-		 itk::Image<InVoxelType, Dimension>,
-		 itk::Image<OutVoxelType, Dimension> >
-	       > (filterType, nrrd, _nargout, argOut) {;}
+  SignedMaurerFilter(NrrdImage nrrd, int _nargout, mxArray** argOut) :
+    BaseFilter<InVoxelType, OutVoxelType>(nrrd, _nargout, argOut) {
+    // instantiate filter
+    this->filter = FilterType::New();
+  }
   void FilterSetup();
 };
 
@@ -77,9 +78,10 @@ public:
 
 #define EXCLUDEFILTER(T1, T2)						\
   template <>								\
-  class SignedMaurerFilter< T1, T2 > {					\
+  class SignedMaurerFilter< T1, T2 > :					\
+    public BaseFilter<T1, T2> {						\
   public:								\
-  SignedMaurerFilter(char *, NrrdImage, int, mxArray**) {;}		\
+  SignedMaurerFilter(NrrdImage, int, mxArray**) {;}			\
   void CopyMatlabInputsToFilter() {;}					\
   void FilterSetup() {;}						\
   void RunFilter() {;}							\

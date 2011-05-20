@@ -1,3 +1,25 @@
+2011-05-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* ItkToolbox/SignedMaurerFilter.hpp, DanielssonFilter.hpp,
+	NrrdImage.hpp, BaseFilter.cpp, ArgumentParsers.cpp,
+	BaseFilter.hpp, ArgumentParsers.hpp, ThinningFilter.hpp,
+	SignedMaurerFilter.cpp:
+
+	- (v0.2.0) Big change in architecture. BaseFilter declares the
+	filter variable as an ImageToImageFilter, but then it's the
+	responsability of each derived filter class to instantiate it in
+	its constructor.
+
+	- BaseFilter declares several methods that contain the code to
+	load the image, filter it and pass the output to Matlab for a
+	plain filter. These methods are virtual, so thanks to polymorphism
+	we can override them in the derived filter classes if the filter
+	has any special requirements or features.
+
+	- Big thanks to Joe Pitt-Francis, Miguel Bernabeu and Raf Bordas
+	for their help and advice that made this architecture change
+	possible.
+
 2011-05-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* ItkToolbox/ItkKernelTransform.cpp:

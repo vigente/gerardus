@@ -41,15 +41,15 @@
  * checks that the requested filter is implemented and maps the filter
  * variable to all filter templates.
  *
- * Note that the actual filtering is done in the constructor of
- * BaseFilter, that is instantiated from
+ * Note that the actual filtering is done using derived filter classes
+ * from BaseFilter, that is instantiated from
  * parseFilterTypeToTemplate.
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -99,10 +99,10 @@
 
 // parseFilterTypeToTemplate<InVoxelType, OutVoxelType>()
 template <class InVoxelType, class OutVoxelType>
-void parseFilterTypeToTemplate(char *filter,
+void parseFilterTypeToTemplate(char *filterName,
 			       NrrdImage nrrd,
 			       int nargout,
-			       mxArray** &argOut) {
+			       mxArray** argOut) {
 
   // image type definitions
   typedef double TScalarType; // data type for scalars
@@ -111,49 +111,34 @@ void parseFilterTypeToTemplate(char *filter,
   typedef itk::Image< OutVoxelType, Dimension > 
     OutImageType;
 
-  // pointer to the filter object
+  // pointer to the filter object (we are using polymorphism)
+  BaseFilter<InVoxelType, OutVoxelType> *filter = NULL;
 
   // convert run-time filter string to template
-  if (!strcmp(filter, "skel")) {
+  if (!strcmp(filterName, "skel")) {
     
-    // typedef itk::BinaryThinningImageFilter3D<
-    // itk::Image<InVoxelType, Dimension>,
-    //   itk::Image<OutVoxelType, Dimension> > FilterType;
+    filter = new ThinningFilter<InVoxelType, 
+      OutVoxelType>(nrrd, nargout, argOut);
+
+  }  else if (!strcmp(filterName, "dandist")) {
     
-    ThinningFilter<InVoxelType, OutVoxelType>
-      runFilter(filter, nrrd, nargout, argOut);
-    runFilter.CopyMatlabInputsToFilter();
-    runFilter.FilterSetup();
-    runFilter.RunFilter();
-    runFilter.CopyFilterOutputsToMatlab();
-  }  else if (!strcmp(filter, "dandist")) {
-    
-    // typedef itk::DanielssonDistanceMapImageFilter< 
-    // itk::Image<InVoxelType, Dimension>,
-    //   itk::Image<OutVoxelType, Dimension> > FilterType;
+    filter = new DanielssonFilter<InVoxelType, 
+      OutVoxelType>(nrrd, nargout, argOut);
 
-    DanielssonFilter<InVoxelType, OutVoxelType>
-      runFilter(filter, nrrd, nargout, argOut);
-    runFilter.CopyMatlabInputsToFilter();
-    runFilter.FilterSetup();
-    runFilter.RunFilter();
-    runFilter.CopyFilterOutputsToMatlab();
-  }  else if (!strcmp(filter, "maudist")) {
+  }  else if (!strcmp(filterName, "maudist")) {
 
-    // typedef itk::SignedMaurerDistanceMapImageFilter<
-    // itk::Image<InVoxelType, Dimension>,
-    //   itk::Image<OutVoxelType, Dimension> > FilterType;
+    filter = new SignedMaurerFilter<InVoxelType, 
+      OutVoxelType>(nrrd, nargout, argOut);
 
-    SignedMaurerFilter<InVoxelType, OutVoxelType>
-      runFilter(filter, nrrd, nargout, argOut);
-    runFilter.CopyMatlabInputsToFilter();
-    runFilter.FilterSetup();
-    runFilter.RunFilter();
-    runFilter.CopyFilterOutputsToMatlab();
   } else {
     mexErrMsgTxt("Filter type not implemented");
   }
   
+  // set up and run filter
+  filter->CopyMatlabInputsToItkImages();
+  filter->FilterSetup();
+  filter->RunFilter();
+  filter->CopyFilterOutputsToMatlab();
 }
 
 // parseOutputTypeToTemplate<InVoxelType>()
@@ -161,7 +146,7 @@ template <class InVoxelType>
 void parseOutputTypeToTemplate(char *filter,
 			       NrrdImage nrrd,
 			       int nargout,
-			       mxArray** &argOut) {
+			       mxArray** argOut) {
 
   // make it easier to remember the different cases for the output
   // voxel type
@@ -238,7 +223,7 @@ void parseInputTypeToTemplate(mxClassID inputVoxelClassId,
 			      char *filter,
 			      NrrdImage nrrd,
 			      int nargout,
-			      mxArray** &argOut) {
+			      mxArray** argOut) {
   
   switch(inputVoxelClassId)  { // swith input image type
   case mxLOGICAL_CLASS:
@@ -280,101 +265,5 @@ void parseInputTypeToTemplate(mxClassID inputVoxelClassId,
     break;
   }
 }
-
-/*
- * Instantiate filter with all the input/output combinations that it
- * accepts. This is necessary for the linker. The alternative is to
- * have all the code in the header files, but this makes compilation
- * slower and maybe the executable larger
- */
-
-#define FILTERINST(T1, T2)						\
-  template void parseFilterTypeToTemplate<T1, T2>(char *,		\
-						  NrrdImage ,	\
-						  int ,		\
-						  mxArray** &);
-
-FILTERINST(bool, uint8_T)
-FILTERINST(bool, int8_T)
-FILTERINST(bool, uint16_T)
-FILTERINST(bool, int16_T)
-FILTERINST(bool, int32_T)
-FILTERINST(bool, int64_T)
-FILTERINST(bool, float)
-FILTERINST(bool, double)
-
-FILTERINST(uint8_T, uint8_T)
-FILTERINST(uint8_T, int8_T)
-FILTERINST(uint8_T, uint16_T)
-FILTERINST(uint8_T, int16_T)
-FILTERINST(uint8_T, int32_T)
-FILTERINST(uint8_T, int64_T)
-FILTERINST(uint8_T, float)
-FILTERINST(uint8_T, double)
-
-FILTERINST(int8_T, uint8_T)
-FILTERINST(int8_T, int8_T)
-FILTERINST(int8_T, uint16_T)
-FILTERINST(int8_T, int16_T)
-FILTERINST(int8_T, int32_T)
-FILTERINST(int8_T, int64_T)
-FILTERINST(int8_T, float)
-FILTERINST(int8_T, double)
-
-FILTERINST(uint16_T, uint8_T)
-FILTERINST(uint16_T, int8_T)
-FILTERINST(uint16_T, uint16_T)
-FILTERINST(uint16_T, int16_T)
-FILTERINST(uint16_T, int32_T)
-FILTERINST(uint16_T, int64_T)
-FILTERINST(uint16_T, float)
-FILTERINST(uint16_T, double)
-
-FILTERINST(int16_T, uint8_T)
-FILTERINST(int16_T, int8_T)
-FILTERINST(int16_T, uint16_T)
-FILTERINST(int16_T, int16_T)
-FILTERINST(int16_T, int32_T)
-FILTERINST(int16_T, int64_T)
-FILTERINST(int16_T, float)
-FILTERINST(int16_T, double)
-
-FILTERINST(int32_T, uint8_T)
-FILTERINST(int32_T, int8_T)
-FILTERINST(int32_T, uint16_T)
-FILTERINST(int32_T, int16_T)
-FILTERINST(int32_T, int32_T)
-FILTERINST(int32_T, int64_T)
-FILTERINST(int32_T, float)
-FILTERINST(int32_T, double)
-
-FILTERINST(int64_T, uint8_T)
-FILTERINST(int64_T, int8_T)
-FILTERINST(int64_T, uint16_T)
-FILTERINST(int64_T, int16_T)
-FILTERINST(int64_T, int32_T)
-FILTERINST(int64_T, int64_T)
-FILTERINST(int64_T, float)
-FILTERINST(int64_T, double)
-
-FILTERINST(float, uint8_T)
-FILTERINST(float, int8_T)
-FILTERINST(float, uint16_T)
-FILTERINST(float, int16_T)
-FILTERINST(float, int32_T)
-FILTERINST(float, int64_T)
-FILTERINST(float, float)
-FILTERINST(float, double)
-
-FILTERINST(double, uint8_T)
-FILTERINST(double, int8_T)
-FILTERINST(double, uint16_T)
-FILTERINST(double, int16_T)
-FILTERINST(double, int32_T)
-FILTERINST(double, int64_T)
-FILTERINST(double, float)
-FILTERINST(double, double)
-
-#undef FILTERINST
 
 #endif /* ARGUMENTPARSERS_CPP */

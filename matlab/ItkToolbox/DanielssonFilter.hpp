@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -54,19 +54,20 @@
  */
 template <class InVoxelType, class OutVoxelType>
 class DanielssonFilter : 
-  public BaseFilter<InVoxelType, OutVoxelType, 
-		    itk::DanielssonDistanceMapImageFilter< 
-		      itk::Image<InVoxelType, Dimension>,
-		      itk::Image<OutVoxelType, Dimension> > 
-		    > {
+  public BaseFilter<InVoxelType, OutVoxelType> {
+private:
+  typedef itk::DanielssonDistanceMapImageFilter< 
+  itk::Image<InVoxelType, Dimension>,
+  itk::Image<OutVoxelType, Dimension> > FilterType;
+
+protected:
+
 public:
-  DanielssonFilter(char *filterType, NrrdImage &nrrd, 
-		   int _nargout, mxArray** &argOut) :
-    BaseFilter<InVoxelType, OutVoxelType, 
-	       itk::DanielssonDistanceMapImageFilter< 
-		 itk::Image<InVoxelType, Dimension>,
-		 itk::Image<OutVoxelType, Dimension> >
-	       > (filterType, nrrd, _nargout, argOut) {;}
+  DanielssonFilter(NrrdImage nrrd, int _nargout, mxArray** argOut) :
+    BaseFilter<InVoxelType, OutVoxelType>(nrrd, _nargout, argOut) {
+    // instantiate filter
+    this->filter = FilterType::New();
+  }
 };
 
 /*
@@ -76,9 +77,10 @@ public:
 
 #define EXCLUDEFILTER(T1, T2)						\
   template <>								\
-  class DanielssonFilter< T1, T2 > {					\
+  class DanielssonFilter< T1, T2 > :					\
+    public BaseFilter<T1, T2> {						\
   public:								\
-  DanielssonFilter(char *, NrrdImage, int, mxArray**) {;}		\
+  DanielssonFilter(NrrdImage, int, mxArray**) {;}			\
   void CopyMatlabInputsToFilter() {;}					\
   void FilterSetup() {;}						\
   void RunFilter() {;}							\
