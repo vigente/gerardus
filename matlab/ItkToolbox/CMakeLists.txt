@@ -41,6 +41,7 @@ SET(Libraries
 ################################################################
 
 ADD_MEX_FILE(itk_imfilter 
+  GerardusCommon.cpp
   NrrdImage.cpp
   BaseFilter.cpp
   ThinningFilter.cpp
