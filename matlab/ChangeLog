@@ -1,5 +1,11 @@
 2011-05-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add ItkToolbox/GerardusCommon.hpp,
+	ItkToolbox/GerardusCommon.cpp:
+
+	- Miscellaneous functions of general use. Functions to convert
+	between linear indices and r, c, s indices: sub2ind(), ind2sub().
+
 	* ItkToolbox/SignedMaurerFilter.hpp, DanielssonFilter.hpp,
 	NrrdImage.hpp, BaseFilter.cpp, ArgumentParsers.cpp,
 	BaseFilter.hpp, ArgumentParsers.hpp, ThinningFilter.hpp,
