@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -39,7 +39,121 @@
 #ifndef DANIELSSONFILTER_CPP
 #define DANIELSSONFILTER_CPP
 
+/* ITK headers */
+#include "itkImage.h"
+#include "itkImageRegionConstIterator.h"
+
+/* Gerardus headers */
+#import "GerardusCommon.hpp"
 #import "DanielssonFilter.hpp"
+
+template <class InVoxelType, class OutVoxelType>
+void DanielssonFilter<InVoxelType,
+		      OutVoxelType>::CopyAllFilterOutputsToMatlab() {
+  
+  // by default, we assume that all filters produce at least 1 main
+  // output
+  this->CopyFilterImageOutputToMatlab();
+
+  if (this->nargout <= 2) {
+    CopyFilterNearestOutputToMatlab();
+  } else {
+    mexErrMsgTxt("Too many output arguments");
+  }
+
+}
+
+/*
+ * DanielssonFilter::CopyFilterNearestOutputToMatlab()
+ *
+ * Pass to Matlab an array of the same size as the image. Each element
+ * has the linear index of the closest object voxel to each image
+ * voxel. The distance between both voxels is the distance returned in
+ * the distance map. This is a reformatting of the output provided by
+ * itk::DanielssonDistanceMapImageFilter::GetVectorDistanceMap()
+ */
+template <class InVoxelType, class OutVoxelType>
+void DanielssonFilter<InVoxelType, 
+		      OutVoxelType>::CopyFilterNearestOutputToMatlab() {
+
+  typedef double OutType;
+
+  // if the input image is empty, create empty segmentation mask for
+  // output, and we don't need to do any further processing
+  if (this->nrrd.getR() == 0 || this->nrrd.getC() == 0) {
+    this->argOut[1] = mxCreateDoubleMatrix(0, 0, mxREAL);
+    return;
+  }
+
+  // output class ID
+  // convert output data type to output class ID
+  mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
+  if (TypeIsBool< OutType >::value) {
+    outputVoxelClassId = mxLOGICAL_CLASS;
+  } else if (TypeIsUint8< OutType >::value) {
+    outputVoxelClassId = mxUINT8_CLASS;
+  } else if (TypeIsUint16< OutType >::value) {
+    outputVoxelClassId = mxUINT16_CLASS;
+  } else if (TypeIsFloat< OutType >::value) {
+    outputVoxelClassId = mxSINGLE_CLASS;
+  } else if (TypeIsDouble< OutType >::value) {
+    outputVoxelClassId = mxDOUBLE_CLASS;
+  } else {
+    mexErrMsgTxt("Assertion fail: Unrecognised output voxel type");
+  }
+
+  // create output matrix for Matlab's result
+  this->argOut[1] = (mxArray *)mxCreateNumericArray( this->nrrd.getNdim(), 
+						     this->nrrd.getDims(),
+						     outputVoxelClassId,
+						     mxREAL);
+  if (this->argOut[1] == NULL) {
+    mexErrMsgTxt("Cannot allocate memory for output matrix");
+  }
+  OutType *imOutp =  (OutType *)mxGetPr(this->argOut[1]);
+  
+  // populate output image
+  typedef typename DanielssonFilter<InVoxelType, 
+    OutVoxelType>::FilterType::VectorImageType OffsetImageType;
+
+  // the filter member variable is declared in BaseFilter as a general
+  // ImageToImageFilter, but we want to use some methods that belong
+  // only to the derived filter class
+  // DanielssonDistanceMapImageFilter. In order to do this, we need
+  // to declare a local filter variable that is of type
+  // DanielssonDistanceMapImageFilter, and dynamic cast it to filter
+  // in the BaseFilter class
+  typename FilterType::Pointer localFilter = 
+    dynamic_cast<typename DanielssonFilter<InVoxelType, 
+    OutVoxelType>::FilterType *>(this->filter.GetPointer());
+
+  typedef itk::ImageRegionConstIterator<OffsetImageType> 
+    OutConstIteratorType;
+
+  OutConstIteratorType citer(localFilter->GetVectorDistanceMap(),
+	     localFilter->GetVectorDistanceMap()->GetLargestPossibleRegion());
+
+  itk::Offset<Dimension> idx3;
+  mwIndex i = 0; // voxel linear index
+  for (citer.GoToBegin(), i = 0; !citer.IsAtEnd(); ++citer, ++i) {
+
+    // current voxel in the image
+    // image linear index => r, c, s indices
+    idx3 = ind2sub_itkOffset(this->nrrd.getR(), this->nrrd.getC(), 
+			     this->nrrd.getS(), i);
+
+    // compute coordinates of the closest object voxel to the current
+    // voxel
+    idx3 += citer.Get();
+
+    // convert image r, c, s indices => linear index
+    // Note: we need to add 1 to the index to follow Matlab's convention
+    imOutp[i] = sub2ind(this->nrrd.getR(), this->nrrd.getC(), 
+			this->nrrd.getS(), idx3) + 1;
+    
+  }
+
+}
 
 /*
  * Instantiate filter with all the input/output combinations that it
