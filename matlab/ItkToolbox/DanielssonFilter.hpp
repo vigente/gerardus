@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -68,6 +68,8 @@ public:
     // instantiate filter
     this->filter = FilterType::New();
   }
+  void CopyAllFilterOutputsToMatlab();
+  void CopyFilterNearestOutputToMatlab();
 };
 
 /*
@@ -84,7 +86,7 @@ public:
   void CopyMatlabInputsToFilter() {;}					\
   void FilterSetup() {;}						\
   void RunFilter() {;}							\
-  void CopyFilterOutputsToMatlab() {;}					\
+  void CopyAllFilterOutputsToMatlab() {;}				\
   };
 
 EXCLUDEFILTER(bool, int8_T);

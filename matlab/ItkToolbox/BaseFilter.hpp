@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -41,16 +41,11 @@
 #define BASEFILTER_HPP
 
 /* ITK headers */
-// #include "itkImageToImageFilter.h"
-#include "itkDanielssonDistanceMapImageFilter.h"
-
+#include "itkImageToImageFilter.h"
 
 /* Gerardus headers */
+#import "GerardusCommon.hpp"
 #import "NrrdImage.hpp"
-
-/* Global variables */
-static const unsigned int Dimension = 3; // volume data dimension
-                                         // (3D volume)
 
 /*
  * Block of functions to allow testing of template types
@@ -100,10 +95,12 @@ struct TypeIsDouble< double >
  */
 template <class InVoxelType, class OutVoxelType>
 class BaseFilter {
-private:
-  typedef double TScalarType; // data type for scalars
+protected:
   typedef itk::Image< InVoxelType, Dimension > InImageType;
   typedef itk::Image< OutVoxelType, Dimension > OutImageType;
+
+private:
+  typedef double TScalarType; // data type for scalars
   typedef itk::ImageToImageFilter<InImageType, OutImageType> FilterType;
   
 protected:
@@ -120,7 +117,8 @@ public:
   virtual void CopyMatlabInputsToItkImages();
   virtual void FilterSetup();
   virtual void RunFilter();
-  virtual void CopyFilterOutputsToMatlab();
+  virtual void CopyAllFilterOutputsToMatlab();
+  void CopyFilterImageOutputToMatlab();
 };
 
 #endif /* BASEFILTER_HPP */

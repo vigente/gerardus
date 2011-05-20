@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.2.1
   * $Rev$
   * $Date$
   *
@@ -85,7 +85,7 @@ public:
   void CopyMatlabInputsToFilter() {;}				\
   void FilterSetup() {;}					\
   void RunFilter() {;}						\
-  void CopyFilterOutputsToMatlab() {;}				\
+  void CopyAllFilterOutputsToMatlab() {;}			\
   };
 
 EXCLUDEFILTER(bool, uint8_T);

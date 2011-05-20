@@ -17,7 +17,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -79,13 +79,6 @@ template <class InVoxelType, class OutVoxelType>
 BaseFilter<InVoxelType, OutVoxelType>::BaseFilter
 (NrrdImage _nrrd, int _nargout, mxArray** _argOut) 
   : nrrd(_nrrd), nargout(_nargout), argOut(_argOut) {
-  
-  // if the input image is empty, create empty segmentation mask for
-  // output. We don't need to do any processing
-  if (nrrd.getR() == 0 || nrrd.getC() == 0) {
-    argOut[0] = mxCreateDoubleMatrix(0, 0, mxREAL);
-    return;
-  }
   
 }
 
@@ -157,8 +150,31 @@ void BaseFilter<InVoxelType, OutVoxelType>::RunFilter() {
 }
 
 template <class InVoxelType, class OutVoxelType>
-void BaseFilter<InVoxelType, OutVoxelType>::CopyFilterOutputsToMatlab() {
+void BaseFilter<InVoxelType,
+OutVoxelType>::CopyAllFilterOutputsToMatlab() {
+  
+  // by default, we assume that all filters produce at least 1 main
+  // output
+  this->CopyFilterImageOutputToMatlab();
 
+  // prevent the user from asking for too many output arguments
+  if (nargout > 1) {
+    mexErrMsgTxt("Too many output arguments");
+  }
+
+}
+
+template <class InVoxelType, class OutVoxelType>
+void BaseFilter<InVoxelType, 
+		OutVoxelType>::CopyFilterImageOutputToMatlab() {
+
+  // if the input image is empty, create empty segmentation mask for
+  // output, and we don't need to do any further processing
+  if (nrrd.getR() == 0 || nrrd.getC() == 0) {
+    argOut[0] = mxCreateDoubleMatrix(0, 0, mxREAL);
+    return;
+  }
+  
   // convert output data type to output class ID
   mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
   if (TypeIsBool< OutVoxelType >::value) {
@@ -176,9 +192,10 @@ void BaseFilter<InVoxelType, OutVoxelType>::CopyFilterOutputsToMatlab() {
   }
   
   // create output matrix for Matlab's result
-  argOut[0] = (mxArray *)mxCreateNumericArray(nrrd.getNdim(), nrrd.getDims(),
-					      outputVoxelClassId,
-					      mxREAL);
+  argOut[0] = (mxArray *)mxCreateNumericArray( nrrd.getNdim(), 
+					       nrrd.getDims(),
+					       outputVoxelClassId,
+					       mxREAL);
   if (argOut[0] == NULL) {
     mexErrMsgTxt("Cannot allocate memory for output matrix");
   }
