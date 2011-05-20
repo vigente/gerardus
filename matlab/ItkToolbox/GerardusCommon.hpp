@@ -70,5 +70,7 @@ mwIndex sub2ind(mwSize R, mwSize C, mwSize S, itk::Offset<Dimension> rcs);
  *
  */
 std::vector<mwIndex> ind2sub(mwSize R, mwSize C, mwSize S, mwIndex idx);
+itk::Offset<Dimension> ind2sub_itkOffset(mwSize R, mwSize C, mwSize S, 
+					 mwIndex idx);
 
 #endif /* GERARDUSCOMMON_HPP */

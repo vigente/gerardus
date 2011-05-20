@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -130,6 +130,42 @@ std::vector<mwIndex> ind2sub(mwSize R, mwSize C, mwSize S,
 
   // init output
   std::vector<mwIndex> rcs(3);
+  
+  // convert linear index to r, c, s 
+  div_t divresult;
+
+  divresult = div(idx, R*C);
+  rcs[2] = divresult.quot; // slice value
+  idx = divresult.rem;
+
+  divresult = div(idx, R);
+  rcs[1] = divresult.quot; // column value
+  idx = divresult.rem;
+
+  divresult = div(idx, 1);
+  rcs[0] = divresult.quot; // row value
+
+  // // DEBUG
+  // std::cout << "rcs = " << rcs[0] << ", " 
+  // 	    << rcs[1] << ", "
+  // 	    << rcs[2]
+  // 	    << std::endl;
+  
+  return rcs;
+}
+
+itk::Offset<Dimension> ind2sub_itkOffset(mwSize R, mwSize C, mwSize S,
+					 mwIndex idx) {
+  // check for out of range index
+  if (idx >= R*C*S || idx < 0) {
+    mexErrMsgTxt("Out of range index");
+  }
+  if (R*C*S == 0 || R < 0 || C < 0 || S < 0) {
+    mexErrMsgTxt("Size values cannot be 0 or negative");
+  }
+
+  // init output
+  itk::Offset<Dimension> rcs;
   
   // convert linear index to r, c, s 
   div_t divresult;
