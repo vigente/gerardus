@@ -2,6 +2,11 @@
 
 	* ItkToolbox/GerardusCommon.hpp, ItkToolbox/GerardusCommon.cpp:
 
+	- (v0.3.0) Add ind2sub_itkOffset() so that we can have an
+	itk::Offset<3> at the output. Note that it's not possible to
+	overload functions on the return value, so the function needs to
+	have a different name.
+
 	- (v0.2.0) Add sub2ind() overloaded so that it can take as input
 	argument itk::Offset<3>.
 
