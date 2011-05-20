@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -61,6 +61,7 @@ private:
 
 public:
   NrrdImage(const mxArray * nrrd);
+  NrrdImage() {;}
   mxArray * getData() {return data;}
   std::vector<mwSize> getSize() {return size;}
   std::vector<double> getSpacing() {return spacing;}

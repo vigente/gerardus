@@ -17,7 +17,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.2
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -70,23 +70,14 @@
 #import "ThinningFilter.hpp"
 
 /*
- * BaseFilter<InVoxelType, OutVoxelType, FilterType>: This is where
+ * BaseFilter<InVoxelType, OutVoxelType>: This is where
  * the code to actually run the filter on the image lives.
- *
- * Instead of having a function (e.g. runFilter), we have the code in
- * the constructor of class FilterFactory.
- *
- * The reason is that template explicit specialization is only
- * possible in classes, not in functions. We need explicit
- * specialization to prevent the compiler from compiling certain
- * input/output image data types for some filters that don't accept
- * them.
  */
 
-// Constructor: where the actual filtering code lives
-template <class InVoxelType, class OutVoxelType, class FilterType>
-BaseFilter<InVoxelType, OutVoxelType, FilterType>::BaseFilter
-(char *filterName, NrrdImage &_nrrd, int _nargout, mxArray** &_argOut) 
+// Constructor
+template <class InVoxelType, class OutVoxelType>
+BaseFilter<InVoxelType, OutVoxelType>::BaseFilter
+(NrrdImage _nrrd, int _nargout, mxArray** _argOut) 
   : nrrd(_nrrd), nargout(_nargout), argOut(_argOut) {
   
   // if the input image is empty, create empty segmentation mask for
@@ -96,13 +87,10 @@ BaseFilter<InVoxelType, OutVoxelType, FilterType>::BaseFilter
     return;
   }
   
-  // instantiate filter
-  filter = FilterType::New();
-  
 }
 
-template <class InVoxelType, class OutVoxelType, class FilterType>
-void BaseFilter<InVoxelType, OutVoxelType, FilterType>::CopyMatlabInputsToFilter() {
+template <class InVoxelType, class OutVoxelType>
+void BaseFilter<InVoxelType, OutVoxelType>::CopyMatlabInputsToItkImages() {
   
   // get pointer to input segmentation mask
   const InVoxelType *im = (InVoxelType *)mxGetPr(nrrd.getData());
@@ -152,22 +140,24 @@ void BaseFilter<InVoxelType, OutVoxelType, FilterType>::CopyMatlabInputsToFilter
   }
 }
 
-template <class InVoxelType, class OutVoxelType, class FilterType>
-void BaseFilter<InVoxelType, OutVoxelType, FilterType>::FilterSetup() {
+template <class InVoxelType, class OutVoxelType>
+void BaseFilter<InVoxelType, OutVoxelType>::FilterSetup() {
 
   // pass image to filter
   filter->SetInput(image);
+
 }
 
-template <class InVoxelType, class OutVoxelType, class FilterType>
-void BaseFilter<InVoxelType, OutVoxelType, FilterType>::RunFilter() {
+template <class InVoxelType, class OutVoxelType>
+void BaseFilter<InVoxelType, OutVoxelType>::RunFilter() {
   
+  // run filter
   filter->Update();
   
 }
 
-template <class InVoxelType, class OutVoxelType, class FilterType>
-void BaseFilter<InVoxelType, OutVoxelType, FilterType>::CopyFilterOutputsToMatlab() {
+template <class InVoxelType, class OutVoxelType>
+void BaseFilter<InVoxelType, OutVoxelType>::CopyFilterOutputsToMatlab() {
 
   // convert output data type to output class ID
   mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
@@ -214,120 +204,7 @@ void BaseFilter<InVoxelType, OutVoxelType, FilterType>::CopyFilterOutputsToMatla
  */
 
 #define FILTERINST(T1, T2)						\
-  template class BaseFilter<T1, T2,					\
-			    itk::BinaryThinningImageFilter3D<		\
-				  itk::Image<T1, Dimension>, \
-				  itk::Image<T2, Dimension> > \
-			    >;
-
-FILTERINST(bool, bool)
-FILTERINST(uint8_T, uint8_T)
-FILTERINST(int8_T, int8_T)
-FILTERINST(uint16_T, uint16_T)
-FILTERINST(int16_T, int16_T)
-FILTERINST(int32_T, int32_T)
-FILTERINST(int64_T, int64_T)
-FILTERINST(float, float)
-FILTERINST(double, double)
-
-#undef FILTERINST
-
-#define FILTERINST(T1, T2)						\
-  template class BaseFilter<T1, T2,					\
-			    itk::SignedMaurerDistanceMapImageFilter<		\
-				  itk::Image<T1, Dimension>, \
-				  itk::Image<T2, Dimension> > \
-			    >;
-
-FILTERINST(bool, uint8_T)
-FILTERINST(bool, int8_T)
-FILTERINST(bool, uint16_T)
-FILTERINST(bool, int16_T)
-FILTERINST(bool, int32_T)
-FILTERINST(bool, int64_T)
-FILTERINST(bool, float)
-FILTERINST(bool, double)
-
-FILTERINST(uint8_T, uint8_T)
-FILTERINST(uint8_T, int8_T)
-FILTERINST(uint8_T, uint16_T)
-FILTERINST(uint8_T, int16_T)
-FILTERINST(uint8_T, int32_T)
-FILTERINST(uint8_T, int64_T)
-FILTERINST(uint8_T, float)
-FILTERINST(uint8_T, double)
-
-FILTERINST(int8_T, uint8_T)
-FILTERINST(int8_T, int8_T)
-FILTERINST(int8_T, uint16_T)
-FILTERINST(int8_T, int16_T)
-FILTERINST(int8_T, int32_T)
-FILTERINST(int8_T, int64_T)
-FILTERINST(int8_T, float)
-FILTERINST(int8_T, double)
-
-FILTERINST(uint16_T, uint8_T)
-FILTERINST(uint16_T, int8_T)
-FILTERINST(uint16_T, uint16_T)
-FILTERINST(uint16_T, int16_T)
-FILTERINST(uint16_T, int32_T)
-FILTERINST(uint16_T, int64_T)
-FILTERINST(uint16_T, float)
-FILTERINST(uint16_T, double)
-
-FILTERINST(int16_T, uint8_T)
-FILTERINST(int16_T, int8_T)
-FILTERINST(int16_T, uint16_T)
-FILTERINST(int16_T, int16_T)
-FILTERINST(int16_T, int32_T)
-FILTERINST(int16_T, int64_T)
-FILTERINST(int16_T, float)
-FILTERINST(int16_T, double)
-
-FILTERINST(int32_T, uint8_T)
-FILTERINST(int32_T, int8_T)
-FILTERINST(int32_T, uint16_T)
-FILTERINST(int32_T, int16_T)
-FILTERINST(int32_T, int32_T)
-FILTERINST(int32_T, int64_T)
-FILTERINST(int32_T, float)
-FILTERINST(int32_T, double)
-
-FILTERINST(int64_T, uint8_T)
-FILTERINST(int64_T, int8_T)
-FILTERINST(int64_T, uint16_T)
-FILTERINST(int64_T, int16_T)
-FILTERINST(int64_T, int32_T)
-FILTERINST(int64_T, int64_T)
-FILTERINST(int64_T, float)
-FILTERINST(int64_T, double)
-
-FILTERINST(float, uint8_T)
-FILTERINST(float, int8_T)
-FILTERINST(float, uint16_T)
-FILTERINST(float, int16_T)
-FILTERINST(float, int32_T)
-FILTERINST(float, int64_T)
-FILTERINST(float, float)
-FILTERINST(float, double)
-
-FILTERINST(double, uint8_T)
-FILTERINST(double, int8_T)
-FILTERINST(double, uint16_T)
-FILTERINST(double, int16_T)
-FILTERINST(double, int32_T)
-FILTERINST(double, int64_T)
-FILTERINST(double, float)
-FILTERINST(double, double)
-
-#undef FILTERINST
-
-#define FILTERINST(T1, T2)						\
-  template class BaseFilter<T1, T2,					\
-			    itk::DanielssonDistanceMapImageFilter<	\
-				  itk::Image<T1, Dimension>, \
-				  itk::Image<T2, Dimension> > \
-			    >;
+  template class BaseFilter<T1, T2>;
 
 FILTERINST(bool, bool)
 FILTERINST(bool, uint8_T)

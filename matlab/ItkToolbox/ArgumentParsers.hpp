@@ -49,7 +49,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -89,22 +89,22 @@
 
 // parseFilterTypeToTemplate<InVoxelType, OutVoxelType>()
 template <class InVoxelType, class OutVoxelType>
-void parseFilterTypeToTemplate(char *filter,
+void parseFilterTypeToTemplate(char *filterName,
 			       NrrdImage nrrd,
 			       int nargout,
-			       mxArray** &argOut);
+			       mxArray** argOut);
 
 // parseOutputTypeToTemplate<InVoxelType>()
 template <class InVoxelType>
 void parseOutputTypeToTemplate(char *filter,
 			       NrrdImage nrrd,
 			       int nargout,
-			       mxArray** &argOut);
+			       mxArray** argOut);
 // parseInputTypeToTemplate()
 void parseInputTypeToTemplate(mxClassID inputVoxelClassId, 
 			      char *filter,
 			      NrrdImage nrrd,
 			      int nargout,
-			      mxArray** &argOut);
+			      mxArray** argOut);
 
 #endif /* ARGUMENTPARSERS_HPP */
