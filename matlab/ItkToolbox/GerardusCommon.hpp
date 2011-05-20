@@ -1,5 +1,5 @@
 /*
- * GerardusCommon.cpp
+ * GerardusCommon.hpp
  *
  * Miscellaneous functions of general use.
  */
@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -45,6 +45,13 @@
 /* C++ headers */
 #import <vector>
 
+/* ITK headers */
+#include "itkOffset.h"
+
+/* Global constants */
+static const unsigned int Dimension = 3; // volume data dimension
+                                         // (3D volume)
+
 /*
  * sub2ind(): function that converts r, c, s indices to linear indices
  *            in a 3D array (same as Matlab's function sub2ind(),
@@ -53,6 +60,7 @@
  *
  */
 mwIndex sub2ind(mwSize R, mwSize C, mwSize S, std::vector<mwIndex> rcs);
+mwIndex sub2ind(mwSize R, mwSize C, mwSize S, itk::Offset<Dimension> rcs);
 
 /*
  * ind2sub(): function that converts linear indices in a 3D array to
