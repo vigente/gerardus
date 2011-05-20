@@ -1,5 +1,12 @@
 2011-05-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* release v0.4.0
+
+	- Important refactorization of the itk_imfilter architecture, that
+	makes maintaining, compiling and extending the code much
+	easier. It's also possible to extract more than one output from
+	each filter.
+
 	* ItkToolbox/SignedMaurerFilter.cpp:
 
 	- (v0.2.1) Filter types are defined in the base header file, not
