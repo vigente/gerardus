@@ -41,3 +41,34 @@ $ sudo apt-get install cmake
 $ svn co http://gerardus.googlecode.com/svn/trunk/ gerardus
 }}}
   * Note for Windows users: If you are using a graphic interface like TortoiseSVN, choose "Checkout" from the menu options, and enter `http://gerardus.googlecode.com/svn/trunk/` as the repository's URL. Name the destination folder `gerardus`
+
+= Build and install =
+
+== Linux users ==
+
+ # Open file `gerardus/matlab/CMakeLists.txt`, and edit the line below with the root path to your own Matlab install
+{{{
+SET(MATLAB_ROOT "/usr/local/matlab/R2010b/")
+}}}
+ # Run from the command line the following code. If everything works, this will create and install the MEX files `itk_kernel_transform.mexa64` and `itk_imfilter.mexa64` (for a 64-bit architecture, 32-bit architectures give another extension to the files) to directory `gerardus/matlab/ItkToolkit`
+{{{
+$ cd gerardus
+$ mkdir bin
+$ cd bin
+$ cmake ..
+$ make
+$ make install
+}}}
+ # Add `gerardus/matlab/ItkToolkit` to the Matlab path
+
+== Windows users ==
+
+ # Open file `gerardus/matlab/CMakeLists.txt`, and edit the line
+{{{
+SET(MATLAB_ROOT "/usr/local/matlab/R2010b/")
+}}}
+with the root path to your own Matlab install. Note that you need to escape the "\" in the path. For example, `"C:\\ProgramFiles\\Matlab\\R2010b\\"`
+ # Open file `gerardus\CMakeLists.txt` with your CMake program
+ # Click on "Configure" button
+ # Click on "Generate" button
+ # Open your development environment (e.g. Visual Studio)
