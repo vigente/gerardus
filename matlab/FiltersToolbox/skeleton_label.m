@@ -45,11 +45,14 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 %     CC.BranchLength(i): chord-length of each skeleton branch. This is a
 %                         parameterization of the branch's skeleton as a
 %                         1-D spline. Branches that contain a loop cannot
-%                         be parameterize, and thus CC.IsLoop(i)=NaN.
+%                         be parameterize, and thus CC.IsLoop(i)=NaN
 %
 %     CC.BifurcationPixelIdx(i): index of the bifurcation voxel for
 %                                branches that are leaves. Branches that
-%                                are not leaves get a 0 index.
+%                                are not leaves get a 0 index
+%
+%     CC.Degree{i}:      degree of each skeleton voxel, i.e. how many voxel
+%                        it is connected to
 %
 %   There may be a small discrepancy between cc.PixelIdxList and the voxels
 %   labelled in LAB. The reason is that:
@@ -87,7 +90,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.7.2
+% Version: 0.8.0
 % $Rev$
 % $Date$
 % 
@@ -471,5 +474,13 @@ for I = 1:cc.NumObjects
     if (~isempty(idx))
         cc.BifurcationPixelIdx(I) = idx;
     end
+    
+end
+
+%% get degree of each voxel in the skeleton
+% loop each branch in the skeleton
+for I = 1:cc.NumObjects
+
+    cc.Degree{I} = full(deg(dictsk(cc.PixelIdxList{I})));
     
 end
