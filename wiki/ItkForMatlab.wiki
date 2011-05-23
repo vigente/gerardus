@@ -1,0 +1,25 @@
+#summary Documentation to build and run ITK code from Matlab using Gerardus
+#labels Phase-Deploy
+
+= Introduction =
+
+This page documents `itk_imfilter()` and `itk_kernel_transform()`, MEX functions provided by Gerardus that allow to run ITK code from Matlab.
+
+ * *`itk_imfilter()`:* Run ITK filters on a 2D or 3D image
+ * *`itk_kernel_transform()`:* ITK warps between 3D point sets with a known correspondence
+
+This project is similar to [http://matitk.cs.sfu.ca/ MATITK], although it has been developed from scratch.
+
+
+= Requirements =
+
+ * [http://www.cmake.org/ CMake]
+  # [http://www.cmake.org/cmake/resources/software.html Download] and install CMake for your system (Linux, Windows, MacOS X, etc). 
+  * Note for Linux users: CMake is probably packaged for your distribution. For example, Ubuntu users can install it doing
+{{{
+$ sudo apt-get install cmake
+}}}
+  * Note for Windows users: Download and run the Win32 Installer from the [http://www.cmake.org/cmake/resources/software.html CMake downloads page]
+ * [http://www.itk.org/itkindex.html Insight Toolkit]
+  # [http://www.itk.org/ITK/resources/software.html Download the Insight Toolkit (ITK)]
+  # Install ITK using CMake (see the [http://www.itk.org/ItkSoftwareGuide.pdf ITK Software Guide] for details)
