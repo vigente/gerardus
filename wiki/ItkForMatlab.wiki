@@ -63,11 +63,11 @@ $ make install
 
 == Windows users ==
 
- # Open file `gerardus/matlab/CMakeLists.txt`, and edit the line
+ # Open file `gerardus/matlab/CMakeLists.txt`, and edit the line below with the root path to your own Matlab install. Note that you need to escape the "\" in the path. For example, `"C:\\ProgramFiles\\Matlab\\R2010b\\"`
 {{{
 SET(MATLAB_ROOT "/usr/local/matlab/R2010b/")
 }}}
-with the root path to your own Matlab install. Note that you need to escape the "\" in the path. For example, `"C:\\ProgramFiles\\Matlab\\R2010b\\"`
+
  # Open file `gerardus\CMakeLists.txt` with your CMake program
  # Click on "Configure" button
  # Click on "Generate" button
