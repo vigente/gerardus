@@ -2,6 +2,8 @@
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
+	- (v0.4.0) Add output arguments stats.nvox and stats.vol.
+
 	- (v0.3.3) For the case when the branch gets straightened, order
 	the eigenvalues so that the first one is along the skeleton.
 
