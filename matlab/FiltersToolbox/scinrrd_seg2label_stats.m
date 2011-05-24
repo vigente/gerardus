@@ -28,6 +28,13 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 %   misleading values of variance, the function can also straighten the
 %   objects using a skeleton or medial line prior to computing PCA.
 %
+%   If the branches are straightened, note that the returned variance
+%   values are not necessarily in largest to smallest order, but:
+%
+%     var(1): eigenvector that is closest to the straightened skeleton
+%     var(2): largest of the remaining eigenvalues
+%     var(3): smallest of the remaining eigenvalues
+%
 %   Boundary voxel counting is performed without straightening the labels.
 %
 % STATS = SCINRRD_SEG2LABEL_STATS(NRRD)
@@ -90,7 +97,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.2
+% Version: 0.3.3
 % $Rev$
 % $Date$
 % 
@@ -210,6 +217,7 @@ for I = 1:N
     xi = scinrrd_index2world([r, c, s], nrrd.axis)';
     
     if (~isempty(cc) && all(~isnan(cc.PixelParam{I})) && (length(br) > 2))
+        
         % coordinates of skeleton voxels
         [r, c, s] = ind2sub(size(nrrd.data), sk);
         x = scinrrd_index2world([r, c, s], nrrd.axis)';
@@ -236,18 +244,43 @@ for I = 1:N
 
         % straighten branch voxels
         yi = pts_local_rigid(x', y', xi', idx)';
-
+        
+        % compute eigenvalues of branch (most of the time we are going to
+        % get 3 eigenvalues, but not always, e.g. if we have only two
+        % voxels in the branch)
+        [auxv, auxd] = pts_pca(yi);
+        
+        % find the eigenvector that is aligned with the straightened
+        % skeleton, that's going to be our "eigenvalue 1", whether it's the
+        % largest one or not. The reason is that we are going to always
+        % assume that "eigenvalue 1" can be used to estimate the length of
+        % the cylinder.
+        [~, idx] = max(abs(dot(auxv, ...
+            repmat([1; 0; 0], 1, size(auxv, 2)), 1)));
+        eigd(1, I) = auxd(idx);
+        
+        % remove the "longitudinal" eigenvalue and eigenvector
+        idx = setdiff(1:3, idx);
+        auxd = auxd(idx);
+%         auxv = auxv(:, idx);
+        
+        % of the remaining eigenvalues, the largest one correspond to the
+        % major diameter, and the other one, to the minor diameter
+        auxd = sort(auxd, 1, 'descend');
+        eigd(2:(1+length(auxd)), I) = auxd;
+        
     else % don't straighten objects
         
         yi = xi;
         
+        % compute eigenvalues of branch (most of the time we are going to
+        % get 3 eigenvalues, but not always, e.g. if we have only two
+        % voxels in the branch)
+        [~, auxd] = pts_pca(yi);
+        eigd(1:(length(auxd)), I) = auxd;
+        
     end
     
-    % compute eigenvalues of branch (most of the time we are going to get 3
-    % eigenvalues, but not always, e.g. if we have only two voxels in the
-    % branch)
-    [~, aux] = pts_pca(yi);
-    eigd(1:(length(aux)), I) = aux;
     
     %% for each leaf that is not isolated floating in the air, get the 
     %% distance map value for the bifurcation voxel
