@@ -1,3 +1,10 @@
+2011-05-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.3.3) For the case when the branch gets straightened, order
+	the eigenvalues so that the first one is along the skeleton.
+
 2011-05-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_label.m:
