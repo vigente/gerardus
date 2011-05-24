@@ -48,7 +48,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 %   STATS is a struct with the shape parameters computed for each object in
 %   the segmentation. The measures provided are
 %
-%     STATS.var: Variance in the three principal components of the cloud
+%     STATS.var: variance in the three principal components of the cloud
 %                of voxels that belong to each object. These are the
 %                ordered eigenvalues obtained from computing Principal
 %                Component Analysis on the voxel coordinates.
@@ -56,11 +56,14 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 %     STATS.islandlocked: bool to tell whether the corresponding section is
 %                         landlocked
 %
-%     STATS.nbound:       number of voxels in the outer boundary of the
-%                         section
+%     STATS.nbound: number of voxels in the outer boundary of the section
 %
-%     STATS.nwater:       number of voxels in the outer boundary that are
-%                         touching the background
+%     STATS.nwater: number of voxels in the outer boundary that are
+%                   touching the background
+%
+%     STATS.nvox: number of voxels in the branch
+%
+%     STATS.vol: volume of the branch (in m^3) units
 %
 %   If an object has no voxels, the corresponding STATS values are NaN.
 %
@@ -97,7 +100,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.3
+% Version: 0.4.0
 % $Rev$
 % $Date$
 % 
@@ -166,12 +169,17 @@ stats.islandlocked = nan(1, N);
 stats.nbound = nan(1, N);
 stats.nwater = nan(1, N);
 stats.dbif = nan(1, N);
+stats.nvox = nan(1, N);
+stats.vol = nan(1, N);
 
 % loop every branch
 for I = 1:N
     
     % list of voxels in current branch
     br = find(nrrd.data == I);
+    
+    % count number of voxels
+    stats.nvox(I) = length(br);
     
     % if there are no voxels, skip this branch
     if (isempty(br))
@@ -290,5 +298,8 @@ for I = 1:N
     
 end
 
-% create output struct
+% pass eigenvalues to output struct
 stats.var = eigd;
+
+% compute volume of the branch
+stats.vol = stats.nvox * prod([nrrd.axis.spacing]);
