@@ -1,32 +1,26 @@
-function [im, zp, xp, yp] = scinrrd_intersect_plane(nrrd, m, v, xg, yg, zg)
-% SCINRRD_INTERSECT_PLANE  Compute intersection of a plane with an SCI
-% NRRD image volume
+function [im, gx, gy, gz] = scinrrd_intersect_plane(nrrd, m, v)
+% SCINRRD_INTERSECT_PLANE  Intersection of a plane with an image volume
 %
-% IM = SCINRRD_INTERSECT_PLANE(NRRD, M, V)
+% [IM, GX, GY, GZ] = SCINRRD_INTERSECT_PLANE(NRRD, M, V)
 %
-%   IM is an image that displays the intersection of the plane defined by
-%   M, V with the image volume NRRD.
+%   IM is an image that displays the intersection of the plane with the
+%   image volume in SCI NRRD format. Voxels that fall outside the image
+%   volume are returned as NaN.
 %
-%   M is a 3-vector with the coordinates of a point contained in the plane.
+%   GX, GY, GZ are matrices of the same size as IM, and contain the
+%   Cartesian coordinates of the voxels in IM. You can visualize the
+%   resulting plane using
+%
+%     >> surf(gx, gy, gz, im, 'EdgeColor', 'none')
+%
+%   The plane is uniquely defined in 3D space using a point and a vector:
+%
+%     * M is a 3-vector with the coordinates of a point contained in the
+%       plane. It is assumed that M is within the image boundaries
 %   
-%   V is a 3-vector that represents a normalized vector orthogonal to the
-%   plane.
+%     * V is a 3-vector that represents a normalized vector orthogonal to
+%       the plane
 %   
-%   Together, M and V define a unique plane in 3D space.
-%
-% [IM, ZP, XP, YP] = SCINRRD_INTERSECT_PLANE(NRRD, M, V, XG, YG, ZG)
-%
-%   XG, YG, ZG are grid coordinates for NRRD computed with NDGRID. If not
-%   provided, they will be computed internally. Providing them is just a
-%   way of saving time if many intersection planes have to be computed.
-%
-%   ZP is a matrix with the z-coordinates of the pixels in IM.
-%
-%   Because the XP and YP matrices are easily computed (e.g. they are each
-%   of the identical slices of the XG, YG volumes), and they are the same
-%   for every plane, they are provided as output arguments after the ZP
-%   matrix.
-%
 %
 %   Note on SCI NRRD: Software applications developed at the University of
 %   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
@@ -45,8 +39,8 @@ function [im, zp, xp, yp] = scinrrd_intersect_plane(nrrd, m, v, xg, yg, zg)
 %      property: []
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010 University of Oxford
-% Version: 0.1.0
+% Copyright © 2010-2011 University of Oxford
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -74,49 +68,81 @@ function [im, zp, xp, yp] = scinrrd_intersect_plane(nrrd, m, v, xg, yg, zg)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 3, 6, nargin, 'struct' ) );
-error( nargoutchk( 0, 4, nargout, 'struct' ) );
+error(nargchk(3, 3, nargin, 'struct'));
+error(nargoutchk(0, 4, nargout, 'struct'));
 
 % remove dummy dimension of data if necessary
-nrrd = scinrrd_squeeze( nrrd, true );
+nrrd = scinrrd_squeeze(nrrd, true);
 
-% this function has a singularity if the plane is vertical
-if ( v(3) == 0 )
-    error( 'This function doesn''t accept vertical planes' )
-end
+% the longest distance within the image volume is the length of the largest
+% diagonal. We compute it in voxel units
+lmax = ceil(sqrt(sum(([nrrd.axis.size] - 1).^2)));
 
-% generate 3D grid of coordinates if they are not already provided
-if ( (nargin < 6) || isempty( xg ) || isempty( yg ) || isempty( zg ) )
-    [ xg, yg, zg ] = scinrrd_ndgrid( nrrd );
-end
+% create horizontal grid for the plane sampling points. We are going to have one
+% sampling point per voxel. The gird is centered on 0
+[gc, gr] = meshgrid(-lmax:lmax, -lmax:lmax);
+gs = 0 * gc;
 
-% extract one slice from the grid for covenience to express the x-,
-% y-coordinates of plane points
-xp = xg(:,:,1);
-yp = yg(:,:,1);
+% compute a rotation matrix to map the Z-axis to v. Note that v is given in
+% x, y, z coordinates, but we want to work with r, c, s indices, i.e. y, x,
+% z coordinates
+v = v([2 1 3]);
+rotmat = vec2rotmat(v(:));
 
-% A plane with orthogonal vector n that goes through the centroid m
-% can be expressed by the formula
-% 
-% nx(x-mx) + ny(y-my) + nz(z-mz) = 0
-% 
-% We know the horizontal limits of the image. So in order to
-% compute the intersection height of the rotated plane at each one
-% of 2 vertices that delimitate the image horizontally, we use the
-% derived expression
-% 
-% z = nx/nz(mx-x) + ny/nz(my-y) + mz
-% 
-% This expression is invalid when nz=0, i.e. the plane has been
-% rotated to make it "vertical"
+% rotate the grid sampling points accordingly
+grcs = rotmat * [gr(:) gc(:) gs(:)]';
 
-% compute the corresponding heights at the horizontal grid, i.e.
-% the rotated plane
-zp = v(1)/v(3)*(m(1)-xp) + v(2)/v(3)*(m(2)-yp) + m(3);
+% compute index coordinates of real world coordinates of the plane point
+idxm = scinrrd_world2index(m, nrrd.axis);
 
-% compute intersection of image with the 2D plane
-% (if you want to visualize the image as in Seg3D, you need to do
-% 'axis xy')
-% note: the swapping of xg and yg is because interpn requires the matrices
-% in the same order as they are produced by ndgrid()
-im = interpn( yg, xg, zg, nrrd.data, yp, xp, zp, 'linear', 0 );
+% center rotated grid on the plane point m
+grcs(1, :) = grcs(1, :) + idxm(1);
+grcs(2, :) = grcs(2, :) + idxm(2);
+grcs(3, :) = grcs(3, :) + idxm(3);
+
+% round coordinates, so that we are sampling at voxel centers and don't
+% need to interpolate
+grcs = round(grcs);
+
+% sampling points that are outside the image domain
+idxout = (grcs(1, :) < 1) | (grcs(1, :) > nrrd.axis(1).size) ...
+    | (grcs(2, :) < 1) | (grcs(2, :) > nrrd.axis(2).size) ...
+    | (grcs(3, :) < 1) | (grcs(3, :) > nrrd.axis(3).size);
+
+%sampling points that are inside
+idxin = ~idxout;
+
+% rcs indices => linear indices
+idx = sub2ind(size(nrrd.data), grcs(1, idxin), grcs(2, idxin), ...
+    grcs(3, idxin));
+
+% sample image volume with the rotated and translated plane
+im = nan(size(grcs, 2), 1);
+im(idxin) = nrrd.data(idx);
+
+% compute real world coordinates for the sampling points
+gxyz = scinrrd_index2world(grcs', nrrd.axis)';
+
+% reshape the sampled points to get again a grid distribution
+im = reshape(im, size(gc));
+gx = reshape(gxyz(1, :), size(gr));
+gy = reshape(gxyz(2, :), size(gc));
+gz = reshape(gxyz(3, :), size(gs));
+
+% find columns where all elements are NaNs
+idxout = all(isnan(im), 1);
+
+% remove those columns
+im = im(:, ~idxout);
+gx = gx(:, ~idxout);
+gy = gy(:, ~idxout);
+gz = gz(:, ~idxout);
+
+% find rows where all elements are NaNs
+idxout = all(isnan(im), 2);
+
+% remove those columns
+im = im(~idxout, :);
+gx = gx(~idxout, :);
+gy = gy(~idxout, :);
+gz = gz(~idxout, :);
