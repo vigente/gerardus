@@ -1,5 +1,9 @@
 2011-05-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.8.0) Add output arguments cc.BranchNeighbours.
+
 	* FiltersToolbox/scinrrd_intersect_plane.m:
 
 	- (v0.2.0) Complete rewrite. Now we can use any plane to intersect
