@@ -1,7 +1,7 @@
-function [im, gx, gy, gz] = scinrrd_intersect_plane(nrrd, m, v)
+function [im, gx, gy, gz, midx] = scinrrd_intersect_plane(nrrd, m, v)
 % SCINRRD_INTERSECT_PLANE  Intersection of a plane with an image volume
 %
-% [IM, GX, GY, GZ] = SCINRRD_INTERSECT_PLANE(NRRD, M, V)
+% [IM, GX, GY, GZ, MIDX] = SCINRRD_INTERSECT_PLANE(NRRD, M, V)
 %
 %   IM is an image that displays the intersection of the plane with the
 %   image volume in SCI NRRD format. Voxels that fall outside the image
@@ -20,6 +20,13 @@ function [im, gx, gy, gz] = scinrrd_intersect_plane(nrrd, m, v)
 %   
 %     * V is a 3-vector that represents a normalized vector orthogonal to
 %       the plane
+%
+%   MIDX is a 2-vector with the row and colum of M in the intersecting
+%   plane. That is, the X, Y, Z coordinates of M are
+%
+%     [gx(midx(1), midx(2)), ...
+%      gy(midx(1), midx(2)), ...
+%      gz(midx(1), midx(2))]
 %   
 %
 %   Note on SCI NRRD: Software applications developed at the University of
@@ -40,7 +47,7 @@ function [im, gx, gy, gz] = scinrrd_intersect_plane(nrrd, m, v)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -69,7 +76,7 @@ function [im, gx, gy, gz] = scinrrd_intersect_plane(nrrd, m, v)
 
 % check arguments
 error(nargchk(3, 3, nargin, 'struct'));
-error(nargoutchk(0, 4, nargout, 'struct'));
+error(nargoutchk(0, 5, nargout, 'struct'));
 
 % remove dummy dimension of data if necessary
 nrrd = scinrrd_squeeze(nrrd, true);
@@ -79,7 +86,7 @@ nrrd = scinrrd_squeeze(nrrd, true);
 lmax = ceil(sqrt(sum(([nrrd.axis.size] - 1).^2)));
 
 % create horizontal grid for the plane sampling points. We are going to have one
-% sampling point per voxel. The gird is centered on 0
+% sampling point per voxel. The grid is centered on 0
 [gc, gr] = meshgrid(-lmax:lmax, -lmax:lmax);
 gs = 0 * gc;
 
@@ -129,6 +136,14 @@ gx = reshape(gxyz(1, :), size(gr));
 gy = reshape(gxyz(2, :), size(gc));
 gz = reshape(gxyz(3, :), size(gs));
 
+% keep track of where the rotation point is using a boolean vector for the
+% row position, and another one for the column position. The rotation point
+% is at the center of the grid
+v0row = false(size(gr, 1), 1);
+v0row((size(gr, 1)+1)/2) = true;
+v0col = false(1, size(gc, 2));
+v0col((size(gc, 2)+1)/2) = true;
+
 % find columns where all elements are NaNs
 idxout = all(isnan(im), 1);
 
@@ -137,6 +152,7 @@ im = im(:, ~idxout);
 gx = gx(:, ~idxout);
 gy = gy(:, ~idxout);
 gz = gz(:, ~idxout);
+v0col = v0col(~idxout);
 
 % find rows where all elements are NaNs
 idxout = all(isnan(im), 2);
@@ -146,3 +162,8 @@ im = im(~idxout, :);
 gx = gx(~idxout, :);
 gy = gy(~idxout, :);
 gz = gz(~idxout, :);
+v0row = v0row(~idxout);
+
+% find row, column coordinates of the rotation point in the intersection
+% plane
+midx = [find(v0row) find(v0col)];
