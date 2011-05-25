@@ -6,6 +6,8 @@
 
 	* FiltersToolbox/scinrrd_intersect_plane.m:
 
+	- (v0.2.1) Add midx as output argument.
+
 	- (v0.2.0) Complete rewrite. Now we can use any plane to intersect
 	the image volume, from horizontal to vertical.
 
