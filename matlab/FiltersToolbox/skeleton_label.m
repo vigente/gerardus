@@ -47,6 +47,9 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 %                         1-D spline. Branches that contain a loop cannot
 %                         be parameterize, and thus CC.IsLoop(i)=NaN
 %
+%     CC.BranchNeighbours{i}: branch labels that share a bifurcation point
+%                             with i
+%
 %     CC.BifurcationPixelIdx(i): index of the bifurcation voxel for
 %                                branches that are leaves. Branches that
 %                                are not leaves get a 0 index
@@ -90,7 +93,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.8.0
+% Version: 0.9.0
 % $Rev$
 % $Date$
 % 
@@ -174,9 +177,12 @@ else
     sk = sk * 0;
 end
 
-% give each voxel in the image its label
 for lab = 1:cc.NumObjects
+    % give each voxel in the image its label
     sk(cc.PixelIdxList{lab}) = lab;
+    
+    % initialize cells to contain branch neighbours
+    cc.BranchNeighbours{lab} = [];
 end
 
 % keep log of voxels that have been given a label
@@ -196,12 +202,16 @@ for v = find(deg >= 3)'
         % get all its neighbour's labels
         vnlab = sk(idictsk(vn));
         
-        % add the bifurcation point to each branch that it finishes,
-        % without duplicating voxels
         for I = 1:length(vnlab)
+            % add the bifurcation point to each branch that it finishes,
+            % without duplicating voxels
             cc.PixelIdxList{vnlab(I)} = ...
                 union(cc.PixelIdxList{vnlab(I)}, idictsk(v));
             sk(idictsk(v)) = vnlab(I);
+            
+            % add list of neighbour labels to each label
+            cc.BranchNeighbours{vnlab(I)} = union( ...
+                cc.BranchNeighbours{vnlab(I)}, setdiff(vnlab, vnlab(I))');
         end
         
         % record this in the log
