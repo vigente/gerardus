@@ -1,3 +1,10 @@
+2011-05-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_intersect_plane.m:
+
+	- (v0.2.0) Complete rewrite. Now we can use any plane to intersect
+	the image volume, from horizontal to vertical.
+
 2011-05-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:

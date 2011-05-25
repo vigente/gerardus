@@ -171,8 +171,7 @@ scinrrd_gradients.m
 	
 scinrrd_intersect_plane.m
 
-	 SCINRRD_INTERSECT_PLANE  Compute intersection of a plane with an SCI
-	 NRRD image volume
+	 SCINRRD_INTERSECT_PLANE  Intersection of a plane with an image volume
 	
 scinrrd_ndgrid.m
 
