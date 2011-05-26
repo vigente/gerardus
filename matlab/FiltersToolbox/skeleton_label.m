@@ -93,7 +93,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.9.0
+% Version: 0.9.1
 % $Rev$
 % $Date$
 % 
@@ -192,31 +192,57 @@ withlab(deg < 3) = true;
 % loop each bifurcation voxel (working with matrix indices, not image
 % indices)
 for v = find(deg >= 3)'
-    % get its neighbours that are not bifurcation voxels
+    % get all its neighbours that are not bifurcation points
     vn = find(dsk(v, :));
     vn = vn(deg(vn) < 3);
     
     % if this is a bifurcation voxel that is completely surroundered by
     % other bifurcation voxels, we are not going to label it
-    if ~isempty(vn)
-        % get all its neighbour's labels
-        vnlab = sk(idictsk(vn));
-        
-        for I = 1:length(vnlab)
-            % add the bifurcation point to each branch that it finishes,
-            % without duplicating voxels
-            cc.PixelIdxList{vnlab(I)} = ...
-                union(cc.PixelIdxList{vnlab(I)}, idictsk(v));
-            sk(idictsk(v)) = vnlab(I);
-            
-            % add list of neighbour labels to each label
-            cc.BranchNeighbours{vnlab(I)} = union( ...
-                cc.BranchNeighbours{vnlab(I)}, setdiff(vnlab, vnlab(I))');
-        end
-        
-        % record this in the log
-        withlab(v) = true;
+    if isempty(vn)
+        continue
     end
+    
+    % get all its neighbour's labels
+    vnlab = sk(idictsk(vn));
+    
+    for I = 1:length(vnlab)
+        % add the bifurcation point to each branch that it finishes,
+        % without duplicating voxels
+        cc.PixelIdxList{vnlab(I)} = ...
+            union(cc.PixelIdxList{vnlab(I)}, idictsk(v));
+        sk(idictsk(v)) = vnlab(I);
+    end
+    
+    % record this in the log
+    withlab(v) = true;
+end
+
+% loop each bifurcation voxel again. We have to re-run this loop because
+% first we need to attach each bifurcation voxel to one or more branches,
+% until all of them have a label. Only when all of them have a label, we
+% can obtain the label neighbours of each branch. Note that both loops are
+% slightly different. The one above looks for neighbours with degree 2 to
+% the bifurcation voxel. The loop below looks for any neighbour
+for v = find(deg >= 3)'
+    % get all its neighbours
+    vn = find(dsk(v, :));
+
+    % if this is a bifurcation voxel that is completely surroundered by
+    % other bifurcation voxels, we skip it
+    if isempty(deg(vn) < 3)
+        continue
+    end
+    
+    % get all its neighbour's labels
+    vnlab = sk(idictsk(vn));
+    vnlab = vnlab(vnlab ~= 0);
+
+    for I = 1:length(vnlab)
+        % add list of neighbour labels to each label
+        cc.BranchNeighbours{vnlab(I)} = union( ...
+            cc.BranchNeighbours{vnlab(I)}, setdiff(vnlab, vnlab(I))');
+    end
+    
 end
 
 % if cc.PixelIdxList{I} had only 1 element, now it is a row vector, instead
