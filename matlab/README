@@ -208,6 +208,10 @@ scinrrd_seg2voxel_stats.m
 	 SCINRRD_SEG2VOXEL_STATS  Shape stats for each voxel in a segmentation
 	 based on a windowed neighbourhood
 	
+scinrrd_skeleton_prune.m
+
+	 SCINRRD_SKELETON_PRUNE  Prune branches in a segmentation's skeletonization
+	
 scinrrd_squeeze.m
 
 	 SCINRRD_SQUEEZE  Remove dummy dimension and convert data to double type
