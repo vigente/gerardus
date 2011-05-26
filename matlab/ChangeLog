@@ -1,5 +1,12 @@
 2011-05-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_skeleton_prune.m:
+
+	- (v0.1.1) We were removing bifurcation voxels unwillingly. Now
+	instead of clearing the segmentation and adding the good branches,
+	we prunce the very short branches, but keeping the bifurcation
+	voxels.
+
 	* Rename FiltersToolbox/skeleton_prune.m as
 	FiltersToolbox/scinrrd_skeleton_prune.m.
 
