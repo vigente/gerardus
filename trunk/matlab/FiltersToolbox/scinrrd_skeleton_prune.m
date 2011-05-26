@@ -1,7 +1,7 @@
-function nrrdsk = skeleton_prune(nrrdsk, cc, minlen)
-% SKELETON_PRUNE  Prune branches in a segmentation's skeletonization
+function nrrdsk = scinrrd_skeleton_prune(nrrdsk, cc, minlen)
+% SCINRRD_SKELETON_PRUNE  Prune branches in a segmentation's skeletonization
 %
-% NRRDPR = SKELETON_PRUNE(NRRDSK, CC, MINLEN)
+% NRRDPR = SCINRRD_SKELETON_PRUNE(NRRDSK, CC, MINLEN)
 %
 %   NRRDSK is an SCI NRRD struct. NRRD.data contains the result of running
 %   a skeletonization algorithm on a binary segmentation, e.g.
