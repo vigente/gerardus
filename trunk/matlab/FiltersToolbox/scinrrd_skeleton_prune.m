@@ -31,7 +31,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, cc, minlen)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -70,11 +70,14 @@ end
 % loop each branch
 for I = 1:cc.NumObjects
     
-    % if leaf branch is too short...
+    % if the branch needs to be pruned ...
     if (cc.IsLeaf(I) && length(cc.PixelIdxList{I}) < minlen)
         
-        % chop it off
-        nrrdsk.data(cc.PixelIdxList{I}) = 0;
+        % indices of voxels in the branch that are not bifurcation voxels
+        idx = cc.PixelIdxList{I}(cc.Degree{I} < 3);
+        
+        % remove the branch voxels
+        nrrdsk.data(idx) = 0;
     end
     
 end
