@@ -1,5 +1,9 @@
 2011-05-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add FiltersToolbox/skeleton_prune:
+
+	- (v0.1.0) Prune branches in a segmentation's skeletonization.
+
 	* FiltersToolbox/skeleton_label.m:
 
 	- (v0.9.1) Fix bug. First we need to distribute the bifurcation
