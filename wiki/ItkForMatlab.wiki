@@ -61,7 +61,7 @@ $ make install
 }}}
  # Add `gerardus/matlab/ItkToolkit` to the Matlab path
 
-== Windows users ==
+== Windows users (not working yet) ==
 
  # Open file `gerardus/matlab/CMakeLists.txt`, and edit the line below with the root path to your own Matlab install. Note that you need to escape the "\" in the path. For example, `"C:\\ProgramFiles\\Matlab\\R2010b\\"`
 {{{
