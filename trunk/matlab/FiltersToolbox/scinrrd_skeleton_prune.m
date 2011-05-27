@@ -55,7 +55,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -97,7 +97,7 @@ end
 %% Step 1: pruning of very short leaf branches
 
 % split skeleton in branches
-[~, cc] = skeleton_label(nrrdsk.data, [], [nrrd.axis.spacing]);
+[~, cc] = skeleton_label(nrrdsk.data, [], [nrrdsk.axis.spacing]);
 
 % loop each branch
 for I = 1:cc.NumObjects

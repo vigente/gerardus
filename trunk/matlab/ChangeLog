@@ -2,6 +2,8 @@
 
 	* FiltersToolbox/scinrrd_skeleton_prune.m:
 
+	- (v0.2.1) fix bug. Wrong variable name.
+
 	- (v0.2.0) Add code to prune spurious branches that are roughly as
 	long as the local radius of the main branch they are attached to.
 
