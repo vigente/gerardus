@@ -52,7 +52,7 @@ SET(MATLAB_ROOT "/usr/local/matlab/R2010b/")
 }}}
  # Run from the command line the following code. If everything works, this will create and install the MEX files `itk_kernel_transform.mexa64` and `itk_imfilter.mexa64` (for a 64-bit architecture, 32-bit architectures give another extension to the files) to directory `gerardus/matlab/ItkToolkit`
 {{{
-$ cd gerardus
+$ cd gerardus/matlab
 $ mkdir bin
 $ cd bin
 $ cmake ..
