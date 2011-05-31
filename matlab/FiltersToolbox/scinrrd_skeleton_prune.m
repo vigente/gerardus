@@ -55,7 +55,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 % 
@@ -99,17 +99,55 @@ end
 % split skeleton in branches
 [~, cc] = skeleton_label(nrrdsk.data, [], [nrrdsk.axis.spacing]);
 
-% loop each branch
+% loop to prune branches
 for I = 1:cc.NumObjects
+
+    if ~(cc.IsLeaf(I) && length(cc.PixelIdxList{I}) < minlen)
+        % skip branch
+        continue
+    end
     
-    % if the branch needs to be pruned ...
-    if (cc.IsLeaf(I) && length(cc.PixelIdxList{I}) < minlen)
-        
-        % indices of voxels in the branch that are not bifurcation voxels
-        idx = cc.PixelIdxList{I}(cc.Degree{I} < 3);
-        
-        % remove the branch voxels
-        nrrdsk.data(idx) = 0;
+    % get indices from current branch and its neighbours
+    idx = cat(1, cc.PixelIdxList{[I cc.BranchNeighbours{I}]});
+    
+    % linear index => r, c, s indices
+    [r, c, s] = ind2sub(size(nrrdsk.data), idx);
+    
+    % coordinates of a box 
+    boxmin = [min(r), min(c), min(s)];
+    boxmax = [max(r), max(c), max(s)];
+    
+    % crop box from whole skeleton segmentation
+    box = nrrdsk.data(boxmin(1):boxmax(1), boxmin(2):boxmax(2), ...
+        boxmin(3):boxmax(3));
+    
+    % compute connected components. The current branch and its neighbours
+    % should form only 1, but because voxels from other branches can be
+    % contained within the box, the number of connected components in the
+    % box can be higher
+    boxcc = bwconncomp(box);
+    
+    % save the number of connected components in the box for later
+    boxnumcc = boxcc.NumObjects;
+    
+    % remove the current branch's voxels from the box
+    [r, c, s] = ind2sub(size(nrrdsk.data), cc.PixelIdxList{I});
+    r = r - boxmin(1) + 1;
+    c = c - boxmin(2) + 1;
+    s = s - boxmin(3) + 1;
+    idx = sub2ind(size(box), r, c, s);
+    box(idx) = 0;
+    
+    % recompute connected components
+    boxcc = bwconncomp(box);
+    
+    % if the number of connected components hasn't changed, then we remove
+    % the whole current branch from the skeleton segmentation
+    if (boxcc.NumObjects == boxnumcc)
+        nrrdsk.data(cc.PixelIdxList{I}) = 0;
+    else
+        % otherwise, we remove the branch except for the bifurcation voxel
+        nrrdsk.data(cc.PixelIdxList{I}(cc. Degree{I} < 3)) = 0;
     end
     
 end
@@ -203,19 +241,52 @@ for I = 1:cc.NumObjects
 end
 
 % list of branches that we want to prune
-idxprune = (cc.BranchLenght ./ sqrt(16*maxeigd) < lratio) & cc.IsLeaf;
+idxprune = (cc.BranchLenght ./ sqrt(4*maxeigd) < lratio) & cc.IsLeaf;
 
-% loop each branch
-for I = 1:cc.NumObjects
+% loop to prune branches
+for I = find(idxprune)
     
-    % if the branch needs to be pruned ...
-    if (idxprune(I))
-        
-        % indices of voxels in the branch that are not bifurcation voxels
-        idx = cc.PixelIdxList{I}(cc.Degree{I} < 3);
-        
-        % remove the branch voxels
-        nrrdsk.data(idx) = 0;
+    % get indices from current branch and its neighbours
+    idx = cat(1, cc.PixelIdxList{[I cc.BranchNeighbours{I}]});
+    
+    % linear index => r, c, s indices
+    [r, c, s] = ind2sub(size(nrrdsk.data), idx);
+    
+    % coordinates of a box 
+    boxmin = [min(r), min(c), min(s)];
+    boxmax = [max(r), max(c), max(s)];
+    
+    % crop box from whole skeleton segmentation
+    box = nrrdsk.data(boxmin(1):boxmax(1), boxmin(2):boxmax(2), ...
+        boxmin(3):boxmax(3));
+    
+    % compute connected components. The current branch and its neighbours
+    % should form only 1, but because voxels from other branches can be
+    % contained within the box, the number of connected components in the
+    % box can be higher
+    boxcc = bwconncomp(box);
+    
+    % save the number of connected components in the box for later
+    boxnumcc = boxcc.NumObjects;
+    
+    % remove the current branch's voxels from the box
+    [r, c, s] = ind2sub(size(nrrdsk.data), cc.PixelIdxList{I});
+    r = r - boxmin(1) + 1;
+    c = c - boxmin(2) + 1;
+    s = s - boxmin(3) + 1;
+    idx = sub2ind(size(box), r, c, s);
+    box(idx) = 0;
+    
+    % recompute connected components
+    boxcc = bwconncomp(box);
+    
+    % if the number of connected components hasn't changed, then we remove
+    % the whole current branch from the skeleton segmentation
+    if (boxcc.NumObjects == boxnumcc)
+        nrrdsk.data(cc.PixelIdxList{I}) = 0;
+    else
+        % otherwise, we remove the branch except for the bifurcation voxel
+        nrrdsk.data(cc.PixelIdxList{I}(cc. Degree{I} < 3)) = 0;
     end
     
 end

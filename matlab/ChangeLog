@@ -1,5 +1,17 @@
 2011-05-31  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_skeleton_prune.m:
+
+	- (v0.2.2) Pruning was not always working great. Before,
+	bifurcation voxels were always preserved, and this created
+	problems with 1-voxel branches sometimes appearing on the sides of
+	main branches. In the last version, bifurcation voxels were always
+	removed, and then all non-pruned branches were regenerated in the
+	segmentation. But in some cases, this did not regenerate some
+	bifurcation voxels, and the skeleton became disconnected. This
+	latest revision addresses both problem. Now bifurcation voxels are
+	only deleted if they don't disconnect the skeleton.
+
 	* FiltersToolbox/skeleton_label.m:
 
 	- (v0.9.3) When looking for neighbour branches, skip bifurcation
@@ -12,7 +24,7 @@
 
 	* FiltersToolbox/scinrrd_skeleton_prune.m:
 
-	- (v0.2.1) fix bug. Wrong variable name.
+	- (v0.2.1) Fix bug. Wrong variable name.
 
 	- (v0.2.0) Add code to prune spurious branches that are roughly as
 	long as the local radius of the main branch they are attached to.
