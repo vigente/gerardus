@@ -93,7 +93,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.9.1
+% Version: 0.9.3
 % $Rev$
 % $Date$
 % 
@@ -155,10 +155,11 @@ sk(idx) = 0;
 % get connected components in the image
 cc = bwconncomp(sk);
 
-% set amount of memory allowed for labels
-req_bits = ceil(log2(cc.NumObjects));
+% set amount of memory allowed for labels (we need label "0" for the
+% background, and labels "1", "2", ..., "cc.NumObjects" for each component
+req_bits = ceil(log2(cc.NumObjects + 1));
 if (req_bits == 1)
-    lab_class = 'bool';
+    lab_class = 'boolean';
 elseif (req_bits < 8)
     lab_class = 'uint8';
 elseif (req_bits < 16)
@@ -172,7 +173,11 @@ else
     warning('Too many labels. There are more than 2^64 labels. Using uint64, some labels will be lost');
 end
 if ~strcmp(lab_class, class(sk)) % we need a different class than the input image so that we can represent all labels
-    sk = zeros(size(sk), lab_class);
+    if strcmp(lab_class, 'boolean')
+        sk = false(size(sk));
+    else
+        sk = zeros(size(sk), lab_class);
+    end
 else
     sk = sk * 0;
 end
@@ -217,13 +222,20 @@ for v = find(deg >= 3)'
     withlab(v) = true;
 end
 
-% loop each bifurcation voxel again. We have to re-run this loop because
-% first we need to attach each bifurcation voxel to one or more branches,
-% until all of them have a label. Only when all of them have a label, we
-% can obtain the label neighbours of each branch. Note that both loops are
-% slightly different. The one above looks for neighbours with degree 2 to
-% the bifurcation voxel. The loop below looks for any neighbour
+% loop each bifurcation voxel again to obtain neighbours of each branch. We
+% have to re-run this loop because first we need to attach each bifurcation
+% voxel to one or more branches, until all of them have a label. Only when
+% all of them have a label, we can obtain the label neighbours of each
+% branch. Note that both loops are slightly different. The one above looks
+% for neighbours with degree 2 to the bifurcation voxel. The loop below
+% looks for any neighbour
 for v = find(deg >= 3)'
+    
+    % skip if this voxel doesn't belong to any branch
+    if ~sk(idictsk(v))
+        continue
+    end
+    
     % get all its neighbours
     vn = find(dsk(v, :));
 
