@@ -1,3 +1,13 @@
+2011-05-31  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.9.3) When looking for neighbour branches, skip bifurcation
+	voxels that haven't been labelled.
+
+	- (v0.9.2) Fix bug. Wrong number of labels was used to compute the
+	data type necessary to contain all labels.
+
 2011-05-27  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_skeleton_prune.m:
