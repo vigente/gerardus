@@ -223,12 +223,12 @@ for v = find(deg >= 3)'
 end
 
 % loop each bifurcation voxel again to obtain neighbours of each branch. We
-% have to re-run this loop because first we need to attach each bifurcation
-% voxel to one or more branches, until all of them have a label. Only when
-% all of them have a label, we can obtain the label neighbours of each
-% branch. Note that both loops are slightly different. The one above looks
-% for neighbours with degree 2 to the bifurcation voxel. The loop below
-% looks for any neighbour
+% cannot use the previous loop because first we need to attach each
+% bifurcation voxel to one or more branches, until all of them have a
+% label. Only when all of them have a label, can we obtain the label
+% neighbours of each branch. Note that both loops are slightly different.
+% The one above looks for neighbours with degree 2 to the bifurcation
+% voxel. The loop below looks for any neighbour
 for v = find(deg >= 3)'
     
     % skip if this voxel doesn't belong to any branch
@@ -257,10 +257,11 @@ for v = find(deg >= 3)'
     
 end
 
-% if cc.PixelIdxList{I} had only 1 element, now it is a row vector, instead
-% of a column vector. Make sure that they are all column vectors
 for I = 1:cc.NumObjects
+    
+    % make sure that cc.PixelIdxList{I} is a column vector
     cc.PixelIdxList{I} = cc.PixelIdxList{I}(:);
+    
 end
 
 % loop any voxels that have been left without a label, and assign them one
