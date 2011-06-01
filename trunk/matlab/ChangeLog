@@ -1,3 +1,10 @@
+2011-06-01  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.4.1) Fix bug. The segment cannot be straightened if the
+	skeleton doesn't have at least 3 voxels.
+
 2011-05-31  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_skeleton_prune.m:
