@@ -100,7 +100,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % $Rev$
 % $Date$
 % 
@@ -174,7 +174,7 @@ stats.vol = nan(1, N);
 
 % loop every branch
 for I = 1:N
-    
+
     % list of voxels in current branch
     br = find(nrrd.data == I);
     
@@ -211,7 +211,6 @@ for I = 1:N
     
     %% compute eigenvalues using PCA
         
-    % straighten all branch voxels using a local rigid transformation
     if (~isempty(cc))
         % list of voxels that are part of the skeleton in the branch
         sk = cc.PixelIdxList{I};
@@ -224,7 +223,9 @@ for I = 1:N
     [r, c, s] = ind2sub(size(nrrd.data), br);
     xi = scinrrd_index2world([r, c, s], nrrd.axis)';
     
-    if (~isempty(cc) && all(~isnan(cc.PixelParam{I})) && (length(br) > 2))
+    % straighten all branch voxels using a local rigid transformation
+    if (~isempty(cc) && all(~isnan(cc.PixelParam{I})) ...
+            && (length(sk) > 2) && (length(br) > 2))
         
         % coordinates of skeleton voxels
         [r, c, s] = ind2sub(size(nrrd.data), sk);
