@@ -1,4 +1,4 @@
-function [im, gx, gy, gz, midx] = scinrrd_intersect_plane(nrrd, m, v, interpolationtype)
+function [im, gx, gy, gz, midx] = scinrrd_intersect_plane(nrrd, m, v, interp)
 % SCINRRD_INTERSECT_PLANE  Intersection of a plane with an image volume
 %
 % [IM, GX, GY, GZ, MIDX] = SCINRRD_INTERSECT_PLANE(NRRD, M, V)
@@ -47,7 +47,7 @@ function [im, gx, gy, gz, midx] = scinrrd_intersect_plane(nrrd, m, v, interpolat
 
 % Authors: Ramon Casero <rcasero@gmail.com>, Pablo Lamata <pablolamata@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % $Rev$
 % $Date$
 % 
@@ -77,8 +77,10 @@ function [im, gx, gy, gz, midx] = scinrrd_intersect_plane(nrrd, m, v, interpolat
 % check arguments
 error(nargchk(3, 4, nargin, 'struct'));
 error(nargoutchk(0, 5, nargout, 'struct'));
-if nargin<4
-    interpolationtype = 'nearestneighbour';
+
+% defaults
+if (nargin < 4 || isempty(interp))
+    interp = 'nn';
 end
 % remove dummy dimension of data if necessary
 nrrd = scinrrd_squeeze(nrrd, true);
@@ -109,18 +111,16 @@ grcs(1, :) = grcs(1, :) + idxm(1);
 grcs(2, :) = grcs(2, :) + idxm(2);
 grcs(3, :) = grcs(3, :) + idxm(3);
 
-
-
 % sampling points that are outside the image domain
 idxout = (grcs(1, :) < 1) | (grcs(1, :) > nrrd.axis(1).size) ...
     | (grcs(2, :) < 1) | (grcs(2, :) > nrrd.axis(2).size) ...
     | (grcs(3, :) < 1) | (grcs(3, :) > nrrd.axis(3).size);
 
-%sampling points that are inside
+% sampling points that are inside
 idxin = ~idxout;
 im = nan(size(grcs, 2), 1);
-switch interpolationtype
-    case 'nearestneighbour'
+switch interp
+    case 'nn' % nearest neighbour
         % round coordinates, so that we are sampling at voxel centers and don't
         % need to interpolate
         grcs = round(grcs);
@@ -130,11 +130,10 @@ switch interpolationtype
         % sample image volume with the rotated and translated plane        
         im(idxin) = nrrd.data(idx);
     otherwise
-        XI = grcs(1, idxin);
-        YI = grcs(2, idxin);
-        ZI = grcs(3, idxin);
-        InterpolatedValues = interp3(nrrd.data,XI,YI,ZI,interpolationtype);
-        im(idxin) = InterpolatedValues;
+        xi = grcs(1, idxin);
+        yi = grcs(2, idxin);
+        zi = grcs(3, idxin);
+        im(idxin) = interp3(nrrd.data, xi, yi, zi, interp);
 end
 
 % compute real world coordinates for the sampling points
@@ -150,9 +149,9 @@ gz = reshape(gxyz(3, :), size(gs));
 % row position, and another one for the column position. The rotation point
 % is at the center of the grid
 v0row = false(size(gr, 1), 1);
-v0row((size(gr, 1)+1)/2) = true;
+v0row((size(gr, 1) + 1) / 2) = true;
 v0col = false(1, size(gc, 2));
-v0col((size(gc, 2)+1)/2) = true;
+v0col((size(gc, 2) + 1) / 2) = true;
 
 % find columns where all elements are NaNs
 idxout = all(isnan(im), 1);
