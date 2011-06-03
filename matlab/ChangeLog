@@ -1,5 +1,9 @@
 2011-06-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* Add subversion property "svn:eol-style native" to all text
+	files, so that people working with Windows will get the correct
+	end of line characters.
+
 	* FiltersToolbox/scinrrd_intersect_plane.m:
 
 	- (v0.3.0) Patch submitted by Pablo Lamata. Add input argument for
