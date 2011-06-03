@@ -27,6 +27,14 @@ function [im, gx, gy, gz, midx] = scinrrd_intersect_plane(nrrd, m, v, interp)
 %     [gx(midx(1), midx(2)), ...
 %      gy(midx(1), midx(2)), ...
 %      gz(midx(1), midx(2))]
+%
+% ... = SCINRRD_INTERSECT_PLANE(NRRD, M, V, INTERP)
+%
+%   INTERP is a string with the interpolation method when sampling the
+%   volume with the plane:
+%
+%     'nn' (default): nearest neighbour. Good for binary segmentation masks
+%     'linear': linear interpolation. Good for grayscale images
 %   
 %
 %   Note on SCI NRRD: Software applications developed at the University of
