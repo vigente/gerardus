@@ -1,4 +1,4 @@
-function [im, gx, gy, gz, midx] = scinrrd_intersect_plane(nrrd, m, v)
+function [im, gx, gy, gz, midx] = scinrrd_intersect_plane(nrrd, m, v, interpolationtype)
 % SCINRRD_INTERSECT_PLANE  Intersection of a plane with an image volume
 %
 % [IM, GX, GY, GZ, MIDX] = SCINRRD_INTERSECT_PLANE(NRRD, M, V)
@@ -45,9 +45,9 @@ function [im, gx, gy, gz, midx] = scinrrd_intersect_plane(nrrd, m, v)
 %          axis: [4x1 struct]
 %      property: []
 
-% Author: Ramon Casero <rcasero@gmail.com>
+% Authors: Ramon Casero <rcasero@gmail.com>, Pablo Lamata <pablolamata@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.2.1
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
@@ -75,9 +75,11 @@ function [im, gx, gy, gz, midx] = scinrrd_intersect_plane(nrrd, m, v)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(3, 3, nargin, 'struct'));
+error(nargchk(3, 4, nargin, 'struct'));
 error(nargoutchk(0, 5, nargout, 'struct'));
-
+if nargin<4
+    interpolationtype = 'nearestneighbour';
+end
 % remove dummy dimension of data if necessary
 nrrd = scinrrd_squeeze(nrrd, true);
 
@@ -107,9 +109,7 @@ grcs(1, :) = grcs(1, :) + idxm(1);
 grcs(2, :) = grcs(2, :) + idxm(2);
 grcs(3, :) = grcs(3, :) + idxm(3);
 
-% round coordinates, so that we are sampling at voxel centers and don't
-% need to interpolate
-grcs = round(grcs);
+
 
 % sampling points that are outside the image domain
 idxout = (grcs(1, :) < 1) | (grcs(1, :) > nrrd.axis(1).size) ...
@@ -118,14 +118,24 @@ idxout = (grcs(1, :) < 1) | (grcs(1, :) > nrrd.axis(1).size) ...
 
 %sampling points that are inside
 idxin = ~idxout;
-
-% rcs indices => linear indices
-idx = sub2ind(size(nrrd.data), grcs(1, idxin), grcs(2, idxin), ...
-    grcs(3, idxin));
-
-% sample image volume with the rotated and translated plane
 im = nan(size(grcs, 2), 1);
-im(idxin) = nrrd.data(idx);
+switch interpolationtype
+    case 'nearestneighbour'
+        % round coordinates, so that we are sampling at voxel centers and don't
+        % need to interpolate
+        grcs = round(grcs);
+        % rcs indices => linear indices
+        idx = sub2ind(size(nrrd.data), grcs(1, idxin), grcs(2, idxin), ...
+        grcs(3, idxin));
+        % sample image volume with the rotated and translated plane        
+        im(idxin) = nrrd.data(idx);
+    otherwise
+        XI = grcs(1, idxin);
+        YI = grcs(2, idxin);
+        ZI = grcs(3, idxin);
+        InterpolatedValues = interp3(nrrd.data,XI,YI,ZI,interpolationtype);
+        im(idxin) = InterpolatedValues;
+end
 
 % compute real world coordinates for the sampling points
 gxyz = scinrrd_index2world(grcs', nrrd.axis)';
