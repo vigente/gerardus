@@ -6,6 +6,8 @@
 
 	* FiltersToolbox/scinrrd_intersect_plane.m:
 
+	- (v0.3.1) Tidy up code to match Gerardus coding guidelines.
+
 	- (v0.3.0) Patch submitted by Pablo Lamata. Add input argument for
 	interpolation type. Before, interpolation was performed by finding
 	the nearest voxel to the sampling point (more approrpiate for
