@@ -32,3 +32,97 @@ $ svn diff > file.patch
 }}}
   * In Windows, right-click on the "`gerardus`" folder and select "Diff" from the TortoiseSVN menu. Save the result as e.g. `file.patch`
  # Email `file.patch` to the mailing list with an explanation of what you have done
+
+= Matlab code guidelines =
+
+ * All Matlab (.m) and MEX (.cpp, .hpp) functions live in directory [http://code.google.com/p/gerardus/source/browse/#svn%2Ftrunk%2Fmatlab `gerardus\matlab`], under 6 toolbox directories:
+  * [http://code.google.com/p/gerardus/source/browse/#svn%2Ftrunk%2Fmatlab%2FCardiacToolbox CardiacToolbox]: functions that are only relevant for heart modelling and image processing
+  * [http://code.google.com/p/gerardus/source/browse/#svn%2Ftrunk%2Fmatlab%2FFileFormatToolbox FileFormatToolbox]: functions to load and save data from and to files, and convert between file formats
+  * [http://code.google.com/p/gerardus/source/browse/#svn%2Ftrunk%2Fmatlab%2FFiltersToolbox FiltersToolbox]: functions to run filters or general image processing on 2D/3D images
+  * [http://code.google.com/p/gerardus/source/browse/#svn%2Ftrunk%2Fmatlab%2FItkToolbox ItkToolbox]: MEX functions to run ITK filters and transforms from Matlab
+  * [http://code.google.com/p/gerardus/source/browse/#svn%2Ftrunk%2Fmatlab%2FPointsToolbox PointsToolbox]: functions to process sets of points, landmarks, configurations...
+  * [http://code.google.com/p/gerardus/source/browse/#svn%2Ftrunk%2Fmatlab%2FThirdPartyToolbox ThirdParty]: functions written by people from other projects, but that Gerardus uses
+ * All function names are lower-case, e.g. `scinrrd_intersect_plane()`
+ * All variable names, input and output arguments are lower-case. An exception to this is when the variable or argument is a boolean flag, when sometimes it's OK to make it all upper-case, e.g. `FOUND = true;`
+ * All functions must have a help header. Have a look at the current functions to get an idea of the format, e.g.
+{{{
+% SCINRRD_INTERSECT_PLANE  Intersection of a plane with an image volume
+%
+% [IM, GX, GY, GZ, MIDX] = SCINRRD_INTERSECT_PLANE(NRRD, M, V)
+%
+%   IM is an image that displays the intersection of the plane with the
+%   image volume in SCI NRRD format. Voxels that fall outside the image
+%   volume are returned as NaN.
+%
+%   GX, GY, GZ are matrices of the same size as IM, and contain the
+%   Cartesian coordinates of the voxels in IM. You can visualize the
+%   resulting plane using
+%
+%     >> surf(gx, gy, gz, im, 'EdgeColor', 'none')
+[...]
+}}}
+ * All non-third party functions must have a copyright notice, that when first created will look something like this
+{{{
+% Authors: John Doe <johndoe@gmail.com>
+% Copyright © 2011 University of Oxford
+% Version: 0.1.0
+% $Rev$
+% $Date$
+% 
+% University of Oxford means the Chancellor, Masters and Scholars of
+% the University of Oxford, having an administrative office at
+% Wellington Square, Oxford OX1 2JD, UK. 
+%
+% This file is part of Gerardus.
+%
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details. The offer of this
+% program under the terms of the License is subject to the License
+% being interpreted in accordance with English Law and subject to any
+% action against the University of Oxford being under the jurisdiction
+% of the English Courts.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+}}}
+ * If it's a new function, you need to add to the file the subversion property "`svn:eol-style=native`" (so that end-of-line characters will be correct in any operating system), and the keywords "`Rev Date`" (so that the help header gets automatically updated with the revision number and date after each commit)
+  * In Linux
+{{{
+$ svn propset svn:keywords "Rev Date" newfile.m
+$ svn propset svn:eol-style native newfile.m
+}}}
+ * The code must have comments. Start comments with lower-case and no period at the end, e.g.
+{{{
+% keep track of where the rotation point is using a boolean vector for the
+% row position, and another one for the column position. The rotation point
+% is at the center of the grid
+}}}
+ * The number of input/output arguments is checked in the Matlab file with
+{{{
+% check arguments
+error(nargchk(3, 4, nargin, 'struct'));
+error(nargoutchk(0, 5, nargout, 'struct'));
+}}}
+ * Values for missing or empty arguments are set using, e.g.
+{{{
+% defaults
+if (nargin < 4 || isempty(interp))
+    interp = 'nn';
+end
+}}}
+ * No white spaces before/after brackets, e.g.
+{{{
+lmax = ceil(sqrt(sum(([nrrd.axis.size] - 1).^2)));
+}}}
+ * White space after commas and operations, e.g.
+{{{
+[gc, gr] = meshgrid(-lmax:lmax, -lmax:lmax);
+grcs(1, :) = grcs(1, :) + idxm(1);
+}}}
