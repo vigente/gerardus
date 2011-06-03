@@ -1,0 +1,34 @@
+#summary Notes and guidelines for people who want to contribute patches or code to the Gerardus project
+
+= Getting started =
+
+ # Any communications should be carried on the [http://groups.google.com/group/gerardus-users/ mailing list] (gerardus-users@googlegroups.com)
+ # There are two ways to contribute code:
+  * Sending patches to the mailing list. Then one of the developers will apply the patch, test it, and if there are no problems, commit the changes to the repository
+  * If you are in the [http://code.google.com/p/gerardus/people/list committers list], then you can commit your code directly to the repository
+
+== Sending patches ==
+
+If you spot a bug in the code, or want to improve a function, but you are not in the [http://code.google.com/p/gerardus/people/list committers list], this is the simplest way to contribute.
+
+ # Check out a read-only version of Gerardus
+  * In Linux
+{{{
+$ svn co http://gerardus.googlecode.com/svn/trunk/ gerardus
+}}}
+  * In Windows (e.g. using TortoiseSVN) select the URL "`http://gerardus.googlecode.com/svn/trunk/`" and the destination folder "`gerardus`"
+ # Or if you already have checked out the code in the past, make sure that you have the latest version
+  * In Linux
+{{{
+$ svn up
+}}}
+  * In Windows, select right-click and select "Update" from the TortoiseSVN menu
+ # Edit the files you want to improve
+ # Create a patch with your changes
+  * In Linux
+{{{
+$ cd gerardus
+$ svn diff > file.patch
+}}}
+  * In Windows, right-click on the "`gerardus`" folder and select "Diff" from the TortoiseSVN menu. Save the result as e.g. `file.patch`
+ # Email `file.patch` to the mailing list with an explanation of what you have done
