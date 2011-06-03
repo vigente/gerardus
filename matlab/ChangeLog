@@ -1,3 +1,14 @@
+2011-06-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_intersect_plane.m:
+
+	- (v0.3.0) Patch submitted by Pablo Lamata. Add input argument for
+	interpolation type. Before, interpolation was performed by finding
+	the nearest voxel to the sampling point (more approrpiate for
+	binary segmentations). Now, it's also possible to select linear
+	and spline interpolation, which is more appropriate for gray scale
+	images.
+
 2011-06-01  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
