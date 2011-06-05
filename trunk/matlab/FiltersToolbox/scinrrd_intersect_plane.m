@@ -53,7 +53,7 @@ function [im, gx, gy, gz, midx] = scinrrd_intersect_plane(nrrd, m, v, interp)
 %          axis: [4x1 struct]
 %      property: []
 
-% Authors: Ramon Casero <rcasero@gmail.com>, Pablo Lamata <pablolamata@gmail.com>
+% Authors: Ramon Casero <rcasero@gmail.com>, Pablo Lamata <pablo.lamata@dpag.ox.ac.uk>
 % Copyright © 2010-2011 University of Oxford
 % Version: 0.3.1
 % $Rev$
