@@ -50,9 +50,10 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 %     CC.BranchNeighbours{i}: branch labels that share a bifurcation point
 %                             with i
 %
-%     CC.BifurcationPixelIdx(i): index of the bifurcation voxel for
-%                                branches that are leaves. Branches that
-%                                are not leaves get a 0 index
+%     CC.BifurcationPixelIdx{i}: indices of the bifurcation voxels for
+%                                branch i. Empty if the branch is "floating
+%                                in the air" and doesn't have any
+%                                bifurcation points
 %
 %     CC.Degree{i}:      degree of each skeleton voxel, i.e. how many voxel
 %                        it is connected to
@@ -93,7 +94,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.9.3
+% Version: 0.9.4
 % $Rev$
 % $Date$
 % 
@@ -501,28 +502,19 @@ end
 
 %% find bifurcation voxels for each branch
 
-cc.BifurcationPixelIdx = zeros(1, cc.NumObjects);
-
 % loop each branch in the skeleton
 for I = 1:cc.NumObjects
 
-    % skip branches that are not leaves
-    if (~cc.IsLeaf(I))
-        continue
-    end
-    
     % find the bifurcation point index
     idx = cc.PixelIdxList{I}(deg(dictsk(cc.PixelIdxList{I})) > 2);
     
-    if (length(idx) > 1)
-        warning(['Branch ' num2str(I) ' has more than 1 bifurcation voxel'])
+    if (length(idx) > 1 && cc.IsLeaf(I))
+        warning(['Branch ' num2str(I) ' is a leaf but has more than 1 bifurcation voxel'])
     end
     
     % if there are no bifurcation points, this branch is floating in the
     % air
-    if (~isempty(idx))
-        cc.BifurcationPixelIdx(I) = idx;
-    end
+    cc.BifurcationPixelIdx{I} = idx;
     
 end
 
