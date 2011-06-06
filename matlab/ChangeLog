@@ -1,3 +1,15 @@
+2011-06-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.4.2) CC.BifurcationPixelIdx has changed from vector to
+	vector of cells.
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.9.4) Get bifurcation point indices for all types of
+	branches, not only leaves.
+
 2011-06-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add subversion property "svn:eol-style native" to all text

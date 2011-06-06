@@ -100,7 +100,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.1
+% Version: 0.4.2
 % $Rev$
 % $Date$
 % 
@@ -293,8 +293,8 @@ for I = 1:N
     
     %% for each leaf that is not isolated floating in the air, get the 
     %% distance map value for the bifurcation voxel
-    if (cc.IsLeaf(I) && cc.BifurcationPixelIdx(I))
-        stats.dbif(I) = abs(dmap(cc.BifurcationPixelIdx(I)));
+    if (cc.IsLeaf(I) && cc.BifurcationPixelIdx{I})
+        stats.dbif(I) = abs(dmap(cc.BifurcationPixelIdx{I}));
     end
     
 end
