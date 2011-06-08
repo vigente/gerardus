@@ -1,4 +1,4 @@
-function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
+function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, p)
 % SKELETON_LABEL  Give each branch of a skeleton a different label, and
 % sort the voxels within each branch
 %
@@ -58,6 +58,11 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 %     CC.Degree{i}:      degree of each skeleton voxel, i.e. how many voxel
 %                        it is connected to
 %
+%     CC.MergedBranches{i}: only available if branch merging is selected by
+%                           setting ALPHA>=0. Gives the list of branches in
+%                           the pre-merged skeleton that were merged to
+%                           create branch i
+%
 %   There may be a small discrepancy between cc.PixelIdxList and the voxels
 %   labelled in LAB. The reason is that:
 %
@@ -90,11 +95,32 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 %   RES is a 3-vector with the voxel size as [row, column, slice]. By
 %   default, RES=[1 1 1].
 %
+% ... = SKELETON_LABEL(SK, IM, RES, ALPHAMAX, P)
+%
+%   ALPHAMAX is a scalar. ALPHAMAX >= 0 means that each branch end will be
+%   merged with one of its neighbours if the angle between both is 
+%   <= ALPHAMAX (radians). This is a way to get the same label for all the
+%   segments that result from a long branch having lateral secondary
+%   branches. By default ALPHAMAX = -1, so no merging is performed. As a
+%   rule of thumb, ALPHAMAX = 10/180*pi seems to work well.
+%
+%   P is a scalar in [0, 1]. To compute the angle between branches, an
+%   approximated cubic spline is fit to the skeleton voxels using
+%   csaps(..., P). P=0 is the smoothest spline (a line with the least
+%   squares approximation), while P=1 is a rugged spline (the spline
+%   interpolated the voxels). Adequate values of P depend on the image
+%   resolution, so it's difficult to propose a formula. For resolution in
+%   the order of 2.5e-5, P=.999999 seems to give good results (note that
+%   for small resolution, P=.999999 gives a very different result to
+%   P=1.0). For resolution in the order of 1, P=0.8 seems to give good
+%   results. By default, P=0.8.
+%
+%
 % See also: skeleton_plot.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.9.4
+% Version: 0.10.0
 % $Rev$
 % $Date$
 % 
@@ -122,7 +148,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 3, nargin, 'struct'));
+error(nargchk(1, 5, nargin, 'struct'));
 error(nargoutchk(0, 5, nargout, 'struct'));
 
 % defaults
@@ -132,8 +158,16 @@ end
 if (nargin < 3 || isempty(res))
     res = [1 1 1];
 end
+if (nargin < 4 || isempty(alphamax))
+    alphamax = -1; % don't merge by default
+end
+if (nargin < 5 || isempty(p))
+    p = .8;
+end
 
-%% Label skeleton voxels
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% label skeleton voxels
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % get sparse matrix of distances between voxels. To label the skeleton we
 % don't care about the actual distances, just need to know which voxels are
@@ -145,16 +179,21 @@ end
 deg = sum(dsk > 0, 2);
 
 % get distance matrix index of the bifurcation voxels
-idx = deg >= 3;
+bifidx = deg >= 3;
 
 % convert distance matrix index to image index
-idx = idictsk(idx);
+bifidx = idictsk(bifidx);
 
 % remove bifurcation voxels from image
-sk(idx) = 0;
+sk(bifidx) = 0;
 
 % get connected components in the image
 cc = bwconncomp(sk);
+
+% make size vector always have size(3)
+if length(cc.ImageSize) == 2
+    cc.ImageSize = [cc.ImageSize 1];
+end
 
 % set amount of memory allowed for labels (we need label "0" for the
 % background, and labels "1", "2", ..., "cc.NumObjects" for each component
@@ -184,7 +223,7 @@ else
 end
 
 for lab = 1:cc.NumObjects
-    % give each voxel in the image its label
+    % give each voxel in the skeleton its label
     sk(cc.PixelIdxList{lab}) = lab;
     
     % initialize cells to contain branch neighbours
@@ -265,106 +304,38 @@ for I = 1:cc.NumObjects
     
 end
 
-% loop any voxels that have been left without a label, and assign them one
-% of a neighbour's
-for v = find(~withlab)'
-    % get its neighbours that are not bifurcation voxels
-    vn = find(dsk(v, :));
-    
-    % get its first neighbour's label
-    vnlab = sk(idictsk(vn(1)));
-    
-    % if the label is 0, that means that this voxel is surrounded by voxels
-    % that have not been labelled yet, and we leave it unlabelled
-    if vnlab
-        % give it the neighbour's label (we need every voxel in the tree to
-        % have a label, otherwise we cannot extend the segmentation)
-        % but don't add it to the list of voxels in the branch (we want
-        % every branch to contain no more than one bifurcation point)
-        sk(idictsk(v)) = vnlab;
-%         cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idictsk(v)];
-        
-        % record this in the log
-        withlab(v) = true;
-    end
-end
+% % loop any voxels that have been left without a label, and assign them one
+% % of a neighbour's
+% for v = find(~withlab)'
+%     % get its neighbours that are not bifurcation voxels
+%     vn = find(dsk(v, :));
+%     
+%     % get its first neighbour's label
+%     vnlab = sk(idictsk(vn(1)));
+%     
+%     % if the label is 0, that means that this voxel is surrounded by voxels
+%     % that have not been labelled yet, and we leave it unlabelled
+%     if vnlab
+%         % give it the neighbour's label (we need every voxel in the tree to
+%         % have a label, otherwise we cannot extend the segmentation)
+%         % but don't add it to the list of voxels in the branch (we want
+%         % every branch to contain no more than one bifurcation point)
+%         sk(idictsk(v)) = vnlab;
+% %         cc.PixelIdxList{vnlab} = [cc.PixelIdxList{vnlab}; idictsk(v)];
+%         
+%         % record this in the log
+%         withlab(v) = true;
+%     end
+% end
 
-%% Label all voxels in the original segmentation, not only skeleton
-
-if (~isempty(im))
-    
-    % check that the image data type size is large enough to add the TODO
-    % label
-    MAXLAB = zeros(1, class(sk));
-    MAXLAB(1) = Inf; % this casts Inf to the image data type. E.g., if 
-                     % image is uint8, then MAXLAB==255
-
-    % get highest label in the skeleton
-    N = max(sk(:));
-    if (N >= MAXLAB)
-        error('Current image data type size doesn''t allow to add a new label. Cast to a larger data type, e.g. uint16 instead of uint8')
-    end
-
-    % convert im data type to be the same as the seeds, so that we are
-    % guaranteed that all label values can be represented in the output
-    % image
-    im = cast(im, class(sk));
-    
-    % label for voxels that need to be labelled
-    TODO = N+1;
-    
-    % mark segmentation voxels with the highest label, so that we know that
-    % they still need to be labelled, but belong to the segmentation as
-    % opposed to the background
-    im(im > 0) = TODO;
-    
-    % init algorithm by copying the labelled skeleton to the segmentation
-    idx = sk > 0;
-    im(idx) = sk(idx);
-  
-    % region grow algorithm to label all segmented voxels
-    % overwrite skeleton image
-    sk = bwregiongrow(im, TODO, res);
-
-    % in some very particular cases, a small patch of voxels may be left
-    % unlabelled. We are just going to remove them from the segmentation
-    sk(sk == TODO) = 0;
-end
-
-
-% % Debug (2D image) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% hold off
-% imagesc(sk)
-% axis xy
-% 
-% % find tree leaves: convert matrix indices to image linear indices
-% idx = idictsk(deg == 1);
-% 
-% % convert image linear indices to row, col, slice
-% [r, c, s] = ind2sub(size(sk), idx);
-% 
-% % plot leaves
-% hold on
-% plot(c, r, 'ro')
-% 
-% % find tree bifurcations: convert matrix indices to image linear indices
-% idx = idictsk(deg >= 3);
-% 
-% % convert image linear indices to row, col, slice
-% [r, c, s] = ind2sub(size(sk), idx);
-% 
-% % plot leaves
-% plot(c, r, 'go')
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% Sort the skeleton voxels in each branch
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% sort the skeleton voxels in each branch
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % init output
 cc.IsLeaf = false(1, cc.NumObjects);
 cc.IsLoop = false(1, cc.NumObjects);
-cc.BranchLenght = nan(1, cc.NumObjects);
+cc.BranchLength = nan(1, cc.NumObjects);
 
 % loop each branch in the skeleton
 for I = 1:cc.NumObjects
@@ -448,7 +419,7 @@ for I = 1:cc.NumObjects
     if (~cc.IsLoop(I))
         % compute shortest distance from the extreme voxel to every other
         % voxel in the branch, and reuse variable
-        [dbr, p] = dijkstra(dbr, v0);
+        [dbr, parents] = dijkstra(dbr, v0);
         
         % convert Inf values in dbr to 0
         dbr(isinf(dbr)) = 0;
@@ -464,7 +435,7 @@ for I = 1:cc.NumObjects
         cc.PixelParam{I}(1) = dbr(v1);
         J = 2;
         while (v1 ~= v0)
-            v1 = p(v1);
+            v1 = parents(v1);
             cc.PixelIdxList{I}(J) = idictsk(v1);
             cc.PixelParam{I}(J) = dbr(v1);
             J = J + 1;
@@ -475,11 +446,11 @@ for I = 1:cc.NumObjects
         cc.PixelParam{I} = cc.PixelParam{I}(end:-1:1);
         
         % extract length of each branch
-        cc.BranchLenght(I) = cc.PixelParam{I}(end);
+        cc.BranchLength(I) = cc.PixelParam{I}(end);
     else
         % the branch contains a loop, so it doesn't make sense to
         % parameterize or sort the skeleton voxels as a line
-        cc.BranchLenght(I) = nan;
+        cc.BranchLength(I) = nan;
         cc.PixelParam{I} = nan;
     end
     
@@ -500,15 +471,21 @@ end
 % 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% get degree of each voxel in the skeleton
 %% find bifurcation voxels for each branch
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % loop each branch in the skeleton
 for I = 1:cc.NumObjects
 
-    % find the bifurcation point index
+    % get degree of each voxel in the skeleton
+    cc.Degree{I} = full(deg(dictsk(cc.PixelIdxList{I})));
+    
+    % find the bifurcation point indices
     idx = cc.PixelIdxList{I}(deg(dictsk(cc.PixelIdxList{I})) > 2);
     
-    if (length(idx) > 1 && cc.IsLeaf(I))
+    if ((length(idx) > 1) && cc.IsLeaf(I))
         warning(['Branch ' num2str(I) ' is a leaf but has more than 1 bifurcation voxel'])
     end
     
@@ -518,10 +495,413 @@ for I = 1:cc.NumObjects
     
 end
 
-%% get degree of each voxel in the skeleton
-% loop each branch in the skeleton
-for I = 1:cc.NumObjects
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% merge branches together
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    cc.Degree{I} = full(deg(dictsk(cc.PixelIdxList{I})));
+if (alphamax > 0)
+
+    % create the part of the NRRD struct necessary to convert to real world
+    % coordinates
+    if (isempty(res))
+        nrrdaxis.spacing(1) = 1;
+        nrrdaxis.spacing(2) = 1;
+        nrrdaxis.spacing(3) = 1;
+    else
+        nrrdaxis.spacing(1) = res(1);
+        nrrdaxis.spacing(2) = res(2);
+        nrrdaxis.spacing(3) = res(3);
+    end
+    nrrdaxis.min = deal(nrrdaxis.spacing / 2);
+    nrrdaxis.size(1) = cc.ImageSize(1);
+    nrrdaxis.size(2) = cc.ImageSize(2);
+    nrrdaxis.size(3) = cc.ImageSize(3);
     
+    % now we can loop knowing exactly the list of bifurcation voxels that
+    % terminate each branch
+    v = full(dictsk(unique(cat(1, cc.BifurcationPixelIdx{:}))))';
+    br2merge = [];
+    for I = 1:length(v)
+        
+        % get all its neighbours
+        vn = dsk(v(I), :) > 0;
+        
+        % get all its neighbour's labels
+        vnlab = unique(sk(idictsk(vn)));
+        
+        % bifurcation voxels surrounded only by bifurcation voxels don't belong
+        % to any branch, and have label 0, that needs to be removed
+        vnlab = vnlab(vnlab ~= 0);
+        
+        % remove branches that are loops, we are not going to merge those in
+        % any case
+        vnlab = vnlab(~cc.IsLoop(vnlab));
+        
+        % skip if we don't have at least 2 branches to consider merging
+        if (length(vnlab) < 2 )
+            continue
+        end
+        
+        % compute all unique combinations of labels
+        br0br1 = nchoosek(vnlab, 2);
+        alpha = zeros(size(br0br1, 1), 1);
+        
+        % loop each unique combination of neighbouring branches
+        for J = 1:size(br0br1, 1)
+            
+            % get list of indices in both skeleton branches
+            idx0 = cc.PixelIdxList{br0br1(J, 1)};
+            idx1 = cc.PixelIdxList{br0br1(J, 2)};
+            
+            % real world coordinates
+            [r0, c0, s0] = ind2sub(cc.ImageSize, idx0);
+            [r1, c1, s1] = ind2sub(cc.ImageSize, idx1);
+            xyz0 = scinrrd_index2world([r0, c0, s0], nrrdaxis);
+            xyz1 = scinrrd_index2world([r1, c1, s1], nrrdaxis);
+            
+            % compute distances between the first and last voxel in the current
+            % and neihgbour branches
+            d = dmatrix(xyz0([1 end], :)', xyz1([1 end], :)');
+            
+            % get matrix index with the minimum distance
+            [dmin, idmin] = min(d(:));
+            
+            % concatenate br0 and br1 so that they are joined by the
+            % bifurcation voxel
+            if (idmin == 1) % 1st voxel branch <=> 1st voxel neighbour
+                % index of bifurcation voxel
+                bifidx = size(xyz0, 1);
+                
+                % concatenate voxels
+                if (dmin == 0)
+                    xyz = [xyz0(end:-1:1, :); xyz1(2:end, :)];
+                else
+                    xyz = [xyz0(end:-1:1, :); xyz1];
+                end
+            elseif (idmin == 2) % end voxel branch <=> 1st voxel neighbour
+                % index of bifurcation voxel
+                bifidx = size(xyz0, 1);
+                
+                % concatenate voxels
+                if (dmin == 0)
+                    xyz = [xyz0; xyz1(2:end, :)];
+                else
+                    xyz = [xyz0; xyz1];
+                end
+            elseif (idmin == 3) % 1st voxel branch <=> end voxel neighbour
+                % index of bifurcation voxel
+                bifidx = size(xyz1, 1);
+                
+                % concatenate voxels
+                if (dmin == 0)
+                    xyz = [xyz1; xyz0(2:end, :)];
+                else
+                    xyz = [xyz1; xyz0];
+                end
+            elseif (idmin == 4) % end voxel branch <=> end voxel neighbour
+                % index of bifurcation voxel
+                bifidx = size(xyz1, 1);
+                
+                % concatenate voxels
+                if (dmin == 0)
+                    xyz = [xyz1; xyz0(end-1:-1:1, :)];
+                else
+                    xyz = [xyz1; xyz0(end:-1:1, :)];
+                end
+            end
+            
+            % compute spline parameterization (Lee's centripetal scheme)
+            t = cumsum([0; (sum((xyz(2:end, :) - xyz(1:end-1, :)).^2, 2)).^.25]);
+            
+            % compute cubic smoothing spline
+            pp = csaps(t', xyz', p);
+            
+%             % DEBUG
+%             hold off
+%             fnplt(pp)
+%             hold on
+%             plot3(xyz(:, 1), xyz(:, 2), xyz(:, 3), 'o', 'LineWidth', 1)
+%             foo = ppval(pp, pp.breaks(bifidx));
+%             plot3(foo(1), foo(2), foo(3), 'ro', 'LineWidth', 1)
+%             plot3(xyz(bifidx, 1), xyz(bifidx, 2), xyz(bifidx, 3), 'go', 'LineWidth', 1)
+%             axis equal
+%             view(2)
+            
+            % get curve tangent to the left and right of the bifurcation point
+            % (note that dx0 doesn't necessarily correspond to br0, as opposed
+            % to br1)
+            dx0 = ppval(pp, pp.breaks(bifidx-1:bifidx));
+            dx1 = ppval(pp, pp.breaks(bifidx:bifidx+1));
+            
+            dx0 = dx0(:, 2) - dx0(:, 1);
+            dx1 = dx1(:, 2) - dx1(:, 1);
+            
+            % compute angle between derivatives
+            alpha(J) = acos(abs(dot(dx0, dx1) / norm(dx0) / norm(dx1)));
+            
+        end
+        
+        % find minimum angle
+        [alphamin, idx] = min(alpha);
+        
+        % if the minimum angle is lower than the angle threshold, then we
+        % are going to merge the branches
+        % as branches can share bifurcation points, it is likely that we are
+        % going to get repeat mergings
+        if (alphamin <= alphamax)
+            br2merge = [br2merge; br0br1(idx, :)];
+        end
+        
+    end
+    
+    % remove repeated merging operations
+    br2merge = unique(sort(br2merge, 2), 'rows');
+    
+    % add to cc2 struct the fields that are common to all branches
+    cc2.Connectivity = cc.Connectivity;
+    cc2.ImageSize = cc.ImageSize;
+    
+    % create vector of new labels for the branches that are going to be merged
+    newlab = zeros(1, cc.NumObjects);
+
+    % add new labels for branches that are not going to be merged
+    idx = setdiff(1:cc.NumObjects, unique(br2merge(:)));
+    LAB = 0;
+    for I = 1:length(idx)
+        
+        % create new label for cc2
+        LAB = LAB + 1;
+        
+        % add fields to cc2
+        cc2.MergedBranches{LAB} = idx(I);
+        cc2.BifurcationPixelIdx{LAB} = cc.BifurcationPixelIdx{idx(I)};
+        cc2.PixelIdxList{LAB} = cc.PixelIdxList{idx(I)};
+        cc2.PixelParam{LAB} = cc.PixelParam{idx(I)};
+        cc2.BranchNeighbours{LAB} = cc.BranchNeighbours{idx(I)};
+        cc2.IsLeaf(LAB) = cc.IsLeaf(idx(I));
+        cc2.IsLoop(LAB) = cc.IsLoop(idx(I));
+        cc2.Degree{LAB} = cc.Degree{idx(I)};
+        cc2.BranchLength(LAB) = cc.BranchLength(idx(I));
+    end
+
+    for I = 1:size(br2merge, 1)
+        
+        % 2 branches that have to be merged
+        idx = br2merge(I, :);
+        
+        % if one of the branches to merge already has a label assigned ...
+        if (newlab(idx(1)) ~= 0)
+            
+            % ... give that label to the other branch too
+            newlab(idx(2)) = newlab(idx(1));
+            
+            % get list of indices in both skeleton branches
+            idx0 = cc2.PixelIdxList{newlab(idx(1))};
+            idx1 = cc.PixelIdxList{br2merge(I, 2)};
+            
+        elseif (newlab(idx(2)) ~= 0)
+            
+            % ... give that label to the other branch too
+            newlab(idx(1)) = newlab(idx(2));
+            
+            % get list of indices in both skeleton branches
+            idx0 = cc.PixelIdxList{br2merge(I, 1)};
+            idx1 = cc2.PixelIdxList{newlab(idx(2))};
+            
+        else
+            
+            % ... else create a new label for both of them
+            LAB = LAB + 1;
+            newlab(idx) = LAB;
+            
+            % get list of indices in both skeleton branches
+            idx0 = cc.PixelIdxList{br2merge(I, 1)};
+            idx1 = cc.PixelIdxList{br2merge(I, 2)};
+            
+        end
+        
+        % save the label we are giving to the merging branches
+        nowlab = newlab(idx(1));
+        
+        if (length(cc2.MergedBranches) < LAB)
+            cc2.MergedBranches{LAB} = [];
+            cc2.BifurcationPixelIdx{LAB} = [];
+        end
+        
+        % merge the branches and put them in a new cc struct
+        
+        % real world coordinates
+        [r0, c0, s0] = ind2sub(cc.ImageSize, idx0);
+        [r1, c1, s1] = ind2sub(cc.ImageSize, idx1);
+        xyz0 = scinrrd_index2world([r0, c0, s0], nrrdaxis);
+        xyz1 = scinrrd_index2world([r1, c1, s1], nrrdaxis);
+        
+        % compute distances between the first and last voxel in the current
+        % and neihgbour branches
+        d = dmatrix(xyz0([1 end], :)', xyz1([1 end], :)');
+        
+        % get matrix index with the minimum distance
+        [dmin, idmin] = min(d(:));
+        
+        % concatenate br0 and br1 so that they are joined by the
+        % bifurcation voxel
+        if (idmin == 1) % 1st voxel branch <=> 1st voxel neighbour
+            if (dmin == 0)
+                idx = [idx0(end:-1:1); idx1(2:end)];
+                xyz = [xyz0(end:-1:1, :); xyz1(2:end, :)];
+            else
+                idx = [idx0(end:-1:1); idx1];
+                xyz = [xyz0(end:-1:1, :); xyz1];
+            end
+        elseif (idmin == 2) % end voxel branch <=> 1st voxel neighbour
+            if (dmin == 0)
+                idx = [idx0; idx1(2:end)];
+                xyz = [xyz0; xyz1(2:end, :)];
+            else
+                idx = [idx0; idx1];
+                xyz = [xyz0; xyz1];
+            end
+        elseif (idmin == 3) % 1st voxel branch <=> end voxel neighbour
+            if (dmin == 0)
+                idx = [idx1; idx0(2:end)];
+                xyz = [xyz1; xyz0(2:end, :)];
+            else
+                idx = [idx1; idx0];
+                xyz = [xyz1; xyz0];
+            end
+        elseif (idmin == 4) % end voxel branch <=> end voxel neighbour
+            if (dmin == 0)
+                idx = [idx1; idx0(end-1:-1:1)];
+                xyz = [xyz1; xyz0(end-1:-1:1, :)];
+            else
+                idx = [idx1; idx0(end:-1:1)];
+                xyz = [xyz1; xyz0(end:-1:1, :)];
+            end
+        end
+        
+        cc2.PixelIdxList{nowlab} = idx;
+        
+        % recompute parameterization for the skeleton voxels (chord length)
+        cc2.PixelParam{nowlab} = ...
+            cumsum([0; (sum((xyz(2:end, :) - xyz(1:end-1, :)).^2, 2)).^.5]);
+        
+        % note which branches from the original cc have contributed to this
+        % total branch
+        if (isempty(cc2.MergedBranches{nowlab}))
+            cc2.MergedBranches{nowlab} = br2merge(I, :);
+        else
+            cc2.MergedBranches{nowlab} = ...
+                union(cc2.MergedBranches{nowlab}, br2merge(I, :));
+        end
+        
+        % total branch neighbours are the union of neighbours from each
+        % sub-branch
+        cc2.BranchNeighbours{nowlab} = unique(cat(2, ...
+            cc.BranchNeighbours{br2merge(I, :)}));
+        
+        % if any merged branch is a leaf, then the total branch has to be a
+        % leaf too
+        cc2.IsLeaf(nowlab) = any(cc.IsLeaf(cc2.MergedBranches{nowlab}));
+        
+        % loops are prevented from merging, hence if we are here, the merged
+        % branch cannot contain a loop
+        cc2.IsLoop(nowlab) = false;
+        
+        % degree of each total branch voxel
+        cc2.Degree{nowlab} = deg(dictsk(cc2.PixelIdxList{nowlab}));
+        
+        % branch length of the total branch is obtained from the
+        % parameterisation
+        cc2.BranchLength(nowlab) = cc2.PixelParam{nowlab}(end);
+        
+        % bifurcation voxels in the total branch are the union  of bifurcation
+        % voxels in each sub-branch
+        cc2.BifurcationPixelIdx{nowlab} = ...
+            union(cc2.BifurcationPixelIdx{nowlab}, ...
+            cat(1, cc.BifurcationPixelIdx{br2merge(I, :)}));
+        
+    end
+    
+    % number of total branches in the merged skeleton
+    cc2.NumObjects = LAB;
+    
+    % replace labels in the skeleton to reflect merging
+    cc = cc2;
+    for I = 1:cc.NumObjects
+        % give each voxel in the skeleton its label
+        sk(cc.PixelIdxList{I}) = I;
+    end
+
 end
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% label all voxels in the original segmentation, not only skeleton
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if (~isempty(im))
+    
+    % check that the image data type size is large enough to add the TODO
+    % label
+    MAXLAB = zeros(1, class(sk));
+    MAXLAB(1) = Inf; % this casts Inf to the image data type. E.g., if 
+                     % image is uint8, then MAXLAB==255
+
+    % get highest label in the skeleton
+    N = max(sk(:));
+    if (N >= MAXLAB)
+        error('Current image data type size doesn''t allow to add a new label. Cast to a larger data type, e.g. uint16 instead of uint8')
+    end
+
+    % convert im data type to be the same as the seeds, so that we are
+    % guaranteed that all label values can be represented in the output
+    % image
+    im = cast(im, class(sk));
+    
+    % label for voxels that need to be labelled
+    TODO = N+1;
+    
+    % mark segmentation voxels with the highest label, so that we know that
+    % they still need to be labelled, but belong to the segmentation as
+    % opposed to the background
+    im(im > 0) = TODO;
+    
+    % init algorithm by copying the labelled skeleton to the segmentation
+    idx = sk > 0;
+    im(idx) = sk(idx);
+  
+    % region grow algorithm to label all segmented voxels
+    % overwrite skeleton image
+    sk = bwregiongrow(im, TODO, res);
+
+    % in some very particular cases, a small patch of voxels may be left
+    % unlabelled. We are just going to remove them from the segmentation
+    sk(sk == TODO) = 0;
+end
+
+% % Debug (2D image) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% hold off
+% imagesc(sk)
+% axis xy
+% 
+% % find tree leaves: convert matrix indices to image linear indices
+% idx = idictsk(deg == 1);
+% 
+% % convert image linear indices to row, col, slice
+% [r, c, s] = ind2sub(size(sk), idx);
+% 
+% % plot leaves
+% hold on
+% plot(c, r, 'ro')
+% 
+% % find tree bifurcations: convert matrix indices to image linear indices
+% idx = idictsk(deg >= 3);
+% 
+% % convert image linear indices to row, col, slice
+% [r, c, s] = ind2sub(size(sk), idx);
+% 
+% % plot leaves
+% plot(c, r, 'go')
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
