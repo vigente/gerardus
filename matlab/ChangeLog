@@ -1,5 +1,10 @@
 2011-06-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.5.0) Remove CC.dbif. The Maurer distance is quite misleading
+	if the vessel's cross section is very elliptical.
+
 	* FiltersToolbox/skeleton_label.m:
 
 	- (v0.10.0) Add merging of neighbouring branches that are a
