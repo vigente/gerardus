@@ -100,7 +100,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.2
+% Version: 0.5.0
 % $Rev$
 % $Date$
 % 
@@ -157,9 +157,6 @@ if (~isempty(cc) && (N ~= cc.NumObjects))
     error('If CC is provided, then it must have one element per object in NRRD')
 end
 
-% compute Maurer distance map for the segmentation
-dmap = itk_imfilter('maudist', nrrd);
-
 % compute degree of each voxel in the segmentation
 deg = sum(d>0, 2);
 
@@ -168,7 +165,6 @@ eigd = zeros(3, N);
 stats.islandlocked = nan(1, N);
 stats.nbound = nan(1, N);
 stats.nwater = nan(1, N);
-stats.dbif = nan(1, N);
 stats.nvox = nan(1, N);
 stats.vol = nan(1, N);
 
@@ -288,13 +284,6 @@ for I = 1:N
         [~, auxd] = pts_pca(yi);
         eigd(1:(length(auxd)), I) = auxd;
         
-    end
-    
-    
-    %% for each leaf that is not isolated floating in the air, get the 
-    %% distance map value for the bifurcation voxel
-    if (cc.IsLeaf(I) && cc.BifurcationPixelIdx{I})
-        stats.dbif(I) = abs(dmap(cc.BifurcationPixelIdx{I}));
     end
     
 end
