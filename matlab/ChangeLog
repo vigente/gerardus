@@ -1,3 +1,11 @@
+2011-06-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.10.0) Add merging of neighbouring branches that are a
+	continuation of each other. The merging is controlled by new input
+	arguments alphamax, p.
+
 2011-06-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
