@@ -105,8 +105,8 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, 
 %   rule of thumb, ALPHAMAX = 10/180*pi seems to work well.
 %
 %   P is a scalar in [0, 1]. To compute the angle between branches, an
-%   approximated cubic spline is fit to the skeleton voxels using
-%   csaps(..., P). P=0 is the smoothest spline (a line with the least
+%   approximating or smoothing cubic spline is fit to the skeleton voxels
+%   using csaps(..., P). P=0 is the smoothest spline (a line with the least
 %   squares approximation), while P=1 is a rugged spline (the spline
 %   interpolated the voxels). Adequate values of P depend on the image
 %   resolution, so it's difficult to propose a formula. For resolution in
