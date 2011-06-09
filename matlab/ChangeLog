@@ -1,3 +1,12 @@
+2011-06-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FindMatlab.cmake:
+
+	- To make a derivative work of file FindMatlab.cmake released with
+	CMake v2.8, because the original seems to be a bit outdated and
+	doesn't work with my Windows XP and Visual Studio 10
+	install. (Note that the original file does work for Ubuntu Natty)
+
 2011-06-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
