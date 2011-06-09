@@ -1,5 +1,15 @@
 2011-06-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_intersect_plane.m:
+
+	- (v0.3.2) Edit helper header to make clear that gx, gy, gz
+	correspond to the coordinates of where the NRRD volume was
+	actually sampled to obtain IM. Hence, for INTERP='nn' if you plot
+	the plane, it will in general look a bit "jagged" instead of flat.
+
+	- Thanks to Pablo Lamata for pointing out that this feature was
+	not clear in the help header.
+
 	* Add FindMatlab.cmake:
 
 	- To make a derivative work of file FindMatlab.cmake released with

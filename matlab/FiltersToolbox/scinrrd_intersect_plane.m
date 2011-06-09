@@ -8,10 +8,15 @@ function [im, gx, gy, gz, midx] = scinrrd_intersect_plane(nrrd, m, v, interp)
 %   volume are returned as NaN.
 %
 %   GX, GY, GZ are matrices of the same size as IM, and contain the
-%   Cartesian coordinates of the voxels in IM. You can visualize the
-%   resulting plane using
+%   Cartesian coordinates of the voxels in IM (i.e. the coordinates of the
+%   points at which the NRRD volume was sampled to obtain IM). You can
+%   visualize the resulting plane using
 %
 %     >> surf(gx, gy, gz, im, 'EdgeColor', 'none')
+%
+%   Note: When INTERP='nn' (see below), coordinates in the plane are
+%   rounded to the nearest image voxel centre. Hence, if you plot the plane
+%   as above, it will in general look slightly "jagged" instead of flat.
 %
 %   The plane is uniquely defined in 3D space using a point and a vector:
 %
@@ -55,7 +60,7 @@ function [im, gx, gy, gz, midx] = scinrrd_intersect_plane(nrrd, m, v, interp)
 
 % Authors: Ramon Casero <rcasero@gmail.com>, Pablo Lamata <pablo.lamata@dpag.ox.ac.uk>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.3.1
+% Version: 0.3.2
 % $Rev$
 % $Date$
 % 
