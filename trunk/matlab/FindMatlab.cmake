@@ -109,8 +109,6 @@ ELSE(WIN32)
   ENDIF((NOT DEFINED MATLAB_ROOT) 
     OR ("${MATLAB_ROOT}" STREQUAL ""))
     
-  MESSAGE("MATLAB_ROOT = ${MATLAB_ROOT}")
-
   # Get path to the MEX libraries
   EXECUTE_PROCESS(
     COMMAND find "${MATLAB_ROOT}/bin" -name libmex.so
