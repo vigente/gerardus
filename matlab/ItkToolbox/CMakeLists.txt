@@ -31,7 +31,10 @@
 ## Post-compilation for all targets
 ################################################################
 
-ADD_DEFINITIONS("-O2 -Wall")
+IF(NOT WIN32)
+  ADD_DEFINITIONS("-O2 -Wall")
+ENDIF(NOT WIN32)
+
 SET(Libraries
   ITKCommon ITKIO
   )
