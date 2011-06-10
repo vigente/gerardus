@@ -1,5 +1,5 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright Â© 2011 University of Oxford
+# Copyright © 2011 University of Oxford
 # $Rev$
 # $Date$
 #
@@ -71,5 +71,5 @@ TARGET_LINK_LIBRARIES(itk_kernel_transform
 INSTALL(TARGETS 
   itk_kernel_transform
   itk_imfilter
-  LIBRARY DESTINATION 
+  LIBRARY ARCHIVE DESTINATION 
   ${CMAKE_CURRENT_SOURCE_DIR})
