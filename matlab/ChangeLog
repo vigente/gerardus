@@ -11,6 +11,8 @@
 
 	* FindMatlab.cmake:
 
+	- (v0.2.1) Be more precise with the directory where mex.h is.
+
 	- (v0.2.0) Major rewrite of how the MEX libraries and include
 	directory are found in non-Windows systems. Now we are using shell
 	commands, e.g. "find". The original FindMatlab.cmake relied on
