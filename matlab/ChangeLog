@@ -6,6 +6,10 @@
 
 	* CMakeLists.txt:
 
+	- Matlab 2010b is compatible with g++ 4.5.2, which is the version
+	available in the current Ubuntu Natty, so we can comment out the
+	lines forcing g++-3.4.
+
 	- With the new FindMatlab.cmake, there's no longer need to
 	provided MATLAB_ROOT.
 
