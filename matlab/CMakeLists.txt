@@ -1,5 +1,5 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2011 University of Oxford
+# Copyright Â© 2011 University of Oxford
 # $Rev$
 # $Date$
 #
