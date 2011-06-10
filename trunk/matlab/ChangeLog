@@ -1,7 +1,14 @@
 2011-06-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* FindMatlab.cmake:
+
+	- (v0.2.0) Major rewrite of how the MEX libraries and include
+	directory are found in non-Windows systems. Now we are using shell
+	commands, e.g. "find". The original FindMatlab.cmake relied on
+	some hard-coded paths that have been removed.
+
 	* ItkToolbox/CMakeLists.txt, FiltersToolbox/CMakeLists.txt:
-	
+
 	- Windows requires that ARCHIVE is given as a target for INSTALL
 	because it treats static libraries as ARCHIVE.
 
