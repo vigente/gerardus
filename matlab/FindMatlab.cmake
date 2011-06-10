@@ -16,7 +16,7 @@
 # (Note that the original file does work for Ubuntu Natty)
 #
 # Author: Ramon Casero <rcasero@gmail.com>
-# Version: 0.2.0
+# Version: 0.2.1
 # $Rev$
 # $Date$
 #
@@ -104,6 +104,7 @@ ELSE(WIN32)
       COMMAND xargs readlink
       COMMAND xargs dirname
       COMMAND xargs dirname
+      COMMAND xargs echo -n
       OUTPUT_VARIABLE MATLAB_ROOT
       )
   ENDIF((NOT DEFINED MATLAB_ROOT) 
@@ -129,7 +130,7 @@ ELSE(WIN32)
   # Get path to the include directory
   FIND_PATH(MATLAB_INCLUDE_DIR
     "mex.h"
-    PATHS "${MATLAB_ROOT}"
+    PATHS "${MATLAB_ROOT}/extern/include"
     )
 
 ENDIF(WIN32)
