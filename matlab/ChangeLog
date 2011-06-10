@@ -1,5 +1,9 @@
 2011-06-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* FiltersToolbox/CMakeLists.txt:
+
+	- Add copyright notice.
+
 	* CMakeLists.txt:
 
 	- With the new FindMatlab.cmake, there's no longer need to
