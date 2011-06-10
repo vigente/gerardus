@@ -15,7 +15,7 @@
 # (Note that the original file does work for Ubuntu Natty)
 #
 # Author: Ramon Casero <rcasero@gmail.com>
-# Version: 0.1.0
+# Version: 0.2.0
 # $Rev$
 # $Date$
 #
@@ -87,48 +87,50 @@ IF(WIN32)
     ${MATLAB_LIBRARIES_DIR}
     )
 
+  # Get path to the include directory
   FIND_PATH(MATLAB_INCLUDE_DIR
     "mex.h"
     "${MATLAB_ROOT}/extern/include"
     )
 
-ELSE( WIN32 )
-  IF(CMAKE_SIZEOF_VOID_P EQUAL 4)
-    # Regular x86
-    SET(MATLAB_ROOT
-      /usr/local/matlab-7sp1/bin/glnx86/
-      /opt/matlab-7sp1/bin/glnx86/
-      $ENV{HOME}/matlab-7sp1/bin/glnx86/
-      $ENV{HOME}/redhat-matlab/bin/glnx86/
+ELSE(WIN32)
+
+  IF((NOT DEFINED MATLAB_ROOT) 
+      OR ("${MATLAB_ROOT}" STREQUAL ""))
+    # get path to the Matlab root directory
+    EXECUTE_PROCESS(
+      COMMAND which matlab
+      COMMAND xargs readlink
+      COMMAND xargs dirname
+      COMMAND xargs dirname
+      OUTPUT_VARIABLE MATLAB_ROOT
       )
-  ELSE(CMAKE_SIZEOF_VOID_P EQUAL 4)
-    # AMD64:
-    SET(MATLAB_ROOT
-      /usr/local/matlab-7sp1/bin/glnxa64/
-      /opt/matlab-7sp1/bin/glnxa64/
-      $ENV{HOME}/matlab7_64/bin/glnxa64/
-      $ENV{HOME}/matlab-7sp1/bin/glnxa64/
-      $ENV{HOME}/redhat-matlab/bin/glnxa64/
-      )
-  ENDIF(CMAKE_SIZEOF_VOID_P EQUAL 4)
-  FIND_LIBRARY(MATLAB_MEX_LIBRARY
-    mex
-    ${MATLAB_ROOT}
+  ENDIF((NOT DEFINED MATLAB_ROOT) 
+    OR ("${MATLAB_ROOT}" STREQUAL ""))
+    
+  MESSAGE("MATLAB_ROOT = ${MATLAB_ROOT}")
+
+  # Get path to the MEX libraries
+  EXECUTE_PROCESS(
+    COMMAND find "${MATLAB_ROOT}/bin" -name libmex.so
+    COMMAND xargs echo -n
+    OUTPUT_VARIABLE MATLAB_MEX_LIBRARY
     )
-  FIND_LIBRARY(MATLAB_MX_LIBRARY
-    mx
-    ${MATLAB_ROOT}
+  EXECUTE_PROCESS(
+    COMMAND find "${MATLAB_ROOT}/bin" -name libmx.so
+    COMMAND xargs echo -n
+    OUTPUT_VARIABLE MATLAB_MX_LIBRARY
     )
-  FIND_LIBRARY(MATLAB_ENG_LIBRARY
-    eng
-    ${MATLAB_ROOT}
+  EXECUTE_PROCESS(
+    COMMAND find "${MATLAB_ROOT}/bin" -name libeng.so
+    COMMAND xargs echo -n
+    OUTPUT_VARIABLE MATLAB_ENG_LIBRARY
     )
+
+  # Get path to the include directory
   FIND_PATH(MATLAB_INCLUDE_DIR
     "mex.h"
-    "/usr/local/matlab-7sp1/extern/include/"
-    "/opt/matlab-7sp1/extern/include/"
-    "$ENV{HOME}/matlab-7sp1/extern/include/"
-    "$ENV{HOME}/redhat-matlab/extern/include/"
+    PATHS "${MATLAB_ROOT}"
     )
 
 ENDIF(WIN32)
@@ -149,7 +151,6 @@ MARK_AS_ADVANCED(
   MATLAB_MEX_LIBRARY
   MATLAB_MX_LIBRARY
   MATLAB_ENG_LIBRARY
-  MATLAB_LIBRARIES_DIR
   MATLAB_INCLUDE_DIR
   MATLAB_FOUND
   MATLAB_ROOT
