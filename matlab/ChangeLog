@@ -1,7 +1,7 @@
 2011-06-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* ItkToolbox/CMakeLists.txt, FiltersToolbox/CMakeLists.txt:
-
+	
 	- Windows requires that ARCHIVE is given as a target for INSTALL
 	because it treats static libraries as ARCHIVE.
 
