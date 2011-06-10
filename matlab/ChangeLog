@@ -1,5 +1,10 @@
 2011-06-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* CMakeLists.txt:
+
+	- With the new FindMatlab.cmake, there's no longer need to
+	provided MATLAB_ROOT.
+
 	* FindMatlab.cmake:
 
 	- (v0.2.0) Major rewrite of how the MEX libraries and include
