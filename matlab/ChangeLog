@@ -1,4 +1,10 @@
-2011-06-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-06-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FindMatlab.cmake:
+
+	- Major rewrite of how the MEX libraries are found in Windows.
+
+2011-06-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_intersect_plane.m:
 
