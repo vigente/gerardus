@@ -5,6 +5,7 @@
 #  MATLAB_MEX_LIBRARY: path to libmex.lib
 #  MATLAB_MX_LIBRARY:  path to libmx.lib
 #  MATLAB_ENG_LIBRARY: path to libeng.lib
+#  MATLAB_ROOT: path to Matlab's root directory
 
 # This file is part of Gerardus
 #
@@ -154,5 +155,4 @@ MARK_AS_ADVANCED(
   MATLAB_INCLUDE_DIR
   MATLAB_FOUND
   MATLAB_ROOT
-  MATLAB_VERSION
 )
