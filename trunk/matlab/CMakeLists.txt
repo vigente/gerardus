@@ -1,5 +1,5 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright Â© 2011 University of Oxford
+# Copyright © 2011 University of Oxford
 # $Rev$
 # $Date$
 #
@@ -51,7 +51,6 @@ ELSE(ITK_FOUND)
 ENDIF(ITK_FOUND)
 
 # Find Matlab
-SET(MATLAB_ROOT "/usr/local/matlab/R2010b/")
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 FIND_PACKAGE(Matlab REQUIRED)
 IF(MATLAB_FOUND)
