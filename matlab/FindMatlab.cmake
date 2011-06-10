@@ -15,7 +15,7 @@
 # (Note that the original file does work for Ubuntu Natty)
 #
 # Author: Ramon Casero <rcasero@gmail.com>
-# Version: 0.0.0
+# Version: 0.1.0
 # $Rev$
 # $Date$
 #
@@ -37,41 +37,61 @@
 
 SET(MATLAB_FOUND 0)
 IF(WIN32)
+  # Search for a version of Matlab available, starting from the most modern one to older versions
+  FOREACH(MATVER "7.11" "7.10" "7.9" "7.8" "7.7" "7.6" "7.5" "7.4")
+    IF((NOT DEFINED MATLAB_ROOT) 
+        OR ("${MATLAB_ROOT}" STREQUAL "")
+        OR ("${MATLAB_ROOT}" STREQUAL "/registry"))
+      GET_FILENAME_COMPONENT(MATLAB_ROOT
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MathWorks\\MATLAB\\${MATVER};MATLABROOT]"
+        ABSOLUTE)
+      SET(MATLAB_VERSION ${MATVER})
+    ENDIF((NOT DEFINED MATLAB_ROOT) 
+      OR ("${MATLAB_ROOT}" STREQUAL "")
+      OR ("${MATLAB_ROOT}" STREQUAL "/registry"))
+  ENDFOREACH(MATVER)
+
+  # Folder where the MEX libraries are, depending of the Windows compiler
   IF(${CMAKE_GENERATOR} MATCHES "Visual Studio 6")
-    SET(MATLAB_ROOT "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MathWorks\\MATLAB\\7.0;MATLABROOT]/extern/lib/win32/microsoft/msvc60")
+    SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/win32/microsoft/msvc60")
+  ELSEIF(${CMAKE_GENERATOR} MATCHES "Visual Studio 7")
+    # Assume people are generally using Visual Studio 7.1,
+    # if using 7.0 need to link to: ../extern/lib/win32/microsoft/msvc70
+    SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/win32/microsoft/msvc71")
+    # SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/win32/microsoft/msvc70")
+  ELSEIF(${CMAKE_GENERATOR} MATCHES "Borland")
+    # Assume people are generally using Borland 5.4,
+    # if using 7.0 need to link to: ../extern/lib/win32/microsoft/msvc70
+    SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/win32/microsoft/bcc54")
+    # SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/win32/microsoft/bcc50")
+    # SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/win32/microsoft/bcc51")
+  ELSEIF(${CMAKE_GENERATOR} MATCHES "Visual Studio*")
+    # If the compiler is Visual Studio, but not any of the specific
+    # versions above, we try our luck with the microsoft directory
+    SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/win32/microsoft/")
   ELSE(${CMAKE_GENERATOR} MATCHES "Visual Studio 6")
-    IF(${CMAKE_GENERATOR} MATCHES "Visual Studio 7")
-      # Assume people are generally using 7.1,
-      # if using 7.0 need to link to: ../extern/lib/win32/microsoft/msvc70
-      SET(MATLAB_ROOT "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MathWorks\\MATLAB\\7.0;MATLABROOT]/extern/lib/win32/microsoft/msvc71")
-    ELSE(${CMAKE_GENERATOR} MATCHES "Visual Studio 7")
-      IF(${CMAKE_GENERATOR} MATCHES "Borland")
-        # Same here, there are also: bcc50 and bcc51 directories
-        SET(MATLAB_ROOT "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MathWorks\\MATLAB\\7.0;MATLABROOT]/extern/lib/win32/microsoft/bcc54")
-      ELSE(${CMAKE_GENERATOR} MATCHES "Borland")
-        IF(MATLAB_FIND_REQUIRED)
-          MESSAGE(FATAL_ERROR "Generator not compatible: ${CMAKE_GENERATOR}")
-        ENDIF(MATLAB_FIND_REQUIRED)
-      ENDIF(${CMAKE_GENERATOR} MATCHES "Borland")
-    ENDIF(${CMAKE_GENERATOR} MATCHES "Visual Studio 7")
+    MESSAGE(FATAL_ERROR "Generator not compatible: ${CMAKE_GENERATOR}")
   ENDIF(${CMAKE_GENERATOR} MATCHES "Visual Studio 6")
+
+  # Get paths to the Matlab MEX libraries
   FIND_LIBRARY(MATLAB_MEX_LIBRARY
     libmex
-    ${MATLAB_ROOT}
+    ${MATLAB_LIBRARIES_DIR}
     )
   FIND_LIBRARY(MATLAB_MX_LIBRARY
     libmx
-    ${MATLAB_ROOT}
+    ${MATLAB_LIBRARIES_DIR}
     )
   FIND_LIBRARY(MATLAB_ENG_LIBRARY
     libeng
-    ${MATLAB_ROOT}
+    ${MATLAB_LIBRARIES_DIR}
     )
 
   FIND_PATH(MATLAB_INCLUDE_DIR
     "mex.h"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MathWorks\\MATLAB\\7.0;MATLABROOT]/extern/include"
+    "${MATLAB_ROOT}/extern/include"
     )
+
 ELSE( WIN32 )
   IF(CMAKE_SIZEOF_VOID_P EQUAL 4)
     # Regular x86
@@ -129,8 +149,9 @@ MARK_AS_ADVANCED(
   MATLAB_MEX_LIBRARY
   MATLAB_MX_LIBRARY
   MATLAB_ENG_LIBRARY
+  MATLAB_LIBRARIES_DIR
   MATLAB_INCLUDE_DIR
   MATLAB_FOUND
   MATLAB_ROOT
+  MATLAB_VERSION
 )
-
