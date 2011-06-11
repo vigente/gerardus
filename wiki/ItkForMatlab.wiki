@@ -44,10 +44,6 @@ $ svn co http://gerardus.googlecode.com/svn/trunk/ gerardus
 
 == Linux users ==
 
- # Open file `gerardus/matlab/CMakeLists.txt`, and edit the line below with the root path to your own Matlab install
-{{{
-SET(MATLAB_ROOT "/usr/local/matlab/R2010b/")
-}}}
  # Run from the command line the following code. If everything works, this will create and install the MEX files `itk_kernel_transform.mexa64` and `itk_imfilter.mexa64` (for a 64-bit architecture, 32-bit architectures give another extension to the files) to directory `gerardus/matlab/ItkToolkit`
 {{{
 $ cd gerardus/matlab
@@ -57,9 +53,13 @@ $ cmake ..
 $ make
 $ make install
 }}}
+ # If you get an error with cmake saying that "Matlab was not found", then open file `gerardus/matlab/CMakeLists.txt`, and edit the line below with the root path to your own Matlab install
+{{{
+SET(MATLAB_ROOT "/usr/local/matlab/R2010b/")
+}}}
  # Add `gerardus/matlab/ItkToolkit` to the Matlab path
 
-== Windows users (not working yet) ==
+== Windows users ==
 
  # Open file `gerardus/matlab/CMakeLists.txt`, and edit the line below with the root path to your own Matlab install. Note that you need to escape the "\" in the path. For example, `"C:\\ProgramFiles\\Matlab\\R2010b\\"`
 {{{
@@ -67,6 +67,8 @@ SET(MATLAB_ROOT "/usr/local/matlab/R2010b/")
 }}}
 
  # Open file `gerardus\CMakeLists.txt` with your CMake program
- # Click on "Configure" button
- # Click on "Generate" button
- # Open your development environment (e.g. Visual Studio)
+ # Click on the "Configure" button. Specify the generator for this project (the one I have tested is "Visual Studio 10" with "Use default native compilers")
+ # Click on the "Generate" button
+ # Open file `gerardus\matlab\bin\GERARDUS_MATLAB.sln` your development environment (e.g. Visual Studio 10)
+ # Select "Build -> Build Solution" from the menu.
+ # In the "Solution Explorer", right click on "INSTALL" and select "Build". This will install the DLLs that correspond to the compiled MEX files
