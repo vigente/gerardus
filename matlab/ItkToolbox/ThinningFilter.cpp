@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.1.2
   * $Rev$
   * $Date$
   *
@@ -39,7 +39,7 @@
 #ifndef THINNINGFILTER_CPP
 #define THINNINGFILTER_CPP
 
-#import "ThinningFilter.hpp"
+#include "ThinningFilter.hpp"
 
 /* 
  * ThinningFilter : BaseFilter
@@ -55,7 +55,6 @@
 #define FILTERINST(T1, T2)			\
   template class ThinningFilter<T1, T2>;
 
-FILTERINST(bool, bool)
 FILTERINST(uint8_T, uint8_T)
 FILTERINST(int8_T, int8_T)
 FILTERINST(uint16_T, uint16_T)

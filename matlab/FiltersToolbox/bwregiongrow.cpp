@@ -43,7 +43,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.2
+  * Version: 0.2.3
   * $Rev$
   * $Date$
   *
@@ -144,18 +144,12 @@ std::vector<mwIndex> ind2sub(mwSize R, mwSize C, mwSize S,
   std::vector<mwIndex> rcs(3);
   
   // convert linear index to r, c, s 
-  div_t divresult;
+  rcs[2] = idx / (R*C); // slice value (Note: integer division)
+  idx %= (R*C);
 
-  divresult = div(idx, R*C);
-  rcs[2] = divresult.quot; // slice value
-  idx = divresult.rem;
+  rcs[1] = idx / R; // column value (Note: integer division)
 
-  divresult = div(idx, R);
-  rcs[1] = divresult.quot; // column value
-  idx = divresult.rem;
-
-  divresult = div(idx, 1);
-  rcs[0] = divresult.quot; // row value
+  rcs[0] = idx % R; // row value
 
   // // DEBUG
   // std::cout << "rcs = " << rcs[0] << ", " 
@@ -466,6 +460,9 @@ void run(mxArray* &im, const mxArray* _TODO,
     // array indices of boundary voxel and neighbour
     std::vector<mwIndex> rcs(3), rcsn(3);
 
+    // variables for distances
+    double dx, dy, dz;
+
     // loop each new boundary voxel
     for (mwIndex i = 0; i < newBoundary.size(); ++i) {
       
@@ -498,11 +495,10 @@ void run(mxArray* &im, const mxArray* _TODO,
 	  rcsn[0] -= rcs[0];
 	  rcsn[1] -= rcs[1];
 	  rcsn[2] -= rcs[2];
-	  rcsn[0] *= res[0];
-	  rcsn[1] *= res[1];
-	  rcsn[2] *= res[2];
-	  double d2 = rcsn[0]*rcsn[0] + rcsn[1]*rcsn[1] 
-	    + rcsn[2]*rcsn[2];
+	  dx = rcsn[0] * res[0];
+	  dy = rcsn[1] * res[1];
+	  dz = rcsn[2] * res[2];
+	  double d2 = dx*dx + dy*dy + dz*dz;
 
 	  // if this neighbour is closer than what we had before, it
 	  // becomes the closest neighbour and we copy its label

@@ -49,7 +49,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.2.1
   * $Rev$
   * $Date$
   *
@@ -85,7 +85,7 @@
 #include <mex.h>
 
 /* Gerardus headers */
-#import "NrrdImage.hpp"
+#include "NrrdImage.hpp"
 
 // parseFilterTypeToTemplate<InVoxelType, OutVoxelType>()
 template <class InVoxelType, class OutVoxelType>

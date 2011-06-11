@@ -63,11 +63,11 @@
 #include "itkSignedMaurerDistanceMapImageFilter.h"
 
 /* Gerardus headers */
-#import "NrrdImage.hpp"
-#import "BaseFilter.hpp"
-#import "DanielssonFilter.hpp"
-#import "SignedMaurerFilter.hpp"
-#import "ThinningFilter.hpp"
+#include "NrrdImage.hpp"
+#include "BaseFilter.hpp"
+#include "DanielssonFilter.hpp"
+#include "SignedMaurerFilter.hpp"
+#include "ThinningFilter.hpp"
 
 /*
  * BaseFilter<InVoxelType, OutVoxelType>: This is where

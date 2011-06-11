@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -43,13 +43,13 @@
 #include <mex.h>
 
 /* C++ headers */
-#import <vector>
+#include <vector>
 
 /* ITK headers */
 #include "itkOffset.h"
 
 /* Gerardus headers */
-#import "GerardusCommon.hpp"
+#include "GerardusCommon.hpp"
 
 /*
  * sub2ind(): function that converts r, c, s indices to linear indices
@@ -130,20 +130,14 @@ std::vector<mwIndex> ind2sub(mwSize R, mwSize C, mwSize S,
 
   // init output
   std::vector<mwIndex> rcs(3);
-  
+
   // convert linear index to r, c, s 
-  div_t divresult;
+  rcs[2] = idx / (R*C); // slice value (Note: integer division)
+  idx %= (R*C);
 
-  divresult = div(idx, R*C);
-  rcs[2] = divresult.quot; // slice value
-  idx = divresult.rem;
+  rcs[1] = idx / R; // column value (Note: integer division)
 
-  divresult = div(idx, R);
-  rcs[1] = divresult.quot; // column value
-  idx = divresult.rem;
-
-  divresult = div(idx, 1);
-  rcs[0] = divresult.quot; // row value
+  rcs[0] = idx % R; // row value
 
   // // DEBUG
   // std::cout << "rcs = " << rcs[0] << ", " 
@@ -168,18 +162,12 @@ itk::Offset<Dimension> ind2sub_itkOffset(mwSize R, mwSize C, mwSize S,
   itk::Offset<Dimension> rcs;
   
   // convert linear index to r, c, s 
-  div_t divresult;
+  rcs[2] = idx / (R*C); // slice value (Note: integer division)
+  idx %= (R*C);
 
-  divresult = div(idx, R*C);
-  rcs[2] = divresult.quot; // slice value
-  idx = divresult.rem;
+  rcs[1] = idx / R; // column value (Note: integer division)
 
-  divresult = div(idx, R);
-  rcs[1] = divresult.quot; // column value
-  idx = divresult.rem;
-
-  divresult = div(idx, 1);
-  rcs[0] = divresult.quot; // row value
+  rcs[0] = idx % R; // row value
 
   // // DEBUG
   // std::cout << "rcs = " << rcs[0] << ", " 
