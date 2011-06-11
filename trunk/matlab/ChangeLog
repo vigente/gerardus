@@ -1,5 +1,12 @@
 2011-06-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* release 0.4.0
+
+	- Now the MEX ITK functions itk_imfilter(),
+	itk_kernel_transform(), and the filter bwregiongrow() compile and
+	run under Windows XP 32-bit too. (Built with CMake 2.8 and Visual
+	Studio 10).
+
 	* MatlabMakeMacros.cmake:
 
 	- Don't link to the m library in Windows, as it's not available.
