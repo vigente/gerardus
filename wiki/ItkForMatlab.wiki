@@ -29,9 +29,11 @@ $ sudo apt-get install cmake
   * Note for other users: See the [http://www.cmake.org/cmake/resources/software.html CMake resources page] for more options
  * [http://www.itk.org/itkindex.html Insight Toolkit]
   # [http://www.itk.org/ITK/resources/software.html Download the Insight Toolkit (ITK)]
-  # Install ITK using CMake (see the [http://www.itk.org/ItkSoftwareGuide.pdf ITK Software Guide] for details)
+  # Build and install ITK using CMake (see the [http://www.itk.org/ItkSoftwareGuide.pdf ITK Software Guide] for details)
+  * Note for Windows users: Click on "Start" -> "My computer" -> "View system information", and in the "Advanced" tab click on "Environment Variables". Select the System variable `Path`, and click "Edit". Add the path to the `ITKCOMMON.DLL` library, e.g. "C:\Program Files\ITK\bin"
  * [http://www.mathworks.com/products/matlab/ Matlab]
   # Matlab has its own installer for each operating system (Linux, Windows, MacOS X, etc)
+  * Note for Windows users: Similarly to the previous step, add to the `Path` environment variable the path to your Matlab `LIBMEX.DLL` and `LIBMX.DLL` libraries, e.g. "C:\Program Files\MATLAB\R2010b\bin\win32"
  * [http://code.google.com/p/gerardus/ Gerardus]
   # Check out the Gerardus project code
   * Note for Linux users: You can check out the latest version of the code from the command line doing
