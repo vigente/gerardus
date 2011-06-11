@@ -44,8 +44,8 @@
 #include "itkImageRegionConstIterator.h"
 
 /* Gerardus headers */
-#import "GerardusCommon.hpp"
-#import "DanielssonFilter.hpp"
+#include "GerardusCommon.hpp"
+#include "DanielssonFilter.hpp"
 
 template <class InVoxelType, class OutVoxelType>
 void DanielssonFilter<InVoxelType,

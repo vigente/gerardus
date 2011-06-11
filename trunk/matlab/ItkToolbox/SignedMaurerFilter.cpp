@@ -39,7 +39,7 @@
 #ifndef SIGNEDMAURERFILTER_CPP
 #define SIGNEDMAURERFILTER_CPP
 
-#import "SignedMaurerFilter.hpp"
+#include "SignedMaurerFilter.hpp"
 
 /* 
  * SignedMaurerFilter : BaseFilter

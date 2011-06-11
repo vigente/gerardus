@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.2.1
   * $Rev$
   * $Date$
   *
@@ -69,21 +69,21 @@ public:
   mwSize getR() {return size[0];}
   mwSize getC() {return size[1];}
   mwSize getS() {return size[2];}
-  mwSize getDr() {return spacing[0];}
-  mwSize getDc() {return spacing[1];}
-  mwSize getDs() {return spacing[2];}
-  mwSize getDx() {return spacing[1];}
-  mwSize getDy() {return spacing[0];}
-  mwSize getDz() {return spacing[2];}
-  mwSize getMinR() {return min[0];}
-  mwSize getMinC() {return min[1];}
-  mwSize getMinS() {return min[2];}
-  mwSize getMinX() {return min[1];}
-  mwSize getMinY() {return min[0];}
-  mwSize getMinZ() {return min[2];}
+  double getDr() {return spacing[0];}
+  double getDc() {return spacing[1];}
+  double getDs() {return spacing[2];}
+  double getDx() {return spacing[1];}
+  double getDy() {return spacing[0];}
+  double getDz() {return spacing[2];}
+  double getMinR() {return min[0];}
+  double getMinC() {return min[1];}
+  double getMinS() {return min[2];}
+  double getMinX() {return min[1];}
+  double getMinY() {return min[0];}
+  double getMinZ() {return min[2];}
   mwSize getNdim() {return ndim;}
   mwSize *getDims() {return dims;}
-  mwSize maxVoxDistance();
+  double maxVoxDistance();
   mwSize numEl();
 };
 

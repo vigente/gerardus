@@ -51,9 +51,14 @@ TARGET_LINK_LIBRARIES(bwregiongrow
 ## Post-compilation for all targets
 ################################################################
 
-INSTALL(TARGETS 
-  bwregiongrow
-  LIBRARY 
-  DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}
-  ARCHIVE
-  DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
+IF(WIN32)
+  INSTALL(TARGETS
+    bwregiongrow
+    RUNTIME
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
+ELSE(WIN32)
+  INSTALL(TARGETS
+    bwregiongrow
+    LIBRARY
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
+ENDIF(WIN32)
