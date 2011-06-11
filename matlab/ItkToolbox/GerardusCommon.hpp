@@ -43,7 +43,7 @@
 #include <mex.h>
 
 /* C++ headers */
-#import <vector>
+//#import <vector>
 
 /* ITK headers */
 #include "itkOffset.h"

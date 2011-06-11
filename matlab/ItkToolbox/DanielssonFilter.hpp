@@ -47,7 +47,7 @@
 #include "itkDanielssonDistanceMapImageFilter.h"
 
 /* Gerardus headers */
-#import "BaseFilter.hpp"
+#include "BaseFilter.hpp"
 
 /* 
  * DanielssonFilter : BaseFilter

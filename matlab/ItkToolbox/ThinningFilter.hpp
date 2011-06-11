@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.1
+  * Version: 0.2.2
   * $Rev$
   * $Date$
   *
@@ -47,7 +47,7 @@
 #include "itkBinaryThinningImageFilter3D.h"
 
 /* Gerardus headers */
-#import "BaseFilter.hpp"
+#include "BaseFilter.hpp"
 
 /* 
  * ThinningFilter : BaseFilter
@@ -88,6 +88,7 @@ public:
   void CopyAllFilterOutputsToMatlab() {;}			\
   };
 
+EXCLUDEFILTER(bool, bool);
 EXCLUDEFILTER(bool, uint8_T);
 EXCLUDEFILTER(bool, int8_T);
 EXCLUDEFILTER(bool, uint16_T)

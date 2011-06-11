@@ -49,7 +49,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.1
+  * Version: 0.2.2
   * $Rev$
   * $Date$
   *
@@ -91,11 +91,11 @@
 #include "itkImage.h"
 
 /* Gerardus headers */
-#import "NrrdImage.hpp"
-#import "BaseFilter.hpp"
-#import "DanielssonFilter.hpp"
-#import "SignedMaurerFilter.hpp"
-#import "ThinningFilter.hpp"
+#include "NrrdImage.hpp"
+#include "BaseFilter.hpp"
+#include "DanielssonFilter.hpp"
+#include "SignedMaurerFilter.hpp"
+#include "ThinningFilter.hpp"
 
 // parseFilterTypeToTemplate<InVoxelType, OutVoxelType>()
 template <class InVoxelType, class OutVoxelType>
@@ -163,7 +163,7 @@ void parseOutputTypeToTemplate(char *filter,
   } else if (!strcmp(filter, "dandist")) {
     // find how many bits we need to represent the maximum distance
     // that two voxels can have between them (in voxel units)
-    mwSize nbit = (mwSize)ceil(log2(nrrd.maxVoxDistance()));
+      mwSize nbit = (mwSize)ceil(log(nrrd.maxVoxDistance()) / log(2.0));
 
     // select an output voxel size enough to save the maximum distance
     // value

@@ -5,7 +5,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.1.2
   * $Rev$
   * $Date$
   *
@@ -152,10 +152,10 @@ NrrdImage::NrrdImage(const mxArray * nrrd) {
 // compute the maximum distance between any two voxels in this image
 // (in voxel units). This is the length of the largest diagonal in the
 // cube
-mwSize NrrdImage::maxVoxDistance() {
-  return std::sqrt((size[0]-1)*(size[0]-1)
-		   + (size[1]-1)*(size[1]-1)
-		   + (size[2]-1)*(size[2]-1));
+double NrrdImage::maxVoxDistance() {
+    return std::sqrt((double)(size[0]-1)*(size[0]-1)
+		   + (double)(size[1]-1)*(size[1]-1)
+		   + (double)(size[2]-1)*(size[2]-1));
 }
 
 // compute the number of voxels in the image volume

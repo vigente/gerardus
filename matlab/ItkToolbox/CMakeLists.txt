@@ -71,10 +71,16 @@ TARGET_LINK_LIBRARIES(itk_kernel_transform
 ## Post-compilation for all targets
 ################################################################
 
-INSTALL(TARGETS 
-  itk_kernel_transform
-  itk_imfilter
-  LIBRARY 
-  DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}
-  ARCHIVE
-  DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
+IF(WIN32)
+  INSTALL(TARGETS
+    itk_kernel_transform
+    itk_imfilter
+    RUNTIME
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
+ELSE(WIN32)
+  INSTALL(TARGETS
+    itk_kernel_transform
+    itk_imfilter
+    LIBRARY
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
+ENDIF(WIN32)
