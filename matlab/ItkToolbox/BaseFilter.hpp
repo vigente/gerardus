@@ -44,8 +44,8 @@
 #include "itkImageToImageFilter.h"
 
 /* Gerardus headers */
-#import "GerardusCommon.hpp"
-#import "NrrdImage.hpp"
+#include "GerardusCommon.hpp"
+#include "NrrdImage.hpp"
 
 /*
  * Block of functions to allow testing of template types

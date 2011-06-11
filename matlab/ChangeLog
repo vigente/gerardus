@@ -1,3 +1,66 @@
+2011-06-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* MatlabMakeMacros.cmake:
+
+	- Don't link to the m library in Windows, as it's not available.
+
+	* ItkToolbox/ThinningFilter.hpp:
+
+	- (v0.2.2) Don't instantiate this filter for bool, because the
+	compiler broke in Windows.
+
+	- Silly mistake of using "#import" instead of "#include".
+
+	* ItkToolbox/ThinningFilter.cpp:
+
+	- (v0.1.2) Don't instantiate this filter for bool. For some
+	reason, the concept check passed in Linux but not in Windows.
+
+	* ItkToolbox/NrrdImage.hpp:
+
+	- (v0.2.1) Return distances and minimal values as double instead
+	of integer.
+
+	* ItkToolbox/NrrdImage.cpp:
+
+	- (v0.1.2) Return distance as a double instead of an integer
+	NrrdImage::maxVoxDistance().
+
+	* ItkToolbox/GerardusCommon.cpp:
+
+	- (v0.3.1) Correct some type casting that Windows doesn't like.
+
+	- Don't use function div() for integer division, because it's
+	incompatible with Windows. Use / (division) and % (reminder)
+	instead.
+
+	* ItkToolbox/ArgumentParsers.hpp, tkToolbox/BaseFilter.cpp,
+	ItkToolbox/BaseFilter.hpp, ItkToolbox/DanielssonFilter.cpp,
+	ItkToolbox/DanielssonFilter.hpp, ItkToolbox/GerardusCommon.hpp,
+	ItkToolbox/SignedMaurerFilter.cpp, ItkToolbox/SignedMaurerFilter.hpp:
+
+	- (v0.2.1) Silly mistake of using "#import" instead of "#include".
+
+	* ItkToolbox/ArgumentParsers.cpp:
+
+	- (v0.2.2) Use log()/log(2.0) instead of log2(), because Windows
+	doesn't provide the latter.
+
+	- Silly mistake of using "#import" instead of "#include".
+
+	* FiltersToolbox/CMakeLists.txt, ItkToolbox/CMakeLists.txt:
+
+	- INSTALL() needs different arguments for Windows and
+	Linux. Windows DLLs are ARCHIVE, Linux shared objects are LIBRARY.
+
+	* FiltersToolbox/bwregiongrow.cpp:
+
+	- (v0.2.3) Correct some type casting that Windows doesn't like.
+
+	- Don't use function div() for integer division, because it's
+	incompatible with Windows. Use / (division) and % (reminder)
+	instead.
+
 2011-06-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/CMakeLists.txt:
