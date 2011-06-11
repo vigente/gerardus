@@ -68,6 +68,6 @@ SET(MATLAB_ROOT "/usr/local/matlab/R2010b/")
 SET(MATLAB_ROOT "C:\\ProgramFiles\\Matlab\\R2010b\\")
 }}}
  # Click on the "Generate" button
- # Open file `gerardus\matlab\bin\GERARDUS_MATLAB.sln` your development environment (e.g. Visual Studio 10)
+ # Open file `gerardus\matlab\bin\GERARDUS_MATLAB.sln` with your development environment (e.g. Visual Studio 10)
  # Select "Build -> Build Solution" from the menu.
  # In the "Solution Explorer", right click on "INSTALL" and select "Build". This will install the DLLs that correspond to the compiled MEX files
