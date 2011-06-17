@@ -13,6 +13,9 @@ function yi = pts_local_rigid(x, y, xi, idx)
 % warps do (e.g. thin-plate spline, elastic body spline, volume spline,
 % affine transformation), so it is useful to e.g. straighten a bent artery.
 %
+% This functions limits a bit the amount of twisting when straightening up
+% the vessel, but some twisting can appear.
+%
 % YI = PTS_LOCAL_RIGID(X, Y, XI, IDX)
 %
 %   X, Y are matrices of the same size, where each row is a point, such
@@ -28,7 +31,7 @@ function yi = pts_local_rigid(x, y, xi, idx)
 
 % Authors: Ramon Casero <rcasero@gmail.com>, Vicente Grau
 % Copyright © 2011 University of Oxford
-% Version: v0.1.1
+% Version: v0.1.2
 % $Rev$
 % $Date$
 % 
@@ -81,6 +84,9 @@ if (length(idx) ~= N)
     error('IDX must have one element per point in XI (per row)')
 end
 
+% get minimum distance between two consecutive voxels in the skeleton
+xdelta = min([sqrt(sum(diff(y).^2, 2)); sqrt(sum(diff(x).^2, 2))]);
+
 % compute rigid transformation to match the first 2 skeleton points
 [~, ~, t] = procrustes(y(1:2, :), x(1:2, :), 'Scaling', false);
 
@@ -94,16 +100,18 @@ x = x * t.T + repmat(t.c(1, :), n, 1);
 % skeleton points have been straightened
 todo = ~(idx == 1 | idx == 2);
 
+% unit vector in the direction of the straightened skeleton
+vy = [1 0 0];
+    
 % loop skeleton points
 for I = 3:n
     
-    % compute unit vectors between two points of the straight skeleton and
-    % of the bent skeleton. These two points are the current and previous
-    % skeleton points
+    %% preparation for 3D rotation to align skeleton segments
+    
+    % compute unit vector between two points of the bent skeleton.
+    % These two points are the current and previous skeleton points
     vx = x(I, :) - x(I-1, :);
     vx = vx / norm(vx);
-    vy = y(I, :) - y(I-1, :);
-    vy = vy / norm(vy);
     
     % compute angle from bent skeleton to straight skeleton
     theta = acos(dot(vy, vx));
@@ -111,7 +119,12 @@ for I = 3:n
     % compute normalized axis of rotation (note the order of vx, vy,
     % so that the rotation is correct)
     ax = cross(vy, vx);
-    ax = ax / norm(ax);
+    normax = norm(ax);
+    if (normax < 1e-12)
+        ax = [0 0 0];
+    else
+        ax = ax / norm(ax);
+    end
     if any(isnan(ax))
         ax = [0 0 0];
     end
@@ -133,25 +146,70 @@ for I = 3:n
     % number of points left to warp in the skeleton
     nb = n - I + 1;
     
-%     % DEBUG: If you want to see the random twisting that happens if you use
-%     % a rigid transformation instead, without being careful to constrain
-%     % the plane of rotation as we do, uncomment this block and comment out the
-%     % next one
-%     [~, ~, t] = procrustes(y(I-1:I, :), x(I-1:I, :), 'Scaling', false); % DEBUG
-%     yi(todo, :) = yi(todo, :) * t.T + repmat(t.c(1, :), Nb, 1); % DEBUG
-%     x(I:end, :) = x(I:end, :) * t.T + repmat(t.c(1, :), nb, 1); % DEBUG
+    %% preparation for 2D rotation to avoid twisting
+
+    % indices of voxels in the previous and current segments
+    seg0 = find(idx == I-1);
+    seg1 = find(idx == I);
+
+    % compute vector connecting skeleton points in previous (seg0) and
+    % current (seg1) segments
+    vx = x(I, :) - x(I-1, :);
+    
+    % add the vector to each voxel in the previous segment, and compute the
+    % distance to the current segment voxels
+    dmat = dmatrix((yi(seg0, :) + repmat(vx, length(seg0), 1))', yi(seg1, :)');
+    
+    % find closest voxels from each segment to the other
+    [dmin01, idx01] = min(dmat, [], 2);
+
+    % voxels in seg0 that corresponds to a voxel in seg1 along the
+    % direction vx
+    ok = dmin01 < xdelta * .01;
+    yi0 = yi(seg0(ok), :);
+    yi1 = yi(seg1(idx01(ok)), :);
+    
+%     % DEBUG: plot connections
+%     for J = 1:size(yi0, 1)
+%         plot3([yi0(J, 1) yi1(J, 1)], [yi0(J, 2) yi1(J, 2)], [yi0(J, 3) yi1(J, 3)])
+%     end
+
+    %% actual 3D rotation to align skeleton segments
     
     % straighten the points that haven't been straightened yet:
     %
     %   x(I, :) == y(I, :) from the previous step
     %   x(I-1, :) is the centre of rotation
-    %   we translate the centre of rotation to the origin, rotate the
-    %   points and translate them back
-    yi(todo, :) = (yi(todo, :) - repmat(x(I-1, :), Nb, 1)) * rot ...
-        + repmat(x(I-1, :), Nb, 1);
-    x(I:end, :) = (x(I:end, :) - repmat(x(I-1, :), nb, 1)) * rot ...
-        + repmat(x(I-1, :), nb, 1);
+    %   we translate the centre of rotation to the origin, and rotate the
+    %   points
+    yi(todo, :) = (yi(todo, :) - repmat(x(I-1, :), Nb, 1)) * rot;
+    x(I:end, :) = (x(I:end, :) - repmat(x(I-1, :), nb, 1)) * rot;
     
+    % translate the points back from the origin
+    yi(todo, :) = yi(todo, :) + repmat(x(I-1, :), Nb, 1);
+    x(I:end, :) = x(I:end, :) + repmat(x(I-1, :), nb, 1);
+    
+    % translate the points to the origin
+    yi0 = yi0 - repmat(x(I-1, :), size(yi0, 1), 1);
+    yi1 = yi1 - repmat(x(I-1, :), size(yi1, 1), 1);
+    
+    %% actual 2D rotation to avoid twisting
+    
+    % we rotate around the x-axis, so we just need the y, z-coordinates
+    [~, ~, t] = procrustes(yi0(:, 2:3), yi1(:, 2:3), 'Scaling', false);
+    
+    % convert the 2D rotation matrix around X-axis to 3D rotation matrix 
+    rot = [1 0 0; zeros(2, 1) t.T];
+    
+    %   we translate the centre of rotation to the origin, and rotate the
+    %   points
+    yi(todo, :) = (yi(todo, :) - repmat(x(I-1, :), Nb, 1)) * rot;
+    x(I:end, :) = (x(I:end, :) - repmat(x(I-1, :), nb, 1)) * rot;
+    
+    % translate the points back from the origin
+    yi(todo, :) = yi(todo, :) + repmat(x(I-1, :), Nb, 1);
+    x(I:end, :) = x(I:end, :) + repmat(x(I-1, :), nb, 1);
+
     % branch points that belong to the current skeleton point don't need to
     % be straightened anymore
     todo(idx == I) = false;
@@ -171,8 +229,12 @@ for I = 3:n
 %     plot3(yi(:, 1), yi(:, 2), yi(:, 3), '.')
 %     hold on
 %     plot3(x(:, 1), x(:, 2), x(:, 3), 'r.')
+%     plot3(x(I-1, 1), x(I-1, 2), x(I-1, 3), 'ro')
 %     plot3(x(I, 1), x(I, 2), x(I, 3), 'ko')
 %     axis equal
+%     xlabel('x')
+%     ylabel('y')
+%     zlabel('z')
 %     pause
 
 end
