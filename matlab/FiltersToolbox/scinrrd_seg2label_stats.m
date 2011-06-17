@@ -197,8 +197,8 @@ for I = 1:N
     % the label
     dlab = d(idx, idx)>0;
     
-    % compute degree of each voxel in the label if the label is
-    % disconnected
+    % compute degree of each voxel in the label if the label had been
+    % disconnected from all other labels
     deglab = sum(full(dlab), 2);
     
     % total number of voxels in the outer boundary of the label, whether
