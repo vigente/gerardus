@@ -1,3 +1,12 @@
+2011-06-17  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* PointsToolbox/pts_local_rigid.m:
+
+	- (v0.1.2) Although I thought that the 3D rotation constraint
+	prevented twisting, it didn't. This new method follows the 3D
+	rotation by a 2D rotation around the x-axis to limit a bit the
+	twisting, but the results are not great yet.
+
 2011-06-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* release 0.4.0
