@@ -54,7 +54,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -126,7 +126,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   mwSize dimxi = mxGetN(prhs[2]); // dimension of points to be warped
   
   if (Mx != My) mexErrMsgTxt("X and Y must have the same number of points (i.e. rows).");
-  if (dimx != dimy || dimx != dimxi) mexErrMsgTxt("X, Y and XI must have all dimension 3 (i.e. 3 columns).");
+  if (dimx != 3 || dimx != dimy || dimx != dimxi) {
+    mexErrMsgTxt("X, Y and XI must have all dimension 3 (i.e. 3 columns).");
+  }
 
   // create output vector and pointer to populate it
   plhs[0] = mxCreateDoubleMatrix(Mxi, dimxi, mxREAL);
