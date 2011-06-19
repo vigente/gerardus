@@ -1,3 +1,9 @@
+2011-06-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/ItkKernelTransform.cpp:
+
+	- (v0.1.1) Fix bug. It was not checked that data had 3 columns.
+
 2011-06-17  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* PointsToolbox/pts_local_rigid.m:
@@ -11,7 +17,7 @@
 
 	* release 0.4.0
 
-	- Now the MEX ITK functions itk_imfilter(),
+	- Now the MEX ITK functions itkcol_imfilter(),
 	itk_kernel_transform(), and the filter bwregiongrow() compile and
 	run under Windows XP 32-bit too. (Built with CMake 2.8 and Visual
 	Studio 10).
