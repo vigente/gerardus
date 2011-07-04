@@ -49,7 +49,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.2
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -99,10 +99,10 @@
 
 // parseFilterTypeToTemplate<InVoxelType, OutVoxelType>()
 template <class InVoxelType, class OutVoxelType>
-void parseFilterTypeToTemplate(char *filterName,
-			       NrrdImage nrrd,
+void parseFilterTypeToTemplate(NrrdImage nrrd,
 			       int nargout,
-			       mxArray** argOut) {
+			       mxArray** argOut,
+			       char *filterName) {
 
   // image type definitions
   typedef double TScalarType; // data type for scalars
@@ -143,10 +143,10 @@ void parseFilterTypeToTemplate(char *filterName,
 
 // parseOutputTypeToTemplate<InVoxelType>()
 template <class InVoxelType>
-void parseOutputTypeToTemplate(char *filter,
-			       NrrdImage nrrd,
+void parseOutputTypeToTemplate(NrrdImage nrrd,
 			       int nargout,
-			       mxArray** argOut) {
+			       mxArray** argOut,
+			       char *filter) {
 
   // make it easier to remember the different cases for the output
   // voxel type
@@ -190,27 +190,27 @@ void parseOutputTypeToTemplate(char *filter,
   switch(outVoxelType) {
   case SAME:
     parseFilterTypeToTemplate<InVoxelType, 
-      InVoxelType>(filter, nrrd, nargout, argOut);
+			      InVoxelType>(nrrd, nargout, argOut, filter);
     break;
   case BOOL:
     parseFilterTypeToTemplate<InVoxelType, 
-      bool>(filter, nrrd, nargout, argOut);
+			      bool>(nrrd, nargout, argOut, filter);
     break;
   case UINT8:
     parseFilterTypeToTemplate<InVoxelType, 
-      uint8_T>(filter, nrrd, nargout, argOut);
+			      uint8_T>(nrrd, nargout, argOut, filter);
     break;
   case UINT16:
     parseFilterTypeToTemplate<InVoxelType, 
-      uint16_T>(filter, nrrd, nargout, argOut);
+			      uint16_T>(nrrd, nargout, argOut, filter);
     break;
   case SINGLE:
     parseFilterTypeToTemplate<InVoxelType, 
-      float>(filter, nrrd, nargout, argOut);
+			      float>(nrrd, nargout, argOut, filter);
     break;
   case DOUBLE:
     parseFilterTypeToTemplate<InVoxelType, 
-      double>(filter, nrrd, nargout, argOut);
+			      double>(nrrd, nargout, argOut, filter);
     break;
   default:
     mexErrMsgTxt("Invalid output type.");
@@ -219,41 +219,43 @@ void parseOutputTypeToTemplate(char *filter,
 }
 
 // parseInputTypeToTemplate()
-void parseInputTypeToTemplate(mxClassID inputVoxelClassId, 
-			      char *filter,
-			      NrrdImage nrrd,
+void parseInputTypeToTemplate(NrrdImage nrrd,
 			      int nargout,
-			      mxArray** argOut) {
+			      mxArray** argOut,
+			      char *filter) {
   
+  // input image type
+  mxClassID inputVoxelClassId = mxGetClassID(nrrd.getData());
+
   switch(inputVoxelClassId)  { // swith input image type
   case mxLOGICAL_CLASS:
-    parseOutputTypeToTemplate<bool>(filter, nrrd, nargout, argOut);
+    parseOutputTypeToTemplate<bool>(nrrd, nargout, argOut, filter);
     break;
   case mxDOUBLE_CLASS:
-    parseOutputTypeToTemplate<double>(filter, nrrd, nargout, argOut);
+    parseOutputTypeToTemplate<double>(nrrd, nargout, argOut, filter);
     break;
   case mxSINGLE_CLASS:
-    parseOutputTypeToTemplate<float>(filter, nrrd, nargout, argOut);
+    parseOutputTypeToTemplate<float>(nrrd, nargout, argOut, filter);
     break;
   case mxINT8_CLASS:
-    parseOutputTypeToTemplate<int8_T>(filter, nrrd, nargout, argOut);
+    parseOutputTypeToTemplate<int8_T>(nrrd, nargout, argOut, filter);
     break;
   case mxUINT8_CLASS:
-    parseOutputTypeToTemplate<uint8_T>(filter, nrrd, nargout, argOut);
+    parseOutputTypeToTemplate<uint8_T>(nrrd, nargout, argOut, filter);
     break;
   case mxINT16_CLASS:
-    parseOutputTypeToTemplate<int16_T>(filter, nrrd, nargout, argOut);
+    parseOutputTypeToTemplate<int16_T>(nrrd, nargout, argOut, filter);
     break;
   case mxUINT16_CLASS:
-    parseOutputTypeToTemplate<uint16_T>(filter, nrrd, nargout, argOut);
+    parseOutputTypeToTemplate<uint16_T>(nrrd, nargout, argOut, filter);
     break;
   case mxINT32_CLASS:
-    parseOutputTypeToTemplate<int32_T>(filter, nrrd, nargout, argOut);
+    parseOutputTypeToTemplate<int32_T>(nrrd, nargout, argOut, filter);
     break;
   // case mxUINT32_CLASS:
   //   break;
   case mxINT64_CLASS:
-    parseOutputTypeToTemplate<int64_T>(filter, nrrd, nargout, argOut);
+    parseOutputTypeToTemplate<int64_T>(nrrd, nargout, argOut, filter);
     break;
   // case mxUINT64_CLASS:
   //   break;
