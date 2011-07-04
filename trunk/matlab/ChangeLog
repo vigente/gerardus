@@ -1,5 +1,19 @@
 2011-07-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* ItkToolbox/CMakeLists.txt:
+
+	- ItkToolbox/ArgumentParsers.cpp has been deleted.
+
+	* Delete ItkToolbox/ArgumentParsers.cpp,
+	ItkToolbox/ArgumentParsers.hpp:
+
+	- Move all the code to ItkImFilter.cpp.
+
+	- The parsers are not going to be general functions, but specific
+	to the mexFunction() calling them. In addition, it makes the code
+	more readable if we have all the pipeline from input argument
+	parsing to filter running in the ItkImFilter.cpp file.
+
 	* ItkToolbox/ArgumentParsers.cpp, ItkToolbox/ArgumentParsers.hpp:
 
 	- (v0.3.0) Reorder input arguments in the parsers, so that they
@@ -7,6 +21,9 @@
 	images, filter name.
 
 	* ItkToolbox/ItkImFilter.cpp:
+
+	- (v0.3.9) Paste all the code that used to be in
+	ItkToolbox/ArgumentParsers.cpp.
 
 	- (v0.3.8) Reorder input arguments in ArgumentParsers.hpp.
 
