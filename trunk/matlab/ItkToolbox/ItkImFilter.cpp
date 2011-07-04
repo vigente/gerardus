@@ -89,7 +89,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.7
+  * Version: 0.3.8
   * $Rev$
   * $Date$
   *
@@ -165,18 +165,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mexErrMsgTxt("Invalid FILTER string");
   }
 
-  // input image type
-  mxClassID inputVoxelClassId = mxGetClassID(nrrd.getData());
-
   // run filter (this function starts a cascade of functions designed
   // to translate the run-time type variables like inputVoxelClassId
   // to templates, so that we don't need to nest lots of "switch" or
   // "if" statements)
-  parseInputTypeToTemplate(inputVoxelClassId, 
-			     filter,
-			     nrrd,
-			     nlhs,
-			     plhs);
+  parseInputTypeToTemplate(nrrd,
+			   nlhs,
+			   plhs,
+			   filter);
 
   // exit successfully
   return;
