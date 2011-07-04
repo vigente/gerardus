@@ -50,7 +50,6 @@ ADD_MEX_FILE(itk_imfilter
   ThinningFilter.cpp
   SignedMaurerFilter.cpp
   DanielssonFilter.cpp
-  ArgumentParsers.cpp
   ItkImFilter.cpp)
 
 INCLUDE_DIRECTORIES(
