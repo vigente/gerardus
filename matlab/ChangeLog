@@ -1,3 +1,15 @@
+2011-07-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/ArgumentParsers.cpp, ItkToolbox/ArgumentParsers.hpp:
+
+	- (v0.3.0) Reorder input arguments in the parsers, so that they
+	reflect the order in which they are processed: input image, output
+	images, filter name.
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (v0.3.8) Reorder input arguments in ArgumentParsers.hpp.
+
 2011-06-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* ItkToolbox/ItkKernelTransform.cpp:
