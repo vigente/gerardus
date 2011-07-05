@@ -1,5 +1,9 @@
 2011-07-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* Add test/test_itk_pstransform.m:
+
+	- Script to test itk_pstransform().
+
 	* Delete ItkToolbox/ItkKernelTransform.cpp:
 
 	- Its functionality is now part of ItkPSTransform.cpp.
