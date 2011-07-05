@@ -1,3 +1,19 @@
+2011-07-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/BaseFilter.hpp:
+
+	- (v0.3.1) Rename FilterType as BaseFilterType so that it's
+	clearer and doesn't clash with the derived classes.
+
+	- Empty constructor now goes in the header.
+
+	- Regroup protected members.
+
+	* ItkToolbox/BaseFilter.cpp:
+
+	- (v0.3.1) Remove constructor's code, as it's empty and can go in
+	the header.
+
 2011-07-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* ItkToolbox/CMakeLists.txt:

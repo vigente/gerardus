@@ -1,14 +1,14 @@
 /* 
  * BaseFilter.hpp
  *
- * BaseFilter<InVoxelType, OutVoxelType, FilterType>: This is where
+ * BaseFilter<InVoxelType, OutVoxelType>: This is where
  * the code to actually run the filter on the image lives.
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -95,23 +95,21 @@ struct TypeIsDouble< double >
  */
 template <class InVoxelType, class OutVoxelType>
 class BaseFilter {
-protected:
-  typedef itk::Image< InVoxelType, Dimension > InImageType;
-  typedef itk::Image< OutVoxelType, Dimension > OutImageType;
-
 private:
   typedef double TScalarType; // data type for scalars
-  typedef itk::ImageToImageFilter<InImageType, OutImageType> FilterType;
   
 protected:
+  typedef typename itk::Image< InVoxelType, Dimension > InImageType;
+  typedef typename itk::Image< OutVoxelType, Dimension > OutImageType;
+  typedef typename itk::ImageToImageFilter<InImageType, OutImageType> BaseFilterType;
   typename InImageType::Pointer image;
   NrrdImage nrrd;
   int nargout;
   mxArray** argOut;
-  typename FilterType::Pointer filter;
+  typename BaseFilterType::Pointer filter;
 
 public:
-  BaseFilter(NrrdImage _nrrd, int _nargout, mxArray** _argOut);
+  BaseFilter(NrrdImage _nrrd, int _nargout, mxArray** _argOut) {;}
   BaseFilter() {;}
   virtual ~BaseFilter() {;}
   virtual void CopyMatlabInputsToItkImages();
