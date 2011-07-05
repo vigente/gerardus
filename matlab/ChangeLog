@@ -1,5 +1,24 @@
 2011-07-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* Delete ItkToolbox/ItkKernelTransform.cpp:
+
+	- Its functionality is now part of ItkPSTransform.cpp.
+
+	* ItkToolbox/CMakeLists.txt:
+
+	- Add compilation and installation of itk_pstransform.
+
+	- Remove itk_kernel_transform, that is now part of
+	itk_pstransform.
+
+	* ItkToolbox/ItkPSTransform.cpp:
+
+	- (v0.1.0) Basic code to replicate the functionality of
+	ItkKernelKernelTransform.cpp, but with the infrastructure to make
+	it possible to add the bpline warping method. As an improvement
+	over ItkKernelKernelTransform.cpp, now it's possible to give the
+	point coordinates as a double or a single in Matlab.
+
 	* ItkToolbox/BaseFilter.hpp:
 
 	- (v0.3.1) Rename FilterType as BaseFilterType so that it's

@@ -59,11 +59,11 @@ TARGET_LINK_LIBRARIES(itk_imfilter
   ${Libraries})
 
 ################################################################
-## itk_kernel_transform
+## itk_pstransform
 ################################################################
 
-ADD_MEX_FILE(itk_kernel_transform ItkKernelTransform.cpp)
-TARGET_LINK_LIBRARIES(itk_kernel_transform
+ADD_MEX_FILE(itk_pstransform ItkPSTransform.cpp)
+TARGET_LINK_LIBRARIES(itk_pstransform
   ${Libraries})
 
 ################################################################
@@ -72,14 +72,14 @@ TARGET_LINK_LIBRARIES(itk_kernel_transform
 
 IF(WIN32)
   INSTALL(TARGETS
-    itk_kernel_transform
     itk_imfilter
+    itk_pstransform
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ELSE(WIN32)
   INSTALL(TARGETS
-    itk_kernel_transform
     itk_imfilter
+    itk_pstransform
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ENDIF(WIN32)

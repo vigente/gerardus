@@ -1,95 +1,14 @@
-/* ItkImFilter.cpp
+/* ItkPSTransform.cpp
  *
- * ITK_IMFILTER: Run ITK filter on a 2D or 3D image
+ * ITK_PSTRANSFORM: Spatial transformation or warp on a point set
+ * defined from a known landmark correspondence
  *
- * This MEX function is a multiple-purpose wrapper to be able to run
- * all ITK filters that inherit from itk::ImageToImageFilter on a
- * Matlab 2D image or 3D image volume.
- *
- * B = ITK_IMFILTER(TYPE, A)
- *
- *   TYPE is a string with the filter we want to run. Currently, only
- *   the following options are implemented:
- *
- *     'skel':    (BinaryThinningImageFilter3D) Skeletonize a
- *                binary mask
- *
- *                B has the same size and class as A
- *
- *     'dandist': (DanielssonDistanceMapImageFilter) Compute unsigned
- *                distance map for a binary mask. Distance values are
- *                given in voxel coordinates
- *
- *                B has the same size as A. B has a type large enough
- *                to store the maximum distance in the image. The
- *                largest available type is double. If this is not
- *                enough, a warning message is displayed, and double
- *                is used as the output type
- *
- *     'maudist': (SignedMaurerDistanceMapImageFilter) Compute signed
- *                distance map for a binary mask. Distance values are
- *                given in real world coordinates, if the input image
- *                is given as an NRRD struct, or in voxel units, if
- *                the input image is a normal array. The output type
- *                is always double.
- *
- *   A is a 2D matrix or 3D volume with the image or
- *   segmentation. Currently, A can be of any of the following
- *   Matlab classes:
- *
- *     boolean
- *     double
- *     single
- *     int8
- *     uint8
- *     int16
- *     uint16
- *     int32
- *     int64
- *
- *   A can also be a SCI NRRD struct, A = nrrd, with the following fields:
- *
- *     nrrd.data: 2D or 3D array with the image or segmentation, as above
- *     nrrd.axis: 3x1 struct array with fields:
- *       nnrd.axis.size:    number of voxels in the image
- *       nnrd.axis.spacing: voxel size, image resolution
- *       nnrd.axis.min:     real world coordinates of image origin
- *       nnrd.axis.max:     ignored
- *       nnrd.axis.center:  ignored
- *       nnrd.axis.label:   ignored
- *       nnrd.axis.unit:    ignored
- *
- *   An SCI NRRD struct is the output of Matlab's function
- *   scinrrd_load(), also available from Gerardus.
- *
- *   B has the same size and class as the image in A, and contains the
- *   filtered image or segmentation mask.
- *
- * This function must be compiled before it can be used from Matlab.
- * If Gerardus' root directory is e.g. ~/gerardus, type from a
- * linux shell
- *
- *    $ cd ~/gerardus/matlab
- *    $ mkdir bin
- *    $ cd bin
- *    $ cmake ..
- *    $ make install
- *
- * Cmake has equivalents for Windows and MacOS, but I have not tried
- * them.
- *
- * If cmake throws an error because it cannot find Matlab, then edit
- * gerardus/matlab/CMakeLists.txt, and where it says
- *
- *    SET(MATLAB_ROOT "/usr/local/matlab/R2010b/")
- *
- *  change to your own Matlab root path.
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.8
+  * Version: 0.1.0
   * $Rev$
   * $Date$
   *
@@ -118,8 +37,8 @@
   * <http://www.gnu.org/licenses/>.
   */
 
-#ifndef ITKIMFILTER_CPP
-#define ITKIMFILTER_CPP
+#ifndef ITKPSTRANSFORM_CPP
+#define ITKPSTRANSFORM_CPP
 
 #ifdef _MSC_VER
 #pragma warning ( disable : 4786 )
@@ -130,53 +49,226 @@
 
 /* C++ headers */
 #include <iostream>
-#include <cmath>
-#include <matrix.h>
-#include <vector>
+// #include <cmath>
+// #include <matrix.h>
+// #include <vector>
 
 /* ITK headers */
-#include "itkImage.h"
-#include "itkBinaryThinningImageFilter3D.h"
-#include "itkDanielssonDistanceMapImageFilter.h"
-#include "itkSignedMaurerDistanceMapImageFilter.h"
+// #include "itkPointSet.h"
+#include "itkElasticBodySplineKernelTransform.h"
+#include "itkElasticBodyReciprocalSplineKernelTransform.h"
+#include "itkThinPlateSplineKernelTransform.h"
+#include "itkThinPlateR2LogRSplineKernelTransform.h"
+#include "itkVolumeSplineKernelTransform.h"
 
 /* Gerardus headers */
-#include "NrrdImage.hpp"
-#include "BaseFilter.hpp"
-#include "ArgumentParsers.hpp"
+
+/* Functions */
+
+const unsigned int Dimension = 3;
+
+// runKernelTransform<TScalarType, TransformType>()
+template <class TScalarType, class TransformType>
+void runKernelTransform(const mxArray** argIn,
+	       mxArray** argOut) {
+
+  // get size of input arguments
+  mwSize Mx = mxGetM(argIn[1]); // number of source points
+  mwSize Mxi = mxGetM(argIn[3]); // number of points to be warped
+  mwSize ndimxi; // number of dimension of points to be warped
+  const mwSize *dimsxi; // dimensions of array of points to be warped
+
+  // create pointers to input matrices
+  TScalarType *x = (TScalarType *)mxGetPr(argIn[1]); // source points
+  TScalarType *y = (TScalarType *)mxGetPr(argIn[2]); // target points
+  TScalarType *xi = (TScalarType *)mxGetPr(argIn[3]); // points to be warped
+
+  // duplicate the input x and y matrices to PointSet format so that
+  // we can pass it to the ITK function
+
+  // typedef itk::KernelTransform< TScalarType, Dimension > 
+  //   KernelTransformType;
+
+  typedef typename TransformType::PointSetType PointSetType;
+
+  typename PointSetType::Pointer fixedPointSet = PointSetType::New();
+  typename PointSetType::Pointer movingPointSet = PointSetType::New();
+  typename PointSetType::Pointer toWarpPointSet = PointSetType::New();
+  typedef typename PointSetType::PointsContainer PointsContainer;
+  typename PointsContainer::Pointer fixedPointContainer = PointsContainer::New();
+  typename PointsContainer::Pointer movingPointContainer = PointsContainer::New();
+  typedef typename PointSetType::PointType PointType;
+  PointType fixedPoint;
+  PointType movingPoint;
+  PointType toWarpPoint;
+  PointType warpedPoint;
+
+  mwSize pointId=0;
+  for (mwSize row=0; row < Mx; ++row) {
+    for (mwSize col=0; col < (mwSize)Dimension; ++col) {
+      fixedPoint[col] = y[Mx * col + row];
+      movingPoint[col] = x[Mx * col + row];
+    }
+    fixedPointContainer->InsertElement(pointId, fixedPoint);
+    movingPointContainer->InsertElement(pointId, movingPoint);
+    ++pointId;
+  }
+  fixedPointSet->SetPoints(fixedPointContainer);
+  movingPointSet->SetPoints(movingPointContainer);
+
+  // compute the transform
+  typename TransformType::Pointer transform;
+  transform = TransformType::New();
+  
+  transform->SetSourceLandmarks(movingPointSet);
+  transform->SetTargetLandmarks(fixedPointSet);
+  transform->ComputeWMatrix();
+  
+  // create output vector and pointer to populate it
+  ndimxi = mxGetNumberOfDimensions(argIn[3]);
+  dimsxi = mxGetDimensions(argIn[3]);
+  argOut[0] = (mxArray *)mxCreateNumericArray(ndimxi, 
+  					      dimsxi, 
+  					      mxGetClassID(argIn[1]), 
+  					      mxREAL);
+  TScalarType *yi = (TScalarType *)mxGetPr(argOut[0]);
+
+  // transform points
+  for (mwSize row=0; row < Mxi; ++row) {
+    for (mwSize col=0; col < (mwSize)Dimension; ++col) {
+      toWarpPoint[col] = xi[Mxi * col + row];
+    }
+    warpedPoint = transform->TransformPoint(toWarpPoint);
+    for (mwSize col=0; col < (mwSize)Dimension; ++col) {
+      yi[Mxi * col + row] = warpedPoint[col];
+    }
+  }
+  
+  // exit function
+  return;
+  
+}
+
+// parseTransformType<TScalarType>()
+template <class TScalarType>
+void parseTransformType(const mxArray** argIn,
+			mxArray** argOut) {
+  
+  // get type of transform
+  char *transform = mxArrayToString(argIn[0]);
+  if (transform == NULL) {
+    mexErrMsgTxt("Cannot read TRANSFORM string");
+  }
+  
+  // kernel transform types
+  typedef itk::ElasticBodySplineKernelTransform< TScalarType, Dimension > 
+    ElasticTransformType;
+  typedef itk::ElasticBodyReciprocalSplineKernelTransform< TScalarType, Dimension > 
+    ElasticReciprocalTransformType;
+  typedef itk::ThinPlateSplineKernelTransform< TScalarType, Dimension > 
+    TpsTransformType;
+  typedef itk::ThinPlateR2LogRSplineKernelTransform< TScalarType, Dimension > 
+    TpsR2LogRTransformType;
+  typedef itk::VolumeSplineKernelTransform< TScalarType, Dimension > 
+    VolumeTransformType;
+
+  // select transform function
+  if (!strcmp(transform, "elastic")) {
+    runKernelTransform<TScalarType, ElasticTransformType>(argIn, argOut);
+  } else if (!strcmp(transform, "elasticr")) {
+    runKernelTransform<TScalarType, ElasticReciprocalTransformType>(argIn, argOut);
+  } else if (!strcmp(transform, "tps")) {
+    runKernelTransform<TScalarType, TpsTransformType>(argIn, argOut);
+  } else if (!strcmp(transform, "tpsr2")) {
+    runKernelTransform<TScalarType, TpsR2LogRTransformType>(argIn, argOut);
+  } else if (!strcmp(transform, "volume")) {
+    runKernelTransform<TScalarType, VolumeTransformType>(argIn, argOut);
+  } else if (!strcmp(transform, "bspline")) {
+    mexErrMsgTxt("BSpline transform not implemented yet");
+  } else if (!strcmp(transform, "")) {
+    std::cout << 
+      "Implemented transform types: elastic, elasticr, tps, tpsr2, volume, bspline" 
+	      << std::endl;
+    return;
+  } else {
+    mexErrMsgTxt("Transform not implemented");
+  }
+
+  // exit function
+  return;
+  
+}
+
+// parseInputTypeToTemplate()
+void parseInputTypeToTemplate(const mxArray** argIn,
+			      mxArray** argOut) {
+
+  // point coordinate type
+  mxClassID pointCoordClassId = mxGetClassID(argIn[1]);
+
+  // check that all point coordinates have the same type (it simplifies
+  // things with templates)
+  if ((pointCoordClassId != mxGetClassID(argIn[2]))
+      | (pointCoordClassId != mxGetClassID(argIn[3]))) {
+    mexErrMsgTxt("Input arguments X, Y and XI must have the same type");
+  }
+  
+  // swith input image type
+  switch(pointCoordClassId) {
+  case mxDOUBLE_CLASS:
+    parseTransformType<double>(argIn, argOut);
+    break;
+  case mxSINGLE_CLASS:
+    parseTransformType<float>(argIn, argOut);
+    break;
+  case mxUNKNOWN_CLASS:
+    mexErrMsgTxt("Point coordinates have unknown type");
+    break;
+  default:
+    mexErrMsgTxt("Point coordinates can only be of type single or double");
+    break;
+  }
+
+  // exit function
+  return;
+  
+}
 
 /*
  * mexFunction(): entry point for the mex function
  */
 void mexFunction(int nlhs, mxArray *plhs[], 
 		 int nrhs, const mxArray *prhs[]) {
+
   // check number of input and output arguments
-  if (nrhs != 2) {
-    mexErrMsgTxt("Two input arguments required");
+  if (nrhs != 4) {
+    mexErrMsgTxt("Four input arguments required");
+  }
+  if (nlhs > 1) {
+    mexErrMsgTxt("Too many output arguments");
   }
 
-  // read image and its parameters, whether it's in NRRD format, or
-  // just a 2D or 3D array
-  NrrdImage nrrd(prhs[1]);
-
-  // get type of filter
-  char *filter = mxArrayToString(prhs[0]);
-  if (filter == NULL) {
-    mexErrMsgTxt("Invalid FILTER string");
+  // check size of input arguments
+  mwSize Mx = mxGetM(prhs[1]); // number of source points
+  mwSize My = mxGetM(prhs[2]); // number of target points
+  mwSize dimx = mxGetN(prhs[1]); // dimension of source points
+  mwSize dimy = mxGetN(prhs[2]); // dimension of target points
+  mwSize dimxi = mxGetN(prhs[3]); // dimension of points to be warped
+  
+  if (Mx != My) mexErrMsgTxt("X and Y must have the same number of points (i.e. rows).");
+  if (dimx != 3 || dimx != dimy || dimx != dimxi) {
+    mexErrMsgTxt("X, Y and XI must have all dimension 3 (i.e. 3 columns).");
   }
 
   // run filter (this function starts a cascade of functions designed
   // to translate the run-time type variables like inputVoxelClassId
   // to templates, so that we don't need to nest lots of "switch" or
   // "if" statements)
-  parseInputTypeToTemplate(nrrd,
-			   nlhs,
-			   plhs,
-			   filter);
+  parseInputTypeToTemplate(prhs, plhs);
 
   // exit successfully
   return;
 
 }
 
-#endif /* ITKIMFILTER_CPP */
+#endif /* ITKPSTRANSFORM_CPP */
