@@ -1,7 +1,7 @@
 /* 
  * BaseFilter.cpp
  *
- * BaseFilter<InVoxelType, OutVoxelType, FilterType>: This is where
+ * BaseFilter<InVoxelType, OutVoxelType>: This is where
  * the code to actually run the filter on the image lives.
  *
  * Instead of having a function (e.g. runFilter), we have the code in
@@ -17,7 +17,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -73,14 +73,6 @@
  * BaseFilter<InVoxelType, OutVoxelType>: This is where
  * the code to actually run the filter on the image lives.
  */
-
-// Constructor
-template <class InVoxelType, class OutVoxelType>
-BaseFilter<InVoxelType, OutVoxelType>::BaseFilter
-(NrrdImage _nrrd, int _nargout, mxArray** _argOut) 
-  : nrrd(_nrrd), nargout(_nargout), argOut(_argOut) {
-  
-}
 
 template <class InVoxelType, class OutVoxelType>
 void BaseFilter<InVoxelType, OutVoxelType>::CopyMatlabInputsToItkImages() {
