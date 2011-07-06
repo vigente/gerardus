@@ -54,7 +54,6 @@
 // #include <vector>
 
 /* ITK headers */
-#include "itkPointSet.h"
 #include "itkElasticBodySplineKernelTransform.h"
 #include "itkElasticBodyReciprocalSplineKernelTransform.h"
 #include "itkThinPlateSplineKernelTransform.h"
@@ -84,15 +83,7 @@ void runKernelTransform(const mxArray** argIn,
   // duplicate the input x and y matrices to PointSet format so that
   // we can pass it to the ITK function
 
-  typedef typename itk::PointSet<itk::Point<TScalarType, Dimension>, 
-  				 Dimension,
-  				 itk::DefaultStaticMeshTraits<TScalarType,
-							      Dimension, 
-							      Dimension, 
-							      TScalarType, 
-							      TScalarType, 
-							      TScalarType> 
-				 > PointSetType;
+  typedef typename TransformType::PointSetType PointSetType;
   typename PointSetType::Pointer fixedPointSet = PointSetType::New();
   typename PointSetType::Pointer movingPointSet = PointSetType::New();
   typename PointSetType::Pointer toWarpPointSet = PointSetType::New();
