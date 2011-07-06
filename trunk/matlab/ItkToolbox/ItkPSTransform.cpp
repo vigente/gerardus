@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -54,7 +54,6 @@
 // #include <vector>
 
 /* ITK headers */
-// #include "itkPointSet.h"
 #include "itkElasticBodySplineKernelTransform.h"
 #include "itkElasticBodyReciprocalSplineKernelTransform.h"
 #include "itkThinPlateSplineKernelTransform.h"
@@ -65,10 +64,8 @@
 
 /* Functions */
 
-const unsigned int Dimension = 3;
-
-// runKernelTransform<TScalarType, TransformType>()
-template <class TScalarType, class TransformType>
+// runKernelTransform<TScalarType, Dimension, TransformType>()
+template <class TScalarType, unsigned int Dimension, class TransformType>
 void runKernelTransform(const mxArray** argIn,
 	       mxArray** argOut) {
 
@@ -76,7 +73,7 @@ void runKernelTransform(const mxArray** argIn,
   mwSize Mx = mxGetM(argIn[1]); // number of source points
   mwSize Mxi = mxGetM(argIn[3]); // number of points to be warped
   mwSize ndimxi; // number of dimension of points to be warped
-  const mwSize *dimsxi; // dimensions of array of points to be warped
+  const mwSize *dimsxi; // dimensions vector of array of points to be warped
 
   // create pointers to input matrices
   TScalarType *x = (TScalarType *)mxGetPr(argIn[1]); // source points
@@ -86,11 +83,7 @@ void runKernelTransform(const mxArray** argIn,
   // duplicate the input x and y matrices to PointSet format so that
   // we can pass it to the ITK function
 
-  // typedef itk::KernelTransform< TScalarType, Dimension > 
-  //   KernelTransformType;
-
   typedef typename TransformType::PointSetType PointSetType;
-
   typename PointSetType::Pointer fixedPointSet = PointSetType::New();
   typename PointSetType::Pointer movingPointSet = PointSetType::New();
   typename PointSetType::Pointer toWarpPointSet = PointSetType::New();
@@ -149,8 +142,8 @@ void runKernelTransform(const mxArray** argIn,
   
 }
 
-// parseTransformType<TScalarType>()
-template <class TScalarType>
+// parseTransformType<TScalarType, Dimension>()
+template <class TScalarType, unsigned int Dimension>
 void parseTransformType(const mxArray** argIn,
 			mxArray** argOut) {
   
@@ -161,28 +154,33 @@ void parseTransformType(const mxArray** argIn,
   }
   
   // kernel transform types
-  typedef itk::ElasticBodySplineKernelTransform< TScalarType, Dimension > 
+  typedef itk::ElasticBodySplineKernelTransform<TScalarType, Dimension> 
     ElasticTransformType;
-  typedef itk::ElasticBodyReciprocalSplineKernelTransform< TScalarType, Dimension > 
+  typedef itk::ElasticBodyReciprocalSplineKernelTransform<TScalarType, Dimension> 
     ElasticReciprocalTransformType;
-  typedef itk::ThinPlateSplineKernelTransform< TScalarType, Dimension > 
+  typedef itk::ThinPlateSplineKernelTransform<TScalarType, Dimension> 
     TpsTransformType;
-  typedef itk::ThinPlateR2LogRSplineKernelTransform< TScalarType, Dimension > 
+  typedef itk::ThinPlateR2LogRSplineKernelTransform<TScalarType, Dimension> 
     TpsR2LogRTransformType;
-  typedef itk::VolumeSplineKernelTransform< TScalarType, Dimension > 
+  typedef itk::VolumeSplineKernelTransform<TScalarType, Dimension> 
     VolumeTransformType;
 
   // select transform function
   if (!strcmp(transform, "elastic")) {
-    runKernelTransform<TScalarType, ElasticTransformType>(argIn, argOut);
+    runKernelTransform<TScalarType, Dimension, 
+		       ElasticTransformType>(argIn, argOut);
   } else if (!strcmp(transform, "elasticr")) {
-    runKernelTransform<TScalarType, ElasticReciprocalTransformType>(argIn, argOut);
+    runKernelTransform<TScalarType, Dimension, 
+		       ElasticReciprocalTransformType>(argIn, argOut);
   } else if (!strcmp(transform, "tps")) {
-    runKernelTransform<TScalarType, TpsTransformType>(argIn, argOut);
+    runKernelTransform<TScalarType, Dimension, 
+		       TpsTransformType>(argIn, argOut);
   } else if (!strcmp(transform, "tpsr2")) {
-    runKernelTransform<TScalarType, TpsR2LogRTransformType>(argIn, argOut);
+    runKernelTransform<TScalarType, Dimension, 
+		       TpsR2LogRTransformType>(argIn, argOut);
   } else if (!strcmp(transform, "volume")) {
-    runKernelTransform<TScalarType, VolumeTransformType>(argIn, argOut);
+    runKernelTransform<TScalarType, Dimension, 
+		       VolumeTransformType>(argIn, argOut);
   } else if (!strcmp(transform, "bspline")) {
     mexErrMsgTxt("BSpline transform not implemented yet");
   } else if (!strcmp(transform, "")) {
@@ -197,6 +195,32 @@ void parseTransformType(const mxArray** argIn,
   // exit function
   return;
   
+}
+
+// parseDimensionToTemplate<TScalarType>()
+template <class TScalarType>
+void parseDimensionToTemplate(const mxArray** argIn,
+			      mxArray** argOut) {
+
+  // dimension of points
+  mwSize Nx = mxGetN(argIn[1]);
+
+  // parse the dimension value
+  switch (Nx) {
+  case 2:
+    parseTransformType<TScalarType, 2>(argIn, argOut);
+    break;
+  case 3:
+    parseTransformType<TScalarType, 3>(argIn, argOut);
+    break;
+  default:
+    mexErrMsgTxt("Input points can only have dimensions 2 or 3");
+    break;
+  }
+
+  // exit function
+  return;
+
 }
 
 // parseInputTypeToTemplate()
@@ -216,10 +240,10 @@ void parseInputTypeToTemplate(const mxArray** argIn,
   // swith input image type
   switch(pointCoordClassId) {
   case mxDOUBLE_CLASS:
-    parseTransformType<double>(argIn, argOut);
+    parseDimensionToTemplate<double>(argIn, argOut);
     break;
   case mxSINGLE_CLASS:
-    parseTransformType<float>(argIn, argOut);
+    parseDimensionToTemplate<float>(argIn, argOut);
     break;
   case mxUNKNOWN_CLASS:
     mexErrMsgTxt("Point coordinates have unknown type");
@@ -251,13 +275,13 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // check size of input arguments
   mwSize Mx = mxGetM(prhs[1]); // number of source points
   mwSize My = mxGetM(prhs[2]); // number of target points
-  mwSize dimx = mxGetN(prhs[1]); // dimension of source points
+  mwSize Dimension = mxGetN(prhs[1]); // dimension of source points
   mwSize dimy = mxGetN(prhs[2]); // dimension of target points
   mwSize dimxi = mxGetN(prhs[3]); // dimension of points to be warped
   
   if (Mx != My) mexErrMsgTxt("X and Y must have the same number of points (i.e. rows).");
-  if (dimx != 3 || dimx != dimy || dimx != dimxi) {
-    mexErrMsgTxt("X, Y and XI must have all dimension 3 (i.e. 3 columns).");
+  if (Dimension != 3 || Dimension != dimy || Dimension != dimxi) {
+    mexErrMsgTxt("X, Y and XI must all have the same dimension (i.e. number of columns).");
   }
 
   // run filter (this function starts a cascade of functions designed

@@ -1,5 +1,10 @@
 2011-07-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* ItkToolbox/ItkPSTransform.cpp:
+
+	- (v0.1.1) Add support for 2D points, so that not only 3D points
+	are accepted.
+
 	* Add test/nrrd-bent-vessel-3d* files with the segmentation and
 	skeleton of 2 bent vessels in 3D.
 
