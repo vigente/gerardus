@@ -1,3 +1,8 @@
+2011-07-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add test/nrrd-bent-vessel-3d* files with the segmentation and
+	skeleton of 2 bent vessels in 3D.
+
 2011-07-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* Add test/test_itk_pstransform.m:
