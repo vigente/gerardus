@@ -1,14 +1,76 @@
 /* ItkPSTransform.cpp
  *
- * ITK_PSTRANSFORM: Spatial transformation or warp on a point set
+ * ITK_PSTRANSFORM: Spatial transformation (i.e. warp) of a set of points,
  * defined from a known landmark correspondence
+ *
+ * This MEX-function provides a Matlab interface to run ITK's Kernel
+ * and B-spline transforms:
+ *
+ *   itk::ElasticBodySplineKernelTransform
+ *   itk::ElasticBodyReciprocalSplineKernelTransform
+ *   itk::ThinPlateSplineKernelTransform
+ *   itk::ThinPlateR2LogRSplineKernelTransform
+ *   itk::VolumeSplineKernelTransform
+ *   itk::BSplineScatteredDataPointSetToImageFilter
+ *
+ *
+ * YI = ITK_PSTRANSFORM(TRANSFORM, X, Y, XI)
+ *
+ *   X, Y are 2-column (2D) or 3-column (3D) matrices. Each row has
+ *   the coordinates of a point. The warp is defined so that
+ *   X(i,:)->Y(i,:).
+ *
+ *   XI is a matrix with the same number of columns as X, Y. Each row
+ *   has the coordinates of a point to be warped.
+ *
+ *   YI has the same dimensions as XI. YI contains the coordinates of
+ *   the warped points.
+ *
+ *   TRANSFORM is a string that allows to select the type of warp (no
+ *   defaults):
+ *
+ * YI = ITK_PSTRANSFORM('elastic', X, Y, XI)
+ * YI = ITK_PSTRANSFORM('elasticr', X, Y, XI)
+ * YI = ITK_PSTRANSFORM('tps', X, Y, XI)
+ * YI = ITK_PSTRANSFORM('tpsr2', X, Y, XI)
+ * YI = ITK_PSTRANSFORM('volume', X, Y, XI)
+ *
+ *   'elastic':  itk::ElasticBodySplineKernelTransform
+ *   'elasticr': itk::ElasticBodyReciprocalSplineKernelTransform
+ *   'tps':      itk::ThinPlateSplineKernelTransform
+ *   'tpsr2':    itk::ThinPlateR2LogRSplineKernelTransform
+ *   'volume':   itk::VolumeSplineKernelTransform
+ *
+ * YI = ITK_PSTRANSFORM('bspline', X, Y, XI, ORDER, LEVELS)
+ *
+ *   'bspline':  itk::BSplineScatteredDataPointSetToImageFilter
+ *
+ *   By Nicholas J. Tustison, James C. Gee in the Insight Journal
+ *   paper: http://hdl.handle.net/1926/140
+ *
+ *   ORDER is an integer with the B-spline order. By default, ORDER=3,
+ *   and the B-spline is cubic.
+ *
+ *   LEVELS is an integer with the number of multi-resolution levels
+ *   in the algorithm. A higher number of levels will make the spline
+ *   more flexible and match the landmarks better. By default, LEVELS=5.
+ *
+ * This function must be compiled before it can be used from Matlab.
+ * If Gerardus' root directory is e.g. ~/gerardus, type from a
+ * linux shell
+ *
+ *    $ cd ~/gerardus/matlab
+ *    $ mkdir bin
+ *    $ cd bin
+ *    $ cmake ..
+ *    $ make install
  *
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -49,25 +111,203 @@
 
 /* C++ headers */
 #include <iostream>
-// #include <cmath>
-// #include <matrix.h>
-// #include <vector>
+#include <cmath>
+#include <limits>
+#include <algorithm>
 
 /* ITK headers */
+#include "itkImage.h"
+#include "itkKernelTransform.h"
 #include "itkElasticBodySplineKernelTransform.h"
 #include "itkElasticBodyReciprocalSplineKernelTransform.h"
 #include "itkThinPlateSplineKernelTransform.h"
 #include "itkThinPlateR2LogRSplineKernelTransform.h"
 #include "itkVolumeSplineKernelTransform.h"
+#include "itkBSplineScatteredDataPointSetToImageFilter.h"
 
 /* Gerardus headers */
 
 /* Functions */
 
+// runBSplineTransform<TScalarType, Dimension>()
+template <class TScalarType, unsigned int Dimension>
+void runBSplineTransform(int nArgIn, const mxArray** argIn,
+			 mxArray** argOut) {
+
+  // check number of input arguments
+  if (nArgIn > 6) {
+    mexErrMsgTxt("Too many input arguments");
+  }
+
+  // spline order (input argument): default or user-provided
+  unsigned int splineOrder = 3;
+  if ((nArgIn > 4) && !mxIsEmpty(argIn[4])) {
+    if (!mxIsDouble(argIn[4]) 
+	|| mxIsComplex(argIn[4])
+	|| (mxGetM(argIn[4]) != 1) 
+	|| (mxGetN(argIn[4]) != 1)) {
+      mexErrMsgTxt("ORDER must be an integer scalar of type double >= 0");
+    }
+    double *pSplineOrder = mxGetPr(argIn[4]);
+    if ((pSplineOrder[0] < 0) 
+	|| (pSplineOrder[0] != round(pSplineOrder[0]))) {
+      mexErrMsgTxt("ORDER must be an integer scalar of type double >= 0");
+    }
+    splineOrder = (unsigned int)pSplineOrder[0];
+  }  
+
+  // number of levels (input argument): default or user-provided
+  unsigned int numOfLevels = 5;
+  if ((nArgIn > 5) && !mxIsEmpty(argIn[5])) {
+    if (!mxIsDouble(argIn[5]) 
+	|| mxIsComplex(argIn[5])
+	|| (mxGetM(argIn[5]) != 1) 
+	|| (mxGetN(argIn[5]) != 1)) {
+      mexErrMsgTxt("LEVELS must be an integer scalar of type double >= 1");
+    }
+    double *pNumOfLevels = mxGetPr(argIn[5]);
+    if ((pNumOfLevels[0] < 1) 
+	|| (pNumOfLevels[0] != round(pNumOfLevels[0]))) {
+      mexErrMsgTxt("LEVELS must be an integer scalar of type double >= 1");
+    }
+    numOfLevels = (unsigned int)pNumOfLevels[0];
+  }  
+
+  // get size of input arguments
+  mwSize Mx = mxGetM(argIn[1]); // number of source points
+  mwSize Mxi = mxGetM(argIn[3]); // number of points to be warped
+
+  // create pointers to input matrices
+  TScalarType *x = (TScalarType *)mxGetData(argIn[1]); // source points
+  TScalarType *y = (TScalarType *)mxGetData(argIn[2]); // target points
+  TScalarType *xi = (TScalarType *)mxGetData(argIn[3]); // points to be warped
+
+  // type definitions for the BSPline transform
+  typedef itk::Vector<TScalarType, Dimension> DataType;
+  typedef itk::PointSet<DataType, Dimension> PointSetType;
+  typedef itk::Image<DataType, Dimension> ImageType;
+  typedef typename 
+    itk::BSplineScatteredDataPointSetToImageFilter<PointSetType, 
+						   ImageType> TransformType;
+
+  // variables to store the input points
+  typename PointSetType::Pointer pointSet = PointSetType::New();
+  typename PointSetType::PointType xParam;
+  DataType v; // v = y-x, i.e. displacement vector between source and
+              // target landmark
+
+  // variables to find the minimum and maximum values of x and y to
+  // define the parametric domain
+  typename ImageType::PointType orig, term;
+  for (mwSize col=0; col < (mwSize)Dimension; ++col) {
+    orig[col] = std::numeric_limits<TScalarType>::max();
+    term[col] = std::numeric_limits<TScalarType>::min();
+  }
+
+  // duplicate the input x and y matrices to PointSet format so that
+  // we can pass it to the ITK function
+  //
+  // also look for bounding box vertices for parametric domain (orig
+  // and term)
+  for (mwSize row=0; row < Mx; ++row) {
+    for (mwSize col=0; col < (mwSize)Dimension; ++col) {
+      v[col] = y[Mx * col + row] - x[Mx * col + row];
+      xParam[col] = x[Mx * col + row];
+      orig[col] = std::min((TScalarType)orig[col], x[Mx * col + row]);
+      term[col] = std::max((TScalarType)term[col], x[Mx * col + row]);
+    }
+    pointSet->SetPoint(row, xParam);
+    pointSet->SetPointData(row, v);
+  }
+
+  // correct bounding box if necessary to include all points to be
+  // warped too
+  for (mwSize row=0; row < Mxi; ++row) {
+    for (mwSize col=0; col < (mwSize)Dimension; ++col) {
+      orig[col] = std::min((TScalarType)orig[col], xi[Mxi * col + row]);
+      term[col] = std::max((TScalarType)term[col], xi[Mxi * col + row]);
+    }
+  }
+
+  // instantiate and set-up transform
+  typename TransformType::Pointer transform = TransformType::New();
+  transform->SetGenerateOutputImage(false);
+  transform->SetInput(pointSet);
+  transform->SetSplineOrder(splineOrder);
+  typename TransformType::ArrayType ncps ;
+  ncps.Fill(splineOrder + 1);
+  transform->SetNumberOfControlPoints(ncps);
+  transform->SetNumberOfLevels(numOfLevels);
+
+  // note that closedim, spacing, sz and orig are all refered to the
+  // parametric domain, i.e. the domain of x and xi
+  typename TransformType::ArrayType closedim;
+  typename ImageType::SpacingType spacing;
+  typename ImageType::SizeType sz;
+
+  // the parametric domain is not periodic in any dimension
+  closedim.Fill(0);
+
+  // as we are not creating the image, we don't need to provide a
+  // sensible number of voxels. But size has to be at least 2 voxels
+  // to avoid a run-time error
+  sz.Fill(2);
+
+  for (mwSize col=0; col < (mwSize)Dimension; ++col) {
+    spacing[col] = (term[col] - orig[col]) / (sz[col] - 1);
+  }
+  
+  transform->SetCloseDimension(closedim);
+  transform->SetSize(sz);
+  transform->SetSpacing(spacing);
+  transform->SetOrigin(orig);
+
+  // run transform
+  try {
+    transform->Update();
+  } catch (...) {
+    mexErrMsgTxt("Error computing BSpline interpolant");
+  }
+
+  // number of dimension of points to be warped
+  mwSize ndimxi = mxGetNumberOfDimensions(argIn[3]); 
+  // dimensions vector of array of points to be warped
+  const mwSize *dimsxi = mxGetDimensions(argIn[3]);
+
+  // create output vector and pointer to populate it
+  argOut[0] = (mxArray *)mxCreateNumericArray(ndimxi, 
+  					      dimsxi, 
+  					      mxGetClassID(argIn[1]), 
+  					      mxREAL);
+  TScalarType *yi = (TScalarType *)mxGetData(argOut[0]);
+
+  // sample the warp field
+  DataType vi; // warp field sample
+  typename PointSetType::PointType xiParam; // sampling coordinates
+  for (mwSize row=0; row < Mxi; ++row) {
+    for (mwSize col=0; col < (mwSize)Dimension; ++col) {
+      xiParam[col] = xi[Mxi * col + row];
+    }
+    transform->Evaluate(xiParam, vi);
+    for (mwSize col=0; col < (mwSize)Dimension; ++col) {
+      yi[Mxi * col + row] = xi[Mxi * col + row] + vi[col];
+    }
+  }
+
+  // exit function
+  return;
+
+}
+
 // runKernelTransform<TScalarType, Dimension, TransformType>()
 template <class TScalarType, unsigned int Dimension, class TransformType>
-void runKernelTransform(const mxArray** argIn,
-	       mxArray** argOut) {
+void runKernelTransform(int nArgIn, const mxArray** argIn,
+			mxArray** argOut) {
+
+  // check number of input arguments
+  if (nArgIn > 4) {
+    mexErrMsgTxt("Too many input arguments");
+  }
 
   // get size of input arguments
   mwSize Mx = mxGetM(argIn[1]); // number of source points
@@ -76,13 +316,11 @@ void runKernelTransform(const mxArray** argIn,
   const mwSize *dimsxi; // dimensions vector of array of points to be warped
 
   // create pointers to input matrices
-  TScalarType *x = (TScalarType *)mxGetPr(argIn[1]); // source points
-  TScalarType *y = (TScalarType *)mxGetPr(argIn[2]); // target points
-  TScalarType *xi = (TScalarType *)mxGetPr(argIn[3]); // points to be warped
+  TScalarType *x = (TScalarType *)mxGetData(argIn[1]); // source points
+  TScalarType *y = (TScalarType *)mxGetData(argIn[2]); // target points
+  TScalarType *xi = (TScalarType *)mxGetData(argIn[3]); // points to be warped
 
-  // duplicate the input x and y matrices to PointSet format so that
-  // we can pass it to the ITK function
-
+  // type definitions and variables to store points for the kernel transform
   typedef typename TransformType::PointSetType PointSetType;
   typename PointSetType::Pointer fixedPointSet = PointSetType::New();
   typename PointSetType::Pointer movingPointSet = PointSetType::New();
@@ -96,6 +334,8 @@ void runKernelTransform(const mxArray** argIn,
   PointType toWarpPoint;
   PointType warpedPoint;
 
+  // duplicate the input x and y matrices to PointSet format so that
+  // we can pass it to the ITK function
   mwSize pointId=0;
   for (mwSize row=0; row < Mx; ++row) {
     for (mwSize col=0; col < (mwSize)Dimension; ++col) {
@@ -115,7 +355,11 @@ void runKernelTransform(const mxArray** argIn,
   
   transform->SetSourceLandmarks(movingPointSet);
   transform->SetTargetLandmarks(fixedPointSet);
-  transform->ComputeWMatrix();
+  try {
+    transform->ComputeWMatrix();
+  } catch (...) {
+    mexErrMsgTxt("Error computing kernel W matrix");
+  }
   
   // create output vector and pointer to populate it
   ndimxi = mxGetNumberOfDimensions(argIn[3]);
@@ -124,7 +368,7 @@ void runKernelTransform(const mxArray** argIn,
   					      dimsxi, 
   					      mxGetClassID(argIn[1]), 
   					      mxREAL);
-  TScalarType *yi = (TScalarType *)mxGetPr(argOut[0]);
+  TScalarType *yi = (TScalarType *)mxGetData(argOut[0]);
 
   // transform points
   for (mwSize row=0; row < Mxi; ++row) {
@@ -144,7 +388,7 @@ void runKernelTransform(const mxArray** argIn,
 
 // parseTransformType<TScalarType, Dimension>()
 template <class TScalarType, unsigned int Dimension>
-void parseTransformType(const mxArray** argIn,
+void parseTransformType(int nArgIn, const mxArray** argIn,
 			mxArray** argOut) {
   
   // get type of transform
@@ -168,21 +412,21 @@ void parseTransformType(const mxArray** argIn,
   // select transform function
   if (!strcmp(transform, "elastic")) {
     runKernelTransform<TScalarType, Dimension, 
-		       ElasticTransformType>(argIn, argOut);
+		       ElasticTransformType>(nArgIn, argIn, argOut);
   } else if (!strcmp(transform, "elasticr")) {
     runKernelTransform<TScalarType, Dimension, 
-		       ElasticReciprocalTransformType>(argIn, argOut);
+		       ElasticReciprocalTransformType>(nArgIn, argIn, argOut);
   } else if (!strcmp(transform, "tps")) {
     runKernelTransform<TScalarType, Dimension, 
-		       TpsTransformType>(argIn, argOut);
+		       TpsTransformType>(nArgIn, argIn, argOut);
   } else if (!strcmp(transform, "tpsr2")) {
     runKernelTransform<TScalarType, Dimension, 
-		       TpsR2LogRTransformType>(argIn, argOut);
+		       TpsR2LogRTransformType>(nArgIn, argIn, argOut);
   } else if (!strcmp(transform, "volume")) {
     runKernelTransform<TScalarType, Dimension, 
-		       VolumeTransformType>(argIn, argOut);
+		       VolumeTransformType>(nArgIn, argIn, argOut);
   } else if (!strcmp(transform, "bspline")) {
-    mexErrMsgTxt("BSpline transform not implemented yet");
+    runBSplineTransform<TScalarType, Dimension>(nArgIn, argIn, argOut);
   } else if (!strcmp(transform, "")) {
     std::cout << 
       "Implemented transform types: elastic, elasticr, tps, tpsr2, volume, bspline" 
@@ -199,7 +443,7 @@ void parseTransformType(const mxArray** argIn,
 
 // parseDimensionToTemplate<TScalarType>()
 template <class TScalarType>
-void parseDimensionToTemplate(const mxArray** argIn,
+void parseDimensionToTemplate(int nArgIn, const mxArray** argIn,
 			      mxArray** argOut) {
 
   // dimension of points
@@ -208,10 +452,10 @@ void parseDimensionToTemplate(const mxArray** argIn,
   // parse the dimension value
   switch (Nx) {
   case 2:
-    parseTransformType<TScalarType, 2>(argIn, argOut);
+    parseTransformType<TScalarType, 2>(nArgIn, argIn, argOut);
     break;
   case 3:
-    parseTransformType<TScalarType, 3>(argIn, argOut);
+    parseTransformType<TScalarType, 3>(nArgIn, argIn, argOut);
     break;
   default:
     mexErrMsgTxt("Input points can only have dimensions 2 or 3");
@@ -224,7 +468,7 @@ void parseDimensionToTemplate(const mxArray** argIn,
 }
 
 // parseInputTypeToTemplate()
-void parseInputTypeToTemplate(const mxArray** argIn,
+void parseInputTypeToTemplate(int nArgIn, const mxArray** argIn,
 			      mxArray** argOut) {
 
   // point coordinate type
@@ -240,10 +484,10 @@ void parseInputTypeToTemplate(const mxArray** argIn,
   // swith input image type
   switch(pointCoordClassId) {
   case mxDOUBLE_CLASS:
-    parseDimensionToTemplate<double>(argIn, argOut);
+    parseDimensionToTemplate<double>(nArgIn, argIn, argOut);
     break;
   case mxSINGLE_CLASS:
-    parseDimensionToTemplate<float>(argIn, argOut);
+    parseDimensionToTemplate<float>(nArgIn, argIn, argOut);
     break;
   case mxUNKNOWN_CLASS:
     mexErrMsgTxt("Point coordinates have unknown type");
@@ -265,11 +509,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
 		 int nrhs, const mxArray *prhs[]) {
 
   // check number of input and output arguments
-  if (nrhs != 4) {
-    mexErrMsgTxt("Four input arguments required");
+  if (nrhs < 4) {
+    mexErrMsgTxt("Not enough input arguments");
   }
   if (nlhs > 1) {
     mexErrMsgTxt("Too many output arguments");
+  }
+
+  // if there are no points to warp, return empty array
+  if (mxIsEmpty(prhs[3])) {
+    plhs[0] = mxCreateDoubleMatrix(0, 0, mxREAL);
+    return;
   }
 
   // check size of input arguments
@@ -279,8 +529,19 @@ void mexFunction(int nlhs, mxArray *plhs[],
   mwSize dimy = mxGetN(prhs[2]); // dimension of target points
   mwSize dimxi = mxGetN(prhs[3]); // dimension of points to be warped
   
+  // the landmark arrays must have the same number of points
+  // (degenerate case, both are empty)
   if (Mx != My) mexErrMsgTxt("X and Y must have the same number of points (i.e. rows).");
-  if (Dimension != 3 || Dimension != dimy || Dimension != dimxi) {
+
+  // if there are no landmarks, we apply no transformation to the
+  // points to warp
+  if (mxIsEmpty(prhs[1])) {
+    plhs[0] = mxDuplicateArray(prhs[3]);
+    return;
+  }
+
+  // if there are landmarks and points to warp, all must have the same dimension
+  if (Dimension != dimy || Dimension != dimxi) {
     mexErrMsgTxt("X, Y and XI must all have the same dimension (i.e. number of columns).");
   }
 
@@ -288,7 +549,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // to translate the run-time type variables like inputVoxelClassId
   // to templates, so that we don't need to nest lots of "switch" or
   // "if" statements)
-  parseInputTypeToTemplate(prhs, plhs);
+  parseInputTypeToTemplate(nrhs, prhs, plhs);
 
   // exit successfully
   return;
