@@ -1,5 +1,10 @@
 2011-07-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* ItkToolbox/ItkPSTransform.cpp:
+
+	- (v0.2.0) Add warping with a B-spline, using
+	itk::BSplineScatteredDataPointSetToImageFilter.
+
 	* ItkToolbox/ItkImFilter.cpp:
 
 	- (v0.3.10) Remove paragraph from help header about MATLAB_ROOT
