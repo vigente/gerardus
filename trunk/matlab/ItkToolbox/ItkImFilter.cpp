@@ -75,21 +75,12 @@
  *    $ cmake ..
  *    $ make install
  *
- * Cmake has equivalents for Windows and MacOS, but I have not tried
- * them.
- *
- * If cmake throws an error because it cannot find Matlab, then edit
- * gerardus/matlab/CMakeLists.txt, and where it says
- *
- *    SET(MATLAB_ROOT "/usr/local/matlab/R2010b/")
- *
- *  change to your own Matlab root path.
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.9
+  * Version: 0.3.10
   * $Rev$
   * $Date$
   *
