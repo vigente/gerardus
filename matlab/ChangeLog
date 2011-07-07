@@ -1,3 +1,15 @@
+2011-07-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/DanielssonFilter.cpp:
+
+	- (v0.3.1) mxGetPr should only be used for arrays of type double,
+	so replace it by mxGetData.
+
+	* ItkToolbox/BaseFilter.cpp:
+
+	- (v0.3.2) mxGetPr should only be used for arrays of type double,
+	so replace it by mxGetData.
+
 2011-07-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* ItkToolbox/ItkPSTransform.cpp:

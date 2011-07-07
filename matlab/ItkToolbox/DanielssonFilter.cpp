@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -110,7 +110,7 @@ void DanielssonFilter<InVoxelType,
   if (this->argOut[1] == NULL) {
     mexErrMsgTxt("Cannot allocate memory for output matrix");
   }
-  OutType *imOutp =  (OutType *)mxGetPr(this->argOut[1]);
+  OutType *imOutp =  (OutType *)mxGetData(this->argOut[1]);
   
   // populate output image
   typedef typename DanielssonFilter<InVoxelType, 
