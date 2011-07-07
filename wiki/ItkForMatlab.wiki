@@ -55,20 +55,12 @@ $ cmake ..
 $ make
 $ make install
 }}}
- # If you get an error with cmake saying that "Matlab was not found", then open file `gerardus/matlab/CMakeLists.txt`, and edit the line below with the root path to your own Matlab install
-{{{
-SET(MATLAB_ROOT "/usr/local/matlab/R2010b/")
-}}}
  # Add `gerardus/matlab/ItkToolkit` to the Matlab path
 
 == Windows users ==
 
  # Open file `gerardus\CMakeLists.txt` with your CMake program
  # Click on the "Configure" button. Specify the generator for this project (the one I have tested is "Visual Studio 10" with "Use default native compilers")
- # If you get an error with cmake saying that "Matlab was not found", then open file `gerardus\matlab\CMakeLists.txt`, and edit the line below with the root path to your own Matlab install. (Note that you need to escape the "\" in the path)
-{{{
-SET(MATLAB_ROOT "C:\\ProgramFiles\\Matlab\\R2010b\\")
-}}}
  # Click on the "Generate" button
  # Open file `gerardus\matlab\bin\GERARDUS_MATLAB.sln` with your development environment (e.g. Visual Studio 10)
  # Select "Build -> Build Solution" from the menu.
