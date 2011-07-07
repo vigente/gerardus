@@ -17,7 +17,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.1
+  * Version: 0.3.2
   * $Rev$
   * $Date$
   *
@@ -78,7 +78,7 @@ template <class InVoxelType, class OutVoxelType>
 void BaseFilter<InVoxelType, OutVoxelType>::CopyMatlabInputsToItkImages() {
   
   // get pointer to input segmentation mask
-  const InVoxelType *im = (InVoxelType *)mxGetPr(nrrd.getData());
+  const InVoxelType *im = (InVoxelType *)mxGetData(nrrd.getData());
 
   // create ITK image to hold the segmentation mask
   image = InImageType::New();
@@ -191,7 +191,7 @@ void BaseFilter<InVoxelType,
   if (argOut[0] == NULL) {
     mexErrMsgTxt("Cannot allocate memory for output matrix");
   }
-  OutVoxelType *imOutp =  (OutVoxelType *)mxGetPr(argOut[0]);
+  OutVoxelType *imOutp =  (OutVoxelType *)mxGetData(argOut[0]);
   
   // populate output image
   typedef itk::ImageRegionConstIterator< OutImageType > OutConstIteratorType;
