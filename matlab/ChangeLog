@@ -1,5 +1,11 @@
 2011-07-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (v0.3.10) Remove paragraph from help header about MATLAB_ROOT
+	(no longer necessary to set the variables thanks to the modified
+	FindMatlab.cmake).
+
 	* ItkToolbox/DanielssonFilter.cpp:
 
 	- (v0.3.1) mxGetPr should only be used for arrays of type double,
