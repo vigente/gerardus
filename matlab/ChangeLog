@@ -1,4 +1,16 @@
+2011-07-08  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/ItkPSTransform.cpp:
+
+	- (v0.2.1) Fix bug. The parameterization cannot be the x
+	points. They need to be translated and scaled so that they fit
+	within a [0, 1] x [0, 1] x [0, 1] bounding box.
+
 2011-07-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add test/ps-bent-vessel-3d-3.mat, with the coordinates of the
+	voxels of a 3D bent vessel segmentation, its skeleton, and a
+	parameterization of the skeleton.
 
 	* ItkToolbox/ItkPSTransform.cpp:
 
