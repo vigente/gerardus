@@ -70,7 +70,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.2.1
   * $Rev$
   * $Date$
   *
@@ -196,37 +196,51 @@ void runBSplineTransform(int nArgIn, const mxArray** argIn,
   DataType v; // v = y-x, i.e. displacement vector between source and
               // target landmark
 
-  // variables to find the minimum and maximum values of x and y to
-  // define the parametric domain
+  // init variables to contain the limits of a bounding box that
+  // contains all the points
   typename ImageType::PointType orig, term;
   for (mwSize col=0; col < (mwSize)Dimension; ++col) {
     orig[col] = std::numeric_limits<TScalarType>::max();
     term[col] = std::numeric_limits<TScalarType>::min();
   }
 
-  // duplicate the input x and y matrices to PointSet format so that
-  // we can pass it to the ITK function
-  //
-  // also look for bounding box vertices for parametric domain (orig
-  // and term)
+  // find bounding box limits
   for (mwSize row=0; row < Mx; ++row) {
     for (mwSize col=0; col < (mwSize)Dimension; ++col) {
-      v[col] = y[Mx * col + row] - x[Mx * col + row];
-      xParam[col] = x[Mx * col + row];
       orig[col] = std::min((TScalarType)orig[col], x[Mx * col + row]);
       term[col] = std::max((TScalarType)term[col], x[Mx * col + row]);
+      orig[col] = std::min((TScalarType)orig[col], y[Mx * col + row]);
+      term[col] = std::max((TScalarType)term[col], y[Mx * col + row]);
     }
-    pointSet->SetPoint(row, xParam);
-    pointSet->SetPointData(row, v);
   }
-
-  // correct bounding box if necessary to include all points to be
-  // warped too
   for (mwSize row=0; row < Mxi; ++row) {
     for (mwSize col=0; col < (mwSize)Dimension; ++col) {
       orig[col] = std::min((TScalarType)orig[col], xi[Mxi * col + row]);
       term[col] = std::max((TScalarType)term[col], xi[Mxi * col + row]);
     }
+  }
+
+  // compute length of each size of the bounding box
+  DataType len = term - orig;
+  TScalarType lenmax = std::numeric_limits<TScalarType>::min();
+  for (mwSize col=0; col < (mwSize)Dimension; ++col) {
+    lenmax = std::max(lenmax, len[col]);
+  }
+
+  // duplicate the input x and y matrices to PointSet format so that
+  // we can pass it to the ITK function
+  //
+  // we also translate and scale all points so that the bounding box
+  // fits within the domain [0, 1] x [0, 1] x [0,1]. We need to do
+  // this because the BSpline function requires the parametric domain
+  // to be within [0, 1] x [0, 1] x [0,1]
+  for (mwSize row=0; row < Mx; ++row) {
+    for (mwSize col=0; col < (mwSize)Dimension; ++col) {
+      v[col] = (y[Mx * col + row] - x[Mx * col + row]) / lenmax;
+      xParam[col] = (x[Mx * col + row] - orig[col]) / lenmax;
+    }
+    pointSet->SetPoint(row, xParam);
+    pointSet->SetPointData(row, v);
   }
 
   // instantiate and set-up transform
@@ -253,21 +267,24 @@ void runBSplineTransform(int nArgIn, const mxArray** argIn,
   // to avoid a run-time error
   sz.Fill(2);
 
-  for (mwSize col=0; col < (mwSize)Dimension; ++col) {
-    spacing[col] = (term[col] - orig[col]) / (sz[col] - 1);
-  }
+  // because the parameterization is in [0, 1] x [0, 1] x [0,1], and
+  // we have only size = 2 voxels in every dimension, the spacing will
+  // be 1.0 / (2 - 1) = 1.0
+  spacing.Fill(1.0);
+
+  // because of the reparameterization, the origin we have to pass to
+  // the transform is not the origin of the real points, but the
+  // origin of the [0, 1] x [0, 1] x [0,1] bounding box
+  typename ImageType::PointType origZero;
+  origZero.Fill(0.0);
   
   transform->SetCloseDimension(closedim);
   transform->SetSize(sz);
   transform->SetSpacing(spacing);
-  transform->SetOrigin(orig);
+  transform->SetOrigin(origZero);
 
   // run transform
-  try {
-    transform->Update();
-  } catch (...) {
-    mexErrMsgTxt("Error computing BSpline interpolant");
-  }
+  transform->Update();
 
   // number of dimension of points to be warped
   mwSize ndimxi = mxGetNumberOfDimensions(argIn[3]); 
@@ -286,11 +303,11 @@ void runBSplineTransform(int nArgIn, const mxArray** argIn,
   typename PointSetType::PointType xiParam; // sampling coordinates
   for (mwSize row=0; row < Mxi; ++row) {
     for (mwSize col=0; col < (mwSize)Dimension; ++col) {
-      xiParam[col] = xi[Mxi * col + row];
+      xiParam[col] = (xi[Mxi * col + row] - orig[col]) / lenmax;
     }
     transform->Evaluate(xiParam, vi);
     for (mwSize col=0; col < (mwSize)Dimension; ++col) {
-      yi[Mxi * col + row] = xi[Mxi * col + row] + vi[col];
+      yi[Mxi * col + row] = xi[Mxi * col + row] + vi[col] * lenmax;
     }
   }
 
@@ -355,11 +372,7 @@ void runKernelTransform(int nArgIn, const mxArray** argIn,
   
   transform->SetSourceLandmarks(movingPointSet);
   transform->SetTargetLandmarks(fixedPointSet);
-  try {
-    transform->ComputeWMatrix();
-  } catch (...) {
-    mexErrMsgTxt("Error computing kernel W matrix");
-  }
+  transform->ComputeWMatrix();
   
   // create output vector and pointer to populate it
   ndimxi = mxGetNumberOfDimensions(argIn[3]);
