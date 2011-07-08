@@ -248,10 +248,10 @@ itk_imfilter.m
 
 	 ITK_IMFILTER: Run ITK filter on a 2D or 3D image
 	
-itk_kernel_transform.m
+itk_pstransform.m
 
-	 ITK_KERNEL_TRANSFORM  ITK warps between 3D point sets with a known
-	 correspondence
+	 ITK_PSTRANSFORM: Spatial transformation (i.e. warp) of a set of points,
+	 defined from a known landmark correspondence
 	
 
 PointsToolbox
