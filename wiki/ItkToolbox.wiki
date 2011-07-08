@@ -6,7 +6,7 @@
 This page documents `itk_imfilter()` and `itk_kernel_transform()`, MEX functions provided by Gerardus that allow to run ITK code from Matlab.
 
  * *`itk_imfilter()`:* Run ITK filters on a 2D or 3D image (This is similar to [http://matitk.cs.sfu.ca/ MATITK])
- * *`itk_kernel_transform()`:* ITK warps between 3D point sets with a known correspondence
+ * *`itk_pstransform()`:* ITK warps between 3D point sets with a known correspondence (thin-plate spline, elastic, B-spline, etc)
 
 
 = Requirements =
