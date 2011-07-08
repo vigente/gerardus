@@ -82,7 +82,7 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Test 2:
-%% 3D segmentation of bent vessel
+%% 3D segmentation of bent vessel, arbitary deformation with 5 landmarks
 
 % load segmentation points 'xi', skeleton points 'x', and skeleton
 % parameterization 't'
