@@ -1,5 +1,13 @@
 2011-07-08  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* PointsToolbox/pts_local_rigid.m:
+
+	- (v0.1.3) In fact, the 3D straightening constrain seems to limit
+	twisting, and no extra 2D rotation is necessary. Now we can also
+	use a B-spline warp in Gerardus (itk_pstransform), so we are
+	leaving the basic 3D method and we are not going to do further
+	work on this function.
+
 	* test/test_itk_pstransform.m:
 
 	- (v0.1.1) Add Test 2, 3D bent vessel.
