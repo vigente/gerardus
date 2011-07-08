@@ -11,10 +11,15 @@ function yi = pts_local_rigid(x, y, xi, idx)
 %
 % This function does not suffer from collinearity limitations as other
 % warps do (e.g. thin-plate spline, elastic body spline, volume spline,
-% affine transformation), so it is useful to e.g. straighten a bent artery.
+% affine transformation), so it is useful for e.g. straightening a bent
+% tube.
 %
-% This functions limits a bit the amount of twisting when straightening up
-% the vessel, but some twisting can appear.
+% Experiments with this function suggest that arbitrary twisting is not
+% introduced in 3D as the object is being straightened.
+%
+% An smooth alternative to the method provided by this function is a
+% B-spline warp, using the MEX function
+% ItkToolbox/itk_pstransform('bspline', ...), also provided by Gerardus.
 %
 % YI = PTS_LOCAL_RIGID(X, Y, XI, IDX)
 %
@@ -31,7 +36,7 @@ function yi = pts_local_rigid(x, y, xi, idx)
 
 % Authors: Ramon Casero <rcasero@gmail.com>, Vicente Grau
 % Copyright © 2011 University of Oxford
-% Version: v0.1.2
+% Version: v0.1.3
 % $Rev$
 % $Date$
 % 
@@ -83,9 +88,6 @@ N = size(xi, 1);
 if (length(idx) ~= N)
     error('IDX must have one element per point in XI (per row)')
 end
-
-% get minimum distance between two consecutive voxels in the skeleton
-xdelta = min([sqrt(sum(diff(y).^2, 2)); sqrt(sum(diff(x).^2, 2))]);
 
 % compute rigid transformation to match the first 2 skeleton points
 [~, ~, t] = procrustes(y(1:2, :), x(1:2, :), 'Scaling', false);
@@ -146,34 +148,6 @@ for I = 3:n
     % number of points left to warp in the skeleton
     nb = n - I + 1;
     
-    %% preparation for 2D rotation to avoid twisting
-
-    % indices of voxels in the previous and current segments
-    seg0 = find(idx == I-1);
-    seg1 = find(idx == I);
-
-    % compute vector connecting skeleton points in previous (seg0) and
-    % current (seg1) segments
-    vx = x(I, :) - x(I-1, :);
-    
-    % add the vector to each voxel in the previous segment, and compute the
-    % distance to the current segment voxels
-    dmat = dmatrix((yi(seg0, :) + repmat(vx, length(seg0), 1))', yi(seg1, :)');
-    
-    % find closest voxels from each segment to the other
-    [dmin01, idx01] = min(dmat, [], 2);
-
-    % voxels in seg0 that corresponds to a voxel in seg1 along the
-    % direction vx
-    ok = dmin01 < xdelta * .01;
-    yi0 = yi(seg0(ok), :);
-    yi1 = yi(seg1(idx01(ok)), :);
-    
-%     % DEBUG: plot connections
-%     for J = 1:size(yi0, 1)
-%         plot3([yi0(J, 1) yi1(J, 1)], [yi0(J, 2) yi1(J, 2)], [yi0(J, 3) yi1(J, 3)])
-%     end
-
     %% actual 3D rotation to align skeleton segments
     
     % straighten the points that haven't been straightened yet:
@@ -189,27 +163,6 @@ for I = 3:n
     yi(todo, :) = yi(todo, :) + repmat(x(I-1, :), Nb, 1);
     x(I:end, :) = x(I:end, :) + repmat(x(I-1, :), nb, 1);
     
-    % translate the points to the origin
-    yi0 = yi0 - repmat(x(I-1, :), size(yi0, 1), 1);
-    yi1 = yi1 - repmat(x(I-1, :), size(yi1, 1), 1);
-    
-    %% actual 2D rotation to avoid twisting
-    
-    % we rotate around the x-axis, so we just need the y, z-coordinates
-    [~, ~, t] = procrustes(yi0(:, 2:3), yi1(:, 2:3), 'Scaling', false);
-    
-    % convert the 2D rotation matrix around X-axis to 3D rotation matrix 
-    rot = [1 0 0; zeros(2, 1) t.T];
-    
-    %   we translate the centre of rotation to the origin, and rotate the
-    %   points
-    yi(todo, :) = (yi(todo, :) - repmat(x(I-1, :), Nb, 1)) * rot;
-    x(I:end, :) = (x(I:end, :) - repmat(x(I-1, :), nb, 1)) * rot;
-    
-    % translate the points back from the origin
-    yi(todo, :) = yi(todo, :) + repmat(x(I-1, :), Nb, 1);
-    x(I:end, :) = x(I:end, :) + repmat(x(I-1, :), nb, 1);
-
     % branch points that belong to the current skeleton point don't need to
     % be straightened anymore
     todo(idx == I) = false;
@@ -228,7 +181,7 @@ for I = 3:n
 %     hold off
 %     plot3(yi(:, 1), yi(:, 2), yi(:, 3), '.')
 %     hold on
-%     plot3(x(:, 1), x(:, 2), x(:, 3), 'r.')
+%     plot3(x(:, 1), x(:, 2), x(:, 3), 'r', 'LineWidth', 5)
 %     plot3(x(I-1, 1), x(I-1, 2), x(I-1, 3), 'ro')
 %     plot3(x(I, 1), x(I, 2), x(I, 3), 'ko')
 %     axis equal
