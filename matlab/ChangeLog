@@ -1,5 +1,9 @@
 2011-07-08  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* test/test_itk_pstransform.m:
+
+	- (v0.1.1) Add Test 2, 3D bent vessel.
+
 	* Add ItkToolbox/itk_pstransform.m:
 
 	- Add header help for the mex function, so that it's accessible
