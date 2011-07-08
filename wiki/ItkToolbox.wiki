@@ -30,6 +30,16 @@ $ sudo apt-get install cmake
  * [http://www.itk.org/itkindex.html Insight Toolkit]
   # [http://www.itk.org/ITK/resources/software.html Download the Insight Toolkit (ITK)]
   # Build and install ITK using CMake (see the [http://www.itk.org/ItkSoftwareGuide.pdf ITK Software Guide] for details)
+  * Note for everyone: You need to set the following variables in your CMake build of ITK
+{{{
+CMAKE_BUILD_TYPE   Release
+ITK_USE_REVIEW     ON
+}}}
+   * Linux users can do this with flags when running cmake, e.g.
+{{{
+$ cmake -DITK_USE_REVIEW=ON -DCMAKE_BUILD_TYPE=Release ..
+}}}
+   * Windows users can do this using the "Add Entry" button in the CMake GUI
   * Note for Windows users: Click on "Start" -> "My computer" -> "View system information", and in the "Advanced" tab click on "Environment Variables". Select the System variable `Path`, and click "Edit". Add the path to the `ITKCOMMON.DLL` library, e.g. "C:\Program Files\ITK\bin"
  * [http://www.mathworks.com/products/matlab/ Matlab]
   # Matlab has its own installer for each operating system (Linux, Windows, MacOS X, etc)
