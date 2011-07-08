@@ -14,11 +14,11 @@ function yi = pts_local_rigid(x, y, xi, idx)
 % affine transformation), so it is useful for e.g. straightening a bent
 % tube.
 %
-% Experiments with this function suggest that arbitrary twisting is not
-% introduced in 3D as the object is being straightened.
+% Some experiments with this function suggest that a bit of slow-varying
+% twisting is introduced in 3D as the object is being straightened.
 %
-% An smooth alternative to the method provided by this function is a
-% B-spline warp, using the MEX function
+% An smooth alternative to this function, that also seems to produce less
+% twisting, is the multi-level B-spline warp, using the MEX function
 % ItkToolbox/itk_pstransform('bspline', ...), also provided by Gerardus.
 %
 % YI = PTS_LOCAL_RIGID(X, Y, XI, IDX)
