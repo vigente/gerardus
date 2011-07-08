@@ -3,10 +3,10 @@
 
 = Introduction =
 
-This page documents `itk_imfilter()` and `itk_kernel_transform()`, MEX functions provided by Gerardus that allow to run ITK code from Matlab.
+This page documents `itk_imfilter()` and `itk_pstransform()`, MEX functions provided by Gerardus that allow to run ITK code from Matlab.
 
- * *`itk_imfilter()`:* Run ITK filters on a 2D or 3D image (This is similar to [http://matitk.cs.sfu.ca/ MATITK])
- * *`itk_pstransform()`:* ITK warps between 3D point sets with a known correspondence (thin-plate spline, elastic, B-spline, etc)
+ * *[http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/ItkImFilter.cpp itk_imfilter()]:* Run ITK filters on a 2D or 3D image (This is similar to [http://matitk.cs.sfu.ca/ MATITK])
+ * *[http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/ItkPSTransform.cpp itk_pstransform()]:* ITK warps between 3D point sets with a known correspondence (thin-plate spline, elastic, B-spline, etc)
 
 
 = Requirements =
@@ -56,7 +56,7 @@ $ svn co http://gerardus.googlecode.com/svn/trunk/ gerardus
 
 == Linux users ==
 
- # Run from the command line the following code. If everything works, this will create and install the MEX files `itk_kernel_transform.mexa64` and `itk_imfilter.mexa64` (for a 64-bit architecture, 32-bit architectures give another extension to the files) to directory `gerardus/matlab/ItkToolkit`
+ # Run from the command line the following code. If everything works, this will create and install the MEX files `itk_pstransform.mexa64` and `itk_imfilter.mexa64` (for a 64-bit architecture, 32-bit architectures give another extension to the files) to directory `gerardus/matlab/ItkToolkit`
 {{{
 $ cd gerardus/matlab
 $ mkdir bin
