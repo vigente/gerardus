@@ -60,7 +60,7 @@ function [im, gx, gy, gz, midx] = scinrrd_intersect_plane(nrrd, m, v, interp)
 
 % Authors: Ramon Casero <rcasero@gmail.com>, Pablo Lamata <pablo.lamata@dpag.ox.ac.uk>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.3.2
+% Version: 0.3.3
 % $Rev$
 % $Date$
 % 
@@ -142,11 +142,13 @@ switch interp
         grcs(3, idxin));
         % sample image volume with the rotated and translated plane        
         im(idxin) = nrrd.data(idx);
-    otherwise
+    case 'linear' % linear interpolation
         xi = grcs(1, idxin);
         yi = grcs(2, idxin);
         zi = grcs(3, idxin);
-        im(idxin) = interp3(nrrd.data, xi, yi, zi, interp);
+        im(idxin) = interp3(nrrd.data, yi, xi, zi, interp);
+    otherwise
+        error('Interpolation method not implemented')
 end
 
 % compute real world coordinates for the sampling points
