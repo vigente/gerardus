@@ -1,5 +1,10 @@
 2011-07-08  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* Add ItkToolbox/itk_pstransform.m:
+
+	- Add header help for the mex function, so that it's accessible
+	from Matlab.
+
 	* ItkToolbox/ItkPSTransform.cpp:
 
 	- (v0.2.1) Fix bug. The parameterization cannot be the x
