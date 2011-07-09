@@ -56,7 +56,9 @@ $ svn co http://gerardus.googlecode.com/svn/trunk/ gerardus
 
 == Linux users ==
 
- # Run from the command line the following code. If everything works, this will create and install the MEX files `itk_pstransform.mexa64` and `itk_imfilter.mexa64` (for a 64-bit architecture, 32-bit architectures give another extension to the files) to directory `gerardus/matlab/ItkToolkit`
+ # Run from the command line the following code. If everything works, this will create and install the corresponding MEX files to directory `gerardus/matlab/ItkToolkit` with an extension appropriate to the architecture, e.g.
+  * `itk_pstransform.mexa64`, `itk_imfilter.mexa64` (Linux 64-bit)
+  * `itk_pstransform.mexw32`, `itk_imfilter.mexw32` (Windows 32-bit)
 {{{
 $ cd gerardus/matlab
 $ mkdir bin
