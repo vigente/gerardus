@@ -70,7 +70,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.1
+  * Version: 0.2.2
   * $Rev$
   * $Date$
   *
@@ -150,7 +150,7 @@ void runBSplineTransform(int nArgIn, const mxArray** argIn,
     }
     double *pSplineOrder = mxGetPr(argIn[4]);
     if ((pSplineOrder[0] < 0) 
-	|| (pSplineOrder[0] != round(pSplineOrder[0]))) {
+	|| (pSplineOrder[0] != std::floor(pSplineOrder[0] + 0.5))) {
       mexErrMsgTxt("ORDER must be an integer scalar of type double >= 0");
     }
     splineOrder = (unsigned int)pSplineOrder[0];
@@ -167,7 +167,7 @@ void runBSplineTransform(int nArgIn, const mxArray** argIn,
     }
     double *pNumOfLevels = mxGetPr(argIn[5]);
     if ((pNumOfLevels[0] < 1) 
-	|| (pNumOfLevels[0] != round(pNumOfLevels[0]))) {
+	|| (pNumOfLevels[0] != std::floor(pNumOfLevels[0] + 0.5))) {
       mexErrMsgTxt("LEVELS must be an integer scalar of type double >= 1");
     }
     numOfLevels = (unsigned int)pNumOfLevels[0];
