@@ -1,3 +1,10 @@
+2011-07-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/ItkPSTransform.cpp:
+
+	- (v0.2.2) Windows doesn't provide function round(x), so replace
+	by floor(x+0.5).
+
 2011-07-08  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_intersect_plane.m:
