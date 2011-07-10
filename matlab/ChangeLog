@@ -3,7 +3,7 @@
 	* FiltersToolbox/skeleton_label.m:
 
 	- (v0.10.1) Fix bug. Error when sk and im were uint8, but sk had
-	only 1 label. The problem was when the class of sk was decided
+	only 1 label. The problem occured when the class of sk was decided
 	based on the number of objects. But we also need to take into
 	account whether we are going to need a TODO label if we have to
 	label im.
