@@ -120,7 +120,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, 
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.10.0
+% Version: 0.10.1
 % $Rev$
 % $Date$
 % 
@@ -197,7 +197,14 @@ end
 
 % set amount of memory allowed for labels (we need label "0" for the
 % background, and labels "1", "2", ..., "cc.NumObjects" for each component
-req_bits = ceil(log2(cc.NumObjects + 1));
+%
+% if a segmentation is provided to be labelled too, we need an extra "TODO"
+% label
+if isempty(im)
+    req_bits = ceil(log2(cc.NumObjects + 1));
+else
+    req_bits = ceil(log2(cc.NumObjects + 2));
+end
 if (req_bits == 1)
     lab_class = 'boolean';
 elseif (req_bits < 8)
@@ -840,25 +847,13 @@ end
 
 if (~isempty(im))
     
-    % check that the image data type size is large enough to add the TODO
-    % label
-    MAXLAB = zeros(1, class(sk));
-    MAXLAB(1) = Inf; % this casts Inf to the image data type. E.g., if 
-                     % image is uint8, then MAXLAB==255
-
-    % get highest label in the skeleton
-    N = max(sk(:));
-    if (N >= MAXLAB)
-        error('Current image data type size doesn''t allow to add a new label. Cast to a larger data type, e.g. uint16 instead of uint8')
-    end
-
     % convert im data type to be the same as the seeds, so that we are
     % guaranteed that all label values can be represented in the output
     % image
     im = cast(im, class(sk));
     
     % label for voxels that need to be labelled
-    TODO = N+1;
+    TODO = cast(N+1, class(sk));
     
     % mark segmentation voxels with the highest label, so that we know that
     % they still need to be labelled, but belong to the segmentation as
