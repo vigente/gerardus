@@ -100,7 +100,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.5.1
+% Version: 0.5.2
 % $Rev$
 % $Date$
 % 
@@ -219,7 +219,7 @@ for I = 1:N
     [r, c, s] = ind2sub(size(nrrd.data), br);
     xi = scinrrd_index2world([r, c, s], nrrd.axis)';
     
-    % straighten all branch voxels using a local rigid transformation
+    % straighten all branch voxels
     if (~isempty(cc) && all(~isnan(cc.PixelParam{I})) ...
             && (length(sk) > 2) && (length(br) > 2))
         
@@ -232,7 +232,7 @@ for I = 1:N
         y = [cc.PixelParam{I}' ; zeros(2, length(sk))];
         
         % compute rigid transformation to align straight line with skeleton
-        [~, y] = procrustes(x', y');
+        [~, y] = procrustes(x', y', 'Scaling', false);
         y = y';
 
         % straighten vessel using B-spline transform
