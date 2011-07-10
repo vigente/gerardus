@@ -100,7 +100,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.5.0
+% Version: 0.5.1
 % $Rev$
 % $Date$
 % 
@@ -227,29 +227,17 @@ for I = 1:N
         [r, c, s] = ind2sub(size(nrrd.data), sk);
         x = scinrrd_index2world([r, c, s], nrrd.axis)';
     
-        % create a distance matrix for all the voxels in the branch (this
-        % includes the skeleton)
-        aux = dict(br);
-        dbr = d(aux, aux);
-        dictbr = sparse(br, ones(length(br), 1), 1:length(br));
-        
-        % image indices => distance matrix indices
-        sk = dictbr(sk);
-        
-        % compute distance from each branch voxel to all skeleton points
-        dbrsk = dijkstra(dbr, sk);
-        
-        % keep only the closest skeleton point association
-        [~, idx] = sort(dbrsk, 1, 'ascend');
-        idx = idx(1, :);
-        
         % create a straightened section of the skeleton of the same length
         % and with the same spacing between voxels
         y = [cc.PixelParam{I}' ; zeros(2, length(sk))];
-
-        % straighten branch voxels
-        yi = pts_local_rigid(x', y', xi', idx)';
         
+        % compute rigid transformation to align straight line with skeleton
+        [~, y] = procrustes(x', y');
+        y = y';
+
+        % straighten vessel using B-spline transform
+        yi = itk_pstransform('bspline', x', y', xi')';
+
         % compute eigenvalues of branch (most of the time we are going to
         % get 3 eigenvalues, but not always, e.g. if we have only two
         % voxels in the branch)
@@ -260,8 +248,10 @@ for I = 1:N
         % largest one or not. The reason is that we are going to always
         % assume that "eigenvalue 1" can be used to estimate the length of
         % the cylinder.
+        yv = y(:, end) - y(:, 1);
+        yv = yv / norm(yv);
         [~, idx] = max(abs(dot(auxv, ...
-            repmat([1; 0; 0], 1, size(auxv, 2)), 1)));
+            repmat(yv, 1, size(auxv, 2)), 1)));
         eigd(1, I) = auxd(idx);
         
         % remove the "longitudinal" eigenvalue and eigenvector
