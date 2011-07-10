@@ -1,3 +1,11 @@
+2011-07-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.5.1) Replace locally rigid transform by multilevel B-splines
+	transform for the non-rigid warp. The B-spline seems to be better
+	in that it doesn't introduce any twisting in the vessel.
+
 2011-07-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* ItkToolbox/ItkPSTransform.cpp:
