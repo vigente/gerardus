@@ -43,7 +43,7 @@ $ cmake -DITK_USE_REVIEW=ON -DCMAKE_BUILD_TYPE=Release ..
   * Note for Windows users: Click on "Start" -> "My computer" -> "View system information", and in the "Advanced" tab click on "Environment Variables". Select the System variable `Path`, and click "Edit". Add the path to the `ITKCOMMON.DLL` library, e.g. "C:\Program Files\ITK\bin"
  * [http://www.mathworks.com/products/matlab/ Matlab]
   # Matlab has its own installer for each operating system (Linux, Windows, MacOS X, etc)
-  * Note for Windows users: Similarly to the previous step, add to the `Path` environment variable the path to your Matlab `LIBMEX.DLL` and `LIBMX.DLL` libraries, e.g. "C:\Program Files\MATLAB\R2010b\bin\win32"
+  * Note for Windows users: Similarly to the previous step, add to the `Path` environment variable the path to your Matlab `LIBMEX.DLL` and `LIBMX.DLL` libraries, e.g. "C:\Program Files\MATLAB\R2010b\bin\win32" (32 bit) or "C:\Program Files\MATLAB\R2010b\bin\win64" (64 bit)
  * [http://code.google.com/p/gerardus/ Gerardus]
   # Check out the Gerardus project code
   * Note for Linux users: You can check out the latest version of the code from the command line doing
@@ -71,7 +71,7 @@ $ make install
 
 == Windows users ==
 
- # Open file `gerardus\CMakeLists.txt` with your CMake program
+ # Open file `gerardus\matlab\CMakeLists.txt` with your CMake program
  # Click on the "Configure" button. Specify the generator for this project (the one I have tested is "Visual Studio 10" with "Use default native compilers")
  # Click on the "Generate" button
  # Open file `gerardus\matlab\bin\GERARDUS_MATLAB.sln` with your development environment (e.g. Visual Studio 10)
