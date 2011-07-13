@@ -16,7 +16,7 @@
 # (Note that the original file does work for Ubuntu Natty)
 #
 # Author: Ramon Casero <rcasero@gmail.com>
-# Version: 0.2.1
+# Version: 0.2.2
 # $Rev$
 # $Date$
 #
@@ -51,25 +51,36 @@ IF(WIN32)
       OR ("${MATLAB_ROOT}" STREQUAL "")
       OR ("${MATLAB_ROOT}" STREQUAL "/registry"))
   ENDFOREACH(MATVER)
+  
+  # Directory name depending on whether the Windows architecture is 32
+  # bit or 64 bit
+  IF(CMAKE_SIZEOF_VOID_P MATCHES "4")
+    SET(WINDIR "win32")
+  ELSEIF(CMAKE_SIZEOF_VOID_P MATCHES "8")
+    SET(WINDIR "win64")
+  ELSE(CMAKE_SIZEOF_VOID_P MATCHES "4")
+    MESSAGE(FATAL_ERROR 
+      "CMAKE_SIZEOF_VOID_P (${CMAKE_SIZEOF_VOID_P}) doesn't indicate a valid platform")
+  ENDIF(CMAKE_SIZEOF_VOID_P MATCHES "4")
 
   # Folder where the MEX libraries are, depending of the Windows compiler
   IF(${CMAKE_GENERATOR} MATCHES "Visual Studio 6")
-    SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/win32/microsoft/msvc60")
+    SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/${WINDIR}/microsoft/msvc60")
   ELSEIF(${CMAKE_GENERATOR} MATCHES "Visual Studio 7")
     # Assume people are generally using Visual Studio 7.1,
-    # if using 7.0 need to link to: ../extern/lib/win32/microsoft/msvc70
-    SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/win32/microsoft/msvc71")
-    # SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/win32/microsoft/msvc70")
+    # if using 7.0 need to link to: ../extern/lib/${WINDIR}/microsoft/msvc70
+    SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/${WINDIR}/microsoft/msvc71")
+    # SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/${WINDIR}/microsoft/msvc70")
   ELSEIF(${CMAKE_GENERATOR} MATCHES "Borland")
     # Assume people are generally using Borland 5.4,
-    # if using 7.0 need to link to: ../extern/lib/win32/microsoft/msvc70
-    SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/win32/microsoft/bcc54")
-    # SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/win32/microsoft/bcc50")
-    # SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/win32/microsoft/bcc51")
+    # if using 7.0 need to link to: ../extern/lib/${WINDIR}/microsoft/msvc70
+    SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/${WINDIR}/microsoft/bcc54")
+    # SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/${WINDIR}/microsoft/bcc50")
+    # SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/${WINDIR}/microsoft/bcc51")
   ELSEIF(${CMAKE_GENERATOR} MATCHES "Visual Studio*")
     # If the compiler is Visual Studio, but not any of the specific
     # versions above, we try our luck with the microsoft directory
-    SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/win32/microsoft/")
+    SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/${WINDIR}/microsoft/")
   ELSE(${CMAKE_GENERATOR} MATCHES "Visual Studio 6")
     MESSAGE(FATAL_ERROR "Generator not compatible: ${CMAKE_GENERATOR}")
   ENDIF(${CMAKE_GENERATOR} MATCHES "Visual Studio 6")
