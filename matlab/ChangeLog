@@ -1,3 +1,11 @@
+2011-07-13  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FindMatlab.cmake:
+
+	- (v0.2.2) Extend to Windows 64 bit. Yves Martelli pointed out
+	that for Windows 64 bit, Matlab files live in a win64/ instead of
+	win32/ directory.
+
 2011-07-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_label.m:
