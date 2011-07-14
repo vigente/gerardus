@@ -131,7 +131,7 @@
 #ifdef _WIN64
 #define CAST2MWSIZE(x) static_cast<unsigned long long>(x)
 #else
-#define CAST2MWSIZE(x) x
+#define CAST2MWSIZE(x) static_cast<mwSize>(x)
 #endif
 
 /* Gerardus headers */
