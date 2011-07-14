@@ -70,7 +70,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.2
+  * Version: 0.2.3
   * $Rev$
   * $Date$
   *
@@ -124,6 +124,15 @@
 #include "itkThinPlateR2LogRSplineKernelTransform.h"
 #include "itkVolumeSplineKernelTransform.h"
 #include "itkBSplineScatteredDataPointSetToImageFilter.h"
+
+// this definition is necessary for ITK v3.20.0 to avoid an error when trying to
+// compile itk::FixedArray::operator[](unsigned __int64) for Windows 64 bit, but
+// maybe we can remove it when ITK v4.0.0 is released
+#ifdef _WIN64
+#define CAST2MWSIZE(x) static_cast<unsigned long long>(x)
+#else
+#define CAST2MWSIZE(x) x
+#endif
 
 /* Gerardus headers */
 
@@ -356,8 +365,8 @@ void runKernelTransform(int nArgIn, const mxArray** argIn,
   mwSize pointId=0;
   for (mwSize row=0; row < Mx; ++row) {
     for (mwSize col=0; col < (mwSize)Dimension; ++col) {
-      fixedPoint[col] = y[Mx * col + row];
-      movingPoint[col] = x[Mx * col + row];
+      fixedPoint[CAST2MWSIZE(col)] = y[Mx * col + row];
+      movingPoint[CAST2MWSIZE(col)] = x[Mx * col + row];
     }
     fixedPointContainer->InsertElement(pointId, fixedPoint);
     movingPointContainer->InsertElement(pointId, movingPoint);
@@ -386,11 +395,11 @@ void runKernelTransform(int nArgIn, const mxArray** argIn,
   // transform points
   for (mwSize row=0; row < Mxi; ++row) {
     for (mwSize col=0; col < (mwSize)Dimension; ++col) {
-      toWarpPoint[col] = xi[Mxi * col + row];
+      toWarpPoint[CAST2MWSIZE(col)] = xi[Mxi * col + row];
     }
     warpedPoint = transform->TransformPoint(toWarpPoint);
     for (mwSize col=0; col < (mwSize)Dimension; ++col) {
-      yi[Mxi * col + row] = warpedPoint[col];
+      yi[Mxi * col + row] = warpedPoint[CAST2MWSIZE(col)];
     }
   }
   
