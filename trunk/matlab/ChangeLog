@@ -1,3 +1,18 @@
+2011-07-14  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/ItkPSTransform.cpp:
+
+	- (v0.2.3) Fix bug for Windows 64 bit. Yves Martelli noted a
+	compilation error for Windows 64 bit, as mwSize translates to
+	size_t, and Visual Studio translates this to "unsigned __int64", a
+	non-ASCI type. When it tries to then compile
+	itk::FixedArray::operator[](unsigned __int64), it cannot find a
+	definition.
+
+	Following Jonathan Cooper's advice, I have added an #ifdef _win64
+	block to perform a static cast of the mwSize variables only when
+	compiling for Windows 64 bit.
+
 2011-07-13  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FindMatlab.cmake:
