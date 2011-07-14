@@ -1,5 +1,23 @@
 2011-07-14  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.0) Major rewrite of the function, although the
+	functionality is roughly the same. The function was not working
+	well when it had to merge branches, and the labelling of the whole
+	segmentation was not great.
+
+	A problem was dealing with bifurcation voxels and neighbour
+	branches. The correspondence between them is complicated. Now,
+	each branch is terminated by a bifurcation voxel or a leaf voxel.
+	Bifurcation voxels surrounded only by bifurcation voxels are not
+	added to any branch, but they are used to find branch neighbours.
+
+	Another problem was that two branches that were continuation of
+	each other wouldn't necessarily be merged, depending on how
+	neighbours were processed. Now,  "left" and "right" neighbours are
+	considered explicitly, and then only the closest ones are merged.
+
 	* ItkToolbox/ItkPSTransform.cpp:
 
 	- (v0.2.3) Fix bug for Windows 64 bit. Yves Martelli noted a
