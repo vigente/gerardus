@@ -1,3 +1,17 @@
+2011-07-17  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.1) Fix bug. Change the way the merging was performed. It
+	was possible for branches to merge forming a "T" shape, depending
+	on the values of alpha. For example, branch A is closest to B, so
+	they merge. B is closest to C, and they merge, forming a wire. But
+	now a secondary branch D is closest to B, and the angle is small
+	enough, so it merges forming a "T" shape. With the new method, A
+	can only merge with B if B wants to merge with A. Because each
+	branch can only merge with 1 branch on each side, this guarantees
+	that there are no "T" shapes.
+
 2011-07-14  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_label.m:
