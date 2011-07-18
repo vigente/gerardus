@@ -1,3 +1,12 @@
+2011-07-18  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.2) In the merging process, first check whether there is
+	no neighbour or the alignment is larger than the angle threshold,
+	and if so, skip the branch. Otherwise, the branch will be
+	processed.
+
 2011-07-17  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_label.m:
