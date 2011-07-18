@@ -107,7 +107,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, 
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.11.1
+% Version: 0.11.2
 % $Rev$
 % $Date$
 % 
@@ -596,9 +596,12 @@ if (alphamax ~= -Inf)
     % ignore branches that are loops
     for I = find(~cc.IsLoop)
         
-        % get the neighbour that is best aligned to this branch
+        % get the left neighbour that is best aligned to this branch
         [alphamin, idx] = min(cc.BranchNeighboursLeftAngle{I});
-        if isempty(idx)
+        
+        % if there is no neighbour or the alignment is larger than the
+        % angle threshold, skip this branch
+        if (isempty(idx) || alphamin > alphamax)
             continue
         end
         vn = cc.BranchNeighboursLeft{I}(idx);
@@ -622,26 +625,20 @@ if (alphamax ~= -Inf)
             end
         end
         
-        % if the alignment is smaller than the angle threshold, add the couple
-        % to the merge list
-        if (~isempty(idx) && alphamin <= alphamax)
-            
-            % the two labels that have to be merged
-            v = sort([I cc.BranchNeighboursLeft{I}(idx)]);
-            
-            % look if any of these branches are already going to be merged to
-            % others
-            idx = find(cellfun(@(x) any(ismember(v, x)), ...
-                cc2.MergedBranches), 1);
-            
-            if (isempty(idx))
-                % create new merging bucket for this branch
-                cc2.MergedBranches = [cc2.MergedBranches {v}];
-            else
-                % add this branch to the merging bucket it belongs to
-                cc2.MergedBranches{idx} = union(cc2.MergedBranches{idx}, v);
-            end
-            
+        % the two labels that have to be merged
+        v = sort([I cc.BranchNeighboursLeft{I}(idx)]);
+        
+        % look if any of these branches are already going to be merged to
+        % others
+        idx = find(cellfun(@(x) any(ismember(v, x)), ...
+            cc2.MergedBranches), 1);
+        
+        if (isempty(idx))
+            % create new merging bucket for this branch
+            cc2.MergedBranches = [cc2.MergedBranches {v}];
+        else
+            % add this branch to the merging bucket it belongs to
+            cc2.MergedBranches{idx} = union(cc2.MergedBranches{idx}, v);
         end
         
     end
