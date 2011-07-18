@@ -1,7 +1,0 @@
-#summary Homepage of the Gerardus Wiki
-
-= List of pages =
-
- * SciNrrdData
- * ItkForMatlab documentation
- * NotesForDevelopers
