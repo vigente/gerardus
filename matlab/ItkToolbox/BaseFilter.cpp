@@ -17,7 +17,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.2
+  * Version: 0.3.3
   * $Rev$
   * $Date$
   *
