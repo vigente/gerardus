@@ -69,6 +69,15 @@
 #include "SignedMaurerFilter.hpp"
 #include "ThinningFilter.hpp"
 
+// this definition is necessary for ITK v3.20.0 to avoid an error when trying to
+// compile itk::FixedArray::operator[](unsigned __int64) for Windows 64 bit, but
+// maybe we can remove it when ITK v4.0.0 is released
+#ifdef _WIN64
+#define CAST2MWSIZE(x) static_cast<unsigned long>(x)
+#else
+#define CAST2MWSIZE(x) static_cast<mwSize>(x)
+#endif
+
 /*
  * BaseFilter<InVoxelType, OutVoxelType>: This is where
  * the code to actually run the filter on the image lives.
@@ -98,7 +107,7 @@ void BaseFilter<InVoxelType, OutVoxelType>::CopyMatlabInputsToItkImages() {
   for (mwIndex i = 0; i < Dimension; ++i) {
     start[i] = nrrd.getMin()[i];
     size[i] = nrrd.getSize()[i];
-    spacing[i] = nrrd.getSpacing()[i];
+    spacing[CAST2MWSIZE(i)] = nrrd.getSpacing()[i];
   }
   region.SetIndex(start);
   region.SetSize(size);
