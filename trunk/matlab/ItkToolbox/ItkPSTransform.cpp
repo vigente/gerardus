@@ -129,7 +129,7 @@
 // compile itk::FixedArray::operator[](unsigned __int64) for Windows 64 bit, but
 // maybe we can remove it when ITK v4.0.0 is released
 #ifdef _WIN64
-#define CAST2MWSIZE(x) static_cast<unsigned long long>(x)
+#define CAST2MWSIZE(x) static_cast<unsigned long>(x)
 #else
 #define CAST2MWSIZE(x) static_cast<mwSize>(x)
 #endif
@@ -209,23 +209,23 @@ void runBSplineTransform(int nArgIn, const mxArray** argIn,
   // contains all the points
   typename ImageType::PointType orig, term;
   for (mwSize col=0; col < (mwSize)Dimension; ++col) {
-    orig[col] = std::numeric_limits<TScalarType>::max();
-    term[col] = std::numeric_limits<TScalarType>::min();
+    orig[CAST2MWSIZE(col)] = std::numeric_limits<TScalarType>::max();
+    term[CAST2MWSIZE(col)] = std::numeric_limits<TScalarType>::min();
   }
 
   // find bounding box limits
   for (mwSize row=0; row < Mx; ++row) {
     for (mwSize col=0; col < (mwSize)Dimension; ++col) {
-      orig[col] = std::min((TScalarType)orig[col], x[Mx * col + row]);
-      term[col] = std::max((TScalarType)term[col], x[Mx * col + row]);
-      orig[col] = std::min((TScalarType)orig[col], y[Mx * col + row]);
-      term[col] = std::max((TScalarType)term[col], y[Mx * col + row]);
+      orig[CAST2MWSIZE(col)] = std::min((TScalarType)orig[CAST2MWSIZE(col)], x[Mx * col + row]);
+      term[CAST2MWSIZE(col)] = std::max((TScalarType)term[CAST2MWSIZE(col)], x[Mx * col + row]);
+      orig[CAST2MWSIZE(col)] = std::min((TScalarType)orig[CAST2MWSIZE(col)], y[Mx * col + row]);
+      term[CAST2MWSIZE(col)] = std::max((TScalarType)term[CAST2MWSIZE(col)], y[Mx * col + row]);
     }
   }
   for (mwSize row=0; row < Mxi; ++row) {
     for (mwSize col=0; col < (mwSize)Dimension; ++col) {
-      orig[col] = std::min((TScalarType)orig[col], xi[Mxi * col + row]);
-      term[col] = std::max((TScalarType)term[col], xi[Mxi * col + row]);
+      orig[CAST2MWSIZE(col)] = std::min((TScalarType)orig[CAST2MWSIZE(col)], xi[Mxi * col + row]);
+      term[CAST2MWSIZE(col)] = std::max((TScalarType)term[CAST2MWSIZE(col)], xi[Mxi * col + row]);
     }
   }
 
@@ -233,7 +233,7 @@ void runBSplineTransform(int nArgIn, const mxArray** argIn,
   DataType len = term - orig;
   TScalarType lenmax = std::numeric_limits<TScalarType>::min();
   for (mwSize col=0; col < (mwSize)Dimension; ++col) {
-    lenmax = std::max(lenmax, len[col]);
+    lenmax = std::max(lenmax, len[CAST2MWSIZE(col)]);
   }
 
   // duplicate the input x and y matrices to PointSet format so that
@@ -245,8 +245,8 @@ void runBSplineTransform(int nArgIn, const mxArray** argIn,
   // to be within [0, 1] x [0, 1] x [0,1]
   for (mwSize row=0; row < Mx; ++row) {
     for (mwSize col=0; col < (mwSize)Dimension; ++col) {
-      v[col] = (y[Mx * col + row] - x[Mx * col + row]) / lenmax;
-      xParam[col] = (x[Mx * col + row] - orig[col]) / lenmax;
+      v[CAST2MWSIZE(col)] = (y[Mx * col + row] - x[Mx * col + row]) / lenmax;
+      xParam[CAST2MWSIZE(col)] = (x[Mx * col + row] - orig[CAST2MWSIZE(col)]) / lenmax;
     }
     pointSet->SetPoint(row, xParam);
     pointSet->SetPointData(row, v);
@@ -312,11 +312,11 @@ void runBSplineTransform(int nArgIn, const mxArray** argIn,
   typename PointSetType::PointType xiParam; // sampling coordinates
   for (mwSize row=0; row < Mxi; ++row) {
     for (mwSize col=0; col < (mwSize)Dimension; ++col) {
-      xiParam[col] = (xi[Mxi * col + row] - orig[col]) / lenmax;
+      xiParam[CAST2MWSIZE(col)] = (xi[Mxi * col + row] - orig[CAST2MWSIZE(col)]) / lenmax;
     }
     transform->Evaluate(xiParam, vi);
     for (mwSize col=0; col < (mwSize)Dimension; ++col) {
-      yi[Mxi * col + row] = xi[Mxi * col + row] + vi[col] * lenmax;
+      yi[Mxi * col + row] = xi[Mxi * col + row] + vi[CAST2MWSIZE(col)] * lenmax;
     }
   }
 
