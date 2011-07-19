@@ -1,5 +1,11 @@
 2011-07-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.4) Fix bug. When merging, only neighbours on the left
+	were taken into account. Now both neighbours on the left and right
+	are taken into account.
+
 	* ItkToolbox/ItkPSTransform.cpp:
 
 	- (v0.2.5) Move CAST2MWSIZE() macro to GeradusCommon.hpp.

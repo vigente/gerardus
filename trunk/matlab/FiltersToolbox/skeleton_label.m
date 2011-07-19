@@ -107,7 +107,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, 
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.11.3
+% Version: 0.11.4
 % $Rev$
 % $Date$
 % 
@@ -606,43 +606,60 @@ if (alphamax ~= -Inf)
         % if there is no neighbour or the alignment is larger than the
         % angle threshold, skip this branch
         if (isempty(idx) || alphamin > alphamax)
-            continue
-        end
-        vn = cc.BranchNeighboursLeft{I}(idx);
-
-        % we need to check whether the inverse relationship also exists,
-        % i.e. if "I" wants to merge with "vn", that "vn" also wants to
-        % merge with "I"
-        [~, idxvn] = min(cc.BranchNeighboursLeftAngle{vn});
-        if (I == cc.BranchNeighboursLeft{vn}(idxvn))
-            % I -> vn and vn -> I, so we are going to merge this branches
-            % (nothing needs to be done in this "if" block)
+            vn = [];
         else
-            [~, idxvn] = min(cc.BranchNeighboursRightAngle{vn});
-            if (I == cc.BranchNeighboursRight{vn}(idxvn))
+            vn = cc.BranchNeighboursLeft{I}(idx);
+        end
+
+        % get the right neighbour that is best aligned to this branch
+        [alphamin, idx] = min(cc.BranchNeighboursRightAngle{I});
+        
+        % if there is no neighbour or the alignment is larger than the
+        % angle threshold, skip this branch
+        if ~(isempty(idx) || alphamin > alphamax)
+            vn = [vn cc.BranchNeighboursRight{I}(idx)];
+        end
+
+        % check each potencial merging
+        for J = 1:length(vn)
+            
+            % we need to check whether the inverse relationship also
+            % exists, i.e. if "I" wants to merge with "vn", that "vn" also
+            % wants to merge with "I"
+            [~, idxvn] = min(cc.BranchNeighboursLeftAngle{vn(J)});
+            if (I == cc.BranchNeighboursLeft{vn(J)}(idxvn))
                 % I -> vn and vn -> I, so we are going to merge this
                 % branches (nothing needs to be done in this "if" block)
             else
-                % I -> vn, but not viceversa, so we are skipping this
-                % branch and not merging
-                continue
+                [~, idxvn] = min(cc.BranchNeighboursRightAngle{vn(J)});
+                if (I == cc.BranchNeighboursRight{vn(J)}(idxvn))
+                    % I -> vn and vn -> I, so we are going to merge this
+                    % branches (nothing needs to be done in this "if"
+                    % block)
+                else
+                    % I -> vn, but not viceversa, so we are skipping this
+                    % branch and not merging
+                    continue
+                end
             end
-        end
-        
-        % the two labels that have to be merged
-        v = sort([I cc.BranchNeighboursLeft{I}(idx)]);
-        
-        % look if any of these branches are already going to be merged to
-        % others
-        idx = find(cellfun(@(x) any(ismember(v, x)), ...
-            cc2.MergedBranches), 1);
-        
-        if (isempty(idx))
-            % create new merging bucket for this branch
-            cc2.MergedBranches = [cc2.MergedBranches {v}];
-        else
-            % add this branch to the merging bucket it belongs to
-            cc2.MergedBranches{idx} = union(cc2.MergedBranches{idx}, v);
+            
+            % the two labels that have to be merged
+            v = sort([I vn(J)]);
+            
+            % look if any of these branches are already going to be merged
+            % to others
+            idx = find(cellfun(@(x) any(ismember(v, x)), ...
+                cc2.MergedBranches), 1);
+            
+            if (isempty(idx))
+                % create new merging bucket for this branch
+                cc2.MergedBranches = [cc2.MergedBranches {v}];
+            else
+                % add this branch to the merging bucket it belongs to
+                cc2.MergedBranches{idx} = ...
+                    union(cc2.MergedBranches{idx}, v);
+            end
+            
         end
         
     end
