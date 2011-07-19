@@ -1,5 +1,17 @@
 2011-07-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* ItkToolbox/BaseFilter.hpp:
+
+	- (v0.3.2) Fix bug. Pablo Lamata noticed that trying to run the
+	filter with 'skel' produced a segfault. I introduced this bug in
+	r473, when I removed the constructors definition from
+	BaseFilter.cpp, because nothing was done, and put just a {;} in
+	the constructor declaration in BaseFilter.hpp. I didn't notice
+	that the constructor had an initialization list. As I didn't move
+	the initialization list from the definition to the declaration,
+	the pointers were not initialized, and when the data was accessed,
+	a segfault resulted.
+
 	* FiltersToolbox/skeleton_label.m:
 
 	- (v0.11.3) Fix bug. Make sure that list of voxels is a column
