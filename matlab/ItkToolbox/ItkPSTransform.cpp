@@ -70,7 +70,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.4
+  * Version: 0.2.5
   * $Rev$
   * $Date$
   *
@@ -125,16 +125,8 @@
 #include "itkVolumeSplineKernelTransform.h"
 #include "itkBSplineScatteredDataPointSetToImageFilter.h"
 
-// this definition is necessary for ITK v3.20.0 to avoid an error when trying to
-// compile itk::FixedArray::operator[](unsigned __int64) for Windows 64 bit, but
-// maybe we can remove it when ITK v4.0.0 is released
-#ifdef _WIN64
-#define CAST2MWSIZE(x) static_cast<unsigned long>(x)
-#else
-#define CAST2MWSIZE(x) static_cast<mwSize>(x)
-#endif
-
 /* Gerardus headers */
+#include "GerardusCommon.hpp"
 
 /* Functions */
 
