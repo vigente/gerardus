@@ -4,9 +4,6 @@
  * BaseFilter<InVoxelType, OutVoxelType>: This is where
  * the code to actually run the filter on the image lives.
  *
- * Instead of having a function (e.g. runFilter), we have the code in
- * the constructor of class FilterFactory.
- *
  * The reason is that template explicit specialization is only
  * possible in classes, not in functions. We need explicit
  * specialization to prevent the compiler from compiling certain
