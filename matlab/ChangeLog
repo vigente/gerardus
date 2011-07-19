@@ -1,5 +1,18 @@
 2011-07-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* ItkToolbox/ItkPSTransform.cpp:
+
+	- (v0.2.5) Move CAST2MWSIZE() macro to GeradusCommon.hpp.
+
+	* ItkToolbox/BaseFilter.cpp:
+
+	- (v0.3.4) Move CAST2MWSIZE() macro to GeradusCommon.hpp.
+
+	* ItkToolbox/GerardusCommon.hpp:
+
+	- (v0.2.1) Add CAST2MWSIZE() macro. This header is common for all
+	Gerardus' Matlab code, and so it's the right place for it.
+
 	* ItkToolbox/BaseFilter.hpp:
 
 	- (v0.3.2) Fix bug. Pablo Lamata noticed that trying to run the
