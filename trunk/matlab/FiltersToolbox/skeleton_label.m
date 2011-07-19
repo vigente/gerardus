@@ -107,7 +107,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, 
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.11.2
+% Version: 0.11.3
 % $Rev$
 % $Date$
 % 
@@ -209,6 +209,10 @@ for v = find(deg >= 3)'
     end
     
 end
+
+% make sure that lists of voxels are column vectors
+cc.PixelIdxList = cellfun(@(x) x(:), cc.PixelIdxList, ...
+    'UniformOutput', false);
 
 % init output
 cc.BifurcationPixelIdx = [];

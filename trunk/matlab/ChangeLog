@@ -1,9 +1,16 @@
+2011-07-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.3) Fix bug. Make sure that list of voxels is a column
+	vector, to avoid dimensions error after concatenation.
+
 2011-07-19 Yves <ivmartel@gmail.com>
 
-    * ItkToolbox: BaseFilter.cpp and ItkPSTransform.cpp
-    
-    - added the CAST2MWSIZE macro to use the proper data type
-    for specific machines (specifically Microsoft Windows 64bits).
+	* ItkToolbox: BaseFilter.cpp and ItkPSTransform.cpp
+
+	- added the CAST2MWSIZE macro to use the proper data type for
+	specific machines (specifically Microsoft Windows 64bits).
 
 2011-07-18  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
