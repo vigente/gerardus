@@ -10,6 +10,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio)
 %      branch they are attached to
 %
 %
+% NRRDPR = SCINRRD_SKELETON_PRUNE(NRRDSK)
 % NRRDPR = SCINRRD_SKELETON_PRUNE(NRRDSK, [], MINLEN)
 %
 %   This syntax runs step 1 only.
@@ -55,7 +56,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.3
+% Version: 0.2.4
 % $Rev$
 % $Date$
 % 
@@ -83,10 +84,17 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 4, nargin, 'struct'));
+error(nargchk(1, 4, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
+if ~isstruct(nrrdsk)
+    error('NRRDSK must be an SCI NRRD struct')
+end
+
 % defaults
+if (nargin < 2)
+    nrrd = [];
+end
 if (nargin < 3 || isempty(minlen))
     minlen = 5;
 end
