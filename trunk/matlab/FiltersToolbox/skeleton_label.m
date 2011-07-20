@@ -107,7 +107,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, 
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.11.4
+% Version: 0.11.5
 % $Rev$
 % $Date$
 % 
@@ -242,7 +242,7 @@ end
 % init output
 cc.IsLeaf = false(1, cc.NumObjects);
 cc.IsLoop = false(1, cc.NumObjects);
-cc.BranchLength = nan(1, cc.NumObjects);
+cc.BranchLength = zeros(1, cc.NumObjects);
 
 % create the part of the NRRD struct necessary to convert to real world
 % coordinates
@@ -273,7 +273,6 @@ for I = 1:cc.NumObjects
     if (N == 1)
         cc.PixelParam{I} = 0;
         cc.IsLoop(I) = false;
-        cc.IsLeaf(I) = true;
         continue
     end
 
@@ -353,18 +352,24 @@ for I = 1:cc.NumObjects
         
     end
     
-    % degree of each total branch voxel
-    cc.Degree{I} = full(deg(dictsk(cc.PixelIdxList{I})));
-    
-    % we only consider as bifurcation voxels those at the end of the branch
-    idx = cc.PixelIdxList{I}([1 end]);
-    cc.BifurcationPixelIdx = union(cc.BifurcationPixelIdx, ...
-        idx(cc.Degree{I}([1 end]) > 2));
-    
-    % a branch is a leaf is it has at least one voxel with degree==1
-    cc.IsLeaf(I) = any(cc.Degree{I} == 1);
-
 end
+
+% degree of each total branch voxel
+cc.Degree = cellfun(@(x) ...
+    full(deg(dictsk(x))), cc.PixelIdxList, 'UniformOutput', false);
+
+% we only consider as bifurcation voxels those at the end of each branch
+% that have degree >= 3
+cc.BifurcationPixelIdx = cellfun(@(x) ...
+    x([1 ; end]), cc.PixelIdxList, 'UniformOutput', false);
+cc.BifurcationPixelIdx = unique(cell2mat(cc.BifurcationPixelIdx));
+cc.BifurcationPixelIdx = cc.BifurcationPixelIdx(...
+    full(deg(dictsk(cc.BifurcationPixelIdx))) > 2);
+
+% a branch is a leaf is it has at least one voxel with degree==1 (tip of a
+% branch) or 0 (single voxel floating in space)
+cc.IsLeaf = cellfun(@(x) any(x == 1 | x == 0), cc.Degree);
+
 
 % % Debug (2D image) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
@@ -386,9 +391,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % initialize cells to contain branch neighbours
-for I = 1:cc.NumObjects
-    cc.BranchNeighbours{I} = [];
-end
+cc.BranchNeighbours = cell(1, cc.NumObjects);
 
 % loop bifurcation voxels
 for I = 1:length(cc.BifurcationPixelIdx)
