@@ -55,7 +55,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.2
+% Version: 0.2.3
 % $Rev$
 % $Date$
 % 
@@ -83,7 +83,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(3, 4, nargin, 'struct'));
+error(nargchk(2, 4, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
 % defaults
@@ -108,7 +108,8 @@ for I = 1:cc.NumObjects
     end
     
     % get indices from current branch and its neighbours
-    idx = cat(1, cc.PixelIdxList{[I cc.BranchNeighbours{I}]});
+    idx = cat(1, cc.PixelIdxList{[I ...
+        cc.BranchNeighboursLeft{I} cc.BranchNeighboursRight{I}]});
     
     % linear index => r, c, s indices
     [r, c, s] = ind2sub(size(nrrdsk.data), idx);
@@ -182,7 +183,7 @@ for I = 1:cc.NumObjects
     xyz0 = scinrrd_index2world([r, c, s], nrrd.axis);
 
     % labels that are connected to this leaf
-    idx = cc.BranchNeighbours{I};
+    idx = [cc.BranchNeighboursLeft{I} cc.BranchNeighboursRight{I}];
     if (isempty(idx)) % skip if this branch is not connected
         continue
     end
@@ -241,13 +242,15 @@ for I = 1:cc.NumObjects
 end
 
 % list of branches that we want to prune
-idxprune = (cc.BranchLenght ./ sqrt(4*maxeigd) < lratio) & cc.IsLeaf;
+len = cellfun(@(x) x(end), cc.PixelParam);
+idxprune = (len ./ sqrt(4*maxeigd) < lratio) & cc.IsLeaf;
 
 % loop to prune branches
 for I = find(idxprune)
     
     % get indices from current branch and its neighbours
-    idx = cat(1, cc.PixelIdxList{[I cc.BranchNeighbours{I}]});
+    idx = cat(1, cc.PixelIdxList{[I ...
+        cc.BranchNeighboursLeft{I} cc.BranchNeighboursRight{I}]});
     
     % linear index => r, c, s indices
     [r, c, s] = ind2sub(size(nrrdsk.data), idx);
