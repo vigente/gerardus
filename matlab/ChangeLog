@@ -1,6 +1,15 @@
 2011-07-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.5) Fix bug reported by Pablo Lamata. Branches of length 1
+	were being ignored and cc.Degree was not computed for them. Also,
+	they were given cc.Length NaN instead of 0. This caused errors in
+	scinrrd_skeleton_prune().
+
 	* FiltersToolbox/scinrrd_skeleton_prune.m:
+
+	- (v0.2.4) Make 2nd input argument non-mandatory.
 
 	- (v0.2.3) skeleton_label() does no longer produce fields
 	cc.BranchNeighbours and cc.BranchLength, so replace their use in
