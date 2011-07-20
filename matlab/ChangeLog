@@ -4,8 +4,8 @@
 
 	- (v0.11.5) Fix bug reported by Pablo Lamata. Branches of length 1
 	were being ignored and cc.Degree was not computed for them. Also,
-	they were given cc.Length NaN instead of 0. This caused errors in
-	scinrrd_skeleton_prune().
+	they were given cc.Length NaN instead of 0, and they were not
+	considered leafs. This caused errors in scinrrd_skeleton_prune().
 
 	* FiltersToolbox/scinrrd_skeleton_prune.m:
 
