@@ -1,3 +1,11 @@
+2011-07-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_skeleton_prune.m:
+
+	- (v0.2.3) skeleton_label() does no longer produce fields
+	cc.BranchNeighbours and cc.BranchLength, so replace their use in
+	this function.
+
 2011-07-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_label.m:
