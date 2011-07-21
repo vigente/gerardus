@@ -27,8 +27,16 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, 
 %
 %   We have added new fields to CC:
 %
-%     CC.BifurcationPixelIdx: A list of voxels in the image that are
-%                             bifurcation voxels
+%     CC.IsolatedBifurcationPixelIdx{i}: A list of bifurcation voxels in
+%                      the image that are sourrounded only by other
+%                      bifurcation voxels. Isolated bifurcation voxels
+%                      don't belong to any branch, but they belong to the
+%                      skeleton
+%
+%     CC.BranchBifurcationPixelIdx{i}: A list of the bifurcation voxels
+%                      that connect branch i to its neighbours. Any branch
+%                      can have 0, 1, or 2 bifurcation voxels, as only
+%                      voxels at the tip are considered
 %
 %     CC.MergedBranches{i}: only available if branch merging is selected by
 %                           setting ALPHA>=0. Gives the list of branches in
@@ -100,14 +108,14 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, 
 %   the order of 2.5e-5, P=.999999 seems to give good results (note that
 %   for small resolution, P=.999999 gives a very different result to
 %   P=1.0). For resolution in the order of 1, P=0.8 seems to give good
-%   results. By default, P=0.8.
+%   results. By default, P=1 and no smotthing is performed.
 %
 %
 % See also: skeleton_plot.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.11.5
+% Version: 0.11.7
 % $Rev$
 % $Date$
 % 
@@ -149,7 +157,7 @@ if (nargin < 4 || isempty(alphamax))
     alphamax = -Inf; % don't merge by default
 end
 if (nargin < 5 || isempty(p))
-    p = .8;
+    p = 1.0;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -182,67 +190,59 @@ if length(cc.ImageSize) == 2
     cc.ImageSize = [cc.ImageSize 1];
 end
 
+% init output
+cc.IsolatedBifurcationPixelIdx = [];
+
 % loop each bifurcation voxel (working with matrix indices, not image
 % indices)
 for v = find(deg >= 3)'
     
-    % get all its neighbours that are not bifurcation points
+    % get all its neighbours
     vn = find(dsk(v, :));
-    vn = vn(deg(vn) < 3);
+    
+    % keep only neighbours that are not bifurcation voxels
+    vn = vn(full(deg(vn)) < 3);
     
     % if this is a bifurcation voxel that is completely surroundered by
-    % other bifurcation voxels, we are not going to label it yet
+    % other bifurcation voxels, add it to the corresponding list
     if isempty(vn)
-        continue
-    end
+        
+        cc.IsolatedBifurcationPixelIdx = ...
+            [cc.IsolatedBifurcationPixelIdx ; idictsk(v)];
+        
+    else % otherwise, add it to all branches that it touches
+        
+        % get labels of branches that are neighbours to current bifurcation
+        % voxel
+        idx = find(...
+            arrayfun(@(I) any(ismember(idictsk(vn), ...
+            cc.PixelIdxList{I})), 1:cc.NumObjects));
+        
+        % add current bifurcation voxel to neighbour branches
+        for I = 1:length(idx)
+            cc.PixelIdxList{idx(I)} = ...
+                union(cc.PixelIdxList{idx(I)}, idictsk(v));
+        end
     
-    % get labels of branches that are neighbours to current bifurcation
-    % voxel
-    idx = find(...
-        arrayfun(@(I) any(ismember(idictsk(vn), cc.PixelIdxList{I})), ...
-        1:cc.NumObjects));
+    end
 
-    % add current bifurcation voxel to neighbour branches
-    for I = 1:length(idx)
-        cc.PixelIdxList{idx(I)} = ...
-            union(cc.PixelIdxList{idx(I)}, idictsk(v));
-    end
-    
 end
 
 % make sure that lists of voxels are column vectors
 cc.PixelIdxList = cellfun(@(x) x(:), cc.PixelIdxList, ...
     'UniformOutput', false);
 
-% init output
-cc.BifurcationPixelIdx = [];
-
-% add bifurcation voxels that are surrounded only by other bifurcation
-% voxels to the list of Bifurcation voxels, but don't add them to any
-% branch
-for v = find(deg >= 3)'
-    
-    % get all its neighbours
-    vn = find(dsk(v, :), 1);
-
-    % process only bifurcation voxels surrounded by bifurcation voxels
-    if isempty(vn)
-        continue
-    end
-    
-    cc.BifurcationPixelIdx = union(cc.BifurcationPixelIdx, idictsk(v));
-    
-end
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% sort the skeleton voxels in each branch
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% init output
+% init outputs
+cc.PixelParam = cell(1, cc.NumObjects);
 cc.IsLeaf = false(1, cc.NumObjects);
 cc.IsLoop = false(1, cc.NumObjects);
 cc.BranchLength = zeros(1, cc.NumObjects);
+cc.Degree = cell(1, cc.NumObjects);
+cc.BranchBifurcationPixelIdx = cell(1, cc.NumObjects);
 
 % create the part of the NRRD struct necessary to convert to real world
 % coordinates
@@ -272,7 +272,11 @@ for I = 1:cc.NumObjects
     % degenerate case in which the branch has only one voxel
     if (N == 1)
         cc.PixelParam{I} = 0;
+        cc.IsLeaf(I) = false;
         cc.IsLoop(I) = false;
+        cc.BranchLength(I) = 0;
+        cc.Degree{I} = 0;
+        cc.BranchBifurcationPixelIdx{I} = [];
         continue
     end
 
@@ -352,24 +356,24 @@ for I = 1:cc.NumObjects
         
     end
     
+    % force to be a column vector
+    cc.PixelParam{I} = cc.PixelParam{I}(:);
+    
+    % degree of each total branch voxel
+    cc.Degree{I} = full(deg(dictsk(cc.PixelIdxList{I})));
+    
+    % each branch can have 0, 1, or 2 bifurcation voxels:
+    %   0: if the branch is floating in the air without any neighbours
+    %   1: if the branch is a left, so it's connected only on one end
+    %   2: if the branch is connected on both ends
+    vend = dictsk(cc.PixelIdxList{I}([1 end]));
+    cc.BranchBifurcationPixelIdx{I} = idictsk(full(vend(deg(vend) > 2)));
+    
+    % a branch is a leaf is it has at least one voxel with degree==1 (tip of a
+    % branch) or 0 (single voxel floating in space)
+    cc.IsLeaf(I) = any(full(vend(deg(vend) < 2)));
+    
 end
-
-% degree of each total branch voxel
-cc.Degree = cellfun(@(x) ...
-    full(deg(dictsk(x))), cc.PixelIdxList, 'UniformOutput', false);
-
-% we only consider as bifurcation voxels those at the end of each branch
-% that have degree >= 3
-cc.BifurcationPixelIdx = cellfun(@(x) ...
-    x([1 ; end]), cc.PixelIdxList, 'UniformOutput', false);
-cc.BifurcationPixelIdx = unique(cell2mat(cc.BifurcationPixelIdx));
-cc.BifurcationPixelIdx = cc.BifurcationPixelIdx(...
-    full(deg(dictsk(cc.BifurcationPixelIdx))) > 2);
-
-% a branch is a leaf is it has at least one voxel with degree==1 (tip of a
-% branch) or 0 (single voxel floating in space)
-cc.IsLeaf = cellfun(@(x) any(x == 1 | x == 0), cc.Degree);
-
 
 % % Debug (2D image) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
@@ -390,206 +394,207 @@ cc.IsLeaf = cellfun(@(x) any(x == 1 | x == 0), cc.Degree);
 %% get neighbours of each branch and angles between them
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% initialize cells to contain branch neighbours
-cc.BranchNeighbours = cell(1, cc.NumObjects);
+% first, we need to get the neighbours of the isolated bifurcation voxels.
+% The reason is that two branches can be neighbours, but not touch because
+% they have an isolated voxel in between. Knowning the neighbours of
+% isolated voxels will be useful when we are looking for branch neighbours
+cc.IsolatedBifurcationPixelNeighbours = cell(1, ...
+    length(cc.IsolatedBifurcationPixelIdx));
 
-% loop bifurcation voxels
-for I = 1:length(cc.BifurcationPixelIdx)
-
-    % index of bifurcation voxel (matrix index)
-    idx = dictsk(cc.BifurcationPixelIdx(I));
+for I = 1:length(cc.IsolatedBifurcationPixelIdx)
     
-    % get voxel's neighbours (image index)
-    vn = idictsk(dsk(idx, :) > 0);
+    % get current isolated bifurcation voxel
+    v = cc.IsolatedBifurcationPixelIdx(I);
     
-    % include voxel in the list of its own voxel neighbours
-    vn = [vn; cc.BifurcationPixelIdx(I)];
+    % get neighbour voxels
+    vn = idictsk(dsk(dictsk(v), :) > 0);
     
     % branches that contain any voxel in the list of neighbours
     idx = find(cellfun(@(x) any(ismember(vn, x)), ...
         cc.PixelIdxList));
     
-    % add all branches to the list of neighbours
-    for J = idx
-        cc.BranchNeighbours{J} = union(cc.BranchNeighbours{J}, ...
-            idx);
-    end
+    % add list of neighbour branches to the corresponding isolated voxel
+    cc.IsolatedBifurcationPixelNeighbours{I} = idx(:)';
     
 end
-
-% a branch cannot be its own neighbour
-cc.BranchNeighbours = arrayfun(@(I) setdiff(cc.BranchNeighbours{I}, I), ...
-    1:numel(cc.BranchNeighbours), 'UniformOutput', false);
 
 % init left and right neighbours
 cc.BranchNeighboursLeft = cell(1, cc.NumObjects);
 cc.BranchNeighboursRight = cell(1, cc.NumObjects);
-cc.BranchNeighboursLeftAngle = cell(1, cc.NumObjects);
-cc.BranchNeighboursRightAngle = cell(1, cc.NumObjects);
 
-% split branch's neighbours into neighbours from the "left"
-% (cc.PixelParam{i}(1)) or from the "right" (cc.PixelParam{i}(end))
+% search for branch left and right neighbours
 for I = 1:cc.NumObjects
     
-    % loop branch's neighbours that are not loops. To avoid duplicating
-    % operations, we only look at neighbours with a larger label
-    for J = cc.BranchNeighbours{I}(cc.BranchNeighbours{I} > I)
-        
-        % get list of indices in both skeleton branches
-        idx0 = cc.PixelIdxList{I};
-        idx1 = cc.PixelIdxList{J};
+    % get voxels at both ends of the branch. The first one is the "left"
+    % end of the branch, and the last one is the "right" end
+    vl = cc.PixelIdxList{I}(1);
+    vr = cc.PixelIdxList{I}(end);
+    
+    % get neighbour voxels on each end
+    vln = idictsk(dsk(dictsk(vl), :) > 0);
+    vrn = idictsk(dsk(dictsk(vr), :) > 0);
+    
+    % branches that contain any voxel in the list of neighbours
+    cc.BranchNeighboursLeft{I} = find(cellfun(@(x) ...
+        any(ismember(vln, x)), cc.PixelIdxList));
+    cc.BranchNeighboursRight{I} = find(cellfun(@(x) ...
+        any(ismember(vrn, x)), cc.PixelIdxList));
+    
+    % if any of the neighbour voxels are isolated bifurcated voxels, then
+    % they are not going to be in any branch, but we know which branches
+    % they are touching. We add those branches as neighbours to the current
+    % branch
+    cc.BranchNeighboursLeft{I} = union(cc.BranchNeighboursLeft{I}, ...
+        cell2mat(cc.IsolatedBifurcationPixelNeighbours(...
+        ismember(cc.IsolatedBifurcationPixelIdx, vln))));
+    cc.BranchNeighboursRight{I} = union(cc.BranchNeighboursRight{I}, ...
+        cell2mat(cc.IsolatedBifurcationPixelNeighbours(...
+        ismember(cc.IsolatedBifurcationPixelIdx, vrn))));
+    
+    % remove current branch, so that it isn't its own neighbour
+    cc.BranchNeighboursLeft{I} = setdiff(cc.BranchNeighboursLeft{I}, I);
+    cc.BranchNeighboursRight{I} = setdiff(cc.BranchNeighboursRight{I}, I);
+    
+end
 
-        % real world coordinates of voxels
-        [r0, c0, s0] = ind2sub(cc.ImageSize, idx0);
-        [r1, c1, s1] = ind2sub(cc.ImageSize, idx1);
-        xyz0 = scinrrd_index2world([r0, c0, s0], nrrdaxis);
-        xyz1 = scinrrd_index2world([r1, c1, s1], nrrdaxis);
-        
-        % compute distances between the first and last voxel in the
-        % current and neihgbour branches
-        d = dmatrix(xyz0([1 end], :)', xyz1([1 end], :)');
-        
-        % get matrix index with the minimum distance
-        [dmin, idmin] = min(d(:));
-        
-        % depending on where the branches are joined, they are neighbours
-        % on the left or on the right of each other
-        if (idmin == 1) % 1st voxel branch <=> 1st voxel neighbour
-            
-            % index of bifurcation voxel
-            bifidx = size(xyz0, 1);
-                
-            % concatenate voxels
-            if (dmin == 0)
-                xyz = [xyz0(end:-1:1, :); xyz1(2:end, :)];
-            else
-                xyz = [xyz0(end:-1:1, :); xyz1];
-            end
-            
-        elseif (idmin == 2) % end voxel branch <=> 1st voxel neighbour
-            
-            % index of bifurcation voxel
-            bifidx = size(xyz0, 1);
-                
-            % concatenate voxels
-            if (dmin == 0)
-                xyz = [xyz0; xyz1(2:end, :)];
-            else
-                xyz = [xyz0; xyz1];
-            end
-            
-        elseif (idmin == 3) % 1st voxel branch <=> end voxel neighbour
-            
-            % index of bifurcation voxel
-            bifidx = size(xyz1, 1);
-                
-            % concatenate voxels
-            if (dmin == 0)
-                xyz = [xyz1; xyz0(2:end, :)];
-            else
-                xyz = [xyz1; xyz0];
-            end
-            
-        elseif (idmin == 4) % end voxel branch <=> end voxel neighbour
-            
-            % index of bifurcation voxel
-            bifidx = size(xyz1, 1);
-                
-            % concatenate voxels
-            if (dmin == 0)
-                xyz = [xyz1; xyz0(end-1:-1:1, :)];
-            else
-                xyz = [xyz1; xyz0(end:-1:1, :)];
-            end
-            
-        end
+% init outputs
+cc.BranchMergeCandidateLeft = zeros(1, cc.NumObjects);
+cc.BranchMergeCandidateLeftAngle = inf(1, cc.NumObjects);
+cc.BranchMergeCandidateRight = zeros(1, cc.NumObjects);
+cc.BranchMergeCandidateRightAngle = inf(1, cc.NumObjects);
 
-        % compute spline parameterization (Lee's centripetal scheme)
-        t = cumsum([0; (sum((xyz(2:end, :) - xyz(1:end-1, :)).^2, 2)).^.25]);
+% loop again to compute the angles between neighbour branches. This cannot
+% be part of the previous loop, because beforehand we need to know the
+% correspondences between all branches
+for I = 1:cc.NumObjects
+    
+    % loops are not going to be merged, so we give an Inf value to the
+    % angles
+    if (cc.IsLoop(I))
+        cc.BranchNeighboursLeftAngle{I} = cc.BranchNeighboursLeft{I} + Inf;
+        cc.BranchNeighboursRightAngle{I} = cc.BranchNeighboursRight{I} + Inf;
+        continue
+    end
+
+    % neighbours to the left of this branch
+    for J = cc.BranchNeighboursLeft{I}(:)'
         
-        % compute cubic smoothing spline
-        pp = csaps(t', xyz', p);
+        % concatenate indices of neighbour branches
+        if (cc.IsLoop(J))
             
-%         % DEBUG
-%         hold off
-%         fnplt(pp)
-%         hold on
-%         plot3(xyz(:, 1), xyz(:, 2), xyz(:, 3), 'o', 'LineWidth', 1)
-%         foo = ppval(pp, pp.breaks(bifidx));
-%         plot3(foo(1), foo(2), foo(3), 'ro', 'LineWidth', 1)
-%         plot3(xyz(bifidx, 1), xyz(bifidx, 2), xyz(bifidx, 3), 'go', 'LineWidth', 1)
-%         axis equal
-%         view(2)
-        
-        % get curve tangent to the left and right of the bifurcation point
-        % (note that dx0 doesn't necessarily correspond to br0, as opposed
-        % to br1)
-        dx0 = ppval(pp, pp.breaks(bifidx-1:bifidx));
-        dx1 = ppval(pp, pp.breaks(bifidx:bifidx+1));
-        
-        dx0 = dx0(:, 2) - dx0(:, 1);
-        dx1 = dx1(:, 2) - dx1(:, 1);
-        
-        % compute angle between derivatives. If the current branch or the
-        % neighbour are loop, then we are not going to merge them
-        if any(cc.IsLoop([I J]))
+            cc.BranchNeighboursLeftAngle{I}(end+1) = Inf;
             alpha = Inf;
-        else
-            alpha = acos(dot(dx0, dx1) / norm(dx0) / norm(dx1));
-        end
-
-        if (idmin == 1) % 1st voxel branch <=> 1st voxel neighbour
             
-            % add to left and right neighbours lists
-            cc.BranchNeighboursLeft{I} = [cc.BranchNeighboursLeft{I} J];
-            cc.BranchNeighboursLeft{J} = [cc.BranchNeighboursLeft{J} I];
+        elseif (any(cc.BranchNeighboursLeft{J} == I)) % connected to left of neighbour
             
-            cc.BranchNeighboursLeftAngle{I} = ...
-                [cc.BranchNeighboursLeftAngle{I} alpha];
-            cc.BranchNeighboursLeftAngle{J} = ...
-                [cc.BranchNeighboursLeftAngle{J} alpha];
+            % compute angle between branches
+            alpha = angle_btw_branches(cc.PixelIdxList{I}(end:-1:1), ...
+                cc.PixelIdxList{J}, cc.ImageSize, nrrdaxis, p);
             
-        elseif (idmin == 2) % end voxel branch <=> 1st voxel neighbour
+        elseif (any(cc.BranchNeighboursRight{J} == I)) % connected to right of neighbour
             
-            % add to left and right neighbours lists
-            cc.BranchNeighboursRight{I} = [cc.BranchNeighboursRight{I} J];
-            cc.BranchNeighboursLeft{J} = [cc.BranchNeighboursLeft{J} I];
+            alpha = angle_btw_branches(cc.PixelIdxList{J}, ...
+                cc.PixelIdxList{I}, cc.ImageSize, nrrdaxis, p);
             
-            cc.BranchNeighboursRightAngle{I} = ...
-                [cc.BranchNeighboursRightAngle{I} alpha];
-            cc.BranchNeighboursLeftAngle{J} = ...
-                [cc.BranchNeighboursLeftAngle{J} alpha];
-            
-        elseif (idmin == 3) % 1st voxel branch <=> end voxel neighbour
-            
-            % add to left and right neighbours lists
-            cc.BranchNeighboursLeft{I} = [cc.BranchNeighboursLeft{I} J];
-            cc.BranchNeighboursRight{J} = [cc.BranchNeighboursRight{J} I];
-            
-            cc.BranchNeighboursLeftAngle{I} = ...
-                [cc.BranchNeighboursLeftAngle{I} alpha];
-            cc.BranchNeighboursRightAngle{J} = ...
-                [cc.BranchNeighboursRightAngle{J} alpha];
-            
-        elseif (idmin == 4) % end voxel branch <=> end voxel neighbour
-            
-            % add to left and right neighbours lists
-            cc.BranchNeighboursRight{I} = [cc.BranchNeighboursRight{I} J];
-            cc.BranchNeighboursRight{J} = [cc.BranchNeighboursRight{J} I];
-            
-            cc.BranchNeighboursRightAngle{I} = ...
-                [cc.BranchNeighboursRightAngle{I} alpha];
-            cc.BranchNeighboursRightAngle{J} = ...
-                [cc.BranchNeighboursRightAngle{J} alpha];
-            
+        else % assertion fail, a neighbour must be connected on the left or right
+            error(['Assertion fail: Branch ' num2str(J) ...
+                ' not connected to neighbour ' num2str(I)])
         end
         
+        % update the candidate to be merged
+        if (alpha < cc.BranchMergeCandidateLeftAngle(I) ...
+                && alpha < alphamax)
+            cc.BranchMergeCandidateLeftAngle(I) = alpha;
+            cc.BranchMergeCandidateLeft(I) = J;
+        end
+            
+    end
+    
+    % neighbours to the right of this branch
+    for J = cc.BranchNeighboursRight{I}(:)'
+        
+        % concatenate indices of neighbour branches
+        if (cc.IsLoop(J))
+            
+            cc.BranchNeighboursRightAngle{I}(end+1) = Inf;
+            alpha = Inf;
+            
+        elseif (any(cc.BranchNeighboursLeft{J} == I)) % connected to left of neighbour
+            
+            alpha = angle_btw_branches(cc.PixelIdxList{I}, ...
+                cc.PixelIdxList{J}, cc.ImageSize, nrrdaxis, p);
+            
+        elseif (any(cc.BranchNeighboursRight{J} == I)) % connected to right of neighbour
+            
+            alpha = angle_btw_branches(cc.PixelIdxList{I}, ...
+                cc.PixelIdxList{J}(end:-1:1), cc.ImageSize, nrrdaxis, p);
+            
+        else % assertion fail, a neighbour must be connected on the left or right
+            error(['Assertion fail: Branch ' num2str(J) ...
+                ' not connected to neighbour ' num2str(I)])
+        end
+        
+        % update the candidate to be merged
+        if (alpha < cc.BranchMergeCandidateRightAngle(I) ...
+                && alpha < alphamax)
+            cc.BranchMergeCandidateRightAngle(I) = alpha;
+            cc.BranchMergeCandidateRight(I) = J;
+        end
+            
     end
     
 end
 
-% remove neighbours field, that is now redundant
-cc = rmfield(cc, 'BranchNeighbours');
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% compute merging buckets
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if (alphamax ~= -Inf)
+
+    % branches that want to merge with somebody on the left or on the right
+    idxabl = find(cc.BranchMergeCandidateLeft);
+    idxabr = find(cc.BranchMergeCandidateRight);
+    idxab = [idxabl idxabr];
+    
+    % candidates to be merged
+    idxba = [cc.BranchMergeCandidateLeft(idxabl) ...
+        cc.BranchMergeCandidateRight(idxabr)];
+    
+    % check that if "a" wants to merge with "b", "b" also wants to merge with
+    % "a"
+    ok = cc.BranchMergeCandidateLeft(idxba) == idxab ...
+        | cc.BranchMergeCandidateRight(idxba) == idxab;
+    
+    % init list of merging buckets
+    cc2.MergedBranches = cell(0);
+    
+    % create merging buckets. Each bucket will contain an unsorted list of all
+    % branches that need to be merged together
+    for I = find(ok)
+        
+        % look if any of these branches are already going to be merged
+        % to others
+        idx = find(cellfun(@(x) any(ismember([idxab(I) idxba(I)], x)), ...
+            cc2.MergedBranches), 1);
+        
+        if (isempty(idx))
+            % create new merging bucket
+            cc2.MergedBranches = [cc2.MergedBranches {[idxab(I) idxba(I)]}];
+        else
+            % add this branch to the merging bucket it belongs to
+            cc2.MergedBranches{idx} = ...
+                union(cc2.MergedBranches{idx}, [idxab(I) idxba(I)]);
+        end
+        
+    end
+    
+    % add branches that are not going to be merged
+    cc2.MergedBranches = [ ...
+        num2cell(setdiff(1:cc.NumObjects, [cc2.MergedBranches{:}])) ...
+        cc2.MergedBranches];
+
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% merge branches together
@@ -597,85 +602,18 @@ cc = rmfield(cc, 'BranchNeighbours');
 
 if (alphamax ~= -Inf)
     
-    % init list of pairs of branches to merge
-    cc2.MergedBranches = cell(0);
-    
-    % ignore branches that are loops
-    for I = find(~cc.IsLoop)
-        
-        % get the left neighbour that is best aligned to this branch
-        [alphamin, idx] = min(cc.BranchNeighboursLeftAngle{I});
-        
-        % if there is no neighbour or the alignment is larger than the
-        % angle threshold, skip this branch
-        if (isempty(idx) || alphamin > alphamax)
-            vn = [];
-        else
-            vn = cc.BranchNeighboursLeft{I}(idx);
-        end
-
-        % get the right neighbour that is best aligned to this branch
-        [alphamin, idx] = min(cc.BranchNeighboursRightAngle{I});
-        
-        % if there is no neighbour or the alignment is larger than the
-        % angle threshold, skip this branch
-        if ~(isempty(idx) || alphamin > alphamax)
-            vn = [vn cc.BranchNeighboursRight{I}(idx)];
-        end
-
-        % check each potencial merging
-        for J = 1:length(vn)
-            
-            % we need to check whether the inverse relationship also
-            % exists, i.e. if "I" wants to merge with "vn", that "vn" also
-            % wants to merge with "I"
-            [~, idxvn] = min(cc.BranchNeighboursLeftAngle{vn(J)});
-            if (I == cc.BranchNeighboursLeft{vn(J)}(idxvn))
-                % I -> vn and vn -> I, so we are going to merge this
-                % branches (nothing needs to be done in this "if" block)
-            else
-                [~, idxvn] = min(cc.BranchNeighboursRightAngle{vn(J)});
-                if (I == cc.BranchNeighboursRight{vn(J)}(idxvn))
-                    % I -> vn and vn -> I, so we are going to merge this
-                    % branches (nothing needs to be done in this "if"
-                    % block)
-                else
-                    % I -> vn, but not viceversa, so we are skipping this
-                    % branch and not merging
-                    continue
-                end
-            end
-            
-            % the two labels that have to be merged
-            v = sort([I vn(J)]);
-            
-            % look if any of these branches are already going to be merged
-            % to others
-            idx = find(cellfun(@(x) any(ismember(v, x)), ...
-                cc2.MergedBranches), 1);
-            
-            if (isempty(idx))
-                % create new merging bucket for this branch
-                cc2.MergedBranches = [cc2.MergedBranches {v}];
-            else
-                % add this branch to the merging bucket it belongs to
-                cc2.MergedBranches{idx} = ...
-                    union(cc2.MergedBranches{idx}, v);
-            end
-            
-        end
-        
-    end
-    
-    % add branches that are not going to be merged
-    cc2.MergedBranches = [...
-        num2cell(setdiff(1:cc.NumObjects, [cc2.MergedBranches{:}])) ...
-        cc2.MergedBranches];
-    
     % add to cc2 struct the fields that are common to all branches
     cc2.Connectivity = cc.Connectivity;
     cc2.ImageSize = cc.ImageSize;
     cc2.NumObjects = length(cc2.MergedBranches);
+    
+    % init rest of the fields
+    cc2.PixelIdxList = cell(1, cc2.NumObjects);
+    cc2.PixelParam = cell(1, cc2.NumObjects);
+    cc2.IsLeaf = false(1, cc2.NumObjects);
+    cc2.IsLoop = false(1, cc2.NumObjects);
+    cc2.BranchLength = zeros(1, cc2.NumObjects);
+    cc2.Degree = cell(1, cc2.NumObjects);
     
     % loop every merging bucket
     for I = 1:cc2.NumObjects
@@ -683,16 +621,11 @@ if (alphamax ~= -Inf)
         % get union of voxels from all the branches that are going to be merged
         br = unique(cat(1, cc.PixelIdxList{cc2.MergedBranches{I}}));
         
-        % get number of voxels
-        N = length(br);
-        
-        % concatenate all the bifurcation voxels that are only surrounded by
-        % other bifurcation voxels. The reason is that these voxels connect
-        % neighbour branches that are not touching. It's too complicated to
-        % keep track of which voxel touches which branch, so it's going to be
-        % simpler to just concatenate all of them, and let Dijkstra's algorithm
-        % throw away those that are not connected
-        br = [br ; cc.BifurcationPixelIdx'];
+        % concatenate all the isolated bifurcation voxels. We could look up
+        % which isolated voxels touch the branches in the bucket, but it's
+        % going to be faster to just concatenate all, and let Dijkstra's
+        % algorithm prune out the free riders
+        br = [br ; cc.IsolatedBifurcationPixelIdx(:)];
         
         % create a "branch distance matrix" for only the voxels in the branch
         bri = dictsk(br);
@@ -709,8 +642,7 @@ if (alphamax ~= -Inf)
         dbr = dbr(idx, idx);
         bri = bri(idx);
         
-        % the furthest voxel should be one of the ends of the branch (unless
-        % there's a loop)
+        % the furthest voxel should be one of the ends of the branch
         [~, v0] = max(d);
         
         % compute shortest path to all other voxels in the branch
@@ -724,8 +656,6 @@ if (alphamax ~= -Inf)
         
         % backtrack the whole branch in order from the furthest point to
         % the original extreme point
-        cc2.PixelIdxList{I} = [];
-        cc2.PixelParam{I} = [];
         J = 1;
         while (v1 ~= 0)
             cc2.PixelIdxList{I}(J) = idictsk(bri(v1));
@@ -734,8 +664,11 @@ if (alphamax ~= -Inf)
             J = J + 1;
         end
         
+        % make list of pixels column vector
+        cc2.PixelIdxList{I} = cc2.PixelIdxList{I}(:);
+        
         % real world coordinates
-        [r, c, s] = ind2sub(cc2.ImageSize, cc2.PixelIdxList{I}');
+        [r, c, s] = ind2sub(cc2.ImageSize, cc2.PixelIdxList{I});
         xyz = scinrrd_index2world([r, c, s], nrrdaxis);
         
         % recompute parameterization for the skeleton voxels (chord length)
@@ -746,9 +679,8 @@ if (alphamax ~= -Inf)
         % leaf too
         cc2.IsLeaf(I) = any(cc.IsLeaf(cc2.MergedBranches{I}));
         
-        % loops are prevented from merging, hence if we are here, the merged
-        % branch cannot contain a loop
-        cc2.IsLoop(I) = false;
+        % loops cannot merge, so a loop can only occur for single branches
+        cc2.IsLoop(I) = any(cc.IsLoop(cc2.MergedBranches{I}));
         
         % degree of each total branch voxel
         cc2.Degree{I} = deg(dictsk(cc2.PixelIdxList{I}));
@@ -759,10 +691,22 @@ if (alphamax ~= -Inf)
         
     end
     
-    % replace labels in the skeleton to reflect merging
-    cc = cc2;
+    % find the isolated voxels that are now part of a merged branch
+    idx = ismember(cc.IsolatedBifurcationPixelIdx, cat(1, cc2.PixelIdxList{:}));
+    
+    % new isolated voxels are those that are not part of any branch
+    cc2.IsolatedBifurcationPixelIdx = cc.IsolatedBifurcationPixelIdx(~idx);
+    
+    % sort the struct fields and overwrite description of the skeleton
+    cc = orderfields(cc2, [2:5 11 6:10 1]);
     clear cc2
-
+    
+else % in case we are not merging
+    
+    fn = fieldnames(cc);
+    cc = rmfield(cc, fn(11:end));
+    cc.MergedBranches = num2cell(1:cc.NumObjects);
+    
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -868,3 +812,57 @@ end
 % 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+end
+
+% angle_btw_branches(): compute angle between two concatenated branches
+function alpha = angle_btw_branches(idx0, idx1, sz, nrrdaxis, p)
+
+% make sure that indices are vertical vectors
+idx0 = idx0(:);
+idx1 = idx1(:);
+
+% concatenate branches, avoiding to duplicate the joint point
+if (idx0(end) == idx1(1))
+
+    idx = [idx0(1:end-1) ; idx1];
+    
+else
+    idx = [idx0 ; idx1];
+    
+end
+
+% index of joint voxel
+bifidx = size(idx0, 1);
+
+% real world coordinates of voxels
+[r, c, s] = ind2sub(sz, idx);
+xyz = scinrrd_index2world([r, c, s], nrrdaxis);
+        
+% compute spline parameterization (Lee's centripetal scheme)
+t = cumsum([0; (sum((xyz(2:end, :) - xyz(1:end-1, :)).^2, 2)).^.25]);
+
+% compute cubic smoothing spline
+pp = csaps(t', xyz', p);
+
+% get curve tangent to the left and right of the joint point
+% (note that dx0 doesn't necessarily correspond to br0, as opposed
+% to br1)
+dx0 = ppval(pp, pp.breaks(bifidx-1:bifidx));
+dx1 = ppval(pp, pp.breaks(bifidx:bifidx+1));
+
+dx0 = dx0(:, 2) - dx0(:, 1);
+dx1 = dx1(:, 2) - dx1(:, 1);
+
+% compute angle between tangent vectors
+alpha = acos(dot(dx0, dx1) / norm(dx0) / norm(dx1));
+
+% % DEBUG
+% hold off
+% plot3(xyz(:, 1), xyz(:, 2), xyz(:, 3), 'b')
+% hold on
+% fnplt(pp, 'r')
+% axis xy equal
+% view(2)
+% pause
+
+end

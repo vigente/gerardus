@@ -1,3 +1,24 @@
+2011-07-22  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.7) Major rewrite of the function. I have removed many
+	unnecessary loops and steps, to make the function faster and
+	tidier. The code to compute the angle between two concatenated
+	branches has been moved to an individual function.
+
+2011-07-21  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.6) Fix bug. cc.BifurcationPixelIdx had inconsistent
+	meanings within the function. Now there's a new
+	cc.IsolatedBifurcationPixelIdx list that contains all voxels that
+	are only surrounded by other bifurcation voxels. These voxels
+	don't belong to any branch, but they belong to the skeleton.
+
+	Merge some redundant loops.
+
 2011-07-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_label.m:
