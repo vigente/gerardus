@@ -156,7 +156,7 @@ for I = 1:cc.NumObjects
         nrrdsk.data(cc.PixelIdxList{I}) = 0;
     else
         % otherwise, we remove the branch except for the bifurcation voxel
-        nrrdsk.data(cc.PixelIdxList{I}(cc. Degree{I} < 3)) = 0;
+        nrrdsk.data(cc.PixelIdxList{I}(cc.Degree{I} < 3)) = 0;
     end
     
 end
