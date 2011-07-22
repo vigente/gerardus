@@ -1,4 +1,4 @@
-function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, p)
+function [sk, cc2, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, p)
 % SKELETON_LABEL  Give each branch of a skeleton a different label, and
 % sort the voxels within each branch
 %
@@ -56,6 +56,12 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, 
 %     CC.Degree{i}:     degree of each branch voxel, i.e. how many voxels
 %                       it is connected to
 %
+%     CC.BranchNeighboursLeft{i}: index of the branches that are neighbours
+%                       to branch i on its "left"
+%
+%     CC.BranchNeighboursRight{i}: index of the branches that are
+%                       neighbours to branch i on its "right"
+%
 %     CC.MergedBranches{i}: List of branches in the pre-merged skeleton
 %                      that were merged to create branch i
 %
@@ -108,7 +114,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, 
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.11.7
+% Version: 0.11.8
 % $Rev$
 % $Date$
 % 
@@ -554,8 +560,8 @@ if (alphamax ~= -Inf)
     idxba = [cc.BranchMergeCandidateLeft(idxabl) ...
         cc.BranchMergeCandidateRight(idxabr)];
     
-    % check that if "a" wants to merge with "b", "b" also wants to merge with
-    % "a"
+    % check that if "a" wants to merge with "b", "b" also wants to merge
+    % with "a"
     ok = cc.BranchMergeCandidateLeft(idxba) == idxab ...
         | cc.BranchMergeCandidateRight(idxba) == idxab;
     
@@ -569,20 +575,42 @@ if (alphamax ~= -Inf)
         % look if any of these branches are already going to be merged
         % to others
         idx = find(cellfun(@(x) any(ismember([idxab(I) idxba(I)], x)), ...
-            cc2.MergedBranches), 1);
-        
+            cc2.MergedBranches));
+
         if (isempty(idx))
+            
             % create new merging bucket
             cc2.MergedBranches = [cc2.MergedBranches {[idxab(I) idxba(I)]}];
-        else
+            
+        elseif (length(idx) == 1)
+            
             % add this branch to the merging bucket it belongs to
             cc2.MergedBranches{idx} = ...
                 union(cc2.MergedBranches{idx}, [idxab(I) idxba(I)]);
+            
+        elseif (length(idx) == 2)
+            
+            % add the candidates to the first bucket
+            cc2.MergedBranches{idx(1)} = ...
+                union(cc2.MergedBranches{idx(1)}, [idxab(I) idxba(I)]);
+            
+            % empty the other buckets into the first
+            cc2.MergedBranches{idx(1)} = ...
+                union(cc2.MergedBranches{idx(1)}, ...
+                cc2.MergedBranches{idx(2)});
+            
+            % delete the second bucket
+            cc2.MergedBranches(idx(2)) = [];
+            
+        else
+            
+            error('Assertion fail: Branches belong to more than 2 merging buckets')
+            
         end
         
     end
     
-    % add branches that are not going to be merged
+    % add branches that are not going to be merged, one branck per bucket
     cc2.MergedBranches = [ ...
         num2cell(setdiff(1:cc.NumObjects, [cc2.MergedBranches{:}])) ...
         cc2.MergedBranches];
@@ -628,14 +656,12 @@ if (alphamax ~= -Inf)
         % branch to every other voxel
         [d, ~] = dijkstra(dbr, 1);
         
-        % remove voxels that are not connected to the branch
-        idx = ~isinf(d);
-        %     br = br(idx);
-        d = d(idx);
-        dbr = dbr(idx, idx);
-        bri = bri(idx);
+        % remove infinite values (not connected voxels), so that we can
+        % compute the maximum distance
+        d(isinf(d)) = nan;
         
         % the furthest voxel should be one of the ends of the branch
+        % (the voxel's index is br(v0))
         [~, v0] = max(d);
         
         % compute shortest path to all other voxels in the branch
@@ -645,28 +671,27 @@ if (alphamax ~= -Inf)
         % tree, so in the next step, some of the voxels are going to be thrown
         % away
         [d, parents] = dijkstra(dbr, v0);
+        d(isinf(d)) = nan;
         [~, v1] = max(d);
         
         % backtrack the whole branch in order from the furthest point to
         % the original extreme point
         J = 1;
         while (v1 ~= 0)
-            cc2.PixelIdxList{I}(J) = idictsk(bri(v1));
+            cc2.PixelIdxList{I}(J) = br(v1);
             cc2.PixelParam{I}(J) = d(v1);
             v1 = parents(v1);
             J = J + 1;
         end
         
+        % invert the order of the points, so that the parameterization
+        % grows
+        cc2.PixelIdxList{I} = cc2.PixelIdxList{I}(end:-1:1);
+        cc2.PixelParam{I} = cc2.PixelParam{I}(end:-1:1);
+        
         % make list of pixels column vector
         cc2.PixelIdxList{I} = cc2.PixelIdxList{I}(:);
-        
-        % real world coordinates
-        [r, c, s] = ind2sub(cc2.ImageSize, cc2.PixelIdxList{I});
-        xyz = scinrrd_index2world([r, c, s], nrrdaxis);
-        
-        % recompute parameterization for the skeleton voxels (chord length)
-        cc2.PixelParam{I} = ...
-            cumsum([0; (sum((xyz(2:end, :) - xyz(1:end-1, :)).^2, 2)).^.5]);
+        cc2.PixelParam{I} = cc2.PixelParam{I}(:);
         
         % if any merged branch is a leaf, then the total branch has to be a
         % leaf too
@@ -676,7 +701,7 @@ if (alphamax ~= -Inf)
         cc2.IsLoop(I) = any(cc.IsLoop(cc2.MergedBranches{I}));
         
         % degree of each total branch voxel
-        cc2.Degree{I} = deg(dictsk(cc2.PixelIdxList{I}));
+        cc2.Degree{I} = full(deg(dictsk(cc2.PixelIdxList{I})));
         
         % branch length of the total branch is obtained from the
         % parameterisation
@@ -690,17 +715,92 @@ if (alphamax ~= -Inf)
     % new isolated voxels are those that are not part of any branch
     cc2.IsolatedBifurcationPixelIdx = cc.IsolatedBifurcationPixelIdx(~idx);
     
+
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% this code copied from "get neighbours of each branch and angles 
+    %% between them" above
+    
+    % first, we need to get the neighbours of the isolated bifurcation voxels.
+    % The reason is that two branches can be neighbours, but not touch because
+    % they have an isolated voxel in between. Knowning the neighbours of
+    % isolated voxels will be useful when we are looking for branch neighbours
+    cc2.IsolatedBifurcationPixelNeighbours = cell(1, ...
+        length(cc2.IsolatedBifurcationPixelIdx));
+    
+    for I = 1:length(cc2.IsolatedBifurcationPixelIdx)
+        
+        % get current isolated bifurcation voxel
+        v = cc2.IsolatedBifurcationPixelIdx(I);
+        
+        % get neighbour voxels
+        vn = idictsk(dsk(dictsk(v), :) > 0);
+        
+        % branches that contain any voxel in the list of neighbours
+        idx = find(cellfun(@(x) any(ismember(vn, x)), ...
+            cc2.PixelIdxList));
+        
+        % add list of neighbour branches to the corresponding isolated voxel
+        cc2.IsolatedBifurcationPixelNeighbours{I} = idx(:)';
+        
+    end
+    
+    % init left and right neighbours
+    cc2.BranchNeighboursLeft = cell(1, cc2.NumObjects);
+    cc2.BranchNeighboursRight = cell(1, cc2.NumObjects);
+    
+    % search for branch left and right neighbours
+    for I = 1:cc2.NumObjects
+        
+        % get voxels at both ends of the branch. The first one is the "left"
+        % end of the branch, and the last one is the "right" end
+        vl = cc2.PixelIdxList{I}(1);
+        vr = cc2.PixelIdxList{I}(end);
+        
+        % get neighbour voxels on each end
+        vln = idictsk(dsk(dictsk(vl), :) > 0);
+        vrn = idictsk(dsk(dictsk(vr), :) > 0);
+        
+        % branches that contain any voxel in the list of neighbours
+        cc2.BranchNeighboursLeft{I} = find(cellfun(@(x) ...
+            any(ismember(vln, x)), cc2.PixelIdxList));
+        cc2.BranchNeighboursRight{I} = find(cellfun(@(x) ...
+            any(ismember(vrn, x)), cc2.PixelIdxList));
+        
+        % if any of the neighbour voxels are isolated bifurcated voxels, then
+        % they are not going to be in any branch, but we know which branches
+        % they are touching. We add those branches as neighbours to the current
+        % branch
+        cc2.BranchNeighboursLeft{I} = union(cc2.BranchNeighboursLeft{I}, ...
+            cell2mat(cc2.IsolatedBifurcationPixelNeighbours(...
+            ismember(cc2.IsolatedBifurcationPixelIdx, vln))));
+        cc2.BranchNeighboursRight{I} = union(cc2.BranchNeighboursRight{I}, ...
+            cell2mat(cc2.IsolatedBifurcationPixelNeighbours(...
+            ismember(cc2.IsolatedBifurcationPixelIdx, vrn))));
+        
+        % remove current branch, so that it isn't its own neighbour
+        cc2.BranchNeighboursLeft{I} = setdiff(cc2.BranchNeighboursLeft{I}, I);
+        cc2.BranchNeighboursRight{I} = setdiff(cc2.BranchNeighboursRight{I}, I);
+        
+    end
+    
+    %% end code copied from above
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    
     % sort the struct fields and overwrite description of the skeleton
-    cc = orderfields(cc2, [2:5 11 6:10 1]);
-    clear cc2
+    cc2 = orderfields(cc2, [2:5 11 6:10 13 14 1 12]);
+    cc2 = rmfield(cc2, 'IsolatedBifurcationPixelNeighbours');
     
 else % in case we are not merging
     
     fn = fieldnames(cc);
-    cc = rmfield(cc, fn(11:end));
-    cc.MergedBranches = num2cell(1:cc.NumObjects);
+    cc2 = rmfield(cc, fn([11 12 15:end]));
+    cc2.MergedBranches = num2cell(1:cc2.NumObjects);
     
 end
+
+clear cc
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% label skeleton voxels
@@ -712,9 +812,9 @@ end
 % if a segmentation is provided to be labelled too, we need an extra "TODO"
 % label
 if isempty(im)
-    req_bits = ceil(log2(cc.NumObjects + 1));
+    req_bits = ceil(log2(cc2.NumObjects + 1));
 else
-    req_bits = ceil(log2(cc.NumObjects + 2));
+    req_bits = ceil(log2(cc2.NumObjects + 2));
 end
 if (req_bits == 1)
     lab_class = 'boolean';
@@ -741,8 +841,8 @@ else
 end
 
 % give each voxel in the skeleton its label
-for lab = 1:cc.NumObjects
-    sk(cc.PixelIdxList{lab}) = lab;
+for lab = 1:cc2.NumObjects
+    sk(cc2.PixelIdxList{lab}) = lab;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
