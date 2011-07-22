@@ -2,10 +2,20 @@
 
 	* FiltersToolbox/skeleton_label.m:
 
+	- (v0.11.8) Fix bug. If two portions of a branch got into
+	different buckets, then the buckets could not be merged between
+	them.
+
+	Also, repeat the code that searches for neighbours after merging,
+	because scinrrd_skeleton_prune() expects fields
+	cc2.BranchNeighboursLeft and cc2.BranchNeighboursRight.
+
 	- (v0.11.7) Major rewrite of the function. I have removed many
 	unnecessary loops and steps, to make the function faster and
 	tidier. The code to compute the angle between two concatenated
-	branches has been moved to an individual function.
+	branches has been moved to an individual function. Also, make the
+	output consistent so that you get the same struct whether you
+	merge branches or not.
 
 2011-07-21  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
