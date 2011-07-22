@@ -28,20 +28,10 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, 
 %   We have added new fields to CC:
 %
 %     CC.IsolatedBifurcationPixelIdx{i}: A list of bifurcation voxels in
-%                      the image that are sourrounded only by other
-%                      bifurcation voxels. Isolated bifurcation voxels
-%                      don't belong to any branch, but they belong to the
-%                      skeleton
-%
-%     CC.BranchBifurcationPixelIdx{i}: A list of the bifurcation voxels
-%                      that connect branch i to its neighbours. Any branch
-%                      can have 0, 1, or 2 bifurcation voxels, as only
-%                      voxels at the tip are considered
-%
-%     CC.MergedBranches{i}: only available if branch merging is selected by
-%                           setting ALPHA>=0. Gives the list of branches in
-%                           the pre-merged skeleton that were merged to
-%                           create branch i
+%                       the image that are sourrounded only by other
+%                       bifurcation voxels. Isolated bifurcation voxels
+%                       don't belong to any branch, but they belong to the
+%                       skeleton
 %
 %     CC.PixelParam{i}: parameterization values for the voxels in
 %                       cc.PixelIdxList{i}. The parameterization is
@@ -58,13 +48,16 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, 
 %     CC.IsLoop(i):     flags indicating whether each section is a "loop",
 %                       i.e. whether it's a branch around a hole
 %
-%     CC.Degree{i}:      degree of each skeleton voxel, i.e. how many voxel
-%                        it is connected to
-%
 %     CC.BranchLength(i): chord-length of each skeleton branch. This is a
-%                         parameterization of the branch's skeleton as a
-%                         1-D spline. Branches that contain a loop cannot
-%                         be parameterize, and thus CC.IsLoop(i)=NaN.
+%                       parameterization of the branch's skeleton as a
+%                       1-D spline. Branches that contain a loop cannot
+%                       be parameterized
+%
+%     CC.Degree{i}:     degree of each branch voxel, i.e. how many voxels
+%                       it is connected to
+%
+%     CC.MergedBranches{i}: List of branches in the pre-merged skeleton
+%                      that were merged to create branch i
 %
 %   There may be a small discrepancy between cc.PixelIdxList and the voxels
 %   labelled in LAB. The reason is that sometimes the same bifurcation
@@ -111,7 +104,7 @@ function [sk, cc, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax, 
 %   results. By default, P=1 and no smotthing is performed.
 %
 %
-% See also: skeleton_plot.
+% See also: skeleton_plot, scinrrd_skeleton_prune.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
