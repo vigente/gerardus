@@ -100,7 +100,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.5.2
+% Version: 0.5.3
 % $Rev$
 % $Date$
 % 
@@ -162,7 +162,7 @@ deg = sum(d>0, 2);
 
 % init output
 eigd = zeros(3, N);
-stats.islandlocked = nan(1, N);
+stats.islandlocked = true(1, N);
 stats.nbound = nan(1, N);
 stats.nwater = nan(1, N);
 stats.nvox = nan(1, N);
