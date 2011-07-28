@@ -1,3 +1,9 @@
+2011-07-28  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add FileFormatToolbox/scinrrd_im2nrrd.m:
+
+	(v0.0.1) Create SCI NRRD struct from Matlab data.
+
 2011-07-24  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
