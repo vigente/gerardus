@@ -77,7 +77,7 @@ Correspondence between header fields in the !MetaImage (`.mha`) file and in the 
 || Offset                || `nrrd.axis.min`        || Left edge of first voxel ||
 || --                    || `nrrd.axis.max`        || Left edge of last voxel ||
 || !ElementSpacing       || `nrrd.axis.spacing`    || Voxel size ||
-|| DimSize               || `nrrd.axis.size`       || Number of voxels ||
+|| !DimSize               || `nrrd.axis.size`       || Number of voxels ||
 
 Note that `nrrd.axis.min` and `nrrd.axis.max` both indicate the "left" side of the first and last voxels.
 
