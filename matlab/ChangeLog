@@ -1,3 +1,16 @@
+2011-07-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.6.0) Add measures of vesselness (stats.dice and
+	stats.jaccard). It's hard to tell whether a merged branch is a
+	vessel or not just from the eigenvalues. For example, parts of the
+	cavity can be bumpy, but long and thin. In order to evaluate
+	whether a branch looks like a vessel, we compare it to a cylinder
+	with the dimensions given by the eigenvalues. If the overlap is
+	large, then the cylindrical model is correct and we can say that
+	the branch is a vessel.
+
 2011-07-28  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* Add FileFormatToolbox/scinrrd_im2nrrd.m:
