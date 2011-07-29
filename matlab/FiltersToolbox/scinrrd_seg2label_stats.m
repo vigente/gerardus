@@ -104,11 +104,24 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict, p)
 %
 %   If they are not provided externally, they are computed internally.
 %
+% STATS = SCINRRD_SEG2LABEL_STATS(..., P)
+%
+%   P is a scalar in [0, 1]. To straighten branches, an approximating or
+%   smoothing cubic spline is fit to the skeleton voxels using csaps(...,
+%   P). P=0 is the smoothest spline (a line with the least squares
+%   approximation), while P=1 is a rugged spline (the spline interpolated
+%   the voxels). Adequate values of P depend on the image resolution, so
+%   it's difficult to propose a formula. For resolution in the order of
+%   2.5e-5, P=.999999 seems to give good results (note that for small
+%   resolution, P=.999999 gives a very different result to P=1.0). For
+%   resolution in the order of 1, P=0.8 seems to give good results. By
+%   default, P=1 and no smotthing is performed.
+%
 % See also: skeleton_label, seg2dmat, scinrrd_seg2voxel_stats.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.6.0
+% Version: 0.6.1
 % $Rev$
 % $Date$
 % 
@@ -160,6 +173,10 @@ if (size(nrrd.data, 3) > 1)
 else
     % data is 2D
     degmax = 8;
+end
+
+if (p < 0 || p > 1)
+    error('P must be a scalar in [0, 1]')
 end
 
 % number of objects
@@ -239,6 +256,25 @@ for I = 1:N
         % coordinates of skeleton voxels
         [r, c, s] = ind2sub(size(nrrd.data), sk);
         x = scinrrd_index2world([r, c, s], nrrd.axis)';
+        
+        % smooth skeleton
+        if (p < 1)
+            
+            % compute spline parameterization for interpolation (Lee's
+            % centripetal scheme)
+            t = cumsum([0 (sum((x(:, 2:end) - x(:, 1:end-1)).^2, 1)).^.25]);
+            
+            % compute cubic smoothing spline
+            pp = csaps(t, x, p);
+            
+            % sample spline
+            x = ppval(pp, t);
+            
+            % recompute skeleton parameterisation (chord length)
+            cc.PixelParam{I} = ...
+                cumsum([0 sqrt(sum((x(:, 2:end) - x(:, 1:end-1)).^2, 1))])';
+            
+        end
     
         % create a straightened section of the skeleton of the same length
         % and with the same spacing between voxels
