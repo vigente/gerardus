@@ -2,6 +2,9 @@
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
+	- (v0.6.1) Add input argument P to use a smoothing cubic spline on
+	the skeleton before straightening the branch.
+
 	- (v0.6.0) Add measures of vesselness (stats.dice and
 	stats.jaccard). It's hard to tell whether a merged branch is a
 	vessel or not just from the eigenvalues. For example, parts of the
