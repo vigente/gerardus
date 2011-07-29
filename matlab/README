@@ -85,6 +85,10 @@ matlab2vox_seg3d.m
 	 MATLAB2VOX_SEG3D  Convert Matlab file with Seg3D segmentation to vox
 	 format (for the Tarantula meshing application)
 	
+scinrrd_im2nrrd.m
+
+	 SCINRRD_IM2NRRD  Create SCI NRRD struct from Matlab data
+	
 scinrrd_index2world.m
 
 	 SCINRRD_INDEX2WORLD  Convert data volume indices to real world
