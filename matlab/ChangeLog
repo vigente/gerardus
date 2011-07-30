@@ -1,3 +1,14 @@
+2011-07-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.6.2) Fix bug. When computing distance from the origin to the
+	ellipse, we were solving a linear system (/) instead of dividing
+	(./).
+
+	- Make length of box include whole voxels, instead of just from
+	centre of first voxel to centre of last voxel.
+
 2011-07-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
