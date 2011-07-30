@@ -121,7 +121,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict, p)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.6.1
+% Version: 0.6.2
 % $Rev$
 % $Date$
 % 
@@ -289,7 +289,7 @@ for I = 1:N
         y0m = (y0m' * t.T + t.c(1, :))';
 
         % straighten vessel using B-spline transform
-        yi = itk_pstransform('bspline', x', y', xi')';
+        yi = itk_pstransform('bspline', x', y', xi', [], 6)';
 
         % compute eigenvalues of branch (most of the time we are going to
         % get 3 eigenvalues, but not always, e.g. if we have only two
@@ -349,10 +349,9 @@ for I = 1:N
     box = [min([idx cylbox], [], 2) max([idx cylbox], [], 2)];
     
     % length of boxes
-    % Note: boxsz is a length in voxel units, not number of voxels
-    % e.g. number of voxels = round(boxsz) + 1
-    boxlen = box(:, 2) - box(:, 1);
-    cylboxlen = cylbox(:, 2) - cylbox(:, 1);
+    % Note: boxsz is a length in voxel units and number of voxels
+    boxlen = box(:, 2) - box(:, 1) + 1;
+    cylboxlen = cylbox(:, 2) - cylbox(:, 1) + 1;
     
     % translate index coordinates so that they are centered around (0,0,0)
     idx = idx - repmat(idx0m, 1, size(idx, 2));
@@ -381,7 +380,7 @@ for I = 1:N
     % distance from the origin to the ellipse along the line that connects
     % the origin with each grid point
     rel = cylboxlen(1) * cylboxlen(3) / 4 ...
-        / sqrt((cylboxlen(3) / 2 * cos(theta)).^2 ...
+        ./ sqrt((cylboxlen(3) / 2 * cos(theta)).^2 ...
         + (cylboxlen(1) / 2 * sin(theta)).^2);
     
     % points inside the ellipse
