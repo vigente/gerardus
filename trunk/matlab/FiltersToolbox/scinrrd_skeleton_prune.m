@@ -34,7 +34,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio)
 %
 %   LRATIO is a scalar. Branches with BL/R < LRATIO will be pruned, where
 %   BL is the skeleton branch length and R is the estimated maximum radius
-%   of the main branch the leaf is connected to.
+%   of the main branch the leaf is connected to. By default, LRATIO=1.2.
 %
 %
 %
