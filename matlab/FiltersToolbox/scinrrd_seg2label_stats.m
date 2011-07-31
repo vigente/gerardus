@@ -121,7 +121,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict, p)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.6.2
+% Version: 0.6.3
 % $Rev$
 % $Date$
 % 
@@ -229,7 +229,7 @@ for I = 1:N
     
     % compute degree of each voxel in the label if the label had been
     % disconnected from all other labels
-    deglab = sum(full(dlab), 2);
+    deglab = sum(dlab, 2);
     
     % total number of voxels in the outer boundary of the label, whether
     % they touch other labels or not
