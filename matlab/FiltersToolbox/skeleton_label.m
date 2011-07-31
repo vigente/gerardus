@@ -103,18 +103,21 @@ function [sk, cc2, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax,
 %   using csaps(..., P). P=0 is the smoothest spline (a line with the least
 %   squares approximation), while P=1 is a rugged spline (the spline
 %   interpolated the voxels). Adequate values of P depend on the image
-%   resolution, so it's difficult to propose a formula. For resolution in
-%   the order of 2.5e-5, P=.999999 seems to give good results (note that
-%   for small resolution, P=.999999 gives a very different result to
-%   P=1.0). For resolution in the order of 1, P=0.8 seems to give good
-%   results. By default, P=1 and no smotthing is performed.
+%   resolution, so it's difficult to propose a formula. As a rule of thumb,
+%   it seems that if resolution is in the order 1e-n, then a good value for
+%   P=1-1e-n. For example, if resolution is in the order 1e-5, 
+%   P=1-1e-5=0.999999. By default, P=1 and no smoothing is performed.
+%
+%   If you want to see how branches are being merged and smooth, uncomment
+%   the DEBUG block at the end of internal function angle_btw_branches()
+%   below.
 %
 %
 % See also: skeleton_plot, scinrrd_skeleton_prune.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.11.9
+% Version: 0.11.10
 % $Rev$
 % $Date$
 % 
@@ -957,6 +960,7 @@ alpha = acos(dot(dx0, dx1) / norm(dx0) / norm(dx1));
 % hold off
 % plot3(xyz(:, 1), xyz(:, 2), xyz(:, 3), 'b')
 % hold on
+% plot3(xyz(bifidx, 1), xyz(bifidx, 2), xyz(bifidx, 3), 'b*')
 % fnplt(pp, 'r')
 % axis xy equal
 % view(2)
