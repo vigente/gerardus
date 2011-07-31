@@ -7,6 +7,9 @@
 
 	* FiltersToolbox/skeleton_label.m:
 
+	- (v0.11.10) Plot junction point in DEBUG block. Reword paragraph
+	of help header.
+
 	- (v0.11.9) Fix bug. Old field names for angle values hadn't been
 	removed for branches that are loops.
 
