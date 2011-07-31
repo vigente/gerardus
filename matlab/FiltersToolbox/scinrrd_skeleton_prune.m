@@ -56,7 +56,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.4
+% Version: 0.2.5
 % $Rev$
 % $Date$
 % 
@@ -250,7 +250,12 @@ for I = 1:cc.NumObjects
 end
 
 % list of branches that we want to prune
-len = cellfun(@(x) x(end), cc.PixelParam);
+len = zeros(1, cc.NumObjects);
+for I = 1:cc.NumObjects
+    if ~isempty(cc.PixelParam{I})
+        len(I) = cc.PixelParam{I}(end);
+    end
+end
 idxprune = (len ./ sqrt(4*maxeigd) < lratio) & cc.IsLeaf;
 
 % loop to prune branches
