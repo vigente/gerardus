@@ -114,7 +114,7 @@ function [sk, cc2, dsk, dictsk, idictsk] = skeleton_label(sk, im, res, alphamax,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.11.8
+% Version: 0.11.9
 % $Rev$
 % $Date$
 % 
@@ -279,9 +279,9 @@ for I = 1:cc.NumObjects
         continue
     end
 
-    % coordinates of branch voxels
-    [r, c, s] = ind2sub(size(sk), br);
-    xyz = scinrrd_index2world([r c s], nrrdaxis);
+%     % DEBUG: coordinates of branch voxels
+%     [r, c, s] = ind2sub(size(sk), br);
+%     xyz = scinrrd_index2world([r c s], nrrdaxis);
 
     % create a "branch distance matrix" for only the voxels in the branch
     bri = dictsk(br);
@@ -467,11 +467,8 @@ cc.BranchMergeCandidateRightAngle = inf(1, cc.NumObjects);
 % correspondences between all branches
 for I = 1:cc.NumObjects
     
-    % loops are not going to be merged, so we give an Inf value to the
-    % angles
+    % loops are not going to be merged
     if (cc.IsLoop(I))
-        cc.BranchNeighboursLeftAngle{I} = cc.BranchNeighboursLeft{I} + Inf;
-        cc.BranchNeighboursRightAngle{I} = cc.BranchNeighboursRight{I} + Inf;
         continue
     end
 
@@ -481,7 +478,6 @@ for I = 1:cc.NumObjects
         % concatenate indices of neighbour branches
         if (cc.IsLoop(J))
             
-            cc.BranchNeighboursLeftAngle{I}(end+1) = Inf;
             alpha = Inf;
             
         elseif (any(cc.BranchNeighboursLeft{J} == I)) % connected to left of neighbour
@@ -515,7 +511,6 @@ for I = 1:cc.NumObjects
         % concatenate indices of neighbour branches
         if (cc.IsLoop(J))
             
-            cc.BranchNeighboursRightAngle{I}(end+1) = Inf;
             alpha = Inf;
             
         elseif (any(cc.BranchNeighboursLeft{J} == I)) % connected to left of neighbour
@@ -639,16 +634,18 @@ if (alphamax ~= -Inf)
     % loop every merging bucket
     for I = 1:cc2.NumObjects
         
-        % get union of voxels from all the branches that are going to be merged
-        br = unique(cat(1, cc.PixelIdxList{cc2.MergedBranches{I}}));
-        
+        % get union of voxels from all the branches that are going to be
+        % merged
+        %
         % concatenate all the isolated bifurcation voxels. We could look up
         % which isolated voxels touch the branches in the bucket, but it's
         % going to be faster to just concatenate all, and let Dijkstra's
         % algorithm prune out the free riders
-        br = [br ; cc.IsolatedBifurcationPixelIdx(:)];
+        br = [unique(cat(1, cc.PixelIdxList{cc2.MergedBranches{I}})) ; ...
+            cc.IsolatedBifurcationPixelIdx(:)];
         
-        % create a "branch distance matrix" for only the voxels in the branch
+        % create a "branch distance matrix" for only the voxels in the
+        % branch
         bri = dictsk(br);
         dbr = dsk(bri, bri);
         
@@ -666,10 +663,10 @@ if (alphamax ~= -Inf)
         
         % compute shortest path to all other voxels in the branch
         %
-        % note that even for apparently "wire" branches, sometimes we get small
-        % cycles of 1 voxel, and instead of a "linear" shortest-path, we have a
-        % tree, so in the next step, some of the voxels are going to be thrown
-        % away
+        % note that even for apparently "wire" branches, sometimes we get
+        % small cycles of 1 voxel, and instead of a "linear" shortest-path,
+        % we have a tree, so in the next step, some of the voxels are going
+        % to be thrown away
         [d, parents] = dijkstra(dbr, v0);
         d(isinf(d)) = nan;
         [~, v1] = max(d);
@@ -710,7 +707,8 @@ if (alphamax ~= -Inf)
     end
     
     % find the isolated voxels that are now part of a merged branch
-    idx = ismember(cc.IsolatedBifurcationPixelIdx, cat(1, cc2.PixelIdxList{:}));
+    idx = ismember(cc.IsolatedBifurcationPixelIdx, ...
+        cat(1, cc2.PixelIdxList{:}));
     
     % new isolated voxels are those that are not part of any branch
     cc2.IsolatedBifurcationPixelIdx = cc.IsolatedBifurcationPixelIdx(~idx);
@@ -721,10 +719,11 @@ if (alphamax ~= -Inf)
     %% this code copied from "get neighbours of each branch and angles 
     %% between them" above
     
-    % first, we need to get the neighbours of the isolated bifurcation voxels.
-    % The reason is that two branches can be neighbours, but not touch because
-    % they have an isolated voxel in between. Knowning the neighbours of
-    % isolated voxels will be useful when we are looking for branch neighbours
+    % first, we need to get the neighbours of the isolated bifurcation
+    % voxels. The reason is that two branches can be neighbours, but not
+    % touch because they have an isolated voxel in between. Knowning the
+    % neighbours of isolated voxels will be useful when we are looking for
+    % branch neighbours
     cc2.IsolatedBifurcationPixelNeighbours = cell(1, ...
         length(cc2.IsolatedBifurcationPixelIdx));
     
@@ -740,7 +739,8 @@ if (alphamax ~= -Inf)
         idx = find(cellfun(@(x) any(ismember(vn, x)), ...
             cc2.PixelIdxList));
         
-        % add list of neighbour branches to the corresponding isolated voxel
+        % add list of neighbour branches to the corresponding isolated
+        % voxel
         cc2.IsolatedBifurcationPixelNeighbours{I} = idx(:)';
         
     end
@@ -752,8 +752,8 @@ if (alphamax ~= -Inf)
     % search for branch left and right neighbours
     for I = 1:cc2.NumObjects
         
-        % get voxels at both ends of the branch. The first one is the "left"
-        % end of the branch, and the last one is the "right" end
+        % get voxels at both ends of the branch. The first one is the
+        % "left" end of the branch, and the last one is the "right" end
         vl = cc2.PixelIdxList{I}(1);
         vr = cc2.PixelIdxList{I}(end);
         
@@ -767,20 +767,24 @@ if (alphamax ~= -Inf)
         cc2.BranchNeighboursRight{I} = find(cellfun(@(x) ...
             any(ismember(vrn, x)), cc2.PixelIdxList));
         
-        % if any of the neighbour voxels are isolated bifurcated voxels, then
-        % they are not going to be in any branch, but we know which branches
-        % they are touching. We add those branches as neighbours to the current
-        % branch
-        cc2.BranchNeighboursLeft{I} = union(cc2.BranchNeighboursLeft{I}, ...
+        % if any of the neighbour voxels are isolated bifurcated voxels,
+        % then they are not going to be in any branch, but we know which
+        % branches they are touching. We add those branches as neighbours
+        % to the current branch
+        cc2.BranchNeighboursLeft{I} = union(...
+            cc2.BranchNeighboursLeft{I}, ...
             cell2mat(cc2.IsolatedBifurcationPixelNeighbours(...
             ismember(cc2.IsolatedBifurcationPixelIdx, vln))));
-        cc2.BranchNeighboursRight{I} = union(cc2.BranchNeighboursRight{I}, ...
+        cc2.BranchNeighboursRight{I} = union(...
+            cc2.BranchNeighboursRight{I}, ...
             cell2mat(cc2.IsolatedBifurcationPixelNeighbours(...
             ismember(cc2.IsolatedBifurcationPixelIdx, vrn))));
         
         % remove current branch, so that it isn't its own neighbour
-        cc2.BranchNeighboursLeft{I} = setdiff(cc2.BranchNeighboursLeft{I}, I);
-        cc2.BranchNeighboursRight{I} = setdiff(cc2.BranchNeighboursRight{I}, I);
+        cc2.BranchNeighboursLeft{I} = ...
+            setdiff(cc2.BranchNeighboursLeft{I}, I);
+        cc2.BranchNeighboursRight{I} = ...
+            setdiff(cc2.BranchNeighboursRight{I}, I);
         
     end
     
@@ -903,7 +907,7 @@ end
 % % plot leaves
 % plot(c, r, 'go')
 % 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 end
 
