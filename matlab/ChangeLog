@@ -1,5 +1,11 @@
 2011-07-31  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.6.3) Fix bug. We were converting a potentially large
+	distance matrix from sparse to full, and this made it run out of
+	memory and run very slow.
+
 	* FiltersToolbox/scinrrd_skeleton_prune.m:
 
 	- (v0.2.5) Fix bug. Error when trying to extract length from an
