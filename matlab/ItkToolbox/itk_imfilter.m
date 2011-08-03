@@ -1,4 +1,4 @@
-function im = itk_imfilter(~, ~)
+function itk_imfilter(~, ~)
 % ITK_IMFILTER: Run ITK filter on a 2D or 3D image
 %
 % This MEX function is a multiple-purpose wrapper to be able to run
@@ -24,6 +24,13 @@ function im = itk_imfilter(~, ~)
 %                largest available type is double. If this is not
 %                enough, a warning message is displayed, and double
 %                is used as the output type
+%
+%     'maudist': (SignedMaurerDistanceMapImageFilter) Compute signed
+%                distance map for a binary mask. Distance values are
+%                given in real world coordinates, if the input image
+%                is given as an NRRD struct, or in voxel units, if
+%                the input image is a normal array. The output type
+%                is always double.
 %
 %   A is a 2D matrix or 3D volume with the image or
 %   segmentation. Currently, A can be of any of the following
@@ -66,20 +73,10 @@ function im = itk_imfilter(~, ~)
 %    $ cd bin
 %    $ cmake ..
 %    $ make install
-%
-% Cmake has equivalents for Windows and MacOS, but I have not tried
-% them.
-%
-% If cmake throws an error because it cannot find Matlab, then edit
-% gerardus/matlab/CMakeLists.txt, and where it says
-%
-%    SET(MATLAB_ROOT "/usr/local/matlab/R2010b/")
-%
-%  change to your own Matlab root path.
  
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % $Rev$
 % $Date$
 %
