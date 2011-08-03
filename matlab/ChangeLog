@@ -1,3 +1,9 @@
+2011-08-03  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	 * ItkToolbox/itk_imfilter:
+
+	- (v0.3.1) Update help header.
+
 2011-07-31  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
@@ -9,7 +15,7 @@
 	* FiltersToolbox/scinrrd_skeleton_prune.m:
 
 	- (v0.2.5) Fix bug. Error when trying to extract length from an
-	empty branch parameterisation. 
+	empty branch parameterisation.
 
 	* FiltersToolbox/skeleton_label.m:
 
