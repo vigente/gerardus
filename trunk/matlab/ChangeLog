@@ -1,5 +1,15 @@
 2011-08-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (v0.3.12) Now the Nrrd volume is parse in
+	parseInputTypeToTemplate() instead of main(), which makes more
+	sense. We no longer pass the filter name as an argument to the
+	parsing functions, because now we pass all the input
+	arguments. This way we have prepared the field so that we can pass
+	the input arguments to the filter parser, and this was pass filter
+	parameters.
+
 	* ItkToolbox/BaseFilter.cpp:
 
 	- (v0.3.5) Fix bug. In ITK, "SetIndex" sets the index coordinates
