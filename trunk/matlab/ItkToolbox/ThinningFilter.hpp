@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.2
+  * Version: 0.2.3
   * $Rev$
   * $Date$
   *
@@ -63,7 +63,7 @@ private:
 protected:
 
 public:
-  ThinningFilter(NrrdImage nrrd, 
+  ThinningFilter(const NrrdImage &nrrd, 
 		 int _nargout, mxArray** argOut) :
     BaseFilter<InVoxelType, OutVoxelType>(nrrd, _nargout, argOut) {
     // instantiate filter
@@ -81,11 +81,11 @@ public:
   class ThinningFilter< T1, T2 > :				\
     public BaseFilter<T1, T2> {					\
   public:							\
-  ThinningFilter(NrrdImage, int, mxArray**) {;}			\
-  void CopyMatlabInputsToFilter() {;}				\
-  void FilterSetup() {;}					\
-  void RunFilter() {;}						\
-  void CopyAllFilterOutputsToMatlab() {;}			\
+    ThinningFilter(const NrrdImage &, int, mxArray**) {;}	\
+    void CopyMatlabInputsToFilter() {;}				\
+    void FilterSetup() {;}					\
+    void RunFilter() {;}					\
+    void CopyAllFilterOutputsToMatlab() {;}			\
   };
 
 EXCLUDEFILTER(bool, bool);
