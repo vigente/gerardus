@@ -80,7 +80,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.11
+  * Version: 0.3.12
   * $Rev$
   * $Date$
   *
@@ -183,10 +183,17 @@
 
 // parseFilterTypeAndRun<InVoxelType, OutVoxelType>()
 template <class InVoxelType, class OutVoxelType>
-void parseFilterTypeAndRun(const NrrdImage &nrrd,
+void parseFilterTypeAndRun(const int nargin,
+			   const mxArray** argIn,
 			   int nargout,
 			   mxArray** argOut,
-			   char *filterName) {
+			   const NrrdImage &nrrd) {
+
+  // get type of filter
+  char *filterName = mxArrayToString(argIn[0]);
+  if (filterName == NULL) {
+    mexErrMsgTxt("Invalid FILTER string");
+  }
 
   // image type definitions
   typedef double TScalarType; // data type for scalars
@@ -203,16 +210,19 @@ void parseFilterTypeAndRun(const NrrdImage &nrrd,
     
     filter = new ThinningFilter<InVoxelType, 
       OutVoxelType>(nrrd, nargout, argOut);
+      // OutVoxelType>(nrrd, nargin, argIn, nargout, argOut);
 
   }  else if (!strcmp(filterName, "dandist")) {
     
     filter = new DanielssonFilter<InVoxelType, 
       OutVoxelType>(nrrd, nargout, argOut);
+      // OutVoxelType>(nrrd, nargin, argIn, nargout, argOut);
 
   }  else if (!strcmp(filterName, "maudist")) {
 
     filter = new SignedMaurerFilter<InVoxelType, 
       OutVoxelType>(nrrd, nargout, argOut);
+      // OutVoxelType>(nrrd, nargin, argIn, nargout, argOut);
 
   } else {
     mexErrMsgTxt("Filter type not implemented");
@@ -227,16 +237,23 @@ void parseFilterTypeAndRun(const NrrdImage &nrrd,
 
 // parseOutputTypeToTemplate<InVoxelType>()
 template <class InVoxelType>
-void parseOutputTypeToTemplate(const NrrdImage &nrrd,
+void parseOutputTypeToTemplate(const int nargin,
+			       const mxArray** argIn,
 			       int nargout,
 			       mxArray** argOut,
-			       char *filter) {
+			       const NrrdImage &nrrd) {
 
   // make it easier to remember the different cases for the output
   // voxel type
   enum OutVoxelType {
     SAME, BOOL, UINT8, UINT16, SINGLE, DOUBLE
   };
+
+  // get type of filter
+  char *filter = mxArrayToString(argIn[0]);
+  if (filter == NULL) {
+    mexErrMsgTxt("Invalid FILTER string");
+  }
 
   // establish output voxel type according to the filter
   OutVoxelType outVoxelType = DOUBLE;
@@ -274,27 +291,27 @@ void parseOutputTypeToTemplate(const NrrdImage &nrrd,
   switch(outVoxelType) {
   case SAME:
     parseFilterTypeAndRun<InVoxelType, 
-			  InVoxelType>(nrrd, nargout, argOut, filter);
+			  InVoxelType>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case BOOL:
     parseFilterTypeAndRun<InVoxelType, 
-			  bool>(nrrd, nargout, argOut, filter);
+			  bool>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case UINT8:
     parseFilterTypeAndRun<InVoxelType, 
-			  uint8_T>(nrrd, nargout, argOut, filter);
+			  uint8_T>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case UINT16:
     parseFilterTypeAndRun<InVoxelType, 
-			  uint16_T>(nrrd, nargout, argOut, filter);
+			  uint16_T>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case SINGLE:
     parseFilterTypeAndRun<InVoxelType, 
-			  float>(nrrd, nargout, argOut, filter);
+			  float>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case DOUBLE:
     parseFilterTypeAndRun<InVoxelType, 
-			  double>(nrrd, nargout, argOut, filter);
+			  double>(nargin, argIn, nargout, argOut, nrrd);
     break;
   default:
     mexErrMsgTxt("Invalid output type.");
@@ -303,43 +320,51 @@ void parseOutputTypeToTemplate(const NrrdImage &nrrd,
 }
 
 // parseInputTypeToTemplate()
-void parseInputTypeToTemplate(const NrrdImage &nrrd,
+void parseInputTypeToTemplate(const int nargin,
+			      const mxArray** argIn,
 			      int nargout,
-			      mxArray** argOut,
-			      char *filter) {
+			      mxArray** argOut) {
   
+  // read image and its parameters, whether it's in NRRD format, or
+  // just a 2D or 3D array
+  //
+  // we need to do this here, and not later at the filter parsing
+  // stage, because in some cases the output type will depend on the
+  // size of the image volume
+  NrrdImage nrrd(argIn[1]);
+
   // input image type
-  mxClassID inputVoxelClassId = mxGetClassID(nrrd.getData());
+  mxClassID inputVoxelClassId = mxGetClassID(argIn[1]);
 
   switch(inputVoxelClassId)  { // swith input image type
   case mxLOGICAL_CLASS:
-    parseOutputTypeToTemplate<bool>(nrrd, nargout, argOut, filter);
+    parseOutputTypeToTemplate<bool>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case mxDOUBLE_CLASS:
-    parseOutputTypeToTemplate<double>(nrrd, nargout, argOut, filter);
+    parseOutputTypeToTemplate<double>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case mxSINGLE_CLASS:
-    parseOutputTypeToTemplate<float>(nrrd, nargout, argOut, filter);
+    parseOutputTypeToTemplate<float>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case mxINT8_CLASS:
-    parseOutputTypeToTemplate<int8_T>(nrrd, nargout, argOut, filter);
+    parseOutputTypeToTemplate<int8_T>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case mxUINT8_CLASS:
-    parseOutputTypeToTemplate<uint8_T>(nrrd, nargout, argOut, filter);
+    parseOutputTypeToTemplate<uint8_T>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case mxINT16_CLASS:
-    parseOutputTypeToTemplate<int16_T>(nrrd, nargout, argOut, filter);
+    parseOutputTypeToTemplate<int16_T>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case mxUINT16_CLASS:
-    parseOutputTypeToTemplate<uint16_T>(nrrd, nargout, argOut, filter);
+    parseOutputTypeToTemplate<uint16_T>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case mxINT32_CLASS:
-    parseOutputTypeToTemplate<int32_T>(nrrd, nargout, argOut, filter);
+    parseOutputTypeToTemplate<int32_T>(nargin, argIn, nargout, argOut, nrrd);
     break;
   // case mxUINT32_CLASS:
   //   break;
   case mxINT64_CLASS:
-    parseOutputTypeToTemplate<int64_T>(nrrd, nargout, argOut, filter);
+    parseOutputTypeToTemplate<int64_T>(nargin, argIn, nargout, argOut, nrrd);
     break;
   // case mxUINT64_CLASS:
   //   break;
@@ -362,24 +387,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mexErrMsgTxt("Two input arguments required");
   }
 
-  // read image and its parameters, whether it's in NRRD format, or
-  // just a 2D or 3D array
-  NrrdImage nrrd(prhs[1]);
-
-  // get type of filter
-  char *filter = mxArrayToString(prhs[0]);
-  if (filter == NULL) {
-    mexErrMsgTxt("Invalid FILTER string");
-  }
-
   // run filter (this function starts a cascade of functions designed
   // to translate the run-time type variables like inputVoxelClassId
   // to templates, so that we don't need to nest lots of "switch" or
   // "if" statements)
-  parseInputTypeToTemplate(nrrd,
+  parseInputTypeToTemplate(nrhs,
+			   prhs,
 			   nlhs,
-			   plhs,
-			   filter);
+			   plhs);
 
   // exit successfully
   return;
