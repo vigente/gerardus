@@ -14,7 +14,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.4
+  * Version: 0.3.5
   * $Rev$
   * $Date$
   *
@@ -84,6 +84,7 @@ void BaseFilter<InVoxelType, OutVoxelType>::CopyMatlabInputsToItkImages() {
   typename InImageType::IndexType start;
   typename InImageType::SizeType size; 
   typename InImageType::SpacingType spacing;
+  typename InImageType::PointType origin;
   
   // note that:
   //
@@ -94,14 +95,22 @@ void BaseFilter<InVoxelType, OutVoxelType>::CopyMatlabInputsToItkImages() {
   //
   // So both things cancel each other.
   for (mwIndex i = 0; i < Dimension; ++i) {
-    start[i] = nrrd.getMin()[i];
+    // the region of interest is the whole image
+    start[i] = 0;
     size[i] = nrrd.getSize()[i];
     spacing[CAST2MWSIZE(i)] = nrrd.getSpacing()[i];
+    origin[CAST2MWSIZE(i)] = nrrd.getMin()[i] 
+      + (nrrd.getSpacing()[i] / 2.0); // note that in NRRD, "min" is the
+                                      // edge of the voxel, while in
+                                      // ITK, "origin" is the centre
+                                      // of the voxel
+
   }
   region.SetIndex(start);
   region.SetSize(size);
   image->SetRegions(region);
   image->SetSpacing(spacing);
+  image->SetOrigin(origin);
   image->Allocate();
   image->Update();
   

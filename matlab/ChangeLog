@@ -1,5 +1,29 @@
 2011-08-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* ItkToolbox/BaseFilter.cpp:
+
+	- (v0.3.5) Fix bug. In ITK, "SetIndex" sets the index coordinates
+	of the first voxel of the region, not the real world
+	coordinates. In our case, we always want the region to be the
+	whole image, so we make it start at (0, 0, 0).
+
+	Also, now we do "SetOrigin" on the image (the real world
+	coordinates of the centre of the first voxel), computed from the
+	"min" value of the NRRD volume (real world coordinates of the left
+	edge of the first voxel).
+
+	* ItkToolbox/NrrdImage.hpp:
+
+	- (v0.2.3) Add comments to make more clear what every function
+	returns. Specially that "min" means the left edge of the first
+	voxel.
+
+	* ItkToolbox/NrrdImage.cpp:
+
+	- (v0.1.3) Fix bug. The NRRD format considers "min" to be the left
+	edge of the first voxel, not the centre. On the other hand, ITK
+	considers "origin" to be the centre of the voxel.
+
 	* ItkToolbox/BaseFilter.hpp (v0.3.3),
 	ItkToolbox/ThinningFilter.hpp (v0.2.3),
 	ItkToolbox/DanielssonFilter.hpp (v0.3.1),
