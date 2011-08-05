@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.2
+  * Version: 0.2.3
   * $Rev$
   * $Date$
   *
@@ -57,33 +57,56 @@ private:
   mwSize *dims; // dimensions array
   std::vector<mwSize> size; // number of voxels in each dimension
   std::vector<double> spacing; // voxel size in each dimension
-  std::vector<double> min; // real world coordinates of the image origin
+  std::vector<double> min; // real world coordinates of the "left"
+                           // edge of the first voxel. Note that in
+                           // ITK, Origin refers to the "centre" of
+                           // the first voxel instead
 
 public:
   NrrdImage(const mxArray * nrrd);
   NrrdImage() {;}
   mxArray * getData() const {return data;}
+  // get vector with the number of [rows, columns, slices]
   std::vector<mwSize> getSize() const {return size;}
+  // get vector with the voxel length in the [row, column, slice]
+  // order
   std::vector<double> getSpacing() const {return spacing;}
+  // get vector with the coordinates of the "left" edge of the first
+  // voxel in the [row, column, slice] order
   std::vector<double> getMin() const {return min;}
+  // get number of voxels
   mwSize getR() const {return size[0];}
   mwSize getC() const {return size[1];}
   mwSize getS() const {return size[2];}
+  // get voxel size in row, col, slice nomenclature
   double getDr() const {return spacing[0];}
   double getDc() const {return spacing[1];}
   double getDs() const {return spacing[2];}
+  // get voxel size in x, y, z nomenclature
   double getDx() const {return spacing[1];}
   double getDy() const {return spacing[0];}
   double getDz() const {return spacing[2];}
+  // get real world coordinates of the "left" edge of the first voxel
+  // in row, col, slice nomenclature
   double getMinR() const {return min[0];}
   double getMinC() const {return min[1];}
   double getMinS() const {return min[2];}
+  // get real world coordinates of the "left" edge of the first voxel
+  // in x, y, z nomenclature
   double getMinX() const {return min[1];}
   double getMinY() const {return min[0];}
   double getMinZ() const {return min[2];}
+  // get number of elements in the dimensions vector
   mwSize getNdim() const {return ndim;}
+  // get pointer to dimensions vector
   mwSize *getDims() const {return dims;}
+  
+  // compute the maximum distance between any two voxels in this image
+  // (in voxel units). This is the length of the largest diagonal in the
+  // cube
   double maxVoxDistance() const;
+
+  // compute the total number of voxels in the image volume
   mwSize numEl();
 };
 

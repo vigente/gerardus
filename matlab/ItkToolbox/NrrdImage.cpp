@@ -5,7 +5,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.2
+  * Version: 0.1.3
   * $Rev$
   * $Date$
   *
@@ -107,7 +107,7 @@ NrrdImage::NrrdImage(const mxArray * nrrd) {
       if (mxIsFinite(minMxp[0]) && !mxIsNaN(minMxp[0])) {
 	min[i] = minMxp[0];
       } else {
-	min[i] = 0.0;
+	min[i] = -spacing[i] / 2.0;
       }
     }
 
@@ -116,9 +116,10 @@ NrrdImage::NrrdImage(const mxArray * nrrd) {
     spacing[0] = 1.0;
     spacing[1] = 1.0;
     spacing[2] = 1.0;
-    min[0] = 0.0;
-    min[1] = 0.0;
-    min[2] = 0.0;
+    // left edge of the first voxel, so that the centre is at 0.0
+    min[0] = -0.5; 
+    min[1] = -0.5;
+    min[2] = -0.5;
   }
 
 
@@ -158,7 +159,7 @@ double NrrdImage::maxVoxDistance() const {
 		   + (double)(size[2]-1)*(size[2]-1));
 }
 
-// compute the number of voxels in the image volume
+// compute the total number of voxels in the image volume
 mwSize NrrdImage::numEl() {
   return size[0]*size[1]*size[2];
 }
