@@ -1,3 +1,26 @@
+2011-08-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/BaseFilter.hpp (v0.3.3),
+	ItkToolbox/ThinningFilter.hpp (v0.2.3),
+	ItkToolbox/DanielssonFilter.hpp (v0.3.1),
+	ItkToolbox/SignedMaurerFilter.hpp (v0.2.2),
+	ItkToolbox/NrrdImage.hpp(v0.2.2):
+
+	- Pass NRRD image by reference in the parse functions and filters
+	instead of value, so that it doesn't need to be duplicated. Also,
+	protect it from changes by using "const". This, in turn, requires
+	that the functions in Nrrd are declared as const, because you
+	cannot use a non-const member function on a const object.
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (v0.3.11) Pass NRRD image by reference in the parse functions
+	and filters instead of value, so that it doesn't need to be
+	duplicated. Also, protect it from changes by using "const".
+
+	- Rename parseFilterToTemplate() as parseFilterTypeAndRun() to
+	better reflect what it does.
+
 2011-08-03  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	 * ItkToolbox/itk_imfilter:

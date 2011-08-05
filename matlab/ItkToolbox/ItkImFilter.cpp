@@ -80,7 +80,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.10
+  * Version: 0.3.11
   * $Rev$
   * $Date$
   *
@@ -160,38 +160,33 @@
  * }
  *
  * we split the conversion in 3 steps. The first function,
- * parseInputTypeToTemplate() reads the input data type and the
- * filter type, and instantiates
- * parseOutputTypeToTemplate<InVoxelType>() for each input data
- * type.
+ * parseInputTypeToTemplate() reads the input data type and the filter
+ * type, and instantiates parseOutputTypeToTemplate<InVoxelType>() for
+ * each input data type.
  *
  * This way, we have effectively mapped the input type from a run-time
  * variable to a set of compilation time templates.
  *
- * Then parseOutputTypeToTemplate<InVoxelType>() decides on the
- * output data type depending on the filter and the input, and
- * instantiates one
- * parseFilterTypeToTemplate<InVoxelType, OutVoxelType>() for each
+ * Then parseOutputTypeToTemplate<InVoxelType>() decides on the output
+ * data type depending on the filter and the input, and instantiates
+ * one parseFilterTypeToTemplate<InVoxelType, OutVoxelType>() for each
  * output data type.
  *
  * This way, we have instantiated all combinations of input/output
  * data types, without having to code them explicitly.
  *
- * Finally, parseFilterTypeToTemplate<InVoxelType, OutVoxelType>()
- * checks that the requested filter is implemented and maps the filter
- * variable to all filter templates.
- *
- * Note that the actual filtering is done using derived filter classes
- * from BaseFilter, that is instantiated from
- * parseFilterTypeToTemplate.
+ * Finally, parseFilterTypeAndRun<InVoxelType, OutVoxelType>() checks
+ * that the requested filter is implemented, maps the filter variable,
+ * and runs the actual filtering, using derived filter classes from
+ * BaseFilter.
  */
 
-// parseFilterTypeToTemplate<InVoxelType, OutVoxelType>()
+// parseFilterTypeAndRun<InVoxelType, OutVoxelType>()
 template <class InVoxelType, class OutVoxelType>
-void parseFilterTypeToTemplate(NrrdImage nrrd,
-			       int nargout,
-			       mxArray** argOut,
-			       char *filterName) {
+void parseFilterTypeAndRun(const NrrdImage &nrrd,
+			   int nargout,
+			   mxArray** argOut,
+			   char *filterName) {
 
   // image type definitions
   typedef double TScalarType; // data type for scalars
@@ -232,7 +227,7 @@ void parseFilterTypeToTemplate(NrrdImage nrrd,
 
 // parseOutputTypeToTemplate<InVoxelType>()
 template <class InVoxelType>
-void parseOutputTypeToTemplate(NrrdImage nrrd,
+void parseOutputTypeToTemplate(const NrrdImage &nrrd,
 			       int nargout,
 			       mxArray** argOut,
 			       char *filter) {
@@ -278,28 +273,28 @@ void parseOutputTypeToTemplate(NrrdImage nrrd,
 
   switch(outVoxelType) {
   case SAME:
-    parseFilterTypeToTemplate<InVoxelType, 
-			      InVoxelType>(nrrd, nargout, argOut, filter);
+    parseFilterTypeAndRun<InVoxelType, 
+			  InVoxelType>(nrrd, nargout, argOut, filter);
     break;
   case BOOL:
-    parseFilterTypeToTemplate<InVoxelType, 
-			      bool>(nrrd, nargout, argOut, filter);
+    parseFilterTypeAndRun<InVoxelType, 
+			  bool>(nrrd, nargout, argOut, filter);
     break;
   case UINT8:
-    parseFilterTypeToTemplate<InVoxelType, 
-			      uint8_T>(nrrd, nargout, argOut, filter);
+    parseFilterTypeAndRun<InVoxelType, 
+			  uint8_T>(nrrd, nargout, argOut, filter);
     break;
   case UINT16:
-    parseFilterTypeToTemplate<InVoxelType, 
-			      uint16_T>(nrrd, nargout, argOut, filter);
+    parseFilterTypeAndRun<InVoxelType, 
+			  uint16_T>(nrrd, nargout, argOut, filter);
     break;
   case SINGLE:
-    parseFilterTypeToTemplate<InVoxelType, 
-			      float>(nrrd, nargout, argOut, filter);
+    parseFilterTypeAndRun<InVoxelType, 
+			  float>(nrrd, nargout, argOut, filter);
     break;
   case DOUBLE:
-    parseFilterTypeToTemplate<InVoxelType, 
-			      double>(nrrd, nargout, argOut, filter);
+    parseFilterTypeAndRun<InVoxelType, 
+			  double>(nrrd, nargout, argOut, filter);
     break;
   default:
     mexErrMsgTxt("Invalid output type.");
@@ -308,7 +303,7 @@ void parseOutputTypeToTemplate(NrrdImage nrrd,
 }
 
 // parseInputTypeToTemplate()
-void parseInputTypeToTemplate(NrrdImage nrrd,
+void parseInputTypeToTemplate(const NrrdImage &nrrd,
 			      int nargout,
 			      mxArray** argOut,
 			      char *filter) {
