@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.2
+  * Version: 0.3.3
   * $Rev$
   * $Date$
   *
@@ -109,7 +109,7 @@ protected:
   typename BaseFilterType::Pointer filter;
 
 public:
-  BaseFilter(NrrdImage _nrrd, int _nargout, mxArray** _argOut) 
+  BaseFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut) 
     : nrrd(_nrrd), nargout(_nargout), argOut(_argOut) {;}
   BaseFilter() {;}
   virtual void CopyMatlabInputsToItkImages();
