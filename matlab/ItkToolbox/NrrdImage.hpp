@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.1
+  * Version: 0.2.2
   * $Rev$
   * $Date$
   *
@@ -62,28 +62,28 @@ private:
 public:
   NrrdImage(const mxArray * nrrd);
   NrrdImage() {;}
-  mxArray * getData() {return data;}
-  std::vector<mwSize> getSize() {return size;}
-  std::vector<double> getSpacing() {return spacing;}
-  std::vector<double> getMin() {return min;}
-  mwSize getR() {return size[0];}
-  mwSize getC() {return size[1];}
-  mwSize getS() {return size[2];}
-  double getDr() {return spacing[0];}
-  double getDc() {return spacing[1];}
-  double getDs() {return spacing[2];}
-  double getDx() {return spacing[1];}
-  double getDy() {return spacing[0];}
-  double getDz() {return spacing[2];}
-  double getMinR() {return min[0];}
-  double getMinC() {return min[1];}
-  double getMinS() {return min[2];}
-  double getMinX() {return min[1];}
-  double getMinY() {return min[0];}
-  double getMinZ() {return min[2];}
-  mwSize getNdim() {return ndim;}
-  mwSize *getDims() {return dims;}
-  double maxVoxDistance();
+  mxArray * getData() const {return data;}
+  std::vector<mwSize> getSize() const {return size;}
+  std::vector<double> getSpacing() const {return spacing;}
+  std::vector<double> getMin() const {return min;}
+  mwSize getR() const {return size[0];}
+  mwSize getC() const {return size[1];}
+  mwSize getS() const {return size[2];}
+  double getDr() const {return spacing[0];}
+  double getDc() const {return spacing[1];}
+  double getDs() const {return spacing[2];}
+  double getDx() const {return spacing[1];}
+  double getDy() const {return spacing[0];}
+  double getDz() const {return spacing[2];}
+  double getMinR() const {return min[0];}
+  double getMinC() const {return min[1];}
+  double getMinS() const {return min[2];}
+  double getMinX() const {return min[1];}
+  double getMinY() const {return min[0];}
+  double getMinZ() const {return min[2];}
+  mwSize getNdim() const {return ndim;}
+  mwSize *getDims() const {return dims;}
+  double maxVoxDistance() const;
   mwSize numEl();
 };
 

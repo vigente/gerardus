@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.1
+  * Version: 0.2.2
   * $Rev$
   * $Date$
   *
@@ -63,7 +63,7 @@ private:
 protected:
 
 public:
-  SignedMaurerFilter(NrrdImage nrrd, int _nargout, mxArray** argOut) :
+  SignedMaurerFilter(const NrrdImage &nrrd, int _nargout, mxArray** argOut) :
     BaseFilter<InVoxelType, OutVoxelType>(nrrd, _nargout, argOut) {
     // instantiate filter
     this->filter = FilterType::New();
@@ -81,11 +81,11 @@ public:
   class SignedMaurerFilter< T1, T2 > :					\
     public BaseFilter<T1, T2> {						\
   public:								\
-  SignedMaurerFilter(NrrdImage, int, mxArray**) {;}			\
-  void CopyMatlabInputsToFilter() {;}					\
-  void FilterSetup() {;}						\
-  void RunFilter() {;}							\
-  void CopyAllFilterOutputsToMatlab() {;}				\
+    SignedMaurerFilter(const NrrdImage &, int, mxArray**) {;}		\
+    void CopyMatlabInputsToFilter() {;}					\
+    void FilterSetup() {;}						\
+    void RunFilter() {;}						\
+    void CopyAllFilterOutputsToMatlab() {;}				\
   };
 
 EXCLUDEFILTER(bool, bool);
