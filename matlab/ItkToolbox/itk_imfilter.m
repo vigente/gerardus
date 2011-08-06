@@ -1,4 +1,4 @@
-function itk_imfilter(~, ~)
+function im = itk_imfilter(~, ~)
 % ITK_IMFILTER: Run ITK filter on a 2D or 3D image
 %
 % This MEX function is a multiple-purpose wrapper to be able to run
@@ -76,7 +76,7 @@ function itk_imfilter(~, ~)
  
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.1
+% Version: 0.3.2
 % $Rev$
 % $Date$
 %
