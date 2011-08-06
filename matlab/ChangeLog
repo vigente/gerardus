@@ -1,3 +1,11 @@
+2011-08-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/itk_imfilter.m
+
+	- (v0.3.2) Corrected function declaration syntax, so that when the
+	MEX file doesn't exit, it gives the corresponding error instead of
+	"Too many output arguments".
+
 2011-08-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* ItkToolbox/ItkImFilter.cpp:
