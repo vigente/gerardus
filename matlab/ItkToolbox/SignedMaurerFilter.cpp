@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.1
+  * Version: 0.2.2
   * $Rev$
   * $Date$
   *
@@ -81,7 +81,7 @@ void SignedMaurerFilter<InVoxelType,
 #define FILTERINST(T1, T2)						\
   template class SignedMaurerFilter<T1, T2>;				\
 
-FILTERINST(bool, double)
+FILTERINST(mxLogical, double)
 FILTERINST(uint8_T, double)
 FILTERINST(int8_T, double)
 FILTERINST(uint16_T, double)

@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.3
+  * Version: 0.2.4
   * $Rev$
   * $Date$
   *
@@ -63,8 +63,7 @@ private:
 protected:
 
 public:
-  ThinningFilter(const NrrdImage &nrrd, 
-		 int _nargout, mxArray** argOut) :
+  ThinningFilter(const NrrdImage &nrrd, int _nargout, mxArray** argOut) :
     BaseFilter<InVoxelType, OutVoxelType>(nrrd, _nargout, argOut) {
     // instantiate filter
     this->filter = FilterType::New();
@@ -88,17 +87,17 @@ public:
     void CopyAllFilterOutputsToMatlab() {;}			\
   };
 
-EXCLUDEFILTER(bool, bool);
-EXCLUDEFILTER(bool, uint8_T);
-EXCLUDEFILTER(bool, int8_T);
-EXCLUDEFILTER(bool, uint16_T)
-EXCLUDEFILTER(bool, int16_T)
-EXCLUDEFILTER(bool, int32_T)
-EXCLUDEFILTER(bool, int64_T)
-EXCLUDEFILTER(bool, float)
-EXCLUDEFILTER(bool, double)
+EXCLUDEFILTER(mxLogical, mxLogical);
+EXCLUDEFILTER(mxLogical, uint8_T);
+EXCLUDEFILTER(mxLogical, int8_T);
+EXCLUDEFILTER(mxLogical, uint16_T)
+EXCLUDEFILTER(mxLogical, int16_T)
+EXCLUDEFILTER(mxLogical, int32_T)
+EXCLUDEFILTER(mxLogical, int64_T)
+EXCLUDEFILTER(mxLogical, float)
+EXCLUDEFILTER(mxLogical, double)
 
-EXCLUDEFILTER(uint8_T, bool)
+EXCLUDEFILTER(uint8_T, mxLogical)
 EXCLUDEFILTER(uint8_T, int8_T)
 EXCLUDEFILTER(uint8_T, uint16_T)
 EXCLUDEFILTER(uint8_T, int16_T)
@@ -107,7 +106,7 @@ EXCLUDEFILTER(uint8_T, int64_T)
 EXCLUDEFILTER(uint8_T, float)
 EXCLUDEFILTER(uint8_T, double)
 
-EXCLUDEFILTER(int8_T, bool)
+EXCLUDEFILTER(int8_T, mxLogical)
 EXCLUDEFILTER(int8_T, uint8_T)
 EXCLUDEFILTER(int8_T, uint16_T)
 EXCLUDEFILTER(int8_T, int16_T)
@@ -116,7 +115,7 @@ EXCLUDEFILTER(int8_T, int64_T)
 EXCLUDEFILTER(int8_T, float)
 EXCLUDEFILTER(int8_T, double)
 
-EXCLUDEFILTER(uint16_T, bool)
+EXCLUDEFILTER(uint16_T, mxLogical)
 EXCLUDEFILTER(uint16_T, uint8_T)
 EXCLUDEFILTER(uint16_T, int8_T)
 EXCLUDEFILTER(uint16_T, int16_T)
@@ -125,7 +124,7 @@ EXCLUDEFILTER(uint16_T, int64_T)
 EXCLUDEFILTER(uint16_T, float)
 EXCLUDEFILTER(uint16_T, double)
 
-EXCLUDEFILTER(int16_T, bool)
+EXCLUDEFILTER(int16_T, mxLogical)
 EXCLUDEFILTER(int16_T, uint8_T)
 EXCLUDEFILTER(int16_T, int8_T)
 EXCLUDEFILTER(int16_T, uint16_T)
@@ -134,7 +133,7 @@ EXCLUDEFILTER(int16_T, int64_T)
 EXCLUDEFILTER(int16_T, float)
 EXCLUDEFILTER(int16_T, double)
 
-EXCLUDEFILTER(int32_T, bool)
+EXCLUDEFILTER(int32_T, mxLogical)
 EXCLUDEFILTER(int32_T, uint8_T)
 EXCLUDEFILTER(int32_T, int8_T)
 EXCLUDEFILTER(int32_T, uint16_T)
@@ -143,7 +142,7 @@ EXCLUDEFILTER(int32_T, int64_T)
 EXCLUDEFILTER(int32_T, float)
 EXCLUDEFILTER(int32_T, double)
 
-EXCLUDEFILTER(int64_T, bool)
+EXCLUDEFILTER(int64_T, mxLogical)
 EXCLUDEFILTER(int64_T, uint8_T)
 EXCLUDEFILTER(int64_T, int8_T)
 EXCLUDEFILTER(int64_T, uint16_T)
@@ -152,7 +151,7 @@ EXCLUDEFILTER(int64_T, int32_T)
 EXCLUDEFILTER(int64_T, float)
 EXCLUDEFILTER(int64_T, double)
 
-EXCLUDEFILTER(float, bool)
+EXCLUDEFILTER(float, mxLogical)
 EXCLUDEFILTER(float, uint8_T)
 EXCLUDEFILTER(float, int8_T)
 EXCLUDEFILTER(float, uint16_T)
@@ -161,7 +160,7 @@ EXCLUDEFILTER(float, int32_T)
 EXCLUDEFILTER(float, int64_T)
 EXCLUDEFILTER(float, double)
 
-EXCLUDEFILTER(double, bool)
+EXCLUDEFILTER(double, mxLogical)
 EXCLUDEFILTER(double, uint8_T)
 EXCLUDEFILTER(double, int8_T)
 EXCLUDEFILTER(double, uint16_T)
