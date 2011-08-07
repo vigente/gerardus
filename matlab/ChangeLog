@@ -1,3 +1,15 @@
+2011-08-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/SignedMaurerFilter.cpp (v0.2.2),
+	ItkToolbox/SignedMaurerFilter.hpp (v0.2.3),
+	ItkToolbox/DanielssonFilter.cpp (v0.3.2),
+	ItkToolbox/DanielssonFilter.hpp (v0.3.2),
+	ItkToolbox/BaseFilter.cpp (v0.3.6), ItkToolbox/ThinningFilter.hpp
+	(v0.2.4):
+
+	- Pedantic fix. Use mxLogical instead of bool (although at least
+	for linux they are the same type).
+
 2011-08-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* ItkToolbox/itk_imfilter.m
