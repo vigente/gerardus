@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.1
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -86,5 +86,48 @@ mwIndex sub2ind(mwSize R, mwSize C, mwSize S, itk::Offset<Dimension> rcs);
 std::vector<mwIndex> ind2sub(mwSize R, mwSize C, mwSize S, mwIndex idx);
 itk::Offset<Dimension> ind2sub_itkOffset(mwSize R, mwSize C, mwSize S, 
 					 mwIndex idx);
+
+/*
+ * Block of functions to allow testing of template types
+ */
+template< class T >
+struct TypeIsBool
+{ static const bool value = false; };
+
+template<>
+struct TypeIsBool< mxLogical >
+{ static const bool value = true; };
+
+template< class T >
+struct TypeIsUint8
+{ static const bool value = false; };
+
+template<>
+struct TypeIsUint8< uint8_T >
+{ static const bool value = true; };
+
+template< class T >
+struct TypeIsUint16
+{ static const bool value = false; };
+
+template<>
+struct TypeIsUint16< uint16_T >
+{ static const bool value = true; };
+
+template< class T >
+struct TypeIsFloat
+{ static const bool value = false; };
+
+template<>
+struct TypeIsFloat< float >
+{ static const bool value = true; };
+
+template< class T >
+struct TypeIsDouble
+{ static const bool value = false; };
+
+template<>
+struct TypeIsDouble< double >
+{ static const bool value = true; };
 
 #endif /* GERARDUSCOMMON_HPP */
