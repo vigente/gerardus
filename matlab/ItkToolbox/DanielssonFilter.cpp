@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.1
+  * Version: 0.3.2
   * $Rev$
   * $Date$
   *
@@ -165,55 +165,55 @@ void DanielssonFilter<InVoxelType,
 #define FILTERINST(T1, T2)						\
   template class DanielssonFilter<T1, T2>;				\
 
-FILTERINST(bool, bool);
-FILTERINST(bool, uint8_T)
-FILTERINST(bool, uint16_T)
-FILTERINST(bool, float)
-FILTERINST(bool, double)
+FILTERINST(mxLogical, mxLogical);
+FILTERINST(mxLogical, uint8_T)
+FILTERINST(mxLogical, uint16_T)
+FILTERINST(mxLogical, float)
+FILTERINST(mxLogical, double)
 
-FILTERINST(uint8_T, bool);
+FILTERINST(uint8_T, mxLogical);
 FILTERINST(uint8_T, uint8_T)
 FILTERINST(uint8_T, uint16_T)
 FILTERINST(uint8_T, float)
 FILTERINST(uint8_T, double)
 
-FILTERINST(int8_T, bool);
+FILTERINST(int8_T, mxLogical);
 FILTERINST(int8_T, uint8_T)
 FILTERINST(int8_T, uint16_T)
 FILTERINST(int8_T, float)
 FILTERINST(int8_T, double)
 
-FILTERINST(uint16_T, bool);
+FILTERINST(uint16_T, mxLogical);
 FILTERINST(uint16_T, uint8_T)
 FILTERINST(uint16_T, uint16_T)
 FILTERINST(uint16_T, float)
 FILTERINST(uint16_T, double)
 
-FILTERINST(int16_T, bool);
+FILTERINST(int16_T, mxLogical);
 FILTERINST(int16_T, uint8_T)
 FILTERINST(int16_T, uint16_T)
 FILTERINST(int16_T, float)
 FILTERINST(int16_T, double)
 
-FILTERINST(int32_T, bool);
+FILTERINST(int32_T, mxLogical);
 FILTERINST(int32_T, uint8_T)
 FILTERINST(int32_T, uint16_T)
 FILTERINST(int32_T, float)
 FILTERINST(int32_T, double)
 
-FILTERINST(int64_T, bool);
+FILTERINST(int64_T, mxLogical);
 FILTERINST(int64_T, uint8_T)
 FILTERINST(int64_T, uint16_T)
 FILTERINST(int64_T, float)
 FILTERINST(int64_T, double)
 
-FILTERINST(float, bool);
+FILTERINST(float, mxLogical);
 FILTERINST(float, uint8_T)
 FILTERINST(float, uint16_T)
 FILTERINST(float, float)
 FILTERINST(float, double)
 
-FILTERINST(double, bool);
+FILTERINST(double, mxLogical);
 FILTERINST(double, uint8_T)
 FILTERINST(double, uint16_T)
 FILTERINST(double, float)
