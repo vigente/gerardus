@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.1
+  * Version: 0.3.2
   * $Rev$
   * $Date$
   *
@@ -89,10 +89,10 @@ public:
     void CopyAllFilterOutputsToMatlab() {;}				\
   };
 
-EXCLUDEFILTER(bool, int8_T);
-EXCLUDEFILTER(bool, int16_T)
-EXCLUDEFILTER(bool, int32_T)
-EXCLUDEFILTER(bool, int64_T)
+EXCLUDEFILTER(mxLogical, int8_T);
+EXCLUDEFILTER(mxLogical, int16_T)
+EXCLUDEFILTER(mxLogical, int32_T)
+EXCLUDEFILTER(mxLogical, int64_T)
 
 EXCLUDEFILTER(uint8_T, int8_T)
 EXCLUDEFILTER(uint8_T, int16_T)
