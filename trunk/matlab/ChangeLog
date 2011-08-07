@@ -1,5 +1,53 @@
 2011-08-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* ItkToolbox/CMakeLists.txt:
+
+	- Add BinaryDilateFilter.cpp to project itk_imfilter().
+
+	* ItkToolbox/GerardusCommon.hpp:
+
+	- (v0.3.0) Add functions to test templates from BaseFilter.hpp.
+
+	* ItkToolbox/BaseFilter.hpp:
+
+	- (v0.4.0) Add support for user-provided parameters for
+	filters. Number of parameters and list of parameters is kept here,
+	and can be accessed by any filter derived class. Also, write a new
+	member function getScalarParamValue() to read scalar parameters
+	from Matlab (for the moment, only scalar parameters are supported,
+	and not vectors of parameters).
+
+	- Move functions to test templates to GerardusCommon.hpp.
+
+	* ItkToolbox/itk_imfilter.m:
+
+	- (v0.4.0) Correct help header to make it easier to write the
+	documentation for filters with user-provided parameters.
+
+	- Add syntax for 'bwdilate'.
+
+	* ItkToolbox/ItkImFilter.cpp (v0.4.0):
+
+	- Add support for itk::BinaryDilateImageFilter.
+
+	- Make 2 the minimum number of input arguments, not the exact
+	number. This way, the user can provide input parameters for
+	specific filters.
+
+	- Fix bug introduced in last revision. We were reading the image
+	from argIn[1], which doesn't work if the input data is a NRRD
+	struct.
+
+	- Pedantic fix. Use mxLogical instead of bool (although at least
+	for linux they are the same type).
+
+	* Add ItkToolbox/BinaryDilateFilter.cpp,
+	ItkToolbox/BinaryDilateFilter.hpp:
+
+	- (v0.1.0) Code that is specific to
+	itk::BinaryDilateImageFilter. Support for radius and foreground
+	value arguments. Structuring element is a ball.
+
 	* ItkToolbox/SignedMaurerFilter.cpp (v0.2.2),
 	ItkToolbox/SignedMaurerFilter.hpp (v0.2.3),
 	ItkToolbox/DanielssonFilter.cpp (v0.3.2),
