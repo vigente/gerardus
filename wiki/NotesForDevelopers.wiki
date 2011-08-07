@@ -1,6 +1,6 @@
 #summary Notes and guidelines for people who want to contribute patches or code to the Gerardus project
 
-= Getting started =
+= Contributing to the project =
 
  # Any communications should be carried on the [http://groups.google.com/group/gerardus-users/ mailing list] (gerardus-users@googlegroups.com)
  # There are two ways to contribute code:
@@ -126,3 +126,11 @@ lmax = ceil(sqrt(sum(([nrrd.axis.size] - 1).^2)));
 [gc, gr] = meshgrid(-lmax:lmax, -lmax:lmax);
 grcs(1, :) = grcs(1, :) + idxm(1);
 }}}
+
+= Adding support for a new filter to itk_imfilter() =
+
+*[This section is work in progress]*
+
+Suppose you want to add support for the `itk::BinaryDilateImageFilter` to `itk_imfilter()` so that you can run binary dilation from Matlab.
+
+ # Choose a filename, e.g. `BinaryDilateFilter`, and write the corresponding C++ files `BinaryDilateFilter.hpp` and `BinaryDilateFilter.cpp`
