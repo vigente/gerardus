@@ -1,13 +1,13 @@
 /*
- * SignedMaurerFilter.hpp
+ * MexSignedMaurerDistanceMapImageFilter.hpp
  *
- * Code that is specific to the SignedMaurerDistanceMapImageFilter
+ * Code that is specific to itk::SignedMaurerDistanceMapImageFilter
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.3
+  * Version: 0.2.4
   * $Rev$
   * $Date$
   *
@@ -36,8 +36,8 @@
   * <http://www.gnu.org/licenses/>.
   */
 
-#ifndef SIGNEDMAURERFILTER_HPP
-#define SIGNEDMAURERFILTER_HPP
+#ifndef MEXSIGNEDMAURERDISTANCEMAPIMAGEFILTER_HPP
+#define MEXSIGNEDMAURERDISTANCEMAPIMAGEFILTER_HPP
 
 /* mex headers */
 #include <mex.h>
@@ -47,14 +47,14 @@
 #include "itkSignedMaurerDistanceMapImageFilter.h"
 
 /* Gerardus headers */
-#include "BaseFilter.hpp"
+#include "MexBaseFilter.hpp"
 
 /* 
- * SignedMaurerFilter : BaseFilter
+ * MexSignedMaurerDistanceMapImageFilter : MexBaseFilter
  */
 template <class InVoxelType, class OutVoxelType>
-class SignedMaurerFilter : 
-  public BaseFilter<InVoxelType, OutVoxelType> {
+class MexSignedMaurerDistanceMapImageFilter : 
+  public MexBaseFilter<InVoxelType, OutVoxelType> {
 private:
   typedef itk::SignedMaurerDistanceMapImageFilter< 
   itk::Image<InVoxelType, Dimension>,
@@ -63,8 +63,9 @@ private:
 protected:
 
 public:
-  SignedMaurerFilter(const NrrdImage &nrrd, int _nargout, mxArray** argOut) :
-    BaseFilter<InVoxelType, OutVoxelType>(nrrd, _nargout, argOut) {
+  MexSignedMaurerDistanceMapImageFilter(const NrrdImage &_nrrd, 
+					int _nargout, mxArray** _argOut) :
+    MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut) {
     // instantiate filter
     this->filter = FilterType::New();
   }
@@ -78,10 +79,10 @@ public:
 
 #define EXCLUDEFILTER(T1, T2)						\
   template <>								\
-  class SignedMaurerFilter< T1, T2 > :					\
-    public BaseFilter<T1, T2> {						\
+  class MexSignedMaurerDistanceMapImageFilter< T1, T2 > :		\
+    public MexBaseFilter<T1, T2> {					\
   public:								\
-    SignedMaurerFilter(const NrrdImage &, int, mxArray**) {;}		\
+    MexSignedMaurerDistanceMapImageFilter(const NrrdImage &, int, mxArray**) {;} \
     void CopyMatlabInputsToFilter() {;}					\
     void FilterSetup() {;}						\
     void RunFilter() {;}						\
@@ -171,4 +172,4 @@ EXCLUDEFILTER(double, float)
 
 #undef EXCLUDEFILTER
 
-#endif /* SIGNEDMAURERFILTER_HPP */
+#endif /* MEXSIGNEDMAURERDISTANCEMAPIMAGEFILTER_HPP */

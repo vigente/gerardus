@@ -1,13 +1,13 @@
 /*
- * DanielssonFilter.cpp
+ * MexDanielssonDistanceMapImageFilter.cpp
  *
- * Code that is specific to the DanielssonDistanceMapImageFilter
+ * Code that is specific to itk::DanielssonDistanceMapImageFilter
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.2
+  * Version: 0.3.3
   * $Rev$
   * $Date$
   *
@@ -36,8 +36,8 @@
   * <http://www.gnu.org/licenses/>.
   */
 
-#ifndef DANIELSSONFILTER_CPP
-#define DANIELSSONFILTER_CPP
+#ifndef MEXDANIELSSONDISTANCEMAPIMAGEFILTER_CPP
+#define MEXDANIELSSONDISTANCEMAPIMAGEFILTER_CPP
 
 /* ITK headers */
 #include "itkImage.h"
@@ -45,10 +45,10 @@
 
 /* Gerardus headers */
 #include "GerardusCommon.hpp"
-#include "DanielssonFilter.hpp"
+#include "MexDanielssonDistanceMapImageFilter.hpp"
 
 template <class InVoxelType, class OutVoxelType>
-void DanielssonFilter<InVoxelType,
+void MexDanielssonDistanceMapImageFilter<InVoxelType,
 		      OutVoxelType>::CopyAllFilterOutputsToMatlab() {
   
   // by default, we assume that all filters produce at least 1 main
@@ -64,7 +64,7 @@ void DanielssonFilter<InVoxelType,
 }
 
 /*
- * DanielssonFilter::CopyFilterNearestOutputToMatlab()
+ * MexDanielssonDistanceMapImageFilter::CopyFilterNearestOutputToMatlab()
  *
  * Pass to Matlab an array of the same size as the image. Each element
  * has the linear index of the closest object voxel to each image
@@ -73,8 +73,8 @@ void DanielssonFilter<InVoxelType,
  * itk::DanielssonDistanceMapImageFilter::GetVectorDistanceMap()
  */
 template <class InVoxelType, class OutVoxelType>
-void DanielssonFilter<InVoxelType, 
-		      OutVoxelType>::CopyFilterNearestOutputToMatlab() {
+void MexDanielssonDistanceMapImageFilter<InVoxelType, 
+					 OutVoxelType>::CopyFilterNearestOutputToMatlab() {
 
   typedef double OutType;
 
@@ -103,28 +103,28 @@ void DanielssonFilter<InVoxelType,
   }
 
   // create output matrix for Matlab's result
-  this->argOut[1] = (mxArray *)mxCreateNumericArray( this->nrrd.getNdim(), 
-						     this->nrrd.getDims(),
-						     outputVoxelClassId,
-						     mxREAL);
+  this->argOut[1] = (mxArray *)mxCreateNumericArray(this->nrrd.getNdim(), 
+						    this->nrrd.getDims(),
+						    outputVoxelClassId,
+						    mxREAL);
   if (this->argOut[1] == NULL) {
     mexErrMsgTxt("Cannot allocate memory for output matrix");
   }
   OutType *imOutp =  (OutType *)mxGetData(this->argOut[1]);
   
   // populate output image
-  typedef typename DanielssonFilter<InVoxelType, 
+  typedef typename MexDanielssonDistanceMapImageFilter<InVoxelType, 
     OutVoxelType>::FilterType::VectorImageType OffsetImageType;
 
-  // the filter member variable is declared in BaseFilter as a general
-  // ImageToImageFilter, but we want to use some methods that belong
-  // only to the derived filter class
-  // DanielssonDistanceMapImageFilter. In order to do this, we need
-  // to declare a local filter variable that is of type
+  // the filter member variable is declared in MexBaseFilter as a
+  // general ImageToImageFilter, but we want to use some methods that
+  // belong only to the derived filter class
+  // DanielssonDistanceMapImageFilter. In order to do this, we need to
+  // declare a local filter variable that is of type
   // DanielssonDistanceMapImageFilter, and dynamic cast it to filter
-  // in the BaseFilter class
+  // in the MexBaseFilter class
   typename FilterType::Pointer localFilter = 
-    dynamic_cast<typename DanielssonFilter<InVoxelType, 
+    dynamic_cast<typename MexDanielssonDistanceMapImageFilter<InVoxelType, 
     OutVoxelType>::FilterType *>(this->filter.GetPointer());
 
   typedef itk::ImageRegionConstIterator<OffsetImageType> 
@@ -163,7 +163,7 @@ void DanielssonFilter<InVoxelType,
  */
 
 #define FILTERINST(T1, T2)						\
-  template class DanielssonFilter<T1, T2>;				\
+  template class MexDanielssonDistanceMapImageFilter<T1, T2>;
 
 FILTERINST(mxLogical, mxLogical);
 FILTERINST(mxLogical, uint8_T)
@@ -221,4 +221,4 @@ FILTERINST(double, double)
 
 #undef FILTERINST
 
-#endif /* DANIELSSONFILTER_CPP */
+#endif /* MEXDANIELSSONDISTANCEMAPIMAGEFILTER_CPP */

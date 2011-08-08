@@ -1,8 +1,8 @@
 /* 
- * BaseFilter.cpp
+ * MexBaseFilter.cpp
  *
- * BaseFilter<InVoxelType, OutVoxelType>: This is where
- * the code to actually run the filter on the image lives.
+ * MexBaseFilter<InVoxelType, OutVoxelType>: This is where the code to
+ * actually run the filter on the image lives.
  *
  * The reason is that template explicit specialization is only
  * possible in classes, not in functions. We need explicit
@@ -14,7 +14,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.6
+  * Version: 0.3.7
   * $Rev$
   * $Date$
   *
@@ -43,8 +43,8 @@
   * <http://www.gnu.org/licenses/>.
   */
 
-#ifndef BASEFILTER_CPP
-#define BASEFILTER_CPP
+#ifndef MEXBASEFILTER_CPP
+#define MEXBASEFILTER_CPP
 
 /* C++ headers */
 #include <iostream>
@@ -55,20 +55,20 @@
 
 /* ITK headers */
 #include "itkImage.h"
-#include "itkBinaryThinningImageFilter3D.h"
-#include "itkDanielssonDistanceMapImageFilter.h"
-#include "itkSignedMaurerDistanceMapImageFilter.h"
+// #include "itkBinaryThinningImageFilter3D.h"
+// #include "itkDanielssonDistanceMapImageFilter.h"
+// #include "itkSignedMaurerDistanceMapImageFilter.h"
 
 /* Gerardus headers */
 #include "GerardusCommon.hpp"
 #include "NrrdImage.hpp"
-#include "BaseFilter.hpp"
-#include "DanielssonFilter.hpp"
-#include "SignedMaurerFilter.hpp"
-#include "ThinningFilter.hpp"
+#include "MexBaseFilter.hpp"
+#include "MexDanielssonDistanceMapImageFilter.hpp"
+#include "MexSignedMaurerDistanceMapImageFilter.hpp"
+#include "MexBinaryThinningImageFilter3D.hpp"
 
 /*
- * BaseFilter<InVoxelType, OutVoxelType>: This is where
+ * MexBaseFilter<InVoxelType, OutVoxelType>: This is where
  * the code to actually run the filter on the image lives.
  */
 
@@ -76,7 +76,7 @@
 // result
 
 template <class InVoxelType, class OutVoxelType>
-void BaseFilter<InVoxelType, OutVoxelType>::CopyMatlabInputsToItkImages() {
+void MexBaseFilter<InVoxelType, OutVoxelType>::CopyMatlabInputsToItkImages() {
   
   // get pointer to input segmentation mask
   const InVoxelType *im = (InVoxelType *)mxGetData(nrrd.getData());
@@ -136,7 +136,7 @@ void BaseFilter<InVoxelType, OutVoxelType>::CopyMatlabInputsToItkImages() {
 }
 
 template <class InVoxelType, class OutVoxelType>
-void BaseFilter<InVoxelType, OutVoxelType>::FilterSetup() {
+void MexBaseFilter<InVoxelType, OutVoxelType>::FilterSetup() {
 
   // pass image to filter
   filter->SetInput(image);
@@ -144,7 +144,7 @@ void BaseFilter<InVoxelType, OutVoxelType>::FilterSetup() {
 }
 
 template <class InVoxelType, class OutVoxelType>
-void BaseFilter<InVoxelType, OutVoxelType>::RunFilter() {
+void MexBaseFilter<InVoxelType, OutVoxelType>::RunFilter() {
   
   // run filter
   filter->Update();
@@ -152,8 +152,8 @@ void BaseFilter<InVoxelType, OutVoxelType>::RunFilter() {
 }
 
 template <class InVoxelType, class OutVoxelType>
-void BaseFilter<InVoxelType,
-OutVoxelType>::CopyAllFilterOutputsToMatlab() {
+void MexBaseFilter<InVoxelType,
+		   OutVoxelType>::CopyAllFilterOutputsToMatlab() {
   
   // by default, we assume that all filters produce at least 1 main
   // output
@@ -167,8 +167,8 @@ OutVoxelType>::CopyAllFilterOutputsToMatlab() {
 }
 
 template <class InVoxelType, class OutVoxelType>
-void BaseFilter<InVoxelType, 
-		OutVoxelType>::CopyFilterImageOutputToMatlab() {
+void MexBaseFilter<InVoxelType, 
+		   OutVoxelType>::CopyFilterImageOutputToMatlab() {
 
   // if the input image is empty, create empty segmentation mask for
   // output, and we don't need to do any further processing
@@ -223,7 +223,7 @@ void BaseFilter<InVoxelType,
  */
 
 #define FILTERINST(T1, T2)						\
-  template class BaseFilter<T1, T2>;
+  template class MexBaseFilter<T1, T2>;
 
 FILTERINST(mxLogical, mxLogical)
 FILTERINST(mxLogical, uint8_T)
@@ -317,4 +317,4 @@ FILTERINST(double, double)
 
 #undef FILTERINST
 
-#endif /* BASEFILTER_CPP */
+#endif /* MEXBASEFILTER_CPP */
