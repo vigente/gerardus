@@ -222,7 +222,7 @@ void MexBaseFilter<InVoxelType,
  * slower and maybe the executable larger
  */
 
-#define FILTERINST(T1, T2)						\
+#define FILTERINST(T1, T2)			\
   template class MexBaseFilter<T1, T2>;
 
 FILTERINST(mxLogical, mxLogical)

@@ -73,7 +73,7 @@ public:
 
 /*
  * Filter exclusions: input/output data type combinations that are not
- * allowed for this filter
+ * allowed or not going to be used for this filter
  */
 
 #define EXCLUDEFILTER(T1, T2)						\
