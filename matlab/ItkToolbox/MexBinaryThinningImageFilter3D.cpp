@@ -1,13 +1,13 @@
 /*
- * ThinningFilter.cpp
+ * MexBinaryThinningImageFilter3D.cpp
  *
- * Code that is specific to the BinaryThinningImageFilter3D
+ * Code that is specific to itk::BinaryThinningImageFilter3D
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.2
+  * Version: 0.1.3
   * $Rev$
   * $Date$
   *
@@ -36,13 +36,13 @@
   * <http://www.gnu.org/licenses/>.
   */
 
-#ifndef THINNINGFILTER_CPP
-#define THINNINGFILTER_CPP
+#ifndef MEXBINARYTHINNINGIMAGEFILTER3D_CPP
+#define MEXBINARYTHINNINGIMAGEFILTER3D_CPP
 
-#include "ThinningFilter.hpp"
+#include "MexBinaryThinningImageFilter3D.hpp"
 
 /* 
- * ThinningFilter : BaseFilter
+ * MexBinaryThinningImageFilter3D : MexBaseFilter
  */
 
 /*
@@ -52,8 +52,8 @@
  * slower and maybe the executable larger
  */
 
-#define FILTERINST(T1, T2)			\
-  template class ThinningFilter<T1, T2>;
+#define FILTERINST(T1, T2)					\
+  template class MexBinaryThinningImageFilter3D<T1, T2>;
 
 FILTERINST(uint8_T, uint8_T)
 FILTERINST(int8_T, int8_T)
@@ -66,4 +66,4 @@ FILTERINST(double, double)
 
 #undef FILTERINST
 
-#endif /* THINNINGFILTER_CPP */
+#endif /* MEXBINARYTHINNINGIMAGEFILTER3D_CPP */

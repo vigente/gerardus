@@ -1,13 +1,13 @@
 /*
- * DanielssonFilter.hpp
+ * MexDanielssonDistanceMapImageFilter.hpp
  *
- * Code that is specific to the DanielssonDistanceMapImageFilter
+ * Code that is specific to itk::DanielssonDistanceMapImageFilter
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.2
+  * Version: 0.3.3
   * $Rev$
   * $Date$
   *
@@ -36,8 +36,8 @@
   * <http://www.gnu.org/licenses/>.
   */
 
-#ifndef DANIELSSONFILTER_HPP
-#define DANIELSSONFILTER_HPP
+#ifndef MEXDANIELSSONDISTANCEMAPIMAGEFILTER_HPP
+#define MEXDANIELSSONDISTANCEMAPIMAGEFILTER_HPP
 
 /* mex headers */
 #include <mex.h>
@@ -47,14 +47,14 @@
 #include "itkDanielssonDistanceMapImageFilter.h"
 
 /* Gerardus headers */
-#include "BaseFilter.hpp"
+#include "MexBaseFilter.hpp"
 
 /* 
- * DanielssonFilter : BaseFilter
+ * MexDanielssonDistanceMapImageFilter : MexBaseFilter
  */
 template <class InVoxelType, class OutVoxelType>
-class DanielssonFilter : 
-  public BaseFilter<InVoxelType, OutVoxelType> {
+class MexDanielssonDistanceMapImageFilter : 
+  public MexBaseFilter<InVoxelType, OutVoxelType> {
 private:
   typedef itk::DanielssonDistanceMapImageFilter< 
   itk::Image<InVoxelType, Dimension>,
@@ -63,8 +63,9 @@ private:
 protected:
 
 public:
-  DanielssonFilter(const NrrdImage &nrrd, int _nargout, mxArray** argOut) :
-    BaseFilter<InVoxelType, OutVoxelType>(nrrd, _nargout, argOut) {
+  MexDanielssonDistanceMapImageFilter(const NrrdImage &_nrrd, 
+				      int _nargout, mxArray** _argOut) :
+    MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut) {
     // instantiate filter
     this->filter = FilterType::New();
   }
@@ -79,10 +80,10 @@ public:
 
 #define EXCLUDEFILTER(T1, T2)						\
   template <>								\
-  class DanielssonFilter< T1, T2 > :					\
-    public BaseFilter<T1, T2> {						\
+  class MexDanielssonDistanceMapImageFilter< T1, T2 > :			\
+    public MexBaseFilter<T1, T2> {					\
   public:								\
-    DanielssonFilter(const NrrdImage &, int, mxArray**) {;}		\
+    MexDanielssonDistanceMapImageFilter(const NrrdImage &, int, mxArray**) {;} \
     void CopyMatlabInputsToFilter() {;}					\
     void FilterSetup() {;}						\
     void RunFilter() {;}						\
@@ -136,4 +137,4 @@ EXCLUDEFILTER(double, int64_T)
 
 #undef EXCLUDEFILTER
 
-#endif /* DANIELSSONFILTER_HPP */
+#endif /* MEXDANIELSSONDISTANCEMAPIMAGEFILTER_HPP */
