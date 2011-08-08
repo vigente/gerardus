@@ -1,5 +1,5 @@
 /*
- * BinaryDilateFilter.hpp
+ * MexBinaryDilateImageFilter.hpp
  *
  * Code that is specific to itk::BinaryDilateImageFilter. Support for
  * radius and foreground value arguments. Structuring element is a
