@@ -1,13 +1,13 @@
 /*
- * SignedMaurerFilter.cpp
+ * MexSignedMaurerDistanceMapImageFilter.cpp
  *
- * Code that is specific to the SignedMaurerDistanceMapImageFilter
+ * Code that is specific to itk::SignedMaurerDistanceMapImageFilter
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.2
+  * Version: 0.2.3
   * $Rev$
   * $Date$
   *
@@ -36,28 +36,28 @@
   * <http://www.gnu.org/licenses/>.
   */
 
-#ifndef SIGNEDMAURERFILTER_CPP
-#define SIGNEDMAURERFILTER_CPP
+#ifndef MEXSIGNEDMAURERDISTANCEMAPIMAGEFILTER_CPP
+#define MEXSIGNEDMAURERDISTANCEMAPIMAGEFILTER_CPP
 
-#include "SignedMaurerFilter.hpp"
+#include "MexSignedMaurerDistanceMapImageFilter.hpp"
 
 /* 
- * SignedMaurerFilter : BaseFilter
+ * MexSignedMaurerDistanceMapImageFilter::FilterSetup()
  */
 template <class InVoxelType, class OutVoxelType>
-void SignedMaurerFilter<InVoxelType, 
-			OutVoxelType>::FilterSetup() {
+void MexSignedMaurerDistanceMapImageFilter<InVoxelType, 
+					   OutVoxelType>::FilterSetup() {
   
-  // the filter member variable is declared in BaseFilter as a general
-  // ImageToImageFilter, but we want to use some methods that belong
-  // only to the derived filter class
+  // the filter member variable is declared in MexBaseFilter as a
+  // general ImageToImageFilter, but we want to use some methods that
+  // belong only to the derived filter class
   // SignedMaurerDistanceMapImageFilter. In order to do this, we need
   // to declare a local filter variable that is of type
   // SignedMaurerDistanceMapImageFilter, and dynamic cast it to filter
-  // in the BaseFilter class
+  // in the MexBaseFilter class
 
   typename FilterType::Pointer localFilter = 
-    dynamic_cast<typename SignedMaurerFilter<InVoxelType,
+    dynamic_cast<typename MexSignedMaurerDistanceMapImageFilter<InVoxelType,
     OutVoxelType>::FilterType *>(this->filter.GetPointer());
 
   // pass image to filter
@@ -79,7 +79,7 @@ void SignedMaurerFilter<InVoxelType,
  */
 
 #define FILTERINST(T1, T2)						\
-  template class SignedMaurerFilter<T1, T2>;				\
+  template class MexSignedMaurerDistanceMapImageFilter<T1, T2>;
 
 FILTERINST(mxLogical, double)
 FILTERINST(uint8_T, double)
@@ -93,4 +93,4 @@ FILTERINST(double, double)
 
 #undef FILTERINST
 
-#endif /* SIGNEDMAURERFILTER_CPP */
+#endif /* MEXSIGNEDMAURERDISTANCEMAPIMAGEFILTER_CPP */

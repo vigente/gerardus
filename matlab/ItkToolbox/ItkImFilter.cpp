@@ -31,7 +31,7 @@
  *     nrrd.axis: 3x1 struct array with fields:
  *       nnrd.axis.size:    number of voxels in the image
  *       nnrd.axis.spacing: voxel size, image resolution
- *       nnrd.axis.min:     real world coordinates of image origin
+ *       nnrd.axis.min:     real world coordinates of "left" edge of first voxel
  *       nnrd.axis.max:     ignored
  *       nnrd.axis.center:  ignored
  *       nnrd.axis.label:   ignored
@@ -163,18 +163,18 @@
 
 /* ITK headers */
 #include "itkImage.h"
-#include "itkBinaryThinningImageFilter3D.h"
-#include "itkDanielssonDistanceMapImageFilter.h"
-#include "itkSignedMaurerDistanceMapImageFilter.h"
-#include "itkBinaryDilateImageFilter.h"
+// #include "itkBinaryThinningImageFilter3D.h"
+// #include "itkDanielssonDistanceMapImageFilter.h"
+// #include "itkSignedMaurerDistanceMapImageFilter.h"
+// #include "itkBinaryDilateImageFilter.h"
 
 /* Gerardus headers */
 #include "NrrdImage.hpp"
-#include "BaseFilter.hpp"
-#include "DanielssonFilter.hpp"
-#include "SignedMaurerFilter.hpp"
-#include "ThinningFilter.hpp"
-#include "BinaryDilateFilter.hpp"
+#include "MexBaseFilter.hpp"
+#include "MexBinaryDilateImageFilter.hpp"
+#include "MexBinaryThinningImageFilter3D.hpp"
+#include "MexDanielssonDistanceMapImageFilter.hpp"
+#include "MexSignedMaurerDistanceMapImageFilter.hpp"
 
 /*
  * Argument Parsers
@@ -216,7 +216,7 @@
  * Finally, parseFilterTypeAndRun<InVoxelType, OutVoxelType>() checks
  * that the requested filter is implemented, maps the filter variable,
  * and runs the actual filtering, using derived filter classes from
- * BaseFilter.
+ * MexBaseFilter.
  */
 
 // parseFilterTypeAndRun<InVoxelType, OutVoxelType>()
@@ -241,27 +241,27 @@ void parseFilterTypeAndRun(const int nargin,
     OutImageType;
 
   // pointer to the filter object (we are using polymorphism)
-  BaseFilter<InVoxelType, OutVoxelType> *filter = NULL;
+  MexBaseFilter<InVoxelType, OutVoxelType> *filter = NULL;
 
   // convert run-time filter string to template
   if (!strcmp(filterName, "skel")) {
     
-    filter = new ThinningFilter<InVoxelType, 
+    filter = new MexBinaryThinningImageFilter3D<InVoxelType, 
 				OutVoxelType>(nrrd, nargout, argOut);
 
   }  else if (!strcmp(filterName, "dandist")) {
     
-    filter = new DanielssonFilter<InVoxelType, 
+    filter = new MexDanielssonDistanceMapImageFilter<InVoxelType, 
 				  OutVoxelType>(nrrd, nargout, argOut);
 
   }  else if (!strcmp(filterName, "maudist")) {
 
-    filter = new SignedMaurerFilter<InVoxelType, 
+    filter = new MexSignedMaurerDistanceMapImageFilter<InVoxelType, 
 				    OutVoxelType>(nrrd, nargout, argOut);
 
   } else if (!strcmp(filterName, "bwdilate")) {
 
-    filter = new BinaryDilateFilter<InVoxelType, 
+    filter = new MexBinaryDilateImageFilter<InVoxelType, 
 				    OutVoxelType>(nrrd, nargout, argOut,
 						  nargin, argIn);
 

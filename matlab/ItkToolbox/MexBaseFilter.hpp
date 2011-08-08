@@ -1,14 +1,14 @@
 /* 
- * BaseFilter.hpp
+ * MexBaseFilter.hpp
  *
- * BaseFilter<InVoxelType, OutVoxelType>: This is where
+ * MexBaseFilter<InVoxelType, OutVoxelType>: This is where
  * the code to actually run the filter on the image lives.
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.4.0
+  * Version: 0.4.1
   * $Rev$
   * $Date$
   *
@@ -37,8 +37,8 @@
   * <http://www.gnu.org/licenses/>.
   */
 
-#ifndef BASEFILTER_HPP
-#define BASEFILTER_HPP
+#ifndef MEXBASEFILTER_HPP
+#define MEXBASEFILTER_HPP
 
 /* ITK headers */
 #include "itkImageToImageFilter.h"
@@ -48,24 +48,24 @@
 #include "NrrdImage.hpp"
 
 /* 
- * BaseFilter
+ * MexBaseFilter
  */
 template <class InVoxelType, class OutVoxelType>
-class BaseFilter {
+class MexBaseFilter {
 private:
   typedef double TScalarType; // data type for scalars
   
 protected:
   typedef typename itk::Image< InVoxelType, Dimension > InImageType;
   typedef typename itk::Image< OutVoxelType, Dimension > OutImageType;
-  typedef typename itk::ImageToImageFilter<InImageType, OutImageType> BaseFilterType;
+  typedef typename itk::ImageToImageFilter<InImageType, OutImageType> MexBaseFilterType;
   typename InImageType::Pointer image;
   NrrdImage nrrd;
   int nargout;
   mxArray** argOut;
   mwSize nparam;
   const mxArray** argParam;
-  typename BaseFilterType::Pointer filter;
+  typename MexBaseFilterType::Pointer filter;
 
   // function to get the value of input parameters that are numeric
   // scalars from the array of input arguments
@@ -78,8 +78,8 @@ public:
   // constructor when the filter takes user-provided parameters
   // (e.g. dilation radius) apart from the input arguments with the
   // filter type and image
-  BaseFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut,
-	     const int _nargin, const mxArray** _argIn)
+  MexBaseFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut,
+		const int _nargin, const mxArray** _argIn)
     : nrrd(_nrrd), nargout(_nargout), argOut(_argOut) {
     // number of parameters
     nparam = (mwSize)(_nargin - 2);
@@ -93,7 +93,7 @@ public:
   }
   
   // constructor when the filter takes no user-provided parameters
-  BaseFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut)
+  MexBaseFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut)
     : nrrd(_nrrd), nargout(_nargout), argOut(_argOut) {
     nparam = 0;
     argParam = NULL;
@@ -101,7 +101,7 @@ public:
 
   // constructor when a derived filter needs to be excluded from
   // instantiation
-  BaseFilter() {;}
+  MexBaseFilter() {;}
 
   // functions to create the ITK images, filter it and return a Matlab result
   virtual void CopyMatlabInputsToItkImages();
@@ -122,9 +122,10 @@ public:
 // scalars from the array of input arguments
 template <class InVoxelType, class OutVoxelType>
 template <class ParamType>
-ParamType BaseFilter<InVoxelType, 
-		     OutVoxelType>::getScalarParamValue(std::string paramName,
-				mwIndex idx, ParamType def) {
+ParamType MexBaseFilter<InVoxelType, 
+			OutVoxelType>::getScalarParamValue(std::string paramName,
+							mwIndex idx, 
+							ParamType def) {
   
   // if user didn't provide a value, or provided an empty array, return the default
   if (idx >= this->nparam || mxIsEmpty(this->argParam[idx])) {
@@ -203,4 +204,4 @@ ParamType BaseFilter<InVoxelType,
   return value;
 }
 
-#endif /* BASEFILTER_HPP */
+#endif /* MEXBASEFILTER_HPP */

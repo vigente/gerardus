@@ -1,15 +1,13 @@
 /*
- * BinaryDilateFilter.hpp
+ * MexBinaryThinningImageFilter3D.hpp
  *
- * Code that is specific to itk::BinaryDilateImageFilter. Support for
- * radius and foreground value arguments. Structuring element is a
- * ball.
+ * Code that is specific to itk::BinaryThinningImageFilter3D
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.0.1
+  * Version: 0.2.5
   * $Rev$
   * $Date$
   *
@@ -38,46 +36,39 @@
   * <http://www.gnu.org/licenses/>.
   */
 
-#ifndef BINARYDILATEFILTER_HPP
-#define BINARYDILATEFILTER_HPP
+#ifndef MEXBINARYTHINNINGIMAGEFILTER3D_HPP
+#define MEXBINARYTHINNINGIMAGEFILTER3D_HPP
 
 /* mex headers */
 #include <mex.h>
 
 /* ITK headers */
 #include "itkImage.h"
-#include "itkBinaryDilateImageFilter.h"
-#include "itkBinaryBallStructuringElement.h"
+#include "itkBinaryThinningImageFilter3D.h"
 
 /* Gerardus headers */
-#include "BaseFilter.hpp"
+#include "MexBaseFilter.hpp"
 
 /* 
- * BinaryDilateFilter : BaseFilter
+ * MexBinaryThinningImageFilter3D : MexBaseFilter
  */
 template <class InVoxelType, class OutVoxelType>
-class BinaryDilateFilter : 
-  public BaseFilter<InVoxelType, OutVoxelType> {
+class MexBinaryThinningImageFilter3D : 
+  public MexBaseFilter<InVoxelType, OutVoxelType> {
 private:
-  typedef itk::BinaryBallStructuringElement<InVoxelType, Dimension >
-  StructuringElementType;
-  
-  typedef itk::BinaryDilateImageFilter< 
+  typedef itk::BinaryThinningImageFilter3D< 
   itk::Image<InVoxelType, Dimension>,
-    itk::Image<OutVoxelType, Dimension>, StructuringElementType > FilterType;
+  itk::Image<OutVoxelType, Dimension> > FilterType;
 
 protected:
-  unsigned long radius;
 
 public:
-  BinaryDilateFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut,
-	       const int _nargin, const mxArray** _argIn) :
-    BaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut,
-					  _nargin, _argIn) {
+  MexBinaryThinningImageFilter3D(const NrrdImage &nrrd, int _nargout, 
+				 mxArray** argOut) :
+    MexBaseFilter<InVoxelType, OutVoxelType>(nrrd, _nargout, argOut) {
     // instantiate filter
     this->filter = FilterType::New();
   }
-  void FilterSetup();
 };
 
 /*
@@ -87,17 +78,17 @@ public:
 
 #define EXCLUDEFILTER(T1, T2)						\
   template <>								\
-  class BinaryDilateFilter< T1, T2 > :					\
-    public BaseFilter<T1, T2> {						\
+  class MexBinaryThinningImageFilter3D< T1, T2 > :			\
+    public MexBaseFilter<T1, T2> {					\
   public:								\
-    BinaryDilateFilter(const NrrdImage &, int, mxArray**,		\
-		       const int, const mxArray **) {;}			\
+    MexBinaryThinningImageFilter3D(const NrrdImage &, int, mxArray**) {;} \
     void CopyMatlabInputsToFilter() {;}					\
     void FilterSetup() {;}						\
     void RunFilter() {;}						\
     void CopyAllFilterOutputsToMatlab() {;}				\
   };
 
+EXCLUDEFILTER(mxLogical, mxLogical);
 EXCLUDEFILTER(mxLogical, uint8_T);
 EXCLUDEFILTER(mxLogical, int8_T);
 EXCLUDEFILTER(mxLogical, uint16_T)
@@ -181,4 +172,4 @@ EXCLUDEFILTER(double, float)
 
 #undef EXCLUDEFILTER
 
-#endif /* DILATEFILTER_HPP */
+#endif /* MEXBINARYTHINNINGIMAGEFILTER3D_HPP */

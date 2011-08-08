@@ -1,5 +1,5 @@
 /*
- * BinaryDilateFilter.cpp
+ * MexBinaryDilateImageFilter.cpp
  *
  * Code that is specific to itk::BinaryDilateImageFilter. Support for
  * radius and foreground value arguments. Structuring element is a
@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.0.1
+  * Version: 0.0.2
   * $Rev$
   * $Date$
   *
@@ -38,20 +38,20 @@
   * <http://www.gnu.org/licenses/>.
   */
 
-#ifndef BINARYDILATEFILTER_CPP
-#define BINARYDILATEFILTER_CPP
+#ifndef MEXBINARYDILATEIMAGEFILTER_CPP
+#define MEXBINARYDILATEIMAGEFILTER_CPP
 
 /* C++ headers */
 #include <limits>
 
 /* Gerardus headers */
-#include "BinaryDilateFilter.hpp"
+#include "MexBinaryDilateImageFilter.hpp"
 
 /* 
- * BinaryDilateFilter : BaseFilter
+ * MexBinaryDilateImageFilter::FilterSetup
  */
 template <class InVoxelType, class OutVoxelType>
-void BinaryDilateFilter<InVoxelType, 
+void MexBinaryDilateImageFilter<InVoxelType, 
 			OutVoxelType>::FilterSetup() {
   
   // check input parameters
@@ -82,9 +82,9 @@ void BinaryDilateFilter<InVoxelType,
     getScalarParamValue<InVoxelType>("FOREGROUND", 1, std::numeric_limits<InVoxelType>::max());
   
   // create a local pointer to the filter so that we can use
-  // methods that are not part of the BaseFilter
+  // methods that are not part of the MexBaseFilter
   typename FilterType::Pointer localFilter = 
-    dynamic_cast<typename BinaryDilateFilter<InVoxelType,
+    dynamic_cast<typename MexBinaryDilateImageFilter<InVoxelType,
 			     OutVoxelType>::FilterType *>(this->filter.GetPointer());
   
   // instantiate structuring element
@@ -109,7 +109,7 @@ void BinaryDilateFilter<InVoxelType,
  */
 
 #define FILTERINST(T1, T2)						\
-  template class BinaryDilateFilter<T1, T2>;				\
+  template class MexBinaryDilateImageFilter<T1, T2>;				\
 
 FILTERINST(mxLogical, mxLogical)
 FILTERINST(uint8_T, uint8_T)
@@ -123,4 +123,4 @@ FILTERINST(double, double)
 
 #undef FILTERINST
 
-#endif /* BINARYDILATEFILTER_CPP */
+#endif /* MEXBINARYDILATEIMAGEFILTER_CPP */

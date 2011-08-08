@@ -1,3 +1,21 @@
+2011-08-08  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/MexBinaryThinningImageFilter3D.cpp (v0.1.3), 
+	ItkToolbox/CMakeLists.txt (v0.4.0),
+	ItkToolbox/MexDanielssonDistanceMapImageFilter.cpp (v0.3.3),
+	ItkToolbox/MexBinaryDilateImageFilter.cpp (v0.0.2),
+	ItkToolbox/MexBaseFilter.cpp (v0.3.7),
+	ItkToolbox/MexSignedMaurerDistanceMapImageFilter.cpp (v0.2.3),
+	ItkToolbox/MexSignedMaurerDistanceMapImageFilter.hpp (v0.2.4),
+	ItkToolbox/MexBinaryThinningImageFilter3D.hpp (v0.2.5),
+	ItkToolbox/MexDanielssonDistanceMapImageFilter.hpp (v0.3.3),
+	ItkToolbox/MexBinaryDilateImageFilter.hpp (v0.0.2),
+	ItkToolbox/MexBaseFilter.hpp (v0.4.1):
+
+	- Rename all filters as Mex*, where * is the full ITK name,
+	instead of using a short name that I made up. This way, it'll be
+	easier to semi-automate the process of adding new filters.
+
 2011-08-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* ItkToolbox/CMakeLists.txt:
