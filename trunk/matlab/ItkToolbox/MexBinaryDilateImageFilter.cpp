@@ -108,8 +108,8 @@ void MexBinaryDilateImageFilter<InVoxelType,
  * slower and maybe the executable larger
  */
 
-#define FILTERINST(T1, T2)						\
-  template class MexBinaryDilateImageFilter<T1, T2>;				\
+#define FILTERINST(T1, T2)				\
+  template class MexBinaryDilateImageFilter<T1, T2>;
 
 FILTERINST(mxLogical, mxLogical)
 FILTERINST(uint8_T, uint8_T)
