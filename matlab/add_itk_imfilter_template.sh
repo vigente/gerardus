@@ -18,7 +18,7 @@
 
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.1.0
+# Version: 0.2.0
 # $Rev$
 # $Date$
 #
@@ -96,13 +96,18 @@ do
 	echo -e "\t... not found in Gerardus"
     fi
 
+    #####################################################################
+    ## MexBinaryDilateImageFilter.hpp
+    ## MexBinaryDilateImageFilter.cpp
+    #####################################################################
+
     # create new .hpp and .cpp template files for this filter based
     # on the filter template
     svn cp ItkToolbox/MexTemplateFilter.hpp ItkToolbox/"$MEXFILTERFILE".hpp
     svn cp ItkToolbox/MexTemplateFilter.cpp ItkToolbox/"$MEXFILTERFILE".cpp
 
     echo -e \
-	"\tAdd ItkToolbox/"$MEXFILTERFILE".hpp,\n\tItkToolbox/"$MEXFILTERFILE".cpp:" \
+	"\t* Add ItkToolbox/"$MEXFILTERFILE".hpp,\n\tItkToolbox/"$MEXFILTERFILE".cpp:" \
 	>> $LOGFILE
     echo >> $LOGFILE
     echo -e \
@@ -110,15 +115,96 @@ do
 	>> $LOGFILE
     echo >> $LOGFILE
 
-    # filter has been added
-    echo ItkToolbox/"$MEXFILTERFILE".hpp >> "$ADDEDLOG"
-    echo ItkToolbox/"$MEXFILTERFILE".cpp >> "$ADDEDLOG"
+    # replace generic "template" tags in the files with the specific
+    # tags for this filter
+
+    # TemplateImageFilter -> BinaryDilateImageFilter
+    typeset +u +l TAG=${MEXFILTERFILE#Mex}
+    sed -i s/TemplateImageFilter/$TAG/ ItkToolbox/"$MEXFILTERFILE".?pp
+    # TEMPLATEIMAGEFILTER -> BINARYDILATEIMAGEFILTER
+    typeset -u TAG=$TAG
+    sed -i s/TEMPLATEIMAGEFILTER/$TAG/ ItkToolbox/"$MEXFILTERFILE".?pp
+    # std::string>::shortname = "template"; -> std::string>::shortname = "binarydilate";
+    typeset -l TAG=${TAG%IMAGEFILTER*}
+    sed -i s/'"'template'"'/'"'"$TAG"'"'/ ItkToolbox/"$MEXFILTERFILE".cpp
+
+    #####################################################################
+    ## ItkImFilter.cpp
+    #####################################################################
+
+    # copy first part of the file to temp file
+    sed -n '1,/Gerardus headers/ p' ItkToolbox/ItkImFilter.cpp > $TMPFILE
+
+    # get the block of Gerardus headers
+    # remove the first and last lines
+    # insert the new #include line at the beginning
+    # sort in alphabetical order
+    # concatenate to the temp file
+    sed -n "/Gerardus headers/,/End Gerardus headers/ p" ItkToolbox/ItkImFilter.cpp \
+	| tail -n +2 | head -n -1 \
+	| sed "1 i #include \"$MEXFILTERFILE.hpp\"" \
+	| sort >> $TMPFILE
+    
+    # append code until next insertion point
+    # remove insertion point line
+    sed -n '/End Gerardus headers/,/Insertion point: parseFilterTypeAndRun/ p' \
+	ItkToolbox/ItkImFilter.cpp \
+	| head -n -1 >> $TMPFILE
+
+    # append lines with the "else if" block for the new filter
+    echo '  } else if (ISFILTER(filterName, '"$MEXFILTERFILE"')) {' \
+	>> $TMPFILE
+    echo >> $TMPFILE
+    echo '    #error Input arguments cannot be determined automatically by' `basename $0` >> $TMPFILE
+    echo '    filter = new '"$MEXFILTERFILE"'<InVoxelType,' >> $TMPFILE
+    echo '                    OutVoxelType>(nrrd, nargout, argOut, nargin, argIn);' \
+	>> $TMPFILE
+    echo >> $TMPFILE
+
+    # append code until next insertion point
+    # remove insertion point line
+    sed -n '/Insertion point: parseFilterTypeAndRun/,/Insertion point: parseOutputTypeToTemplate/ p' \
+	ItkToolbox/ItkImFilter.cpp \
+	| head -n -1 >> $TMPFILE
+
+    # append lines with the "else if" block for the new filter
+    echo '  } else if (ISFILTER(filter, '"$MEXFILTERFILE"')) {' \
+	>> $TMPFILE
+    echo >> $TMPFILE
+    echo '    #error outVoxelType cannot be determined automatically by' `basename $0` >> $TMPFILE
+    echo '    outVoxelType = SAME;' >> $TMPFILE
+    echo >> $TMPFILE
+
+    # append rest of the code
+    sed -n '/Insertion point: parseOutputTypeToTemplate/,// p' \
+	ItkToolbox/ItkImFilter.cpp >> $TMPFILE
+
+    # update ItkImFilter with the new version
+    cp $TMPFILE ItkToolbox/ItkImFilter.cpp
+
+    # keep a list of added filters
+    echo -e "\t\t$filter" >> "$ADDEDLOG"
+
 done
 
-# update the ChangeLog
+##################################################
+# ChangeLog
+##################################################
+
+# today's entry header
 DATE=`date +%Y-%m-%d`
 echo $DATE'  Ramon Casero  <ramon.casero@cs.ox.ac.uk>' > $TMPFILE
 echo >> $TMPFILE
+
+# ItkImFilter change entry
+echo -e "\t* ItkToolbox/ItkImFilter.cpp (v0.0.0):" >> $TMPFILE
+echo >> $TMPFILE
+echo -e "\t- Added support for filters:" >> $TMPFILE
+echo >> $TMPFILE
+cat "$ADDEDLOG" >> $TMPFILE
+echo  >> $TMPFILE
+
+# New filter .cpp .hpp files entry
 cat $LOGFILE >> $TMPFILE
 
 # if there's an entry in the ChangeLog for today, we don't
@@ -131,8 +217,6 @@ else
     tail -n +3 ChangeLog >> $TMPFILE
 fi
 mv $TMPFILE ChangeLog
-
-cat "$ADDEDLOG" | xargs svn ci -F "$LOGFILE" ChangeLog 
 
 # delete temporal files
 rm -f $TMPFILE $LOGFILE
