@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -108,6 +108,7 @@ public:
  * allowed or not going to be used for this filter
  */
 
+#error EXCLUDEFILTER types cannot be automatically determined by add_itk_imfilter_template.sh
 // #define EXCLUDEFILTER(T1, T2)						\
 //   template <>								\
 //   class MexTemplateImageFilter< T1, T2 > :				\
