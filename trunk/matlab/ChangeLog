@@ -2209,7 +2209,7 @@
 	* FiltersToolbox/scinrrd_vertical_rot3.m:
 
 	- Make sure that the orientation of the resulting basis is the
-	same as the Cartesian system. 
+	same as the Cartesian system.
 
 	The problem is that the basis is valid if we take the negative of
 	any of its vectors too. For example, the Cartesian system has
