@@ -234,10 +234,9 @@ void parseFilterTypeAndRun(const int nargin,
   // macro that returns true if the string in x is either the short or
   // long name of the filter type T
 #define ISFILTER(x, T)							\
-  !strcmp(x,								\
-	  T<std::string, std::string>::shortname.c_str())		\
+  !strcmp(x, T<std::string, std::string>::shortname.c_str())		\
     || !strcmp(x, T<std::string, std::string>::longname.c_str())
-  
+
   // convert run-time filter string to template
   if (ISFILTER(filterName, MexBinaryThinningImageFilter3D)) {
     
