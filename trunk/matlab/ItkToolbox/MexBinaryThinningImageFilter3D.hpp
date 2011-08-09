@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.5
+  * Version: 0.2.6
   * $Rev$
   * $Date$
   *
@@ -52,10 +52,13 @@
 /* 
  * MexBinaryThinningImageFilter3D : MexBaseFilter
  */
+
 template <class InVoxelType, class OutVoxelType>
 class MexBinaryThinningImageFilter3D : 
   public MexBaseFilter<InVoxelType, OutVoxelType> {
+
 private:
+
   typedef itk::BinaryThinningImageFilter3D< 
   itk::Image<InVoxelType, Dimension>,
   itk::Image<OutVoxelType, Dimension> > FilterType;
@@ -63,12 +66,28 @@ private:
 protected:
 
 public:
-  MexBinaryThinningImageFilter3D(const NrrdImage &nrrd, int _nargout, 
-				 mxArray** argOut) :
-    MexBaseFilter<InVoxelType, OutVoxelType>(nrrd, _nargout, argOut) {
+  
+  // constructor
+  MexBinaryThinningImageFilter3D(const NrrdImage &_nrrd, int _nargout, 
+				 mxArray** _argOut) :
+    MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut) {
+    
     // instantiate filter
     this->filter = FilterType::New();
   }
+};
+
+// input/output voxel type is never going to be a string, so we are
+// going to use this specialization just to have a container to put
+// the text strings with the two names the user can type to select
+// this filter
+template <>
+class MexBinaryThinningImageFilter3D< std::string, std::string > {
+public:
+  
+  static const std::string longname;
+  static const std::string shortname;
+  
 };
 
 /*
@@ -82,10 +101,11 @@ public:
     public MexBaseFilter<T1, T2> {					\
   public:								\
     MexBinaryThinningImageFilter3D(const NrrdImage &, int, mxArray**) {;} \
-    void CopyMatlabInputsToFilter() {;}					\
+    void CopyMatlabInputToItkImage() {;}				\
     void FilterSetup() {;}						\
     void RunFilter() {;}						\
     void CopyAllFilterOutputsToMatlab() {;}				\
+    void CopyFilterImageOutputToMatlab() {;}				\
   };
 
 EXCLUDEFILTER(mxLogical, mxLogical);

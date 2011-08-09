@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.0.2
+  * Version: 0.1.3
   * $Rev$
   * $Date$
   *
@@ -46,6 +46,14 @@
 
 /* Gerardus headers */
 #include "MexBinaryDilateImageFilter.hpp"
+
+/*
+ * strings that the user can use to invoke this filter in itk_imfilter()
+ */
+const std::string MexBinaryDilateImageFilter<std::string,
+		  std::string>::longname = "BinaryDilateImageFilter";
+const std::string MexBinaryDilateImageFilter<std::string,
+		  std::string>::shortname = "bwdilate";
 
 /* 
  * MexBinaryDilateImageFilter::FilterSetup

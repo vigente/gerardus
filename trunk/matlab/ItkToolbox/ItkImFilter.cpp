@@ -116,7 +116,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.4.0
+  * Version: 0.4.1
   * $Rev$
   * $Date$
   *
@@ -163,10 +163,6 @@
 
 /* ITK headers */
 #include "itkImage.h"
-// #include "itkBinaryThinningImageFilter3D.h"
-// #include "itkDanielssonDistanceMapImageFilter.h"
-// #include "itkSignedMaurerDistanceMapImageFilter.h"
-// #include "itkBinaryDilateImageFilter.h"
 
 /* Gerardus headers */
 #include "NrrdImage.hpp"
@@ -243,23 +239,30 @@ void parseFilterTypeAndRun(const int nargin,
   // pointer to the filter object (we are using polymorphism)
   MexBaseFilter<InVoxelType, OutVoxelType> *filter = NULL;
 
+  // macro that return true if the string in x is either the short or
+  // long name of the filter type T
+#define ISFILTER(x, T)							\
+  !strcmp(x,								\
+	  T<std::string, std::string>::shortname.c_str())		\
+    || !strcmp(x, T<std::string, std::string>::longname.c_str())
+  
   // convert run-time filter string to template
-  if (!strcmp(filterName, "skel")) {
+  if (ISFILTER(filterName, MexBinaryThinningImageFilter3D)) {
     
     filter = new MexBinaryThinningImageFilter3D<InVoxelType, 
 				OutVoxelType>(nrrd, nargout, argOut);
 
-  }  else if (!strcmp(filterName, "dandist")) {
+  }  else if (ISFILTER(filterName, MexDanielssonDistanceMapImageFilter)) {
     
     filter = new MexDanielssonDistanceMapImageFilter<InVoxelType, 
 				  OutVoxelType>(nrrd, nargout, argOut);
 
-  }  else if (!strcmp(filterName, "maudist")) {
+  }  else if (ISFILTER(filterName, MexSignedMaurerDistanceMapImageFilter)) {
 
     filter = new MexSignedMaurerDistanceMapImageFilter<InVoxelType, 
 				    OutVoxelType>(nrrd, nargout, argOut);
 
-  } else if (!strcmp(filterName, "bwdilate")) {
+  } else if (ISFILTER(filterName, MexBinaryDilateImageFilter)) {
 
     filter = new MexBinaryDilateImageFilter<InVoxelType, 
 				    OutVoxelType>(nrrd, nargout, argOut,
@@ -268,9 +271,11 @@ void parseFilterTypeAndRun(const int nargin,
   } else {
     mexErrMsgTxt("Filter type not implemented");
   }
-  
+
+#undef ISFILTER
+
   // set up and run filter
-  filter->CopyMatlabInputsToItkImages();
+  filter->CopyMatlabInputToItkImage();
   filter->FilterSetup();
   filter->RunFilter();
   filter->CopyAllFilterOutputsToMatlab();
@@ -296,13 +301,19 @@ void parseOutputTypeToTemplate(const int nargin,
     mexErrMsgTxt("Invalid FILTER string");
   }
 
+  // macro that return true if the string in x is either the short or
+  // long name of the filter type T
+#define ISFILTER(x, T)							\
+  !strcmp(x, T<std::string, std::string>::shortname.c_str())		\
+    || !strcmp(x, T<std::string, std::string>::longname.c_str())
+
   // establish output voxel type according to the filter
   OutVoxelType outVoxelType = DOUBLE;
-  if (!strcmp(filter, "skel")) {
+  if (ISFILTER(filter, MexBinaryThinningImageFilter3D)) {
 
     outVoxelType = SAME;
 
-  } else if (!strcmp(filter, "dandist")) {
+  } else if (ISFILTER(filter, MexDanielssonDistanceMapImageFilter)) {
     // find how many bits we need to represent the maximum distance
     // that two voxels can have between them (in voxel units)
       mwSize nbit = (mwSize)ceil(log(nrrd.maxVoxDistance()) / log(2.0));
@@ -321,17 +332,19 @@ void parseOutputTypeToTemplate(const int nargin,
       outVoxelType = DOUBLE;
     }
     
-  } else if (!strcmp(filter, "maudist")) {
+  } else if (ISFILTER(filter, MexSignedMaurerDistanceMapImageFilter)) {
 
     outVoxelType = DOUBLE;
 
-  } else if (!strcmp(filter, "bwdilate")) {
+  } else if (ISFILTER(filter, MexBinaryDilateImageFilter)) {
 
     outVoxelType = SAME;
 
   } else {
     mexErrMsgTxt("Filter type not implemented");
   }
+
+#undef ISFILTER
 
   switch(outVoxelType) {
   case SAME:
