@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.3
+  * Version: 0.3.4
   * $Rev$
   * $Date$
   *
@@ -55,6 +55,7 @@
 template <class InVoxelType, class OutVoxelType>
 class MexDanielssonDistanceMapImageFilter : 
   public MexBaseFilter<InVoxelType, OutVoxelType> {
+
 private:
   typedef itk::DanielssonDistanceMapImageFilter< 
   itk::Image<InVoxelType, Dimension>,
@@ -63,14 +64,31 @@ private:
 protected:
 
 public:
+
+  // constructor
   MexDanielssonDistanceMapImageFilter(const NrrdImage &_nrrd, 
 				      int _nargout, mxArray** _argOut) :
-    MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut) {
+    MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut)
+  {
+
     // instantiate filter
     this->filter = FilterType::New();
   }
   void CopyAllFilterOutputsToMatlab();
   void CopyFilterNearestOutputToMatlab();
+};
+
+// input/output voxel type is never going to be a string, so we are
+// going to use this specialization just to have a container to put
+// the text strings with the two names the user can type to select
+// this filter
+template <>
+class MexDanielssonDistanceMapImageFilter< std::string, std::string > {
+public:
+  
+  static const std::string longname;
+  static const std::string shortname;
+  
 };
 
 /*
@@ -84,10 +102,11 @@ public:
     public MexBaseFilter<T1, T2> {					\
   public:								\
     MexDanielssonDistanceMapImageFilter(const NrrdImage &, int, mxArray**) {;} \
-    void CopyMatlabInputsToFilter() {;}					\
+    void CopyMatlabInputToItkImage() {;}				\
     void FilterSetup() {;}						\
     void RunFilter() {;}						\
     void CopyAllFilterOutputsToMatlab() {;}				\
+    void CopyFilterImageOutputToMatlab() {;}				\
   };
 
 EXCLUDEFILTER(mxLogical, int8_T);

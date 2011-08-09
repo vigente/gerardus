@@ -14,7 +14,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.7
+  * Version: 0.3.8
   * $Rev$
   * $Date$
   *
@@ -55,9 +55,6 @@
 
 /* ITK headers */
 #include "itkImage.h"
-// #include "itkBinaryThinningImageFilter3D.h"
-// #include "itkDanielssonDistanceMapImageFilter.h"
-// #include "itkSignedMaurerDistanceMapImageFilter.h"
 
 /* Gerardus headers */
 #include "GerardusCommon.hpp"
@@ -72,11 +69,17 @@
  * the code to actually run the filter on the image lives.
  */
 
-// functions to create the ITK images, filter it and return a Matlab
+// BaseFilter cannot be invoked by the user, but defining these
+// static strings is necessary when we use EXCLUDEFILTER with
+// derived filters
+const std::string MexBaseFilter<std::string, std::string>::longname = "BaseFilter";
+const std::string MexBaseFilter<std::string, std::string>::shortname = "BaseFilter";
+
+// functions to create the ITK image, filter it and return a Matlab
 // result
 
 template <class InVoxelType, class OutVoxelType>
-void MexBaseFilter<InVoxelType, OutVoxelType>::CopyMatlabInputsToItkImages() {
+void MexBaseFilter<InVoxelType, OutVoxelType>::CopyMatlabInputToItkImage() {
   
   // get pointer to input segmentation mask
   const InVoxelType *im = (InVoxelType *)mxGetData(nrrd.getData());
@@ -152,8 +155,7 @@ void MexBaseFilter<InVoxelType, OutVoxelType>::RunFilter() {
 }
 
 template <class InVoxelType, class OutVoxelType>
-void MexBaseFilter<InVoxelType,
-		   OutVoxelType>::CopyAllFilterOutputsToMatlab() {
+void MexBaseFilter<InVoxelType, OutVoxelType>::CopyAllFilterOutputsToMatlab() {
   
   // by default, we assume that all filters produce at least 1 main
   // output
@@ -167,8 +169,7 @@ void MexBaseFilter<InVoxelType,
 }
 
 template <class InVoxelType, class OutVoxelType>
-void MexBaseFilter<InVoxelType, 
-		   OutVoxelType>::CopyFilterImageOutputToMatlab() {
+void MexBaseFilter<InVoxelType, OutVoxelType>::CopyFilterImageOutputToMatlab() {
 
   // if the input image is empty, create empty segmentation mask for
   // output, and we don't need to do any further processing

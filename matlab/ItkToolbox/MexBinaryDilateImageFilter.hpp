@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.0.2
+  * Version: 0.1.3
   * $Rev$
   * $Date$
   *
@@ -58,7 +58,9 @@
 template <class InVoxelType, class OutVoxelType>
 class MexBinaryDilateImageFilter : 
   public MexBaseFilter<InVoxelType, OutVoxelType> {
+
 private:
+
   typedef itk::BinaryBallStructuringElement<InVoxelType, Dimension >
   StructuringElementType;
   
@@ -67,17 +69,34 @@ private:
     itk::Image<OutVoxelType, Dimension>, StructuringElementType > FilterType;
 
 protected:
+
   unsigned long radius;
 
 public:
+
+  // constructor
   MexBinaryDilateImageFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut,
 			     const int _nargin, const mxArray** _argIn) :
     MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut,
 					     _nargin, _argIn) {
+
     // instantiate filter
     this->filter = FilterType::New();
   }
   void FilterSetup();
+};
+
+// input/output voxel type is never going to be a string, so we are
+// going to use this specialization just to have a container to put
+// the text strings with the two names the user can type to select
+// this filter
+template <>
+class MexBinaryDilateImageFilter< std::string, std::string > {
+public:
+  
+  static const std::string longname;
+  static const std::string shortname;
+  
 };
 
 /*
@@ -92,14 +111,15 @@ public:
   public:								\
     MexBinaryDilateImageFilter(const NrrdImage &, int, mxArray**,	\
 		       const int, const mxArray **) {;}			\
-    void CopyMatlabInputsToFilter() {;}					\
+    void CopyMatlabInputToItkImage() {;}				\
     void FilterSetup() {;}						\
     void RunFilter() {;}						\
     void CopyAllFilterOutputsToMatlab() {;}				\
+    void CopyFilterImageOutputToMatlab() {;}				\
   };
 
-EXCLUDEFILTER(mxLogical, uint8_T);
-EXCLUDEFILTER(mxLogical, int8_T);
+EXCLUDEFILTER(mxLogical, uint8_T)
+EXCLUDEFILTER(mxLogical, int8_T)
 EXCLUDEFILTER(mxLogical, uint16_T)
 EXCLUDEFILTER(mxLogical, int16_T)
 EXCLUDEFILTER(mxLogical, int32_T)

@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.4.1
+  * Version: 0.4.2
   * $Rev$
   * $Date$
   *
@@ -53,9 +53,11 @@
 template <class InVoxelType, class OutVoxelType>
 class MexBaseFilter {
 private:
+
   typedef double TScalarType; // data type for scalars
   
 protected:
+
   typedef typename itk::Image< InVoxelType, Dimension > InImageType;
   typedef typename itk::Image< OutVoxelType, Dimension > OutImageType;
   typedef typename itk::ImageToImageFilter<InImageType, OutImageType> MexBaseFilterType;
@@ -104,11 +106,23 @@ public:
   MexBaseFilter() {;}
 
   // functions to create the ITK images, filter it and return a Matlab result
-  virtual void CopyMatlabInputsToItkImages();
+  void CopyMatlabInputToItkImage();
   virtual void FilterSetup();
   virtual void RunFilter();
   virtual void CopyAllFilterOutputsToMatlab();
   void CopyFilterImageOutputToMatlab();
+};
+
+// BaseFilter cannot be invoked by the user, but declaring these
+// static strings is necessary when we use EXCLUDEFILTER with
+// derived filters
+template <>
+class MexBaseFilter< std::string, std::string > {
+public:
+  
+  static const std::string longname;
+  static const std::string shortname;
+  
 };
 
 /*
