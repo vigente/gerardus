@@ -1,7 +1,7 @@
 /*
- * MexBinaryDilateImageFilter.cpp
+ * MexBinaryErodeImageFilter.cpp
  *
- * Code that is specific to itk::BinaryDilateImageFilter. Support for
+ * Code that is specific to itk::BinaryErodeImageFilter. Support for
  * radius and foreground value arguments. Structuring element is a
  * ball.
  */
@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.4
+  * Version: 0.1.0
   * $Rev$
   * $Date$
   *
@@ -38,22 +38,22 @@
   * <http://www.gnu.org/licenses/>.
   */
 
-#ifndef MEXBINARYDILATEIMAGEFILTER_CPP
-#define MEXBINARYDILATEIMAGEFILTER_CPP
+#ifndef MEXBINARYERODEIMAGEFILTER_CPP
+#define MEXBINARYERODEIMAGEFILTER_CPP
 
 /* C++ headers */
 #include <limits>
 
 /* Gerardus headers */
-#include "MexBinaryDilateImageFilter.hpp"
+#include "MexBinaryErodeImageFilter.hpp"
 
 /*
- * strings that the user can use to invoke this filter in itk_imfilter()
+ * strings that the user can type to invoke this filter in itk_imfilter()
  */
-const std::string MexBinaryDilateImageFilter<std::string,
-		  std::string>::longname = "BinaryDilateImageFilter";
-const std::string MexBinaryDilateImageFilter<std::string,
-		  std::string>::shortname = "bwdilate";
+const std::string MexBinaryErodeImageFilter<std::string, 
+		  std::string>::longname = "BinaryErodeImageFilter";
+const std::string MexBinaryErodeImageFilter<std::string, 
+		  std::string>::shortname = "bwerode";
 
 /* 
  * if this particular filter needs to redifine one or more BaseFilter
@@ -61,7 +61,7 @@ const std::string MexBinaryDilateImageFilter<std::string,
  */
 
 template <class InVoxelType, class OutVoxelType>
-void MexBinaryDilateImageFilter<InVoxelType, OutVoxelType>::FilterSetup() {
+void MexBinaryErodeImageFilter<InVoxelType, OutVoxelType>::FilterSetup() {
   
   // check input parameters
   if (this->nparam > 2) {
@@ -93,7 +93,7 @@ void MexBinaryDilateImageFilter<InVoxelType, OutVoxelType>::FilterSetup() {
   // create a local pointer to the filter so that we can use
   // methods that are not part of the MexBaseFilter
   typename FilterType::Pointer localFilter = 
-    dynamic_cast<typename MexBinaryDilateImageFilter<InVoxelType,
+    dynamic_cast<typename MexBinaryErodeImageFilter<InVoxelType,
 			     OutVoxelType>::FilterType *>(this->filter.GetPointer());
   
   // instantiate structuring element
@@ -110,6 +110,7 @@ void MexBinaryDilateImageFilter<InVoxelType, OutVoxelType>::FilterSetup() {
   
 }
 
+
 /*
  * Instantiate filter with all the input/output combinations that it
  * accepts. This is necessary for the linker. The alternative is to
@@ -118,7 +119,7 @@ void MexBinaryDilateImageFilter<InVoxelType, OutVoxelType>::FilterSetup() {
  */
 
 #define FILTERINST(T1, T2)				\
-  template class MexBinaryDilateImageFilter<T1, T2>;
+  template class MexBinaryErodeImageFilter<T1, T2>;
 
 FILTERINST(mxLogical, mxLogical)
 FILTERINST(uint8_T, uint8_T)
@@ -132,4 +133,4 @@ FILTERINST(double, double)
 
 #undef FILTERINST
 
-#endif /* MEXBINARYDILATEIMAGEFILTER_CPP */
+#endif /* MEXBINARYERODEIMAGEFILTER_CPP */
