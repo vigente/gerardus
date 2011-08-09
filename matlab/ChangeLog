@@ -1,5 +1,13 @@
 2011-08-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* add_itk_imfilter_template.sh (v0.2.0):
+
+	- Automatically edit the template files created for the new
+	filter, ChangeLog and ItkImFilter.cpp, so that the user has a good
+	starting point to add support for the new filter. Some #error
+	directives have been added at points where the user should look
+	and make manual changes before compiling the program.
+
 	* ItkToolbox/MexTemplateFilter.hpp (v0.1.1):
 	* ItkToolbox/MexTemplateFilter.cpp (v0.1.1):
 
