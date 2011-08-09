@@ -1,3 +1,9 @@
+2011-08-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/itk_imfilter.m (v0.4.1):
+
+	- Add binary erosion to help header.
+
 2011-08-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* add_itk_imfilter_template.sh (v0.2.1):
