@@ -2071,7 +2071,7 @@
 
 	- Compute point coordinates from distances to a set of landmarks,
 	as described in Gower (1986).
-	
+
 2010-05-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* FileFormatToolbox/WriteMhaFile.m
@@ -2657,7 +2657,7 @@
 2009-01-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* WriteMhaFile.m, WriteMetaFile.m:
-	
+
 	- Increase precission for values of ElementSpacing, from 4 digits
 	to 12 digits, to make sure that we can save spacings in microns.
 
