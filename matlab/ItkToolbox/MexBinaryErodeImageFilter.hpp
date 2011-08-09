@@ -1,7 +1,7 @@
 /*
- * MexBinaryDilateImageFilter.hpp
+ * MexBinaryErodeImageFilter.hpp
  *
- * Code that is specific to itk::BinaryDilateImageFilter. Support for
+ * Code that is specific to itk::BinaryErodeImageFilter. Support for
  * radius and foreground value arguments. Structuring element is a
  * ball.
  */
@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.4
+  * Version: 0.1.0
   * $Rev$
   * $Date$
   *
@@ -38,33 +38,33 @@
   * <http://www.gnu.org/licenses/>.
   */
 
-#ifndef MEXBINARYDILATEIMAGEFILTER_HPP
-#define MEXBINARYDILATEIMAGEFILTER_HPP
+#ifndef MEXBINARYERODEIMAGEFILTER_HPP
+#define MEXBINARYERODEIMAGEFILTER_HPP
 
 /* mex headers */
 #include <mex.h>
 
 /* ITK headers */
 #include "itkImage.h"
-#include "itkBinaryDilateImageFilter.h"
+#include "itkBinaryErodeImageFilter.h"
 #include "itkBinaryBallStructuringElement.h"
 
 /* Gerardus headers */
 #include "MexBaseFilter.hpp"
 
 /* 
- * MexBinaryDilateImageFilter : MexBaseFilter
+ * MexBinaryErodeImageFilter : MexBaseFilter
  */
 template <class InVoxelType, class OutVoxelType>
-class MexBinaryDilateImageFilter : 
+class MexBinaryErodeImageFilter : 
   public MexBaseFilter<InVoxelType, OutVoxelType> {
 
 private:
-
+  
   typedef itk::BinaryBallStructuringElement<InVoxelType, Dimension >
   StructuringElementType;
   
-  typedef itk::BinaryDilateImageFilter< 
+  typedef itk::BinaryErodeImageFilter< 
     itk::Image<InVoxelType, Dimension>,
     itk::Image<OutVoxelType, Dimension>, StructuringElementType > FilterType;
 
@@ -75,7 +75,7 @@ protected:
 public:
 
   // constructor for filters that take user-defined parameters
-  MexBinaryDilateImageFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut,
+  MexBinaryErodeImageFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut,
 			     const int _nargin, const mxArray** _argIn) :
     MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut,
 					     _nargin, _argIn) {
@@ -95,7 +95,7 @@ public:
 // the text strings with the two names the user can type to select
 // this filter
 template <>
-class MexBinaryDilateImageFilter< std::string, std::string > {
+class MexBinaryErodeImageFilter< std::string, std::string > {
 public:
   
   static const std::string longname;
@@ -110,10 +110,10 @@ public:
 
 #define EXCLUDEFILTER(T1, T2)						\
   template <>								\
-  class MexBinaryDilateImageFilter< T1, T2 > :				\
+  class MexBinaryErodeImageFilter< T1, T2 > :				\
     public MexBaseFilter<T1, T2> {					\
   public:								\
-    MexBinaryDilateImageFilter(const NrrdImage &, int, mxArray**,	\
+    MexBinaryErodeImageFilter(const NrrdImage &, int, mxArray**,	\
 		       const int, const mxArray **) {;}			\
     void CopyMatlabInputToItkImage() {;}				\
     void FilterSetup() {;}						\
@@ -205,4 +205,4 @@ EXCLUDEFILTER(double, float)
 
 #undef EXCLUDEFILTER
 
-#endif /* MEXBINARYDILATEIMAGEFILTER_HPP */
+#endif /* MEXBINARYERODEIMAGEFILTER_HPP */

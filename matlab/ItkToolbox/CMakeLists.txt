@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.4.0
+# Version: 0.4.1
 # $Rev$
 # $Date$
 #
@@ -48,10 +48,12 @@ ADD_MEX_FILE(itk_imfilter
   GerardusCommon.cpp
   NrrdImage.cpp
   MexBaseFilter.cpp
-  MexBinaryDilateImageFilter.cpp
   MexBinaryThinningImageFilter3D.cpp
   MexDanielssonDistanceMapImageFilter.cpp
   MexSignedMaurerDistanceMapImageFilter.cpp
+  MexBinaryDilateImageFilter.cpp
+  MexBinaryErodeImageFilter.cpp
+# Insertion point: itk_imfilter
   ItkImFilter.cpp)
 
 INCLUDE_DIRECTORIES(
