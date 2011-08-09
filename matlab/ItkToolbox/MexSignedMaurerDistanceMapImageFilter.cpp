@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.3
+  * Version: 0.2.4
   * $Rev$
   * $Date$
   *
@@ -40,6 +40,14 @@
 #define MEXSIGNEDMAURERDISTANCEMAPIMAGEFILTER_CPP
 
 #include "MexSignedMaurerDistanceMapImageFilter.hpp"
+
+/*
+ * strings that the user can use to invoke this filter in itk_imfilter()
+ */
+const std::string MexSignedMaurerDistanceMapImageFilter<std::string, 
+		  std::string>::longname = "SignedMaurerDistanceMapImageFilter";
+const std::string MexSignedMaurerDistanceMapImageFilter<std::string, 
+		  std::string>::shortname = "maudist";
 
 /* 
  * MexSignedMaurerDistanceMapImageFilter::FilterSetup()

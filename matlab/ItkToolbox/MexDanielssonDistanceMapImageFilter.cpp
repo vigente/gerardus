@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.3
+  * Version: 0.3.4
   * $Rev$
   * $Date$
   *
@@ -47,6 +47,18 @@
 #include "GerardusCommon.hpp"
 #include "MexDanielssonDistanceMapImageFilter.hpp"
 
+/*
+ * strings that the user can use to invoke this filter in itk_imfilter()
+ */
+const std::string MexDanielssonDistanceMapImageFilter<std::string, 
+		  std::string>::longname = "DanielssonDistanceMapImageFilter";
+const std::string MexDanielssonDistanceMapImageFilter<std::string, 
+		  std::string>::shortname = "dandist";
+
+/*
+ * Definition of methods from BaseFilter that this filter needs to
+ * override
+ */
 template <class InVoxelType, class OutVoxelType>
 void MexDanielssonDistanceMapImageFilter<InVoxelType,
 		      OutVoxelType>::CopyAllFilterOutputsToMatlab() {

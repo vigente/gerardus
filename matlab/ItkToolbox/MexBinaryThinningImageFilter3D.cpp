@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.3
+  * Version: 0.1.4
   * $Rev$
   * $Date$
   *
@@ -40,6 +40,14 @@
 #define MEXBINARYTHINNINGIMAGEFILTER3D_CPP
 
 #include "MexBinaryThinningImageFilter3D.hpp"
+
+/*
+ * strings that the user can use to invoke this filter in itk_imfilter()
+ */
+const std::string MexBinaryThinningImageFilter3D<std::string, 
+		  std::string>::longname = "BinaryThinningImageFilter3D";
+const std::string MexBinaryThinningImageFilter3D<std::string, 
+		  std::string>::shortname = "skel";
 
 /* 
  * MexBinaryThinningImageFilter3D : MexBaseFilter
