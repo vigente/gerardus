@@ -1,5 +1,11 @@
 2011-08-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* Add ItkToolbox/MexTemplateFilter.hpp,
+	ItkToolbox/MexTemplateFilter.cpp:
+
+	- Template files to help add support for new filters to
+	itk_imfilter().
+
 	* ItkToolbox/ItkImFilter.cpp (v0.4.1):
 
 	- Use shortname and longname of every filter instead of hardcoded
