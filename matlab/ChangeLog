@@ -1,5 +1,16 @@
 2011-08-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* Add add_itk_imfilter_template.sh (v0.1.0):
+
+	- Script to automatically create templates and modify
+	ItkImFilter.cpp to add a new ITK filter to itk_imfilter(). This
+	script only creates the basic skeleton. Specific parameters,
+	methods, etc for the filter need to be added by hand.
+
+	- This first version only copies the templates from
+	MexTemplateFilter.*, and updates the ChangeLog, but doesn't modify
+	the code to tailor it to the new filter.
+
 	* Add ItkToolbox/MexTemplateFilter.hpp,
 	ItkToolbox/MexTemplateFilter.cpp:
 
