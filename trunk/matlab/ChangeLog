@@ -1,5 +1,34 @@
 2011-08-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* add_itk_imfilter_template.sh (v0.2.1):
+
+	- I had forgotten that for each new filter, an entry in
+	CMakeLists.txt has to be added.
+
+	* ItkToolbox/CMakeLists.txt (v0.4.1):
+	* ItkToolbox/ItkImFilter.cpp (v0.4.3):
+
+	- Added support for filters:
+
+		itkBinaryErodeImageFilter.h
+
+	* ItkToolbox/MexBinaryDilateImageFilter.hpp (v0.1.4),
+	ItkToolbox/MexBinaryDilateImageFilter.cpp (v0.1.4):
+
+	- Some minor edits to make it more like the corresponding Erode
+	files.
+
+	* Add ItkToolbox/MexBinaryErodeImageFilter.hpp,
+	ItkToolbox/MexBinaryErodeImageFilter.cpp:
+
+	- Copied from MexTemplateFilter.* to add support for
+	itkBinaryErodeImageFilter.h to itk_imfilter()
+
+	* ItkToolbox/MexTemplateFilter.cpp (v0.1.2):
+
+	- Comment out the definitions of the virtual functions, as by
+	default their declaration is also commented out in the .hpp file.
+
 	* add_itk_imfilter_template.sh (v0.2.0):
 
 	- Automatically edit the template files created for the new

@@ -77,8 +77,11 @@
  *   The output type is always double.
  *
  * B = ITK_IMFILTER('bwdilate', A, RADIUS, FOREGROUND)
+ * B = ITK_IMFILTER('bwerode', A, RADIUS, FOREGROUND)
  *
  *   (itk::BinaryDilateImageFilter). Binary dilation. The structuring
+ *   element is a ball.
+ *   (itk::BinaryErodeImageFilter). Binary erosion. The structuring
  *   element is a ball.
  *
  *   RADIUS is a scalar with the radius of the ball in voxel units. If a
@@ -88,22 +91,13 @@
  *   FOREGROUND is a scalar. Voxels with that value will be the only ones
  *   dilated. By default, FOREGROUND is the maximum value allowed for the
  *   type, e.g. FOREGROUND=255 if the image is uint8. This is the default in
- *   ITK, so we respect it.
- *
- *   Note: If you pass an image that is not boolean, e.g. uint8, with the
- *   segmented voxels set to "1", as usual, and run
- *
- *     >> im2 = itk_imfilter('bwdilate', im, 3);
- *
- *   then im won't be dilated, because by default FOREGROUND=255. You need
- *   to specify
- *
- *     >> im2 = itk_imfilter('bwdilate', im, 3, 1);
+ *   ITK, so we respect it even if we would rather have 1 as the default.
  *
  *
- * This function must be compiled before it can be used from Matlab.
- * If Gerardus' root directory is e.g. ~/gerardus, type from a
- * linux shell
+ *
+ * itk_imfilter() must be compiled before it can be used from Matlab.
+ * If Gerardus' root directory is e.g. ~/gerardus, type from a linux
+ * shell
  *
  *    $ cd ~/gerardus/matlab
  *    $ mkdir bin
@@ -116,7 +110,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.4.2
+  * Version: 0.4.3
   * $Rev$
   * $Date$
   *
@@ -165,20 +159,17 @@
 #include "itkImage.h"
 
 /* Gerardus headers */
-#include "NrrdImage.hpp"
 #include "MexBaseFilter.hpp"
+#include "MexBinaryErodeImageFilter.hpp"
 #include "MexBinaryDilateImageFilter.hpp"
 #include "MexBinaryThinningImageFilter3D.hpp"
 #include "MexDanielssonDistanceMapImageFilter.hpp"
 #include "MexSignedMaurerDistanceMapImageFilter.hpp"
+#include "NrrdImage.hpp"
 /* End Gerardus headers (DO NOT DELETE THIS COMMENT) */
 
 /*
  * Argument Parsers
- *
- * parseInputTypeToTemplate()
- * parseOutputTypeToTemplate< InVoxelType >()
- * parseFilterTypeToTemplate< InVoxelType, OutVoxelType >()
  *
  * These functions are used to be able to map between the input/output
  * data types that are only know at run-time, and the input/output
@@ -204,7 +195,7 @@
  *
  * Then parseOutputTypeToTemplate<InVoxelType>() decides on the output
  * data type depending on the filter and the input, and instantiates
- * one parseFilterTypeToTemplate<InVoxelType, OutVoxelType>() for each
+ * one parseFilterTypeAndRun<InVoxelType, OutVoxelType>() for each
  * output data type.
  *
  * This way, we have instantiated all combinations of input/output
@@ -240,7 +231,7 @@ void parseFilterTypeAndRun(const int nargin,
   // pointer to the filter object (we are using polymorphism)
   MexBaseFilter<InVoxelType, OutVoxelType> *filter = NULL;
 
-  // macro that return true if the string in x is either the short or
+  // macro that returns true if the string in x is either the short or
   // long name of the filter type T
 #define ISFILTER(x, T)							\
   !strcmp(x,								\
@@ -266,6 +257,11 @@ void parseFilterTypeAndRun(const int nargin,
   } else if (ISFILTER(filterName, MexBinaryDilateImageFilter)) {
 
     filter = new MexBinaryDilateImageFilter<InVoxelType, 
+                    OutVoxelType>(nrrd, nargout, argOut, nargin, argIn);
+
+  } else if (ISFILTER(filterName, MexBinaryErodeImageFilter)) {
+
+    filter = new MexBinaryErodeImageFilter<InVoxelType,
                     OutVoxelType>(nrrd, nargout, argOut, nargin, argIn);
 
     /* Insertion point: parseFilterTypeAndRun (DO NOT DELETE THIS COMMENT) */
@@ -303,7 +299,7 @@ void parseOutputTypeToTemplate(const int nargin,
     mexErrMsgTxt("Invalid FILTER string");
   }
 
-  // macro that return true if the string in x is either the short or
+  // macro that returns true if the string in x is either the short or
   // long name of the filter type T
 #define ISFILTER(x, T)							\
   !strcmp(x, T<std::string, std::string>::shortname.c_str())		\
@@ -339,6 +335,10 @@ void parseOutputTypeToTemplate(const int nargin,
     outVoxelType = DOUBLE;
 
   } else if (ISFILTER(filter, MexBinaryDilateImageFilter)) {
+
+    outVoxelType = SAME;
+
+  } else if (ISFILTER(filter, MexBinaryErodeImageFilter)) {
 
     outVoxelType = SAME;
 

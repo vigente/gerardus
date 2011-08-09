@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.1.2
   * $Rev$
   * $Date$
   *
@@ -57,35 +57,35 @@ const std::string MexTemplateImageFilter<std::string,
  * virtual methods, the corresponding definitions go here
  */
 
-template <class InVoxelType, class OutVoxelType>
-void MexTemplateImageFilter<InVoxelType, OutVoxelType>::FilterSetup() {
+// template <class InVoxelType, class OutVoxelType>
+// void MexTemplateImageFilter<InVoxelType, OutVoxelType>::FilterSetup() {
   
-  // pass image to filter
-  localFilter->SetInput(this->image);
+//   // pass image to filter
+//   localFilter->SetInput(this->image);
   
-}
+// }
 
-template <class InVoxelType, class OutVoxelType>
-void MexTemplateFilter<InVoxelType, OutVoxelType>::RunFilter() {
+// template <class InVoxelType, class OutVoxelType>
+// void MexTemplateFilter<InVoxelType, OutVoxelType>::RunFilter() {
   
-  // run filter
-  filter->Update();
+//   // run filter
+//   filter->Update();
   
-}
+// }
 
-template <class InVoxelType, class OutVoxelType>
-void MexTemplateFilter<InVoxelType, OutVoxelType>::CopyAllFilterOutputsToMatlab() {
+// template <class InVoxelType, class OutVoxelType>
+// void MexTemplateFilter<InVoxelType, OutVoxelType>::CopyAllFilterOutputsToMatlab() {
   
-  // by default, we assume that all filters produce at least 1 main
-  // output
-  this->CopyFilterImageOutputToMatlab();
+//   // by default, we assume that all filters produce at least 1 main
+//   // output
+//   this->CopyFilterImageOutputToMatlab();
 
-  // prevent the user from asking for too many output arguments
-  if (nargout > 1) {
-    mexErrMsgTxt("Too many output arguments");
-  }
+//   // prevent the user from asking for too many output arguments
+//   if (nargout > 1) {
+//     mexErrMsgTxt("Too many output arguments");
+//   }
 
-}
+// }
 
 /*
  * Instantiate filter with all the input/output combinations that it

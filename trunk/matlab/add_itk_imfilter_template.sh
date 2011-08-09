@@ -18,7 +18,7 @@
 
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.2.0
+# Version: 0.2.1
 # $Rev$
 # $Date$
 #
@@ -182,6 +182,28 @@ do
     # update ItkImFilter with the new version
     cp $TMPFILE ItkToolbox/ItkImFilter.cpp
 
+    #####################################################################
+    ## CMakeLists.txt
+    #####################################################################
+
+    # copy first part of the file to temp file
+    sed -n '1,/Insertion point: itk_imfilter/ p' ItkToolbox/CMakeLists.txt \
+	| head -n -1 > $TMPFILE
+    
+    # add .cpp file for new filter
+    echo '  '"$MEXFILTERFILE.cpp" >> $TMPFILE
+    
+    # append rest of the code
+    sed -n '/Insertion point: itk_imfilter/,// p' \
+	ItkToolbox/CMakeLists.txt >> $TMPFILE
+
+    # update CMakeLists.txt with the new version
+    cp $TMPFILE ItkToolbox/CMakeLists.txt
+
+    #####################################################################
+    ## Added filters log
+    #####################################################################
+
     # keep a list of added filters
     echo -e "\t\t$filter" >> "$ADDEDLOG"
 
@@ -197,6 +219,7 @@ echo $DATE'  Ramon Casero  <ramon.casero@cs.ox.ac.uk>' > $TMPFILE
 echo >> $TMPFILE
 
 # ItkImFilter change entry
+echo -e "\t* ItkToolbox/CMakeLists.txt (v0.0.0):" >> $TMPFILE
 echo -e "\t* ItkToolbox/ItkImFilter.cpp (v0.0.0):" >> $TMPFILE
 echo >> $TMPFILE
 echo -e "\t- Added support for filters:" >> $TMPFILE
