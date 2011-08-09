@@ -1,5 +1,9 @@
 2011-08-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* update_README.sh (v0.1.1):
+
+	- Add copyright header and set svn properties.
+
 	* Add add_itk_imfilter_template.sh (v0.1.0):
 
 	- Script to automatically create templates and modify
