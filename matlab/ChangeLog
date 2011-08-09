@@ -1,3 +1,5 @@
+	- Copied from MexTemplateFilter.* to add support for
+	itkBinaryErodeImageFilter.h to itk_imfilter()
 2011-08-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* Add ItkToolbox/MexTemplateFilter.hpp,
