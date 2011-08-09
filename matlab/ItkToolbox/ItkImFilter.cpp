@@ -116,7 +116,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.4.1
+  * Version: 0.4.2
   * $Rev$
   * $Date$
   *
@@ -171,6 +171,7 @@
 #include "MexBinaryThinningImageFilter3D.hpp"
 #include "MexDanielssonDistanceMapImageFilter.hpp"
 #include "MexSignedMaurerDistanceMapImageFilter.hpp"
+/* End Gerardus headers (DO NOT DELETE THIS COMMENT) */
 
 /*
  * Argument Parsers
@@ -250,23 +251,24 @@ void parseFilterTypeAndRun(const int nargin,
   if (ISFILTER(filterName, MexBinaryThinningImageFilter3D)) {
     
     filter = new MexBinaryThinningImageFilter3D<InVoxelType, 
-				OutVoxelType>(nrrd, nargout, argOut);
+                    OutVoxelType>(nrrd, nargout, argOut);
 
   }  else if (ISFILTER(filterName, MexDanielssonDistanceMapImageFilter)) {
     
     filter = new MexDanielssonDistanceMapImageFilter<InVoxelType, 
-				  OutVoxelType>(nrrd, nargout, argOut);
+                    OutVoxelType>(nrrd, nargout, argOut);
 
   }  else if (ISFILTER(filterName, MexSignedMaurerDistanceMapImageFilter)) {
 
     filter = new MexSignedMaurerDistanceMapImageFilter<InVoxelType, 
-				    OutVoxelType>(nrrd, nargout, argOut);
+                    OutVoxelType>(nrrd, nargout, argOut);
 
   } else if (ISFILTER(filterName, MexBinaryDilateImageFilter)) {
 
     filter = new MexBinaryDilateImageFilter<InVoxelType, 
-				    OutVoxelType>(nrrd, nargout, argOut,
-						  nargin, argIn);
+                    OutVoxelType>(nrrd, nargout, argOut, nargin, argIn);
+
+    /* Insertion point: parseFilterTypeAndRun (DO NOT DELETE THIS COMMENT) */
 
   } else {
     mexErrMsgTxt("Filter type not implemented");
@@ -339,6 +341,8 @@ void parseOutputTypeToTemplate(const int nargin,
   } else if (ISFILTER(filter, MexBinaryDilateImageFilter)) {
 
     outVoxelType = SAME;
+
+    /* Insertion point: parseOutputTypeToTemplate (DO NOT DELETE THIS COMMENT) */
 
   } else {
     mexErrMsgTxt("Filter type not implemented");
