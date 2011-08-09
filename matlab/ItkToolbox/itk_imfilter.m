@@ -76,8 +76,11 @@ function im = itk_imfilter(~, ~)
 %   The output type is always double.
 %
 % B = ITK_IMFILTER('bwdilate', A, RADIUS, FOREGROUND)
+% B = ITK_IMFILTER('bwerode', A, RADIUS, FOREGROUND)
 %
 %   (itk::BinaryDilateImageFilter). Binary dilation. The structuring
+%   element is a ball.
+%   (itk::BinaryErodeImageFilter). Binary erosion. The structuring
 %   element is a ball.
 %
 %   RADIUS is a scalar with the radius of the ball in voxel units. If a
@@ -88,16 +91,6 @@ function im = itk_imfilter(~, ~)
 %   dilated. By default, FOREGROUND is the maximum value allowed for the
 %   type, e.g. FOREGROUND=255 if the image is uint8. This is the default in
 %   ITK, so we respect it.
-%
-%   Note: If you pass an image that is not boolean, e.g. uint8, with the
-%   segmented voxels set to "1", as usual, and run
-%
-%     >> im2 = itk_imfilter('bwdilate', im, 3);
-%
-%   then im won't be dilated, because by default FOREGROUND=255. You need
-%   to specify
-%
-%     >> im2 = itk_imfilter('bwdilate', im, 3, 1);
 %   
 %
 % This function must be compiled before it can be used from Matlab.
@@ -112,7 +105,7 @@ function im = itk_imfilter(~, ~)
  
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % $Rev$
 % $Date$
 %
