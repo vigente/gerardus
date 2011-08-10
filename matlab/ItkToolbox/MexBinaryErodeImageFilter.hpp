@@ -45,7 +45,6 @@
 #include <mex.h>
 
 /* ITK headers */
-#include "itkImage.h"
 #include "itkBinaryErodeImageFilter.h"
 #include "itkBinaryBallStructuringElement.h"
 
