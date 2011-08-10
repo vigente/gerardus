@@ -110,7 +110,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.4.3
+  * Version: 0.4.4
   * $Rev$
   * $Date$
   *
@@ -272,7 +272,7 @@ void parseFilterTypeAndRun(const int nargin,
 #undef ISFILTER
 
   // set up and run filter
-  filter->CopyMatlabInputToItkImage();
+  filter->ImportMatlabInputToItkImage();
   filter->FilterSetup();
   filter->RunFilter();
   filter->CopyAllFilterOutputsToMatlab();

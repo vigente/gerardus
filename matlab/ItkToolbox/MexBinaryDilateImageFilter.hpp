@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.4
+  * Version: 0.1.5
   * $Rev$
   * $Date$
   *
@@ -45,7 +45,6 @@
 #include <mex.h>
 
 /* ITK headers */
-#include "itkImage.h"
 #include "itkBinaryDilateImageFilter.h"
 #include "itkBinaryBallStructuringElement.h"
 
@@ -115,7 +114,7 @@ public:
   public:								\
     MexBinaryDilateImageFilter(const NrrdImage &, int, mxArray**,	\
 		       const int, const mxArray **) {;}			\
-    void CopyMatlabInputToItkImage() {;}				\
+    void ImportMatlabInputToItkImage() {;}				\
     void FilterSetup() {;}						\
     void RunFilter() {;}						\
     void CopyAllFilterOutputsToMatlab() {;}				\
