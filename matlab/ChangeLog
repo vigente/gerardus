@@ -1,5 +1,10 @@
 2011-08-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* release 0.4.0:
+
+	- Now itk_imfilter() supports passing parameters to filters. This
+	last version hasn't been tested with Windows yet.
+
 	* ItkToolbox/itk_imfilter.m (v0.4.1):
 
 	- Add binary erosion to help header.
@@ -665,7 +670,7 @@
 
 	* release 0.4.0
 
-	- Now the MEX ITK functions itkcol_imfilter(),
+	- Now the MEX ITK functions itk_imfilter(),
 	itk_kernel_transform(), and the filter bwregiongrow() compile and
 	run under Windows XP 32-bit too. (Built with CMake 2.8 and Visual
 	Studio 10).
