@@ -43,7 +43,6 @@
 #include <mex.h>
 
 /* ITK headers */
-#include "itkImage.h"
 #include "itkSignedMaurerDistanceMapImageFilter.h"
 
 /* Gerardus headers */
