@@ -14,7 +14,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.4.0
+  * Version: 0.4.1
   * $Rev$
   * $Date$
   *
@@ -85,10 +85,36 @@ void MexBaseFilter<InVoxelType, OutVoxelType>::ImportMatlabInputToItkImage() {
   // 1) in ITK we have X,Y,Z indices, while in Matlab we have R,C,S
   //
   // 2) matrices in ITK are read by columns, while in Matlab
-  // they are read by rows, 
+  // they are read by rows 
   //
-  // So both things cancel each other.
-
+  // So imagine we have this (2, 3) matrix in Matlab, in the NRRD
+  //
+  //   a b   |
+  //   c d   | y-axis (resolution 1.0)
+  //   e f   |
+  //   ---
+  //   x-axis (resolution 0.5)
+  //
+  //   [nrrd.axis.size] = [3 2 1]
+  //
+  // The C-style array is going to be (reading by rows)
+  //
+  //   im = [a c e b d f]
+  //
+  // ITK is going to read by colums
+  //
+  //   a c e   |
+  //   b d f   | y-axis (resolution 0.5)
+  //   -----
+  //   x-axis (resolution 1.0)
+  //
+  // Note that the matrix has been transposed, but this is not a
+  // problem, because the resolution values have been "transposed"
+  // too
+  //
+  // Having the matrix transposed may make us feel a bit uneasy, but
+  // it has the advantage that Matlab and ITK can use the same C-style
+  // array, without having to rearrange its elements
 
   // get pointer to input segmentation mask
   const InVoxelType *im = (InVoxelType *)mxGetData(nrrd.getData());
