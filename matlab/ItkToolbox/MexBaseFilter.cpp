@@ -101,7 +101,9 @@ void MexBaseFilter<InVoxelType, OutVoxelType>::ImportMatlabInputToItkImage() {
   //
   //   im = [a c e b d f]
   //
-  // ITK is going to read by colums
+  // ITK is going to read by colums, thinking that the size is
+  //
+  //   image.size = [sx sy sz] = [3 2 1]
   //
   //   a c e   |
   //   b d f   | y-axis (resolution 0.5)
