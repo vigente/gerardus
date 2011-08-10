@@ -1,5 +1,11 @@
 2011-08-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* ItkToolbox/MexBaseFilter.cpp (v0.4.1):
+
+	- Add a detailed explanation of how the matrix with the image is
+	transposed when passed from Matlab to ITK, and why it doesn't
+	matter.
+
 	* ItkToolbox/MexBinaryErodeImageFilter.hpp (v0.1.1):
 	* ItkToolbox/MexSignedMaurerDistanceMapImageFilter.hpp (0.2.6):
 	* ItkToolbox/MexBinaryThinningImageFilter3D.hpp (v0.2.7):
