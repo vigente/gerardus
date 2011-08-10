@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.4
+  * Version: 0.3.5
   * $Rev$
   * $Date$
   *
@@ -43,7 +43,6 @@
 #include <mex.h>
 
 /* ITK headers */
-#include "itkImage.h"
 #include "itkDanielssonDistanceMapImageFilter.h"
 
 /* Gerardus headers */
@@ -102,7 +101,7 @@ public:
     public MexBaseFilter<T1, T2> {					\
   public:								\
     MexDanielssonDistanceMapImageFilter(const NrrdImage &, int, mxArray**) {;} \
-    void CopyMatlabInputToItkImage() {;}				\
+    void ImportMatlabInputToItkImage() {;}				\
     void FilterSetup() {;}						\
     void RunFilter() {;}						\
     void CopyAllFilterOutputsToMatlab() {;}				\

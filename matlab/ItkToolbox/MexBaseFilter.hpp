@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.4.2
+  * Version: 0.5.0
   * $Rev$
   * $Date$
   *
@@ -41,6 +41,7 @@
 #define MEXBASEFILTER_HPP
 
 /* ITK headers */
+#include "itkImportImageFilter.h"
 #include "itkImageToImageFilter.h"
 
 /* Gerardus headers */
@@ -58,10 +59,11 @@ private:
   
 protected:
 
-  typedef typename itk::Image< InVoxelType, Dimension > InImageType;
-  typedef typename itk::Image< OutVoxelType, Dimension > OutImageType;
+  typedef typename itk::Image<InVoxelType, Dimension> InImageType;
+  typedef typename itk::Image<OutVoxelType, Dimension> OutImageType;
   typedef typename itk::ImageToImageFilter<InImageType, OutImageType> MexBaseFilterType;
-  typename InImageType::Pointer image;
+  typedef itk::ImportImageFilter<InVoxelType, Dimension> ImportFilterType;
+  typename ImportFilterType::Pointer importFilter;
   NrrdImage nrrd;
   int nargout;
   mxArray** argOut;
@@ -106,7 +108,7 @@ public:
   MexBaseFilter() {;}
 
   // functions to create the ITK images, filter it and return a Matlab result
-  void CopyMatlabInputToItkImage();
+  void ImportMatlabInputToItkImage();
   virtual void FilterSetup();
   virtual void RunFilter();
   virtual void CopyAllFilterOutputsToMatlab();
