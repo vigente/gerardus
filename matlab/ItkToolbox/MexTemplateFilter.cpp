@@ -61,7 +61,7 @@ const std::string MexTemplateImageFilter<std::string,
 // void MexTemplateImageFilter<InVoxelType, OutVoxelType>::FilterSetup() {
   
 //   // pass image to filter
-//   localFilter->SetInput(this->image);
+//   localFilter->SetInput(this->importFilter->GetOutput());
   
 // }
 

@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.4
+  * Version: 0.2.5
   * $Rev$
   * $Date$
   *
@@ -69,7 +69,7 @@ void MexSignedMaurerDistanceMapImageFilter<InVoxelType,
     OutVoxelType>::FilterType *>(this->filter.GetPointer());
 
   // pass image to filter
-  localFilter->SetInput(this->image);
+  localFilter->SetInput(this->importFilter->GetOutput());
 
   // compute distances using real world coordinates, instead of voxel
   // indices

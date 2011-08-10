@@ -14,7 +14,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.8
+  * Version: 0.4.0
   * $Rev$
   * $Date$
   *
@@ -54,7 +54,6 @@
 #include <mex.h>
 
 /* ITK headers */
-#include "itkImage.h"
 
 /* Gerardus headers */
 #include "GerardusCommon.hpp"
@@ -79,18 +78,7 @@ const std::string MexBaseFilter<std::string, std::string>::shortname = "BaseFilt
 // result
 
 template <class InVoxelType, class OutVoxelType>
-void MexBaseFilter<InVoxelType, OutVoxelType>::CopyMatlabInputToItkImage() {
-  
-  // get pointer to input segmentation mask
-  const InVoxelType *im = (InVoxelType *)mxGetData(nrrd.getData());
-
-  // create ITK image to hold the segmentation mask
-  image = InImageType::New();
-  typename InImageType::RegionType region;
-  typename InImageType::IndexType start;
-  typename InImageType::SizeType size; 
-  typename InImageType::SpacingType spacing;
-  typename InImageType::PointType origin;
+void MexBaseFilter<InVoxelType, OutVoxelType>::ImportMatlabInputToItkImage() {
   
   // note that:
   //
@@ -100,6 +88,23 @@ void MexBaseFilter<InVoxelType, OutVoxelType>::CopyMatlabInputToItkImage() {
   // they are read by rows, 
   //
   // So both things cancel each other.
+
+
+  // get pointer to input segmentation mask
+  const InVoxelType *im = (InVoxelType *)mxGetData(nrrd.getData());
+
+  // init the filter that will act as an interface between the Matlab
+  // image array and the ITK filter
+  importFilter = ImportFilterType::New();
+
+  // create ITK image to hold the segmentation mask
+  typename ImportFilterType::RegionType region;
+  typename ImportFilterType::SizeType size;
+  typename ImportFilterType::IndexType start;
+  typename ImportFilterType::SpacingType spacing;
+  typename InImageType::PointType origin;
+
+  // get image parameters for each dimension
   for (mwIndex i = 0; i < Dimension; ++i) {
     // the region of interest is the whole image
     start[i] = 0;
@@ -114,35 +119,30 @@ void MexBaseFilter<InVoxelType, OutVoxelType>::CopyMatlabInputToItkImage() {
   }
   region.SetIndex(start);
   region.SetSize(size);
-  image->SetRegions(region);
-  image->SetSpacing(spacing);
-  image->SetOrigin(origin);
-  image->Allocate();
-  image->Update();
+
+  // pass input region parameters to the import filter
+  importFilter->SetRegion(region);
+  importFilter->SetSpacing(spacing);
+  importFilter->SetOrigin(origin);
+
+  // pass pointer to Matlab image to the import filter, and tell it to
+  // NOT attempt to delete the memory when it's destructor is
+  // called. This is important, because the input image still has to
+  // live in Matlab's memory after running the filter
+  const bool importImageFilterWillOwnTheBuffer = false;
+  importFilter->SetImportPointer(const_cast<InVoxelType *>(im), 
+				 mxGetNumberOfElements(nrrd.getData()), 
+				 importImageFilterWillOwnTheBuffer);
+
+  importFilter->Update();
   
-  // loop through every voxel in the image and copy it to the ITK
-  // image
-  typedef itk::ImageRegionIterator< InImageType > InIteratorType;
-  
-  InIteratorType iter(image, image->GetLargestPossibleRegion());
-  mwIndex i = 0; // index for the input image
-  for (iter.GoToBegin(), i=0; !iter.IsAtEnd(); ++iter, ++i) {
-    iter.Set(im[i]);
-    
-    // Note: If you need to debug this loop, take into account that
-    //   std::cout << im[i] << std::endl;
-    // doesn't work as expected if im is e.g. a 
-    // (uint8_T *) pointer. Instead, you need to do
-    //   std::cout << (double)im[i] << std::endl;
-    
-  }
 }
 
 template <class InVoxelType, class OutVoxelType>
 void MexBaseFilter<InVoxelType, OutVoxelType>::FilterSetup() {
 
   // pass image to filter
-  filter->SetInput(image);
+  filter->SetInput(importFilter->GetOutput());
 
 }
 
