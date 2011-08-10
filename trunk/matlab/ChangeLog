@@ -1,6 +1,6 @@
 2011-08-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
-	* release 0.4.0:
+	* release 0.5.0:
 
 	- Now itk_imfilter() supports passing parameters to filters. This
 	last version hasn't been tested with Windows yet.
