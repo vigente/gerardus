@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.6
+  * Version: 0.2.7
   * $Rev$
   * $Date$
   *
@@ -101,7 +101,7 @@ public:
     public MexBaseFilter<T1, T2> {					\
   public:								\
     MexBinaryThinningImageFilter3D(const NrrdImage &, int, mxArray**) {;} \
-    void CopyMatlabInputToItkImage() {;}				\
+    void ImportMatlabInputToItkImage() {;}				\
     void FilterSetup() {;}						\
     void RunFilter() {;}						\
     void CopyAllFilterOutputsToMatlab() {;}				\

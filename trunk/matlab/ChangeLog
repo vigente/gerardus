@@ -1,5 +1,48 @@
 2011-08-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* ItkToolbox/MexBinaryErodeImageFilter.hpp (v0.1.1):
+	* ItkToolbox/MexSignedMaurerDistanceMapImageFilter.hpp (0.2.6):
+	* ItkToolbox/MexBinaryThinningImageFilter3D.hpp (v0.2.7):
+	* ItkToolbox/MexTemplateFilter.hpp (v0.1.2):
+	* ItkToolbox/MexDanielssonDistanceMapImageFilter.hpp (v0.3.5):
+	* ItkToolbox/MexBinaryDilateImageFilter.hpp (v0.1.5):
+
+	- Rename CopyMatlabInputToItkImage() as
+	ImportMatlabInputToItkImage(), because we no longer copy
+	(duplicate) the image data.
+
+	* ItkToolbox/MexBinaryDilateImageFilter.cpp (v0.1.5):
+	* ItkToolbox/MexSignedMaurerDistanceMapImageFilter.cpp (v0.2.5):
+	* ItkToolbox/MexBinaryErodeImageFilter.cpp (v0.1.1):
+
+	- Instead of having a variable "image" in BaseFilter, now we have
+	"importFilter->GetOutput()".
+
+	* ItkToolbox/ItkImFilter.cpp (v0.4.4):
+
+	- Instead of having a variable "image" in BaseFilter, now we have
+	"importFilter->GetOutput()".
+
+	- Rename CopyMatlabInputToItkImage() as
+	ImportMatlabInputToItkImage(), because we no longer copy
+	(duplicate) the image data.
+
+	* ItkToolbox/MexBaseFilter.cpp (v0.4.0):
+	* ItkToolbox/MexBaseFilter.hpp (v0.5.0):
+
+	- Instead of copying the image data from the C-type array passed
+	by Matlab to an itk::Image (hence duplicating the image in
+	memory), we now use itk::ImportImageFilter to directly pass the
+	array pointer to the ITK filter. This way, there's no need to
+	duplicate the image.
+
+	- Instead of having a variable "image" in BaseFilter, now we have
+	"importFilter->GetOutput()".
+
+	- Rename CopyMatlabInputToItkImage() as
+	ImportMatlabInputToItkImage(), because we no longer copy
+	(duplicate) the image data.
+
 	* release 0.5.0:
 
 	- Now itk_imfilter() supports passing parameters to filters. This

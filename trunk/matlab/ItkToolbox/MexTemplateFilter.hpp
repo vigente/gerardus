@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.1.2
   * $Rev$
   * $Date$
   *
@@ -117,7 +117,7 @@ public:
 //     MexTemplateImageFilter(const NrrdImage &, int, mxArray**,		\
 // 		       const int, const mxArray **) {;}			\
 //     MexTemplateImageFilter(const NrrdImage &, int, mxArray**) {;}	\
-//     void CopyMatlabInputToItkImage() {;}				\
+//     void ImportMatlabInputToItkImage() {;}				\
 //     void FilterSetup() {;}						\
 //     void RunFilter() {;}						\
 //     void CopyAllFilterOutputsToMatlab() {;}				\

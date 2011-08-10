@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -106,7 +106,7 @@ void MexBinaryErodeImageFilter<InVoxelType, OutVoxelType>::FilterSetup() {
   localFilter->SetForegroundValue(foreground);
 
   // pass image to filter
-  localFilter->SetInput(this->image);
+  localFilter->SetInput(this->importFilter->GetOutput());
   
 }
 
