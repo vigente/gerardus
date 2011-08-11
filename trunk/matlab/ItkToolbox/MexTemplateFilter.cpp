@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.2
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -57,34 +57,35 @@ const std::string MexTemplateImageFilter<std::string,
  * virtual methods, the corresponding definitions go here
  */
 
+// // check numer of outputs requested by the user. By default, the
+// // function provides 0 or 1 output (the filtered image), but this
+// // method can be overriden in child filters with more outputs
 // template <class InVoxelType, class OutVoxelType>
-// void MexTemplateImageFilter<InVoxelType, OutVoxelType>::FilterSetup() {
+// void MexTemplateImageFilter<InVoxelType, 
+// 			    OutVoxelType>::CheckNumberOfOutputs() {
   
-//   // pass image to filter
-//   localFilter->SetInput(this->importFilter->GetOutput());
-  
-// }
-
-// template <class InVoxelType, class OutVoxelType>
-// void MexTemplateFilter<InVoxelType, OutVoxelType>::RunFilter() {
-  
-//   // run filter
-//   filter->Update();
-  
-// }
-
-// template <class InVoxelType, class OutVoxelType>
-// void MexTemplateFilter<InVoxelType, OutVoxelType>::CopyAllFilterOutputsToMatlab() {
-  
-//   // by default, we assume that all filters produce at least 1 main
-//   // output
-//   this->CopyFilterImageOutputToMatlab();
-
 //   // prevent the user from asking for too many output arguments
-//   if (nargout > 1) {
+//   if (this->nargout > 1) {
 //     mexErrMsgTxt("Too many output arguments");
 //   }
 
+// }
+
+// // by default, this method doesn't do anything, but can be overriden
+// // when a filter needs some extra setput steps (e.g. passing parameters)
+// template <class InVoxelType, class OutVoxelType>
+// void MexTemplateImageFilter<InVoxelType, 
+// 			    OutVoxelType>::FilterAdvancedSetup() {
+  
+// }
+
+// // by default, this method doesn't do anything, but can be overriden
+// // when a child filter provides other outputs apart from the
+// // filtered image
+// template <class InVoxelType, class OutVoxelType>
+// void MexTemplateImageFilter<InVoxelType, 
+// 			    OutVoxelType>::ExportOtherFilterOutputsToMatlab() {
+  
 // }
 
 /*
