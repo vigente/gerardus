@@ -14,7 +14,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.4.1
+  * Version: 0.5.0
   * $Rev$
   * $Date$
   *
@@ -72,13 +72,30 @@
 // static strings is necessary when we use EXCLUDEFILTER with
 // derived filters
 const std::string MexBaseFilter<std::string, std::string>::longname = "BaseFilter";
-const std::string MexBaseFilter<std::string, std::string>::shortname = "BaseFilter";
+const std::string MexBaseFilter<std::string, std::string>::shortname = "base";
 
-// functions to create the ITK image, filter it and return a Matlab
-// result
-
+// check numer of outputs requested by the user. By default, the
+// function provides 0 or 1 output (the filtered image), but this
+// method can be overriden in child filters with more outputs
 template <class InVoxelType, class OutVoxelType>
-void MexBaseFilter<InVoxelType, OutVoxelType>::ImportMatlabInputToItkImage() {
+void MexBaseFilter<InVoxelType, OutVoxelType>::CheckNumberOfOutputs() {
+  
+  std::cout << "CheckNumberOfOutputs: In Base" << std::endl;////////////////////
+
+  // prevent the user from asking for too many output arguments
+  if (nargout > 1) {
+    mexErrMsgTxt("Too many output arguments");
+  }
+
+}
+
+// put the pointer to the Matlab image buffer into an
+// itk::ImportImageFilter. We can feed the ImportImageFilter directly
+// to the filter. This way, we don't need to copy the buffer
+// to an itk::Image, which saves time, and avoids duplicating the
+// image in memory
+template <class InVoxelType, class OutVoxelType>
+void MexBaseFilter<InVoxelType, OutVoxelType>::GraftMatlabInputBufferIntoItkImportFilter() {
   
   // note that:
   //
@@ -158,22 +175,40 @@ void MexBaseFilter<InVoxelType, OutVoxelType>::ImportMatlabInputToItkImage() {
   // called. This is important, because the input image still has to
   // live in Matlab's memory after running the filter
   const bool importImageFilterWillOwnTheBuffer = false;
-  importFilter->SetImportPointer(const_cast<InVoxelType *>(im), 
-				 mxGetNumberOfElements(nrrd.getData()), 
+  importFilter->SetImportPointer(const_cast<InVoxelType *>(im),
+				 mxGetNumberOfElements(nrrd.getData()),
 				 importImageFilterWillOwnTheBuffer);
 
   importFilter->Update();
   
 }
 
+// filter setup code common to all filters: pass image to the
+// filter, allocate memory for the Matlab output, and graft the
+// Matlab output into the filter output
 template <class InVoxelType, class OutVoxelType>
-void MexBaseFilter<InVoxelType, OutVoxelType>::FilterSetup() {
+void MexBaseFilter<InVoxelType, OutVoxelType>::FilterBasicSetup() {
 
-  // pass image to filter
-  filter->SetInput(importFilter->GetOutput());
+  // pass input image to filter
+  this->filter->SetInput(this->importFilter->GetOutput());
+
+  // link the filter main output (the filtered image) to the first
+  // Matlab output buffer
+  this->template MallocMatlabOutputBuffer<OutVoxelType>(0);
+  this->template GraftMatlabOutputBufferIntoItkFilterOutput<OutVoxelType>(0);
 
 }
 
+// by default, this method doesn't do anything, but can be overriden
+// when a filter needs some extra setput steps (e.g. passing parameters)
+template <class InVoxelType, class OutVoxelType>
+void MexBaseFilter<InVoxelType, OutVoxelType>::FilterAdvancedSetup() {
+
+  std::cout << "FilterAdvancedSetup: In Base" << std::endl;////////////////////
+
+}
+
+// filter the image
 template <class InVoxelType, class OutVoxelType>
 void MexBaseFilter<InVoxelType, OutVoxelType>::RunFilter() {
   
@@ -182,66 +217,29 @@ void MexBaseFilter<InVoxelType, OutVoxelType>::RunFilter() {
   
 }
 
+// prevent the C++ destructor from deleting the data of a filter
+// output when program returns. This is necessary in order to use
+// that output from Matlab
 template <class InVoxelType, class OutVoxelType>
-void MexBaseFilter<InVoxelType, OutVoxelType>::CopyAllFilterOutputsToMatlab() {
+void MexBaseFilter<InVoxelType,
+		   OutVoxelType>::MummifyFilterOutput(unsigned int idx) {
+
+  // mummify filter output buffer for Matlab
+  typename OutImageType::RegionType region;
+  region = this->filter->GetOutput(idx)->GetBufferedRegion();
+  typename OutImageType::PixelContainer * container;
+  container = this->filter->GetOutput(idx)->GetPixelContainer();
+  container->SetContainerManageMemory(false);
   
-  // by default, we assume that all filters produce at least 1 main
-  // output
-  this->CopyFilterImageOutputToMatlab();
-
-  // prevent the user from asking for too many output arguments
-  if (nargout > 1) {
-    mexErrMsgTxt("Too many output arguments");
-  }
-
 }
 
+// by default, this method doesn't do anything, but can be overriden
+// when a child filter provides other outputs apart from the
+// filtered image
 template <class InVoxelType, class OutVoxelType>
-void MexBaseFilter<InVoxelType, OutVoxelType>::CopyFilterImageOutputToMatlab() {
-
-  // if the input image is empty, create empty segmentation mask for
-  // output, and we don't need to do any further processing
-  if (nrrd.getR() == 0 || nrrd.getC() == 0) {
-    argOut[0] = mxCreateDoubleMatrix(0, 0, mxREAL);
-    return;
-  }
+void MexBaseFilter<InVoxelType, OutVoxelType>::ExportOtherFilterOutputsToMatlab() {
   
-  // convert output data type to output class ID
-  mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
-  if (TypeIsBool< OutVoxelType >::value) {
-    outputVoxelClassId = mxLOGICAL_CLASS;
-  } else if (TypeIsUint8< OutVoxelType >::value) {
-    outputVoxelClassId = mxUINT8_CLASS;
-  } else if (TypeIsUint16< OutVoxelType >::value) {
-    outputVoxelClassId = mxUINT16_CLASS;
-  } else if (TypeIsFloat< OutVoxelType >::value) {
-    outputVoxelClassId = mxSINGLE_CLASS;
-  } else if (TypeIsDouble< OutVoxelType >::value) {
-    outputVoxelClassId = mxDOUBLE_CLASS;
-  } else {
-    mexErrMsgTxt("Assertion fail: Unrecognised output voxel type");
-  }
-  
-  // create output matrix for Matlab's result
-  argOut[0] = (mxArray *)mxCreateNumericArray( nrrd.getNdim(), 
-					       nrrd.getDims(),
-					       outputVoxelClassId,
-					       mxREAL);
-  if (argOut[0] == NULL) {
-    mexErrMsgTxt("Cannot allocate memory for output matrix");
-  }
-  OutVoxelType *imOutp =  (OutVoxelType *)mxGetData(argOut[0]);
-  
-  // populate output image
-  typedef itk::ImageRegionConstIterator< OutImageType > OutConstIteratorType;
-
-  OutConstIteratorType citer(filter->GetOutput(), 
-			     filter->GetOutput()->GetLargestPossibleRegion());
-  mwIndex i = 0;
-  for (citer.GoToBegin(), i = 0; i < nrrd.numEl(); ++citer, ++i) {
-    imOutp[i] = (OutVoxelType)citer.Get();
-  }
-  
+  std::cout << "ExportOtherFilterOutputsToMatlab: In Base" << std::endl;////////////////////
 }
 
 /*

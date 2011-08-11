@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.2
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -66,26 +66,33 @@ protected:
 public:
 
   // constructor for filters that take user-defined parameters
-  MexTemplateImageFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut,
-			     const int _nargin, const mxArray** _argIn) :
-    MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut,
+  MexTemplateImageFilter(const NrrdImage &_nrrd, 
+			 int _nargout, mxArray** _argOut,
+			 const int _nargin, const mxArray** _argIn)
+    : MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut,
 					     _nargin, _argIn) {
-
-  // constructor for filters without parameters
-
-  // MexTemplateImageFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut) :
-  //   MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut) {
 
     // instantiate filter
     this->filter = FilterType::New();
+
   }
+
+  // constructor for filters without parameters
+
+  // MexTemplateImageFilter(const NrrdImage &_nrrd, 
+  // 			 int _nargout, mxArray** _argOut)
+  //   : MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut) {
+
+  //   // instantiate filter
+  //   this->filter = FilterType::New();
+
+  // }
 
   // if this particular filter needs to redifine one or more BaseFilter
   // virtual methods, the corresponding declarations go here
-
-  // void FilterSetup();
-  // void RunFilter();
-  // void CopyAllFilterOutputsToMatlab();
+  // void CheckNumberOfOutputs();
+  // void FilterAdvancedSetup();
+  // void ExportOtherFilterOutputsToMatlab();
 
 };
 
@@ -94,7 +101,7 @@ public:
 // the text strings with the two names the user can type to select
 // this filter
 template <>
-class MexTemplateImageFilter< std::string, std::string > {
+class MexTemplateImageFilter<std::string, std::string> {
 public:
   
   static const std::string longname;
@@ -108,20 +115,21 @@ public:
  */
 
 #error EXCLUDEFILTER types cannot be automatically determined by add_itk_imfilter_template.sh
-// #define EXCLUDEFILTER(T1, T2)						\
-//   template <>								\
-//   class MexTemplateImageFilter< T1, T2 > :				\
-//     public MexBaseFilter<T1, T2> {					\
-//   public:								\
-//     MexTemplateImageFilter(const NrrdImage &, int, mxArray**,		\
-// 		       const int, const mxArray **) {;}			\
-//     MexTemplateImageFilter(const NrrdImage &, int, mxArray**) {;}	\
-//     void ImportMatlabInputToItkImage() {;}				\
-//     void FilterSetup() {;}						\
-//     void RunFilter() {;}						\
-//     void CopyAllFilterOutputsToMatlab() {;}				\
-//     void CopyFilterImageOutputToMatlab() {;}				\
-//   };
+#define EXCLUDEFILTER(T1, T2)						\
+  template <>								\
+  public:								\
+  class MexTemplateImageFilter< T1, T2 > :				\
+    public MexBaseFilter<T1, T2> {					\
+    MexTemplateImageFilter(const NrrdImage &, int, mxArray**,		\
+			   const int, const mxArray **) {;}		\
+    void CheckNumberOfOutputs();					\
+    void GraftMatlabInputBufferIntoItkImportFilter() {;}		\
+    void FilterBasicSetup() {;}						\
+    void FilterAdvancedSetup() {;}					\
+    void RunFilter() {;}						\
+    void MummifyFilterOutput() {;}					\
+    void ExportOtherFilterOutputsToMatlab() {;}				\
+  };
 
 // EXCLUDEFILTER(mxLogical, mxLogical)
 // EXCLUDEFILTER(mxLogical, uint8_T)

@@ -1,3 +1,70 @@
+2011-08-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/MexBaseFilter.hpp (v0.6.0):
+	* ItkToolbox/MexBaseFilter.cpp (v0.5.0):
+
+	- Big reimplementation of BaseFilter. Yesterday, we imported the
+	Matlab image buffer directly into the filter, to avoid having to
+	copy it to an itk::Image (thus duplicating the memory space and
+	wasting time in copying).
+
+	Today, we have done something similar but with the filter
+	output. Instead of copying the output of the filter to a Matlab
+	buffer, we graft the Matlab buffer as the filter output.
+
+	We have renamed many methods so that they better express what they
+	do, and grouped some of the code in methods to make them more
+	reusable. From
+
+		void ImportMatlabInputToItkImage();
+		virtual void FilterSetup();
+		virtual void RunFilter();
+		virtual void CopyAllFilterOutputsToMatlab();
+		void CopyFilterImageOutputToMatlab();
+
+	we have gone to
+
+		void MallocMatlabOutputBuffer(unsigned int idx);
+		void GraftMatlabOutputBufferIntoItkFilterOutput(unsigned int idx);
+		virtual void CheckNumberOfOutputs();
+		void GraftMatlabInputBufferIntoItkImportFilter();
+		void FilterBasicSetup();
+		void RunFilter();
+		void MummifyFilterOutput(unsigned int idx);
+		virtual void ExportOtherFilterOutputsToMatlab();
+
+
+	* ItkToolbox/MexDanielssonDistanceMapImageFilter.cpp (v0.4.0):
+
+	- Part of the code that was used to deal with the second filter output
+	now it's part of BaseFilter.
+
+	- Add new methods according to the recoding of BaseFilter.
+
+	* ItkToolbox/MexSignedMaurerDistanceMapImageFilter.cpp (v0.2.5):
+	* ItkToolbox/MexBinaryErodeImageFilter.cpp (v0.1.2):
+	* ItkToolbox/MexBinaryDilateImageFilter.cpp (v0.1.6):
+
+	- Rename methods according to the new names in BaseFilter.
+
+	- Filter inputs no longer set in FilterAdvancedSetup().
+
+	* ItkToolbox/ItkImFilter.cpp (v0.4.5):
+	* ItkToolbox/MexDanielssonDistanceMapImageFilter.hpp (v0.4.0):
+	* ItkToolbox/MexTemplateFilter.hpp (v0.2.0):
+	* ItkToolbox/MexTemplateFilter.cpp (v0.2.0):
+	* ItkToolbox/MexBinaryThinningImageFilter3D.hpp (v0.2.8):
+	* ItkToolbox/MexSignedMaurerDistanceMapImageFilter.hpp (v0.2.7):
+	* ItkToolbox/MexBinaryErodeImageFilter.hpp (v0.1.2):
+
+	- Rename methods according to the new names in BaseFilter.
+
+	* ItkToolbox/MexBinaryDilateImageFilter.hpp (v0.1.6):
+
+	- Add missing declarations of redefined virtual
+	methods. Otherwise, if they are not declared, the BaseFilter
+	version of the method is run, instead of the overloaded one.
+
 2011-08-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* ItkToolbox/MexBaseFilter.cpp (v0.4.1):

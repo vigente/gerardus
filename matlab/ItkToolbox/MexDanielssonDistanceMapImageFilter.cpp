@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.4
+  * Version: 0.4.0
   * $Rev$
   * $Date$
   *
@@ -59,18 +59,27 @@ const std::string MexDanielssonDistanceMapImageFilter<std::string,
  * Definition of methods from BaseFilter that this filter needs to
  * override
  */
+
+template <class InVoxelType, class OutVoxelType>
+void MexDanielssonDistanceMapImageFilter<InVoxelType, 
+					 OutVoxelType>::CheckNumberOfOutputs() {
+  
+  // prevent the user from asking for too many output arguments
+  if (this->nargout > 2) {
+    mexErrMsgTxt("Too many output arguments");
+  }
+
+}
+
 template <class InVoxelType, class OutVoxelType>
 void MexDanielssonDistanceMapImageFilter<InVoxelType,
-		      OutVoxelType>::CopyAllFilterOutputsToMatlab() {
+		      OutVoxelType>::ExportOtherFilterOutputsToMatlab() {
   
-  // by default, we assume that all filters produce at least 1 main
-  // output
-  this->CopyFilterImageOutputToMatlab();
-
-  if (this->nargout <= 2) {
+  // convert the 3-vector format to index of nearest segmented
+  // voxel. This way, we can give the output as a matrix of the same
+  // size as the input
+  if (this->nargout > 1) {
     CopyFilterNearestOutputToMatlab();
-  } else {
-    mexErrMsgTxt("Too many output arguments");
   }
 
 }
@@ -88,41 +97,12 @@ template <class InVoxelType, class OutVoxelType>
 void MexDanielssonDistanceMapImageFilter<InVoxelType, 
 					 OutVoxelType>::CopyFilterNearestOutputToMatlab() {
 
-  typedef double OutType;
+  typedef double OutputType;
 
-  // if the input image is empty, create empty segmentation mask for
-  // output, and we don't need to do any further processing
-  if (this->nrrd.getR() == 0 || this->nrrd.getC() == 0) {
-    this->argOut[1] = mxCreateDoubleMatrix(0, 0, mxREAL);
-    return;
-  }
+  // allocate memory for the output buffer
+  this->template MallocMatlabOutputBuffer<OutputType>(1);
 
-  // output class ID
-  // convert output data type to output class ID
-  mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
-  if (TypeIsBool< OutType >::value) {
-    outputVoxelClassId = mxLOGICAL_CLASS;
-  } else if (TypeIsUint8< OutType >::value) {
-    outputVoxelClassId = mxUINT8_CLASS;
-  } else if (TypeIsUint16< OutType >::value) {
-    outputVoxelClassId = mxUINT16_CLASS;
-  } else if (TypeIsFloat< OutType >::value) {
-    outputVoxelClassId = mxSINGLE_CLASS;
-  } else if (TypeIsDouble< OutType >::value) {
-    outputVoxelClassId = mxDOUBLE_CLASS;
-  } else {
-    mexErrMsgTxt("Assertion fail: Unrecognised output voxel type");
-  }
-
-  // create output matrix for Matlab's result
-  this->argOut[1] = (mxArray *)mxCreateNumericArray(this->nrrd.getNdim(), 
-						    this->nrrd.getDims(),
-						    outputVoxelClassId,
-						    mxREAL);
-  if (this->argOut[1] == NULL) {
-    mexErrMsgTxt("Cannot allocate memory for output matrix");
-  }
-  OutType *imOutp =  (OutType *)mxGetData(this->argOut[1]);
+  OutputType *imOutp =  (OutputType *)mxGetData(this->argOut[1]);
   
   // populate output image
   typedef typename MexDanielssonDistanceMapImageFilter<InVoxelType, 
