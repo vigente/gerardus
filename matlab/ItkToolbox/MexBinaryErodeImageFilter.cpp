@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.1.2
   * $Rev$
   * $Date$
   *
@@ -61,7 +61,7 @@ const std::string MexBinaryErodeImageFilter<std::string,
  */
 
 template <class InVoxelType, class OutVoxelType>
-void MexBinaryErodeImageFilter<InVoxelType, OutVoxelType>::FilterSetup() {
+void MexBinaryErodeImageFilter<InVoxelType, OutVoxelType>::FilterAdvancedSetup() {
   
   // check input parameters
   if (this->nparam > 2) {
@@ -86,9 +86,9 @@ void MexBinaryErodeImageFilter<InVoxelType, OutVoxelType>::FilterSetup() {
     mexErrMsgTxt("Too many input arguments");
   }
   radius  = this->template 
-    getScalarParamValue<unsigned long>("RADIUS", 0, 0);
+    GetScalarParamValue<unsigned long>("RADIUS", 0, 0);
   foreground = this->template 
-    getScalarParamValue<InVoxelType>("FOREGROUND", 1, std::numeric_limits<InVoxelType>::max());
+    GetScalarParamValue<InVoxelType>("FOREGROUND", 1, std::numeric_limits<InVoxelType>::max());
   
   // create a local pointer to the filter so that we can use
   // methods that are not part of the MexBaseFilter
@@ -105,9 +105,6 @@ void MexBinaryErodeImageFilter<InVoxelType, OutVoxelType>::FilterSetup() {
   // pass parameters to filter
   localFilter->SetForegroundValue(foreground);
 
-  // pass image to filter
-  localFilter->SetInput(this->importFilter->GetOutput());
-  
 }
 
 

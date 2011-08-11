@@ -110,7 +110,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.4.4
+  * Version: 0.4.5
   * $Rev$
   * $Date$
   *
@@ -271,11 +271,16 @@ void parseFilterTypeAndRun(const int nargin,
 
 #undef ISFILTER
 
+  // check number of output arguments
+  filter->CheckNumberOfOutputs();
+
   // set up and run filter
-  filter->ImportMatlabInputToItkImage();
-  filter->FilterSetup();
+  filter->GraftMatlabInputBufferIntoItkImportFilter();
+  filter->FilterBasicSetup();
+  filter->FilterAdvancedSetup();
   filter->RunFilter();
-  filter->CopyAllFilterOutputsToMatlab();
+  filter->MummifyFilterOutput(0);
+  filter->ExportOtherFilterOutputsToMatlab();
 }
 
 // parseOutputTypeToTemplate<InVoxelType>()
