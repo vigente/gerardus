@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.5.0
+  * Version: 0.6.0
   * $Rev$
   * $Date$
   *
@@ -71,11 +71,23 @@ protected:
   const mxArray** argParam;
   typename MexBaseFilterType::Pointer filter;
 
-  // function to get the value of input parameters that are numeric
-  // scalars from the array of input arguments
+  // get the value of input parameters that are numeric scalars from
+  // the array of input arguments
   template <class ParamType>
-  ParamType getScalarParamValue(std::string paramName,
+  ParamType GetScalarParamValue(std::string paramName,
 				mwIndex idx, ParamType def);
+
+  // allocate memory for a Matlab output buffer
+  template <class OutputType>
+  void MallocMatlabOutputBuffer(unsigned int idx);
+
+  // make the filter use a Matlab buffer for one of its outputs. This
+  // is the fastest and least memory-consuming way of working with the
+  // filter outputs, because results don't need to be duplicated by
+  // copying them to a separate Matlab array. But not all filter
+  // outputs have types that can be directly exported to Matlab
+  template <class OutputType>
+  void GraftMatlabOutputBufferIntoItkFilterOutput(unsigned int idx);
 
 public:
 
@@ -107,12 +119,41 @@ public:
   // instantiation
   MexBaseFilter() {;}
 
-  // functions to create the ITK images, filter it and return a Matlab result
-  void ImportMatlabInputToItkImage();
-  virtual void FilterSetup();
-  virtual void RunFilter();
-  virtual void CopyAllFilterOutputsToMatlab();
-  void CopyFilterImageOutputToMatlab();
+  // check numer of outputs requested by the user. By default, the
+  // function provides 0 or 1 output (the filtered image), but this
+  // method can be overriden in child filters with more outputs
+  virtual void CheckNumberOfOutputs();
+
+  // put the pointer to the Matlab image buffer into an
+  // itk::ImportImageFilter. We can feed the ImportImageFilter directly
+  // to the filter. This way, we don't need to copy the buffer
+  // to an itk::Image, which saves time, and avoids duplicating the
+  // image in memory
+  void GraftMatlabInputBufferIntoItkImportFilter();
+
+  // filter setup code common to all filters: pass image to the
+  // filter, allocate memory for the Matlab output, and graft the
+  // Matlab output into the filter output
+  void FilterBasicSetup();
+
+  // by default, this method doesn't do anything, but can be overriden
+  // when a child filter needs some extra setput steps (e.g. passing
+  // parameters)
+  virtual void FilterAdvancedSetup();
+
+  // filter the image
+  void RunFilter();
+
+  // prevent the C++ destructor from deleting the data of a filter
+  // output when program returns. This is necessary in order to use
+  // that output from Matlab
+  void MummifyFilterOutput(unsigned int idx);
+
+  // by default, this method doesn't do anything, but can be overriden
+  // when a child filter provides other outputs apart from the
+  // filtered image
+  virtual void ExportOtherFilterOutputsToMatlab();
+
 };
 
 // BaseFilter cannot be invoked by the user, but declaring these
@@ -139,7 +180,7 @@ public:
 template <class InVoxelType, class OutVoxelType>
 template <class ParamType>
 ParamType MexBaseFilter<InVoxelType, 
-			OutVoxelType>::getScalarParamValue(std::string paramName,
+			OutVoxelType>::GetScalarParamValue(std::string paramName,
 							mwIndex idx, 
 							ParamType def) {
   
@@ -218,6 +259,73 @@ ParamType MexBaseFilter<InVoxelType,
 #undef GETVALUE
   
   return value;
+}
+
+
+// allocate memory for a Matlab output buffer
+template <class InVoxelType, class OutVoxelType>
+template <class OutputType>
+void MexBaseFilter<InVoxelType, 
+		   OutVoxelType>::MallocMatlabOutputBuffer(unsigned int idx) {
+
+  // convert output data type to output class ID
+  mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
+  if (TypeIsBool<OutputType>::value) {
+    outputVoxelClassId = mxLOGICAL_CLASS;
+  } else if (TypeIsUint8<OutputType>::value) {
+    outputVoxelClassId = mxUINT8_CLASS;
+  } else if (TypeIsUint16<OutputType>::value) {
+    outputVoxelClassId = mxUINT16_CLASS;
+  } else if (TypeIsFloat<OutputType>::value) {
+    outputVoxelClassId = mxSINGLE_CLASS;
+  } else if (TypeIsDouble<OutputType>::value) {
+    outputVoxelClassId = mxDOUBLE_CLASS;
+  } else {
+    mexErrMsgTxt("Assertion fail: Unrecognised output data type");
+  }
+
+  // create output matrix for Matlab's result
+  if (this->nrrd.getR() == 0 || this->nrrd.getC() == 0) {
+    this->argOut[idx] = mxCreateDoubleMatrix(0, 0, mxREAL);
+  } else {
+    this->argOut[idx] = (mxArray *)mxCreateNumericArray(this->nrrd.getNdim(), 
+							this->nrrd.getDims(),
+							outputVoxelClassId,
+							mxREAL);
+  }
+  if (this->argOut[0] == NULL) {
+    mexErrMsgTxt("Cannot allocate memory for output matrix");
+  }
+
+  return;
+
+}
+
+// function to make the filter use a Matlab buffer for one of its
+// outputs. The OutpuType is the type of the elements in that output,
+// that may be different from the OutVoxelType
+template <class InVoxelType, class OutVoxelType>
+template <class OutputType>
+void MexBaseFilter<InVoxelType, 
+		   OutVoxelType>::GraftMatlabOutputBufferIntoItkFilterOutput(unsigned int idx) {
+
+  // pointer to the Matlab output buffer
+  OutputType *imOutp =  (OutputType *)mxGetData(this->argOut[idx]);
+  if (imOutp == NULL) {
+    mexErrMsgTxt("Output buffer memory has not been allocated before trying to graft the buffer");
+  }
+
+  // impersonate the data buffer in the filter with the Matlab output
+  // buffer
+  const bool filterWillDeleteTheInputBuffer = false;
+  this->filter->GetOutput(idx)->GetPixelContainer()
+    ->SetImportPointer(imOutp,
+		       mxGetNumberOfElements(this->nrrd.getData()),
+		       filterWillDeleteTheInputBuffer);
+  this->filter->GetOutput()->Allocate();
+
+  return;
+
 }
 
 #endif /* MEXBASEFILTER_HPP */

@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.1.2
   * $Rev$
   * $Date$
   *
@@ -85,7 +85,7 @@ public:
 
   // if this particular filter needs to redifine one or more BaseFilter
   // virtual methods, the corresponding declarations go here
-  void FilterSetup();
+  void FilterAdvancedSetup();
 
 };
 
@@ -114,11 +114,12 @@ public:
   public:								\
     MexBinaryErodeImageFilter(const NrrdImage &, int, mxArray**,	\
 		       const int, const mxArray **) {;}			\
-    void ImportMatlabInputToItkImage() {;}				\
-    void FilterSetup() {;}						\
+    void GraftMatlabInputBufferIntoItkImportFilter() {;}				\
+    void FilterBasicSetup() {;}						\
+    void FilterAdvancedSetup() {;}					\
     void RunFilter() {;}						\
-    void CopyAllFilterOutputsToMatlab() {;}				\
-    void CopyFilterImageOutputToMatlab() {;}				\
+    void ExportOtherFilterOutputsToMatlab() {;}				\
+    void MummifyFilterOutput() {;}				\
   };
 
 EXCLUDEFILTER(mxLogical, uint8_T)

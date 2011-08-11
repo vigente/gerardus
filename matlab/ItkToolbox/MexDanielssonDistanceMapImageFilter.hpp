@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.5
+  * Version: 0.4.0
   * $Rev$
   * $Date$
   *
@@ -62,19 +62,25 @@ private:
 
 protected:
 
+  void CopyFilterNearestOutputToMatlab();
+
 public:
 
   // constructor
   MexDanielssonDistanceMapImageFilter(const NrrdImage &_nrrd, 
 				      int _nargout, mxArray** _argOut) :
-    MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut)
-  {
+    MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut) {
 
     // instantiate filter
     this->filter = FilterType::New();
+
   }
-  void CopyAllFilterOutputsToMatlab();
-  void CopyFilterNearestOutputToMatlab();
+
+  // if this particular filter needs to redifine one or more BaseFilter
+  // virtual methods, the corresponding declarations go here
+  void CheckNumberOfOutputs();
+  void ExportOtherFilterOutputsToMatlab();
+
 };
 
 // input/output voxel type is never going to be a string, so we are
@@ -101,11 +107,14 @@ public:
     public MexBaseFilter<T1, T2> {					\
   public:								\
     MexDanielssonDistanceMapImageFilter(const NrrdImage &, int, mxArray**) {;} \
-    void ImportMatlabInputToItkImage() {;}				\
-    void FilterSetup() {;}						\
+    void CheckNumberOfOutputs() {;}					\
+    void GraftMatlabInputBufferIntoItkImportFilter() {;}		\
+    void FilterBasicSetup() {;}						\
+    void FilterAdvancedSetup() {;}					\
     void RunFilter() {;}						\
-    void CopyAllFilterOutputsToMatlab() {;}				\
-    void CopyFilterImageOutputToMatlab() {;}				\
+    void MummifyFilterOutput() {;}					\
+    void ExportOtherFilterOutputsToMatlab() {;}				\
+    void CopyFilterNearestOutputToMatlab() {;}				\
   };
 
 EXCLUDEFILTER(mxLogical, int8_T);

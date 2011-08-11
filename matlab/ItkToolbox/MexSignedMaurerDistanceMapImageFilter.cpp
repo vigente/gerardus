@@ -54,7 +54,7 @@ const std::string MexSignedMaurerDistanceMapImageFilter<std::string,
  */
 template <class InVoxelType, class OutVoxelType>
 void MexSignedMaurerDistanceMapImageFilter<InVoxelType, 
-					   OutVoxelType>::FilterSetup() {
+					   OutVoxelType>::FilterAdvancedSetup() {
   
   // the filter member variable is declared in MexBaseFilter as a
   // general ImageToImageFilter, but we want to use some methods that
@@ -67,9 +67,6 @@ void MexSignedMaurerDistanceMapImageFilter<InVoxelType,
   typename FilterType::Pointer localFilter = 
     dynamic_cast<typename MexSignedMaurerDistanceMapImageFilter<InVoxelType,
     OutVoxelType>::FilterType *>(this->filter.GetPointer());
-
-  // pass image to filter
-  localFilter->SetInput(this->importFilter->GetOutput());
 
   // compute distances using real world coordinates, instead of voxel
   // indices
