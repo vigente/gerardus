@@ -110,7 +110,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.5.0
+  * Version: 0.5.1
   * $Rev$
   * $Date$
   *
@@ -228,7 +228,7 @@ class FilterSelector {
 public:
   FilterSelector(const NrrdImage &, int, mxArray**, 
 		 const int, const mxArray**,
-		 MexBaseFilter<InVoxelType, OutVoxelType> *) {
+		 MexBaseFilter<InVoxelType, OutVoxelType> *&) {
     // #error Assertion fail: non-supported filter has been instantiated
     mexErrMsgTxt("Assertion fail: Filter not supported");
   }
@@ -241,7 +241,7 @@ public:
   FilterSelector(const NrrdImage & nrrd, 
 		 int nargout, mxArray** argOut,
 		 const int nargin, const mxArray** argIn,
-		 MexBaseFilter<InVoxelType, OutVoxelType> *filter) {
+		 MexBaseFilter<InVoxelType, OutVoxelType> *&filter) {
     filter = new MexBinaryThinningImageFilter3D<InVoxelType, 
 						OutVoxelType>(nrrd, nargout, argOut);
   }
@@ -254,7 +254,7 @@ public:
   FilterSelector(const NrrdImage & nrrd, 
 		 int nargout, mxArray** argOut,
 		 const int nargin, const mxArray** argIn,
-		 MexBaseFilter<InVoxelType, OutVoxelType> *filter) {
+		 MexBaseFilter<InVoxelType, OutVoxelType> *&filter) {
     filter = new MexDanielssonDistanceMapImageFilter<InVoxelType, 
 						     OutVoxelType>(nrrd, nargout, argOut);
   }
@@ -267,7 +267,7 @@ public:
   FilterSelector(const NrrdImage & nrrd, 
 		 int nargout, mxArray** argOut,
 		 const int nargin, const mxArray** argIn,
-		 MexBaseFilter<InVoxelType, OutVoxelType> *filter) {
+		 MexBaseFilter<InVoxelType, OutVoxelType> *&filter) {
     filter = new MexSignedMaurerDistanceMapImageFilter<InVoxelType, 
 						       OutVoxelType>(nrrd, nargout, argOut);
   }
@@ -280,7 +280,7 @@ public:
   FilterSelector(const NrrdImage & nrrd, 
 		 int nargout, mxArray** argOut,
 		 const int nargin, const mxArray** argIn,
-		 MexBaseFilter<InVoxelType, OutVoxelType> *filter) {
+		 MexBaseFilter<InVoxelType, OutVoxelType> *&filter) {
     filter = new MexBinaryDilateImageFilter<InVoxelType, 
 					    OutVoxelType>(nrrd, nargout, argOut,
 							  nargin, argIn);
@@ -294,7 +294,7 @@ public:
   FilterSelector(const NrrdImage & nrrd, 
 		 int nargout, mxArray** argOut,
 		 const int nargin, const mxArray** argIn,
-		 MexBaseFilter<InVoxelType, OutVoxelType> *filter) {
+		 MexBaseFilter<InVoxelType, OutVoxelType> *&filter) {
     filter = new MexBinaryErodeImageFilter<InVoxelType, 
 					   OutVoxelType>(nrrd, nargout, argOut,
 							  nargin, argIn);
@@ -320,7 +320,10 @@ void runFilter(const int nargin, const mxArray** argIn,
   // select the appropriate filter
   FilterSelector<filterEnum, InVoxelType, OutVoxelType> 
     filterSelector(nrrd, nargout, argOut, nargin, argIn, filter);
-  
+  if (filter == NULL) {
+    mexErrMsgTxt("Assertion fail: filter is NULL in runFilter()");
+  }
+
   // check number of output arguments
   filter->CheckNumberOfOutputs();
   
@@ -486,6 +489,10 @@ void parseInputTypeToTemplate(const int nargin,
     mexErrMsgTxt("Input matrix has invalid type.");
     break;
   }
+
+  // exit successfully
+  return;
+
 }
 
 // parseFilterTypeToTemplate()

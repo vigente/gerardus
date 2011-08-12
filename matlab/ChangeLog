@@ -1,5 +1,17 @@
 2011-08-12  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* ItkToolbox/ItkImFilter.cpp (v0.5.1):
+
+	- Fix bug. Filter pointer was being passed by value instead of
+	reference, so FilterSelector was instantiating the filter class,
+	but then the memory address was not being written to the pointer,
+	so runFilter() only saw a NULL pointer, that caused a segfault in
+	filter->CheckNumberOfOutputs();
+
+	* ItkToolbox/MexBaseFilter.cpp (v0.5.1):
+
+	- Remove some debug messages that I had forgotten.
+
 	* ItkToolbox/ItkImFilter.cpp (v0.5.0):
 
 	- Big rewrite. Before, we instantiate all input/output voxel type
