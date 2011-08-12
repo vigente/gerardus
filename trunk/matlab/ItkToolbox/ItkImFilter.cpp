@@ -110,7 +110,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.4.5
+  * Version: 0.5.0
   * $Rev$
   * $Date$
   *
@@ -207,73 +207,123 @@
  * MexBaseFilter.
  */
 
-// parseFilterTypeAndRun<InVoxelType, OutVoxelType>()
-template <class InVoxelType, class OutVoxelType>
-void parseFilterTypeAndRun(const int nargin,
-			   const mxArray** argIn,
-			   int nargout,
-			   mxArray** argOut,
-			   const NrrdImage &nrrd) {
+// list of supported filters. It has to be an enum so that we can pass
+// it as a template constant parameter
+enum SupportedFilter {
+  nMexBinaryThinningImageFilter3D,
+  nMexDanielssonDistanceMapImageFilter,
+  nMexSignedMaurerDistanceMapImageFilter,
+  nMexBinaryDilateImageFilter,
+  nMexBinaryErodeImageFilter
+};
 
-  // get type of filter
-  char *filterName = mxArrayToString(argIn[0]);
-  if (filterName == NULL) {
-    mexErrMsgTxt("Invalid FILTER string");
+/* 
+ * partial explicit specialization to choose which filter we want to
+ * instantiate
+ */
+
+// general declaration
+template <SupportedFilter filterEnum, class InVoxelType, class OutVoxelType>
+class FilterSelector {
+public:
+  FilterSelector(const NrrdImage &, int, mxArray**, 
+		 const int, const mxArray**,
+		 MexBaseFilter<InVoxelType, OutVoxelType> *) {
+    // #error Assertion fail: non-supported filter has been instantiated
+    mexErrMsgTxt("Assertion fail: Filter not supported");
   }
+};
 
-  // image type definitions
-  typedef double TScalarType; // data type for scalars
-  typedef itk::Image< InVoxelType, Dimension > 
-    InImageType;
-  typedef itk::Image< OutVoxelType, Dimension > 
-    OutImageType;
+// select filter MexBinaryThinningImageFilter3D
+template <class InVoxelType, class OutVoxelType>
+class FilterSelector<nMexBinaryThinningImageFilter3D, InVoxelType, OutVoxelType> {
+public:
+  FilterSelector(const NrrdImage & nrrd, 
+		 int nargout, mxArray** argOut,
+		 const int nargin, const mxArray** argIn,
+		 MexBaseFilter<InVoxelType, OutVoxelType> *filter) {
+    filter = new MexBinaryThinningImageFilter3D<InVoxelType, 
+						OutVoxelType>(nrrd, nargout, argOut);
+  }
+};
+
+// select filter MexDanielssonDistanceMapImageFilter
+template <class InVoxelType, class OutVoxelType>
+class FilterSelector<nMexDanielssonDistanceMapImageFilter, InVoxelType, OutVoxelType> {
+public:
+  FilterSelector(const NrrdImage & nrrd, 
+		 int nargout, mxArray** argOut,
+		 const int nargin, const mxArray** argIn,
+		 MexBaseFilter<InVoxelType, OutVoxelType> *filter) {
+    filter = new MexDanielssonDistanceMapImageFilter<InVoxelType, 
+						     OutVoxelType>(nrrd, nargout, argOut);
+  }
+};
+
+// select filter MexSignedMaurerDistanceMapImageFilter
+template <class InVoxelType, class OutVoxelType>
+class FilterSelector<nMexSignedMaurerDistanceMapImageFilter, InVoxelType, OutVoxelType> {
+public:
+  FilterSelector(const NrrdImage & nrrd, 
+		 int nargout, mxArray** argOut,
+		 const int nargin, const mxArray** argIn,
+		 MexBaseFilter<InVoxelType, OutVoxelType> *filter) {
+    filter = new MexSignedMaurerDistanceMapImageFilter<InVoxelType, 
+						       OutVoxelType>(nrrd, nargout, argOut);
+  }
+};
+
+// select filter MexBinaryDilateImageFilter
+template <class InVoxelType, class OutVoxelType>
+class FilterSelector<nMexBinaryDilateImageFilter, InVoxelType, OutVoxelType> {
+public:
+  FilterSelector(const NrrdImage & nrrd, 
+		 int nargout, mxArray** argOut,
+		 const int nargin, const mxArray** argIn,
+		 MexBaseFilter<InVoxelType, OutVoxelType> *filter) {
+    filter = new MexBinaryDilateImageFilter<InVoxelType, 
+					    OutVoxelType>(nrrd, nargout, argOut,
+							  nargin, argIn);
+  }
+};
+
+// select filter MexBinaryErodeImageFilter
+template <class InVoxelType, class OutVoxelType>
+class FilterSelector<nMexBinaryErodeImageFilter, InVoxelType, OutVoxelType> {
+public:
+  FilterSelector(const NrrdImage & nrrd, 
+		 int nargout, mxArray** argOut,
+		 const int nargin, const mxArray** argIn,
+		 MexBaseFilter<InVoxelType, OutVoxelType> *filter) {
+    filter = new MexBinaryErodeImageFilter<InVoxelType, 
+					   OutVoxelType>(nrrd, nargout, argOut,
+							  nargin, argIn);
+  }
+};
+
+/*
+ * call the batch of methods that create the filter, set it up,
+ * connect it to the Matlab inputs and outputs, read parameters, and
+ * perform the actual filtering
+ *
+ */
+
+// runFilter<SupportedFilter, InVoxelType, OutVoxelType>()
+template <SupportedFilter filterEnum, class InVoxelType, class OutVoxelType>
+void runFilter(const int nargin, const mxArray** argIn,
+	       int nargout, mxArray** argOut,
+	       const NrrdImage &nrrd) {
 
   // pointer to the filter object (we are using polymorphism)
   MexBaseFilter<InVoxelType, OutVoxelType> *filter = NULL;
-
-  // macro that returns true if the string in x is either the short or
-  // long name of the filter type T
-#define ISFILTER(x, T)							\
-  !strcmp(x, T<std::string, std::string>::shortname.c_str())		\
-    || !strcmp(x, T<std::string, std::string>::longname.c_str())
-
-  // convert run-time filter string to template
-  if (ISFILTER(filterName, MexBinaryThinningImageFilter3D)) {
-    
-    filter = new MexBinaryThinningImageFilter3D<InVoxelType, 
-                    OutVoxelType>(nrrd, nargout, argOut);
-
-  }  else if (ISFILTER(filterName, MexDanielssonDistanceMapImageFilter)) {
-    
-    filter = new MexDanielssonDistanceMapImageFilter<InVoxelType, 
-                    OutVoxelType>(nrrd, nargout, argOut);
-
-  }  else if (ISFILTER(filterName, MexSignedMaurerDistanceMapImageFilter)) {
-
-    filter = new MexSignedMaurerDistanceMapImageFilter<InVoxelType, 
-                    OutVoxelType>(nrrd, nargout, argOut);
-
-  } else if (ISFILTER(filterName, MexBinaryDilateImageFilter)) {
-
-    filter = new MexBinaryDilateImageFilter<InVoxelType, 
-                    OutVoxelType>(nrrd, nargout, argOut, nargin, argIn);
-
-  } else if (ISFILTER(filterName, MexBinaryErodeImageFilter)) {
-
-    filter = new MexBinaryErodeImageFilter<InVoxelType,
-                    OutVoxelType>(nrrd, nargout, argOut, nargin, argIn);
-
-    /* Insertion point: parseFilterTypeAndRun (DO NOT DELETE THIS COMMENT) */
-
-  } else {
-    mexErrMsgTxt("Filter type not implemented");
-  }
-
-#undef ISFILTER
-
+  
+  // select the appropriate filter
+  FilterSelector<filterEnum, InVoxelType, OutVoxelType> 
+    filterSelector(nrrd, nargout, argOut, nargin, argIn, filter);
+  
   // check number of output arguments
   filter->CheckNumberOfOutputs();
-
+  
   // set up and run filter
   filter->GraftMatlabInputBufferIntoItkImportFilter();
   filter->FilterBasicSetup();
@@ -281,70 +331,79 @@ void parseFilterTypeAndRun(const int nargin,
   filter->RunFilter();
   filter->MummifyFilterOutput(0);
   filter->ExportOtherFilterOutputsToMatlab();
+
+  // successful exit
+  return;
+  
 }
 
+/*
+ * series of parser functions that convert input run-time variables to
+ * compilation-time templates
+ */
+
 // parseOutputTypeToTemplate<InVoxelType>()
-template <class InVoxelType>
+template <SupportedFilter filterEnum, class InVoxelType>
 void parseOutputTypeToTemplate(const int nargin,
 			       const mxArray** argIn,
 			       int nargout,
 			       mxArray** argOut,
 			       const NrrdImage &nrrd) {
 
-  // make it easier to remember the different cases for the output
-  // voxel type
-  enum OutVoxelType {
-    SAME, BOOL, UINT8, UINT16, SINGLE, DOUBLE
-  };
-
-  // get type of filter
-  char *filter = mxArrayToString(argIn[0]);
-  if (filter == NULL) {
-    mexErrMsgTxt("Invalid FILTER string");
-  }
-
-  // macro that returns true if the string in x is either the short or
-  // long name of the filter type T
-#define ISFILTER(x, T)							\
-  !strcmp(x, T<std::string, std::string>::shortname.c_str())		\
-    || !strcmp(x, T<std::string, std::string>::longname.c_str())
-
   // establish output voxel type according to the filter
-  OutVoxelType outVoxelType = DOUBLE;
-  if (ISFILTER(filter, MexBinaryThinningImageFilter3D)) {
+  if (filterEnum == nMexBinaryThinningImageFilter3D) {
 
-    outVoxelType = SAME;
+    runFilter<nMexBinaryThinningImageFilter3D,
+	      InVoxelType, 
+	      InVoxelType>(nargin, argIn, nargout, argOut, nrrd);
 
-  } else if (ISFILTER(filter, MexDanielssonDistanceMapImageFilter)) {
+  } else if (filterEnum == nMexDanielssonDistanceMapImageFilter) {
+
     // find how many bits we need to represent the maximum distance
     // that two voxels can have between them (in voxel units)
-      mwSize nbit = (mwSize)ceil(log(nrrd.maxVoxDistance()) / log(2.0));
-
+    mwSize nbit = (mwSize)ceil(log(nrrd.maxVoxDistance()) / log(2.0));
+    
     // select an output voxel size enough to save the maximum distance
     // value
     if (nbit <= 2) {
-      outVoxelType = BOOL;
+      runFilter<nMexDanielssonDistanceMapImageFilter,
+		InVoxelType, 
+		mxLogical>(nargin, argIn, nargout, argOut, nrrd);
     } else if (nbit <= 8) {
-      outVoxelType = UINT8;
+      runFilter<nMexDanielssonDistanceMapImageFilter,
+		InVoxelType, 
+		uint8_T>(nargin, argIn, nargout, argOut, nrrd);
     } else if (nbit <= 16) {
-      outVoxelType = UINT16;
+      runFilter<nMexDanielssonDistanceMapImageFilter,
+		InVoxelType, 
+		uint16_T>(nargin, argIn, nargout, argOut, nrrd);
     } else if (nbit <= 128) {
-      outVoxelType = SINGLE;
+      runFilter<nMexDanielssonDistanceMapImageFilter,
+		InVoxelType, 
+		float>(nargin, argIn, nargout, argOut, nrrd);
     } else {
-      outVoxelType = DOUBLE;
+      runFilter<nMexDanielssonDistanceMapImageFilter,
+		InVoxelType, 
+		double>(nargin, argIn, nargout, argOut, nrrd);
     }
     
-  } else if (ISFILTER(filter, MexSignedMaurerDistanceMapImageFilter)) {
+  } else if (filterEnum == nMexSignedMaurerDistanceMapImageFilter) {
+    
+    runFilter<nMexSignedMaurerDistanceMapImageFilter,
+	      InVoxelType, 
+	      double>(nargin, argIn, nargout, argOut, nrrd);
 
-    outVoxelType = DOUBLE;
+  } else if (filterEnum == nMexBinaryDilateImageFilter) {
 
-  } else if (ISFILTER(filter, MexBinaryDilateImageFilter)) {
+    runFilter<nMexBinaryDilateImageFilter,
+	      InVoxelType, 
+	      InVoxelType>(nargin, argIn, nargout, argOut, nrrd);
 
-    outVoxelType = SAME;
+  } else if (filterEnum == nMexBinaryErodeImageFilter) {
 
-  } else if (ISFILTER(filter, MexBinaryErodeImageFilter)) {
-
-    outVoxelType = SAME;
+    runFilter<nMexBinaryErodeImageFilter,
+	      InVoxelType, 
+	      InVoxelType>(nargin, argIn, nargout, argOut, nrrd);
 
     /* Insertion point: parseOutputTypeToTemplate (DO NOT DELETE THIS COMMENT) */
 
@@ -352,40 +411,26 @@ void parseOutputTypeToTemplate(const int nargin,
     mexErrMsgTxt("Filter type not implemented");
   }
 
-#undef ISFILTER
-
-  switch(outVoxelType) {
-  case SAME:
-    parseFilterTypeAndRun<InVoxelType, 
-			  InVoxelType>(nargin, argIn, nargout, argOut, nrrd);
-    break;
-  case BOOL:
-    parseFilterTypeAndRun<InVoxelType, 
-			  mxLogical>(nargin, argIn, nargout, argOut, nrrd);
-    break;
-  case UINT8:
-    parseFilterTypeAndRun<InVoxelType, 
-			  uint8_T>(nargin, argIn, nargout, argOut, nrrd);
-    break;
-  case UINT16:
-    parseFilterTypeAndRun<InVoxelType, 
-			  uint16_T>(nargin, argIn, nargout, argOut, nrrd);
-    break;
-  case SINGLE:
-    parseFilterTypeAndRun<InVoxelType, 
-			  float>(nargin, argIn, nargout, argOut, nrrd);
-    break;
-  case DOUBLE:
-    parseFilterTypeAndRun<InVoxelType, 
-			  double>(nargin, argIn, nargout, argOut, nrrd);
-    break;
-  default:
-    mexErrMsgTxt("Invalid output type.");
-    break;
-  }
 }
 
+// list of filters incompatible with certain input types
+#define INVALIDINPUTTYPE(filterEnum, InVoxelType)			\
+  template <>								\
+  void parseOutputTypeToTemplate<filterEnum,				\
+				 InVoxelType>(const int, const mxArray**, \
+					      int, mxArray**,		\
+					      const NrrdImage &) {	\
+    mexErrMsgTxt("Input type incompatible with this filter");		\
+}
+
+INVALIDINPUTTYPE(nMexBinaryThinningImageFilter3D, mxLogical)
+INVALIDINPUTTYPE(nMexSignedMaurerDistanceMapImageFilter, mxLogical)
+/* Insertion point: INVALIDINPUTTYPE */
+
+#undef INVALIDINPUTTYPE
+
 // parseInputTypeToTemplate()
+template <SupportedFilter filterEnum>
 void parseInputTypeToTemplate(const int nargin,
 			      const mxArray** argIn,
 			      int nargout,
@@ -404,33 +449,33 @@ void parseInputTypeToTemplate(const int nargin,
 
   switch(inputVoxelClassId)  { // swith input image type
   case mxLOGICAL_CLASS:
-    parseOutputTypeToTemplate<mxLogical>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputTypeToTemplate<filterEnum, mxLogical>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case mxDOUBLE_CLASS:
-    parseOutputTypeToTemplate<double>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputTypeToTemplate<filterEnum, double>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case mxSINGLE_CLASS:
-    parseOutputTypeToTemplate<float>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputTypeToTemplate<filterEnum, float>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case mxINT8_CLASS:
-    parseOutputTypeToTemplate<int8_T>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputTypeToTemplate<filterEnum, int8_T>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case mxUINT8_CLASS:
-    parseOutputTypeToTemplate<uint8_T>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputTypeToTemplate<filterEnum, uint8_T>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case mxINT16_CLASS:
-    parseOutputTypeToTemplate<int16_T>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputTypeToTemplate<filterEnum, int16_T>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case mxUINT16_CLASS:
-    parseOutputTypeToTemplate<uint16_T>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputTypeToTemplate<filterEnum, uint16_T>(nargin, argIn, nargout, argOut, nrrd);
     break;
   case mxINT32_CLASS:
-    parseOutputTypeToTemplate<int32_T>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputTypeToTemplate<filterEnum, int32_T>(nargin, argIn, nargout, argOut, nrrd);
     break;
   // case mxUINT32_CLASS:
   //   break;
   case mxINT64_CLASS:
-    parseOutputTypeToTemplate<int64_T>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputTypeToTemplate<filterEnum, int64_T>(nargin, argIn, nargout, argOut, nrrd);
     break;
   // case mxUINT64_CLASS:
   //   break;
@@ -441,6 +486,63 @@ void parseInputTypeToTemplate(const int nargin,
     mexErrMsgTxt("Input matrix has invalid type.");
     break;
   }
+}
+
+// parseFilterTypeToTemplate()
+void parseFilterTypeToTemplate(const int nargin,
+			       const mxArray** argIn,
+			       int nargout,
+			       mxArray** argOut) {
+
+  // get type of filter
+  char *filterName = mxArrayToString(argIn[0]);
+  if (filterName == NULL) {
+    mexErrMsgTxt("Invalid FILTER string");
+  }
+
+  // macro that returns true if the string in x is either the short or
+  // long name of the filter type T
+#define ISFILTER(x, T)							\
+  !strcmp(x, T<std::string, std::string>::shortname.c_str())		\
+    || !strcmp(x, T<std::string, std::string>::longname.c_str())
+
+  // convert run-time filter string to template
+  if (ISFILTER(filterName, MexBinaryThinningImageFilter3D)) {
+    
+    parseInputTypeToTemplate<nMexBinaryThinningImageFilter3D>(nargin, argIn,
+							      nargout, argOut);
+
+  }  else if (ISFILTER(filterName, MexDanielssonDistanceMapImageFilter)) {
+    
+    parseInputTypeToTemplate<nMexDanielssonDistanceMapImageFilter>(nargin, argIn,
+								   nargout, argOut);
+
+  }  else if (ISFILTER(filterName, MexSignedMaurerDistanceMapImageFilter)) {
+
+    parseInputTypeToTemplate<nMexSignedMaurerDistanceMapImageFilter>(nargin, argIn,
+								     nargout, argOut);
+
+  } else if (ISFILTER(filterName, MexBinaryDilateImageFilter)) {
+
+    parseInputTypeToTemplate<nMexBinaryDilateImageFilter>(nargin, argIn,
+							  nargout, argOut);
+
+  } else if (ISFILTER(filterName, MexBinaryErodeImageFilter)) {
+
+    parseInputTypeToTemplate<nMexBinaryErodeImageFilter>(nargin, argIn,
+							 nargout, argOut);
+
+    /* Insertion point: parseFilterTypeToTemplate (DO NOT DELETE THIS COMMENT) */
+
+  } else {
+    mexErrMsgTxt("Filter type not implemented");
+  }
+
+#undef ISFILTER
+
+  // exit successfully
+  return;
+
 }
 
 /*
@@ -457,10 +559,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // to translate the run-time type variables like inputVoxelClassId
   // to templates, so that we don't need to nest lots of "switch" or
   // "if" statements)
-  parseInputTypeToTemplate(nrhs,
-			   prhs,
-			   nlhs,
-			   plhs);
+  parseFilterTypeToTemplate(nrhs,
+			    prhs,
+			    nlhs,
+			    plhs);
 
   // exit successfully
   return;

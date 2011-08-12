@@ -1,3 +1,45 @@
+2011-08-12  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/ItkImFilter.cpp (v0.5.0):
+
+	- Big rewrite. Before, we instantiate all input/output voxel type
+	combinations for each filter, and the specializing with
+	EXCLUDEFILTER() to have empty class definitions for those
+	combinations that are not supported.
+
+	Now, we only instantiate those filter/input/output combinations
+	that are supported. This is a much better approach.
+
+	Now we use an INVALIDINPUTTYPE() macro to give an error when a
+	particular filter doesn't support an input voxel type. This is
+	something that was missing from the previous release.
+
+	- Create an enum to have a list of supported filters. Then, we can
+	pass those values as template parameters. This allows us to
+	compile only those filter/input/output combinations that are
+	supported. We only need to check the filter string name once with
+	ISFILTER(), and after that, just use the enum value.
+
+	- We no longer need an enum OutVoxelType, as an intermediate
+	step. That was silly. We can decide on the output voxel type and
+	directly pass it to the runFilter() function.
+
+	* ItkToolbox/MexBaseFilter.hpp (v0.6.1):
+
+	- Delete empty constructor, that is no longer necessary as
+	EXCLUDEFILTER() has been deleted too.
+
+	* ItkToolbox/MexTemplateFilter.hpp (v0.2.1):
+	* ItkToolbox/MexBinaryDilateImageFilter.hpp (v0.1.7):
+	* ItkToolbox/MexDanielssonDistanceMapImageFilter.hpp (v0.4.1):
+	* ItkToolbox/MexBinaryThinningImageFilter3D.hpp (v0.2.9):
+	* ItkToolbox/MexSignedMaurerDistanceMapImageFilter.hpp (v0.2.8):
+	* ItkToolbox/MexBinaryErodeImageFilter.hpp (v0.1.3):
+
+	- Delete the EXCLUDEFILTER() macro, as it's no longer
+	necessary. Now filters are only instantiated with those
+	input/output voxel types that they admit.
+
 2011-08-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* ItkToolbox/MexBaseFilter.hpp (v0.6.0):
