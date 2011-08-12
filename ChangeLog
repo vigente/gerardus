@@ -1,3 +1,35 @@
+2011-08-12  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* release 0.6.0:
+
+	- Big improvement to itk_imfilter(). Before, we were creating an
+	itk::Image for the input, and copying there the Matlab input
+	buffer. Also, copying the filter outputs to Matlab output
+	buffers. But now, we graft the Matlab buffers directly into the
+	filter, so no copying is necessary. This saves time, and also
+	memory, as no duplicates of the input and outputs are performed.
+
+	In the case of some outputs, copying may be necessary. For
+	example, if the filter gives an extra output where each voxel is a
+	vector. We cannot return that directly, so we need to process that
+	output and copy the result to a Matlab buffer.
+
+2011-06-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* release 0.5.0:
+
+	- Now itk_imfilter() supports passing parameters to filters. This
+	last version hasn't been tested with Windows yet.
+
+2011-08-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* release 0.4.0
+
+	- Now the MEX ITK functions itk_imfilter(),
+	itk_kernel_transform(), and the filter bwregiongrow() compile and
+	run under Windows XP 32-bit too. (Built with CMake 2.8 and Visual
+	Studio 10).
+
 2011-04-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* release 0.3
