@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.6.0
+  * Version: 0.6.1
   * $Rev$
   * $Date$
   *
@@ -114,10 +114,6 @@ public:
     nparam = 0;
     argParam = NULL;
   }
-
-  // constructor when a derived filter needs to be excluded from
-  // instantiation
-  MexBaseFilter() {;}
 
   // check numer of outputs requested by the user. By default, the
   // function provides 0 or 1 output (the filtered image), but this
