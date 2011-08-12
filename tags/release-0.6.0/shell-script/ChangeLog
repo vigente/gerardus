@@ -1,0 +1,10 @@
+2009-07-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add README:
+
+	- To document available shell scripts in Gerardus.
+
+	* Add images2avi.sh: 
+
+	- Create an AVI video from a stack of images.
+

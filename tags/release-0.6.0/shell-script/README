@@ -1,0 +1,9 @@
+This file is part of the shell scripts of project Gerardus.
+
+
+This shell scripts provides the following main functions:
+==========================================================
+
+images2avi.sh
+
+	Create an AVI video from a stack of images.
