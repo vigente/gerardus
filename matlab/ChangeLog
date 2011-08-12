@@ -1,5 +1,19 @@
 2011-08-12  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* release 0.6.0:
+
+	- Big improvement to itk_imfilter(). Before, we were creating an
+	itk::Image for the input, and copying there the Matlab input
+	buffer. Also, copying the filter outputs to Matlab output
+	buffers. But now, we graft the Matlab buffers directly into the
+	filter, so no copying is necessary. This saves time, and also
+	memory, as no duplicates of the input and outputs are performed.
+
+	In the case of some outputs, copying may be necessary. For
+	example, if the filter gives an extra output where each voxel is a
+	vector. We cannot return that directly, so we need to process that
+	output and copy the result to a Matlab buffer.
+
 	* ItkToolbox/ItkImFilter.cpp (v0.5.1):
 
 	- Fix bug. Filter pointer was being passed by value instead of
