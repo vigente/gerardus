@@ -14,7 +14,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.5.0
+  * Version: 0.5.1
   * $Rev$
   * $Date$
   *
@@ -80,8 +80,6 @@ const std::string MexBaseFilter<std::string, std::string>::shortname = "base";
 template <class InVoxelType, class OutVoxelType>
 void MexBaseFilter<InVoxelType, OutVoxelType>::CheckNumberOfOutputs() {
   
-  std::cout << "CheckNumberOfOutputs: In Base" << std::endl;////////////////////
-
   // prevent the user from asking for too many output arguments
   if (nargout > 1) {
     mexErrMsgTxt("Too many output arguments");
@@ -204,8 +202,6 @@ void MexBaseFilter<InVoxelType, OutVoxelType>::FilterBasicSetup() {
 template <class InVoxelType, class OutVoxelType>
 void MexBaseFilter<InVoxelType, OutVoxelType>::FilterAdvancedSetup() {
 
-  std::cout << "FilterAdvancedSetup: In Base" << std::endl;////////////////////
-
 }
 
 // filter the image
@@ -239,7 +235,6 @@ void MexBaseFilter<InVoxelType,
 template <class InVoxelType, class OutVoxelType>
 void MexBaseFilter<InVoxelType, OutVoxelType>::ExportOtherFilterOutputsToMatlab() {
   
-  std::cout << "ExportOtherFilterOutputsToMatlab: In Base" << std::endl;////////////////////
 }
 
 /*
