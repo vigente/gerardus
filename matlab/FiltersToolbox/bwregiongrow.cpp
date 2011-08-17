@@ -43,7 +43,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.3
+  * Version: 0.2.4
   * $Rev$
   * $Date$
   *
@@ -547,6 +547,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
   }
   else if (nlhs > 1) {
     mexErrMsgTxt("Too many output arguments");
+  }
+  if (mxIsEmpty(prhs[1])) {
+    mexErrMsgTxt("TODO cannot be empty");
   }
 
   // get input image class (double, uint8, etc)
