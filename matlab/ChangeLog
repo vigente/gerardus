@@ -1,3 +1,9 @@
+2011-08-17  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/bwregiongrow.cpp (v0.2.4):
+
+	- Fix bug. If TODO was empty, we got a segmentation fault.
+
 2011-08-12  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* release 0.6.0:
