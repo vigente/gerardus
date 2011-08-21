@@ -1,3 +1,39 @@
+2011-08-21  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.12.0) Full rewrite of the function. The function worked, but
+	it was too slow to deal with a full resolution rat heart (). Even
+	after removing most of the right ventricle cavity, the
+	segmentation presented ~20,000 branches. Times to search for
+	branch neighbours ranged in the months. Therefore, it was
+	necessary a completely new approach.
+
+	The first improvement is identifying clumps of bifurcation
+	voxels. Branches are the remaining voxels, without overlap.
+
+	Instead of using struct CC fields, now we use sparse matrices for
+	connections between branches and bifurcation clumps, and amongst
+	branches.
+
+	Instead of merging branches in pairs, now we concatenate all
+	voxels of all branches to be merged, and let Dijkstra's algorithm
+	sort them out.
+
+	Instead of allowing any pair of branches with good alignment
+	merge, now only two branches can merge in each bifurcation
+	branch. This gives more sensible results, as there should be only
+	1 main branch from which secondary branches arise at each
+	bifurcation. The method to select which pair is the main branch
+	can be improved, maybe taking into account the diameter of the
+	vessels.
+
+	Instead of using our own function to label matrices from CC
+	structs, now we use Matlab's labelmatrix() function.
+
+	Times to process the whole rat heart are now around 4 or 5 min,
+	instead of months.
+
 2011-08-17  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/bwregiongrow.cpp (v0.2.4):
