@@ -2,6 +2,24 @@
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
+	- (v0.7.1) Make cc a mandatory argument. We need it to avoid
+	having to do a very expensive search (br = find(nrrd.data==I)) to
+	find the voxels in each branch. This was the single most
+	computationally expensive step in the function, making each
+	iteration take ~1.2 sec for rat 024 (now each iteration takes 0.02
+	sec).
+
+	- Add a new input argument STRAIGHT so that the user can decide
+	whether branches are straightened or not before computing PCA
+	(this used to be done providing cc or not, but now cc is
+	mandatory).
+
+	- Use only 5 levels in itk_pstransform('bspline'...), instead of
+	6. This makes that step almost 1 order of magnitude faster.
+
+	- Fix some small bugs when the branch had very few voxels and/or
+	we could not get 3 valid eigenvalues.
+
 	- (v0.7.0) Instead of using the sparse matrix "d" and vector
 	"dict", now we compute the degree of each voxel using a
 	convolution. For rat 024 right ventricle, this is 5 times faster
