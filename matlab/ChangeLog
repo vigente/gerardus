@@ -1,5 +1,12 @@
 2011-08-22  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.7.0) Instead of using the sparse matrix "d" and vector
+	"dict", now we compute the degree of each voxel using a
+	convolution. For rat 024 right ventricle, this is 5 times faster
+	and uses 70% of the memory.
+
 	* Add FiltersToolbox/scinrrd_crop.m (v0.0.1):
 
 	- Crop an SCI NRRD image or segmentation volume.
