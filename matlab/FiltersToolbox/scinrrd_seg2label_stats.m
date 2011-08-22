@@ -1,4 +1,4 @@
-function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict, p)
+function stats = scinrrd_seg2label_stats(nrrd, cc, p)
 % SCINRRD_SEG2LABEL_STATS  Shape stats for each object in a multi-label
 % segmentation; objects can be straightened with an skeleton or medial line
 % before computing some measures
@@ -94,16 +94,6 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict, p)
 %
 %     >> sk = itk_imfilter('skel', seg.data);
 %
-% STATS = SCINRRD_SEG2LABEL_STATS(..., D, DICT)
-%
-%   D is the sparse distance matrix for adjacent voxels in the
-%   segmentation. DICT is the dictionary vector to convert between image
-%   linear indices and distance matrix indices. They can be computed using
-%
-%     >> [d, dict] = seg2dmat(seg.data, 'seg', [seg.axis.spacing]);
-%
-%   If they are not provided externally, they are computed internally.
-%
 % STATS = SCINRRD_SEG2LABEL_STATS(..., P)
 %
 %   P is a scalar in [0, 1]. To straighten branches, an approximating or
@@ -121,7 +111,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict, p)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.6.3
+% Version: 0.7.0
 % $Rev$
 % $Date$
 % 
@@ -149,19 +139,14 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, d, dict, p)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 5, nargin, 'struct'));
+error(nargchk(1, 3, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
 % defaults
 if (nargin < 2)
     cc = [];
 end
-if (nargin < 4 || isempty(d) || isempty(dict))
-    % compute distance matrix for the whole image segmentation; this is a
-    % very sparse matrix because only adjacent voxels get a connection
-    [d, dict] = seg2dmat(nrrd.data, 'seg', [nrrd.axis.spacing]);
-end
-if (nargin < 5 || isempty(p))
+if (nargin < 3 || isempty(p))
     p = 1.0;
 end
 
@@ -170,9 +155,13 @@ end
 if (size(nrrd.data, 3) > 1)
     % data is 3D
     degmax = 26;
+    degbox = ones(3, 3, 3, 'uint8');
+    degbox(2, 2, 2) = 0;
 else
     % data is 2D
     degmax = 8;
+    degbox = ones(3, 'uint8');
+    degbox(2, 2) = 0;
 end
 
 if (p < 0 || p > 1)
@@ -186,7 +175,8 @@ if (~isempty(cc) && (N ~= cc.NumObjects))
 end
 
 % compute degree of each voxel in the segmentation
-deg = sum(d>0, 2);
+deg = nrrd.data ~= 0;
+deg = uint8(convn(deg, degbox, 'same')) .* uint8(deg);
 
 % init output
 stats.var = zeros(3, N);
@@ -214,26 +204,30 @@ for I = 1:N
     
     %% compute boundary stats
     
-    % image indices => distance matrix indices
-    idx = dict(br);
-    
     % number of voxels that are touching the background
-    stats.nwater(I) = nnz(deg(idx) ~= degmax);
+    stats.nwater(I) = nnz(deg(br) ~= degmax);
     
     % if all the voxels have maximum degree, then the label is landlocked
     stats.islandlocked(I) = stats.nwater(I) == 0;
     
-    % create a smaller connectivity/distance matrix for only the voxels in
-    % the label
-    dlab = d(idx, idx)>0;
+    % crop the part of the segmentation that contains the branch
+    [r, c, s] = ind2sub(cc.ImageSize, br);
+    
+    from = min([r c s]);
+    to = max([r c s]);
+    
+    deglab = nrrd.data(from(1):to(1), from(2):to(2), from(3):to(3));
+    
+    % keep only voxels of the current branch
+    deglab = uint8(deglab) == I;
     
     % compute degree of each voxel in the label if the label had been
     % disconnected from all other labels
-    deglab = sum(dlab, 2);
+    deglab = convn(deglab, degbox, 'same') .* deglab;
     
     % total number of voxels in the outer boundary of the label, whether
     % they touch other labels or not
-    stats.nbound(I) = nnz(deglab ~= degmax);
+    stats.nbound(I) = nnz(deglab ~= degmax & deglab ~= 0);
     
     %% compute eigenvalues using PCA
         
