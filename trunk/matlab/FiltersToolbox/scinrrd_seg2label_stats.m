@@ -1,4 +1,4 @@
-function stats = scinrrd_seg2label_stats(nrrd, cc, p)
+function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 % SCINRRD_SEG2LABEL_STATS  Shape stats for each object in a multi-label
 % segmentation; objects can be straightened with an skeleton or medial line
 % before computing some measures
@@ -37,13 +37,26 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p)
 %
 %   Boundary voxel counting is performed without straightening the labels.
 %
-% STATS = SCINRRD_SEG2LABEL_STATS(NRRD)
+% STATS = SCINRRD_SEG2LABEL_STATS(NRRD, CC)
 %
-%   NRRD is an SCI NRRD struct with a labelled segmentation mask.
+%   NRRD is an SCI NRRD struct with a labelled segmentation mask. All
+%   voxels in nrrd.data with value 0 belong to the background. All voxels
+%   with value 1 belong to object 1, value 2 corresponds to object 2, and
+%   so on.
 %
-%   All voxels in nrrd.data with value 0 belong to the background. All
-%   voxels with value 1 belong to object 1, value 2 corresponds to object
-%   2, and so on.
+%   CC is a struct produced by function skeleton_label() with the list of
+%   skeleton voxels that belongs to each object, and the parameterization
+%   vector for the skeleton.
+%
+%   The labels can be created, e.g.
+%
+%     >> nrrd = seg;
+%     >> [nrrd.data, cc] = skeleton_label(sk, seg.data, [seg.axis.spacing]);
+%
+%     where seg is an NRRD struct with a binary segmentation, and sk is the
+%     corresponding skeleton, that can be computed using
+%
+%     >> sk = itk_imfilter('skel', seg.data);
 %
 %   STATS is a struct with the shape parameters computed for each object in
 %   the segmentation. The measures provided are
@@ -75,26 +88,8 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p)
 %
 %   If an object has no voxels, the corresponding STATS values are NaN.
 %
-% STATS = SCINRRD_SEG2LABEL_STATS(NRRD, CC)
 %
-%   If CC is provided, then the function straightens each object before
-%   computing PCA.
-%
-%   CC is a struct produced by function skeleton_label() with the list of
-%   skeleton voxels that belongs to each object, and the parameterization
-%   vector for the skeleton.
-%
-%   The labels can be created, e.g.
-%
-%     >> nrrd = seg;
-%     >> [nrrd.data, cc] = skeleton_label(sk, seg.data, [seg.axis.spacing]);
-%
-%     where seg is an NRRD struct with a binary segmentation, and sk is the
-%     corresponding skeleton, that can be computed using
-%
-%     >> sk = itk_imfilter('skel', seg.data);
-%
-% STATS = SCINRRD_SEG2LABEL_STATS(..., P)
+% STATS = SCINRRD_SEG2LABEL_STATS(..., P, STRAIGHT)
 %
 %   P is a scalar in [0, 1]. To straighten branches, an approximating or
 %   smoothing cubic spline is fit to the skeleton voxels using csaps(...,
@@ -107,11 +102,16 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p)
 %   resolution in the order of 1, P=0.8 seems to give good results. By
 %   default, P=1 and no smotthing is performed.
 %
+%   STRAIGHT is a boolean flag. If STRAIGHT==true, then branches are
+%   straightened using the skeleton before computing PCA. By default,
+%   STRAIGHT=true.
+%
+%
 % See also: skeleton_label, seg2dmat, scinrrd_seg2voxel_stats.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.7.0
+% Version: 0.7.1
 % $Rev$
 % $Date$
 % 
@@ -139,15 +139,15 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 3, nargin, 'struct'));
+error(nargchk(2, 4, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
 % defaults
-if (nargin < 2)
-    cc = [];
-end
 if (nargin < 3 || isempty(p))
     p = 1.0;
+end
+if (nargin < 4 || isempty(STRAIGHT))
+    STRAIGHT = true;
 end
 
 % figure out whether the data is 2D or 3D, because if it's 2D, a landlocked
@@ -191,8 +191,10 @@ stats.jaccard = zeros(1, N);
 % loop every branch
 for I = 1:N
 
+    %% compute number of voxels
+
     % list of voxels in current branch
-    br = find(nrrd.data == I);
+    br = cc.PixelIdxList{I};
     
     % count number of voxels
     stats.nvox(I) = length(br);
@@ -201,9 +203,9 @@ for I = 1:N
     if (isempty(br))
         continue
     end
-    
+
     %% compute boundary stats
-    
+
     % number of voxels that are touching the background
     stats.nwater(I) = nnz(deg(br) ~= degmax);
     
@@ -211,10 +213,10 @@ for I = 1:N
     stats.islandlocked(I) = stats.nwater(I) == 0;
     
     % crop the part of the segmentation that contains the branch
-    [r, c, s] = ind2sub(cc.ImageSize, br);
+    [r, c, s] = ind2sub(size(nrrd.data), br);
     
-    from = min([r c s]);
-    to = max([r c s]);
+    from = min([r c s], [], 1);
+    to = max([r c s], [], 1);
     
     deglab = nrrd.data(from(1):to(1), from(2):to(2), from(3):to(3));
     
@@ -228,10 +230,10 @@ for I = 1:N
     % total number of voxels in the outer boundary of the label, whether
     % they touch other labels or not
     stats.nbound(I) = nnz(deglab ~= degmax & deglab ~= 0);
-    
+
     %% compute eigenvalues using PCA
-        
-    if (~isempty(cc))
+
+    if (STRAIGHT)
         % list of voxels that are part of the skeleton in the branch
         sk = cc.PixelIdxList{I};
         
@@ -244,7 +246,7 @@ for I = 1:N
     xi = scinrrd_index2world([r, c, s], nrrd.axis)';
     
     % straighten all branch voxels
-    if (~isempty(cc) && all(~isnan(cc.PixelParam{I})) ...
+    if (STRAIGHT && all(~isnan(cc.PixelParam{I})) ...
             && (length(sk) > 2) && (length(br) > 2))
         
         % coordinates of skeleton voxels
@@ -283,7 +285,7 @@ for I = 1:N
         y0m = (y0m' * t.T + t.c(1, :))';
 
         % straighten vessel using B-spline transform
-        yi = itk_pstransform('bspline', x', y', xi', [], 6)';
+        yi = itk_pstransform('bspline', x', y', xi', [], 5)';
 
         % compute eigenvalues of branch (most of the time we are going to
         % get 3 eigenvalues, but not always, e.g. if we have only two
@@ -315,13 +317,24 @@ for I = 1:N
         % compute eigenvalues of branch (most of the time we are going to
         % get 3 eigenvalues, but not always, e.g. if we have only two
         % voxels in the branch)
-        [eigv, stats.var(:, I)] = pts_pca(yi);
+        [eigv, aux] = pts_pca(yi);
+        
+        % if we don't have 3 distinct eigenvectors/eigenvalues, we can skip
+        % this branch
+        if (length(aux) < 3)
+            continue
+        end
+        stats.var(1:length(aux), I) = aux;
         
     end
-
-    %% convert voxel coordinates to segmentation mask and create cylinder 
-    %% segmentation mask
     
+    % numeric errors can cause the appearance of small negative
+    % eigenvalues. We make those values 0 to avoid errors below
+    stats.var(stats.var(:, I) < 0, I) = 0;
+
+    %% convert voxel coordinates to segmentation mask and create cylinder
+    %% segmentation mask
+
     % translate and rotate segmentation voxels so that they are on the
     % X-axis centered around 0
     yi = eigv' * (yi - repmat(y0m, 1, size(yi, 2)));
@@ -419,8 +432,7 @@ for I = 1:N
         round(idx(2, :)), round(idx(3, :)))) = 1;
 
     % fill holes
-    se = strel('ball', 3, 3);
-    im = imerode(imdilate(im, se), se);
+    im = itk_imfilter('bwerode', itk_imfilter('bwdilate', im, 3), 3);
     
 %     % DEBUG: save the segmentation masks as NRRD files so that they can be
 %     % inspected with Seg3D
@@ -432,7 +444,7 @@ for I = 1:N
     % compute overlap between vessel and cylinder
     stats.dice(I) = 2 * nnz(mask & im) / (nnz(mask) + nnz(im));
     stats.jaccard(I) = nnz(mask & im) / nnz(mask | im);
-    
+
 end
 
 % compute volume of the branch
