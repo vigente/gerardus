@@ -165,6 +165,10 @@ scinrrd_centroids.m
 
 	 SCINRRD_CENTROIDS  Compute centroid of segmentation in each slice
 	
+scinrrd_crop.m
+
+	 SCINRRD_CROP  Crop an SCI NRRD image or segmentation volume
+	
 scinrrd_estimate_bias_field.m
 
 	 SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field
