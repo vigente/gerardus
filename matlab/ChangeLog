@@ -1,3 +1,55 @@
+2011-08-24  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.13.0) Add new input argument, SINGLEMERGE. Now, we can
+	decide whether merging at each bifurcation clump will be limited
+	to only the 2 branches with the best alignment, or whether any two
+	branches with good alignment will be merged.
+
+	The reason is that in the pruning function
+	scinrrd_skeleton_prune(), spurious branches can be better aligned
+	than the main branch. So SINGLEMERGE=false should be used for
+	pruning, and SINGLEMERGE=true should be used to label the
+	segmentation after pruning.
+
+	* FiltersToolbox/scinrrd_skeleton_prune.m:
+
+	- (v0.3.0) Big rewrite of the function. A new step prunes all the
+	clumps of voxels. Also, the other two steps (short leaf and
+	spurious leaf) are run iteratively until no more branches can be
+	pruned. Branches can be merged before pruning.
+
+	- All the code that computed the local radius of a branch for the
+	spurious leaf step has been removed (estimation of skeleton
+	direction, plane intersection with the volume, etc). Instead, it's
+	much faster to just compute the stats for all branches with
+	scinrrd_seg2label_stats(), and use the second eigenvalue to
+	estimate the major radius of the branch. Instead of comparing it
+	to the secondary branch's length, we compare it to the distance
+	between the bifurcation and the tip of the leaf, because sometimes
+	leaf artifacts are a bit bent and even though they don't protude
+	much from the main branch, their length would be large enough to
+	prevent pruning.
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.7.2) Fix bug. When I removed (br = find(nrrd.data==I)) to
+	make the iterations faster for large images, I didn't realize that
+	instead of getting all the branch voxels, we were getting only the
+	skeleton. Thus, the estimate of branch dimensions was wrong.
+
+	But we couldn't go back to the previous code, because it's just
+	too slow. So the solution is that now we find the indices for each
+	label before the loop. This uses more memory, but it should be
+	fast enough.
+
+	- I have observed that there's a big peak of memory
+	consumption with convn(deg, degbox, 'same'). Currently, rat 024
+	needs 6 Gb of free RAM to run, even though the volume is only 600M
+	or so. Maybe we'll have to go back to computing the voxel degrees
+	with the sparse connection matrix.
+
 2011-08-22  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
