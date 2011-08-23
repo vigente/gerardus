@@ -1,4 +1,4 @@
-function [sk, cc, bifcc, mcon, madj, cc2] = skeleton_label(sk, im, res, alphamax, p)
+function [sk, cc, bifcc, mcon, madj, cc2, mmerge] = skeleton_label(sk, im, res, alphamax, p, SINGLEMERGE)
 % SKELETON_LABEL  Give each branch of a skeleton a different label, and
 % sort the voxels within each branch
 %
@@ -71,16 +71,15 @@ function [sk, cc, bifcc, mcon, madj, cc2] = skeleton_label(sk, im, res, alphamax
 %
 %     >> LAB .* SK
 %
-% [..., CC2] = SKELETON_LABEL(SK, IM, RES, ALPHAMAX, P)
+% [..., CC2] = SKELETON_LABEL(SK, IM, RES, ALPHAMAX, P, SINGLEMERGE)
 %
 %   With this syntax you can align branches that are well aligned with each
 %   other.
 %
 %   ALPHAMAX is an angle in radians. ALPHAMAX >= 0 means that branch
-%   merging is performed. At each bifurcation clump, only the two branches
-%   with the smallest angle between them are considered. If the angle
-%   between those two branches is <= ALPHAMAX, then they are merged. By
-%   default ALPHAMAX = -Inf, so no merging is performed.
+%   merging is performed. If the angle between those two branches is <=
+%   ALPHAMAX, then they are merged. By default ALPHAMAX = -Inf, so no
+%   merging is performed.
 %
 %   P is a scalar in [0, 1]. To compute the angle between branches, an
 %   approximating or smoothing cubic spline is fit to the skeleton voxels
@@ -91,6 +90,12 @@ function [sk, cc, bifcc, mcon, madj, cc2] = skeleton_label(sk, im, res, alphamax
 %   thumb, it seems that if resolution is in the order 1e-n, then a good
 %   value for P=1-1e-n. For example, if resolution is in the order 1e-5, 
 %   P=1-1e-5=0.999999. By default, P=1 and no smoothing is performed.
+%
+%   SINGLEMERGE is a boolean flag. If SINGLEMERGE=true, then at each
+%   bifurcation clump only the two branches with the smallest angle between
+%   them are considered for merging. If SINGLEMERGE=false, then any pair of
+%   branches with an angle smaller than ALPHAMAX will be merged. By
+%   default, SINGLEMERGE=true.
 %
 %   Note: If you want to see how branches are being merged and smoothed,
 %   uncomment the DEBUG block at the end of internal function
@@ -109,7 +114,7 @@ function [sk, cc, bifcc, mcon, madj, cc2] = skeleton_label(sk, im, res, alphamax
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.12.0
+% Version: 0.13.0
 % $Rev$
 % $Date$
 % 
@@ -137,8 +142,8 @@ function [sk, cc, bifcc, mcon, madj, cc2] = skeleton_label(sk, im, res, alphamax
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 5, nargin, 'struct'));
-error(nargoutchk(0, 6, nargout, 'struct'));
+error(nargchk(1, 6, nargin, 'struct'));
+error(nargoutchk(0, 8, nargout, 'struct'));
 
 % defaults
 if (nargin < 2)
@@ -152,6 +157,9 @@ if (nargin < 4 || isempty(alphamax))
 end
 if (nargin < 5 || isempty(p))
     p = 1.0;
+end
+if (nargin < 6 || isempty(SINGLEMERGE))
+    SINGLEMERGE = true;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -258,9 +266,9 @@ mcon = boolean(sparse(cc.NumObjects, bifcc.NumObjects));
 % branches, via which bifurcation clump
 madj = sparse(cc.NumObjects, cc.NumObjects);
 
-% init matrix to keep track of which branches need to be merged
+% init matrix to keep track of which branches are merged
 if (alphamax >= 0)
-    mmerge = boolean(sparse(cc.NumObjects, cc.NumObjects));
+    mmerge = sparse(cc.NumObjects, cc.NumObjects);
 else
     mmerge = [];
 end
@@ -321,11 +329,17 @@ for I = 1:bifcc.NumObjects
     
     if (alphamax >= 0)
         
+        % number of branches
+        N = length(idx);
+        
         % in order to merge, the bifurcation needs to have at least 2
         % branches
-        if (length(idx) < 2)
+        if (N < 2)
             continue
         end
+        
+        % preserve the list of branches for later
+        idx0 = idx;
         
         % get all combinations of pairs of branches that share this clump
         idx = nchoosek(idx, 2);
@@ -350,20 +364,72 @@ for I = 1:bifcc.NumObjects
             
         end
         
-        % get the two branches with the smallest angle
-        [alphamin, J] = min(alpha);
-        
-        % if the smallest angle is small enough, we mark these two branches
-        % to be merged via the current bifurcation clump
-        if (alphamin <= alphamax)
-            mmerge(idx(J, 1), idx(J, 2)) = true;
-            mmerge(idx(J, 2), idx(J, 1)) = true;
+        if (SINGLEMERGE) % only 2 branches can be merged per bifurcation clump
+            
+            % get the two branches with the smallest angle
+            [alphamin, J] = min(alpha);
+            
+            % if the smallest angle is small enough, we mark these two branches
+            % to be merged via the current bifurcation clump (note that we
+            % don't know yet which label the merged branches will have, we only
+            % know that they need to be merged)
+            if (alphamin <= alphamax)
+                mmerge(idx(J, 1), idx(J, 2)) = true;
+                mmerge(idx(J, 2), idx(J, 1)) = true;
+            end
+            
+        else % any pair of suitable branches can be merged
+            
+            % create small matrix to write the angles between the branches
+            % at this bifurcation clump
+            malpha = zeros(N);
+            
+            % populate the matrix with the computed angles
+            aux = nchoosek(1:N, 2);
+            malpha(sub2ind([N N], aux(:, 1), aux(:, 2))) = alpha;
+            malpha = malpha + malpha';
+            
+            % make the main diagonal Inf so that it doesn't count when we
+            % look for the minimum angle
+            malpha(1:N+1:end) = Inf;
+            
+            % loop all branches at this bifurcation clump
+            for J = 1:N
+                
+                % find the best-aligned branch for current branch
+                [alphamin, idxmin] = min(malpha(J, :));
+                
+                % if the aligment is larger than the threshold angle, then
+                % we are not going to merge these branches
+                if (alphamin > alphamax)
+                    continue
+                end
+                
+                % if branch A wants to merge with branch B, check that
+                % branch B also wants to merge with branch A
+                [~, idxmin2] = min(malpha(idxmin, :));
+                
+                if (idxmin2 == J)
+                    
+                    % if so, add both branches to the list of branches to
+                    % merge
+                    mmerge(idx0(J), idx0(idxmin)) = true;
+                    
+                end
+                
+            end
+            
         end
         
     end
 
 end
 
+% mark branches to be merged with themselves, so that we can keep track of
+% single branches in mmerge
+if (alphamax >= 0)
+    mmerge(1:size(mmerge, 1)+1:numel(mmerge)) = true;
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% merge branches
@@ -389,12 +455,19 @@ cc2.BranchLength = [];
 cc2.Degree = [];
 
 % loop branches
+I = 0; % label of the current merged branch
 while (~isempty(br))
+    
+    % new label for merged branches
+    I = I + 1;
 
     % get all the branches the first branch in the list is connected to,
     % and sort them forming a chain
-    idx = sort_connected_branches(br(1), double(mmerge));
-    cc2.MergedBranches{end+1} = idx;
+    idx = sort_connected_branches(br(1), mmerge);
+    
+    % keep track of which branches have been merged
+    cc2.MergedBranches{I} = idx;
+    mmerge(idx, idx) = mmerge(idx, idx) * I;
     
     % remove merged branches from the list of branches
     N = length(br);
@@ -409,30 +482,28 @@ while (~isempty(br))
     if any(bifidx == 0)
         error('Assertion fail: Branches are connected but have no bifurcation clump between them')
     end
-    cc2.MergedBifClumps{end+1} = bifidx';
+    cc2.MergedBifClumps{I} = bifidx';
     
     % get voxels from all the branches and the bifurcation clumps
     v = [cat(1, cc.PixelIdxList{idx}); cat(1, bifcc.PixelIdxList{bifidx})];
 
     % sort the voxels so that they form a new branch, and get the
     % parameterisation
-    [cc2.PixelIdxList{end+1}, cc2.PixelParam{end+1}] = ...
+    [cc2.PixelIdxList{I}, cc2.PixelParam{I}] = ...
         sort_branch(v, dsk, dictsk, idictsk);
-    cc2.PixelIdxList{end} = cc2.PixelIdxList{end}(:);
-    cc2.PixelParam{end} = cc2.PixelParam{end}(:);
+    cc2.PixelIdxList{I} = cc2.PixelIdxList{I}(:);
+    cc2.PixelParam{I} = cc2.PixelParam{I}(:);
     
-    % get degree of each branch voxel
-    cc2.Degree{end+1} = full(deg(dictsk(cc2.PixelIdxList{end})));
-
-end
-
-
-% replace original connected components by merged branches
-cc2.NumObjects = length(cc2.PixelIdxList);
-for I = 1:cc2.NumObjects
+    % get some more info about the merged branch
+    cc2.Degree{I} = full(deg(dictsk(cc2.PixelIdxList{I})));
     cc2.IsLeaf(I) = any(cc2.Degree{I} < 2);
     cc2.BranchLength(I) = cc2.PixelParam{I}(end);
+    
 end
+
+% get number of merged branches
+cc2.NumObjects = length(cc2.PixelIdxList);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% label skeleton voxels or segmentation voxels, merged or not merged
