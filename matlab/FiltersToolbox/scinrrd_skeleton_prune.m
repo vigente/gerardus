@@ -1,19 +1,24 @@
-function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio)
+function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, maxclump, minlen, lratio, alphamax, p)
 % SCINRRD_SKELETON_PRUNE  Prune branches in a segmentation's skeletonization
 %
-% This function prunes the leaves of a segmentation skeleton in two steps:
+% This function prunes the leaves of a segmentation skeleton in three
+% steps:
 %
-%   1. Remove very short leaves
+%   1. Remove clumps of voxels
 %
-%   2. Remove branches created by artifacts in the segmentation. Spurious
-%      branches are those roughly as long as the local radius of the main
-%      branch they are attached to
+%   2. Prune very short leaves (iteratively until no more leaves can be
+%      pruned)
+%
+%   3. Prune leaves created by artifacts in the segmentation. Spurious
+%      leaves are those roughly as long as the local radius of the main
+%      branch they are attached to (iteratively until no more leaves can
+%      be pruned)
 %
 %
 % NRRDPR = SCINRRD_SKELETON_PRUNE(NRRDSK)
-% NRRDPR = SCINRRD_SKELETON_PRUNE(NRRDSK, [], MINLEN)
+% NRRDPR = SCINRRD_SKELETON_PRUNE(NRRDSK, [], MAXCLUMP, MINLEN)
 %
-%   This syntax runs step 1 only.
+%   This syntax runs steps 1 and 2 only.
 %
 %   NRRDSK is an SCI NRRD struct. NRRDSK.data contains the result of
 %   running a skeletonization algorithm on a binary segmentation NRRD,
@@ -26,16 +31,19 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio)
 %   leaf shorter than MINLEN will be pruned. By default, MINLEN = 5 voxel.
 %
 %
-% NRRDPR = SCINRRD_SKELETON_PRUNE(NRRDSK, NRRD, MINLEN, LRATIO)
+% NRRDPR = SCINRRD_SKELETON_PRUNE(NRRDSK, NRRD, MAXCLUMP, MINLEN, LRATIO, ALPHAMAX, P)
 %
-%   This syntax runs steps 1 and 2.
+%   This syntax runs steps 1, 2 and 3.
 %
-%   NRRD is the SCI NRRD struct mentioned above.
+%   NRRD is the binary segmentation mentioned above.
 %
-%   LRATIO is a scalar. Branches with BL/R < LRATIO will be pruned, where
-%   BL is the skeleton branch length and R is the estimated maximum radius
-%   of the main branch the leaf is connected to. By default, LRATIO=1.2.
+%   LRATIO is a scalar. Leaves with L/R < LRATIO will be pruned, where
+%   L is the length from the bifurcation to the tip of the leaf. By
+%   default, LRATIO=1.2.
 %
+%   ALPHAMAX and P are merging parameters. See the help of function
+%   skeleton_label for details. If merging is not enabled, then no leaves
+%   will be pruned in step 3.
 %
 %
 %   Note on SCI NRRD: Software applications developed at the University of
@@ -56,7 +64,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.5
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
@@ -84,7 +92,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 4, nargin, 'struct'));
+error(nargchk(1, 7, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
 if ~isstruct(nrrdsk)
@@ -95,214 +103,148 @@ end
 if (nargin < 2)
     nrrd = [];
 end
-if (nargin < 3 || isempty(minlen))
+if (nargin < 3 || isempty(maxclump))
+    maxclump = 9;
+end
+if (nargin < 4 || isempty(minlen))
     minlen = 5;
 end
-if (nargin < 4 || isempty(lratio))
+if (nargin < 5 || isempty(lratio))
     lratio = 1.2;
 end
+if (nargin < 6 || isempty(alphamax))
+    alphamax = -Inf; % don't merge by default
+end
+if (nargin < 7 || isempty(p))
+    p = 1.0; % don't smooth by default
+end
 
-%% Step 1: pruning of very short leaf branches
+%% Step 1: removal of big clumps of voxels
 
-% split skeleton in branches
-[~, cc] = skeleton_label(nrrdsk.data, [], [nrrdsk.axis.spacing]);
+% label bifurcation clumps
+[~, ~, bifcc] = skeleton_label(nrrdsk.data, [], [nrrdsk.axis.spacing]);
 
-% loop to prune branches
-for I = 1:cc.NumObjects
+% get number of voxels in each clump
+n = cellfun(@(x) length(x), bifcc.PixelIdxList);
 
-    if ~(cc.IsLeaf(I) && length(cc.PixelIdxList{I}) < minlen)
-        % skip branch
-        continue
-    end
+% find clumps larger than maxclump
+idx = find(n > maxclump);
+
+% remove clumps larger than maxclump
+nrrdsk.data(cat(1, bifcc.PixelIdxList{idx})) = 0;
+
+%% Step 2: pruning of very short leaf branches
+while (1)
     
-    % get indices from current branch and its neighbours
-    idx = cat(1, cc.PixelIdxList{[I ...
-        cc.BranchNeighboursLeft{I} cc.BranchNeighboursRight{I}]});
+    % compute skeleton labelling
+    [~, cc] = skeleton_label(nrrdsk.data, [], [nrrdsk.axis.spacing]);
+   
+    % get number of voxels in each branch
+    n = cellfun(@(x) length(x), cc.PixelIdxList);
     
-    % linear index => r, c, s indices
-    [r, c, s] = ind2sub(size(nrrdsk.data), idx);
+    % find leaf-branches that are shorter than the minimum length
+    idx1 = find(n < minlen & cc.IsLeaf);
     
-    % coordinates of a box 
-    boxmin = [min(r), min(c), min(s)];
-    boxmax = [max(r), max(c), max(s)];
+    % remove short branches from the segmentation
+    nrrdsk.data(cat(1, cc.PixelIdxList{idx1})) = 0;
     
-    % crop box from whole skeleton segmentation
-    box = nrrdsk.data(boxmin(1):boxmax(1), boxmin(2):boxmax(2), ...
-        boxmin(3):boxmax(3));
+    % recompute the skeleton labelling
+    [~, ~, bifcc, mcon] = skeleton_label(nrrdsk.data, [], [nrrdsk.axis.spacing]);
+   
+    % find bifurcation clusters that are connected to 0 or 1 branches
+    idx2 = find(sum(mcon, 1) < 2);
     
-    % compute connected components. The current branch and its neighbours
-    % should form only 1, but because voxels from other branches can be
-    % contained within the box, the number of connected components in the
-    % box can be higher
-    boxcc = bwconncomp(box);
+    % remove those bifurcation clumps, because they are not connecting
+    % branches, they are either floating alone in space, or terminating a
+    % branch
+    nrrdsk.data(cat(1, bifcc.PixelIdxList{idx2})) = 0;
     
-    % save the number of connected components in the box for later
-    boxnumcc = boxcc.NumObjects;
-    
-    % remove the current branch's voxels from the box
-    [r, c, s] = ind2sub(size(nrrdsk.data), cc.PixelIdxList{I});
-    r = r - boxmin(1) + 1;
-    c = c - boxmin(2) + 1;
-    s = s - boxmin(3) + 1;
-    idx = sub2ind(size(box), r, c, s);
-    box(idx) = 0;
-    
-    % recompute connected components
-    boxcc = bwconncomp(box);
-    
-    % if the number of connected components hasn't changed, then we remove
-    % the whole current branch from the skeleton segmentation
-    if (boxcc.NumObjects == boxnumcc)
-        nrrdsk.data(cc.PixelIdxList{I}) = 0;
-    else
-        % otherwise, we remove the branch except for the bifurcation voxel
-        nrrdsk.data(cc.PixelIdxList{I}(cc.Degree{I} < 3)) = 0;
+    % if no bifurcation clumps were found to be removed, stop the
+    % algorithm, because that means that no new short leaf-braches can be
+    % found either
+    if (isempty(idx2))
+        break;
     end
     
 end
 
-%% Step 2: pruning of leaf branches produced by segmentation artifacts
+
+%% Step 3: pruning of leaf branches produced by segmentation artifacts
 
 % skip if no full segmentation is provided
 if isempty(nrrd)
     return
 end
 
-% separate segmentation in branch candidates using the cleaned up skeleton
-[~, cc] = skeleton_label(nrrdsk.data, nrrd.data, [nrrd.axis.spacing]);
-
-% init vector for maximum eigenvalues
-maxeigd = zeros(1, cc.NumObjects);
-
-% loop each branch
-for I = 1:cc.NumObjects
+% repeat the process until no branches are removed
+atleastonepruning = true;
+while (atleastonepruning)
+    disp('hi')
     
-    % get index of voxel that connects this branch to other branches
-    idx0 = cc.PixelIdxList{I}(cc.Degree{I} > 2);
+    % if there are no prunings in this iterations, we stop
+    atleastonepruning = false;
     
-    % we are only interested in leaves that are attached to other branches
-    % as potential candidates for pruning
-    if (~cc.IsLeaf(I) || isempty(idx0))
-        continue
-    end
+    % label the segmentation using multiple merging at every bifurcation
+    % clump
+    [nrrd.data, cc, bifcc, mcon, madj, cc2, mmerge] = ...
+        skeleton_label(nrrdsk.data, nrrd.data, [nrrd.axis.spacing], ...
+        alphamax, p, false);
     
-    % real world coordinates of the voxel
-    [r, c, s] = ind2sub(size(nrrd.data), idx0);
-    xyz0 = scinrrd_index2world([r, c, s], nrrd.axis);
-
-    % labels that are connected to this leaf
-    idx = [cc.BranchNeighboursLeft{I} cc.BranchNeighboursRight{I}];
-    if (isempty(idx)) % skip if this branch is not connected
-        continue
-    end
+    % measure the stats of every merged branch
+    stats2 = scinrrd_seg2label_stats(nrrd, cc2, p);
     
-    % coordinates of skeleton points that are connected to this leaf
-    idx = unique(cat(1, cc.PixelIdxList{idx}));
-
-    [r, c, s] = ind2sub(size(nrrd.data), idx);
-    xyz = scinrrd_index2world([r, c, s], nrrd.axis);
-
-    % compute eigenvectors of the neighbour branches' skeletons. We are
-    % going to use the largest as an estimate of the main vessels direction
-    eigv = pts_pca(xyz');
-    
-    % intersect 3D image with a plane that contains the first skeleton
-    % voxel, and that is orthogonal to the main vessel
-    [im, gx, gy, gz, xyz0idx] = scinrrd_intersect_plane(nrrd, xyz0, ...
-        eigv(:, 1));
-    
-    % r, c index => linear index
-    % indices in im of the rotation voxel
-    xyz0idx = sub2ind(size(im), xyz0idx(1), xyz0idx(2));
-    
-    % convert NaN to background voxels
-    im(isnan(im)) = 0;
-    
-    % compute connected components on the intersecting plane
-    ccim = bwconncomp(im);
-    
-    % find the connected component that contains the bifurcation voxel
-    FOUND = false;
-    for CCI = 1:ccim.NumObjects
-        if (any(ccim.PixelIdxList{CCI} == xyz0idx))
-            FOUND = true;
-            break
+    % loop each branch in the list of merged branches
+    for I = 1:cc2.NumObjects
+        
+        % we consider the current branch a main branch, and any branch
+        % coming out of it, a secondary branch
+        
+        % compute the major radius of the main branch
+        r = sqrt(4 * stats2.var(2, I));
+        
+        % loop consecutive pairs of segments in the main branch
+        for J = 1:length(cc2.MergedBranches{I})-1
+            
+            % get the bifurcation clump between both segments
+            bif = cc2.MergedBifClumps{I}(J);
+            
+            % get secondary branches attached to the bifurcation clump
+            % (usually, there's only 1 secondary branch, but there can be more)
+            bn = setdiff(find(mcon(:, bif)), cc2.MergedBranches{I}(J:J+1));
+            
+            % keep only secondary branches that are leaf-branches
+            bn = bn(cc.IsLeaf(bn));
+            
+            % skip to next segment if there are no valid leaf secondary
+            % branches
+            if isempty(bn)
+                continue
+            end
+            
+            % compute distance between the first and last voxels in the
+            % secondary branch, which gives a better estimate of whether the
+            % branch protudes from the main vessel or not, than the branches
+            % length (because the branch can be bent)
+            len = zeros(size(bn));
+            for K = 1:length(len)
+                idx = cc.PixelIdxList{bn(K)}([1 end]);
+                [r1, c1, s1] = ind2sub(size(nrrdsk.data), idx);
+                xyz = scinrrd_index2world([r1, c1, s1], nrrdsk.axis);
+                len(K) = sqrt(sum(diff(xyz).^2));
+            end
+            
+            % get branches that have to be pruned
+            toremove = (len / r) <= lratio;
+            atleastonepruning = atleastonepruning || any(toremove);
+            
+            % if length of the secondary branch is not much larger than the
+            % radius of the main branch, we assume that the secondary branch is
+            % a segmentation artifact, and remove it
+            nrrdsk.data(cat(1, ...
+                cc.PixelIdxList{bn(toremove)})) = 0;
+            
         end
-    end
-    
-    if (~FOUND)
-        error('Assertion fail: Root voxel not found')
-    end
-    
-    % extract coordinates of voxels that belong to the connected component
-    % from above
-    xyz = [gx(ccim.PixelIdxList{CCI}), ...
-        gy(ccim.PixelIdxList{CCI}), ...
-        gz(ccim.PixelIdxList{CCI})];
-    
-    % compute PCA on the intersected voxel coordinates
-    [~, eigd] = pts_pca(xyz');
-    
-    % we are just interested in the largest eigenvalue, that will allow us
-    % to estimate the maximum thickness of the vessel at this point
-    maxeigd(I) = eigd(1);
-    
-end
-
-% list of branches that we want to prune
-len = zeros(1, cc.NumObjects);
-for I = 1:cc.NumObjects
-    if ~isempty(cc.PixelParam{I})
-        len(I) = cc.PixelParam{I}(end);
-    end
-end
-idxprune = (len ./ sqrt(4*maxeigd) < lratio) & cc.IsLeaf;
-
-% loop to prune branches
-for I = find(idxprune)
-    
-    % get indices from current branch and its neighbours
-    idx = cat(1, cc.PixelIdxList{[I ...
-        cc.BranchNeighboursLeft{I} cc.BranchNeighboursRight{I}]});
-    
-    % linear index => r, c, s indices
-    [r, c, s] = ind2sub(size(nrrdsk.data), idx);
-    
-    % coordinates of a box 
-    boxmin = [min(r), min(c), min(s)];
-    boxmax = [max(r), max(c), max(s)];
-    
-    % crop box from whole skeleton segmentation
-    box = nrrdsk.data(boxmin(1):boxmax(1), boxmin(2):boxmax(2), ...
-        boxmin(3):boxmax(3));
-    
-    % compute connected components. The current branch and its neighbours
-    % should form only 1, but because voxels from other branches can be
-    % contained within the box, the number of connected components in the
-    % box can be higher
-    boxcc = bwconncomp(box);
-    
-    % save the number of connected components in the box for later
-    boxnumcc = boxcc.NumObjects;
-    
-    % remove the current branch's voxels from the box
-    [r, c, s] = ind2sub(size(nrrdsk.data), cc.PixelIdxList{I});
-    r = r - boxmin(1) + 1;
-    c = c - boxmin(2) + 1;
-    s = s - boxmin(3) + 1;
-    idx = sub2ind(size(box), r, c, s);
-    box(idx) = 0;
-    
-    % recompute connected components
-    boxcc = bwconncomp(box);
-    
-    % if the number of connected components hasn't changed, then we remove
-    % the whole current branch from the skeleton segmentation
-    if (boxcc.NumObjects == boxnumcc)
-        nrrdsk.data(cc.PixelIdxList{I}) = 0;
-    else
-        % otherwise, we remove the branch except for the bifurcation voxel
-        nrrdsk.data(cc.PixelIdxList{I}(cc. Degree{I} < 3)) = 0;
+        
     end
     
 end
