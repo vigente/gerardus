@@ -111,7 +111,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.7.1
+% Version: 0.7.2
 % $Rev$
 % $Date$
 % 
@@ -175,8 +175,8 @@ if (~isempty(cc) && (N ~= cc.NumObjects))
 end
 
 % compute degree of each voxel in the segmentation
-deg = nrrd.data ~= 0;
-deg = uint8(convn(deg, degbox, 'same')) .* uint8(deg);
+deg = uint8(nrrd.data ~= 0);
+deg = uint8(convn(deg, degbox, 'same')) .* deg;
 
 % init output
 stats.var = zeros(3, N);
@@ -188,13 +188,30 @@ stats.vol = nan(1, N);
 stats.dice = zeros(1, N);
 stats.jaccard = zeros(1, N);
 
+% get coordinates and labels of the segmented voxels
+idxlab = find(nrrd.data);
+lab = nonzeros(nrrd.data);
+
+% sort the label values
+[lab, idx] = sort(lab);
+idxlab = idxlab(idx);
+
+% find where each label begins, and add a last index for an inexistent
+% label; that index will be used to know where the last label ends
+idxlab0 = [0 ; find(diff(lab)) ; length(lab)] + 1;
+
+% free some memory
+clear lab
+
 % loop every branch
 for I = 1:N
 
     %% compute number of voxels
 
-    % list of voxels in current branch
-    br = cc.PixelIdxList{I};
+    % list of voxels in current branch. The reason why we are not doing a
+    % simple br = find(nrrd.data == I); is because for a large volume,
+    % that's a comparatively very slow operation
+    br = idxlab(idxlab0(I):idxlab0(I+1)-1);
     
     % count number of voxels
     stats.nvox(I) = length(br);
@@ -362,10 +379,10 @@ for I = 1:N
     
     % translate index coordinates so that they are centered around (0,0,0)
     idx = idx - repmat(idx0m, 1, size(idx, 2));
-    cylbox = cylbox - repmat(idx0m, 1, size(cylbox, 2));
     box = box - repmat(idx0m, 1, size(box, 2));
     
 %     % DEBUG: plot branch and boxes' corners
+%     cylbox = cylbox - repmat(idx0m, 1, size(cylbox, 2));
 %     hold off
 %     plot3(idx(2, :), idx(1, :), idx(3, :), '.')
 %     hold on
@@ -432,7 +449,7 @@ for I = 1:N
         round(idx(2, :)), round(idx(3, :)))) = 1;
 
     % fill holes
-    im = itk_imfilter('bwerode', itk_imfilter('bwdilate', im, 3), 3);
+    im = itk_imfilter('bwerode', itk_imfilter('bwdilate', im, 3, 1), 3, 1);
     
 %     % DEBUG: save the segmentation masks as NRRD files so that they can be
 %     % inspected with Seg3D
