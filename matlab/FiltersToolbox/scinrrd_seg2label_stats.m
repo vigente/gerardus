@@ -111,7 +111,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.7.2
+% Version: 0.7.3
 % $Rev$
 % $Date$
 % 
@@ -155,13 +155,9 @@ end
 if (size(nrrd.data, 3) > 1)
     % data is 3D
     degmax = 26;
-    degbox = ones(3, 3, 3, 'uint8');
-    degbox(2, 2, 2) = 0;
 else
     % data is 2D
     degmax = 8;
-    degbox = ones(3, 'uint8');
-    degbox(2, 2) = 0;
 end
 
 if (p < 0 || p > 1)
@@ -175,8 +171,32 @@ if (~isempty(cc) && (N ~= cc.NumObjects))
 end
 
 % compute degree of each voxel in the segmentation
-deg = uint8(nrrd.data ~= 0);
-deg = uint8(convn(deg, degbox, 'same')) .* deg;
+%
+% to compute the degree, we want to convolve with
+%
+% 1 1 1
+% 1 0 1
+% 1 1 1
+%
+% Because this array is not linearly separable (rank ~= 1), we use instead
+%
+% 1 1 1
+% 1 1 1 = conv2([1 1 1], [1 1 1]')
+% 1 1 1
+%
+% and then have to substract "1" from the degree of each segmented voxel
+%
+% Also, we have to mask out everything outside the segmentation, because
+% the convolution has a "blurring" effect at the edges of the object
+deg = convn(single(nrrd.data ~= 0), ones(3, 1, 1, 'single'), 'same');
+deg = convn(deg, ones(1, 3, 1, 'single'), 'same');
+if (size(nrrd.data, 3) > 1)
+    deg = convn(deg, ones(1, 1, 3, 'single'), 'same');
+end
+idx = deg > 0;
+deg(idx) = deg(idx) - 1;
+deg = uint8(deg);
+deg = deg .* uint8(nrrd.data ~= 0);
 
 % init output
 stats.var = zeros(3, N);
@@ -235,14 +255,19 @@ for I = 1:N
     from = min([r c s], [], 1);
     to = max([r c s], [], 1);
     
-    deglab = nrrd.data(from(1):to(1), from(2):to(2), from(3):to(3));
-    
     % keep only voxels of the current branch
-    deglab = uint8(deglab) == I;
+    deglab0 = (nrrd.data(from(1):to(1), from(2):to(2), from(3):to(3)) == I);
     
     % compute degree of each voxel in the label if the label had been
     % disconnected from all other labels
-    deglab = convn(deglab, degbox, 'same') .* deglab;
+    deglab = convn(single(deglab0), ones(3, 1, 1, 'single'), 'same');
+    deglab = convn(deglab, ones(1, 3, 1, 'single'), 'same');
+    if (size(nrrd.data, 3) > 1)
+        deglab = convn(deglab, ones(1, 1, 3, 'single'), 'same');
+    end
+    idx = deglab0 > 0;
+    deglab(idx) = deglab(idx) - 1;
+    deglab = uint8(deglab .* deglab0);
     
     % total number of voxels in the outer boundary of the label, whether
     % they touch other labels or not

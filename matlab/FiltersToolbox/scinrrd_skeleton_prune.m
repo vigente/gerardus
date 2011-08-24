@@ -64,7 +64,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, maxclump, minlen, lratio,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % $Rev$
 % $Date$
 % 
@@ -185,7 +185,7 @@ while (atleastonepruning)
     
     % label the segmentation using multiple merging at every bifurcation
     % clump
-    [nrrd.data, cc, bifcc, mcon, madj, cc2, mmerge] = ...
+    [nrrd.data, cc, ~, mcon, ~, cc2] = ...
         skeleton_label(nrrdsk.data, nrrd.data, [nrrd.axis.spacing], ...
         alphamax, p, false);
     
@@ -194,7 +194,7 @@ while (atleastonepruning)
     
     % loop each branch in the list of merged branches
     for I = 1:cc2.NumObjects
-        
+
         % we consider the current branch a main branch, and any branch
         % coming out of it, a secondary branch
         
@@ -228,7 +228,8 @@ while (atleastonepruning)
             for K = 1:length(len)
                 idx = cc.PixelIdxList{bn(K)}([1 end]);
                 [r1, c1, s1] = ind2sub(size(nrrdsk.data), idx);
-                xyz = scinrrd_index2world([r1, c1, s1], nrrdsk.axis);
+                xyz = scinrrd_index2world([r1(:), c1(:), s1(:)], ...
+                    nrrdsk.axis);
                 len(K) = sqrt(sum(diff(xyz).^2));
             end
             

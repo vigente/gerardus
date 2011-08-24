@@ -1,5 +1,12 @@
 2011-08-24  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.7.3) Computing the degree of each voxel by 3D convolution
+	was taking too much memory. Now instead of one 3D convolution, we
+	run three 1D convolutions (thanks to linear separability), which
+	is faster and doesn't require much memory.
+
 	* FiltersToolbox/skeleton_label.m:
 
 	- (v0.13.0) Add new input argument, SINGLEMERGE. Now, we can
@@ -14,6 +21,10 @@
 	segmentation after pruning.
 
 	* FiltersToolbox/scinrrd_skeleton_prune.m:
+
+	- (v0.3.1) Remove some unused variables and fix a small bug. When
+	a branch had only 1 voxel, the input to a scinrrd_index2world()
+	didn't have the expected dimensions.
 
 	- (v0.3.0) Big rewrite of the function. A new step prunes all the
 	clumps of voxels. Also, the other two steps (short leaf and
