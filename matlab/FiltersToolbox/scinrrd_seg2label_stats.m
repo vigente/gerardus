@@ -92,15 +92,15 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 % STATS = SCINRRD_SEG2LABEL_STATS(..., P, STRAIGHT)
 %
 %   P is a scalar in [0, 1]. To straighten branches, an approximating or
-%   smoothing cubic spline is fit to the skeleton voxels using csaps(...,
-%   P). P=0 is the smoothest spline (a line with the least squares
-%   approximation), while P=1 is a rugged spline (the spline interpolated
-%   the voxels). Adequate values of P depend on the image resolution, so
-%   it's difficult to propose a formula. For resolution in the order of
-%   2.5e-5, P=.999999 seems to give good results (note that for small
-%   resolution, P=.999999 gives a very different result to P=1.0). For
-%   resolution in the order of 1, P=0.8 seems to give good results. By
-%   default, P=1 and no smotthing is performed.
+%   smoothing cubic spline is fitted to the skeleton voxels using
+%   csaps(..., P). P=0 is the smoothest spline (a line with the least
+%   squares approximation), while P=1 is a rugged spline (the spline
+%   interpolated the voxels). Adequate values of P depend on the image
+%   resolution, so it's difficult to propose a formula. For resolution in
+%   the order of 2.5e-5, P=.999999 seems to give good results (note that
+%   for small resolution, P=.999999 gives a very different result to
+%   P=1.0). For resolution in the order of 1, P=0.8 seems to give good
+%   results. By default, P=1 and no smoothing is performed.
 %
 %   STRAIGHT is a boolean flag. If STRAIGHT==true, then branches are
 %   straightened using the skeleton before computing PCA. By default,
