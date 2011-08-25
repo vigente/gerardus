@@ -73,7 +73,7 @@ function [sk, cc, bifcc, mcon, madj, cc2, mmerge] = skeleton_label(sk, im, res, 
 %
 % [..., CC2] = SKELETON_LABEL(SK, IM, RES, ALPHAMAX, P, SINGLEMERGE)
 %
-%   With this syntax you can align branches that are well aligned with each
+%   With this syntax you can merge branches that are well aligned with each
 %   other.
 %
 %   ALPHAMAX is an angle in radians. ALPHAMAX >= 0 means that branch
