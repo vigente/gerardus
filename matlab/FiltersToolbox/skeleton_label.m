@@ -81,15 +81,16 @@ function [sk, cc, bifcc, mcon, madj, cc2, mmerge] = skeleton_label(sk, im, res, 
 %   ALPHAMAX, then they are merged. By default ALPHAMAX = -Inf, so no
 %   merging is performed.
 %
-%   P is a scalar in [0, 1]. To compute the angle between branches, an
-%   approximating or smoothing cubic spline is fit to the skeleton voxels
-%   using csaps(..., P). P=0 is the smoothest spline (a straight line with
-%   the least squares approximation), while P=1 is a rugged spline (the
-%   spline interpolated the voxels). Adequate values of P depend on the
-%   image resolution, so it's difficult to propose a formula. As a rule of
-%   thumb, it seems that if resolution is in the order 1e-n, then a good
-%   value for P=1-1e-n. For example, if resolution is in the order 1e-5, 
-%   P=1-1e-5=0.999999. By default, P=1 and no smoothing is performed.
+%   P is a scalar in [0, 1]. To straighten branches, an approximating or
+%   smoothing cubic spline is fitted to the skeleton voxels using
+%   csaps(..., P). P=0 is the smoothest spline (a line with the least
+%   squares approximation), while P=1 is a rugged spline (the spline
+%   interpolated the voxels). Adequate values of P depend on the image
+%   resolution, so it's difficult to propose a formula. For resolution in
+%   the order of 2.5e-5, P=.999999 seems to give good results (note that
+%   for small resolution, P=.999999 gives a very different result to
+%   P=1.0). For resolution in the order of 1, P=0.8 seems to give good
+%   results. By default, P=1 and no smoothing is performed.
 %
 %   SINGLEMERGE is a boolean flag. If SINGLEMERGE=true, then at each
 %   bifurcation clump only the two branches with the smallest angle between
