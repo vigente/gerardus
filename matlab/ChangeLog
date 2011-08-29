@@ -1,3 +1,10 @@
+2011-08-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_index2world.m:
+
+	- (v0.2.0) Add input argument CHOP so that we can deactivate the
+	conversion of points outside the image to NaN.
+
 2011-08-24  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
