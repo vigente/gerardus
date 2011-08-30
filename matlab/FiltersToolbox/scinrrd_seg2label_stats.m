@@ -111,7 +111,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.7.3
+% Version: 0.7.4
 % $Rev$
 % $Date$
 % 
@@ -474,7 +474,7 @@ for I = 1:N
         round(idx(2, :)), round(idx(3, :)))) = 1;
 
     % fill holes
-    im = itk_imfilter('bwerode', itk_imfilter('bwdilate', im, 3, 1), 3, 1);
+    im = itk_imfilter('bwerode', itk_imfilter('bwdilate', im, 1, 1), 1, 1);
     
 %     % DEBUG: save the segmentation masks as NRRD files so that they can be
 %     % inspected with Seg3D
