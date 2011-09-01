@@ -61,32 +61,27 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 %   STATS is a struct with the shape parameters computed for each object in
 %   the segmentation. The measures provided are
 %
-%     STATS.var: variance in the three principal components of the cloud
+%     STATS.Var: variance in the three principal components of the cloud
 %                of voxels that belong to each object. These are the
 %                ordered eigenvalues obtained from computing Principal
 %                Component Analysis on the voxel coordinates.
 %
-%     STATS.islandlocked: bool to tell whether the corresponding section is
+%     STATS.IsLandlocked: bool to tell whether the corresponding section is
 %                landlocked
 %
-%     STATS.nbound: number of voxels in the outer boundary of the section
+%     STATS.NBound: number of voxels in the outer boundary of the section
 %
-%     STATS.nwater: number of voxels in the outer boundary that are
+%     STATS.NWater: number of voxels in the outer boundary that are
 %                touching the background
 %
-%     STATS.nvox: number of voxels in the branch
+%     STATS.NVox: number of voxels in the branch
 %
-%     STATS.vol: volume of the branch (in m^3) units
+%     STATS.Vol: volume of the branch (in m^3) units
 %
-%     STATS.dice: Dice's coefficient (relative volume overlap) between the
-%                branch and the cylinder that corresponds to the STATS.var
-%                values. Dice's coefficient = 2 * |A & B| / (|A| + |B|)
+%     STATS.CylDivergence: 75%-quantile of distances between actual voxels
+%                on the branch's surface, and the corresponding voxel on
+%                the predicted cylinder
 %
-%     STATS.jaccard: Jaccard index (relative volume overlap) between the
-%                branch and the cylinder that corresponds to the STATS.var
-%                values. Jaccard's coefficient = 2 * |A & B| / |A | B|
-%
-%   If an object has no voxels, the corresponding STATS values are NaN.
 %
 %
 % STATS = SCINRRD_SEG2LABEL_STATS(..., P, STRAIGHT)
@@ -111,7 +106,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.7.4
+% Version: 0.8.0
 % $Rev$
 % $Date$
 % 
@@ -181,7 +176,7 @@ end
 % Because this array is not linearly separable (rank ~= 1), we use instead
 %
 % 1 1 1
-% 1 1 1 = conv2([1 1 1], [1 1 1]')
+% 1 1 1 = convn([1 1 1], [1 1 1]')
 % 1 1 1
 %
 % and then have to substract "1" from the degree of each segmented voxel
@@ -199,14 +194,13 @@ deg = uint8(deg);
 deg = deg .* uint8(nrrd.data ~= 0);
 
 % init output
-stats.var = zeros(3, N);
-stats.islandlocked = true(1, N);
-stats.nbound = nan(1, N);
-stats.nwater = nan(1, N);
-stats.nvox = nan(1, N);
-stats.vol = nan(1, N);
-stats.dice = zeros(1, N);
-stats.jaccard = zeros(1, N);
+stats.Var = zeros(3, N);
+stats.IsLandlocked = true(1, N);
+stats.NBound = nan(1, N);
+stats.NWater = nan(1, N);
+stats.NVox = nan(1, N);
+stats.Vol = nan(1, N);
+stats.CylDivergence = nan(1, N);
 
 % get coordinates and labels of the segmented voxels
 idxlab = find(nrrd.data);
@@ -234,7 +228,7 @@ for I = 1:N
     br = idxlab(idxlab0(I):idxlab0(I+1)-1);
     
     % count number of voxels
-    stats.nvox(I) = length(br);
+    stats.NVox(I) = length(br);
     
     % if there are no voxels, skip this branch
     if (isempty(br))
@@ -244,10 +238,10 @@ for I = 1:N
     %% compute boundary stats
 
     % number of voxels that are touching the background
-    stats.nwater(I) = nnz(deg(br) ~= degmax);
+    stats.NWater(I) = nnz(deg(br) ~= degmax);
     
     % if all the voxels have maximum degree, then the label is landlocked
-    stats.islandlocked(I) = stats.nwater(I) == 0;
+    stats.IsLandlocked(I) = stats.NWater(I) == 0;
     
     % crop the part of the segmentation that contains the branch
     [r, c, s] = ind2sub(size(nrrd.data), br);
@@ -271,7 +265,7 @@ for I = 1:N
     
     % total number of voxels in the outer boundary of the label, whether
     % they touch other labels or not
-    stats.nbound(I) = nnz(deglab ~= degmax & deglab ~= 0);
+    stats.NBound(I) = nnz(deglab ~= degmax & deglab ~= 0);
 
     %% compute eigenvalues using PCA
 
@@ -332,7 +326,7 @@ for I = 1:N
         % compute eigenvalues of branch (most of the time we are going to
         % get 3 eigenvalues, but not always, e.g. if we have only two
         % voxels in the branch)
-        [eigv, stats.var(:, I)] = pts_pca(yi);
+        [eigv, stats.Var(:, I)] = pts_pca(yi);
         
         % find the eigenvector that is aligned with the straightened
         % skeleton, that's going to be our "eigenvalue 1", whether it's the
@@ -346,7 +340,7 @@ for I = 1:N
         
         % create index vector to reorder the eigenvalues and eigenvectors
         idx = [idx 1:idx-1 idx+1:3];
-        stats.var(:, I) = stats.var(idx, I);
+        stats.Var(:, I) = stats.Var(idx, I);
         eigv = eigv(:, idx);
         
     else % don't straighten objects
@@ -366,13 +360,13 @@ for I = 1:N
         if (length(aux) < 3)
             continue
         end
-        stats.var(1:length(aux), I) = aux;
+        stats.Var(1:length(aux), I) = aux;
         
     end
     
     % numeric errors can cause the appearance of small negative
     % eigenvalues. We make those values 0 to avoid errors below
-    stats.var(stats.var(:, I) < 0, I) = 0;
+    stats.Var(stats.Var(:, I) < 0, I) = 0;
 
     %% convert voxel coordinates to segmentation mask and create cylinder
     %% segmentation mask
@@ -382,112 +376,60 @@ for I = 1:N
     yi = eigv' * (yi - repmat(y0m, 1, size(yi, 2)));
     
     % compute dimensions of the cylinder
-    L = sqrt(12 * stats.var(1, I));
-    r1 = sqrt(4 * stats.var(2, I));
-    r2 = sqrt(4 * stats.var(3, I));
+    L = sqrt(12 * stats.Var(1, I));
+    r1 = sqrt(4 * stats.Var(2, I));
+    r2 = sqrt(4 * stats.Var(3, I));
     
-    % vertices of the box that contains the cylinder
-    cylbox = [-L/2 -r1 -r2; L/2 r1 r2]';
-  
-    % real world coordinates => voxel indices
-    idx = scinrrd_world2index(yi', nrrd.axis, false)';
-    idx0m = scinrrd_world2index([0 0 0], nrrd.axis, false)';
-    cylbox = scinrrd_world2index(cylbox', nrrd.axis, false)';
+    % polar coordinates of the segmentation voxels
+    theta = atan2(yi(3, :), yi(2, :));
+    r = sqrt(yi(2, :).^2 + yi(3, :).^2);
     
-    % box that contains both segmentation and cylinder
-    box = [min([idx cylbox], [], 2) max([idx cylbox], [], 2)];
+    % distance from the origin to the elliptical perimeter of the cylinder
+    % for each value of the angle
+    rel = r1 * r2 ./ sqrt((r2 * cos(theta)).^2 + (r1 * sin(theta)).^2);
     
-    % length of boxes
-    % Note: boxsz is a length in voxel units and number of voxels
-    boxlen = box(:, 2) - box(:, 1) + 1;
-    cylboxlen = cylbox(:, 2) - cylbox(:, 1) + 1;
-    
-    % translate index coordinates so that they are centered around (0,0,0)
-    idx = idx - repmat(idx0m, 1, size(idx, 2));
-    box = box - repmat(idx0m, 1, size(box, 2));
-    
-%     % DEBUG: plot branch and boxes' corners
-%     cylbox = cylbox - repmat(idx0m, 1, size(cylbox, 2));
-%     hold off
-%     plot3(idx(2, :), idx(1, :), idx(3, :), '.')
-%     hold on
-%     plot3(cylbox(2, :), cylbox(1, :), cylbox(3, :), 'ok')
-%     plot3(box(2, :), box(1, :), box(3, :), 'xg')
-%     axis equal xy
-    
-    % compute regular grid at integer positions over vessel cross section;
-    % this is where the ellipse will go
-    [gr, ~, gs] = ndgrid(floor(box(1, 1)):ceil(box(1, 2)), 0, ...
-        floor(box(3, 1)):ceil(box(3, 2)));
-
-    % find which points in the grid belong inside the ellipse
-    
-    % polar coordinates of the grid points
-    theta = atan2(gs, gr);
-    r = sqrt(gs.^2 + gr.^2);
-    
-    % distance from the origin to the ellipse along the line that connects
-    % the origin with each grid point
-    rel = cylboxlen(1) * cylboxlen(3) / 4 ...
-        ./ sqrt((cylboxlen(3) / 2 * cos(theta)).^2 ...
-        + (cylboxlen(1) / 2 * sin(theta)).^2);
-    
-    % points inside the ellipse
-    % Note: to see the ellipse the right way
-    %   >> imagesc(squeeze(imin)');
-    %   >> axis equal ij
-    % because in imin, rows => y-axis, columns => z-axis
-    imin = uint8(r <= rel);
-    
-%     % DEBUG: plot cylinder voxels
-%     for J = round(cylbox(2, 1)):round(cylbox(2, 2))
-%         plot3(J*ones(numel(find(r<=rel)), 1),  ...
-%             gr(r <= rel), gs(r <= rel), 'r.')
-%     end
-    
-    % number of voxels for the cylinder
-    cylboxn = round(cylboxlen) + 1;
-    
-    % number of voxels for the long axis of whole box
-    boxn = ceil(boxlen) + 1;
-    
-    % if number of left over voxels is not even, then we make the box 1
-    % voxel larger
-    boxn = boxn + mod(boxn - cylboxn, 2);
-    
-    % cylinder mask is going to be a padding of zeros, a repetition of the
-    % ellipse, and another padding of zeros
-    mask = [ ...
-        zeros(size(imin, 1), (boxn(2) - cylboxn(2))/2, size(imin, 3), 'uint8') ...
-        repmat(imin, [1, cylboxn(2), 1]) ...
-        zeros(size(imin, 1), (boxn(2) - cylboxn(2))/2, size(imin, 3), 'uint8') ...
-        ];
-    
-    % translate segmentation to (1, 1, 1), so that we can use the
-    % coordinates as voxel indices of the _whole_ box (not the cylinder
-    % box)
-    idx = idx - repmat(round(min(idx, [], 2)) - 1, 1, size(idx, 2));
-
-    % convert the coordinates of vessel voxels to a segmentation mask
-    im = zeros(size(mask), 'uint8');
-    im(sub2ind(size(im), round(idx(1, :)), ...
-        round(idx(2, :)), round(idx(3, :)))) = 1;
-
-    % fill holes
-    im = itk_imfilter('bwerode', itk_imfilter('bwdilate', im, 1, 1), 1, 1);
-    
-%     % DEBUG: save the segmentation masks as NRRD files so that they can be
-%     % inspected with Seg3D
-%     foonrrd = scinrrd_im2nrrd(mask);
-%     scinrrd_save('/tmp/foomask.mat', foonrrd);
-%     foonrrd = scinrrd_im2nrrd(im);
-%     scinrrd_save('/tmp/fooim.mat', foonrrd);
+    % find segmentation voxels that are within the cylinder
+    isin = ...
+        (yi(1, :) >= -L/2) & (yi(1, :) <= L/2) ...
+        & (r <= rel);
     
     % compute overlap between vessel and cylinder
-    stats.dice(I) = 2 * nnz(mask & im) / (nnz(mask) + nnz(im));
-    stats.jaccard(I) = nnz(mask & im) / nnz(mask | im);
-
+    stats.CylOverlap(I) = nnz(isin) / length(isin);
+    
+    % compute Delaunay triangulation of the segmentation points
+    tri = DelaunayTri(yi');
+    
+    % get all edges
+    e = tri.edges;
+    
+    % compute length of each edge
+    len = sqrt(sum((yi(:, e(:, 1)) - yi(:, e(:, 2))).^2, 1));
+    
+    % get length of voxel diagonal
+    len0 = sqrt(sum([nrrd.axis.spacing].^2));
+    
+    % find tetrahedra where at least an edge is very long
+    badtetra = tri.edgeAttachments(e(len > 1.1 * len0, :));
+    badtetra = unique([badtetra{:}]);
+    
+    % create new triangulation, removing the tetrahedra with long edges
+    aux = tri.Triangulation;
+    aux(badtetra, :) = [];
+    tri = TriRep(aux, yi(1, :)', yi(2, :)', yi(3, :)');
+    
+    % find voxels that are on the surface of the segmentation
+    triboundary = freeBoundary(tri);
+    idx = unique(triboundary(:));
+    
+    % get voxel actual distance to the central line normalized by the
+    % expected distance if the segmentation is a cylinder
+    stats.CylDivergence(I) = quantile(abs(r - rel), .75);
+    
+%     % DEBUG: plot the mesh
+%     hold off
+%     trisurf(triboundary, yi(1,:), yi(2,:), yi(3,:))
+    
 end
 
 % compute volume of the branch
-stats.vol = stats.nvox * prod([nrrd.axis.spacing]);
+stats.Vol = stats.NVox * prod([nrrd.axis.spacing]);

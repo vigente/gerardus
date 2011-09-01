@@ -1,3 +1,18 @@
+2011-09-01  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.8.0) Add new output STATS.CylDivergence. This is a distance
+	estimate between the surface of the actual branch and the
+	estimated cylinder. All operations are performed without rounding,
+	so the results are better.
+
+	- Remove Dice's Coefficient and Jaccard's
+	Index. Converting warped segmentation coordinates to an image
+	produces rounding errors. In addition, pixelation (aliasing) is
+	substantial for very thin cylinders. Thus, the measures can be
+	quite misleading.
+
 2011-08-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
