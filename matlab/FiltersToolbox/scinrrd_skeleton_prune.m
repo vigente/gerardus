@@ -64,7 +64,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, maxclump, minlen, lratio,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.1
+% Version: 0.3.2
 % $Rev$
 % $Date$
 % 
@@ -199,7 +199,7 @@ while (atleastonepruning)
         % coming out of it, a secondary branch
         
         % compute the major radius of the main branch
-        r = sqrt(4 * stats2.var(2, I));
+        r = sqrt(4 * stats2.Var(2, I));
         
         % loop consecutive pairs of segments in the main branch
         for J = 1:length(cc2.MergedBranches{I})-1
