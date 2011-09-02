@@ -80,7 +80,9 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 %
 %     STATS.CylDivergence: 75%-quantile of distances between actual voxels
 %                on the branch's surface, and the corresponding voxel on
-%                the predicted cylinder
+%                the predicted cylinder. This value sometimes cannot be
+%                estimated in branches with very few voxels, and a NaN is
+%                returned
 %
 %
 %
@@ -106,7 +108,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.8.0
+% Version: 0.8.1
 % $Rev$
 % $Date$
 % 
@@ -415,19 +417,28 @@ for I = 1:N
     % create new triangulation, removing the tetrahedra with long edges
     aux = tri.Triangulation;
     aux(badtetra, :) = [];
-    tri = TriRep(aux, yi(1, :)', yi(2, :)', yi(3, :)');
-    
-    % find voxels that are on the surface of the segmentation
-    triboundary = freeBoundary(tri);
-    idx = unique(triboundary(:));
-    
-    % get voxel actual distance to the central line normalized by the
-    % expected distance if the segmentation is a cylinder
-    stats.CylDivergence(I) = quantile(abs(r - rel), .75);
-    
-%     % DEBUG: plot the mesh
-%     hold off
-%     trisurf(triboundary, yi(1,:), yi(2,:), yi(3,:))
+    if isempty(aux)
+        
+        stats.CylDivergence(I) = nan;
+        
+    else
+        
+        warning('off', 'MATLAB:TriRep:PtsNotInTriWarnId')
+        tri = TriRep(aux, yi(1, :)', yi(2, :)', yi(3, :)');
+        warning('on', 'MATLAB:TriRep:PtsNotInTriWarnId')
+        
+        % find voxels that are on the surface of the segmentation
+        triboundary = freeBoundary(tri);
+        idx = unique(triboundary(:));
+        
+        % get voxel actual distance to the central line normalized by the
+        % expected distance if the segmentation is a cylinder
+        stats.CylDivergence(I) = quantile(abs(r - rel), .75);
+        
+%         % DEBUG: plot the mesh
+%         hold off
+%         trisurf(triboundary, yi(1,:), yi(2,:), yi(3,:))
+    end
     
 end
 
