@@ -115,7 +115,7 @@ function [sk, cc, bifcc, mcon, madj, cc2, mmerge] = skeleton_label(sk, im, res, 
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.13.0
+% Version: 0.13.1
 % $Rev$
 % $Date$
 % 
@@ -236,9 +236,11 @@ for I = 1:cc.NumObjects
     % degree of each total branch voxel
     cc.Degree{I} = full(deg(dictsk(cc.PixelIdxList{I})));
     
-    % a branch is a leaf is it has at least one voxel with degree==1 (tip
-    % of a branch) or 0 (single voxel floating in space)
-    cc.IsLeaf(I) = any(cc.Degree{I}([1 end]) < 2);
+    % a branch is a leaf if it has at least one voxel with degree==1 (tip
+    % of a branch) or 0 (single voxel floating in space), or if it has only
+    % 1 voxel
+    cc.IsLeaf(I) = any(cc.Degree{I}([1 end]) < 2) ...
+        || (length(cc.PixelIdxList{I}) == 1);
     
 end
 
@@ -514,7 +516,7 @@ cc2.NumObjects = length(cc2.PixelIdxList);
 
 if (alphamax >= 0) % merging
     
-    % add a "TODO" label for intersection voxels
+    % add a label for bifurcation voxels (that will be "TODO" voxels)
     cc2.NumObjects = cc2.NumObjects + 1;
     cc2.PixelIdxList(end+1) = {[]};
 
@@ -528,7 +530,7 @@ if (alphamax >= 0) % merging
     
 else % not merging
 
-    % add a "TODO" label for intersection voxels
+    % add a label for bifurcation voxels (that will be "TODO" voxels)
     cc.NumObjects = cc.NumObjects + 1;
     cc.PixelIdxList(end+1) = {[]};
 
