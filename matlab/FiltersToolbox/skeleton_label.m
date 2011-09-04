@@ -115,7 +115,7 @@ function [sk, cc, bifcc, mcon, madj, cc2, mmerge] = skeleton_label(sk, im, res, 
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.13.1
+% Version: 0.13.2
 % $Rev$
 % $Date$
 % 
@@ -210,18 +210,18 @@ cc.Degree = cell(1, cc.NumObjects);
 % create the part of the NRRD struct necessary to convert to real world
 % coordinates
 if (isempty(res))
-    nrrdaxis.spacing(1) = 1;
-    nrrdaxis.spacing(2) = 1;
-    nrrdaxis.spacing(3) = 1;
+    nrrd.axis.spacing(1) = 1;
+    nrrd.axis.spacing(2) = 1;
+    nrrd.axis.spacing(3) = 1;
 else
-    nrrdaxis.spacing(1) = res(1);
-    nrrdaxis.spacing(2) = res(2);
-    nrrdaxis.spacing(3) = res(3);
+    nrrd.axis.spacing(1) = res(1);
+    nrrd.axis.spacing(2) = res(2);
+    nrrd.axis.spacing(3) = res(3);
 end
-nrrdaxis.min = deal(nrrdaxis.spacing / 2);
-nrrdaxis.size(1) = cc.ImageSize(1);
-nrrdaxis.size(2) = cc.ImageSize(2);
-nrrdaxis.size(3) = cc.ImageSize(3);
+nrrd.axis.min = deal(nrrd.axis.spacing / 2);
+nrrd.axis.size(1) = cc.ImageSize(1);
+nrrd.axis.size(2) = cc.ImageSize(2);
+nrrd.axis.size(3) = cc.ImageSize(3);
 
 % loop each branch in the skeleton
 for I = 1:cc.NumObjects
@@ -235,12 +235,6 @@ for I = 1:cc.NumObjects
     
     % degree of each total branch voxel
     cc.Degree{I} = full(deg(dictsk(cc.PixelIdxList{I})));
-    
-    % a branch is a leaf if it has at least one voxel with degree==1 (tip
-    % of a branch) or 0 (single voxel floating in space), or if it has only
-    % 1 voxel
-    cc.IsLeaf(I) = any(cc.Degree{I}([1 end]) < 2) ...
-        || (length(cc.PixelIdxList{I}) == 1);
     
 end
 
@@ -363,7 +357,7 @@ for I = 1:bifcc.NumObjects
                 dsk, dictsk, idictsk);
             
             % compute angle between the branches if they are merged
-            alpha(J) = angle_btw_branches(br, bif, nrrdaxis, p);
+            alpha(J) = angle_btw_branches(br, bif, nrrd.axis, p);
             
         end
         
@@ -435,6 +429,21 @@ if (alphamax >= 0)
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% find leaf-branches
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% loop each branch in the skeleton
+for I = 1:cc.NumObjects
+    
+    % get number of bifurcation clumps the branch is connected to
+    N = length(find(mcon(I, :)));
+
+    % a branch is a leaf if it is connected at most to 1 bifurcation clump
+    cc.IsLeaf(I) = N < 2;
+    
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% merge branches
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -499,7 +508,7 @@ while (~isempty(br))
     
     % get some more info about the merged branch
     cc2.Degree{I} = full(deg(dictsk(cc2.PixelIdxList{I})));
-    cc2.IsLeaf(I) = any(cc2.Degree{I} < 2);
+    cc2.IsLeaf(I) = any(cc.IsLeaf(cc2.MergedBranches{I}));
     cc2.BranchLength(I) = cc2.PixelParam{I}(end);
     
 end
@@ -521,11 +530,11 @@ if (alphamax >= 0) % merging
     cc2.PixelIdxList(end+1) = {[]};
 
     % label all branch skeleton voxels
-    sk = labelmatrix(cc2);
-    TODO = sk(1)*0 + cc2.NumObjects;
+    nrrd.data = labelmatrix(cc2);
+    TODO = nrrd.data(1)*0 + cc2.NumObjects;
 
     % add the bifurcation voxels that are not part of branches
-    sk(setdiff(cat(1, bifcc.PixelIdxList{:}), ...
+    nrrd.data(setdiff(cat(1, bifcc.PixelIdxList{:}), ...
         cat(1, cc2.PixelIdxList{:}))) = TODO;
     
 else % not merging
@@ -535,11 +544,11 @@ else % not merging
     cc.PixelIdxList(end+1) = {[]};
 
     % label all branch skeleton voxels
-    sk = labelmatrix(cc);
-    TODO = sk(1)*0 + cc.NumObjects;
+    nrrd.data = labelmatrix(cc);
+    TODO = nrrd.data(1)*0 + cc.NumObjects;
 
     % add the bifurcation voxels that are not part of branches
-    sk(setdiff(cat(1, bifcc.PixelIdxList{:}), ...
+    nrrd.data(setdiff(cat(1, bifcc.PixelIdxList{:}), ...
         cat(1, cc.PixelIdxList{:}))) = TODO;
 
 end
@@ -547,16 +556,16 @@ end
 % if a whole segmentation is provided, then we are also going to segment it
 if (~isempty(im))
     
-    sk((im ~= 0) & (sk == 0)) = TODO;
+    nrrd.data((im ~= 0) & (nrrd.data == 0)) = TODO;
     
 end
 
 % region grow algorithm to extend branch labels
-sk = bwregiongrow(sk, TODO, res);
+nrrd.data = bwregiongrow(nrrd.data, TODO, res);
 
 % in some very particular cases, a small patch of voxels may be left
 % unlabelled. We are just going to remove them from the segmentation
-sk(sk == TODO) = 0;
+nrrd.data(nrrd.data == TODO) = 0;
 
 if (alphamax >= 0) % merging
     
@@ -571,6 +580,121 @@ else % not merging
     cc.NumObjects = cc.NumObjects - 1;
     
 end
+
+% update the variable for the output labelling
+sk = nrrd.data;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% correct labelling of bifurcation regions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% % measure the stats of each branch
+% stats = scinrrd_seg2label_stats(nrrd, cc2, 1-1e-5);
+% 
+% % get coordinates and labels of the segmented voxels
+% idxlab = find(nrrd.data);
+% lab = nonzeros(nrrd.data);
+% 
+% % sort the label values
+% [lab, idx] = sort(lab);
+% idxlab = idxlab(idx);
+% 
+% % find where each label begins, and add a last index for an inexistent
+% % label; that index will be used to know where the last label ends
+% idxlab0 = [0 ; find(diff(lab)) ; length(lab)] + 1;
+% 
+% % free some memory
+% clear lab
+% 
+% % value for "TODO" voxels
+% TODO = im(1) * 0 + 2;
+% 
+% % loop every merged branch
+% for I = 1:cc2.NumObjects
+%     
+%     % list of voxels in current branch. The reason why we are not doing a
+%     % simple br = find(nrrd.data == I); is because for a large volume,
+%     % that's a comparatively very slow operation
+%     br = idxlab(idxlab0(I):idxlab0(I+1)-1);
+%     
+%     % indices of branch  and skeleton voxels
+%     [r, c, s] = ind2sub(size(nrrd.data), br);
+%     [rsk, csk, ssk] = ind2sub(size(nrrd.data), cc2.PixelIdxList{I});
+%     
+%     % coordinates of a box that contains the branch and the skeleton
+%     rmin = min([r ; rsk]);
+%     rmax = max([r ; rsk]);
+%     cmin = min([c ; csk]);
+%     cmax = max([c ; csk]);
+%     smin = min([s ; ssk]);
+%     smax = max([s ; ssk]);
+%     
+%     % crop labelled segmentation with the box
+%     im = nrrd.data(rmin:rmax, cmin:cmax, smin:smax);
+%     
+%     % create another box (reference box) of the same size where we are
+%     % going to put the voxels of the main branch only
+%     im0 = zeros(size(im), 'uint8');
+%     
+%     % convert all voxels in the box to "TODO" voxels
+%     im(im > 0) = TODO;
+%     
+%     % convert skeleton voxels to label "1"
+%     im(sub2ind(size(im), ...
+%         rsk - rmin + 1, csk - cmin + 1, ssk - smin + 1)) = 1;
+%     
+%     % branch voxels' indices referred to box, not whole segmentation
+%     brbox = sub2ind(size(im), r - rmin + 1, c - cmin + 1, s - smin + 1);
+%     
+%     % label voxels of main branch in reference box
+%     im0(brbox) = 1;
+%     
+%     % number of voxels in main branch
+%     N = length(brbox);
+%     
+%     % are all the main branch voxels contained in the region grow result?
+%     while (nnz((im0 == im) & im0) < N)
+%         
+%         % grow the region that started with the skeleton 1 voxel
+%         im = bwregiongrow(im, TODO, res, 1);
+%         
+%     end
+%     
+%     % get indices of voxels resulting from the region grow
+%     [r, c, s] = ind2sub(size(im), find(im == 1));
+%     
+%     % convert box voxel indices to whole segmentation indices
+%     br = sub2ind(size(nrrd.data), ...
+%         r + rmin - 1, c + cmin - 1, s + smin - 1);
+%     
+%     % list of all sub-branches connected to the bifurcationa clumps of
+%     % current merged branch
+%     idx = find(sum(mcon(:, cc2.MergedBifClumps{I}), 2) > 0);
+%     
+%     % remove sub-branches that form the merged branch, thus keeping only
+%     % secondary branches
+%     idx = setdiff(idx, cc2.MergedBranches{I});
+%     
+%     % loop secondary branches
+%     for J = 1:length(idx)
+%         
+%         % convert the pre-merged branch indices to post-merged indices
+%         idx(J) = mmerge(idx(J), idx(J));
+%         
+%         % list of voxels in the sub-branch
+%         brsec = idxlab(idxlab0(idx(J)):idxlab0(idx(J)+1)-1);
+%         
+%         % intersection between the secondary and main branches
+%         brsec = intersect(br, brsec);
+%         
+%         % relabel the intersection voxels as belonging to the main branch,
+%         % not the secondary branch
+%         nrrd.data(brsec) = I;
+%         
+%     end
+%     
+%     
+% end
 
 end
 

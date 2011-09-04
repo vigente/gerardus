@@ -108,7 +108,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.8.1
+% Version: 0.8.2
 % $Rev$
 % $Date$
 % 
@@ -400,6 +400,19 @@ for I = 1:N
     
     % compute Delaunay triangulation of the segmentation points
     tri = DelaunayTri(yi');
+    
+    % sometimes for small branches the points can be colinear, in which
+    % case it's not possible to compute a 3D triangulation. In that case,
+    % we skip to the next branch
+    warning('off', 'MATLAB:TriRep:EmptyTri3DWarnId')
+    if (isempty(tri.Triangulation))
+        
+        warning('on', 'MATLAB:TriRep:EmptyTri3DWarnId')
+        stats.CylDivergence(I) = nan;
+        continue
+        
+    end
+    warning('on', 'MATLAB:TriRep:EmptyTri3DWarnId')
     
     % get all edges
     e = tri.edges;
