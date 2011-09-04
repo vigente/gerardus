@@ -1,3 +1,22 @@
+2011-09-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.13.2) Use internally a NRRD struct for some operations, as
+	this is going to be necessary for the upcoming code to correct
+	labelling of bifurcation regions (mostly done, but commented out).
+
+	- Fix bug. 1 voxel branches were considered to be leaf-branches
+	always. However, they can be a link between 2 bifurcation
+	clumps. Now we have moved the IsLeaf computation to after the
+	merging, into its own code block.
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.8.2) Fix bug. Sometimes for small branches the points can be
+	colinear, in which case it's not possible to compute a 3D
+	triangulation. In that case, we skip to the next branch.
+
 2011-09-02  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
