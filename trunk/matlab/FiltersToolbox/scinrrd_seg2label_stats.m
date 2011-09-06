@@ -108,7 +108,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.8.2
+% Version: 0.8.3
 % $Rev$
 % $Date$
 % 
@@ -200,7 +200,7 @@ stats.Var = zeros(3, N);
 stats.IsLandlocked = true(1, N);
 stats.NBound = nan(1, N);
 stats.NWater = nan(1, N);
-stats.NVox = nan(1, N);
+stats.NVox = zeros(1, N);
 stats.Vol = nan(1, N);
 stats.CylDivergence = nan(1, N);
 
@@ -212,38 +212,36 @@ lab = nonzeros(nrrd.data);
 [lab, idx] = sort(lab);
 idxlab = idxlab(idx);
 
-% find where each label begins, and add a last index for an inexistent
-% label; that index will be used to know where the last label ends
+% find where each label begins. The last index is "fake", i.e. it doesn't
+% correspond to any label, but it is used to know where the last label ends
 idxlab0 = [0 ; find(diff(lab)) ; length(lab)] + 1;
+
+% list of labels with at least 1 voxel in the segmentation
+LAB = unique(lab);
 
 % free some memory
 clear lab
 
 % loop every branch
-for I = 1:N
+for I = 1:length(LAB)
 
     %% compute number of voxels
 
     % list of voxels in current branch. The reason why we are not doing a
-    % simple br = find(nrrd.data == I); is because for a large volume,
+    % simple br = find(nrrd.data == LAB(I)); is because for a large volume,
     % that's a comparatively very slow operation
     br = idxlab(idxlab0(I):idxlab0(I+1)-1);
     
     % count number of voxels
-    stats.NVox(I) = length(br);
+    stats.NVox(LAB(I)) = length(br);
     
-    % if there are no voxels, skip this branch
-    if (isempty(br))
-        continue
-    end
-
     %% compute boundary stats
 
     % number of voxels that are touching the background
-    stats.NWater(I) = nnz(deg(br) ~= degmax);
+    stats.NWater(LAB(I)) = nnz(deg(br) ~= degmax);
     
     % if all the voxels have maximum degree, then the label is landlocked
-    stats.IsLandlocked(I) = stats.NWater(I) == 0;
+    stats.IsLandlocked(LAB(I)) = stats.NWater(LAB(I)) == 0;
     
     % crop the part of the segmentation that contains the branch
     [r, c, s] = ind2sub(size(nrrd.data), br);
@@ -252,7 +250,8 @@ for I = 1:N
     to = max([r c s], [], 1);
     
     % keep only voxels of the current branch
-    deglab0 = (nrrd.data(from(1):to(1), from(2):to(2), from(3):to(3)) == I);
+    deglab0 = (nrrd.data(from(1):to(1), from(2):to(2), from(3):to(3)) ...
+        == LAB(I));
     
     % compute degree of each voxel in the label if the label had been
     % disconnected from all other labels
@@ -267,13 +266,13 @@ for I = 1:N
     
     % total number of voxels in the outer boundary of the label, whether
     % they touch other labels or not
-    stats.NBound(I) = nnz(deglab ~= degmax & deglab ~= 0);
+    stats.NBound(LAB(I)) = nnz(deglab ~= degmax & deglab ~= 0);
 
     %% compute eigenvalues using PCA
 
     if (STRAIGHT)
         % list of voxels that are part of the skeleton in the branch
-        sk = cc.PixelIdxList{I};
+        sk = cc.PixelIdxList{LAB(I)};
         
         % add skeleton voxels to the branch, in case they are not already
         br = union(sk, br);
@@ -284,7 +283,7 @@ for I = 1:N
     xi = scinrrd_index2world([r, c, s], nrrd.axis)';
     
     % straighten all branch voxels
-    if (STRAIGHT && all(~isnan(cc.PixelParam{I})) ...
+    if (STRAIGHT && all(~isnan(cc.PixelParam{LAB(I)})) ...
             && (length(sk) > 2) && (length(br) > 2))
         
         % coordinates of skeleton voxels
@@ -305,14 +304,14 @@ for I = 1:N
             x = ppval(pp, t);
             
             % recompute skeleton parameterisation (chord length)
-            cc.PixelParam{I} = ...
+            cc.PixelParam{LAB(I)} = ...
                 cumsum([0 sqrt(sum((x(:, 2:end) - x(:, 1:end-1)).^2, 1))])';
             
         end
     
         % create a straightened section of the skeleton of the same length
         % and with the same spacing between voxels
-        y0 = [cc.PixelParam{I}' ; zeros(2, length(sk))];
+        y0 = [cc.PixelParam{LAB(I)}' ; zeros(2, length(sk))];
 
         % middle point in the parameterisation
         y0m = y0(:, end) / 2;
@@ -328,7 +327,7 @@ for I = 1:N
         % compute eigenvalues of branch (most of the time we are going to
         % get 3 eigenvalues, but not always, e.g. if we have only two
         % voxels in the branch)
-        [eigv, stats.Var(:, I)] = pts_pca(yi);
+        [eigv, stats.Var(:, LAB(I))] = pts_pca(yi);
         
         % find the eigenvector that is aligned with the straightened
         % skeleton, that's going to be our "eigenvalue 1", whether it's the
@@ -342,7 +341,7 @@ for I = 1:N
         
         % create index vector to reorder the eigenvalues and eigenvectors
         idx = [idx 1:idx-1 idx+1:3];
-        stats.Var(:, I) = stats.Var(idx, I);
+        stats.Var(:, LAB(I)) = stats.Var(idx, LAB(I));
         eigv = eigv(:, idx);
         
     else % don't straighten objects
@@ -362,13 +361,13 @@ for I = 1:N
         if (length(aux) < 3)
             continue
         end
-        stats.Var(1:length(aux), I) = aux;
+        stats.Var(1:length(aux), LAB(I)) = aux;
         
     end
     
     % numeric errors can cause the appearance of small negative
     % eigenvalues. We make those values 0 to avoid errors below
-    stats.Var(stats.Var(:, I) < 0, I) = 0;
+    stats.Var(stats.Var(:, LAB(I)) < 0, LAB(I)) = 0;
 
     %% convert voxel coordinates to segmentation mask and create cylinder
     %% segmentation mask
@@ -378,9 +377,9 @@ for I = 1:N
     yi = eigv' * (yi - repmat(y0m, 1, size(yi, 2)));
     
     % compute dimensions of the cylinder
-    L = sqrt(12 * stats.Var(1, I));
-    r1 = sqrt(4 * stats.Var(2, I));
-    r2 = sqrt(4 * stats.Var(3, I));
+    L = sqrt(12 * stats.Var(1, LAB(I)));
+    r1 = sqrt(4 * stats.Var(2, LAB(I)));
+    r2 = sqrt(4 * stats.Var(3, LAB(I)));
     
     % polar coordinates of the segmentation voxels
     theta = atan2(yi(3, :), yi(2, :));
@@ -396,7 +395,7 @@ for I = 1:N
         & (r <= rel);
     
     % compute overlap between vessel and cylinder
-    stats.CylOverlap(I) = nnz(isin) / length(isin);
+    stats.CylOverlap(LAB(I)) = nnz(isin) / length(isin);
     
     % compute Delaunay triangulation of the segmentation points
     tri = DelaunayTri(yi');
@@ -408,7 +407,7 @@ for I = 1:N
     if (isempty(tri.Triangulation))
         
         warning('on', 'MATLAB:TriRep:EmptyTri3DWarnId')
-        stats.CylDivergence(I) = nan;
+        stats.CylDivergence(LAB(I)) = nan;
         continue
         
     end
@@ -432,7 +431,7 @@ for I = 1:N
     aux(badtetra, :) = [];
     if isempty(aux)
         
-        stats.CylDivergence(I) = nan;
+        stats.CylDivergence(LAB(I)) = nan;
         
     else
         
@@ -446,7 +445,7 @@ for I = 1:N
         
         % get voxel actual distance to the central line normalized by the
         % expected distance if the segmentation is a cylinder
-        stats.CylDivergence(I) = quantile(abs(r - rel), .75);
+        stats.CylDivergence(LAB(I)) = quantile(abs(r - rel), .75);
         
 %         % DEBUG: plot the mesh
 %         hold off
