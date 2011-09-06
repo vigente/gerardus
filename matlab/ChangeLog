@@ -1,3 +1,18 @@
+2011-09-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.14.0) Add section "correct labelling of bifurcation
+	regions". So far, the segmentation volume around a bifurcation
+	area got split between all incident branches. However, it makes
+	more sense to maintain the integrity of main branches, and make
+	secondary branches start from the wall of the main branch, instead
+	of from the skeleton bifurcation.
+
+	To control the amount of correction, there's a new input argument,
+	CORRECT. A value of 0.0 means no correction, a value of 1.0 means
+	that the main branch expands as much as possible.
+
 2011-09-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_label.m:
