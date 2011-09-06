@@ -179,7 +179,7 @@ end
 % repeat the process until no branches are removed
 atleastonepruning = true;
 while (atleastonepruning)
-    
+
     % if there are no prunings in this iterations, we stop
     atleastonepruning = false;
     
