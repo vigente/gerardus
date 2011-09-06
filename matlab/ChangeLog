@@ -15,6 +15,11 @@
 
 2011-09-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.8.3) Fix bug. If the input image had missing labels, the
+	branch index was wrong.
+
 	* FiltersToolbox/skeleton_label.m:
 
 	- (v0.13.2) Use internally a NRRD struct for some operations, as
