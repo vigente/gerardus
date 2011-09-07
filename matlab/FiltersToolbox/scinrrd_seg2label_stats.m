@@ -243,13 +243,13 @@ for I = 1:length(LAB)
     % if all the voxels have maximum degree, then the label is landlocked
     stats.IsLandlocked(LAB(I)) = stats.NWater(LAB(I)) == 0;
     
-    % crop the part of the segmentation that contains the branch
+    % crop the part of the segmentation that contains the branch, removing
+    % voxels that don't belong to the branch
     [r, c, s] = ind2sub(size(nrrd.data), br);
     
     from = min([r c s], [], 1);
     to = max([r c s], [], 1);
     
-    % keep only voxels of the current branch
     deglab0 = (nrrd.data(from(1):to(1), from(2):to(2), from(3):to(3)) ...
         == LAB(I));
     
