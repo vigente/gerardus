@@ -204,7 +204,7 @@ stats.NVox = zeros(1, N);
 stats.Vol = nan(1, N);
 stats.CylDivergence = nan(1, N);
 
-% get coordinates and labels of the segmented voxels
+% get indices and labels of the segmented voxels
 idxlab = find(nrrd.data);
 lab = nonzeros(nrrd.data);
 
