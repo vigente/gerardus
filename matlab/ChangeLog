@@ -1,3 +1,10 @@
+2011-09-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add FiltersToolbox/labmathmorph.m:
+
+	- (v0.1.0) Mathematical morphology operators on a labelled
+	segmentation, one label at a time.
+
 2011-09-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_label.m:
