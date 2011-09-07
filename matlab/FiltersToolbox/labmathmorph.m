@@ -35,6 +35,8 @@ function im = labmathmorph(type, im, param)
 %
 % where NDIL, NERO are the radii to dilate and erode, respectively, in
 % voxel units.
+%
+% See also bwregiongrow
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford

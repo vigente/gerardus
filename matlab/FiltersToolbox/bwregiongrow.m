@@ -36,6 +36,8 @@ function bwregiongrow
 %   MAXITER is a scalar to tell the algorithm to stop after a number of
 %   region grow iterations. If MAXITER < 0, the algorithm iterates until
 %   all TODO voxels have been labelled. By default, MAXITER = -1.
+%
+% See also labmathmorph
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
