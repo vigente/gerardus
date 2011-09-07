@@ -157,6 +157,11 @@ img_tps_map.m
 
 	 IMG_TPS_MAP Warp an image using a thin-plate spline transformation
 	
+labmathmorph.m
+
+	 LABMATHMORPH  Mathematical morphology operators on a labelled
+	 segmentation, one label at a time
+	
 scinrrd_box.m
 
 	 SCINRRD_BOX  Compute tight box around SCI NRRD segmentation
