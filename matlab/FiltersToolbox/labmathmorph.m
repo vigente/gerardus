@@ -71,11 +71,6 @@ function im = labmathmorph(type, im, param)
 error(nargchk(3, 3, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
-% number of voxels we need to leave around the cropped branch. Note that we
-% need to leave at least 1 voxel of empty space, otherwise the ITK
-% morphological operators do weird things at the boundary
-gap = 1;
-
 % image size
 sz = size(im);
 if (length(sz) == 2)
@@ -83,6 +78,9 @@ if (length(sz) == 2)
 end
 
 % get parameter values
+% gap: number of voxels we need to leave around the cropped branch. Note
+% that we need to leave at least 1 voxel of empty space, otherwise the ITK
+% morphological operators do weird things at the boundary
 switch type
     case 'dilate'
         if (length(param) == 1)
