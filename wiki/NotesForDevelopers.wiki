@@ -1,5 +1,7 @@
 #summary Notes and guidelines for people who want to contribute patches or code to the Gerardus project
 
+<wiki:toc max_depth="2" />
+
 = Contributing to the project =
 
  # Any communications should be carried on the [http://groups.google.com/group/gerardus-users/ mailing list] (gerardus-users@googlegroups.com)
