@@ -56,7 +56,7 @@ function im = itk_imfilter(~, ~)
 %
 %   B has the same size and class as A
 %
-% B = ITK_IMFILTER('dandist', A)
+% [B, NV] = ITK_IMFILTER('dandist', A)
 %
 %   (itk::DanielssonDistanceMapImageFilter) Compute unsigned distance map
 %   for a binary mask. Distance values are given in voxel coordinates
@@ -64,7 +64,11 @@ function im = itk_imfilter(~, ~)
 %   B has the same size as A. B has a type large enough to store the
 %   maximum distance in the image. The largest available type is double. If
 %   this is not enough, a warning message is displayed, and double is used
-%   as the output type
+%   as the output type.
+%
+%   NV has the same size as A. Each element has the index of the closest
+%   foreground voxel. For example, NV(4) = 7 means that voxel 4 is the
+%   closest foreground voxel to voxel 7.
 %
 % B = ITK_IMFILTER('maudist', A)
 %
@@ -105,7 +109,7 @@ function im = itk_imfilter(~, ~)
  
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.1
+% Version: 0.4.2
 % $Rev$
 % $Date$
 %
