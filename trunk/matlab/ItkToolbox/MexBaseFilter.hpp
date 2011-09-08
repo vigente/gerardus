@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.6.1
+  * Version: 0.6.2
   * $Rev$
   * $Date$
   *
@@ -95,25 +95,16 @@ public:
   // (e.g. dilation radius) apart from the input arguments with the
   // filter type and image
   MexBaseFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut,
-		const int _nargin, const mxArray** _argIn)
-    : nrrd(_nrrd), nargout(_nargout), argOut(_argOut) {
-    // number of parameters
-    nparam = (mwSize)(_nargin - 2);
-    if (nparam < 0) {
-      mexErrMsgTxt("Assertion error: Number of parameters cannot be negative");
-    } else if (nparam == 0) {
-      argParam = NULL;
-    } else {
-      argParam = &_argIn[2];
-    }
-  }
+		const int _nargin, const mxArray** _argIn);
   
   // constructor when the filter takes no user-provided parameters
-  MexBaseFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut)
-    : nrrd(_nrrd), nargout(_nargout), argOut(_argOut) {
-    nparam = 0;
-    argParam = NULL;
-  }
+  MexBaseFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut);
+
+  // destructor to deallocate any memory that the Matlab garbage
+  // collector won't free automatically. The destructor has to be
+  // virtual so that derived classes can add their own local memory
+  // deallocation steps
+  virtual ~MexBaseFilter();
 
   // check numer of outputs requested by the user. By default, the
   // function provides 0 or 1 output (the filtered image), but this
