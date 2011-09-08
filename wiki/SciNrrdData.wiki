@@ -1,5 +1,7 @@
 #summary Notes about SCI NRRD data volumes
 
+<wiki:toc max_depth="2" />
+
 = Introduction =
 
 Gerardus provides some Matlab functions to load, process and save images in [http://teem.sourceforge.net/nrrd/format.html SCI NRRD] format. This is the native format used by the platform [http://www.sci.utah.edu/cibc/software/42-seg3d.html Seg3D].
