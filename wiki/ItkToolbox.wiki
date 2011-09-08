@@ -1,6 +1,8 @@
 #summary Documentation to build and run ITK code from Matlab using Gerardus
 #labels Phase-Deploy
 
+<wiki:toc max_depth="2" />
+
 = Introduction =
 
 This page documents `itk_imfilter()` and `itk_pstransform()`, MEX functions provided by Gerardus that allow to run ITK code from Matlab.
