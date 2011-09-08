@@ -14,7 +14,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.5.1
+  * Version: 0.5.2
   * $Rev$
   * $Date$
   *
@@ -73,6 +73,51 @@
 // derived filters
 const std::string MexBaseFilter<std::string, std::string>::longname = "BaseFilter";
 const std::string MexBaseFilter<std::string, std::string>::shortname = "base";
+
+// constructor when the filter takes user-provided parameters
+// (e.g. dilation radius) apart from the input arguments with the
+// filter type and image
+template <class InVoxelType, class OutVoxelType>
+MexBaseFilter<InVoxelType, OutVoxelType>::MexBaseFilter(const NrrdImage &_nrrd, 
+							int _nargout, 
+							mxArray** _argOut,
+							const int _nargin, 
+							const mxArray** _argIn)
+  : nrrd(_nrrd), nargout(_nargout), argOut(_argOut) {
+  // number of parameters
+  nparam = (mwSize)(_nargin - 2);
+  if (nparam < 0) {
+    mexErrMsgTxt("Assertion error: Number of parameters cannot be negative");
+  } else if (nparam == 0) {
+    argParam = NULL;
+  } else {
+    argParam = &_argIn[2];
+  }
+}
+
+// constructor when the filter takes no user-provided parameters
+template <class InVoxelType, class OutVoxelType>
+MexBaseFilter<InVoxelType, OutVoxelType>::MexBaseFilter(const NrrdImage &_nrrd, 
+							int _nargout, 
+							mxArray** _argOut)
+  : nrrd(_nrrd), nargout(_nargout), argOut(_argOut) {
+  nparam = 0;
+  argParam = NULL;
+}
+
+// destructor to deallocate any memory that the Matlab garbage
+// collector won't free automatically. The destructor has to be
+// virtual so that derived classes can add their own local memory
+// deallocation steps
+template <class InVoxelType, class OutVoxelType>
+MexBaseFilter<InVoxelType, OutVoxelType>::~MexBaseFilter() {
+  
+  // assigning NULL to a smart pointer is the correct way of asking
+  // for the object to be destroyed. This will deallocate the memory
+  // buffers that the filter uses but have not been mummified by us
+  this->filter = NULL;
+  
+}
 
 // check numer of outputs requested by the user. By default, the
 // function provides 0 or 1 output (the filtered image), but this
@@ -221,8 +266,6 @@ void MexBaseFilter<InVoxelType,
 		   OutVoxelType>::MummifyFilterOutput(unsigned int idx) {
 
   // mummify filter output buffer for Matlab
-  typename OutImageType::RegionType region;
-  region = this->filter->GetOutput(idx)->GetBufferedRegion();
   typename OutImageType::PixelContainer * container;
   container = this->filter->GetOutput(idx)->GetPixelContainer();
   container->SetContainerManageMemory(false);

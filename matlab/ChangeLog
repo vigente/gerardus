@@ -1,3 +1,33 @@
+2011-09-08  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/MexBaseFilter.hpp (v0.6.2):
+	* ItkToolbox/MexBaseFilter.cpp (v0.5.2):
+
+	- Move the code in the constructors from the .hpp to the .cpp
+	file.
+
+	- Fix memory leak bug. Add destructor to deallocate any memory
+	that the Matlab garbage collector won't free automatically. The
+	destructor has to be virtual so that derived classes can add their
+	own local memory deallocation steps.
+
+	* ItkToolbox/ItkImFilter.cpp (v0.5.2):
+
+	- Fix memory leak bug. After running all methods in the filter
+	object, delete the object. This invokes the destructor, that
+	deallocates the memory buffers not passed to Matlab. Without this,
+	we had a memory leak in the dandist filter, and potentially in any
+	other filter that provides more than 1 output.
+
+	- Mummify output buffers before running the filter. This hasn't
+	given any problems, but just in case.
+
+	-  Correct help header of syntax 'dandist'.
+
+	* ItkToolbox/itk_imfilter.m:
+
+	- (v0.4.2) Correct help header of syntax 'dandist'.
+
 2011-09-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* Add FiltersToolbox/labmathmorph.m:
