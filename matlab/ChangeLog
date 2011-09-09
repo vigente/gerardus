@@ -1,5 +1,10 @@
 2011-09-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* Add PointsToolbox/bwmesh.m (v0.1.0):
+
+	- Tetrahedral volumetric and triangular surface mesh of a binary
+	segmentation.
+
 	* Add PointsToolbox/pts_mesh.m (v1.0.1):
 
 	- Tetrahedral volumetric and triangular surface mesh of a cloud of
