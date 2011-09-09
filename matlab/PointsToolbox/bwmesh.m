@@ -30,7 +30,7 @@ function [tri, triboundary] = bwmesh(im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -83,4 +83,8 @@ x = scinrrd_index2world([r c s], nrrdaxis);
 len = sqrt(sum(res.^2));
 
 % compute mesh
-[tri, triboundary] = pts_mesh(x, 1.75 * len);
+if (nargout > 1)
+    [tri, triboundary] = pts_mesh(x, 1.75 * len);
+else
+    tri = pts_mesh(x, 1.75 * len);
+end
