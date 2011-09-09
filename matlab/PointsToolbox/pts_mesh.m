@@ -34,7 +34,7 @@ function [tri, triboundary] = pts_mesh(x, maxlen)
 %     >> idx = unique(triboundary(:));
 %
 %
-% See also: TriRep, DelaunayTri
+% See also: bwmesh, TriRep, DelaunayTri
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
