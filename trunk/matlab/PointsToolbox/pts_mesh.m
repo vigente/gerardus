@@ -38,7 +38,7 @@ function [tri, triboundary] = pts_mesh(x, maxlen)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -118,7 +118,9 @@ else
     warning('on', 'MATLAB:TriRep:PtsNotInTriWarnId')
     
     % find voxels that are on the surface of the segmentation
-    triboundary = freeBoundary(tri);
+    if (nargout > 1)
+        triboundary = freeBoundary(tri);
+    end
     
 %     % DEBUG: plot the mesh
 %     hold off
