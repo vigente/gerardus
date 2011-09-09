@@ -1,10 +1,10 @@
-function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, maxclump, minlen, lratio, alphamax, p)
+function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio, alphamax, p)
 % SCINRRD_SKELETON_PRUNE  Prune branches in a segmentation's skeletonization
 %
 % This function prunes the leaves of a segmentation skeleton in three
 % steps:
 %
-%   1. Remove clumps of voxels
+%   1. Erode clumps of voxels to look like branches
 %
 %   2. Prune very short leaves (iteratively until no more leaves can be
 %      pruned)
@@ -16,7 +16,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, maxclump, minlen, lratio,
 %
 %
 % NRRDPR = SCINRRD_SKELETON_PRUNE(NRRDSK)
-% NRRDPR = SCINRRD_SKELETON_PRUNE(NRRDSK, [], MAXCLUMP, MINLEN)
+% NRRDPR = SCINRRD_SKELETON_PRUNE(NRRDSK, [], MINLEN)
 %
 %   This syntax runs steps 1 and 2 only.
 %
@@ -64,7 +64,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, maxclump, minlen, lratio,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.2
+% Version: 0.4.0
 % $Rev$
 % $Date$
 % 
@@ -92,7 +92,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, maxclump, minlen, lratio,
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 7, nargin, 'struct'));
+error(nargchk(1, 6, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
 if ~isstruct(nrrdsk)
@@ -103,35 +103,159 @@ end
 if (nargin < 2)
     nrrd = [];
 end
-if (nargin < 3 || isempty(maxclump))
-    maxclump = 9;
-end
-if (nargin < 4 || isempty(minlen))
+if (nargin < 3 || isempty(minlen))
     minlen = 5;
 end
-if (nargin < 5 || isempty(lratio))
+if (nargin < 4 || isempty(lratio))
     lratio = 1.2;
 end
-if (nargin < 6 || isempty(alphamax))
+if (nargin < 5 || isempty(alphamax))
     alphamax = -Inf; % don't merge by default
 end
-if (nargin < 7 || isempty(p))
+if (nargin < 6 || isempty(p))
     p = 1.0; % don't smooth by default
 end
 
 %% Step 1: removal of big clumps of voxels
 
-% label bifurcation clumps
-[~, ~, bifcc] = skeleton_label(nrrdsk.data, [], [nrrdsk.axis.spacing]);
+% get sparse matrix of distances between voxels. To label the skeleton we
+% don't care about the actual distances, just need to know which voxels are
+% connected to others. Actual distances are needed to parameterize the
+% branches, though
+[dsk, dictsk, idictsk] = seg2dmat(nrrdsk.data, 'seg', ...
+    [nrrdsk.axis.spacing]);
 
-% get number of voxels in each clump
-n = cellfun(@(x) length(x), bifcc.PixelIdxList);
+% find bifurcation voxels
 
-% find clumps larger than maxclump
-idx = find(n > maxclump);
+% compute degree of each skeleton voxel
+deg = sum(dsk > 0, 2);
 
-% remove clumps larger than maxclump
-nrrdsk.data(cat(1, bifcc.PixelIdxList{idx})) = 0;
+% get distance matrix index of the bifurcation voxels
+bifidx = deg >= 3;
+
+% matrix index => image index
+bifidx = idictsk(bifidx);
+
+% label connected components of skeleton branches
+
+% remove bifurcation voxels from original skeleton
+nrrdsk.data(bifidx) = 0;
+
+% get connected components in the image
+cc = bwconncomp(nrrdsk.data);
+
+% make size vector always have size(3)
+if length(cc.ImageSize) == 2
+    cc.ImageSize = [cc.ImageSize 1];
+end
+
+% connectivity between branches and bifurcation clumps,
+% and find which branches should be merged together
+
+% tag each branch with its label
+nrrdsk.data = labelmatrix(cc);
+
+% create empty image volume and add only bifurcation voxels
+sk2 = zeros(cc.ImageSize, 'uint8');
+sk2(bifidx) = 1;
+
+% compute connected components to obtain clumps of bifurcation voxels
+bifcc = bwconncomp(sk2);
+
+% loop all the bifurcation clumps, to find which branches are neighbours of
+% each other
+for I = 1:bifcc.NumObjects
+
+    %% find which branches are connected to which bifurcation clumps
+
+    % get voxels in the bifurcation clump
+    % linear index -> row, col, slice
+    [r, c, s] = ind2sub(cc.ImageSize, bifcc.PixelIdxList{I});
+
+    % get a box 1 voxel bigger than the clump
+    r0 = max(1, min(r) - 1);
+    c0 = max(1, min(c) - 1);
+    s0 = max(1, min(s) - 1);
+    rend = min(cc.ImageSize(1), max(r) + 1);
+    cend = min(cc.ImageSize(2), max(c) + 1);
+    send = min(cc.ImageSize(3), max(s) + 1);
+
+    % extract that box from the volume with the branches
+    boxbr = nrrdsk.data(r0:rend, c0:cend, s0:send);
+    
+    % create a box for the bifurcation clump
+    boxbif = zeros(size(boxbr), class(sk2));
+    r = r - r0 + 1;
+    c = c - c0 + 1;
+    s = s - s0 + 1;
+    boxbif(sub2ind(size(boxbif), r, c, s)) = 1;
+    
+    % create a box with the same size
+    box  = zeros(size(boxbif));
+    
+    % tag as TODO=2 branch voxels
+    box(boxbr ~= 0) = 2;
+    
+    % add to the vox the bifurcation clump voxels
+    box(boxbif == 1) = 1;
+    
+    % dilate the clump 1 voxel
+    box = bwregiongrow(box, 2, [], 1);
+    
+    % get the branches that the dilated bifurcation clump overlaps
+    idx = double(boxbr(box == 1));
+
+    % because in sk bifurcation voxels were removed, we can have "0" values
+    % in idx. Remove them
+    idx = idx(idx ~= 0);
+    
+    % number of branches
+    N = length(idx);
+    
+    % in order to merge, the bifurcation needs to have at least 2
+    % branches
+    if (N < 2)
+        continue
+    end
+    
+    % get all combinations of pairs of branches that share this clump
+    idx = nchoosek(idx, 2);
+    
+    % get voxel indices for bifurcation clump
+    bif = bifcc.PixelIdxList{I};
+    
+    % duplicate the list. bif0 is going to be the list of superfluous
+    % bifurcation voxels
+    bif0 = bif;
+    
+    % loop each pair of branches combination
+    for J = 1:size(idx, 1)
+        
+        % get voxel indices for each branch
+        br0 = cc.PixelIdxList{idx(J, 1)};
+        br1 = cc.PixelIdxList{idx(J, 2)};
+        
+        % merge and sort both branches and the bifurcation clump
+        br = sort_branch([br0(:); bif(:); br1(:)], ...
+            dsk, dictsk, idictsk);
+        
+        % remove from the list of superfluous bifurcation voxels those
+        % that are needed to connect the two branches
+        bif0 = setdiff(bif0, br);
+        
+    end
+    
+    % remove from the skeleton the list of superfluous bifurcation
+    % voxels
+    bifcc.PixelIdxList{I} = setdiff(bif, bif0);
+        
+end
+
+% convert labelled skeleton to binary mask
+nrrdsk.data = uint8(nrrdsk.data ~= 0);
+
+% add bifurcation voxels to skeleton binary mask
+nrrdsk.data(cat(1, bifcc.PixelIdxList{:})) = 1;
 
 %% Step 2: pruning of very short leaf branches
 while (1)
@@ -247,4 +371,67 @@ while (atleastonepruning)
         
     end
     
+end
+
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% auxiliary functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% sort a set of voxels so that they form a branch
+% idx: voxel indices
+% d: distance matrix
+function [idx, param] = sort_branch(idx, d, dict, idict)
+
+% number of voxels in the current branch
+N = length(idx);
+
+% degenerate case in which the branch has only one voxel
+if (N == 1)
+    param = 0;
+    return
+end
+
+% create a "branch distance matrix" for only the voxels in the branch
+idx2 = full(dict(idx));
+dbr = d(idx2, idx2);
+
+% compute Dijkstra's shortest path from an arbitrary voxel in the
+% branch to every other voxel
+[dp, ~] = dijkstra(dbr, 1);
+
+% the furthest voxel should be one of the ends of the branch
+[~, v0] = max(dp);
+
+% compute shortest path to all other voxels in the branch
+%
+% note that even for apparently "wire" branches, sometimes we get small
+% cycles of 1 voxel, and instead of a "linear" shortest-path, we have a
+% tree, so in the next step, some of the voxels are going to be thrown
+% away
+[dp, parents] = dijkstra(dbr, v0);
+[~, v1] = max(dp);
+
+% backtrack the whole branch in order from the furthest point to
+% the original extreme point
+idx = [];
+param = [];
+J = 1;
+while (v1 ~= 0)
+    idx(J) = idict(idx2(v1));
+    param(J) = dp(v1);
+    v1 = parents(v1);
+    J = J + 1;
+end
+
+
+% make sure that cc.PixelIdxList{I} is a column vector
+idx = idx(:);
+
+% reorder voxels so that the parameterization increases
+% monotonically
+idx = idx(end:-1:1);
+param = param(end:-1:1);
+
 end
