@@ -270,6 +270,11 @@ itk_pstransform.m
 PointsToolbox
 -------------------------------------------------------------
 
+bwmesh.m
+
+	 BWMESH  Tetrahedral volumetric and triangular surface mesh of a binary
+	 segmentation
+	
 coords_from_dist_gower.m
 
 	 COORDS_FROM_DIST_GOWER  Compute point coordinates from distances to a set
