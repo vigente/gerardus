@@ -1,11 +1,16 @@
 2011-09-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* PointsToolbox/bwmesh.m (v0.1.1):
+	* PointsToolbox/pts_mesh.m (v0.1.1):
+
+	- Only compute triboundary is the user requests it.
+
 	* Add PointsToolbox/bwmesh.m (v0.1.0):
 
 	- Tetrahedral volumetric and triangular surface mesh of a binary
 	segmentation.
 
-	* Add PointsToolbox/pts_mesh.m (v1.0.1):
+	* Add PointsToolbox/pts_mesh.m (v0.1.0):
 
 	- Tetrahedral volumetric and triangular surface mesh of a cloud of
 	points. This is code that was part of scinrrd_seg2label_stats(),
