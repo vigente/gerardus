@@ -108,7 +108,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.8.3
+% Version: 0.8.4
 % $Rev$
 % $Date$
 % 
@@ -221,6 +221,9 @@ LAB = unique(lab);
 
 % free some memory
 clear lab
+
+% get length of voxel diagonal
+len0 = sqrt(sum([nrrd.axis.spacing].^2));
 
 % loop every branch
 for I = 1:length(LAB)
@@ -397,59 +400,27 @@ for I = 1:length(LAB)
     % compute overlap between vessel and cylinder
     stats.CylOverlap(LAB(I)) = nnz(isin) / length(isin);
     
-    % compute Delaunay triangulation of the segmentation points
-    tri = DelaunayTri(yi');
-    
-    % sometimes for small branches the points can be colinear, in which
-    % case it's not possible to compute a 3D triangulation. In that case,
-    % we skip to the next branch
-    warning('off', 'MATLAB:TriRep:EmptyTri3DWarnId')
-    if (isempty(tri.Triangulation))
-        
-        warning('on', 'MATLAB:TriRep:EmptyTri3DWarnId')
-        stats.CylDivergence(LAB(I)) = nan;
-        continue
-        
-    end
-    warning('on', 'MATLAB:TriRep:EmptyTri3DWarnId')
-    
-    % get all edges
-    e = tri.edges;
-    
-    % compute length of each edge
-    len = sqrt(sum((yi(:, e(:, 1)) - yi(:, e(:, 2))).^2, 1));
-    
-    % get length of voxel diagonal
-    len0 = sqrt(sum([nrrd.axis.spacing].^2));
-    
-    % find tetrahedra where at least an edge is very long
-    badtetra = tri.edgeAttachments(e(len > 1.1 * len0, :));
-    badtetra = unique([badtetra{:}]);
-    
-    % create new triangulation, removing the tetrahedra with long edges
-    aux = tri.Triangulation;
-    aux(badtetra, :) = [];
-    if isempty(aux)
+    % mesh the cloud of points and find the triangles that form the surface
+    [~, triboundary] = pts_mesh(yi', 1.75 * len0);
+
+    if (isempty(triboundary))
         
         stats.CylDivergence(LAB(I)) = nan;
         
     else
         
-        warning('off', 'MATLAB:TriRep:PtsNotInTriWarnId')
-        tri = TriRep(aux, yi(1, :)', yi(2, :)', yi(3, :)');
-        warning('on', 'MATLAB:TriRep:PtsNotInTriWarnId')
-        
-        % find voxels that are on the surface of the segmentation
-        triboundary = freeBoundary(tri);
+        % indices of points on the surface
         idx = unique(triboundary(:));
         
-        % get voxel actual distance to the central line normalized by the
+        % get voxel's actual distance to the central line normalized by the
         % expected distance if the segmentation is a cylinder
-        stats.CylDivergence(LAB(I)) = quantile(abs(r - rel), .75);
+        stats.CylDivergence(LAB(I)) ...
+            = quantile(abs(r(idx) - rel(idx)), .75);
         
 %         % DEBUG: plot the mesh
 %         hold off
 %         trisurf(triboundary, yi(1,:), yi(2,:), yi(3,:))
+
     end
     
 end
