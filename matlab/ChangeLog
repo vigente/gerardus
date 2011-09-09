@@ -1,5 +1,21 @@
 2011-09-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_skeleton_prune.m:
+
+	- (v0.4.0) Removing clumps of bifurcation voxels was wrong,
+	because in some cases it disconnected branches. Instead, what we
+	are doing now is going to each bifurcation clump, getting the
+	neighbouring branches, and keeping only the bifurcation voxels
+	required to connected them 2 by 2. For that we are using some code
+	copied from skeleton_label().
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.8.4) Fix bug. CylDivergence was being measured for all
+	voxels, and not only those on the surface.
+
+	- Move the code to mesh the vessel to new function pts_mesh().
+
 	* PointsToolbox/bwmesh.m (v0.1.1):
 	* PointsToolbox/pts_mesh.m (v0.1.1):
 
