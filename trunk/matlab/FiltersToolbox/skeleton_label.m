@@ -683,8 +683,8 @@ for I = 1:cc2.NumObjects
         
     end
     
-    % number of region grow steps we need to take to recover at least the
-    % percentage requested by the user
+    % number of region grow steps we need to take to recover no more than
+    % the percentage requested by the user
     if isempty(nvox)
         continue
     end
