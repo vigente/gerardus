@@ -30,7 +30,7 @@ function [tri, triboundary] = bwmesh(im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 %
@@ -69,7 +69,7 @@ if (nargin < 2 || isempty(res))
 end
 
 % auxiliary struct so that we can use a function already in the toolbox
-for I = 1:3
+for I = 3:-1:1
     nrrdaxis(I).spacing = res(I);
     nrrdaxis(I).min = 0;
     nrrdaxis(I).size = size(im, I);
