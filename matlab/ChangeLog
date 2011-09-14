@@ -1,3 +1,15 @@
+2011-09-14  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.8.5) Change output STATS.CylDivergence. Now we give the
+	standard deviation of the distance between the each branch surface
+	point, and the corresponding point on the surface of the estimated
+	cylinder.
+
+	- Fix bug. Make sure that the list of branch voxels is a column
+	vector.
+
 2011-09-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_skeleton_prune.m:
