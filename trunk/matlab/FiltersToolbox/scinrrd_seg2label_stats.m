@@ -78,12 +78,11 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 %
 %     STATS.Vol: volume of the branch (in m^3) units
 %
-%     STATS.CylDivergence: 75%-quantile of distances between actual voxels
-%                on the branch's surface, and the corresponding voxel on
-%                the predicted cylinder. This value sometimes cannot be
-%                estimated in branches with very few voxels, and a NaN is
-%                returned
-%
+%     STATS.CylDivergence: standard deviation of the distance between each
+%                branch surface point, and the corresponding point on the
+%                surface of the estimated cylinder. This value sometimes
+%                cannot be estimated in branches with very few voxels, and
+%                a NaN is returned
 %
 %
 % STATS = SCINRRD_SEG2LABEL_STATS(..., P, STRAIGHT)
@@ -108,7 +107,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.8.4
+% Version: 0.8.5
 % $Rev$
 % $Date$
 % 
@@ -282,7 +281,7 @@ for I = 1:length(LAB)
     end
     
     % coordinates of branch voxels
-    [r, c, s] = ind2sub(size(nrrd.data), br);
+    [r, c, s] = ind2sub(size(nrrd.data), br(:));
     xi = scinrrd_index2world([r, c, s], nrrd.axis)';
     
     % straighten all branch voxels
@@ -412,14 +411,23 @@ for I = 1:length(LAB)
         % indices of points on the surface
         idx = unique(triboundary(:));
         
-        % get voxel's actual distance to the central line normalized by the
-        % expected distance if the segmentation is a cylinder
-        stats.CylDivergence(LAB(I)) ...
-            = quantile(abs(r(idx) - rel(idx)), .75);
+        % remove 5% of the length on each end of the branch
+        yimin = min(yi(1, idx));
+        yimax = max(yi(1, idx));
+        halflen = (yimax - yimin) * .90 / 2;
+        idx = setdiff(idx, find(yi(1, :) < -halflen | yi(1, :) > halflen));
         
+        % distance from actual voxel to voxel on estimated cylinder surface
+        stats.CylDivergence(LAB(I)) = std(r(idx) - rel(idx));
+        
+%         % DEBUG: plot the divergence values
+%         hold off
+%         plot(yi(1, idx), r(idx) - rel(idx), '.')
+%        
 %         % DEBUG: plot the mesh
 %         hold off
-%         trisurf(triboundary, yi(1,:), yi(2,:), yi(3,:))
+%         trisurf(triboundary, yi(1,:), yi(2,:), yi(3,:), abs(r - rel))
+%         axis xy equal
 
     end
     
