@@ -1,5 +1,8 @@
 function stack = tiffread(filename, indices)
-
+% TIFFREAD  Reads 8,16,32 bits uncompressed grayscale and (some) color tiff
+% files, as well as stacks or multiple tiff images, for example those
+% produced by metamorph, Zeiss LSM or NIH-image
+%
 % tiffread, version 2.91 Nov 1, 2010
 %
 % stack = tiffread;
@@ -31,7 +34,7 @@ function stack = tiffread(filename, indices)
 % Only a fraction of the TIFF standard is supported, but you may extend support
 % by modifying this file. If you do so, please return your modification to us,
 % such that the added functionality can be redistributed to everyone.
-%
+
 % ------------------------------------------------------------------------------
 %
 % If you would like to acknowledge tiffread2.m in a publication, 
@@ -76,7 +79,8 @@ function stack = tiffread(filename, indices)
 % <http://www.gnu.org/licenses/>.
 %
 % ------------------------------------------------------------------------------
-
+%
+% Ramon Casero <rcasero@gmail.com>: Minor edits
 
 
 
