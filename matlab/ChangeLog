@@ -1,3 +1,36 @@
+2011-09-18  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* update_README.sh (v0.1.2):
+
+	- Read also toolbox directories within toolbox directory.
+
+	- Remove "./" at the beginning of toolbox name, but don't remove
+	any other "/" symbols.
+
+	* Add ThirdPartyToolbox/tiffread (v2.7) directory, with files
+
+	image_background.m
+	image_histogram.m
+	show_image.m
+	show_stack.m
+	tiffread.m
+
+	Downloaded from
+
+	http://www.cytosim.org/other/
+
+	Licence GPL v3.
+
+	* FileFormatToolbox/scinrrd_im2nrrd.m (v0.1.0):
+
+	- Correct version number.
+
+	- Add properties svn:eol-style native, svn:keywords Rev, Date.
+
+	* Add FileFormatToolbox/scinrrd_tiff2nrrd.m (v0.1.0):
+
+	- Create SCI NRRD struct from TIFF stack.
+
 2011-09-14  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* PointsToolbox/bwmesh.m (v0.1.2):

@@ -5,7 +5,7 @@
 
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.1.1
+# Version: 0.1.2
 # $Rev$
 # $Date$
 #
@@ -75,10 +75,10 @@ echo ''
 
 # loop every toolbox
 {
-for DIR in `find . -maxdepth 1 -name "*Toolbox" | sort` 
+for DIR in `find . -maxdepth 2 -name "*Toolbox" | grep -v '/bin' | sort` 
 do
 
-    echo "$DIR" | tr -d './'
+    echo "$DIR" | sed 's/^.\///'
     echo '-------------------------------------------------------------'
     echo ''
     
