@@ -25,7 +25,7 @@ function nrrd = scinrrd_im2nrrd(im, res, offset)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.0.1
+% Version: 0.1.0
 % $Rev$
 % $Date$
 % 
