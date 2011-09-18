@@ -1,11 +1,13 @@
 function hImage = show_stack( stack )
-
+% SHOW_STACK  Display movie frames with a slider and autoscaling
+%
 % function show_stack( mov )
 %
 % Display movie frames with a slider and autoscaling
-%
-% F. Nedelec, Jan 2009
 
+% F. Nedelec, Jan 2009
+%
+% Ramon Casero <rcasero@gmail.com>: Minor edits
 
 hImage = show_image(image(stack, 1));
 hAxes  = gca;

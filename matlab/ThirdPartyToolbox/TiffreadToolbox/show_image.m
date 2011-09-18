@@ -1,5 +1,6 @@
 function [ hImage, mag, scaled ] = show_image( im, varargin )
-
+% SHOW_IMAGE  Display picture in 16-bit gray levels
+%
 % function [ hImage, magnification, pixels ] = show_image ( im, ... )
 %
 % Display picture "im" in 16-bit gray levels.
@@ -17,8 +18,10 @@ function [ hImage, mag, scaled ] = show_image( im, varargin )
 % show_image(...) returns a handle to the matlab image object, the
 % magnification, and the scaled pixel values. The handle can be returned in
 % a subsequent call to change the displayed image.
-%
+
 % F. Nedelec, 2004-2008. This version January 19, 2009
+%
+% Ramon Casero <rcasero@gmail.com>: Minor edits
 
 
 figname    = inputname(1);
