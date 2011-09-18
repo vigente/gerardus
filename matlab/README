@@ -108,6 +108,10 @@ scinrrd_seg3d2matlab.m
 	 SCINRRD_SEG3D2MATLAB  Correct dimensions of data loaded from SCI NRRD so
 	 that rows and columns will follow Matlab's coordinates
 	
+scinrrd_tiff2nrrd.m
+
+	 SCINRRD_TIFF2NRRD  Create SCI NRRD struct from TIFF stack
+	
 scinrrd_world2index.m
 
 	 SCINRRD_WORLD2INDEX  Convert real world coordinates to data volume
@@ -458,4 +462,18 @@ L2_distance.m
 
 	 L2_DISTANCE - computes Euclidean distance matrix
 	
+
+ThirdPartyToolbox/TiffreadToolbox
+-------------------------------------------------------------
+
+image_background.m
+
+image_histogram.m
+
+show_image.m
+
+show_stack.m
+
+tiffread.m
+
 
