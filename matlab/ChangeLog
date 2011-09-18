@@ -1,5 +1,14 @@
 2011-09-18  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* ThirdPartyToolbox/TiffreadToolbox/image_background.m:
+	* ThirdPartyToolbox/TiffreadToolbox/image_histogram.m:
+	* ThirdPartyToolbox/TiffreadToolbox/show_image.m:
+	* ThirdPartyToolbox/TiffreadToolbox/show_stack.m:
+	* ThirdPartyToolbox/TiffreadToolbox/tiffread.m:
+
+	- Minor edits to the helper headers so that we get a summary in
+	README when running update_README.sh.
+
 	* update_README.sh (v0.1.2):
 
 	- Read also toolbox directories within toolbox directory.
@@ -7,7 +16,7 @@
 	- Remove "./" at the beginning of toolbox name, but don't remove
 	any other "/" symbols.
 
-	* Add ThirdPartyToolbox/tiffread (v2.7) directory, with files
+	* Add ThirdPartyToolbox/TiffreadToolbox (v2.7) directory, with files
 
 	image_background.m
 	image_histogram.m

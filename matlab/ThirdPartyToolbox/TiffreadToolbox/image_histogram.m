@@ -1,10 +1,14 @@
 function h = image_histogram( im, mask, make_plot )
-
+% IMAGE_HISTOGRAM  Calculate the histogram of the given image
+%
 % h = image_histogram( im, mask )
 %
 % calculate the histogram of the given image, optionally restricted on the mask
 % h(1) is the number of pixels of value 0, etc.
+
 % F. Nedelec, Dec. 2007
+%
+% Ramon Casero <rcasero@gmail.com>: Minor edits
 
 %%compatibility with tiffread:
 if ( isfield(im,'data') ) 

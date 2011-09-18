@@ -468,12 +468,25 @@ ThirdPartyToolbox/TiffreadToolbox
 
 image_background.m
 
+	 IMAGE_BRACKGROUND Automatically find the pixel-value of the background,
+	 for images that are predominantly black
+	
 image_histogram.m
 
+	 IMAGE_HISTOGRAM  Calculate the histogram of the given image
+	
 show_image.m
 
+	 SHOW_IMAGE  Display picture in 16-bit gray levels
+	
 show_stack.m
 
+	 SHOW_STACK  Display movie frames with a slider and autoscaling
+	
 tiffread.m
 
+	 TIFFREAD  Reads 8,16,32 bits uncompressed grayscale and (some) color tiff
+	 files, as well as stacks or multiple tiff images, for example those
+	 produced by metamorph, Zeiss LSM or NIH-image
+	
 

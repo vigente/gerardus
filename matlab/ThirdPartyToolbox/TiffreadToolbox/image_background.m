@@ -1,5 +1,7 @@
 function [ back, sigma ] = image_background( im, make_plot )
-
+% IMAGE_BRACKGROUND Automatically find the pixel-value of the background,
+% for images that are predominantly black
+%
 % [ back, sigma ] = image_background( im )
 % [ back, sigma ] = image_background( im, make_plot )
 %
@@ -13,8 +15,10 @@ function [ back, sigma ] = image_background( im, make_plot )
 % if 'make_plot' is set and true, an histogram and detected values is displayed
 %
 % TODO: automatically detect when the method fails
-%
+
 % F. Nedelec, 2005 - April 2008
+%
+% Ramon Casero <rcasero@gmail.com>: Minor edits
 
 %compatibility with tiffread
 if ( isfield( im, 'data') )
