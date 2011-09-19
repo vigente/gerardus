@@ -1,3 +1,10 @@
+2011-09-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_tiff2nrrd.m (v0.2.0):
+
+	- Add functionality to read stack obtained from LSM files (the
+	struct is different, it has a field "lsm" instead of "info").
+
 2011-09-18  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* ThirdPartyToolbox/TiffreadToolbox/image_background.m:
