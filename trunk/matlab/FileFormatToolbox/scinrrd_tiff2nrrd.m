@@ -11,7 +11,10 @@ function nrrd = scinrrd_tiff2nrrd(stack)
 %   STACK is a struct array obtained from loading a TIFF or LSM file with
 %   tiffread(), e.g.
 %
-%    >> stack - tiffread('file.tif');
+% =========================================================================
+%   TIFF format:
+%
+%    >> stack = tiffread('file.tif');
 %    >> stack = 
 % 
 %    1x185 struct array with fields:
@@ -51,10 +54,49 @@ function nrrd = scinrrd_tiff2nrrd(stack)
 %    unit=um
 %    spacing=0.6560000000000001
 %    loop=false
-
+%
+% =========================================================================
+%   LSM format:
+%
+%    >> stack = tiffread('file.lsm');
+%    >> stack = 
+%
+%            filename: 'file.lsm'
+%               width: 512
+%              height: 512
+%                 bits: 8
+%                 data: [512x512 uint8]
+%                  lsm: [1x1 struct]
+%
+%    >> stack.lsm
+%
+%    ans = 
+%
+%              MagicNumber: '0x00400494C'
+%               DimensionX: 512
+%               DimensionY: 512
+%               DimensionZ: 1
+%        DimensionChannels: 1
+%            DimensionTime: 1
+%        IntensityDataType: 1
+%               ThumbnailX: 128
+%               ThumbnailY: 128
+%               VoxelSizeX: 4.3945e-07
+%               VoxelSizeY: 4.3945e-07
+%               VoxelSizeZ: 6.5600e-07
+%                  OriginX: 0
+%                  OriginY: 0
+%                  OriginZ: 0
+%                 ScanType: 0
+%             SpectralScan: 0
+%                 DataType: 0
+%             TimeInterval: 0
+%                TimeStamp: 4.0385e+03
+%               TimeOffset: 0
+         
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -88,33 +130,74 @@ error(nargoutchk(0, 1, nargout, 'struct'));
 % image volume
 nrrd.data = cat(3, stack.data);
 
-% image resolution in x and y
-nrrd.axis(1).spacing = 1/stack(1).x_resolution(1);
-nrrd.axis(2).spacing = 1/stack(1).y_resolution(1);
+% if stack was read from a TIFF file, it will have an 'info' field
+if isfield(stack, 'info')
+    
+    % image resolution in x and y
+    nrrd.axis(1).spacing = 1/stack(1).x_resolution(1);
+    nrrd.axis(2).spacing = 1/stack(1).y_resolution(1);
+    
+    % image resolution in z
+    a = strfind(stack(1).info, 'spacing=');
+    b = strfind(stack(1).info, 'loop=');
+    if (isempty(a) || isempty(b) || b < a)
+        error('TIFF stack has no Z-spacing info')
+    end
+    nrrd.axis(3).spacing = str2double(stack(1).info(a+8:b-2));
+    
+    b = a;
+    a = strfind(stack(1).info, 'unit=');
+    unit = stack(1).info(a+5:b-2);
+    switch unit
+        case 'm'
+        case 'dm'
+            nrrd.axis(3).spacing = nrrd.axis(3).spacing * 1e-1;
+        case 'cm'
+            nrrd.axis(3).spacing = nrrd.axis(3).spacing * 1e-2;
+        case 'mm'
+            nrrd.axis(3).spacing = nrrd.axis(3).spacing * 1e-3;
+        case 'um'
+            nrrd.axis(3).spacing = nrrd.axis(3).spacing * 1e-6;
+        otherwise
+            error('Z-axis units not recognised')
+    end
 
-% image resolution in z
-a = strfind(stack(1).info, 'spacing=');
-b = strfind(stack(1).info, 'loop=');
-if (isempty(a) || isempty(b) || b < a)
-    error('TIFF stack has no Z-spacing info')
-end
-nrrd.axis(3).spacing = str2double(stack(1).info(a+8:b-2));
+    % loop some of the fields
+    for I = 1:3
+        
+        % left edge of first voxel
+        nrrd.axis(I).min = -nrrd.axis(I).spacing / 2;
+        
+        % left edge of last voxel
+        nrrd.axis(I).max = nrrd.axis(1).min ...
+            + (size(nrrd.data, I) - 1) * nrrd.axis(I).spacing;
+        
+    end
+    
+elseif isfield(stack, 'lsm') % stack read from an LSM v5 file
 
-b = a;
-a = strfind(stack(1).info, 'unit=');
-unit = stack(1).info(a+5:b-2);
-switch unit
-    case 'm'
-    case 'dm'
-        nrrd.axis(3).spacing = nrrd.axis(3).spacing * 1e-1;
-    case 'cm'
-        nrrd.axis(3).spacing = nrrd.axis(3).spacing * 1e-2;
-    case 'mm'
-        nrrd.axis(3).spacing = nrrd.axis(3).spacing * 1e-3;
-    case 'um'
-        nrrd.axis(3).spacing = nrrd.axis(3).spacing * 1e-6;
-    otherwise
-        error('Z-axis units not recognised')
+    % voxel resolution
+    nrrd.axis(1).spacing = stack.lsm.VoxelSizeX;
+    nrrd.axis(2).spacing = stack.lsm.VoxelSizeY;
+    nrrd.axis(3).spacing = stack.lsm.VoxelSizeZ;
+    
+    % left edge of first voxel
+    nrrd.axis(1).min = stack.lsm.OriginX - nrrd.axis(1).spacing / 2;
+    nrrd.axis(2).min = stack.lsm.OriginY - nrrd.axis(2).spacing / 2;
+    nrrd.axis(3).min = stack.lsm.OriginZ - nrrd.axis(3).spacing / 2;
+    
+    for I = 1:3
+        
+        % left edge of last voxel
+        nrrd.axis(I).max = nrrd.axis(1).min ...
+            + (size(nrrd.data, I) - 1) * nrrd.axis(I).spacing;
+        
+    end
+    
+else
+    
+    error('Stack struct format not recognised')
+    
 end
 
 % loop some of the fields
@@ -122,12 +205,6 @@ for I = 1:3
     
     % data volume size
     nrrd.axis(I).size = size(nrrd.data, I);
-    
-    % left edge of first voxel
-    nrrd.axis(I).min = nrrd.axis(I).spacing / 2;
-    
-    % left edge of last voxel
-    nrrd.axis(I).max = (size(nrrd.data, I) - 1) * nrrd.axis(I).spacing;
     
     % unused
     nrrd.axis(I).center = 1;
