@@ -9,7 +9,10 @@ function nrrd = scinrrd_tiff2nrrd(stack)
 % NRRD = SCINRRD_TIFF2NRRD(STACK)
 %
 %   STACK is a struct array obtained from loading a TIFF or LSM file with
-%   tiffread(), e.g.
+%   tiffread(). See below for details on both formats.
+%
+%   Note: We assume that all frames in stack have the same resolution and
+%   offset (only values from frame 1 are read).
 %
 % =========================================================================
 %   TIFF format:
@@ -96,7 +99,7 @@ function nrrd = scinrrd_tiff2nrrd(stack)
          
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -177,14 +180,14 @@ if isfield(stack, 'info')
 elseif isfield(stack, 'lsm') % stack read from an LSM v5 file
 
     % voxel resolution
-    nrrd.axis(1).spacing = stack.lsm.VoxelSizeX;
-    nrrd.axis(2).spacing = stack.lsm.VoxelSizeY;
-    nrrd.axis(3).spacing = stack.lsm.VoxelSizeZ;
+    nrrd.axis(1).spacing = stack(1).lsm.VoxelSizeX;
+    nrrd.axis(2).spacing = stack(1).lsm.VoxelSizeY;
+    nrrd.axis(3).spacing = stack(1).lsm.VoxelSizeZ;
     
     % left edge of first voxel
-    nrrd.axis(1).min = stack.lsm.OriginX - nrrd.axis(1).spacing / 2;
-    nrrd.axis(2).min = stack.lsm.OriginY - nrrd.axis(2).spacing / 2;
-    nrrd.axis(3).min = stack.lsm.OriginZ - nrrd.axis(3).spacing / 2;
+    nrrd.axis(1).min = stack(1).lsm.OriginX - nrrd.axis(1).spacing / 2;
+    nrrd.axis(2).min = stack(1).lsm.OriginY - nrrd.axis(2).spacing / 2;
+    nrrd.axis(3).min = stack(1).lsm.OriginZ - nrrd.axis(3).spacing / 2;
     
     for I = 1:3
         
