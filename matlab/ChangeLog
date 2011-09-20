@@ -1,3 +1,11 @@
+2011-09-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_tiff2nrrd.m (v0.2.1):
+
+	- Fix bug. For 3D volumes, stack is an array of structs. We have
+	to assume that all frames in stack have the same resolution and
+	offset (only values from frame 1 are read).
+
 2011-09-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FileFormatToolbox/scinrrd_tiff2nrrd.m (v0.2.0):
