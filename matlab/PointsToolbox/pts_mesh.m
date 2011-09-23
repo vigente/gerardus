@@ -17,9 +17,13 @@ function [tri, triboundary] = pts_mesh(x, maxlen)
 %   the wanted result. A sensible value of MAXLEN is e.g. 1.75 * L, where L
 %   is the length of the voxel diagonal.
 %
-%   TRI is a 'TriRep' struct with the description of the mesh. To plot the
-%   volumetric mesh you can use (but note that this is very slow even for
-%   small meshes)
+%   TRI is a 4-column matrix with the description of the mesh
+%   (triangulation). Each row contains the indices of 4 vertices forming a
+%   tetrahedron. For example, the coordinates of the 2nd vertex of the 50th
+%   tetrahedron can be obtained as X(TRI(50, 2), :).
+%
+%   To plot the volumetric mesh you can use (but note that this is very
+%   slow even for small meshes)
 %
 %     >> tetramesh(tri)
 %
@@ -27,18 +31,21 @@ function [tri, triboundary] = pts_mesh(x, maxlen)
 %   that form a triangle on the surface of the mesh. To plot the surface
 %   mesh (usually very fast) you can use
 %
-%     >> trisurf(triboundary, x(:, 1), x(:, 2), x(:, 3))
+%     >> trisurf(triboundary, x(:, 1), x(:, 2), x(:, 3), 'EdgeColor', 'none')
+%     >> axis xy equal
+%     >> camlight('headlight')
+%     >> lighting gouraud
 %
 %   To obtain a list of indices of the points on the surface,
 %
 %     >> idx = unique(triboundary(:));
 %
 %
-% See also: bwmesh, TriRep, DelaunayTri
+% See also: bwmesh, TriRep, delaunay
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -76,53 +83,44 @@ if (nargin < 2 || isempty(maxlen))
 end
 
 % compute Delaunay triangulation of the segmentation points
-tri = DelaunayTri(x);
+tri = delaunay(x);
 
-% sometimes the points can be colinear, in which case it's not possible to
-% compute a 3D triangulation. In that case, we return an empty
-% triangulation
-warning('off', 'MATLAB:TriRep:EmptyTri3DWarnId')
-if (isempty(tri.Triangulation))
-    
-    warning('on', 'MATLAB:TriRep:EmptyTri3DWarnId')
-    tri = [];
+% compute length of each edge (lenxy means edge between vertices x and y of
+% the tetrahedron; a tetrahedron has vertices 1, 2, 3, 4)
+len12 = sqrt(sum((x(tri(:, 1), :) - x(tri(:, 2), :)).^2, 2));
+len13 = sqrt(sum((x(tri(:, 1), :) - x(tri(:, 3), :)).^2, 2));
+len14 = sqrt(sum((x(tri(:, 1), :) - x(tri(:, 4), :)).^2, 2));
+len23 = sqrt(sum((x(tri(:, 2), :) - x(tri(:, 3), :)).^2, 2));
+len24 = sqrt(sum((x(tri(:, 2), :) - x(tri(:, 4), :)).^2, 2));
+len34 = sqrt(sum((x(tri(:, 3), :) - x(tri(:, 4), :)).^2, 2));
+
+% find tetrahedra where at least an edge is too long
+badtetra = ...
+    len12 > maxlen ...
+    | len13 > maxlen ...
+    | len14 > maxlen ...
+    | len23 > maxlen ...
+    | len24 > maxlen ...
+    | len34 > maxlen;
+
+% remove tetrahedra with too long edges
+tri(badtetra, :) = [];
+if isempty(tri)
     triboundary = [];
     return
-    
 end
-warning('on', 'MATLAB:TriRep:EmptyTri3DWarnId')
 
-% get all edges
-e = tri.edges;
-
-% compute length of each edge
-len = sqrt(sum((x(e(:, 1), :) - x(e(:, 2), :)).^2, 2));
-
-% find tetrahedra where at least an edge is very long
-badtetra = tri.edgeAttachments(e(len > maxlen, :));
-badtetra = unique([badtetra{:}]);
-
-% create new triangulation, removing the tetrahedra with long edges
-aux = tri.Triangulation;
-aux(badtetra, :) = [];
-if isempty(aux)
-    
-    tri = [];
-    triboundary = [];
-    return
-    
-else
-    
+% find voxels that are on the surface of the segmentation
+if (nargout > 1)
     warning('off', 'MATLAB:TriRep:PtsNotInTriWarnId')
-    tri = TriRep(aux, x(:, 1), x(:, 2), x(:, 3));
+    triboundary = freeBoundary(TriRep(tri, x(:, 1), x(:, 2), x(:, 3)));
     warning('on', 'MATLAB:TriRep:PtsNotInTriWarnId')
-    
-    % find voxels that are on the surface of the segmentation
-    if (nargout > 1)
-        triboundary = freeBoundary(tri);
-    end
-    
+end
+
 %     % DEBUG: plot the mesh
 %     hold off
-%     trisurf(triboundary, x(:, 1), x(:, 2), x(:, 3))
+%     trisurf(triboundary, x(:, 1), x(:, 2), x(:, 3), 'EdgeColor', 'none')
+%     axis xy equal
+%     camlight('headlight')
+%     lighting gouraud
 end
