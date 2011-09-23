@@ -1,3 +1,13 @@
+2011-09-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* PointsToolbox/pts_mesh.m (v0.2.0):
+
+	- Instead of using DelaunayTri, that suffers from a memory leak,
+	use delaunay. The function is now much faster too. I have been
+	able to process a segmentation from a 574x532x1024 image,
+	11,824,529 voxels, in 14 min. Thanks to Kwok Chong from Mathworks
+	support, for suggesting how to avoid the memory leak.
+
 2011-09-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FileFormatToolbox/scinrrd_tiff2nrrd.m (v0.2.1):
