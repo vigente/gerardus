@@ -99,7 +99,7 @@ function nrrd = scinrrd_tiff2nrrd(stack)
          
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 % 
@@ -130,12 +130,13 @@ function nrrd = scinrrd_tiff2nrrd(stack)
 error(nargchk(1, 1, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
-% image volume
-nrrd.data = cat(3, stack.data);
 
 % if stack was read from a TIFF file, it will have an 'info' field
 if isfield(stack, 'info')
     
+    % image volume
+    nrrd.data = cat(3, stack.data);
+
     % image resolution in x and y
     nrrd.axis(1).spacing = 1/stack(1).x_resolution(1);
     nrrd.axis(2).spacing = 1/stack(1).y_resolution(1);
@@ -179,6 +180,25 @@ if isfield(stack, 'info')
     
 elseif isfield(stack, 'lsm') % stack read from an LSM v5 file
 
+    % image volume
+    if (stack(1).lsm.DimensionChannels == 1)
+        
+        % grayscale data
+        nrrd.data = cat(3, stack.data);
+        
+    elseif (stack(1).lsm.DimensionChannels == 3)
+        
+        % RGB data
+        nrrd.data = zeros([size(stack(1).data{1}) length(stack)], ...
+            class(stack(1).data{1}));
+        for I = 1:length(stack)
+            nrrd.data(:, :, I) = rgb2gray(cat(3, stack(I).data{:}));
+        end
+        
+    else
+        error('Unrecognized number of channels in LSM file')
+    end
+    
     % voxel resolution
     nrrd.axis(1).spacing = stack(1).lsm.VoxelSizeX;
     nrrd.axis(2).spacing = stack(1).lsm.VoxelSizeY;
