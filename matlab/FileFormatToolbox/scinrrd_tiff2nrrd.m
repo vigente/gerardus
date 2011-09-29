@@ -14,6 +14,10 @@ function nrrd = scinrrd_tiff2nrrd(stack)
 %   Note: We assume that all frames in stack have the same resolution and
 %   offset (only values from frame 1 are read).
 %
+%   When the microscope grayscale data is exported as RGB, only the red
+%   channel is used. So if the image data is RGB, we only read the red
+%   channel.
+%
 % =========================================================================
 %   TIFF format:
 %
@@ -192,7 +196,7 @@ elseif isfield(stack, 'lsm') % stack read from an LSM v5 file
         nrrd.data = zeros([size(stack(1).data{1}) length(stack)], ...
             class(stack(1).data{1}));
         for I = 1:length(stack)
-            nrrd.data(:, :, I) = rgb2gray(cat(3, stack(I).data{:}));
+            nrrd.data(:, :, I) = stack(I).data{1};
         end
         
     else
