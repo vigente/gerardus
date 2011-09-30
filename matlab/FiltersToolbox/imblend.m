@@ -60,7 +60,7 @@ function [im, a0] = imblend(im1, im2)
 
 % check arguments
 error(nargchk(2, 2, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
+error(nargoutchk(0, 2, nargout, 'struct'));
 
 % check image sizes
 if any(size(im1) ~= size(im2))
