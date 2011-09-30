@@ -157,6 +157,11 @@ im2imat.m
 	 IM2IMAT  Local neighbourhood mean intensity matrix between segmentation
 	 voxels
 	
+imblend.m
+
+	 IMBLEND  Blend two image stacks to increase the apparent dynamic range
+	 and improve the signal to noise ratio
+	
 img_tps_map.m
 
 	 IMG_TPS_MAP Warp an image using a thin-plate spline transformation
@@ -310,6 +315,10 @@ extmat2rotmat.m
 
 	 EXTMAT2ROTMAT  Convert rotation in extended matrix form into centroid and
 	 matrix pair
+	
+gram2dsq.m
+
+	 GRAM2DSQ  Convert Gram matrix to squared distance matrix
 	
 graph_nn.m
 
