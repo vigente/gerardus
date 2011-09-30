@@ -1,3 +1,10 @@
+2011-09-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add FiltersToolbox/imblend.m (v0.1.0):
+
+	- Blend two image stacks to increase the apparent dynamic range
+	and improve the signal to noise ratio.
+
 2011-09-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FileFormatToolbox/scinrrd_tiff2nrrd.m (v0.2.2):
