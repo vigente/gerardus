@@ -1,3 +1,12 @@
+2011-10-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m (v0.8.6):
+
+	- Fix bug. Catch exceptions when trying to triangulate with
+	delaunay (e.g. when we have fewer than 4 points or they are
+	coplanar). Instead of error and exit, make triboundary empty, and
+	let the code keep running.
+
 2011-09-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* Add FiltersToolbox/imblend.m (v0.1.0):
