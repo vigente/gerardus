@@ -107,7 +107,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.8.5
+% Version: 0.8.6
 % $Rev$
 % $Date$
 % 
@@ -398,9 +398,18 @@ for I = 1:length(LAB)
     
     % compute overlap between vessel and cylinder
     stats.CylOverlap(LAB(I)) = nnz(isin) / length(isin);
-    
+
     % mesh the cloud of points and find the triangles that form the surface
-    [~, triboundary] = pts_mesh(yi', 1.75 * len0);
+    try
+        [~, triboundary] = pts_mesh(yi', 1.75 * len0);
+    catch ME
+        % error computing the Delaunay triangulation. The points may be
+        % coplanar or collinear
+        %
+        % error computing the Delaunay triangulation. Not enough unique
+        % points specified
+        triboundary = [];
+    end
 
     if (isempty(triboundary))
         
