@@ -1,3 +1,32 @@
+2011-10-13  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m (v0.15.0):
+
+	- Add section "convert very short intermediate branches to
+	bifurcation clusters". Very short intermediate branches create
+	trouble with merging, because they can get in between two branches
+	that should actually be neighbours. They also are a pain when
+	labelling with region grow the whole segmentation, because they
+	will not look like real branches, and they will steal voxels from
+	nearby branches. By turning them into bifurcation clumps, we
+	overcome this problems.
+
+	- Replace code to create the part of NRRD struct by new function
+	scinrrd_im2nrrd(). We actually need a NRRD struct for parts of the
+	new code.
+
+	- Add a list of flags to tag bifurcation voxels that should be
+	prevented from merging. This will be used when we add the code
+	that separates vessels from trabeculations.
+
+	- Add commented out code for "split the skeleton in branches that
+	contain both a vessel and a bit of trabeculation". We are saving
+	this for the next upgrade of the function.
+
+	- Fix bug. Convert main diagonal of adjacency matrix madj to
+	zeros, as it doesn't make sense that a branch is adjacent to
+	itself over an arbitrary bifurcation voxel of the many it can have.
+
 2011-10-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m (v0.8.6):
