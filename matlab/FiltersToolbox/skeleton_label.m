@@ -123,7 +123,7 @@ function [sk, cc, bifcc, mcon, madj, cc2, mmerge] = skeleton_label(sk, im, res, 
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.14.0
+% Version: 0.15.0
 % $Rev$
 % $Date$
 % 
@@ -179,7 +179,8 @@ if (CORRECT < 0 || CORRECT > 1)
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% split skeleton into branches and bifurcation voxels
+%% split skeleton into branches and bifurcation voxels, and create cc 
+%% struct
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % get sparse matrix of distances between voxels. To label the skeleton we
@@ -199,6 +200,9 @@ bifidx = deg >= 3;
 % matrix index => image index
 bifidx = idictsk(bifidx);
 
+% flags to say whether the bifurcation voxel can be used for merging
+bifidxok = true(size(bifidx));
+
 %% label connected components of skeleton branches
 
 % remove bifurcation voxels from original skeleton
@@ -213,7 +217,7 @@ if length(cc.ImageSize) == 2
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% sort the skeleton voxels in each branch
+%% add our own fields to the cc struct
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % init outputs
@@ -222,21 +226,118 @@ cc.IsLeaf = false(1, cc.NumObjects);
 cc.BranchLength = zeros(1, cc.NumObjects);
 cc.Degree = cell(1, cc.NumObjects);
 
-% create the part of the NRRD struct necessary to convert to real world
-% coordinates
-if (isempty(res))
-    nrrd.axis.spacing(1) = 1;
-    nrrd.axis.spacing(2) = 1;
-    nrrd.axis.spacing(3) = 1;
-else
-    nrrd.axis.spacing(1) = res(1);
-    nrrd.axis.spacing(2) = res(2);
-    nrrd.axis.spacing(3) = res(3);
-end
-nrrd.axis.min = deal(nrrd.axis.spacing / 2);
-nrrd.axis.size(1) = cc.ImageSize(1);
-nrrd.axis.size(2) = cc.ImageSize(2);
-nrrd.axis.size(3) = cc.ImageSize(3);
+% wrap the full segmentation in a nrrd structure
+nrrd = scinrrd_im2nrrd(im, res);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% sort the skeleton voxels in each branch
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% % loop each branch in the skeleton
+% for I = 1:cc.NumObjects
+% 
+%     % sort the voxels in the branch
+%     cc.PixelIdxList{I} = ...
+%         sort_branch(cc.PixelIdxList{I}, dsk, dictsk, idictsk);
+%     
+% end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% split the skeleton in branches that contain both a vessel and a bit of 
+%% trabeculation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% % compute distance transform of the segmentation
+% dist = itk_imfilter('maudist', nrrd);
+% 
+% % compute length of voxel diagonal
+% if (cc.ImageSize(3) == 1) % 2D
+%     voxlen = sqrt(res(1).^2 + res(2).^2);
+% else % 3D
+%     voxlen = norm(res);
+% end
+% 
+% for I = 1:cc.NumObjects
+%     
+%     % get distance values on the skeleton branch
+%     d = -dist(cc.PixelIdxList{I});
+%     
+%     % compute median value of distances
+%     dmed = median(d);
+%     
+%     % if we have a vessel attached to a trabeculation, we expect that
+%     % distance values in the trabeculation will start increasing above the
+%     % median
+%     dmax = dmed + 2 * voxlen;
+%     
+% %     % DEBUG: plot distance values over the skeleton
+% %     hold off
+% %     plot(d)
+% %     hold on
+% %     plot([1, length(d)], [dmax dmax], 'r')
+% %     plot([1, length(d)], [dmed dmed], 'k')
+%     
+%     % find the first and last voxels in the skeleton that have distances to
+%     % the background that are much larger than the median distance
+%     idx = find(d <= dmax);
+%     v1 = idx(1);
+%     vend = idx(end);
+%     
+%     % if those boundary voxels are not the beginning or end of the branch,
+%     % we move them a bit towards the centre of the valid segment, so that
+%     % the valid segment doesn't insert into the trabeculation. We also have
+%     % to make sure that when moving the boundary voxels, we don't go beyond
+%     % the branch limits
+%     if (v1 > 1)
+%         v1 = min(v1 + 2, length(d));
+%     end
+%     if (vend < length(d))
+%         vend = max(vend - 2, 1);
+%     end
+%     
+%     % get the list of voxels to the left of the valid segment
+%     idx = cc.PixelIdxList{I}(1:(v1-1));
+%     
+%     % if there are voxels to the left, the closest one becomes a
+%     % bifurcation voxel that cannot be used for merging
+%     if (~isempty(idx))
+%         bifidx(end+1) = idx(end);
+%         bifidxok(end+1) = false;
+%         idx(end) = [];
+%     end
+%     
+%     % if there are voxels left, they become a new branch
+%     if (~isempty(idx))
+%         cc.NumObjects = cc.NumObjects + 1;
+%         cc.PixelIdxList{end+1} = idx;
+%     end
+%         
+%     % get the list of voxels to the right of the valid segment
+%     idx = cc.PixelIdxList{I}((vend+1):end);
+%     
+%     % if there are voxels to the right, the closest one becomes a
+%     % bifurcation voxel that cannot be used for merging
+%     if (~isempty(idx))
+%         bifidx(end+1) = idx(1);
+%         bifidxok(end+1) = false;
+%         idx(1) = [];
+%     end
+%     
+%     % if there are voxels left, they become a new branch
+%     if (~isempty(idx))
+%         cc.NumObjects = cc.NumObjects + 1;
+%         cc.PixelIdxList{end+1} = idx;
+%     end
+%     
+%     % remove the left and right voxels from the valid segment
+%     cc.PixelIdxList{I} = cc.PixelIdxList{I}(v1:vend);
+% 
+% end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% sort again the skeleton voxels in each branch, and compute some 
+%% parameters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % loop each branch in the skeleton
 for I = 1:cc.NumObjects
@@ -252,6 +353,35 @@ for I = 1:cc.NumObjects
     cc.Degree{I} = full(deg(dictsk(cc.PixelIdxList{I})));
     
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% convert very short intermediate branches to bifurcation clusters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% branches that are up to this length will be removed as branches and
+% converted to bifurcation clusters. We assume that the skeleton has been
+% pruned and therefore we cannot have short branches as leaves
+INTERLEN = 2;
+
+% get length of every branch
+len = cellfun(@(x) length(x), cc.PixelIdxList);
+
+% find short leaves
+idx = len <= INTERLEN;
+
+% add the voxels in those branches to the list of bifurcation voxels
+aux = cat(1, cc.PixelIdxList{idx});
+bifidx = cat(1, bifidx, aux);
+bifidxok = cat(1, bifidxok, true(length(aux), 1));
+
+% remove the voxels from the list of branches
+cc.NumObjects = cc.NumObjects - nnz(idx);
+cc.PixelIdxList(idx) = [];
+cc.PixelParam(idx) = [];
+cc.IsLeaf(idx) = [];
+cc.BranchLength(idx) = [];
+cc.Degree(idx) = [];
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% connectivity between branches and bifurcation clumps,
@@ -376,6 +506,12 @@ for I = 1:bifcc.NumObjects
             
         end
         
+        % skip if bifurcation clump is a single bifurcation voxel that has
+        % been tagged as not valid for merging
+        if (length(bif) == 1 && ~bifidxok(bif == bifidx))
+            continue
+        end
+            
         if (SINGLEMERGE) % only 2 branches can be merged per bifurcation clump
             
             % get the two branches with the smallest angle
@@ -433,9 +569,14 @@ for I = 1:bifcc.NumObjects
             
         end
         
-    end
+    end % (alphamax >= 0)
 
 end
+
+% remove elements in the main diagonal, as it doesn't make sense that a
+% branch is adjacent to itself over an arbitrary bifurcation voxel of the
+% many it can have
+madj(1:size(madj, 1)+1:end) = 0;
 
 % mark branches to be merged with themselves, so that we can keep track of
 % single branches in mmerge
