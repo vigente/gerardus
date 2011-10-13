@@ -9,7 +9,7 @@
 	labelling with region grow the whole segmentation, because they
 	will not look like real branches, and they will steal voxels from
 	nearby branches. By turning them into bifurcation clumps, we
-	overcome this problems.
+	overcome these problems.
 
 	- Replace code to create the part of NRRD struct by new function
 	scinrrd_im2nrrd(). We actually need a NRRD struct for parts of the
