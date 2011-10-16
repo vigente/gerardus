@@ -123,7 +123,7 @@ function [sk, cc, bifcc, mcon, madj, cc2, mmerge] = skeleton_label(sk, im, res, 
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.15.0
+% Version: 0.15.1
 % $Rev$
 % $Date$
 % 
@@ -355,26 +355,113 @@ for I = 1:cc.NumObjects
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% connectivity between branches and bifurcation clumps (first run)
+%% we need to compute this so that we can identify leaf branches
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% create empty image volume and add only bifurcation voxels
+sk2 = zeros(size(sk), 'uint8');
+sk2(bifidx) = 1;
+
+% compute connected components to obtain clumps of bifurcation voxels
+bifcc = bwconncomp(sk2);
+
+% init matrix to describe the connection between branches
+%
+%   row = branch index
+%   col = bifurcation clump index
+mcon = boolean(sparse(cc.NumObjects, bifcc.NumObjects));
+
+% loop all the bifurcation clumps, to find which branches are neighbours of
+% each other
+for I = 1:bifcc.NumObjects
+
+    %% find which branches are connected to which bifurcation clumps
+
+    % get voxel indices for bifurcation clump
+    bif = bifcc.PixelIdxList{I};
+        
+    % linear index -> row, col, slice
+    [r, c, s] = ind2sub(cc.ImageSize, bif);
+
+    % get a box 1 voxel bigger than the clump
+    r0 = max(1, min(r) - 1);
+    c0 = max(1, min(c) - 1);
+    s0 = max(1, min(s) - 1);
+    rend = min(cc.ImageSize(1), max(r) + 1);
+    cend = min(cc.ImageSize(2), max(c) + 1);
+    send = min(cc.ImageSize(3), max(s) + 1);
+
+    % extract that box from the volume with the branches
+    boxbr = sk(r0:rend, c0:cend, s0:send);
+    
+    % create a box for the bifurcation clump
+    boxbif = zeros(size(boxbr), class(sk2));
+    r = r - r0 + 1;
+    c = c - c0 + 1;
+    s = s - s0 + 1;
+    boxbif(sub2ind(size(boxbif), r, c, s)) = 1;
+    
+    % create a box with the same size
+    box  = zeros(size(boxbif));
+    
+    % tag as TODO=2 branch voxels
+    box(boxbr ~= 0) = 2;
+    
+    % add to the vox the bifurcation clump voxels
+    box(boxbif == 1) = 1;
+    
+    % dilate the clump 1 voxel
+    box = bwregiongrow(box, 2, [], 1);
+    
+    % get the branches that the dilated bifurcation clump overlaps
+    idx = double(boxbr(box == 1));
+
+    % because in sk bifurcation voxels were removed, we can have "0" values
+    % in idx. Remove them
+    idx = idx(idx ~= 0);
+    
+    % add the neighbour connections to the connection and adjacency
+    % matrices
+    mcon(idx, I) = true;
+
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% find leaf-branches
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% loop each branch in the skeleton
+for I = 1:cc.NumObjects
+    
+    % get number of bifurcation clumps the branch is connected to
+    N = length(find(mcon(I, :)));
+
+    % a branch is a leaf if it is connected at most to 1 bifurcation clump
+    cc.IsLeaf(I) = N < 2;
+    
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% convert very short intermediate branches to bifurcation clusters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% branches that are up to this length will be removed as branches and
-% converted to bifurcation clusters. We assume that the skeleton has been
-% pruned and therefore we cannot have short branches as leaves
-INTERLEN = 2;
+% intermediate (i.e. non-leaf) branches that are up to this length will be
+% removed as branches and converted to bifurcation clusters
+INTERLEN = 4;
 
 % get length of every branch
 len = cellfun(@(x) length(x), cc.PixelIdxList);
 
 % find short leaves
-idx = len <= INTERLEN;
+idx = (len <= INTERLEN) & ~cc.IsLeaf;
 
 % add the voxels in those branches to the list of bifurcation voxels
 aux = cat(1, cc.PixelIdxList{idx});
 bifidx = cat(1, bifidx, aux);
 bifidxok = cat(1, bifidxok, true(length(aux), 1));
 
-% remove the voxels from the list of branches
+% remove the converted voxels from the list of branches
 cc.NumObjects = cc.NumObjects - nnz(idx);
 cc.PixelIdxList(idx) = [];
 cc.PixelParam(idx) = [];
@@ -384,12 +471,51 @@ cc.Degree(idx) = [];
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% connectivity between branches and bifurcation clumps,
-%% and find which branches should be merged together
+%% compute statistics of all branches
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% tag each branch with its label
+%% skeleton labelling
+
+% % add a label for TODO voxels
+% cc.NumObjects = cc.NumObjects + 1;
+% cc.PixelIdxList(end+1) = {[]};
+
+% tag each skeleton branch with its label
 sk = labelmatrix(cc);
+
+% % duplicate in the nrrd struct
+% nrrd.data = sk;
+% 
+% % compute value with the right type for voxels that have to be tagged using
+% % the region grow algorithm
+% TODO = sk(1)*0 + cc.NumObjects;
+% 
+% % add all the segmentation voxels that need to be tagged to the nrrd struct
+% nrrd.data(im & ~nrrd.data) = TODO;
+% 
+% % region grow algorithm to extend branch labels
+% nrrd.data = bwregiongrow(nrrd.data, TODO, res);
+% 
+% % in some very particular cases, a small patch of voxels may be left
+% % unlabelled. We are just going to remove them from the segmentation
+% nrrd.data(nrrd.data == TODO) = 0;
+% 
+% % remove the empty list of voxels we added for the TODO label
+% cc.PixelIdxList(end) = [];
+% cc.NumObjects = cc.NumObjects - 1;
+% 
+% % compute label statistics
+% stats = scinrrd_seg2label_stats(nrrd, cc, p);
+% 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% connectivity between branches and bifurcation clumps,
+%% and find which branches should be merged together
+%%
+%% connectivity needs to be computed again because some short branches may
+%% have been converted to bifurcation clumps
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % create empty image volume and add only bifurcation voxels
 sk2 = zeros(size(sk), 'uint8');
@@ -421,9 +547,11 @@ for I = 1:bifcc.NumObjects
 
     %% find which branches are connected to which bifurcation clumps
 
-    % get voxels in the bifurcation clump
+    % get voxel indices for bifurcation clump
+    bif = bifcc.PixelIdxList{I};
+        
     % linear index -> row, col, slice
-    [r, c, s] = ind2sub(cc.ImageSize, bifcc.PixelIdxList{I});
+    [r, c, s] = ind2sub(cc.ImageSize, bif);
 
     % get a box 1 voxel bigger than the clump
     r0 = max(1, min(r) - 1);
@@ -467,6 +595,12 @@ for I = 1:bifcc.NumObjects
     mcon(idx, I) = true;
     madj(idx, idx) = I;
     
+    % skip if bifurcation clump is a single bifurcation voxel that has
+    % been tagged as not valid for merging
+    if (length(bif) == 1 && ~bifidxok(bif == bifidx))
+        continue
+    end
+            
     %% measure angle between pairs of branches
     
     if (alphamax >= 0)
@@ -486,9 +620,6 @@ for I = 1:bifcc.NumObjects
         % get all combinations of pairs of branches that share this clump
         idx = nchoosek(idx, 2);
         
-        % get voxel indices for bifurcation clump
-        bif = bifcc.PixelIdxList{I};
-        
         % loop each pair of branches combination
         alpha = zeros(1, size(idx, 1));
         for J = 1:size(idx, 1)
@@ -506,12 +637,6 @@ for I = 1:bifcc.NumObjects
             
         end
         
-        % skip if bifurcation clump is a single bifurcation voxel that has
-        % been tagged as not valid for merging
-        if (length(bif) == 1 && ~bifidxok(bif == bifidx))
-            continue
-        end
-            
         if (SINGLEMERGE) % only 2 branches can be merged per bifurcation clump
             
             % get the two branches with the smallest angle
@@ -625,7 +750,7 @@ cc2.Degree = [];
 % loop branches
 I = 0; % label of the current merged branch
 while (~isempty(br))
-    
+
     % new label for merged branches
     I = I + 1;
 
