@@ -1,3 +1,20 @@
+2011-10-16  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m (v0.15.1):
+
+	- Fix bug. We cannot assume that there are no short leaf
+	branches. This function can be called by the pruning
+	function. Instead, we now compute the connection matrix, and use
+	it to find which branches are leaf-branches. Then, we can convert
+	short branches that are also *not* leaves into bifurcation clumps.
+
+	- Convert intermdiate branches with up to 4 voxels to bifurcation
+	clumps (before, it was only up to 2).
+
+	- Add commented out code to compute statistic for all
+	branches. This will be used to add another constrain to branches
+	that are merging.
+
 2011-10-13  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_label.m (v0.15.0):
