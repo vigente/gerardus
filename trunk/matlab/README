@@ -345,6 +345,10 @@ plot_dmatrix.m
 
 	 PLOT_DMATRIX  Plot the connections implied by a distance matrix
 	
+polardecomp.m
+
+	 POLARDECOMP  Polar decomposition of a square complex matrix
+	
 polycenter.m
 
 	 POLYCENTER  Compute center of mass and area of polygon
