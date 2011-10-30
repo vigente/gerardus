@@ -1,5 +1,10 @@
 2011-10-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* FiltersToolbox/skeleton_label.m (v0.15.1):
+
+	- Fix bug. Take into account that some branches may not have
+	voxels associated to them.
+
 	* Add PointsToolbox/polardecomp.m (v0.1.0):
 
 	- POLARDECOMP Polar decomposition of a square complex matrix.
