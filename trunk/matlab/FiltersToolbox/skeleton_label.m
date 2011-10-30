@@ -879,7 +879,7 @@ end
 idxlab = find(nrrd.data);
 lab = nonzeros(nrrd.data);
 
-% sort the label values
+% sort the label values and the indices of their voxels
 [lab, idx] = sort(lab);
 idxlab = idxlab(idx);
 
@@ -887,14 +887,15 @@ idxlab = idxlab(idx);
 % label; that index will be used to know where the last label ends
 idxlab0 = [0 ; find(diff(lab)) ; length(lab)] + 1;
 
-% free some memory
-clear lab
+% get a list of unique labels. We cannot assume that every label has at
+% least 1 voxel in the segmentation
+lab = unique(lab);
 
 % value for "TODO" voxels
 TODO = nrrd.data(1) * 0 + 2;
 
 % loop every merged branch
-for I = 1:cc2.NumObjects
+for I = 1:length(lab)
     
     % list of voxels in current branch. The reason why we are not doing a
     % simple br = find(nrrd.data == I); is because for a large volume,
@@ -903,7 +904,7 @@ for I = 1:cc2.NumObjects
     
     % indices of branch  and skeleton voxels
     [r, c, s] = ind2sub(size(nrrd.data), br);
-    [rsk, csk, ssk] = ind2sub(size(nrrd.data), cc2.PixelIdxList{I});
+    [rsk, csk, ssk] = ind2sub(size(nrrd.data), cc2.PixelIdxList{lab(I)});
     
     % coordinates of a box that contains the branch and the skeleton
     rmin = min([r ; rsk]);
@@ -935,7 +936,7 @@ for I = 1:cc2.NumObjects
     
     % number of voxels in main branch
     N = length(brbox);
-    
+
     % are all the main branch voxels contained in the region grow result?
     nvox = [];
     while (nnz((im0 == im) & im0) < N)
@@ -980,11 +981,11 @@ for I = 1:cc2.NumObjects
     
     % list of all sub-branches connected to the bifurcationa clumps of
     % current merged branch
-    idx = find(sum(mcon(:, cc2.MergedBifClumps{I}), 2) > 0);
+    idx = find(sum(mcon(:, cc2.MergedBifClumps{lab(I)}), 2) > 0);
     
     % remove sub-branches that form the merged branch, thus keeping only
     % secondary branches
-    idx = setdiff(idx, cc2.MergedBranches{I});
+    idx = setdiff(idx, cc2.MergedBranches{lab(I)});
     
     % loop secondary branches
     for J = 1:length(idx)
@@ -1000,10 +1001,9 @@ for I = 1:cc2.NumObjects
         
         % relabel the intersection voxels as belonging to the main branch,
         % not the secondary branch
-        nrrd.data(brsec) = I;
+        nrrd.data(brsec) = lab(I);
         
     end
-    
     
 end
 
