@@ -1,5 +1,29 @@
 2011-10-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* PointsToolbox/dmatrix2coords.m (v0.1.1):
+
+	- Fix bug. Because the resulting vectors from the distance matrix
+	can be a rigid transformation of the vectors that created the
+	distance matrix in the first place, we can obtain something like
+	this from 4 vectors in R^2
+
+	    0.0000   -0.0000    0.4356   -0.1337
+            0.0000   -0.0000   -0.1971   -0.4033
+            0.0000   -0.0000   -0.0415    0.5437
+           -0.0000   -0.0000   -0.1970   -0.0067
+
+	If we now truncate to leave only the two first columns, we are
+	throwing away most of the information in the result, and leaving
+	only numerical errors. Now, we first sort the columns from largest
+	norm to smallest norm, i.e.
+
+           -0.1337    0.4356   -0.0000    0.0000
+           -0.4033   -0.1971   -0.0000    0.0000
+            0.5437   -0.0415   -0.0000    0.0000
+           -0.0067   -0.1970   -0.0000   -0.0000
+
+	before truncating.
+
 	* Add PointsToolbox/gram2dsq.m (v0.1.0):
 
 	- GRAM2DSQ Convert Gram matrix to squared distance matrix.
