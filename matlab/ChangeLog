@@ -1,3 +1,9 @@
+2011-10-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add PointsToolbox/polardecomp.m (v0.1.0):
+
+	- POLARDECOMP Polar decomposition of a square complex matrix.
+
 2011-10-16  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/skeleton_label.m (v0.15.1):
