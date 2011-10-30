@@ -35,7 +35,7 @@ function v = dmatrix2coords(d, m)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -91,6 +91,10 @@ B = A - am - am' + amm;
 
 % scale vectors
 v = v * sqrt(d);
+
+% sort coordinates so that the most significative go first
+[~, idx] = sort(sum(v.^2, 1));
+v = v(:, idx(end:-1:1));
 
 % remove extra dimensions
 v = v(:, 1:m);
