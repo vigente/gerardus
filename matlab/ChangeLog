@@ -1,3 +1,10 @@
+2011-10-31  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add PointsToolbox/polardecomp.m (v0.2.0):
+
+	- Swap output arguments so that they follow the natural order of
+	the equation.
+
 2011-10-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* PointsToolbox/dmatrix2coords.m (v0.1.1):
