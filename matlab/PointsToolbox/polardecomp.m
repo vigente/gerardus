@@ -1,7 +1,7 @@
-function [p, u] = polardecomp(a)
+function [u, p] = polardecomp(a)
 % POLARDECOMP  Polar decomposition of a square complex matrix
 %
-% [P, U] = POLARDECOMP(A)
+% [U, P] = POLARDECOMP(A)
 %
 % (From Wikipedia [1]) The polar decomposition of a square complex matrix A
 % is a matrix decomposition of the form
@@ -27,7 +27,7 @@ function [p, u] = polardecomp(a)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
