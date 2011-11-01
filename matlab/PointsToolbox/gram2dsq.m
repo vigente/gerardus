@@ -8,10 +8,14 @@ function d2 = gram2dsq(g)
 %
 %   D2 is the matrix of squared Euclidean distances between the points in
 %   Y. Note that if Y is available, D2 = DMATRIX(Y).^2 = GRAM2DSQ(Y'*Y).
+%
+% Formula from J. Dattorro. Convex optimization & Euclidean distance
+% geometry. Meboo Publishing USA, 2005, Ch. 5, p. 395.
+
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -48,7 +52,8 @@ error(nargoutchk(0, 1, nargout, 'struct'));
 delta = diag(g);
 
 % compute auxiliary step
-aux = delta * ones(1, size(g, 1));
+% aux = delta * ones(1, size(g, 1));
+aux = repmat(delta, 1, size(g, 1));
 
 % compute squared distance matrix
 d2 = aux + aux' - 2*g;
