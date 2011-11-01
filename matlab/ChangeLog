@@ -1,3 +1,10 @@
+2011-11-01  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* PointsToolbox/gram2dsq.m (v0.1.1):
+
+	- Replace multiplication by vector of 1s by repmat(), that is
+	faster. Add citation to Dattorro 2005.
+
 2011-10-31  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* Add PointsToolbox/polardecomp.m (v0.2.0):
