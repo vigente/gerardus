@@ -24,6 +24,8 @@
 
 #include "Clarity.h"
 
+#include <cstdlib>
+
 #include <fftw3.h>
 #include <iostream>
 
