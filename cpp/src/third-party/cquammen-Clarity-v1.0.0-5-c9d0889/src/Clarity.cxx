@@ -22,6 +22,13 @@
  */
 
 
+/*
+ * This is a derivative work of Clarity provided as a third-party
+ * library in Gerardus
+ *
+ *  Minor fixes by Ramon Casero <rcasero@gmail.com>
+ */
+
 #include "Clarity.h"
 
 #include <cstdlib>
