@@ -1,0 +1,22 @@
+2009-02-13  Cory Quammen <cquammen@cs.unc.edu>
+
+   * WienerDeconvolutionTest.cxx: Added output of image and kernel dimensions.
+   Also, added loop  to run deconvolution 10 times so we can collect
+   statistics on run time.
+
+2008-12-14  Cory Quammen <cquammen@cs.unc.edu>
+
+   * CMakeLists.txt: Removed unnecessary link libraries.
+
+2008-12-14  Cory Quammen <cquammen@cs.unc.edu>
+
+   * WienerFilterTest.cxx: Added license to the top of the file.
+
+2008-12-14  Cory Quammen <cquammen@cs.unc.edu>
+
+   * CMakeLists.txt: Replaced libraries	to be linked into executable with
+   a variable set by FindFFTW.cmake.
+
+2008-12-12  Cory Quammen <cquammen@cs.unc.edu>
+
+   * CMakeLists.txt, WienerFilterTest.cxx: Initial check-in.
