@@ -1,0 +1,5 @@
+ADD_SUBDIRECTORY(BlindMaximumLikelihoodTest)
+ADD_SUBDIRECTORY(ConvolutionTest)
+ADD_SUBDIRECTORY(JansenVanCittertTest)
+ADD_SUBDIRECTORY(MaximumLikelihoodTest)
+ADD_SUBDIRECTORY(WienerFilterTest)
