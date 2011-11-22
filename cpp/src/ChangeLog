@@ -1,3 +1,25 @@
+2011-11-22  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* third-party/cquammen-Clarity-v1.0.0-5-c9d0889/WienerDeconvolve.cxx,
+	third-party/cquammen-Clarity-v1.0.0-5-c9d0889/src/Clarity.cxx:
+
+	- Fix bug. Missing includes broke the linux build.
+
+	* Add third-party/cquammen-Clarity-v1.0.0-5-c9d0889:
+
+	- Downloaded from https://github.com/cquammen/Clarity.
+
+	"Clarity is an open-source C/C++ library implementing many of the
+	common deconvolution algorithms used in fluorescence
+	microscopy. It is designed specifically for processing 3D images
+	generated from optical sectioning. Clarity uses multithreaded
+	algorithms to make full use of all the cores on modern multi-core
+	computer systems. For even greater performance, the deconvolution
+	algorithms can optionally run on commodity graphics processing
+	units that feature hundreds of computing cores. Support for
+	acceleration on graphics processing units is currently available
+	on NVIDIA graphics cards."
+
 2011-04-01  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* Add Vesselness3DImage.cxx: v0.1
@@ -9,7 +31,7 @@
 
 2011-03-31  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
-	* Add Skeletonize3DSegmentation.cxx: 
+	* Add Skeletonize3DSegmentation.cxx:
 
 	- Program to reduce a segmentation to its skeleton.
 
