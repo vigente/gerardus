@@ -1,0 +1,20 @@
+2009-02-13  Cory Quammen <cquammen@cs.unc.edu>
+
+   * ConvolutionTest.cxx: Added actual call to Clarity_Convolve.
+
+2008-12-14  Cory Quammen <cquammen@cs.unc.edu>
+
+   * CMakeLists.txt: Removed unnecessary link libraries.
+
+2008-12-14  Cory Quammen <cquammen@cs.unc.edu>
+
+   * ConvolutionTest.cxx: Added licensing to top of file.
+
+2008-12-14  Cory Quammen <cquammen@cs.unc.edu>
+
+   * CMakeLists.txt: Replaced libraries to be linked into executable with
+   a variable set by FindFFTW.cmake.
+
+2008-12-12  Cory Quammen <cquammen@cs.unc.edu>
+
+   * CMakeLists.txt, ConvolutionTest.cxx: Initial check-in.
