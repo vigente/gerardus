@@ -1,0 +1,10 @@
+2009-03-10  Cory Quammen <cquammen@cs.unc.edu>
+
+   * DeconvolveRawImages: New example application that shows how to use
+    Clarity. It reads RAW files consisting of unsigned shorts in 
+    little-endian byte orientation. You have to tell it the size of the
+    image and the PSF through the command line. Not ideal, but if you want
+    something fancier, you almost have to use a library that can read
+    various image formats.
+
+   * CMakeLists.txt: Initial check-in.
