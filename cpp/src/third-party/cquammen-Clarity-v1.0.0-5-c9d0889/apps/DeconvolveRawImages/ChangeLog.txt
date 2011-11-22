@@ -1,4 +1,0 @@
-2009-03-10  Cory Quammen <cquammen@cs.unc.edu>
-
-   * CMakeLists.txt, DeconvolveRawImages.cxx: Initial check-in of
-   example Clarity application.
