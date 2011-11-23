@@ -21,6 +21,12 @@
  * Author: Cory Quammen <cquammen@cs.unc.edu>
  */
 
+/*
+ * This is a derivative work of Clarity provided as a third-party
+ * library in Gerardus
+ *
+ *  Minor fixes by Ramon Casero <rcasero@gmail.com>
+ */
 
 #include "Clarity.h"
 #include "Memory.h"
@@ -46,9 +52,9 @@ Clarity_Complex_Malloc(
 
   ClarityResult_t result = CLARITY_SUCCESS;
 
-  size_t totalSize = size*2*nz*ny*(nx/2 + 1);
 #ifdef BUILD_WITH_CUDA
   if (g_CUDACapable) {
+    size_t totalSize = size*2*nz*ny*(nx/2 + 1);
     cudaError_t cudaResult = cudaMalloc(buffer, totalSize);
     if (cudaResult != cudaSuccess) {
       return CLARITY_DEVICE_OUT_OF_MEMORY;
@@ -56,6 +62,7 @@ Clarity_Complex_Malloc(
   } else 
 #endif // BUILD_WITH_CUDA
   {
+    size_t totalSize = size*2*nz*ny*(nx/2 + 1);
     *buffer = fftwf_malloc(totalSize);
     if (*buffer == NULL) {
       result = CLARITY_OUT_OF_MEMORY;
@@ -72,9 +79,9 @@ Clarity_Real_Malloc(
 
   ClarityResult_t result = CLARITY_SUCCESS;
 
-  size_t totalSize = size*nz*ny*nx;
 #ifdef BUILD_WITH_CUDA
   if (g_CUDACapable) {
+    size_t totalSize = size*nz*ny*nx;
     cudaError_t cudaResult = cudaMalloc(buffer, totalSize);
     if (cudaResult != cudaSuccess) {
       return CLARITY_DEVICE_OUT_OF_MEMORY;

@@ -21,6 +21,12 @@
  * Author: Cory Quammen <cquammen@cs.unc.edu>
  */
 
+/*
+ * This is a derivative work of Clarity provided as a third-party
+ * library in Gerardus
+ *
+ *  Minor fixes by Ramon Casero <rcasero@gmail.com>
+ */
 
 #include "Clarity.h"
 
@@ -30,29 +36,30 @@
 #include <omp.h>
 #endif // BUILD_WITH_OPENMP
 
-static float IDIVFunctional(
-   float* g, float* gHat, float* sHat, float alpha, 
-   int nx, int ny, int nz) {
+// comment out these undefined functions, to avoid compilation warnings
+// static float IDIVFunctional(
+//    float* g, float* gHat, float* sHat, float alpha, 
+//    int nx, int ny, int nz) {
 
-   float sum = 0.0f;
-   int numVoxels = nx*ny*nz;
+//    float sum = 0.0f;
+//    int numVoxels = nx*ny*nz;
 
-#ifdef BUILD_WITH_OPENMP
-#pragma omp parallel for reduction(+:sum)
-#endif // BUILD_WITH_OPENMP
-   for (int i = 0; i < numVoxels; i++) {
-      sum += (g[i]*log(g[i]/gHat[i])) + gHat[i] - g[i] + (alpha*sHat[i]*sHat[i]);
-   }
-   return sum;
-}
-
-
-static void IDIVGradient(
-   float* g, float* gHat, float* sHat, float* flippedPSFtf, 
-   float alpha, float* gradient) {
+// #ifdef BUILD_WITH_OPENMP
+// #pragma omp parallel for reduction(+:sum)
+// #endif // BUILD_WITH_OPENMP
+//    for (int i = 0; i < numVoxels; i++) {
+//       sum += (g[i]*log(g[i]/gHat[i])) + gHat[i] - g[i] + (alpha*sHat[i]*sHat[i]);
+//    }
+//    return sum;
+// }
 
 
-}
+// static void IDIVGradient(
+//    float* g, float* gHat, float* sHat, float* flippedPSFtf, 
+//    float alpha, float* gradient) {
+
+
+// }
 
 
 

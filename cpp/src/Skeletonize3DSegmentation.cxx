@@ -23,6 +23,8 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
+  * $Rev$
+  * $Date$
   *
   * University of Oxford means the Chancellor, Masters and Scholars of
   * the University of Oxford, having an administrative office at
@@ -137,10 +139,10 @@ int main(int argc, char** argv) {
     maskReader = BinaryReaderType::New();
     
     // read input 3D images
-    maskReader->SetFileName( maskPath.file_string() );
+    maskReader->SetFileName( maskPath.string() );
     if ( verbose ) {
       std::cout << "# Segmentation mask filename: " 
-		<< maskPath.file_string() << std::endl;
+		<< maskPath.string() << std::endl;
     }
     maskReader->Update();
     
@@ -187,12 +189,12 @@ int main(int argc, char** argv) {
     
     if ( verbose ) {
       std::cout << "# Output filename: " 
-		<< outMaskPath.file_string() << std::endl;
+		<< outMaskPath.string() << std::endl;
     }
     
     // write output file
     writer->SetInput(thinningFilter->GetOutput());
-    writer->SetFileName(outMaskPath.file_string());
+    writer->SetFileName(outMaskPath.string());
     writer->SetUseCompression(true);
     writer->Update();
     
