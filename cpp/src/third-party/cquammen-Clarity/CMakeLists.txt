@@ -1,9 +1,9 @@
 PROJECT(Clarity)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
-IF(COMMAND cmake_policy)
-  CMAKE_POLICY(SET CMP0003 OLD)
-ENDIF(COMMAND cmake_policy)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+#IF(COMMAND cmake_policy)
+#  CMAKE_POLICY(SET CMP0003 OLD)
+#ENDIF(COMMAND cmake_policy)
 
 OPTION(BUILD_SHARED_LIBS "Build Clarity with shared libraries." ON)
 OPTION(BUILD_WITH_OPENMP "Build with OpenMP." ON)
@@ -15,7 +15,7 @@ OPTION(TIME_FFT "Time FFT forward and inverse operations." OFF)
 OPTION(TIME_DECONVOLVE "Time deconvolution operation only." OFF)
 OPTION(TIME_TOTAL "Time total deconvolution operation (includes image padding and clipping." OFF)
 
-SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/")
+SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/")
 
 IF(BUILD_WITH_CUDA)
   # Load CUDA macros
@@ -75,7 +75,8 @@ ELSE(BUILD_WITH_CUDA)
   ADD_LIBRARY( Clarity ${Clarity_SRCS})
 ENDIF(BUILD_WITH_CUDA)
 
-TARGET_LINK_LIBRARIES(Clarity ${FFTW_LIBRARIES} ${FFTW_EXECUTABLE_LIBRARIES})
+TARGET_LINK_LIBRARIES(Clarity ${FFTW_LIBRARIES} 
+  ${FFTW_EXECUTABLE_LIBRARIES})
 
 # Enable linking with OpenMP when compiling with gcc
 SET (USE_GOMP ${CMAKE_COMPILER_IS_GNUCXX}
