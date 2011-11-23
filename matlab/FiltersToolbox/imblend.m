@@ -1,4 +1,4 @@
-function [im, a0] = imblend(im1, im2)
+function [im, a0, b0] = imblend(im1, im2)
 % IMBLEND  Blend two image stacks to increase the apparent dynamic range
 % and improve the signal to noise ratio
 %
@@ -24,14 +24,14 @@ function [im, a0] = imblend(im1, im2)
 %
 %   IM is the output 3D array that results from blending the input images.
 %
-% [IM, A0] = IMBLEND(IM1, IM2)
+% [IM, A0, B0] = IMBLEND(IM1, IM2)
 %
-%   A0 is the scaling factor such that IM*A0 is closest in intensity values
-%   to IM2, once saturated and underexposed voxels are removed.
+%   A0 are the slope and intercept of the linear regression between both
+%   images, IM2 ~ double(IM1) * A0 + B0.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -60,7 +60,7 @@ function [im, a0] = imblend(im1, im2)
 
 % check arguments
 error(nargchk(2, 2, nargin, 'struct'));
-error(nargoutchk(0, 2, nargout, 'struct'));
+error(nargoutchk(0, 3, nargout, 'struct'));
 
 % check image sizes
 if any(size(im1) ~= size(im2))
@@ -92,14 +92,16 @@ end
 % compute linearity measures as we increase the intensity
 r = nan(1, IMAX1);
 a = nan(1, IMAX1);
+b = nan(1, IMAX1);
 for I = 10:length(r)
     % correlation coefficient
     aux = corrcoef(1:I, gmedian(1:I));
     r(I) = aux(1, 2);
     
-    % slope
+    % linear regression between intensities
     p = polyfit(1:I, gmedian(1:I), 1);
-    a(I) = p(1);
+    a(I) = p(1); % slope
+    b(I) = p(2); % intercept
 end
 
 % find the intensity with the maximum value for the correlation coefficient
@@ -107,9 +109,10 @@ end
 
 % use that as the best estimate of the gain between the two images
 a0 = a(idx);
+b0 = b(idx);
 
 % find maximum intensity we are going to have in the output image
-IMAX = max(IMAX1 * a0, IMAX2);
+IMAX = max(IMAX1 * a0 + b0, IMAX2);
 
 % data type we need for the output image so that we don't clip any intesity
 % values
@@ -133,7 +136,7 @@ ok2 = ~und2 & ~sat2;
 % voxels that are wrong in 1 image only will get their final value from the
 % other image
 idx = ok1 & ~ok2;
-im(idx) = double(im1(idx)) * a0;
+im(idx) = double(im1(idx)) * a0 + b0;
 
 idx = ~ok1 & ok2;
 im(idx) = im2(idx);
@@ -141,4 +144,4 @@ im(idx) = im2(idx);
 % voxels that are fine in both images, or bad in both images, will get a
 % final value that is the average
 idx = (ok1 & ok2) | (~ok1 & ~ok2);
-im(idx) = (double(im1(idx)) * a0 + double(im2(idx))) / 2;
+im(idx) = (double(im1(idx)) * a0 + b0 + double(im2(idx))) / 2;

@@ -48,17 +48,28 @@ TARGET_LINK_LIBRARIES(bwregiongrow
   ${Libraries})
 
 ################################################################
+## deconvolve()
+################################################################
+
+LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../../cpp/src/third-party/cquammen-Clarity/bin)
+ADD_MEX_FILE(deconvolve Deconvolve.cpp)
+TARGET_LINK_LIBRARIES(deconvolve
+  ${Libraries} Clarity)
+
+################################################################
 ## Post-compilation for all targets
 ################################################################
 
 IF(WIN32)
   INSTALL(TARGETS
     bwregiongrow
+    deconvolve
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ELSE(WIN32)
   INSTALL(TARGETS
     bwregiongrow
+    deconvolve
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ENDIF(WIN32)
