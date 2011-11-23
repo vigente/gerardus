@@ -82,10 +82,17 @@ int main(int argc, char* argv[]) {
   unsigned short *inputImage  = new unsigned short[inputImageSize];
   unsigned short *psfImage    = new unsigned short[psfImageSize];
 
-  size_t status;
-  status = fread(inputImage, sizeof(unsigned short), inputImageSize, inputFp);
+  if ((size_t)inputImageSize 
+      != fread(inputImage, sizeof(unsigned short), inputImageSize, inputFp)) {
+    printf("Error reading input image file\n");
+    return 1;
+  }
   fclose(inputFp);
-  status = fread(psfImage, sizeof(unsigned short), psfImageSize, psfFp);
+  if ((size_t)psfImageSize 
+      != fread(psfImage, sizeof(unsigned short), psfImageSize, psfFp)) {
+    printf("Error reading PSF file\n");
+    return 1;
+  }
   fclose(psfFp);
   
   // Cast to floats
