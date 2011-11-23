@@ -21,6 +21,13 @@
  * Author: Cory Quammen <cquammen@cs.unc.edu>
  */
 
+/*
+ * This is a derivative work of Clarity provided as a third-party
+ * library in Gerardus
+ *
+ *  Minor fixes by Ramon Casero <rcasero@gmail.com>
+ */
+
 /* This example shows how to read unsigned short images, run a deconvolution
  * routine on them, and write the result. */
 
@@ -61,7 +68,7 @@ int main(int argc, char* argv[]) {
     if (!psfFp) 
       printf("ERROR: Could not open PSF file '%s'\n'", psfFileName);
     if (!outputFp) 
-      printf("ERROR: Could not open file '%' for writing\n", outputFileName);
+      printf("ERROR: Could not open file '%s' for writing\n", outputFileName);
 
     if (inputFp)  fclose(inputFp);
     if (psfFp)    fclose(psfFp);
@@ -75,9 +82,10 @@ int main(int argc, char* argv[]) {
   unsigned short *inputImage  = new unsigned short[inputImageSize];
   unsigned short *psfImage    = new unsigned short[psfImageSize];
 
-  fread(inputImage, sizeof(unsigned short), inputImageSize, inputFp);
+  size_t status;
+  status = fread(inputImage, sizeof(unsigned short), inputImageSize, inputFp);
   fclose(inputFp);
-  fread(psfImage, sizeof(unsigned short), psfImageSize, psfFp);
+  status = fread(psfImage, sizeof(unsigned short), psfImageSize, psfFp);
   fclose(psfFp);
   
   // Cast to floats
