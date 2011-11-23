@@ -63,7 +63,7 @@ $ svn co http://gerardus.googlecode.com/svn/trunk/ gerardus
   * `itk_pstransform.mexa64`, `itk_imfilter.mexa64` (Linux 64-bit)
   * `itk_pstransform.mexw32`, `itk_imfilter.mexw32` (Windows 32-bit)
 {{{
-$ cd gerardus/matlab
+$ cd gerardus
 $ mkdir bin
 $ cd bin
 $ cmake ..
@@ -74,9 +74,9 @@ $ make install
 
 == Windows users ==
 
- # Open file `gerardus\matlab\CMakeLists.txt` with your CMake program
+ # Open file `gerardus\CMakeLists.txt` with your CMake program
  # Click on the "Configure" button. Specify the generator for this project (the one I have tested is "Visual Studio 10" with "Use default native compilers")
  # Click on the "Generate" button
- # Open file `gerardus\matlab\bin\GERARDUS_MATLAB.sln` with your development environment (e.g. Visual Studio 10)
+ # Open file `gerardus\bin\GERARDUS_MATLAB.sln` with your development environment (e.g. Visual Studio 10)
  # Select "Build -> Build Solution" from the menu.
  # In the "Solution Explorer", right click on "INSTALL" and select "Build". This will install the DLLs that correspond to the compiled MEX files
