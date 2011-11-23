@@ -262,6 +262,10 @@ skeleton_plot.m
 
 	 SKELETON_PLOT  Plot a labelled segmentation and its skeleton
 	
+typicalpsf.m
+
+	 TYPICALPSF  Estimate point spread function from microbeads image
+	
 
 ItkToolbox
 -------------------------------------------------------------
