@@ -1,5 +1,23 @@
 2011-11-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* Add matlab/FiltersToolbox/typicalpsf.m (v0.1.0):
+
+	- TYPICALPSF Estimate point spread function from microbeads image.
+
+	* matlab/CMakeLists.txt:
+
+	- Update requirement to cmake VERSION 2.8.
+
+	- As it used CMAKE_SOURCE_DIR instead of CMAKE_CURRENT_SOURCE_DIR,
+	the MatlabMakeMacros.cmake module could not be found when called
+	as a subdirectory of the gerardus root.
+
+	* matlab/FiltersToolbox/imblend.m (v0.2.0):
+
+	- Instead of using only the slope to math intensities in one image
+	to another, use the slope and intercept of the linear
+	regression. Provide now also the intercept as an output argument.
+
 	* Add CMakeLists.txt:
 
 	- File at the root of gerardus to build everything that can be
