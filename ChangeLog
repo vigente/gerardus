@@ -1,5 +1,20 @@
 2011-11-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* cpp/src/third-party/cquammen-Clarity/CMakeLists.txt:
+
+	- We want to have a CMakeLists.txt at the gerardus root, that
+	calls every other CMakeLists.txt. Clarity's CMakeLists.txt was
+	using policy CMP0003 OLD, which created conflicts between the
+	fftw3 libraries in /usr/lib and the one provided by Matlab.
+
+	Also, as it used CMAKE_SOURCE_DIR instead of
+	CMAKE_CURRENT_SOURCE_DIR, the FindFFTW.cmake module could not be
+	found when called as a subdirectory of the gerardus root.
+
+	* cpp/src/third-party/cquammen-Clarity/apps/DeconvolveRawImages/DeconvolveRawImages.cxx:
+
+	- Fix three small warnings when compiling under linux.
+
 	* Merge all log files (ChangeLog matlab/ChangeLog java/ChangeLog
 	cpp/src/ChangeLog shell-script/ChangeLog) into gerardus/ChangeLog.
 
