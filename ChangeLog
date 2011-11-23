@@ -1,5 +1,42 @@
 2011-11-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* Add CMakeLists.txt:
+
+	- File at the root of gerardus to build everything that can be
+	built.
+
+	* cpp/src/CMakeLists.txt:
+
+	- Build third-party/cquammen-Clarity as a subproject.
+
+	- Current Matlab (R2011b) no longer requires an older version of
+	g++ than what is available in Ubuntu.
+
+	- Several targets now need to be linked explicitely with
+	boost_filesystem.
+
+	- Add Rev, Date, native subversion properties.
+
+	* cpp/src/ExtractVoxelCoordinatesFromSegmentationMask.cxx:
+	* cpp/src/Skeletonize3DSegmentation.cxx:
+	* cpp/src/Vesselness3DImage.cxx:
+	* cpp/src/Rotate3DImage.cxx:
+	* cpp/src/PadSegmentationMaskWithVoxels.cxx:
+	* cpp/src/Resize3DImage.cxx:
+
+	- Add Rev, Date, native subversion properties.
+
+	- Fix bug. Rename deprecated boost library method.
+
+	* cpp/src/third-party/cquammen-Clarity/apps/DeconvolveRawImages/DeconvolveRawImages.cxx:
+	* cpp/src/third-party/cquammen-Clarity/include/internal/Stopwatch.h:
+	* cpp/src/third-party/cquammen-Clarity/src/FFT.cxx:
+	* cpp/src/third-party/cquammen-Clarity/src/MaximumLikelihoodDeconvolve.cxx:
+	* cpp/src/third-party/cquammen-Clarity/src/Memory.cxx:
+	* cpp/src/third-party/cquammen-Clarity/src/IDivergenceDeconvolve.cxx:
+
+	- Fix warnings when compiling under linux.
+
 	* cpp/src/third-party/cquammen-Clarity/CMakeLists.txt:
 
 	- We want to have a CMakeLists.txt at the gerardus root, that
@@ -10,10 +47,6 @@
 	Also, as it used CMAKE_SOURCE_DIR instead of
 	CMAKE_CURRENT_SOURCE_DIR, the FindFFTW.cmake module could not be
 	found when called as a subdirectory of the gerardus root.
-
-	* cpp/src/third-party/cquammen-Clarity/apps/DeconvolveRawImages/DeconvolveRawImages.cxx:
-
-	- Fix three small warnings when compiling under linux.
 
 	* Merge all log files (ChangeLog matlab/ChangeLog java/ChangeLog
 	cpp/src/ChangeLog shell-script/ChangeLog) into gerardus/ChangeLog.

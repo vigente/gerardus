@@ -21,6 +21,12 @@
  * Author: Cory Quammen <cquammen@cs.unc.edu>
  */
 
+/*
+ * This is a derivative work of Clarity provided as a third-party
+ * library in Gerardus
+ *
+ *  Minor fixes by Ramon Casero <rcasero@gmail.com>
+ */
 
 #include "Clarity.h"
 
@@ -133,7 +139,7 @@ Clarity_MaximumLikelihoodDeconvolveCPU(
   Clarity_ReduceSum(&energy, inImage, nx*ny*nz);
 
   // Iterate
-  int numVoxels = nx*ny*nz;	 
+  //  int numVoxels = nx*ny*nz;	 
   for (unsigned k = 0; k < iterations; k++) {
     float* currentGuess = (k == 0 ? inImage : iPtr);
     float* newGuess     = (k == iterations-1 ? outImage : iPtr);

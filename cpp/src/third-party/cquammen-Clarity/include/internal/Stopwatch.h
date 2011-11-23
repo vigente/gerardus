@@ -20,6 +20,13 @@
 // $Id: Stopwatch.h,v 1.1 2008/09/11 14:56:35 cquammen Exp $
 //------------------------------------------------------------------------------
 
+/*
+ * This is a derivative work of Clarity provided as a third-party
+ * library in Gerardus
+ *
+ *  Minor fixes by Ramon Casero <rcasero@gmail.com>
+ */
+
 //------------------------------------------------------------------------------
 //  The interface is as follows:
 //   The first call to Start() begins the timer counting.
@@ -118,8 +125,8 @@ protected:
   float elapsedTime;     // the accumulated elapsed time
   int numStarts;         // number of calls to Start since last Reset
   char sw_name[STOPWATCH_MAX_NAME];  // a name for the stopwatch
-  const char *sw_type;
   bool running;
+  const char *sw_type;
 
   // THESE ARE THE METHODS SUBCLASSES NEED TO IMPLEMENT
   virtual void markTime()=0;   // jot down the current timestamp
