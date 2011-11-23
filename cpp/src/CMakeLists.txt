@@ -1,5 +1,7 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2010 University of Oxford
+# Copyright © 2010-2011 University of Oxford
+# $Rev$
+# $Date$
 #
 # University of Oxford means the Chancellor, Masters and Scholars of
 # the University of Oxford, having an administrative office at
@@ -32,13 +34,12 @@
 # cmake -DITK_DIR=/usr/local/lib/InsightToolkit  -G"Eclipse CDT4 - Unix Makefiles" -DCMAKE_BUILD_TYPE=Release  ./src
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-SET(CMAKE_BUILD_TYPE RELEASE)
 
 # Matlab's mex compiler requires an older version of gcc than the
 # default at the time of this writing, so we have to force the version
 # we want
-SET(CMAKE_CC_COMPILER gcc-4.3)
-SET(CMAKE_CXX_COMPILER g++-4.3)
+#SET(CMAKE_CC_COMPILER gcc-4.3)
+#SET(CMAKE_CXX_COMPILER g++-4.3)
 
 # This project is designed to be built outside the Insight source tree
 PROJECT(GerardusItkToolsProject)
@@ -53,35 +54,38 @@ ENDIF(ITK_FOUND)
 ADD_EXECUTABLE( extractVoxelCoordinatesFromSegmentationMask
   ExtractVoxelCoordinatesFromSegmentationMask.cxx )
 TARGET_LINK_LIBRARIES( extractVoxelCoordinatesFromSegmentationMask 
-  boost_system ITKCommon ITKIO ITKNumerics )
+  boost_system boost_filesystem ITKCommon ITKIO ITKNumerics )
 
 # padImageWithVoxels
 ADD_EXECUTABLE( padSegmentationMaskWithVoxels
   PadSegmentationMaskWithVoxels.cxx )
 TARGET_LINK_LIBRARIES( padSegmentationMaskWithVoxels
-  boost_system ITKCommon ITKIO )
+  boost_system boost_filesystem ITKCommon ITKIO )
 
 # rotate3DImage
 ADD_EXECUTABLE( rotate3DImage
   Rotate3DImage.cxx )
 TARGET_LINK_LIBRARIES( rotate3DImage
-  boost_system ITKCommon ITKIO )
+  boost_system boost_filesystem ITKCommon ITKIO )
 
 # resize3DImage
 ADD_EXECUTABLE(resize3DImage
   Resize3DImage.cxx)
 TARGET_LINK_LIBRARIES(resize3DImage
-  boost_system ITKCommon ITKIO)
+  boost_system boost_filesystem ITKCommon ITKIO)
 
 # skeletonize3DSegmentation
 ADD_EXECUTABLE(skeletonize3DSegmentation
   Skeletonize3DSegmentation.cxx)
 INCLUDE_DIRECTORIES(third-party/itkBinaryThinningImageFilter3D/Source)
 TARGET_LINK_LIBRARIES(skeletonize3DSegmentation
-  boost_system ITKCommon ITKIO)
+  boost_system boost_filesystem ITKCommon ITKIO)
 
 # vesselness3DImage
 ADD_EXECUTABLE(vesselness3DImage
   Vesselness3DImage.cxx)
 TARGET_LINK_LIBRARIES(vesselness3DImage
-  boost_system ITKCommon ITKIO)
+  boost_system boost_filesystem ITKCommon ITKIO)
+
+# call the subprojects
+ADD_SUBDIRECTORY(third-party/cquammen-Clarity)

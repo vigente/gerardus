@@ -36,6 +36,8 @@
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
   * Version 0.1
+  * $Rev$
+  * $Date$
   *
   * University of Oxford means the Chancellor, Masters and Scholars of
   * the University of Oxford, having an administrative office at
@@ -169,10 +171,10 @@ int main(int argc, char** argv) {
     imReader = ReaderType::New();
         
     // read input 3D images
-    imReader->SetFileName(imPath.file_string());
+    imReader->SetFileName(imPath.string());
     if ( verbose ) {
       std::cout << "# Input image filename: " 
-		<< imPath.file_string() << std::endl;
+		<< imPath.string() << std::endl;
     }
     imReader->Update();
         
@@ -274,12 +276,12 @@ int main(int argc, char** argv) {
     
     if ( verbose ) {
       std::cout << "# Output filename: " 
-		<< outImPath.file_string() << std::endl;
+		<< outImPath.string() << std::endl;
     }
     
     // write output file
     writer->SetInput(multiplyFilter->GetOutput());
-    writer->SetFileName(outImPath.file_string());
+    writer->SetFileName(outImPath.string());
     writer->SetUseCompression(true);
     writer->Update();
     
