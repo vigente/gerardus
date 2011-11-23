@@ -1,6 +1,539 @@
+2011-11-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Merge all log files (ChangeLog matlab/ChangeLog java/ChangeLog
+	cpp/src/ChangeLog shell-script/ChangeLog) into gerardus/ChangeLog.
+
+2011-11-22  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Rename cquammen-Clarity-v1.0.0-5-c9d0889 to
+	cquammen-Clarity. The name was too long.
+
+	* third-party/cquammen-Clarity-v1.0.0-5-c9d0889/WienerDeconvolve.cxx,
+	third-party/cquammen-Clarity-v1.0.0-5-c9d0889/src/Clarity.cxx:
+
+	- Fix bug. Missing includes broke the linux build.
+
+	* Add third-party/cquammen-Clarity-v1.0.0-5-c9d0889:
+
+	- Downloaded from https://github.com/cquammen/Clarity.
+
+	"Clarity is an open-source C/C++ library implementing many of the
+	common deconvolution algorithms used in fluorescence
+	microscopy. It is designed specifically for processing 3D images
+	generated from optical sectioning. Clarity uses multithreaded
+	algorithms to make full use of all the cores on modern multi-core
+	computer systems. For even greater performance, the deconvolution
+	algorithms can optionally run on commodity graphics processing
+	units that feature hundreds of computing cores. Support for
+	acceleration on graphics processing units is currently available
+	on NVIDIA graphics cards."
+
+2011-11-01  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* PointsToolbox/gram2dsq.m (v0.1.1):
+
+	- Replace multiplication by vector of 1s by repmat(), that is
+	faster. Add citation to Dattorro 2005.
+
+2011-10-31  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add PointsToolbox/polardecomp.m (v0.2.0):
+
+	- Swap output arguments so that they follow the natural order of
+	the equation.
+
+2011-10-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* PointsToolbox/dmatrix2coords.m (v0.1.1):
+
+	- Fix bug. Because the resulting vectors from the distance matrix
+	can be a rigid transformation of the vectors that created the
+	distance matrix in the first place, we can obtain something like
+	this from 4 vectors in R^2
+
+	    0.0000   -0.0000    0.4356   -0.1337
+            0.0000   -0.0000   -0.1971   -0.4033
+            0.0000   -0.0000   -0.0415    0.5437
+           -0.0000   -0.0000   -0.1970   -0.0067
+
+	If we now truncate to leave only the two first columns, we are
+	throwing away most of the information in the result, and leaving
+	only numerical errors. Now, we first sort the columns from largest
+	norm to smallest norm, i.e.
+
+           -0.1337    0.4356   -0.0000    0.0000
+           -0.4033   -0.1971   -0.0000    0.0000
+            0.5437   -0.0415   -0.0000    0.0000
+           -0.0067   -0.1970   -0.0000   -0.0000
+
+	before truncating.
+
+	* Add PointsToolbox/gram2dsq.m (v0.1.0):
+
+	- GRAM2DSQ Convert Gram matrix to squared distance matrix.
+
+	* FiltersToolbox/skeleton_label.m (v0.15.1):
+
+	- Fix bug. Take into account that some branches may not have
+	voxels associated to them.
+
+	* Add PointsToolbox/polardecomp.m (v0.1.0):
+
+	- POLARDECOMP Polar decomposition of a square complex matrix.
+
+2011-10-16  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m (v0.15.1):
+
+	- Fix bug. We cannot assume that there are no short leaf
+	branches. This function can be called by the pruning
+	function. Instead, we now compute the connection matrix, and use
+	it to find which branches are leaf-branches. Then, we can convert
+	short branches that are also *not* leaves into bifurcation clumps.
+
+	- Convert intermdiate branches with up to 4 voxels to bifurcation
+	clumps (before, it was only up to 2).
+
+	- Add commented out code to compute statistic for all
+	branches. This will be used to add another constrain to branches
+	that are merging.
+
+2011-10-13  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m (v0.15.0):
+
+	- Add section "convert very short intermediate branches to
+	bifurcation clusters". Very short intermediate branches create
+	trouble with merging, because they can get in between two branches
+	that should actually be neighbours. They also are a pain when
+	labelling with region grow the whole segmentation, because they
+	will not look like real branches, and they will steal voxels from
+	nearby branches. By turning them into bifurcation clumps, we
+	overcome these problems.
+
+	- Replace code to create the part of NRRD struct by new function
+	scinrrd_im2nrrd(). We actually need a NRRD struct for parts of the
+	new code.
+
+	- Add a list of flags to tag bifurcation voxels that should be
+	prevented from merging. This will be used when we add the code
+	that separates vessels from trabeculations.
+
+	- Add commented out code for "split the skeleton in branches that
+	contain both a vessel and a bit of trabeculation". We are saving
+	this for the next upgrade of the function.
+
+	- Fix bug. Convert main diagonal of adjacency matrix madj to
+	zeros, as it doesn't make sense that a branch is adjacent to
+	itself over an arbitrary bifurcation voxel of the many it can have.
+
+2011-10-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m (v0.8.6):
+
+	- Fix bug. Catch exceptions when trying to triangulate with
+	delaunay (e.g. when we have fewer than 4 points or they are
+	coplanar). Instead of error and exit, make triboundary empty, and
+	let the code keep running.
+
+2011-09-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add FiltersToolbox/imblend.m (v0.1.0):
+
+	- Blend two image stacks to increase the apparent dynamic range
+	and improve the signal to noise ratio.
+
+2011-09-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_tiff2nrrd.m (v0.2.2):
+
+	- Add support for RGB images in LSM files.
+
+2011-09-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* PointsToolbox/pts_mesh.m (v0.2.0):
+
+	- Instead of using DelaunayTri, that suffers from a memory leak,
+	use delaunay. The function is now much faster too. I have been
+	able to process a segmentation from a 574x532x1024 image,
+	11,824,529 voxels, in 14 min. Thanks to Kwok Chong from Mathworks
+	support, for suggesting how to avoid the memory leak.
+
+2011-09-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_tiff2nrrd.m (v0.2.1):
+
+	- Fix bug. For 3D volumes, stack is an array of structs. We have
+	to assume that all frames in stack have the same resolution and
+	offset (only values from frame 1 are read).
+
+2011-09-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_tiff2nrrd.m (v0.2.0):
+
+	- Add functionality to read stack obtained from LSM files (the
+	struct is different, it has a field "lsm" instead of "info").
+
+2011-09-18  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ThirdPartyToolbox/TiffreadToolbox/image_background.m:
+	* ThirdPartyToolbox/TiffreadToolbox/image_histogram.m:
+	* ThirdPartyToolbox/TiffreadToolbox/show_image.m:
+	* ThirdPartyToolbox/TiffreadToolbox/show_stack.m:
+	* ThirdPartyToolbox/TiffreadToolbox/tiffread.m:
+
+	- Minor edits to the helper headers so that we get a summary in
+	README when running update_README.sh.
+
+	* update_README.sh (v0.1.2):
+
+	- Read also toolbox directories within toolbox directory.
+
+	- Remove "./" at the beginning of toolbox name, but don't remove
+	any other "/" symbols.
+
+	* Add ThirdPartyToolbox/TiffreadToolbox (v2.7) directory, with files
+
+	image_background.m
+	image_histogram.m
+	show_image.m
+	show_stack.m
+	tiffread.m
+
+	Downloaded from
+
+	http://www.cytosim.org/other/
+
+	Licence GPL v3.
+
+	* FileFormatToolbox/scinrrd_im2nrrd.m (v0.1.0):
+
+	- Correct version number.
+
+	- Add properties svn:eol-style native, svn:keywords Rev, Date.
+
+	* Add FileFormatToolbox/scinrrd_tiff2nrrd.m (v0.1.0):
+
+	- Create SCI NRRD struct from TIFF stack.
+
+2011-09-14  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* PointsToolbox/bwmesh.m (v0.1.2):
+
+	- Invert order in which nrrdaxis is filled, to avoid reallocating
+	memory at every step.
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m (v0.8.5):
+
+	- Change output STATS.CylDivergence. Now we give the standard
+	deviation of the distance between the each branch surface point,
+	and the corresponding point on the surface of the estimated
+	cylinder.
+
+	- Fix bug. Make sure that the list of branch voxels is a column
+	vector.
+
+2011-09-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_skeleton_prune.m:
+
+	- (v0.4.0) Removing clumps of bifurcation voxels was wrong,
+	because in some cases it disconnected branches. Instead, what we
+	are doing now is going to each bifurcation clump, getting the
+	neighbouring branches, and keeping only the bifurcation voxels
+	required to connected them 2 by 2. For that we are using some code
+	copied from skeleton_label().
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.8.4) Fix bug. CylDivergence was being measured for all
+	voxels, and not only those on the surface.
+
+	- Move the code to mesh the vessel to new function pts_mesh().
+
+	* PointsToolbox/bwmesh.m (v0.1.1):
+	* PointsToolbox/pts_mesh.m (v0.1.1):
+
+	- Only compute triboundary is the user requests it.
+
+	* Add PointsToolbox/bwmesh.m (v0.1.0):
+
+	- Tetrahedral volumetric and triangular surface mesh of a binary
+	segmentation.
+
+	* Add PointsToolbox/pts_mesh.m (v0.1.0):
+
+	- Tetrahedral volumetric and triangular surface mesh of a cloud of
+	points. This is code that was part of scinrrd_seg2label_stats(),
+	but as Mikael Wallman was interested, I thought it'd be better to
+	have it as an independent function.
+
+2011-09-08  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/MexBaseFilter.hpp (v0.6.2):
+	* ItkToolbox/MexBaseFilter.cpp (v0.5.2):
+
+	- Move the code in the constructors from the .hpp to the .cpp
+	file.
+
+	- Fix memory leak bug. Add destructor to deallocate any memory
+	that the Matlab garbage collector won't free automatically. The
+	destructor has to be virtual so that derived classes can add their
+	own local memory deallocation steps.
+
+	* ItkToolbox/ItkImFilter.cpp (v0.5.2):
+
+	- Fix memory leak bug. After running all methods in the filter
+	object, delete the object. This invokes the destructor, that
+	deallocates the memory buffers not passed to Matlab. Without this,
+	we had a memory leak in the dandist filter, and potentially in any
+	other filter that provides more than 1 output.
+
+	- Mummify output buffers before running the filter. This hasn't
+	given any problems, but just in case.
+
+	-  Correct help header of syntax 'dandist'.
+
+	* ItkToolbox/itk_imfilter.m:
+
+	- (v0.4.2) Correct help header of syntax 'dandist'.
+
+2011-09-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add FiltersToolbox/labmathmorph.m:
+
+	- (v0.1.0) Mathematical morphology operators on a labelled
+	segmentation, one label at a time.
+
+2011-09-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.14.0) Add section "correct labelling of bifurcation
+	regions". So far, the segmentation volume around a bifurcation
+	area got split between all incident branches. However, it makes
+	more sense to maintain the integrity of main branches, and make
+	secondary branches start from the wall of the main branch, instead
+	of from the skeleton bifurcation.
+
+	To control the amount of correction, there's a new input argument,
+	CORRECT. A value of 0.0 means no correction, a value of 1.0 means
+	that the main branch expands as much as possible.
+
+2011-09-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.8.3) Fix bug. If the input image had missing labels, the
+	branch index was wrong.
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.13.2) Use internally a NRRD struct for some operations, as
+	this is going to be necessary for the upcoming code to correct
+	labelling of bifurcation regions (mostly done, but commented out).
+
+	- Fix bug. 1 voxel branches were considered to be leaf-branches
+	always. However, they can be a link between 2 bifurcation
+	clumps. Now we have moved the IsLeaf computation to after the
+	merging, into its own code block.
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.8.2) Fix bug. Sometimes for small branches the points can be
+	colinear, in which case it's not possible to compute a 3D
+	triangulation. In that case, we skip to the next branch.
+
+2011-09-02  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.8.1) Fix bug. Small branches can end up with no tetrahedra
+	in the triangularion, and in that case, we got an error.
+
+	* FiltersToolbox/scinrrd_skeleton_prune.m:
+
+	- (v0.3.1) Fix bug, wrong struct field name.
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.13.1) Fix bug. Branches of length 1 voxel are leaf-branches,
+	but because their single voxel will never have degree < 2, they
+	were not being considered as leaves.
+
+2011-09-01  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.8.0) Add new output STATS.CylDivergence. This is a distance
+	estimate between the surface of the actual branch and the
+	estimated cylinder. All operations are performed without rounding,
+	so the results are better.
+
+	- Remove Dice's Coefficient and Jaccard's
+	Index. Converting warped segmentation coordinates to an image
+	produces rounding errors. In addition, pixelation (aliasing) is
+	substantial for very thin cylinders. Thus, the measures can be
+	quite misleading.
+
+2011-08-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.7.4) Fix bug. Dilation and erosion of the segmentation
+	turned image must be of only 1 voxel, which is the space available
+	at the margins of the image.
+
+2011-08-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_index2world.m:
+
+	- (v0.2.0) Add input argument CHOP so that we can deactivate the
+	conversion of points outside the image to NaN.
+
+2011-08-24  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.7.3) Computing the degree of each voxel by 3D convolution
+	was taking too much memory. Now instead of one 3D convolution, we
+	run three 1D convolutions (thanks to linear separability), which
+	is faster and doesn't require much memory.
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.13.0) Add new input argument, SINGLEMERGE. Now, we can
+	decide whether merging at each bifurcation clump will be limited
+	to only the 2 branches with the best alignment, or whether any two
+	branches with good alignment will be merged.
+
+	The reason is that in the pruning function
+	scinrrd_skeleton_prune(), spurious branches can be better aligned
+	than the main branch. So SINGLEMERGE=false should be used for
+	pruning, and SINGLEMERGE=true should be used to label the
+	segmentation after pruning.
+
+	* FiltersToolbox/scinrrd_skeleton_prune.m:
+
+	- (v0.3.1) Remove some unused variables and fix a small bug. When
+	a branch had only 1 voxel, the input to a scinrrd_index2world()
+	didn't have the expected dimensions.
+
+	- (v0.3.0) Big rewrite of the function. A new step prunes all the
+	clumps of voxels. Also, the other two steps (short leaf and
+	spurious leaf) are run iteratively until no more branches can be
+	pruned. Branches can be merged before pruning.
+
+	- All the code that computed the local radius of a branch for the
+	spurious leaf step has been removed (estimation of skeleton
+	direction, plane intersection with the volume, etc). Instead, it's
+	much faster to just compute the stats for all branches with
+	scinrrd_seg2label_stats(), and use the second eigenvalue to
+	estimate the major radius of the branch. Instead of comparing it
+	to the secondary branch's length, we compare it to the distance
+	between the bifurcation and the tip of the leaf, because sometimes
+	leaf artifacts are a bit bent and even though they don't protude
+	much from the main branch, their length would be large enough to
+	prevent pruning.
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.7.2) Fix bug. When I removed (br = find(nrrd.data==I)) to
+	make the iterations faster for large images, I didn't realize that
+	instead of getting all the branch voxels, we were getting only the
+	skeleton. Thus, the estimate of branch dimensions was wrong.
+
+	But we couldn't go back to the previous code, because it's just
+	too slow. So the solution is that now we find the indices for each
+	label before the loop. This uses more memory, but it should be
+	fast enough.
+
+	- I have observed that there's a big peak of memory
+	consumption with convn(deg, degbox, 'same'). Currently, rat 024
+	needs 6 Gb of free RAM to run, even though the volume is only 600M
+	or so. Maybe we'll have to go back to computing the voxel degrees
+	with the sparse connection matrix.
+
+2011-08-22  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.7.1) Make cc a mandatory argument. We need it to avoid
+	having to do a very expensive search (br = find(nrrd.data==I)) to
+	find the voxels in each branch. This was the single most
+	computationally expensive step in the function, making each
+	iteration take ~1.2 sec for rat 024 (now each iteration takes 0.02
+	sec).
+
+	- Add a new input argument STRAIGHT so that the user can decide
+	whether branches are straightened or not before computing PCA
+	(this used to be done providing cc or not, but now cc is
+	mandatory).
+
+	- Use only 5 levels in itk_pstransform('bspline'...), instead of
+	6. This makes that step almost 1 order of magnitude faster.
+
+	- Fix some small bugs when the branch had very few voxels and/or
+	we could not get 3 valid eigenvalues.
+
+	- (v0.7.0) Instead of using the sparse matrix "d" and vector
+	"dict", now we compute the degree of each voxel using a
+	convolution. For rat 024 right ventricle, this is 5 times faster
+	and uses 70% of the memory.
+
+	* Add FiltersToolbox/scinrrd_crop.m (v0.0.1):
+
+	- Crop an SCI NRRD image or segmentation volume.
+
+2011-08-21  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.12.0) Full rewrite of the function. The function worked, but
+	it was too slow to deal with a full resolution rat heart (). Even
+	after removing most of the right ventricle cavity, the
+	segmentation presented ~20,000 branches. Times to search for
+	branch neighbours ranged in the months. Therefore, it was
+	necessary a completely new approach.
+
+	The first improvement is identifying clumps of bifurcation
+	voxels. Branches are the remaining voxels, without overlap.
+
+	Instead of using struct CC fields, now we use sparse matrices for
+	connections between branches and bifurcation clumps, and amongst
+	branches.
+
+	Instead of merging branches in pairs, now we concatenate all
+	voxels of all branches to be merged, and let Dijkstra's algorithm
+	sort them out.
+
+	Instead of allowing any pair of branches with good alignment
+	merge, now only two branches can merge in each bifurcation
+	branch. This gives more sensible results, as there should be only
+	1 main branch from which secondary branches arise at each
+	bifurcation. The method to select which pair is the main branch
+	can be improved, maybe taking into account the diameter of the
+	vessels.
+
+	Instead of using our own function to label matrices from CC
+	structs, now we use Matlab's labelmatrix() function.
+
+	Times to process the whole rat heart are now around 4 or 5 min,
+	instead of months.
+
+2011-08-17  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/bwregiongrow.cpp (v0.2.4):
+
+	- Fix bug. If TODO was empty, we got a segmentation fault.
+
 2011-08-12  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* release 0.6.0:
+
+	- Big improvement to itk_imfilter().
+
+2011-08-12  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	- Big improvement to itk_imfilter(). Before, we were creating an
 	itk::Image for the input, and copying there the Matlab input
@@ -14,6 +547,125 @@
 	vector. We cannot return that directly, so we need to process that
 	output and copy the result to a Matlab buffer.
 
+	* ItkToolbox/ItkImFilter.cpp (v0.5.1):
+
+	- Fix bug. Filter pointer was being passed by value instead of
+	reference, so FilterSelector was instantiating the filter class,
+	but then the memory address was not being written to the pointer,
+	so runFilter() only saw a NULL pointer, that caused a segfault in
+	filter->CheckNumberOfOutputs();
+
+	* ItkToolbox/MexBaseFilter.cpp (v0.5.1):
+
+	- Remove some debug messages that I had forgotten.
+
+	* ItkToolbox/ItkImFilter.cpp (v0.5.0):
+
+	- Big rewrite. Before, we instantiate all input/output voxel type
+	combinations for each filter, and the specializing with
+	EXCLUDEFILTER() to have empty class definitions for those
+	combinations that are not supported.
+
+	Now, we only instantiate those filter/input/output combinations
+	that are supported. This is a much better approach.
+
+	Now we use an INVALIDINPUTTYPE() macro to give an error when a
+	particular filter doesn't support an input voxel type. This is
+	something that was missing from the previous release.
+
+	- Create an enum to have a list of supported filters. Then, we can
+	pass those values as template parameters. This allows us to
+	compile only those filter/input/output combinations that are
+	supported. We only need to check the filter string name once with
+	ISFILTER(), and after that, just use the enum value.
+
+	- We no longer need an enum OutVoxelType, as an intermediate
+	step. That was silly. We can decide on the output voxel type and
+	directly pass it to the runFilter() function.
+
+	* ItkToolbox/MexBaseFilter.hpp (v0.6.1):
+
+	- Delete empty constructor, that is no longer necessary as
+	EXCLUDEFILTER() has been deleted too.
+
+	* ItkToolbox/MexTemplateFilter.hpp (v0.2.1):
+	* ItkToolbox/MexBinaryDilateImageFilter.hpp (v0.1.7):
+	* ItkToolbox/MexDanielssonDistanceMapImageFilter.hpp (v0.4.1):
+	* ItkToolbox/MexBinaryThinningImageFilter3D.hpp (v0.2.9):
+	* ItkToolbox/MexSignedMaurerDistanceMapImageFilter.hpp (v0.2.8):
+	* ItkToolbox/MexBinaryErodeImageFilter.hpp (v0.1.3):
+
+	- Delete the EXCLUDEFILTER() macro, as it's no longer
+	necessary. Now filters are only instantiated with those
+	input/output voxel types that they admit.
+
+2011-08-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/MexBaseFilter.hpp (v0.6.0):
+	* ItkToolbox/MexBaseFilter.cpp (v0.5.0):
+
+	- Big reimplementation of BaseFilter. Yesterday, we imported the
+	Matlab image buffer directly into the filter, to avoid having to
+	copy it to an itk::Image (thus duplicating the memory space and
+	wasting time in copying).
+
+	Today, we have done something similar but with the filter
+	output. Instead of copying the output of the filter to a Matlab
+	buffer, we graft the Matlab buffer as the filter output.
+
+	We have renamed many methods so that they better express what they
+	do, and grouped some of the code in methods to make them more
+	reusable. From
+
+		void ImportMatlabInputToItkImage();
+		virtual void FilterSetup();
+		virtual void RunFilter();
+		virtual void CopyAllFilterOutputsToMatlab();
+		void CopyFilterImageOutputToMatlab();
+
+	we have gone to
+
+		void MallocMatlabOutputBuffer(unsigned int idx);
+		void GraftMatlabOutputBufferIntoItkFilterOutput(unsigned int idx);
+		virtual void CheckNumberOfOutputs();
+		void GraftMatlabInputBufferIntoItkImportFilter();
+		void FilterBasicSetup();
+		void RunFilter();
+		void MummifyFilterOutput(unsigned int idx);
+		virtual void ExportOtherFilterOutputsToMatlab();
+
+
+	* ItkToolbox/MexDanielssonDistanceMapImageFilter.cpp (v0.4.0):
+
+	- Part of the code that was used to deal with the second filter output
+	now it's part of BaseFilter.
+
+	- Add new methods according to the recoding of BaseFilter.
+
+	* ItkToolbox/MexSignedMaurerDistanceMapImageFilter.cpp (v0.2.5):
+	* ItkToolbox/MexBinaryErodeImageFilter.cpp (v0.1.2):
+	* ItkToolbox/MexBinaryDilateImageFilter.cpp (v0.1.6):
+
+	- Rename methods according to the new names in BaseFilter.
+
+	- Filter inputs no longer set in FilterAdvancedSetup().
+
+	* ItkToolbox/ItkImFilter.cpp (v0.4.5):
+	* ItkToolbox/MexDanielssonDistanceMapImageFilter.hpp (v0.4.0):
+	* ItkToolbox/MexTemplateFilter.hpp (v0.2.0):
+	* ItkToolbox/MexTemplateFilter.cpp (v0.2.0):
+	* ItkToolbox/MexBinaryThinningImageFilter3D.hpp (v0.2.8):
+	* ItkToolbox/MexSignedMaurerDistanceMapImageFilter.hpp (v0.2.7):
+	* ItkToolbox/MexBinaryErodeImageFilter.hpp (v0.1.2):
+
+	- Rename methods according to the new names in BaseFilter.
+
+	* ItkToolbox/MexBinaryDilateImageFilter.hpp (v0.1.6):
+
+	- Add missing declarations of redefined virtual
+	methods. Otherwise, if they are not declared, the BaseFilter
+	version of the method is run, instead of the overloaded one.
+
 2011-06-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* release 0.5.0:
@@ -23,6 +675,723 @@
 
 2011-08-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* ItkToolbox/MexBaseFilter.cpp (v0.4.1):
+
+	- Add a detailed explanation of how the matrix with the image is
+	transposed when passed from Matlab to ITK, and why it doesn't
+	matter.
+
+	* ItkToolbox/MexBinaryErodeImageFilter.hpp (v0.1.1):
+	* ItkToolbox/MexSignedMaurerDistanceMapImageFilter.hpp (0.2.6):
+	* ItkToolbox/MexBinaryThinningImageFilter3D.hpp (v0.2.7):
+	* ItkToolbox/MexTemplateFilter.hpp (v0.1.2):
+	* ItkToolbox/MexDanielssonDistanceMapImageFilter.hpp (v0.3.5):
+	* ItkToolbox/MexBinaryDilateImageFilter.hpp (v0.1.5):
+
+	- Rename CopyMatlabInputToItkImage() as
+	ImportMatlabInputToItkImage(), because we no longer copy
+	(duplicate) the image data.
+
+	* ItkToolbox/MexBinaryDilateImageFilter.cpp (v0.1.5):
+	* ItkToolbox/MexSignedMaurerDistanceMapImageFilter.cpp (v0.2.5):
+	* ItkToolbox/MexBinaryErodeImageFilter.cpp (v0.1.1):
+
+	- Instead of having a variable "image" in BaseFilter, now we have
+	"importFilter->GetOutput()".
+
+	* ItkToolbox/ItkImFilter.cpp (v0.4.4):
+
+	- Instead of having a variable "image" in BaseFilter, now we have
+	"importFilter->GetOutput()".
+
+	- Rename CopyMatlabInputToItkImage() as
+	ImportMatlabInputToItkImage(), because we no longer copy
+	(duplicate) the image data.
+
+	* ItkToolbox/MexBaseFilter.cpp (v0.4.0):
+	* ItkToolbox/MexBaseFilter.hpp (v0.5.0):
+
+	- Instead of copying the image data from the C-type array passed
+	by Matlab to an itk::Image (hence duplicating the image in
+	memory), we now use itk::ImportImageFilter to directly pass the
+	array pointer to the ITK filter. This way, there's no need to
+	duplicate the image.
+
+	- Instead of having a variable "image" in BaseFilter, now we have
+	"importFilter->GetOutput()".
+
+	- Rename CopyMatlabInputToItkImage() as
+	ImportMatlabInputToItkImage(), because we no longer copy
+	(duplicate) the image data.
+
+	* release 0.5.0:
+
+	- Now itk_imfilter() supports passing parameters to filters. This
+	last version hasn't been tested with Windows yet.
+
+	* ItkToolbox/itk_imfilter.m (v0.4.1):
+
+	- Add binary erosion to help header.
+
+2011-08-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* add_itk_imfilter_template.sh (v0.2.1):
+
+	- I had forgotten that for each new filter, an entry in
+	CMakeLists.txt has to be added.
+
+	* ItkToolbox/CMakeLists.txt (v0.4.1):
+	* ItkToolbox/ItkImFilter.cpp (v0.4.3):
+
+	- Added support for filters:
+
+		itkBinaryErodeImageFilter.h
+
+	* ItkToolbox/MexBinaryDilateImageFilter.hpp (v0.1.4),
+	ItkToolbox/MexBinaryDilateImageFilter.cpp (v0.1.4):
+
+	- Some minor edits to make it more like the corresponding Erode
+	files.
+
+	* Add ItkToolbox/MexBinaryErodeImageFilter.hpp,
+	ItkToolbox/MexBinaryErodeImageFilter.cpp:
+
+	- Copied from MexTemplateFilter.* to add support for
+	itkBinaryErodeImageFilter.h to itk_imfilter()
+
+	* ItkToolbox/MexTemplateFilter.cpp (v0.1.2):
+
+	- Comment out the definitions of the virtual functions, as by
+	default their declaration is also commented out in the .hpp file.
+
+	* add_itk_imfilter_template.sh (v0.2.0):
+
+	- Automatically edit the template files created for the new
+	filter, ChangeLog and ItkImFilter.cpp, so that the user has a good
+	starting point to add support for the new filter. Some #error
+	directives have been added at points where the user should look
+	and make manual changes before compiling the program.
+
+	* ItkToolbox/MexTemplateFilter.hpp (v0.1.1):
+	* ItkToolbox/MexTemplateFilter.cpp (v0.1.1):
+
+	- Add precompiler errors to force the user look there when he
+	tries to compile after automatically adding a new filter with
+	add_itk_imfilter_template.sh.
+
+	* ItkToolbox/ItkImFilter.cpp (v0.4.2):
+
+	- Add comments that can be used by script
+	add_itk_imfilter_template.sh to recognise where to insert new
+	code.
+
+	* update_README.sh (v0.1.1):
+
+	- Add copyright header and set svn properties.
+
+	* Add add_itk_imfilter_template.sh (v0.1.0):
+
+	- Script to automatically create templates and modify
+	ItkImFilter.cpp to add a new ITK filter to itk_imfilter(). This
+	script only creates the basic skeleton. Specific parameters,
+	methods, etc for the filter need to be added by hand.
+
+	- This first version only copies the templates from
+	MexTemplateFilter.*, and updates the ChangeLog, but doesn't modify
+	the code to tailor it to the new filter.
+
+	* Add ItkToolbox/MexTemplateFilter.hpp,
+	ItkToolbox/MexTemplateFilter.cpp:
+
+	- Template files to help add support for new filters to
+	itk_imfilter().
+
+	* ItkToolbox/ItkImFilter.cpp (v0.4.1):
+
+	- Use shortname and longname of every filter instead of hardcoded
+	strings. Add macro ISFILTER() to make the code cleaner.
+
+	- Method CopyMatlabInputsToItkImages() has been renamed as
+	CopyMatlabInputToItkImage().
+
+	* ItkToolbox/MexBaseFilter.hpp (v0.4.2):
+	* ItkToolbox/MexBaseFilter.cpp (v0.3.8):
+
+	- Rename method CopyMatlabInputsToItkImages() as
+	CopyMatlabInputToItkImage(), as there can be only 1 image at the
+	input. Also, this method should not be virtual.
+
+	- Add shortname and longname strings. BaseFilter cannot be invoked
+	by the user, but the definitions are necessary when we use
+	EXCLUDEFILTER().
+
+	* ItkToolbox/MexBinaryDilateImageFilter.cpp (v0.1.3):
+	* ItkToolbox/MexDanielssonDistanceMapImageFilter.cpp (v0.3.4):
+	* ItkToolbox/MexBinaryThinningImageFilter3D.cpp (v0.1.4):
+	* ItkToolbox/MexSignedMaurerDistanceMapImageFilter.cpp (v0.2.4):
+
+	- Add shortname and longname strings to every filter, so that we
+	don't need to hardcode in ItkImFilter.cpp the string that a user
+	can type to invoke a filter.
+
+	* ItkToolbox/MexBinaryDilateImageFilter.hpp (v0.1.3):
+	* ItkToolbox/MexDanielssonDistanceMapImageFilter.hpp (v0.3.4):
+	* ItkToolbox/MexBinaryThinningImageFilter3D.hpp (v0.2.6):
+	* ItkToolbox/MexSignedMaurerDistanceMapImageFilter.hpp (v0.2.5):
+
+	- Add shortname and longname strings to every filter, so that we
+	don't need to hardcode in ItkImFilter.cpp the string that a user
+	can type to invoke a filter.
+
+	- Fix bug. In EXCLUDEFILTER(), wrong method name, and missing method.
+
+2011-08-08  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/MexBinaryThinningImageFilter3D.cpp (v0.1.3),
+	ItkToolbox/CMakeLists.txt (v0.4.0),
+	ItkToolbox/MexDanielssonDistanceMapImageFilter.cpp (v0.3.3),
+	ItkToolbox/MexBinaryDilateImageFilter.cpp (v0.0.2),
+	ItkToolbox/MexBaseFilter.cpp (v0.3.7),
+	ItkToolbox/MexSignedMaurerDistanceMapImageFilter.cpp (v0.2.3),
+	ItkToolbox/MexSignedMaurerDistanceMapImageFilter.hpp (v0.2.4),
+	ItkToolbox/MexBinaryThinningImageFilter3D.hpp (v0.2.5),
+	ItkToolbox/MexDanielssonDistanceMapImageFilter.hpp (v0.3.3),
+	ItkToolbox/MexBinaryDilateImageFilter.hpp (v0.0.2),
+	ItkToolbox/MexBaseFilter.hpp (v0.4.1):
+
+	- Rename all filters as Mex*, where * is the full ITK name,
+	instead of using a short name that I made up. This way, it'll be
+	easier to semi-automate the process of adding new filters.
+
+2011-08-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/CMakeLists.txt:
+
+	- Add BinaryDilateFilter.cpp to project itk_imfilter().
+
+	* ItkToolbox/GerardusCommon.hpp:
+
+	- (v0.3.0) Add functions to test templates from BaseFilter.hpp.
+
+	* ItkToolbox/BaseFilter.hpp:
+
+	- (v0.4.0) Add support for user-provided parameters for
+	filters. Number of parameters and list of parameters is kept here,
+	and can be accessed by any filter derived class. Also, write a new
+	member function getScalarParamValue() to read scalar parameters
+	from Matlab (for the moment, only scalar parameters are supported,
+	and not vectors of parameters).
+
+	- Move functions to test templates to GerardusCommon.hpp.
+
+	* ItkToolbox/itk_imfilter.m:
+
+	- (v0.4.0) Correct help header to make it easier to write the
+	documentation for filters with user-provided parameters.
+
+	- Add syntax for 'bwdilate'.
+
+	* ItkToolbox/ItkImFilter.cpp (v0.4.0):
+
+	- Add support for itk::BinaryDilateImageFilter.
+
+	- Make 2 the minimum number of input arguments, not the exact
+	number. This way, the user can provide input parameters for
+	specific filters.
+
+	- Fix bug introduced in last revision. We were reading the image
+	from argIn[1], which doesn't work if the input data is a NRRD
+	struct.
+
+	- Pedantic fix. Use mxLogical instead of bool (although at least
+	for linux they are the same type).
+
+	* Add ItkToolbox/BinaryDilateFilter.cpp,
+	ItkToolbox/BinaryDilateFilter.hpp:
+
+	- (v0.1.0) Code that is specific to
+	itk::BinaryDilateImageFilter. Support for radius and foreground
+	value arguments. Structuring element is a ball.
+
+	* ItkToolbox/SignedMaurerFilter.cpp (v0.2.2),
+	ItkToolbox/SignedMaurerFilter.hpp (v0.2.3),
+	ItkToolbox/DanielssonFilter.cpp (v0.3.2),
+	ItkToolbox/DanielssonFilter.hpp (v0.3.2),
+	ItkToolbox/BaseFilter.cpp (v0.3.6), ItkToolbox/ThinningFilter.hpp
+	(v0.2.4):
+
+	- Pedantic fix. Use mxLogical instead of bool (although at least
+	for linux they are the same type).
+
+2011-08-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/itk_imfilter.m
+
+	- (v0.3.2) Corrected function declaration syntax, so that when the
+	MEX file doesn't exit, it gives the corresponding error instead of
+	"Too many output arguments".
+
+2011-08-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (v0.3.12) Now the Nrrd volume is parse in
+	parseInputTypeToTemplate() instead of main(), which makes more
+	sense. We no longer pass the filter name as an argument to the
+	parsing functions, because now we pass all the input
+	arguments. This way we have prepared the field so that we can pass
+	the input arguments to the filter parser, and this was pass filter
+	parameters.
+
+	* ItkToolbox/BaseFilter.cpp:
+
+	- (v0.3.5) Fix bug. In ITK, "SetIndex" sets the index coordinates
+	of the first voxel of the region, not the real world
+	coordinates. In our case, we always want the region to be the
+	whole image, so we make it start at (0, 0, 0).
+
+	Also, now we do "SetOrigin" on the image (the real world
+	coordinates of the centre of the first voxel), computed from the
+	"min" value of the NRRD volume (real world coordinates of the left
+	edge of the first voxel).
+
+	* ItkToolbox/NrrdImage.hpp:
+
+	- (v0.2.3) Add comments to make more clear what every function
+	returns. Specially that "min" means the left edge of the first
+	voxel.
+
+	* ItkToolbox/NrrdImage.cpp:
+
+	- (v0.1.3) Fix bug. The NRRD format considers "min" to be the left
+	edge of the first voxel, not the centre. On the other hand, ITK
+	considers "origin" to be the centre of the voxel.
+
+	* ItkToolbox/BaseFilter.hpp (v0.3.3),
+	ItkToolbox/ThinningFilter.hpp (v0.2.3),
+	ItkToolbox/DanielssonFilter.hpp (v0.3.1),
+	ItkToolbox/SignedMaurerFilter.hpp (v0.2.2),
+	ItkToolbox/NrrdImage.hpp(v0.2.2):
+
+	- Pass NRRD image by reference in the parse functions and filters
+	instead of value, so that it doesn't need to be duplicated. Also,
+	protect it from changes by using "const". This, in turn, requires
+	that the functions in Nrrd are declared as const, because you
+	cannot use a non-const member function on a const object.
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (v0.3.11) Pass NRRD image by reference in the parse functions
+	and filters instead of value, so that it doesn't need to be
+	duplicated. Also, protect it from changes by using "const".
+
+	- Rename parseFilterToTemplate() as parseFilterTypeAndRun() to
+	better reflect what it does.
+
+2011-08-03  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	 * ItkToolbox/itk_imfilter:
+
+	- (v0.3.1) Update help header.
+
+2011-07-31  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.6.3) Fix bug. We were converting a potentially large
+	distance matrix from sparse to full, and this made it run out of
+	memory and run very slow.
+
+	* FiltersToolbox/scinrrd_skeleton_prune.m:
+
+	- (v0.2.5) Fix bug. Error when trying to extract length from an
+	empty branch parameterisation.
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.10) Plot junction point in DEBUG block. Reword paragraph
+	of help header.
+
+	- (v0.11.9) Fix bug. Old field names for angle values hadn't been
+	removed for branches that are loops.
+
+2011-07-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.6.2) Fix bug. When computing distance from the origin to the
+	ellipse, we were solving a linear system (/) instead of dividing
+	(./).
+
+	- Make length of box include whole voxels, instead of just from
+	centre of first voxel to centre of last voxel.
+
+2011-07-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.6.1) Add input argument P to use a smoothing cubic spline on
+	the skeleton before straightening the branch.
+
+	- (v0.6.0) Add measures of vesselness (stats.dice and
+	stats.jaccard). It's hard to tell whether a merged branch is a
+	vessel or not just from the eigenvalues. For example, parts of the
+	cavity can be bumpy, but long and thin. In order to evaluate
+	whether a branch looks like a vessel, we compare it to a cylinder
+	with the dimensions given by the eigenvalues. If the overlap is
+	large, then the cylindrical model is correct and we can say that
+	the branch is a vessel.
+
+2011-07-28  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add FileFormatToolbox/scinrrd_im2nrrd.m:
+
+	(v0.0.1) Create SCI NRRD struct from Matlab data.
+
+2011-07-24  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.5.3) Fix bug. Output stats.islandlocked is given as a double
+	instead of a bool.
+
+2011-07-22  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.8) Fix bug. If two portions of a branch got into
+	different buckets, then the buckets could not be merged between
+	them.
+
+	Also, repeat the code that searches for neighbours after merging,
+	because scinrrd_skeleton_prune() expects fields
+	cc2.BranchNeighboursLeft and cc2.BranchNeighboursRight.
+
+	- (v0.11.7) Major rewrite of the function. I have removed many
+	unnecessary loops and steps, to make the function faster and
+	tidier. The code to compute the angle between two concatenated
+	branches has been moved to an individual function. Also, make the
+	output consistent so that you get the same struct whether you
+	merge branches or not.
+
+2011-07-21  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.6) Fix bug. cc.BifurcationPixelIdx had inconsistent
+	meanings within the function. Now there's a new
+	cc.IsolatedBifurcationPixelIdx list that contains all voxels that
+	are only surrounded by other bifurcation voxels. These voxels
+	don't belong to any branch, but they belong to the skeleton.
+
+	Merge some redundant loops.
+
+2011-07-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.5) Fix bug reported by Pablo Lamata. Branches of length 1
+	were being ignored and cc.Degree was not computed for them. Also,
+	they were given cc.Length NaN instead of 0, and they were not
+	considered leafs. This caused errors in scinrrd_skeleton_prune().
+
+	* FiltersToolbox/scinrrd_skeleton_prune.m:
+
+	- (v0.2.4) Make 2nd input argument non-mandatory.
+
+	- (v0.2.3) skeleton_label() does no longer produce fields
+	cc.BranchNeighbours and cc.BranchLength, so replace their use in
+	this function.
+
+2011-07-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.4) Fix bug. When merging, only neighbours on the left
+	were taken into account. Now both neighbours on the left and right
+	are taken into account.
+
+	* ItkToolbox/ItkPSTransform.cpp:
+
+	- (v0.2.5) Move CAST2MWSIZE() macro to GeradusCommon.hpp.
+
+	* ItkToolbox/BaseFilter.cpp:
+
+	- (v0.3.4) Move CAST2MWSIZE() macro to GeradusCommon.hpp.
+
+	* ItkToolbox/GerardusCommon.hpp:
+
+	- (v0.2.1) Add CAST2MWSIZE() macro. This header is common for all
+	Gerardus' Matlab code, and so it's the right place for it.
+
+	* ItkToolbox/BaseFilter.hpp:
+
+	- (v0.3.2) Fix bug. Pablo Lamata noticed that trying to run the
+	filter with 'skel' produced a segfault. I introduced this bug in
+	r473, when I removed the constructors definition from
+	BaseFilter.cpp, because nothing was done, and put just a {;} in
+	the constructor declaration in BaseFilter.hpp. I didn't notice
+	that the constructor had an initialization list. As I didn't move
+	the initialization list from the definition to the declaration,
+	the pointers were not initialized, and when the data was accessed,
+	a segfault resulted.
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.3) Fix bug. Make sure that list of voxels is a column
+	vector, to avoid dimensions error after concatenation.
+
+2011-07-19 Yves <ivmartel@gmail.com>
+
+	* ItkToolbox/BaseFilter.cpp (v0.3.3),
+	ItkToolbox/ItkPSTransform.cpp (v0.2.4):
+
+	- Added the CAST2MWSIZE macro to use the proper data type for
+	specific machines (specifically Microsoft Windows 64bits).
+
+2011-07-18  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.2) In the merging process, first check whether there is
+	no neighbour or the alignment is larger than the angle threshold,
+	and if so, skip the branch. Otherwise, the branch will be
+	processed.
+
+2011-07-17  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.1) Fix bug. Change the way the merging was performed. It
+	was possible for branches to merge forming a "T" shape, depending
+	on the values of alpha. For example, branch A is closest to B, so
+	they merge. B is closest to C, and they merge, forming a wire. But
+	now a secondary branch D is closest to B, and the angle is small
+	enough, so it merges forming a "T" shape. With the new method, A
+	can only merge with B if B wants to merge with A. Because each
+	branch can only merge with 1 branch on each side, this guarantees
+	that there are no "T" shapes.
+
+2011-07-14  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.11.0) Major rewrite of the function, although the
+	functionality is roughly the same. The function was not working
+	well when it had to merge branches, and the labelling of the whole
+	segmentation was not great.
+
+	A problem was dealing with bifurcation voxels and neighbour
+	branches. The correspondence between them is complicated. Now,
+	each branch is terminated by a bifurcation voxel or a leaf voxel.
+	Bifurcation voxels surrounded only by bifurcation voxels are not
+	added to any branch, but they are used to find branch neighbours.
+
+	Another problem was that two branches that were continuation of
+	each other wouldn't necessarily be merged, depending on how
+	neighbours were processed. Now,  "left" and "right" neighbours are
+	considered explicitly, and then only the closest ones are merged.
+
+	* ItkToolbox/ItkPSTransform.cpp:
+
+	- (v0.2.3) Fix bug for Windows 64 bit. Yves Martelli noted a
+	compilation error for Windows 64 bit, as mwSize translates to
+	size_t, and Visual Studio translates this to "unsigned __int64", a
+	non-ASCI type. When it tries to then compile
+	itk::FixedArray::operator[](unsigned __int64), it cannot find a
+	definition.
+
+	Following Jonathan Cooper's advice, I have added an #ifdef _win64
+	block to perform a static cast of the mwSize variables only when
+	compiling for Windows 64 bit.
+
+2011-07-13  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FindMatlab.cmake:
+
+	- (v0.2.2) Extend to Windows 64 bit. Yves Martelli pointed out
+	that for Windows 64 bit, Matlab files live in a win64/ instead of
+	win32/ directory.
+
+2011-07-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.10.1) Fix bug. Error when sk and im were uint8, but sk had
+	only 1 label. The problem occured when the class of sk was decided
+	based on the number of objects. But we also need to take into
+	account whether we are going to need a TODO label if we have to
+	label im.
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.5.1) Fix bug. Procrustes alignment was being run with
+	Scaling=true, but we need the alignment to be rigid (no scaling),
+	so the dimensions of the vessel don't change.
+
+	- (v0.5.1) Replace locally rigid transform by multilevel B-splines
+	transform for the non-rigid warp. The B-spline seems to be better
+	in that it doesn't introduce any twisting in the vessel.
+
+2011-07-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/ItkPSTransform.cpp:
+
+	- (v0.2.2) Windows doesn't provide function round(x), so replace
+	by floor(x+0.5).
+
+2011-07-08  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_intersect_plane.m:
+
+	- (v0.3.2) Fix bug pointed out by Pablo Lamata, swap position of x
+	and y in linear interpolation.
+
+	* PointsToolbox/pts_local_rigid.m:
+
+	- (v0.1.3) In fact, the 3D straightening constrain seems to limit
+	twisting, and no extra 2D rotation is necessary. Now we can also
+	use a B-spline warp in Gerardus (itk_pstransform), so we are
+	leaving the basic 3D method and we are not going to do further
+	work on this function.
+
+	* test/test_itk_pstransform.m:
+
+	- (v0.1.1) Add Test 2, 3D bent vessel.
+
+	* Add ItkToolbox/itk_pstransform.m:
+
+	- Add header help for the mex function, so that it's accessible
+	from Matlab.
+
+	* ItkToolbox/ItkPSTransform.cpp:
+
+	- (v0.2.1) Fix bug. The parameterization cannot be the x
+	points. They need to be translated and scaled so that they fit
+	within a [0, 1] x [0, 1] x [0, 1] bounding box.
+
+2011-07-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add test/ps-bent-vessel-3d-3.mat, with the coordinates of the
+	voxels of a 3D bent vessel segmentation, its skeleton, and a
+	parameterization of the skeleton.
+
+	* ItkToolbox/ItkPSTransform.cpp:
+
+	- (v0.2.0) Add warping with a B-spline, using
+	itk::BSplineScatteredDataPointSetToImageFilter.
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (v0.3.10) Remove paragraph from help header about MATLAB_ROOT
+	(no longer necessary to set the variables thanks to the modified
+	FindMatlab.cmake).
+
+	* ItkToolbox/DanielssonFilter.cpp:
+
+	- (v0.3.1) mxGetPr should only be used for arrays of type double,
+	so replace it by mxGetData.
+
+	* ItkToolbox/BaseFilter.cpp:
+
+	- (v0.3.2) mxGetPr should only be used for arrays of type double,
+	so replace it by mxGetData.
+
+2011-07-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/ItkPSTransform.cpp:
+
+	- (v0.1.1) Add support for 2D points, so that not only 3D points
+	are accepted.
+
+	* Add test/nrrd-bent-vessel-3d* files with the segmentation and
+	skeleton of 2 bent vessels in 3D.
+
+2011-07-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add test/test_itk_pstransform.m:
+
+	- Script to test itk_pstransform().
+
+	* Delete ItkToolbox/ItkKernelTransform.cpp:
+
+	- Its functionality is now part of ItkPSTransform.cpp.
+
+	* ItkToolbox/CMakeLists.txt:
+
+	- Add compilation and installation of itk_pstransform.
+
+	- Remove itk_kernel_transform, that is now part of
+	itk_pstransform.
+
+	* ItkToolbox/ItkPSTransform.cpp:
+
+	- (v0.1.0) Basic code to replicate the functionality of
+	ItkKernelKernelTransform.cpp, but with the infrastructure to make
+	it possible to add the bpline warping method. As an improvement
+	over ItkKernelKernelTransform.cpp, now it's possible to give the
+	point coordinates as a double or a single in Matlab.
+
+	* ItkToolbox/BaseFilter.hpp:
+
+	- (v0.3.1) Rename FilterType as BaseFilterType so that it's
+	clearer and doesn't clash with the derived classes.
+
+	- Empty constructor now goes in the header.
+
+	- Regroup protected members.
+
+	* ItkToolbox/BaseFilter.cpp:
+
+	- (v0.3.1) Remove constructor's code, as it's empty and can go in
+	the header.
+
+2011-07-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/CMakeLists.txt:
+
+	- ItkToolbox/ArgumentParsers.cpp has been deleted.
+
+	* Delete ItkToolbox/ArgumentParsers.cpp,
+	ItkToolbox/ArgumentParsers.hpp:
+
+	- Move all the code to ItkImFilter.cpp.
+
+	- The parsers are not going to be general functions, but specific
+	to the mexFunction() calling them. In addition, it makes the code
+	more readable if we have all the pipeline from input argument
+	parsing to filter running in the ItkImFilter.cpp file.
+
+	* ItkToolbox/ArgumentParsers.cpp, ItkToolbox/ArgumentParsers.hpp:
+
+	- (v0.3.0) Reorder input arguments in the parsers, so that they
+	reflect the order in which they are processed: input image, output
+	images, filter name.
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (v0.3.9) Paste all the code that used to be in
+	ItkToolbox/ArgumentParsers.cpp.
+
+	- (v0.3.8) Reorder input arguments in ArgumentParsers.hpp.
+
+2011-06-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* ItkToolbox/ItkKernelTransform.cpp:
+
+	- (v0.1.1) Fix bug. It was not checked that data had 3 columns.
+
+2011-06-17  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* PointsToolbox/pts_local_rigid.m:
+
+	- (v0.1.2) Although I thought that the 3D rotation constraint
+	prevented twisting, it didn't. This new method follows the 3D
+	rotation by a 2D rotation around the x-axis to limit a bit the
+	twisting, but the results are not great yet.
+
+2011-06-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
 	* release 0.4.0
 
 	- Now the MEX ITK functions itk_imfilter(),
@@ -30,12 +1399,1559 @@
 	run under Windows XP 32-bit too. (Built with CMake 2.8 and Visual
 	Studio 10).
 
+2011-06-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	- Now the MEX ITK functions itk_imfilter(),
+	itk_kernel_transform(), and the filter bwregiongrow() compile and
+	run under Windows XP 32-bit too. (Built with CMake 2.8 and Visual
+	Studio 10).
+
+	* MatlabMakeMacros.cmake:
+
+	- Don't link to the m library in Windows, as it's not available.
+
+	* ItkToolbox/ThinningFilter.hpp:
+
+	- (v0.2.2) Don't instantiate this filter for bool, because the
+	compiler broke in Windows.
+
+	- Silly mistake of using "#import" instead of "#include".
+
+	* ItkToolbox/ThinningFilter.cpp:
+
+	- (v0.1.2) Don't instantiate this filter for bool. For some
+	reason, the concept check passed in Linux but not in Windows.
+
+	* ItkToolbox/NrrdImage.hpp:
+
+	- (v0.2.1) Return distances and minimal values as double instead
+	of integer.
+
+	* ItkToolbox/NrrdImage.cpp:
+
+	- (v0.1.2) Return distance as a double instead of an integer
+	NrrdImage::maxVoxDistance().
+
+	* ItkToolbox/GerardusCommon.cpp:
+
+	- (v0.3.1) Correct some type casting that Windows doesn't like.
+
+	- Don't use function div() for integer division, because it's
+	incompatible with Windows. Use / (division) and % (reminder)
+	instead.
+
+	* ItkToolbox/ArgumentParsers.hpp, tkToolbox/BaseFilter.cpp,
+	ItkToolbox/BaseFilter.hpp, ItkToolbox/DanielssonFilter.cpp,
+	ItkToolbox/DanielssonFilter.hpp, ItkToolbox/GerardusCommon.hpp,
+	ItkToolbox/SignedMaurerFilter.cpp, ItkToolbox/SignedMaurerFilter.hpp:
+
+	- (v0.2.1) Silly mistake of using "#import" instead of "#include".
+
+	* ItkToolbox/ArgumentParsers.cpp:
+
+	- (v0.2.2) Use log()/log(2.0) instead of log2(), because Windows
+	doesn't provide the latter.
+
+	- Silly mistake of using "#import" instead of "#include".
+
+	* FiltersToolbox/CMakeLists.txt, ItkToolbox/CMakeLists.txt:
+
+	- INSTALL() needs different arguments for Windows and
+	Linux. Windows DLLs are ARCHIVE, Linux shared objects are LIBRARY.
+
+	* FiltersToolbox/bwregiongrow.cpp:
+
+	- (v0.2.3) Correct some type casting that Windows doesn't like.
+
+	- Don't use function div() for integer division, because it's
+	incompatible with Windows. Use / (division) and % (reminder)
+	instead.
+
+2011-06-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/CMakeLists.txt:
+
+	- Add copyright notice.
+
+	* CMakeLists.txt:
+
+	- Matlab 2010b is compatible with g++ 4.5.2, which is the version
+	available in the current Ubuntu Natty, so we can comment out the
+	lines forcing g++-3.4.
+
+	- With the new FindMatlab.cmake, there's no longer need to
+	provided MATLAB_ROOT.
+
+	* FindMatlab.cmake:
+
+	- (v0.2.1) Be more precise with the directory where mex.h is.
+
+	- (v0.2.0) Major rewrite of how the MEX libraries and include
+	directory are found in non-Windows systems. Now we are using shell
+	commands, e.g. "find". The original FindMatlab.cmake relied on
+	some hard-coded paths that have been removed.
+
+	* ItkToolbox/CMakeLists.txt, FiltersToolbox/CMakeLists.txt:
+
+	- Conditional to avoid compilation flags that should not be used
+	for Windows.
+
+	- Windows requires that ARCHIVE is given as a target for INSTALL
+	because it treats static libraries as ARCHIVE.
+
+	* FindMatlab.cmake:
+
+	- Major rewrite of how the MEX libraries are found in Windows.
+
+2011-06-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_intersect_plane.m:
+
+	- (v0.3.2) Edit helper header to make clear that gx, gy, gz
+	correspond to the coordinates of where the NRRD volume was
+	actually sampled to obtain IM. Hence, for INTERP='nn' if you plot
+	the plane, it will in general look a bit "jagged" instead of flat.
+
+	- Thanks to Pablo Lamata for pointing out that this feature was
+	not clear in the help header.
+
+	* Add FindMatlab.cmake:
+
+	- To make a derivative work of file FindMatlab.cmake released with
+	CMake v2.8, because the original seems to be a bit outdated and
+	doesn't work with my Windows XP and Visual Studio 10
+	install. (Note that the original file does work for Ubuntu Natty)
+
+2011-06-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.5.0) Remove CC.dbif. The Maurer distance is quite misleading
+	if the vessel's cross section is very elliptical.
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.10.0) Add merging of neighbouring branches that are a
+	continuation of each other. The merging is controlled by new input
+	arguments alphamax, p.
+
+2011-06-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.4.2) CC.BifurcationPixelIdx has changed from vector to
+	vector of cells.
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.9.4) Get bifurcation point indices for all types of
+	branches, not only leaves.
+
+2011-06-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add subversion property "svn:eol-style native" to all text
+	files, so that people working with Windows will get the correct
+	end of line characters.
+
+	* FiltersToolbox/scinrrd_intersect_plane.m:
+
+	- (v0.3.1) Tidy up code to match Gerardus coding guidelines.
+
+	- (v0.3.0) Patch submitted by Pablo Lamata. Add input argument for
+	interpolation type. Before, interpolation was performed by finding
+	the nearest voxel to the sampling point (more approrpiate for
+	binary segmentations). Now, it's also possible to select linear
+	and spline interpolation, which is more appropriate for gray scale
+	images.
+
+2011-06-01  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.4.1) Fix bug. The segment cannot be straightened if the
+	skeleton doesn't have at least 3 voxels.
+
+2011-05-31  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_skeleton_prune.m:
+
+	- (v0.2.2) Pruning was not always working great. Before,
+	bifurcation voxels were always preserved, and this created
+	problems with 1-voxel branches sometimes appearing on the sides of
+	main branches. In the last version, bifurcation voxels were always
+	removed, and then all non-pruned branches were regenerated in the
+	segmentation. But in some cases, this did not regenerate some
+	bifurcation voxels, and the skeleton became disconnected. This
+	latest revision addresses both problem. Now bifurcation voxels are
+	only deleted if they don't disconnect the skeleton.
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.9.3) When looking for neighbour branches, skip bifurcation
+	voxels that haven't been labelled.
+
+	- (v0.9.2) Fix bug. Wrong number of labels was used to compute the
+	data type necessary to contain all labels.
+
+2011-05-27  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_skeleton_prune.m:
+
+	- (v0.2.1) Fix bug. Wrong variable name.
+
+	- (v0.2.0) Add code to prune spurious branches that are roughly as
+	long as the local radius of the main branch they are attached to.
+
+2011-05-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_skeleton_prune.m:
+
+	- (v0.1.1) We were removing bifurcation voxels unwillingly. Now
+	instead of clearing the segmentation and adding the good branches,
+	we prunce the very short branches, but keeping the bifurcation
+	voxels.
+
+	* Rename FiltersToolbox/skeleton_prune.m as
+	FiltersToolbox/scinrrd_skeleton_prune.m.
+
+	* Add FiltersToolbox/skeleton_prune.m:
+
+	- (v0.1.0) Prune branches in a segmentation's skeletonization.
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.9.1) Fix bug. First we need to distribute the bifurcation
+	points to their corresponding branches. Then we can loop to find
+	connected branches.
+
+2011-05-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.9.0) Add output arguments cc.BranchNeighbours.
+
+	* FiltersToolbox/scinrrd_intersect_plane.m:
+
+	- (v0.2.1) Add midx as output argument.
+
+	- (v0.2.0) Complete rewrite. Now we can use any plane to intersect
+	the image volume, from horizontal to vertical.
+
+2011-05-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.4.0) Add output arguments stats.nvox and stats.vol.
+
+	- (v0.3.3) For the case when the branch gets straightened, order
+	the eigenvalues so that the first one is along the skeleton.
+
+2011-05-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.8.0) Add output argument cc.Degree.
+
+2011-05-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* release v0.4.0
+
+	- Important refactorization of the itk_imfilter architecture, that
+	makes maintaining, compiling and extending the code much
+	easier. It's also possible to extract more than one output from
+	each filter.
+
+	* ItkToolbox/SignedMaurerFilter.cpp:
+
+	- (v0.2.1) Filter types are defined in the base header file, not
+	here. Also, to avoid problems in the future, when we refer to a
+	FilterType we specify which one,
+	e.g. SignedMaurerFilter<InVoxelType,OutVoxelType>::FilterType.
+
+	* ItkToolbox/BaseFilter.cpp, ItkToolbox/BaseFilter.hpp:
+
+	- (v0.3.0) Move code that returns an empty output for empty input
+	from the constructor to CopyFilterImageOutputToMatlab(). This is
+	the right place for it to be.
+
+	* ItkToolbox/DanielssonFilter.hpp, ItkToolbox/DanielssonFilter.cpp:
+
+	- (v0.3.0) Substantial change. Now filters can output more than
+	one image. As a proof of concept, I have modified the
+	DanielssonFilter to output not only the distance map, but also an
+	array of the same size as the image with the linear index of the
+	closest object voxel to each image voxel. This is a reformatting
+	of the output provided by
+	itk::DanielssonDistanceMapImageFilter::GetVectorDistanceMap().
+
+	* ItkToolbox/SignedMaurerFilter.hpp,
+	ItkToolbox/ArgumentParsers.cpp, ItkToolbox/ThinningFilter.hpp:
+
+	- (v0.2.1) Fix bug. Method had the wrong name.
+
+	* ItkToolbox/CMakeLists.txt:
+
+	- Add GerardusCommon.cpp to the itk_imfilter project.
+
+	* ItkToolbox/GerardusCommon.hpp, ItkToolbox/GerardusCommon.cpp:
+
+	- (v0.3.0) Add ind2sub_itkOffset() so that we can have an
+	itk::Offset<3> at the output. Note that it's not possible to
+	overload functions on the return value, so the function needs to
+	have a different name.
+
+	- (v0.2.0) Add sub2ind() overloaded so that it can take as input
+	argument itk::Offset<3>.
+
+	* Add ItkToolbox/GerardusCommon.hpp,
+	ItkToolbox/GerardusCommon.cpp:
+
+	- Miscellaneous functions of general use. Functions to convert
+	between linear indices and r, c, s indices: sub2ind(), ind2sub().
+
+	* ItkToolbox/SignedMaurerFilter.hpp,
+	ItkToolbox/DanielssonFilter.hpp, ItkToolbox/NrrdImage.hpp,
+	ItkToolbox/BaseFilter.cpp, ItkToolbox/ArgumentParsers.cpp,
+	ItkToolbox/BaseFilter.hpp, ItkToolbox/ArgumentParsers.hpp,
+	ItkToolbox/ThinningFilter.hpp, ItkToolbox/SignedMaurerFilter.cpp:
+
+	- (v0.2.0) Big change in architecture. BaseFilter declares the
+	filter variable as an ImageToImageFilter, but then it's the
+	responsability of each derived filter class to instantiate it in
+	its constructor.
+
+	- BaseFilter declares several methods that contain the code to
+	load the image, filter it and pass the output to Matlab for a
+	plain filter. These methods are virtual, so thanks to polymorphism
+	we can override them in the derived filter classes if the filter
+	has any special requirements or features.
+
+	- Big thanks to Joe Pitt-Francis, Miguel Bernabeu and Raf Bordas
+	for their help and advice that made this architecture change
+	possible.
+
+2011-05-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* ItkToolbox/ItkKernelTransform.cpp:
+
+	- Add svn:keywords Rev, Date.
+
+	* ItkToolbox/SignedMaurerFilter.hpp,
+	ItkToolbox/SignedMaurerFilter.cpp,
+	ItkToolbox/DanielssonFilter.hpp, ItkToolbox/DanielssonFilter.cpp,
+	ItkToolbox/NrrdImage.hpp, ItkToolbox/NrrdImage.cpp,
+	ItkToolbox/BaseFilter.hpp, ItkToolbox/BaseFilter.cpp,
+	ItkToolbox/ThinningFilter.hpp, ItkToolbox/ThinningFilter.cpp:
+
+	- Move parser functions to new files.
+
+	- Create member functions for BaseFilter to split the filtering in
+	different stages. These functions are virtual, so they can be
+	redifined by derived classes to introduce functionality specific
+	to each fiter.
+
+	- Remove function SetSpecificParameters(), because now its
+	functionality will be part of FilterSetup().
+
+	* Add ItkToolbox/ArgumentParsers.hpp,
+	ItkToolbox/ArgumentParsers.cpp, CMakeLists.txt:
+
+	- Files to contain the functions that parse the input type
+	variables to type templates.
+
+	* ItkToolbox/SignedMaurerFilter.cpp, ItkToolbox/BaseFilter.hpp,
+	ItkToolbox/BaseFilter.cpp, SignedMaurerFilter.hpp:
+
+	- Rename member function SetSpecificParameters() as
+	SetSpecificFilterParameters().
+
+	* ItkToolbox/BaseFilter.hpp, ItkToolbox/BaseFilter.cpp
+	(BaseFilter):
+
+	- (v0.1.1) Remove class FilterParamFactory. Now parameters
+	specific to each filter are passed through the derived filter
+	classes.
+
+	* ItkToolbox/ItkImFilter.cpp, ItkToolbox/CMakeLists.txt:
+
+	- (v0.3.7) New substantial change in the architecture. Now we have
+	a BaseFilter class that implements in its constructor the
+	filtering of the Matlab image, as before.
+
+	  But now each filter is a class derived from BaseFilter. So if a
+	filter has some specific requirements (input arguments, member
+	methods or secondary outputs), we can add code just for it.
+
+	  Besides, because we have moved each filter's code to a .cpp and
+	.hpp pair of files, we only need to compile the filter we are
+	modifying. Previously, every compilation had to recompile all the
+	code.
+
+	* Add ItkToolbox/BaseFilter.cpp, ItkToolbox/BaseFilter.hpp,
+	ItkToolbox/SignedMaurerFilter.hpp,
+	ItkToolbox/SignedMaurerFilter.cpp,
+	ItkToolbox/DanielssonFilter.cpp, ItkToolbox/DanielssonFilter.hpp,
+	ItkToolbox/ThinningFilter.cpp, ItkToolbox/ThinningFilter.hpp
+
+	- Files to hold code that is specific to each filter. Each filter
+	is a class derived from BaseFilter. There are two blocks of code
+	that we need to put in these files:
+
+	  The EXCLUDEFILTER macros in *.hpp/*.cpp make the compiler
+	compile the class with an empty constructor and empty methods, so
+	that the filter is not instantiated for not allowed input/output
+	types.
+
+	  The FILTERINST macros at the end of *.cpp instantiate the filter
+	for valid input/output types. This is necessary to avoid errors
+	with the linker. The reason is that templated classes either need
+	to be completely defined in the header file (which makes the
+	compilation slower and possibly the executable larger), or
+	instantiated explicitly, as we are doing. This solution was found
+	in the following link
+
+	  http://www.parashift.com/c++-faq-lite/templates.html#faq-35.15
+
+	* Delete ItkToolbox/FilterExclusions.cpp:
+
+	- This file is no longer needed. Now the filter exclusions are in
+	the new files that are specific to each filter.
+
+2011-05-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (0.3.6) Move some code to ItkToolbox/BaseFilter.cpp.
+
+	* CMakeLists.txt, ItkToolbox/CMakeLists.txt:
+
+	- Code has been moved from ItkToolbox/ItkImFilter.cpp to the new
+	files ItkToolbox/BaseFilter.hpp, ItkToolbox/BaseFilter.cpp.
+
+	* Add ItkToolbox/BaseFilter.hpp, ItkToolbox/BaseFilter.cpp:
+
+	- To contain the BaseFilter class and the auxiliary parsing
+	functions that map from type variables to type templates. The
+	parsers have to be included here because BaseFilter needs to be
+	available for them at compile time. Otherwise, the linker doesn't
+	know how to link them together. This is a template problem, as
+	pointer out by Raf Bordas. The only solutions, he says, are either
+	to put the code together, or to use explicit instantiation of
+	every template type, but that's what we are trying to avoid,
+	because we can have a large number of combinations. The trade off
+	for code simplicity is that compilation will be slower.
+
+	* Rename ItkToolbox/FilterFactoryExclusions.hpp as
+	ItkToolbox/FilterExclusions.hpp.
+
+	* ItkToolbox/FilterFactoryExclusions.hpp:
+
+	- (0.1.1) Pass the number of output arguments from the entry
+	mexFunction all the way to the FilterFactory. We are going to need
+	it for filters that give more than one output argument.
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (0.3.5) Pass the number of output arguments from the entry
+	mexFunction all the way to the FilterFactory. We are going to need
+	it for filters that give more than one output argument.
+
+	- Rename runTime* functions to parse*, as this describes better
+	what they do.
+
+2011-05-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FilterFactoryExclusions.hpp:
+
+	- We are going to pass the pointer to the array of all output
+	arguments instead of just the first output argument to the
+	FilterFactory.
+
+	* CMakeLists.txt, FiltersToolbox/CMakeLists.txt,
+	ItkToolbox/CMakeLists.txt:
+
+	- Move the NrrdImage class to ItkToolbox/NrrdImage.hpp,
+	ItkToolbox/NrrdImage.cpp.
+
+	- Add svn:keywords Rev, Date.
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- Move the NrrdImage class to ItkToolbox/NrrdImage.hpp,
+	ItkToolbox/NrrdImage.cpp.
+
+	- We are going to pass the pointer to the array of all output
+	arguments instead of just the first output argument to the
+	FilterFactory.
+
+	* Add ItkToolbox/NrrdImage.hpp, ItkToolbox/NrrdImage.cpp:
+
+	- Create these two files to remove the NrrdImage class from
+	ItkImFilter.cpp.
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.7.2) Fix bug. Remove small patch of voxels only of we are
+	labelling the image.
+
+2011-05-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* All *.m, *.cpp, *.hpp files:
+
+	- Add missing help headers, authour, version, $Rev$ and $Date$, if
+	necessary.
+
+	- Add svn:keywords Rev, Date.
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.7.1) In some very particular cases, a small patch of voxels
+	may be left unlabelled. We are just going to remove them from the
+	segmentation
+
+	- Add svn:keywords Rev, Date.
+
+	* ItkToolbox/FilterFactoryExclusions.hpp:
+
+	- Add svn:keywords Rev, Date.
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.3.2) Fix bugs. Avoid trying to straighten branches with 1 or
+	2 voxels. Deal with the case when the branch produces less than 3
+	eigenvalues.
+
+	- Add svn:keywords Date.
+
+	- Maurer distances inside the object are negative by default, so
+	we have to convert them to the positive value.
+
+	- Add svn:keywords Rev.
+
+	* ItkToolbox/ItkImFilter.cpp (FilterParamFactory):
+
+	- (v0.3.4) Add svn:keywords Rev, Date.
+
+	- Make Maurer filter give the output in actual Euclidean
+	distances, not squared ones.
+
+2011-05-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+ 	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.7.0) Add output field cc.BifurcationPixelIdx.
+
+2011-05-13  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* ItkToolbox/FilterFactoryExclusions.hpp:
+
+	- (v0.1.0) Add exclusions for SignedMaurerDistanceMapImageFilter.
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- Add SignedMaurerDistanceMapImageFilter to compute signed
+	distances in real world coordinates.
+
+	- (v0.3.3) Thanks to a new FilterParamFactory class with explicit
+	specialization, we can treat each filter type differently in terms
+	of parameters. So e.g. we can run filter->SetAlpha1(0.3) for a
+	certain filter type, but don't do it for the rest.
+
+	- (v0.3.2) Move template explicit specialization code to
+	ItkToolbox/FilterFactoryExclusions.hpp, add comments so that the
+	code can be well understood and tidy up.
+
+	* Add ItkToolbox/FilterFactoryExclusions.hpp:
+
+	-  This is a file to remove some cluttering from file
+	ItkImFilter.cpp. It contains the template explicit specialization
+	code that prevents the compiler from trying to instantiate certain
+	input/output image types for certain filters.
+
+2011-05-12  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (v0.3.1) Very big internal change in architecture, that doesn't
+	change the interface. Now, instead of nesting switch and if
+	clauses in mexFunction() to instantiate the different combinations
+	of input/output image type, we have created functions that allow
+	us to translate from the type variables to type templates. Now we
+	can run all filters with one FilterFactory, because types not
+	supported by each filter can be explicitely removed from the
+	compilation. These changes came after a lengthly discussion with
+	Miguel Bernabeu who figured out the problem I had to solve.
+
+	- (v0.3.0) Accept SCI NRRD structs created by scinrrd_load() as
+	input, so that we can pass image resolution and offset to the
+	filter. This has been a substantial rewrite, because we had to
+	create an NrrdImage class to parse the NRRD fields and pass them
+	to runFilter().
+
+2011-05-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_load.m:
+
+	- (v0.1.0) Add version number and note on help header to make
+	clear that nrrd.axis(1) corresponds to rows, not to the
+	x-coordinate.
+
+2011-05-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- (v0.2.0) Add DanielssonDistanceMapImageFilter. This basically
+	meant creating another runFilter() for the case where the input
+	and output images don't have the same type, and some template
+	tricks to e.g. be able to test the output image type using the
+	templated type. Now it should be very easy to add new filters that
+	produce an result with a different type than the input image.
+
+2011-05-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m:
+
+	- (v0.3.1) Don't try to straighten branches that cannot be
+	parameterized (at the moment, the only case I can think of are
+	branches with loops).
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.6.1) We no longer split up loops, because it doesn't really
+	make sense to try to parameterize a loop as a 1-D spline.
+
+2011-05-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.6.0) Add field cc.IsLoop to output.
+
+	- Fix bug. For branches that were a loop not connected to any
+	other part of the skeleton, there were no extreme points and this
+	gave an error when trying to index an empty array.
+
+2011-05-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m:
+
+	- (v0.5.0) Add fields cc.IsLeaf, cc..BranchLength to output.
+
+	- (v0.4.2) Fix bug. When adding bifurcation points to branches, in
+	some cases voxels could get duplicated.
+
+	- (v0.4.1) Fix bug. Branches forming a loop were not correctly
+	parameterized. We were choosing an extreme voxel, and then finding
+	the furtherst voxel. In a "linear" branch this works fine, but in
+	a loop, the furthest voxel is at the other end of the loop, so
+	half the loop was being dropped. Now, we break loops open before
+	computing Dijkstra, so all the voxels are included.
+
+	* FiltersToolbox/bwregiongrow.cpp (MexFunction, getNeighbours):
+	v0.2.2
+
+	- Fix bug. As the neighbour r, c, s indices we are using a
+	mwIndex, that is a long unsigned int. So when we were doing
+	rcs[2]-1 and rcs[2]==0, instead of getting -1, the number wrapped
+	around due to an implicit cast and gave 18446744073709551615.
+
+	- Fix bug. If res was not provided, we were passing a NULL pointer
+	to run(), that gave a segfault.
+
+2011-05-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m: v0.3.0
+
+	- SCINRRD_SEG2LABEL_STATS Shape stats for each object in a
+	multi-label segmentation; objects can be straightened with an
+	skeleton or medial line before computing the stats.
+
+	* Delete FiltersToolbox/landlocked_stats.m:
+
+	- Move its functionality to
+	FiltersToolbox/scinrrd_seg2label_stats.m to avoid having different
+	functions that do similar things.
+
+2011-05-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_squeeze.m: v0.1.2
+
+	- Don't remove dimension from nrrd.axis if it's not a dummy
+	dimension.
+
+2011-04-29  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m: v0.4.0
+
+	- Replace slow Dijkstra-based labelling of the whole image by new
+	very fast region grow algorithm bwregiongrow().
+
+	* FiltersToolbox/bwregiongrow.m: v0.2.0
+
+	- Remove all Matlab code, that was very slow and inefficient. This
+	function is now fully implemented in C++ in the corresponding MEX
+	function, that is very fast.
+
+	* FiltersToolbox/bwregiongrow.cpp: v0.2.1
+
+	- Add input argument maxiter, to limit the number of grow
+	iterations of the algorithm.
+
+	* FiltersToolbox/CMakeLists.txt:
+
+	- Rename FiltersToolbox/bwregiongrow_aux.cpp as
+	FiltersToolbox/bwregiongrow.cpp.
+
+	* Rename FiltersToolbox/bwregiongrow_aux.cpp as
+	FiltersToolbox/bwregiongrow.cpp.
+
+	* FiltersToolbox/bwregiongrow_aux.cpp: v0.2.0
+
+	- Complete rewrite of the function. Now instead of implementing
+	only a loop of the Matlab function, it implements the whole region
+	grow algorithm. We don't need to use a distance matrix, and the
+	algorithm is super fast (6 sec with the right.mha image that
+	would've probably taken over 35 min with the Dijkstra Matlab
+	method, and a lot more with the region grow implemented in Matlab).
+
+2011-04-28  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/bwregiongrow.m:
+
+	- BWREGIONGROW  Region grow segmentation of binary image from
+	multiple seeds.
+
+	* Add FiltersToolbox/bwregiongrow_aux.cpp: v0.1.0
+
+	- This is an auxiliary function to bwregiongrow.m, to implement
+	part of the algorithm in C++ so that we can avoid a costly loop in
+	Matlab.
+
+2011-04-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* ItkToolbox/ItkImFilter.cpp:
+
+	- Change a type that was int to mwSize, so that it can be compiled
+	for 64 bit architectures.
+
+	* matlab/MatlabMakeMacros.cmake:
+
+	- In 64 bit architectures, we need to remove the flag
+	-DMX_COMPAT_32 (this is what mex -largeArrayDims does).
+
+	* FiltersToolbox/seg2dmat.m: v0.2.1
+
+	- We were removing voxels not connected to other voxels from the
+	dictionary and the distance matrix. This creates all sorts of
+	problems with other functions, because when they find an isolated
+	voxel, they try to index a non-existent entry in dict or the
+	distance matrix.
+
+	* Add FiltersToolbox/bwregiongrow.m: v0.1.0
+
+	- BWREGIONGROW  Region grow segmentation of binary image from
+	multiple seeds.
+
+2011-04-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m: v0.3.3
+
+	- Use new slow mode in graph_nn() to avoid running out of
+	memory. Either method is, however, too slow, with a expected 35
+	min to partition a 468x159x475 image with only 16510 skeleton
+	voxels.
+
+	* PointToolbox/graph_nn.m: v0.2.0
+
+	- Add new input argument FAST, to choose between running it in
+	vectorized mode (faster), or using a loop (less memory).
+
+	- Fix bug. Voxels not connected to the skeleton (min distance =
+	Inf) were being assigned skeleton index 1. Now they get NaN.
+
+	- Remove predecessors list, we don't need it, and it needs a lot
+	of memory.
+
+2011-04-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Delete matlab/test/bent-vessel-2d.mat
+
+	- Not an image, just some vectors and matrices that are difficult
+	to use.
+
+	* FiltersToolbox/scinrrd_seg2label_stats.m: v0.2.0
+
+	- Fix bug. Skeleton voxels that are not part of the branch voxels
+	need to be added to the branch. This can happen because a labelled
+	segmentation voxel can belong only to one object, but a skeleton
+	bifurcation voxel can be actually shared by more than one.
+
+	- Big rewrite, tidy up, and remove all the code about
+	straightening, that is now under function pts_local_rigid().
+
+	- Remove STRAIGHT input argument, that is now implicit if CC is
+	provided.
+
+	* PointsToolbox/pts_local_rigid.m: v0.1.1
+
+	- Fix bug. The rotation and translation was wrong, and it became
+	apparent when running the function on the 3D example
+	bent-vessel-3d-2.mat. Now the points are correctly translated
+	before and after rotation, and the procrustes registration is
+	unnecessary within the loop.
+
 2011-04-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* release 0.3
 
 	- After releasing first versions of functions in matlab/ItkToolbox
 	that allow to run ITK code from Matlab.
+
+	* update_README.sh:
+
+	- Avod recursing into directories. This avoids that it finds the
+	*Toolbox directories in bin/
+
+	* Move itk functions to new ItkToolbox directory
+
+	- FiltersToolbox/ItkImFilter.cpp
+	- FiltersToolbox/CMakeLists.txt
+	- FiltersToolbox/itk_imfilter.m
+	- PointsToolbox/ItkKernelTransform.cpp
+	- PointsToolbox/CMakeLists.txt
+	- PointsToolbox/itk_kernel_transform.m
+	- CMakeLists.txt
+
+	* Add new directory ItkToolbox
+
+	* Add FiltersToolbox/ItkImFilter.cpp,
+	FiltersToolbox/CMakeLists.txt, FiltersToolbox/itk_imfilter.m:
+
+	- ITK_IMFILTER: Run ITK filter on a 2D or 3D image.
+
+	- This is also a big development in the project, because even
+	though this function currently implements only the skeleton
+	filter, it is templated so that it can use many of Matlab's matrix
+	classes (double, boolean, uint8, etc), and it's generic enough
+	that adding new filters should be easy.
+
+	* CMakeLists.txt:
+
+	- Build new function itk_imfilter().
+
+2011-04-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add some test data to matlab/test
+
+	- bent-vessel-2d.mat
+	- veins-tree-blob.mat
+	- veins-tree-blob.mha
+	- veins-tree-blob-skeleton.mat
+	- veins-tree-blob-skeleton.mha
+
+	* Add PointsToolbox/pts_local_rigid.m: v0.1.0
+
+	- PTS_LOCAL_RIGID Non-rigid transformation that is locally rigid
+	between two sets of points with known correspondence.
+
+	* FileFormatToolbox/scinrrd_world2index.m: v0.2.1
+
+	- Add default for CHOP input argument.
+
+2011-04-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/landlocked_stats.m: v0.1.0
+
+	- LANDLOCKED_STATS Assess whether sections of voxels are
+	surrounded by other sections (land) or by background (water).
+
+	* Add PointsToolbox/ItkKernelTransform.cpp,
+	PointsToolbox/itk_kernel_transform.m: v0.1.0
+
+	- ITK_KERNEL_TRANSFORM ITK warps between 3D point sets with a
+	known correspondence.
+
+	* Add CMakeLists.txt, PointsToolbox/CMakeLists.txt,
+	MatlabMakeMacros.cmake:
+
+	- Cmake files to build PointsToolbox/itk_kernel_transform.mexa64.
+
+	- This is a big development for the project, because now we know
+	how to write C++ code with ITK functions, and compile it as a MEX
+	file so that we can run it directly from Matlab. Also, we can
+	build the files using cmake, and we don't need mex.
+
+2011-04-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_plot.m: v0.2.0
+
+	- Add input arguments varargin so that we can pass extra options
+	to the plots.
+
+	* FileFormatToolbox/scinrrd_world2index.m: v0.2.0
+
+	- Add input argument CHOP so that we can deactivate the conversion
+	of points outside the image to NaN.
+
+2011-04-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scinrrd_seg2label_stats.m: v0.1.0
+
+	- SCINRRD_SEG2LABEL_STATS  Shape stats for each label in a
+	multi-label segmentation.
+
+	* Rename FiltersToolbox/scinrrd_seg2vesselness.m as
+	FiltersToolbox/scinrrd_seg2voxel_stats.m.
+
+	* PointsToolbox/pts_rotmat.m: v1.0.0
+
+	- PTS_ROTMAT Compute rotation matrix to minimize least squares
+	error.
+
+	* PointsToolbox/pts_procrustes.m: v1.0.0
+
+	- PTS_PROCRUSTES Least-Squares Fit Orthogonal Procrustes Analysis
+	between two sets of points.
+
+	* PointsToolbox/pts_procrustes_gen.m: v1.0.0
+
+	- PTS_PROCRUSTES_GEN Generalized Least-Squares Fit Orthogonal
+	Procrustes Analysis.
+
+	* PointsToolbox/pts_cn.m: v1.0.0
+
+	- PTS_CN Center and normalize a set of points.
+
+	* PointsToolbox/pts_simil_map.m: v1.0.0
+
+	- PTS_SIMIL_MAP Apply similarity transformation to points.
+
+	* PointsToolbox/pts_simil_map_params.m: v1.0.0
+
+	- PTS_SIMIL_MAP_PARAMS Compute similarity transformation
+	parameters between sets of points with unknown
+	correspondence (Procrustes is used).
+
+2011-04-13  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/pts_pca.m: v1.1.0
+
+	- Don't chop off small eigenvalues. First, because depending on
+	the scaling of the data, a small eigenvalue may actually be
+	significant. Second, because small or negative eigenvalues may
+	indicate interesting features in the data. Third, because it's
+	easy to remove them afterwards if they are creating numerical
+	errors in some application.
+
+	* PointsToolbox/coords_from_dist_gower.m: v0.2.0
+
+	- Add collinearity test.
+
+	* Add PointsToolbox/iscollinear.m: v0.1.0
+
+	- ISCOLLINEAR Test to determine whether a set of points are
+	collinear.
+
+2011-04-12  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/dmatrix_complete: v0.1.0
+
+	- DMATRIX_COMPLETE Fill in empty elements of non-Euclidean
+	distance matrix.
+
+	* PointsToolbox/dmatrix2coords.m: v0.1.0
+
+	- DMATRIX2COORDS Point coordinates from distance matrix.
+
+	* PointsToolbox/plot_dmatrix.m: v0.1.1
+
+	- Plot vertices as disconnected dots, so that their connections
+	don't get confused with distance matrix connetions.
+
+2011-04-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m: v0.3.2
+
+	- Add PixelParam field to CC output, with the parameterization
+	value for each branch voxel computed as the accumulated chord
+	distance between consecutive voxels.
+
+	* Add FiltersToolbox/skeleton_plot.m: v0.1.0
+
+	- SKELETON_PLOT Plot a labelled segmentation and its skeleton.
+
+	* FiltersToolbox/skeleton_label.m: v0.3.1
+
+	- Add as output arguments skeleton distance matrix, and
+	dictionaries to convert between image and distance matrix indices.
+
+	- Now voxels in each branch are sorted, so that we can walk from
+	one termination point to the other without "jumps".
+
+2011-04-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m: v0.2.2
+
+	- Add bifurcation points to every branch they terminate. This way,
+	it will be easier to sort the points in the branch, as we will
+	have 2 termination points (leaf/bifurcation or
+	bifurcation/bifurcation) in every branch.
+
+2011-04-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/skeleton_label.m: v0.2.1
+
+	- Fix bug. Instead of adding the bifurcation voxel, we were adding
+	its neighbour.
+
+	- Add input arguments so that besides the skeleton, we can pass
+	the original segmentation. Now, the whole segmentation and not
+	only the skeleton will get labelled.
+
+	* Add matlab/test/veins-tree.mat, matlab/test/veins-tree.mha:
+
+	- To test the new functionality in skeleton_label().
+
+	* FiltersToolbox/scinrrd_squeeze.m: v0.1.1
+
+	- Fix bug. Remove dummy dimension also when nrrd.data has only 3
+	dimensions. If you have a single slice, Seg3D saves it with a
+	3-dimensional matrix (with a first dummy dimension), but 4
+	elements for the nrrd.axis. So this function was working wrong for
+	1-slice volumes.
+
+	* Add PointToolbox/graph_nn.m: v0.1.0
+
+	- GRAPH_NN Nearest neighbours from a subset of nodes in a graph to
+	another subset.
+
+2011-04-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add test/veins-tree-skeleton.mat, test/veins-tree-skeleton.mha:
+
+	- A 2D segmentation that looks like a tree of veins (with a
+	cycle), to test skeleton_label().
+
+	* Add test directory.
+
+	- Directory to keep data and scripts for tests.
+
+	* Add FiltersToolbox/skeleton_label.m: v0.1.0
+
+	- SKELETON_LABEL Give each branch of a skeleton a different label.
+
+2011-04-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/seg2dmat.m: v0.2.0
+
+	- Add input variable for voxel size different from [1 1 1].
+
+	- Add input flag to create a smaller output matrix, but indexing
+	only the segmented voxels of the image, not all the voxels in the
+	image.
+
+	* Rename img_adjacency_distance.m as im2imat.m.
+
+	* Rename img_adjacency_distance.cpp as im2imat.cpp.
+
+	* FiltersToolbox/img_adjacency_distance.m: v0.1.1
+
+	- Small rewrite of help header to make it more consistent with new
+	function seg2dmat.
+
+	* Add FiltersToolbox/seg2dmat.m: v0.1.0
+
+	- SEG2DMAT Local neighbourhood distance matrix between
+	segmentation voxels.
+
+2011-04-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scinrrd_seg2vesselness.m: v0.1.0
+
+	- SCINRRD_SEG2VESSELNESS Vesselness parameters from a segmentation
+	mask.
+
+	* PointsToolbox/plotaxes.m: v0.2.0
+
+	- Add varargin to be able to pass extra arguments to the plot
+	function.
+
+2011-04-01  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add Vesselness3DImage.cxx: v0.1
+
+	- Program to compute the vesselness measure for each voxel of a 3D
+	image. Vesselness is a measure of how much does the voxel look
+	like belonging to a long cilindrical structure, as opposed to,
+	e.g. a blob or a plate.
+
+2011-03-31  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add Skeletonize3DSegmentation.cxx:
+
+	- Program to reduce a segmentation to its skeleton.
+
+2011-03-30  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add src/third-party/itkBinaryThinningImageFilter3D
+
+	- Code from H Homann, "Implementation of a 3D thinning algorithm",
+	The Insight Journal, Jul 2007.
+
+	http://hdl.handle.net/1926/1292
+
+	* ExtractVoxelCoordinatesFromSegmentationMask.cxx,
+	PadSegmentationMaskWithVoxels.cxx, Resize3DImage.cxx: Add author.
+
+	* CMakeLists.txt: Add comment licence headers.
+
+	* Resize3DImage.cxx: Add comment and licence headers.
+
+	* Delete MbaSurfaceInterpolation.cxx: Test code no longer needed.
+
+2011-03-29  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CMakeLists.txt: Add CMAKE_BUILD_TYPE variable so that the code
+	is optimized for speed.
+
+2011-03-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/surface_interpolation.m: v0.1.2
+
+	- Add 'mbae' interpolation: Like the 'mba' method, but first a
+	thin-plate spline is used to extrapolate values on the
+	interpolation domain boundary. Then MBA is used for the local
+	support interpolation of X and the boundary values set by the
+	thin-plate spline.
+
+2011-03-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/scinrrd_surface_interpolation.m:
+
+	- Remove the surface interpolation code to create new function
+	CardiacToolbox/surface_interpolation.m.
+
+	* Add CardiacToolbox/surface_interpolation.m:
+
+	- SURFACE_INTERPOLATION Interpolate a surface from a scattered set
+	of points.
+
+	- Create this fuction from part of the code in
+	CardiacToolbox/scinrrd_surface_interpolation.m. It didn't make
+	sense to have all that code depending on using SCI volumes.
+
+	* Rename CardiacToolbox/scinrrd_valve_surface.m as
+	PointsToolbox/scinrrd_surface_interpolation.
+
+	- As this is a function for general surface interpolation, it
+	doesn't make much sense to give it such an specific name as
+	"vale_surface".
+
+	* README
+
+	- First time the README file is automatically generated by
+	update_README.sh. From now on, we will not point the updates in
+	the ChangeLog, but they will be part of changes to the toolboxes.
+
+	* Add update_README.sh:
+
+	- Script to automatically extract the summary of the help headers
+	of all the Matlab functions in this toolbox, and generate a README
+	file.
+
+2011-03-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* cpp/src/third-party/mba/CMakeLists.txt:
+
+	- Now libMBA.so is installed in matlab/PointsToolbox, so that it's
+	in the same directory as the MEX function that makes use of it.
+
+	* cpp/src/CMakeLists.txt:
+
+	- Force the gcc and g++ compilers version to be 4.3. This is the
+	version that Matlab currently requires, and we have to compile the
+	libMBA library with the same version as the MEX file in the matlab
+	directory.
+
+	* FileFormatToolbox/scinrrd_save.m: v0.2
+
+	- Add input argument v73, a flag to save to v7.3 format, so that
+	we can save volumes larger than 2GB.
+
+	* CardiacToolbox/scinrrd_valve_surface.m: v0.3
+
+	- Add new otions to header file.
+
+	- Add 'mba' interpolation, that makes use of the new MEX-file
+	mba_surface_interpolation.cpp to provide Multilevel B-Spline
+	Approximation interpolation.
+
+	-Use 'natural' option for TriScatteredInterp(), so that the
+	interpolant is smoother.
+
+	* Add matlab/PointsToolbox/mba_surface_interpolation.cpp,
+	matlab/PointsToolbox/mba_surface_interpolation.m:
+
+	- MBA_SURFACE_INTERPOLATION Scattered data Multilevel B-spline
+	interpolation.
+
+2011-03-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* third-party/mba/include/UCButils.h,
+	third-party/mba/src/UCButils.cpp:
+
+	- Add UCBspl::printCSVgrid() method so that I can output the
+	interpolated grid points to a CSV file that Matlab can read.
+
+	* third-party/mba/CMakeLists.txt:
+
+	- Remove dependencies to OpenGL, that were giving linking problems
+	and don't seem to be necessary for mbaSurfaceInterpolation to run. 
+
+	* Add MbaSurfaceInterpolation.cxx:
+
+	- So far, I copied the example provided by the original MBA
+	developers, and made some changes for a quick and dirty test of
+	the interpolation code. It throws a segmentation fault if you try
+	to interpolate outside the square that contains the grid.
+
+	* Add engopts.sh:
+
+	- Matlab's configuration file modified so that we can compile and
+	link PointsToolbox/mba_surface_interpolation doing
+
+	>> mex -v -largeArrayDims -outdir PointsToolbox/ -f ./engopts.sh PointsToolbox/mba_surface_interpolation.cpp
+
+2011-03-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Rename third-party/mba/Makefile provided by original developers as
+	third-party/mba/Makefile.orginal so that it doesn't interfere with
+	files generated by cmake.
+
+	* Add third-party/mba/CMakeLists.txt
+
+	- So that we can use cmake to build the MBA library and integrate
+	it with Gerardus, instead of the Makefile provided by the orginal
+	developers.
+
+	* Add third-party/mba
+
+	- Directory with the MBA library (SINTEF Multilevel B-spline
+	Approximation library - version 1.1), Copyright (C) 2000-2005
+	SINTEF ICT, Applied Mathematics, Norway. GPL.
+
+2011-03-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/scinrrd_valve_surface.m: v0.2
+
+	- Add 'gridfit' option to interpolate (actually, approximate)
+	using John D'Errico's gridfit() function.
+
+	- Add 'tsi' option to interpolate using Matlab's
+	TriScatteredInterp() function.
+
+	* Add ThirdPartyToolbox/gridfit.m: v2.0
+
+	- By John D'Errico
+
+	- estimates a surface on a 2d grid, based on scattered data
+	Replicates are allowed. All methods extrapolate to the grid
+	boundaries. Gridfit uses a modified ridge estimator to generate
+	the surface, where the bias is toward smoothness.
+
+        Gridfit is not an interpolant. Its goal is a smooth surface that
+	approximates your data, but allows you to control the amount of
+	smoothing.
+
+	* Add ThirdPartyToolbox/L2_distance.m
+
+	- L2_DISTANCE - computes Euclidean distance matrix
+
+	- By Roland Bunschoten
+
+	- Requirement of the isomap functions.
+
+2011-03-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add ThirdPartyToolbox/Isomap.m, ThirdPartyToolbox/IsomapII.m
+
+	- Add modified code from Josh Tenenbaum, to compute Isomap
+	embedding using an advanced version of the algorithm in Tenenbaum,
+	de Silva, and Langford (2000), which can take advantage of
+	sparsity in the graph and redundancy in the distances.
+
+	* CardiacToolbox/scinrrd_valve_surface.m: v0.1
+
+	- Add Isomap function to compute interpolation domain.
+
+	- Rewrite the function to be able to use different methods to
+	compute the interpolation domain, use different interpolants and
+	the factor for the interpolation domain size.
+
+	- Correct the way the interpolation is computed for the PCA
+	method. I was rotating the horizontal domain, interpolation and
+	rotating back, but this is incorrect because it does not give you
+	the same point.
+
+2011-03-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/dmatrix.m: v3.0
+
+	- Fix copyright notice to be uniform with the rest of Gerardus.
+
+	- Add input argument METHOD to select other distances than
+	Euclidean.
+
+	* Add PointsToolbox/plot_dmatrix.m
+
+	- PLOT_DMATRIX Plot the connections implied by a distance matrix.
+
+2011-02-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_save.m
+
+	- Rename the input argument nrrd to scirunnrrd so that we don't
+	need to duplicate the memory.
+
+	- Add output argument nrrd to give the reformatted data volume
+	actually saved.
+
+	- Undo last change. The flag -v7.3 is not necessary, and prevents
+	Seg3D from loading the segmentations. I think the problem was that
+	if Matlab runs out of memory while trying to save the NRRD volume,
+	it gives the flag -v7.3 error.
+
+2011-02-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+ 	* FileFormatToolbox/scinrrd_save.m
+
+	- Force saving with flag -v7.3 to avoid warning message.
+
+2011-02-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* src/Resize3DImage.cxx
+
+	- Add input argument so that the user can give the Gaussian
+	standard deviation in voxel units.
+
+2011-02-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* cpp/src/Resize3DImage.cxx
+
+	- Add input arguments to override the automatically computed
+	standard deviations for the Gaussian low-pass filtering. This way,
+	it's possible to blur more or less. If the std=0, the Gaussian
+	filtering is skipped for that coordinate.
+
+2011-02-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* cpp/src/CMakeLists.txt
+
+	- Add boost_system to the list of libraries each program has to be
+	linked too. I have no idea why linking has been working in the
+	past without this.
+
+2011-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/pts_tps_map.m v6.4
+
+	- Remove whitespace before or after bracket.
+
+	- Fix bug. A bad testing condition prevented the computation of
+	interpolated points apart from the first one in the SLOW mode.
+
+	* FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- Add input argument to switch between fast (and more memory
+	consuming) and slow thin-plate spline interpolation.
+
+	- Fix bug, force scaling factor to be a 3-vector so that it can be
+	different in each coordinate.
+
+	- Clear memory as it's no longer needed, so that we can process
+	bigger images.
+
+	- Add sigma as output argument so that we now how many voxels we
+	are using to low-pass filter the image.
+
+2011-02-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* README
+
+	- Add entry for img_tps_map
+
+2011-02-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* README
+
+	- Add some function names and descriptions that I had forgotten.
+
+	* Add FiltersToolbox/img_tps_map.m
+
+	- IMG_TPS_MAP Warp an image using a thin-plate spline
+	transformation
+
+2011-02-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- Now the standard deviation necessary to prevent aliasing is
+	computed based on proper formulas, instead of guessing. Notes
+	about the computations have been added to the help header.
+
+	- Add input argument sigma to force bandwidth of Gaussian filter.
+
+	- Fix bug, the number of rows and columns were swapped, so that
+	after reshaping the interpolated intensity vector, the voxels were
+	in the wrong place.
+
+2011-01-31  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/pts_tps_weights.m from svn://edison.comlab.ox.ac.uk/ramc/rcasero/matlab-toolbox/pts/trunk/pts_tps_weights.m
+
+	PTS_TPS_WEIGHTS  Compute weights and affine parameters of
+	thin-plate spline warp for N-dimensional points
+
+	This function is a dependency that I had forgotten for
+	FiltersToolbox/scinrrd_estimate_bias_field.m.
+
+	* Add PointsToolbox/pts_tps_map.m from
+	svn://edison.comlab.ox.ac.uk/ramc/rcasero/matlab-toolbox/pts/trunk/pts_tps_map.m
+
+	PTS_TPS_MAP Interpolate/warp/map N-dimensional points using a
+	thin-plate spline transformation
+
+	This function is a dependency that I had forgotten for
+	FiltersToolbox/scinrrd_estimate_bias_field.m.
+
+	* FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- Make function a lot faster, especially with large images.
+
+	Instead of low-pass filtering the image, reducing the size and
+	sampling the background points, now we sample the background
+	points and a region around them, and low-pass filter only the
+	voxels of interest.
+
+2011-01-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- Add low-pass anti-aliasing filter before downsampling
+	image. Make it optative, in case filtering is too slow.
+
+	* Add FiltersToolbox/fspecial3.m
+
+	- FSPECIAL3  Create predefined 3-dimensional filters.
+
+2011-01-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- Add input argument to select prescaling. Because using the TPS
+	to interpolate all voxels can be rather slow, and the bias field
+	is anyway a slow varying field, it's convenient to first quickly
+	reduce the image size by A (using bilinear interpolation),
+	interpolate the bias field in the smaller image with the TPS, and
+	then expand to the original size. By default, A = 1.0 and no
+	rescaling is used.
+
+2011-01-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scinrrd_estimate_bias_field.m
+
+	- SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field.
+
+	* FileFormatToolbox/scinrrd_index2world.m,
+	FileFormatToolbox/scinrrd_world2index.m
+
+	- The way indices and coordinates were computed was wrong. Offset
+	gives the coordinates of the first voxel's vertex, not the voxel's
+	centre. Now integer indices correspond to the voxels' centres.
+
+2010-12-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_index2world.m,
+	FileFormatToolbox/scinrrd_world2index.m
+
+	- Roll back last change, it was not a bug. Rewrite help header to
+	clarify the coordinate and index order.
+
+2010-12-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_index2world.m,
+	FileFormatToolbox/scinrrd_world2index.m
+
+	- Fix bug. The x,y coordinates (and, correspondingly, the j, i
+	indices) were being operated with the wrong spacing and limit
+	values. For example, the x-coordinate was being operated with the
+	dy spacing. Now this has been fixed.
+
+2010-10-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* src/Resize3DImage.cxx
+
+	- After asking in the ITK user mailing list, Dan Mueller suggested
+	using IdentityTransform. I started looking, and found that there's
+	actually an example on how to decimate in ITK, in
+	Examples/Filtering/SubsampleVolume.cxx. I adapted the code, and
+	figured out how to scale the sigma value of the low-pass filter to
+	get a similar result to the Resample tool in Seg3D.
+
+2010-07-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add src/Resize3DImage.cxx
+
+	- Start adding program to resize an image volume, trying an
+	approach of ScaleTransform to resize the image. This is not
+	working very well, because there's no Gaussian filtering, and the
+	coordinate frame is changed. I'm going to switch to using
+	MultiResolutionPyramidImageFilter, but before I'm commiting the
+	code in case I need to roll back.
+
+2010-07-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_load.m
+
+	- Give error if the data is compressed.
+
+	- If ElementDatafile is LOCAL, then raw data is in the file, not
+	an external one.
+
+2010-07-01  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_save.m
+
+	- Add input argument to control whether data is converted to uint8
+	or not before saving.
+
+	* CardiacToolbox/process_misas_patient.m
+
+	- if we have two NormalMri volumes, combine them with a max()
+	function to remove banding artifacts, as suggested by Matt Robson
+
+2010-06-30  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* release 0.2.1
+
+	- New minor release given that the bug in WriteRawFile.m and
+	WriteMhaFile.m was quite severe, and the new scinrrd_load()
+	functionality is interesting.
+
+	* FileFormatToolbox/scinrrd_load.m
+
+	- Now this function can also load an nrrd struct from MetaImage
+	(.mha) files, and not only Matlab (.mat). This should save us from
+	a lot of time wasted having to load .mha files in Seg3D and
+	exported as .mat.
+
+2010-06-28  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/WriteRawFile.m,
+	FileFormatToolbox/WriteMhaFile.m
+
+	- Fix bug. DICOM frames are loaded into Matlab with X-coordinates
+	along columns, but they were written along rows, so the image
+	volume was rotated 90º.
 
 2010-06-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
@@ -47,8 +2963,774 @@
 	cardiac atlases: ventricular anatomy descriptors for a
 	standardized reference frame", STACOM MICCAI'10, Beijing, 2010.
 
+2010-06-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/scinrrd_rv_crescent_tips.m
+
+	- Instead of assigning the top and botton of the crest to the last
+	and first axis points, just compute from each slice the closest
+	axis point. Now there is no need for the axis and the right
+	ventricle to have the same number of slices.
+
+2010-06-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add CardiacToolbox/scinrrd_valve_surface.m.
+
+	- Inter atrio-ventricular surface.
+
+2010-06-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* src/Rotate3DImage.cxx:
+
+	- Attempt to recompute the image resolution when the image is
+	rotated. Imagine we have a 2D image with 1x2 resolution, and
+	rotate it 90º. With the current code, the rotated image would
+	still have 1x2 resolution, but it would make sense that it changes
+	to 2x1. Anyway, I need to test the new code, and have no time now,
+	so I'm leaving the code commented out to work on it later.
+
+2010-06-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/crest_envelope.m:
+
+	- Compute the envelope for the Right Ventricle's crest.
+
+2010-05-28  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/process_misas_patient.m
+
+	- Remove assumption that subdirectories with IMA files are called
+	MISAS*. We need this because Jason will rename the MISAS*
+	directories to NormalMri1, FatMri1, etc. before running this
+	script.
+
+2010-05-27  Ramon Casero  <ramc@clpc444.comlab>
+
+	* Add CardiacToolbox/process_misas_patient.m
+
+	- Create MetaImage volumes from directory tree of IMA DICOM files,
+	for project with human hearts provided by Kelvin Wong.
+
+	* FileFormatToolbox/sortdirbynum.m:
+
+	- Fix bug. Exit gracefully when list of input files is empty.
+
+2010-05-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add CardiacToolbox/correct_rv_crescent_tips.m
+
+	- Correct the segmentation of the Right Ventricle's crescent tips
+	using the segmentation of the tricuspid and pulmonary annula.
+
+2010-05-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* CardiacToolbox/scinrrd_rv_crescent_tips.m
+
+	- Extend computation of the RV crescent tips to the RV slices that
+	have no corresponding centroid. In that case the first and last
+	centroids in the LV axis are used.
+
+2010-05-12  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/coords_from_dist_gower.m
+
+	- Compute point coordinates from distances to a set of landmarks,
+	as described in Gower (1986).
+
+2010-05-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/WriteMhaFile.m
+
+	- Fix bug, wrong variable name and function in error message.
+
+	* FileFormatToolbox/dcm2metaimage.m
+
+	- Fix bug when directory in path is the current one.
+
+	* Add PointsToolbox/dmatrix.m
+
+	- Matrix of distances between vectors. Move from Comlab
+	repository, matlab-toolbox/misc/trunk.
+
+2010-04-30  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/dcm2metaimage.m:
+
+	- Fix bug with dir name when data is in the current directory.
+
+2010-04-29  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_gradients.m:
+
+	- Vicente suggested using an explicit formula with a 3x3
+	neighbourhood to compute the second order gradients, instead of
+	running function gradient() twice (which uses a 5x5 neighbourhood).
+
+2010-03-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/dijkstra.cpp:
+
+	- Nodes not connected to the source get a NaN as parent. They were
+	getting a 1, which is a bug. By making it NaN, it also mimics the
+	output of Matlog Toolbox's function dijk(), that has a native
+	Matlab implementation of the same algorithm.
+
+	* Add CardiacToolbox/scinrrd_rv_crescent_tips.m:
+
+	- Extract the tips of the crescent-shaped curve in all slices of
+	the Right Ventricle.
+
+	* Add CardiacToolbox/is_lv_on_the_left.m:
+
+	- Check whether the left ventricle is on the left hand side of the
+	image.
+
+	* Add CardiacToolbox subdirectory for functions that are specific
+	to cardiac image processing.
+
+	* Add ThirdPartyToolbox/dijkstra.m,
+	ThirdPartyToolbox/dijkstra.cpp, ThirdPartyToolbox/fibheap.h:
+
+	- DIJKSTRA Shortests path tree from sparse matrix graph.
+
+	* Add ThirdPartyToolbox/LICENCE
+
+	- To explan licence difference of files in this subdirectory.
+
+	* Add ThirdPartyToolbox directory for derivative works or third
+	party functions that cannot be covered by the GPL used elsewhere
+	in Gerardus, or code with an uncertain licence status.
+
+	* FiltersToolbox/img_adjacency_distance.m:
+
+	- Add Matlab implementation of the function, to compare with the
+	MEX implementation.
+
+2010-03-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/img_adjacency_distance.cpp,
+	FiltersToolbox/img_adjacency_distance.m:
+
+	- Convert image to adjacency-distance list in sparse matrix form.
+
+	* Add PointsToolbox/sparse_breakdown.cpp,
+	PointsToolbox/sparse_breakdown.m:
+
+	- Extract internal arrays from sparse matrix.
+
+2010-03-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scinrrd_gradients.m:
+
+	- Compute 1st and 2nd order image gradients.
+
+2010-03-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_centroids.m:
+
+	- Instead of skipping them, make [NaN NaN NaN] centroid for empty
+	slices too. This way, it's easier to use them in other functions
+	that iterate all the slices in a volume.
+
+	* Add FiltersToolbox/scinrrd_centroids.m:
+
+	- Compute centroid of every slice with segmented pixels.
+
+2010-03-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/extmat2rotmat.m, PointsToolbox/rotmat2extmat.m:
+
+	- Remove rounding of index values to allow for continuous
+	indices. This way, numerical errors are reduced. In case we need
+	integer indices, it's very easy to run round(idx) on the output.
+
+	- Rename argument axis as ax, to avoid clash with function axis().
+
+	* Add FiltersToolbox/scinrrd_regionprops.m:
+
+	- SCINRRD_REGIONPROPS Measure properties of image regions on each
+	slice.
+
+2010-03-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* PointsToolbox/extmat2rotmat.m, PointsToolbox/rotmat2extmat.m:
+
+	- Add input argument "center", so that we can choose the
+	transformation A(X-M) instead of A(X-M)+M. This will center the
+	heart around the origin of coordinates, and it also allows to use
+	a well-conditioned system to be used in extmat2rotmat.
+
+	* FiltersToolbox/scinrrd_vertical_orientation_pca_basis.m:
+
+	- Remove input argument "type". We are computing an orientation
+	basis, not a rotation matrix, so there's no point in having "type"
+	to select between A or A'.
+
+	* Rename scinrrd_vertical_rot3.m as
+	scinrrd_vertical_orientation_pca_basis.m:
+
+	- We are computing the orientation basis, not a rotation matrix.
+
+	* FiltersToolbox/scinrrd_vertical_rot3.m:
+
+	- Make sure that the orientation of the resulting basis is the
+	same as the Cartesian system.
+
+	The problem is that the basis is valid if we take the negative of
+	any of its vectors too. For example, the Cartesian system has
+	positive orientation because [1 0 0] x [0 1 0] = [0 0 1]. But
+	scinrrd_vertical_rot3() could also produce the basis with negative
+	orientation [-1 0 0], [0 1 0], [0 0 1].
+
+	To avoid this, we make sure that the "Z" vector is going up,
+	and then change the sign of "X", if necessary.
+
+2010-03-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* src/Rotate3DImage.cxx:
+
+	- Reorder input arguments, so that now filename is at the
+	end. This way, we can use xargs on the shell and rotate a
+	list of files.
+
+	- Major bug fix. Input transformation was all mixed up. Now the
+	input transformation is expected to be in the intuitive
+	direction. For example, if you want to rotate the volume 30º
+	clockwise, your transformation should rotate the Cartesian system
+	30º clockwise too.
+
+	- Add input argument to select autocrop, so that the output volume
+	will tightly enclose the selected voxels in a segmentation mask,
+	or you can also define margins by a percentage.
+
+	* Add CardiacToolbox, a directory to keep functions that are only
+	relevant to cardiac image processing.
+
+	* Add FiltersToolbox/scinrrd_papillary_muscles.m:
+
+	- Extract the papillay muscles from a segmentation of the Left
+	Ventricle's cavity.
+
+	* Add FileFormatToolbox/scinrrd_save.m:
+
+	- SCINRRD_SAVE Save a NRRD struct to a Matlab format that can be
+	imported by Seg3D.
+
+	* Add FiltersToolbox/scinrrd_unsqueeze.m:
+
+	- SCINRRD_UNSQUEEZE  Add dummy dimension and convert data to uint8
+	data type.
+
+	* Add FileFormatToolbox/scinrrd_load.m:
+
+	- SCINRRD_LOAD Load a NRRD struct saved to Matlab format.
+
+2010-03-02  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* src/Rotate3DImage.cxx:
+
+	- Add input argument to select the interpolator type. Now we can
+	choose between bspline or nearest neighbour. The reason is that
+	bspline was giving bad results for binary masks (but works well
+	for grayscale images).
+
+2010-02-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* src/Rotate3DImage.cxx:
+
+	- Change syntax. Instead of giving the centroid and rotation
+	matrix, in that order, we are expecting the (3,4) extended matrix,
+	that contains the rotation matrix and a translation vector.
+
+	* PointsToolbox/extmat2rotmat.m, PointsToolbox/rotmat2extmat.m:
+
+	- Remove the bottom row of the extended matrix.
+
+2010-02-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* src/Rotate3DImage.cxx:
+
+	- Make default background colour 0, and add input argument to be
+	able to change it.
+
+	* Add PointsToolbox/extmat2rotmat.m:
+
+	- EXTMAT2ROTMAT Convert rotation in extended matrix form into
+	centroid and matrix pair.
+
+	* Add PointsToolbox/rotmat2extmat.m:
+
+	- ROTMAT2EXTMAT  Convert centroid and rotation matrix pair to
+	extended matrix form.
+
+2010-02-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/intersect_line_plane.m:
+
+	- INTERSECT_LINE_PLANE Find intersection of a line with a plane.
+
+	* Add FiltersToolbox/scinrrd_box.m:
+
+	- SCINRRD_BOX Compute tight box around SCI NRRD segmentation.
+
+2010-02-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_optimal_intersecting_plane.m:
+
+	- Interface change: Change input arguments.
+
+	- Now, instead of intering RAD for smoothing of the segmentation,
+	we enter a struct called param, that contains new options for the
+	optimisation.
+
+	- Added global optimisation, that is, instead of using fminsearch,
+	now you can sweep a whole range of azimuth and elevation angles to
+	compute the area values. Because we are optimising only two
+	variables, this is not much slower than using fminsearch, and it
+	provides a much better insight into the results.
+
+	* PointsToolbox/vec2rotmat.m:
+
+	- Add input argument so that an initial guess for the 2 vectors
+	orthogonal to V is provided (as part of an initial guess for the
+	rotation matrix). This will constrain the infinite space of
+	possible rotations to the closest one to the one we had.
+
+2010-02-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/scinrrd_index2world.m,
+	FileFormatToolbox/scinrrd_world2index.m:
+
+	- Real world coordinates are to be presented as (x,y,z), while
+	indices are to be presented as (r,c,s). But note that x <-> c, and
+	y <-> r.
+
+	* PointsToolbox/scinrrd_pca.m:
+
+	- Fix bug: The convention has to be that rows are y-coordinates,
+	and columns are x-coordinates.
+
+	* PointsToolbox/plotaxes.m:
+
+	- Add input argument for the origin of coordinates.
+
+2010-02-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_optimal_intersecting_plane.m:
+
+	- Remove unnecessary function nesting.
+
+2010-02-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scinrrd_optimal_intersecting_plane.m:
+
+	- Interface change: Change argument order.
+
+	- Now instead of computing a rotation centroid at 2/3 of the
+	volume, the user enters the rotation centroid.
+
+	- The rotation centroid stays fixed and is not recomputed at each
+	iteration of the optimisation algorithm (actually it is, for
+	tracking purposes, but the value used is the initial).
+
+	- Remove big block to compute the instersection area at iteration
+	zero, as this can be now done within the optimisation loop.
+
+	- Optimise the azimuth and elevation angles of the normal vector,
+	instead of the 3 coordinates of the vector.
+
+	- Use new vec2rotmat() function to compute rotation matrix from
+	the normal vector.
+
+	* Add PointsToolbox/vec2rotmat.m:
+
+	- VEC2ROTMAT Compute rotation matrix from Cartesian vector.
+
+	* Add PointsToolbox/plotaxes.m:
+
+	- PLOTAXES Plot axes of 3D coordinate system.
+
+2010-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
+
+	- Undo change of vector arguments to matrices, because we can do
+	the optimisation on the sole vector, and then recompute the
+	rotation matrix.
+
+	But keep renaming of function being used by this function.
+
+	* FiltersToolbox/scinrrd_intersect_plane.m:
+
+	- Force NRRD data to be double, otherwise interpolation for the
+	intersection doesn't work.
+
+	* PointsToolbox/scinrrd_pca.m:
+
+	- Remove assumption that NRRD will have dummy dimension, because
+	it could have been removed by a previous scinrrd function.
+
+	* FiltersToolbox/scinrrd_vertical_rot3.m:
+
+	- Replace code block by scinrrd_vertical_rot3().
+
+	- Add input argument so that you can select whether the rotation
+	is forwards or backwards.
+
+	* PointsToolbox/scinrrd_pca.m:
+
+	- Compute centroid as output argument.
+
+	* Rename scirunnrrd_world2index.m as
+	scinrrd_world2index.m. Correct variables and help header for
+	consistency with the rest of scinnrd functions.
+
+	* Rename scirunnrrd_index2world.m as
+	scinrrd_index2world.m. Correct variables and help header for
+	consistency with the rest of scinnrd functions.
+
+	* Rename scirunnrrd_pca.m as scinrrd_pca.m. Correct variables and
+	help header for consistency with the rest of scinnrd functions.
+
+	* Rename scirunnrrd_vertical_rot3.m as
+	scinrrd_vertical_rot3. Correct help header. Correct variables and
+	help header for consistency with the rest of scinnrd functions.
+
+2010-02-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Rename FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m as
+	FiltersToolbox/scinrrd_optimal_intersecting_plane.m.
+
+	* FiltersToolbox/scinrrd_intersect_plane.m:
+
+	- When sampling with interpn(), it is necessary to provide the
+	grid matrices in the same order as they are generated by ndgrid().
+
+	* Add FileFormatToolbox/scinrrd_seg3d2matlab.m:
+
+	- SCINRRD_SEG3D2MATLAB Correct dimensions of data loaded from SCI
+	NRRD so that rows and columns will follow Matlab's coordinates.
+
+	* FiltersToolbox/scinrrd_ndgrid.m:
+
+	- Fix bug. Limits for x-coordinates were used for y-coordinates
+	and viceversa.
+
+2010-02-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
+
+	- Remove temporal code. Add avals, vvals, mvals as output
+	arguments to monitor evolution of optimisation algorithm. Add v0,
+	rad as input arguments, so that the initial vector is not hard
+	coded, and radius of smoothing operators.
+
+2010-02-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
+
+	- Remove quaternions and use the normal vector to the plane as
+	optimization variable. The function has some debugging code, it's
+	still in development. The optimisation is getting trapped in local
+	minima; it's not clear whether this is because of the
+	trabeculations, or because the normal vector is not a good
+	parameter to optimise.
+
+2010-02-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scinrrd_intersect_plane.m:
+
+	- SCINRRD_INTERSECT_PLANE  Compute intersection of a plane with an
+	SCI NRRD image volume.
+
+	* Add FiltersToolbox/scinrrd_squeeze.m:
+
+	- SCINRRD_SQUEEZE Remove dummy dimension and convert data to
+	double type.
+
+	* Add FiltersToolbox/scinrrd_ndgrid.m:
+
+	- Generation of arrays for 3D SCI NRRD image volumes.
+
+2010-02-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
+
+	- SCIRUNNRRD_INTERSECT_PLANE  Optimise intersection plane for SCI
+	NRRD segmentation mask.
+
+2010-02-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/quaternion2matrix.m:
+
+	- Convert quaternion to rotation matrix. Function written
+	originally by Vicente Grau.
+
+	* Add PointsToolbox/polycenter.m:
+
+	- POLYCENTER  Compute center of mass of polygon.
+
+2010-02-02  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FiltersToolbox/scinrrd_vertical_rot3.m:
+
+	- Compute the 3D rotation matrix to make a point cloud vertical.
+
+2010-01-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* src/PadSegmentationMaskWithVoxels.cxx:
+
+	- Remove some redundant lines of code.
+
+2010-01-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/scirunnrrd_pca.m:
+
+	- SCIRUNNRRD_PCA Principal Principal Component Analysis of the
+	selected points in a SCI NRRD segmentation mask.
+
+	* Add PointsToolbox/pts_pca.m:
+
+	- PTS_PCA Linear and Kernel Principal Component Analysis (PCA and
+	KPCA).
+
+	This function was in my internal repository (r9953, v3.0,
+	2008-06-14 22:07:56 +0100). I started developing it for my DPhil
+	thesis at the Wolfson Medical Vision Laboratory, University of
+	Oxford (2006-08-31 18:56:56 +0100).
+
+	* Add PointsToolbox/pts_kmat.m:
+
+	- PTS_KMAT Compute kernel matrix for Linear and Kernel Principal
+	Component Analysis (PCA and KPCA).
+
+	This function was in my internal repository (r7928, v2.3,
+	2007-08-26 17:20:26 +0100). I started developing it for my DPhil
+	thesis at the Wolfson Medical Vision Laboratory, University of
+	Oxford (2007-06-09 15:27:07 +0100).
+
+2009-12-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/dcm2metaimage.m:
+
+	- Read the resolution values from the DICOM header, if possible.
+
+	- Add input arguments crop, ext, file and rewrite the function so
+	that it does the same as im2metaimage().
+
+2009-12-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FileFormatToolbox/sortdirbynum.m:
+
+	- SORTDIRBYNUM List the files in a directory ordering them by a
+	numerical substring field in the file name
+
+	* FileFormatToolbox/im2metaimage.m:
+
+	- Add input arguments for image file extension and the possibility
+	to contribute the image file listing, intead of using an internal
+	DIR().
+
+2009-11-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/dcm2mat.m:
+
+	- In case of a time series, we assume that all frames for slice 1
+	are in consecutive DICOM files. Then all the frames for slice 2,
+	and so on.
+
+	Note that the output matrix is permuted to have the indices in the
+	order (I,J,N,F), where N is the slice index and F is the frame
+	index.
+
+2009-11-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* FileFormatToolbox/dcm2mat.m:
+
+	- Add block to detect time series and create 4D volumes, if
+	necessary.
+
+	- If output filename is empty, call it 'im.mat'.
+
+2009-11-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add FileFormatToolbox/dcm2mat.m:
+
+	- Read a batch of DICOM files, collate them and save as a single
+	volume in a .mat file.
+
+	* FileFormatToolbox/dcm2metaimage.m:
+
+	- Fix bug with wrong function call.
+
+2009-11-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add copyright and licence notices.
+
+	* Add README file with list of available programs.
+
+	* Add src/PadSegmentationMaskWithVoxels.cxx.
+
+	- Program to pad the sides of a 3D segmentation mask
+	(e.g. produced by Seg3D) with new voxels.
+
+2009-11-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* README:
+
+	- Add scirunnrrd_index2world.m and scirunnrrd_world2index.m.
+
+	* Add FileFormatToolbox/scirunnrrd_index2world.m:
+
+	- SCIRUNNRRD_INDEX2WORLD Convert data volume indices to real world
+	coordinates for NRRD volumes created by SCI
+	applications (e.g. Seg3D).
+
+	* Add FileFormatToolbox/scirunnrrd_world2index.m:
+
+	- SCIRUNNRRD_WORLD2INDEX Convert real world coordinates to data
+	volume indices for NRRD volumes created by SCI
+	applications (e.g. Seg3D).
+
+2009-09-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/PointsToolbox/cube_five_tessellation.m:
+
+	- CUBE_FIVE_TESSELLATION Tessellation in 5 tetrahedra of a cube
+	with perpendicular diagonals on opposite sides of the
+	cube (non-stackable).
+
+2009-09-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox/PointsToolbox/cube_stackable_tessellation.m:
+
+	- CUBE_STACKABLE_TESSELLATION  Tessellation in tetrahedra of a
+	cube that can be stacked in a regular mesh.
+
+2009-09-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add PointsToolbox for functions that deal with points.
+
+	* Create directories for FileFormatToolbox and FiltersToolbox, and
+	split existing functions accordingly. As more functions are added
+	to the project, we'll need to organize them anyway.
+
+2009-09-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add src/ExtractVoxelCoordinatesFromSegmentationMask.cxx ,
+	src/CMakeLists.txt:
+
+	- Program to extract the coordinates of voxels selected in a
+	segmentation mask.
+
+2009-08-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add LICENCE, ChangeLog, README.
+
+	* HamamatsuDecoder.java, ImageDecoderAdapter.java:
+
+	- Add copyright headers.
+
+2009-08-24  Gil Bub  <gilbub@gmail.com>
+
+	* Add HamamatsuDecoder.java, ImageDecoderAdapter.java:
+
+	- HamamatsuDecoder.java: Decoder for Hamamatsu photodiode array.
+	- ImageDecoderAdapter.java: General adapter class
+2009-07-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add README:
+
+	- To document available shell scripts in Gerardus.
+
+	* Add images2avi.sh:
+
+	- Create an AVI video from a stack of images.
+
 2009-07-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
 
 	* release 0.1
 
-	- First code release.
+	* First public release to project Gerardus in Google Code of this
+	Matlab Toolbox.
+
+	- http://code.google.com/p/gerardus
+
+	* Add README with help for functions in the Toolbox.
+
+	* WriteMetaFile.h -> WriteRawFile.h:
+
+	- Correct name, as "Meta" could refer to MetaImage, the format
+	that includes both the mha header and the raw file.
+
+	* dcm2metadata.m -> dcm2metaimage.m, im2metadata.m ->
+	im2metaimage.m:
+
+	Correct filenames and function names, because we are create
+	MetaImage files, not "metadata".
+
+	* Add LICENCE with text of the GPL v3, and corresponding copyright
+	notices to all files.
+
+2009-04-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add correct_light_blobs_in_microscope_mosaic.m:
+
+	- CORRECT_LIGHT_BLOBS_IN_MICROSCOPE_MOSAIC Correct the colour blob
+	created by the microscope's light in each tile of a mosaic,
+	e.g. for histology.
+
+2009-04-02  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add dcm2metadata.m:
+
+	- DCM2METADATA  Read a batch of DICOM files, collate them and save
+	as a single metadata volume (one .mha and one .raw file).
+
+	* Add matlab2vox_seg3d.m:
+
+	- MATLAB2VOX_SEG3D Convert Matlab file with Seg3D segmentation to
+	vox format (for the Tarantula meshing application).
+
+2009-03-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* im2metadata.m:
+
+	- Add input argument "crop", so that the volume can be cropped
+	before saving.
+
+	* WriteMhaFile.m:
+
+	- Add help comments.
+
+	- Write 'Offset' line to file, so that cropped data is correctly
+	placed.
+
+2009-01-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* WriteMhaFile.m, WriteMetaFile.m:
+
+	- Increase precission for values of ElementSpacing, from 4 digits
+	to 12 digits, to make sure that we can save spacings in microns.
+
+	* Add im2metadata.m.
+
+	- IM2METADATA Read a batch of image files, collate them and save
+	as a single metadata volume (one .mha and one .raw file).
+
+2009-01-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* WriteMhaFile.m, WriteMetaFile.m: v0.2.
+
+	- Add MET_USHORT as output type for uint16 input data.
+
+	- Add error message if the data type is not one of the expected
+	types. Otherwise, no ElementType header is added to the file, this
+	is not reported, and then Seg3D (and possibly other image
+	visualisation applications) will fail to open the file.
+
+2009-01-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+
+	* Add files provided by Martin Bishop to write metadata
+	files. These files were actually created originally by Vicente
+	Grau.
