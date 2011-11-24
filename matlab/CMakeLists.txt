@@ -30,7 +30,7 @@
 # Note: You'll probably have to edit this file to make it compile in
 # your system. Edit section "Find Matlab" with your own path to Matlab.
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 SET(CMAKE_BUILD_TYPE RELEASE)
 
 # If Matlab's libraries were built with a version of gcc incompatible
@@ -63,35 +63,7 @@ ENDIF(MATLAB_FOUND)
 INCLUDE_DIRECTORIES(${MATLAB_INCLUDE_DIR})
 
 # Add macros to build MEX files
-INCLUDE(${CMAKE_SOURCE_DIR}/MatlabMakeMacros.cmake)
-
-##################################################################
-## Block so that rpaths are added to both the MEX file in the build
-## tree and in the installation directory. Otherwise, the rpath is
-## stripped when installing, and the function will crash as it won't be
-## able to find the ITK shared libraries
-
-# use, i.e. don't skip the full RPATH for the build tree
-SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
-
-# when building, don't use the install RPATH already
-# (but later on when installing)
-SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
-
-SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-
-# add the automatically determined parts of the RPATH
-# which point to directories outside the build tree to the install RPATH
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-# the RPATH to be used when installing, but only if it's not a system directory
-LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
-IF("${isSystemDir}" STREQUAL "-1")
-   SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-ENDIF("${isSystemDir}" STREQUAL "-1")
-
-## End rpath block
-##################################################################
+INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/MatlabMakeMacros.cmake)
 
 # build mex functions in the toolboxes
 ADD_SUBDIRECTORY(ItkToolbox)
