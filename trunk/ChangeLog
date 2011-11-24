@@ -1,3 +1,33 @@
+2011-11-24  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* cpp/src/third-party/cquammen-Clarity/CMakeLists.txt:
+
+	- We don't need to build the apps and tests of Clarity, comment
+	out.
+
+	- Now Clarity will be built in the build tree, instead of the src
+	directory, and installed with `make install` to gerardus/lib.
+
+	* CMakeLists.txt:
+
+	- Set CMake install path to gerardus/lib, so that we have
+	everything in one place (except for the MEX files, that stay in
+	their respective subdirectories).
+
+	- Move the rpath block to this file from matlab/CMakeLists.txt, as
+	we need it also to link MEX files to Clarity, and probably for
+	future libraries.
+
+	* matlab/CMakeLists.txt:
+
+	- Move the rpath block to CMakeLists.txt, as we need it also to
+	link MEX files to Clarity, and probably for future libraries.
+
+	- Upgrade CMake requirement to v2.8.
+
+	- Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that it
+	can be used by the master CMakeLists.txt.
+
 2011-11-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* Add matlab/FiltersToolbox/typicalpsf.m (v0.1.0):
