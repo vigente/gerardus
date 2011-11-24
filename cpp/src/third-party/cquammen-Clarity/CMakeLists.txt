@@ -92,5 +92,22 @@ SET_TARGET_PROPERTIES(Clarity PROPERTIES
   SOVERSION ${Clarity_MAJOR_VERSION}.${Clarity_MINOR_VERSION}
 )
 
-ADD_SUBDIRECTORY(apps)
-ADD_SUBDIRECTORY(tests)
+# Gerardus doesn't need to build the apps and tests of Clarity
+#ADD_SUBDIRECTORY(apps)
+#ADD_SUBDIRECTORY(tests)
+
+################################################################
+## installation of targets
+################################################################
+
+IF(WIN32)
+  INSTALL(TARGETS
+    Clarity
+    RUNTIME
+    DESTINATION ${CMAKE_INSTALL_PREFIX})
+ELSE(WIN32)
+  INSTALL(TARGETS
+    Clarity
+    LIBRARY
+    DESTINATION ${CMAKE_INSTALL_PREFIX})
+ENDIF(WIN32)
