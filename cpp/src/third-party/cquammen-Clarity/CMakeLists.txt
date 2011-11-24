@@ -5,6 +5,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 #  CMAKE_POLICY(SET CMP0003 OLD)
 #ENDIF(COMMAND cmake_policy)
 
+# options can we set from the command line as
+#  $ cmake -DBUILD_WITH_CUDA:BOOL=ON ..
 OPTION(BUILD_SHARED_LIBS "Build Clarity with shared libraries." ON)
 OPTION(BUILD_WITH_OPENMP "Build with OpenMP." ON)
 OPTION(BUILD_WITH_CUDA "Build with CUDA FFT acceleration." OFF)
@@ -97,7 +99,7 @@ SET_TARGET_PROPERTIES(Clarity PROPERTIES
 #ADD_SUBDIRECTORY(tests)
 
 ################################################################
-## installation of targets
+## installation of library
 ################################################################
 
 IF(WIN32)
