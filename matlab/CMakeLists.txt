@@ -33,13 +33,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 SET(CMAKE_BUILD_TYPE RELEASE)
 
-# If Matlab's libraries were built with a version of gcc incompatible
-# with the default in your system, you can force the correct version
-# uncommenting the two lines below. However, this may cause problems
-# with libraries of the wrong version trying to be used
-#SET(CMAKE_CC_COMPILER gcc-4.3) 
-#SET(CMAKE_CXX_COMPILER g++-4.3)
-
 PROJECT(GERARDUS_MATLAB)
 
 # Find ITK.
