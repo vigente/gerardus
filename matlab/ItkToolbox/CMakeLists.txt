@@ -71,7 +71,7 @@ TARGET_LINK_LIBRARIES(itk_pstransform
   ${Libraries})
 
 ################################################################
-## Post-compilation for all targets
+## installation of targets
 ################################################################
 
 IF(WIN32)
