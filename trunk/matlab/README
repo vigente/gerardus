@@ -148,6 +148,10 @@ correct_light_blobs_in_microscope_mosaic.m
 	 CORRECT_LIGHT_BLOBS_IN_MICROSCOPE_MOSAIC  Correct the colour blob created
 	 by the microscope's light in each tile of a mosaic, e.g. for histology.
 	
+deconvolve.m
+
+	 DECONVOLVE  MEX interface to the Clarity deconvolution library
+	
 fspecial3.m
 
 	 FSPECIAL3  Create predefined 3-dimensional filters

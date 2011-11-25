@@ -35,12 +35,6 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-# Matlab's mex compiler requires an older version of gcc than the
-# default at the time of this writing, so we have to force the version
-# we want
-#SET(CMAKE_CC_COMPILER gcc-4.3)
-#SET(CMAKE_CXX_COMPILER g++-4.3)
-
 # This project is designed to be built outside the Insight source tree
 PROJECT(GerardusItkToolsProject)
 
