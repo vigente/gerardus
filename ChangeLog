@@ -1,3 +1,32 @@
+2011-11-25  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add matlab/FiltersToolbox/Deconvolve.cpp (v0.1.0):
+
+	- MEX interface to the Clarity deconvolution library. C++
+	implementation.
+
+	* Add matlab/FiltersToolbox/deconvolve.m (v0.1.0):
+
+	- MEX interface to the Clarity deconvolution library. Matlab
+	helper file.
+
+	* matlab/FiltersToolbox/CMakeLists.txt:
+
+	- Now third-party libraries are installed in gerardus/lib. In
+	particular, Clarity is no longer compiled into its source
+	directory.
+
+	- Make Clarity a dependency of deconvolve.
+
+	* matlab/CMakeLists.txt, CMakeLists.txt:
+
+	- Move the manual selection of older compilers from
+	matlab/CMakeLists.txt to the root CMakeLists.txt. Also note that
+	CMAKE_CC_COMPILER is incorrect, the variable is called
+	CMAKE_C_COMPILER.
+
+	* Add lib directory to install third-party libraries.
+
 2011-11-24  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* cpp/src/third-party/cquammen-Clarity/CMakeLists.txt:
