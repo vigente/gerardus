@@ -30,6 +30,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 SET(CMAKE_BUILD_TYPE RELEASE)
 
+# In case for any reason we need to compile with an older gcc version
+#SET(CMAKE_C_COMPILER_RELEASE gcc-4.4)
+#SET(CMAKE_CXX_COMPILER_RELEASE g++-4.4)
+
 PROJECT(GERARDUS)
 
 # find Matlab

@@ -51,8 +51,10 @@ TARGET_LINK_LIBRARIES(bwregiongrow
 ## deconvolve()
 ################################################################
 
-LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../../cpp/src/third-party/cquammen-Clarity/bin)
+LINK_DIRECTORIES(${CMAKE_INSTALL_PREFIX})
+INCLUDE_DIRECTORIES(${Clarity_BINARY_DIR})
 ADD_MEX_FILE(deconvolve Deconvolve.cpp)
+ADD_DEPENDENCIES(deconvolve Clarity)
 TARGET_LINK_LIBRARIES(deconvolve
   ${Libraries} Clarity)
 
