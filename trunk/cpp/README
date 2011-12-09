@@ -13,8 +13,15 @@ padSegmentationMaskWithVoxels:
 	Program to pad the sides of a 3D segmentation mask
 	(e.g. produced by Seg3D) with new voxels.
 
+rigidRegistration2D:
 
+	Program to align one 2D image to another using a rigid 
+	transformation (rotation and translation).
 
 rotate3DImage:
 
 	Program to rotate a 3D image in space
+
+skeletonize3DSegmentation:
+
+	Program to reduce a segmentation to its skeleton.
