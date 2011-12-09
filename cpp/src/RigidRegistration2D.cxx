@@ -61,7 +61,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -137,12 +137,18 @@ int main(int argc, char** argv)
   fs::path                            outImPath;
   double                              minimumStepLength, maximumStepLength;
   unsigned int                        maximumNumberOfIterations;
+  unsigned char                       backgroundGray;
   
   try {
     
     // Define the command line object, program description message, separator, version
     TCLAP::CmdLine cmd( "rigidRegistration2D:  rigid registration of two 2D images", ' ', "0.0" );
-    
+
+    // input argument: background colour
+    TCLAP::ValueArg< unsigned short int > backgroundGrayArg("b", "background", "Background gray level (default 0, black)", false, 
+							    0, "0-255");
+    cmd.add(backgroundGrayArg);
+
     // input argument: optimizer parameters
     TCLAP::ValueArg< double > maximumStepLengthArg("M", "maxstep", "Maximum step length (default rotation 10º)", false, 
 						   10.0, "deg");
@@ -179,6 +185,7 @@ int main(int argc, char** argv)
     maximumNumberOfIterations = maximumNumberOfIterationsArg.getValue();
     outImPath = fs::path(outImPathArg.getValue());
     verbose = verboseSwitch.getValue();
+    backgroundGray = (unsigned char)backgroundGrayArg.getValue();
   
   } catch (const TCLAP::ArgException &e) { // catch any exceptions
     
@@ -302,13 +309,12 @@ int main(int argc, char** argv)
   initializer->SetMovingImage(sourceCaster->GetOutput());
   initializer->GeometryOn();
   initializer->InitializeTransform();
-  // transform->SetAngle(0.0);
 
   if ( verbose ) {
     std::cout << "# Number of parameters: " 
 	      << transform->GetNumberOfParameters() << std::endl;
     std::cout << "# Initial Rotation angle: " 
-	      << transform->GetParameters()[0] / 3.14159265 * 180.0
+	      << transform->GetParameters()[0] / itk::Math::pi * 180.0
 	      << "º" << std::endl;
     std::cout << "# Initial Center of Rotation: " << transform->GetParameters()[1] 
 	      << ", " << transform->GetParameters()[2] << std::endl;
@@ -343,7 +349,7 @@ int main(int argc, char** argv)
     registration->Update();
     if (verbose) {
       std::cout << "# Final Rotation angle: " 
-		<< transform->GetParameters()[0] / 3.14159265 * 180.0
+		<< transform->GetParameters()[0] / itk::Math::pi * 180.0
 		<< "º" << std::endl;
       std::cout << "# Final Center of Rotation: " << transform->GetParameters()[1] 
 		<< ", " << transform->GetParameters()[2] << std::endl;
@@ -394,9 +400,9 @@ int main(int argc, char** argv)
     resampler->SetOutputOrigin(targetImage->GetOrigin());
     resampler->SetOutputSpacing(targetImage->GetSpacing());
     RGBPixelType background;
-    background[0] = 0;
-    background[1] = 0;
-    background[2] = 0;
+    background[0] = backgroundGray;
+    background[1] = backgroundGray;
+    background[2] = backgroundGray;
     resampler->SetDefaultPixelValue(background);
 
     // create writer object        

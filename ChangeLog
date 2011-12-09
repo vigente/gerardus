@@ -1,5 +1,9 @@
 2011-12-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* cpp/src/RigidRegistration2D.cxx (v0.1.1):
+
+	- Add input argument to select gray level of background pixels.
+
 	* Add cpp/src/RigidRegistration2D.cxx (v0.1.0):
 	* cpp/src/CMakeLists.txt:
 	* cpp/README
