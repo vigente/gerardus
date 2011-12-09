@@ -81,5 +81,11 @@ ADD_EXECUTABLE(vesselness3DImage
 TARGET_LINK_LIBRARIES(vesselness3DImage
   boost_system boost_filesystem ITKCommon ITKIO)
 
+# vesselness3DImage
+ADD_EXECUTABLE(rigidRegistration2D
+  RigidRegistration2D.cxx)
+TARGET_LINK_LIBRARIES(rigidRegistration2D
+  boost_system boost_filesystem ITKCommon ITKIO ITKNumerics)
+
 # call the subprojects
 ADD_SUBDIRECTORY(third-party/cquammen-Clarity)
