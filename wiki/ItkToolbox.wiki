@@ -35,13 +35,16 @@ $ sudo apt-get install cmake
   * Note for everyone: You need to set the following variables in your CMake build of ITK
 {{{
 CMAKE_BUILD_TYPE   Release
+BUILD_SHARED_LIBS  ON
 ITK_USE_REVIEW     ON
 ITK_LEGACY_REMOVE  ON
 ITK_USE_OPTIMIZED_REGISTRATION_METHODS ON
 }}}
    * Linux users can do this with flags when running cmake, e.g.
 {{{
-$ cmake -DITK_USE_REVIEW=ON -DCMAKE_BUILD_TYPE=Release -DITK_LEGACY_REMOVE=ON -DITK_USE_OPTIMIZED_REGISTRATION_METHODS=ON ..
+$ cmake -DBUILD_SHARED_LIBS=ON -DITK_USE_REVIEW=ON \
+-DCMAKE_BUILD_TYPE=Release -DITK_LEGACY_REMOVE=ON \
+-DITK_USE_OPTIMIZED_REGISTRATION_METHODS=ON ..
 }}}
    * Windows users can do this checking the "Advanced" box in the CMake interface, and then checking the `ITK_USE_REVIEW` and `ITK_LEGACY_REMOVE` entries, and editing the `CMAKE_BUILD_TYPE` entry
   * Note for Windows users: Click on "Start" -> "My computer" -> "View system information", and in the "Advanced" tab click on "Environment Variables". Select the System variable `Path`, and click "Edit". Add the path to the `ITKCOMMON.DLL` library, e.g. "C:\Program Files\ITK\bin"
