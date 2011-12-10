@@ -1,3 +1,15 @@
+2011-12-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* cpp/src/RigidRegistration2D.cxx (v0.2.0):
+
+	- Remove backgroundGray argument. Instead, have an "invert"
+	switch. If the object is white and the background black, we use
+	the normal registration. If viceversa, the user selects
+	"--invert", and this inverts the luminance values before
+	registration. Also, default background values are automatically
+	set depending on "invert" (black, if not selected; white, if
+	selected).
+
 2011-12-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* cpp/src/RigidRegistration2D.cxx (v0.1.1):
