@@ -6,7 +6,7 @@
  *
  * Example of usage:
  *
- * $ ./rigidRegistration2D source.bmp target.bmp -i 1000 -m 1.5
+ * $ ./rigidRegistration2D source.bmp target.bmp -I 1000 -m 1.5
  *
  * This loads source.bmp and target.bmp assuming they are RGB images,
  * converts them to their luminance value (grayscale), computes a
@@ -15,53 +15,57 @@
  * source-reg.bmp with the RGB solution.
  *
  * USAGE: 
- *
- *   cpp/src/rigidRegistration2D  [-v] [-o <file>] [-i <uint>] [-m <deg>] [-M
- *                                <deg>] [--] [--version] [-h] <source>
- *                                <target>
- *
- *
+ * 
+ *    cpp/src/rigidRegistration2D  [-v] [-o <file>] [-i] [-I <uint>] [-m
+ *                                 <deg>] [-M <deg>] [--] [--version] [-h]
+ *                                 <source> <target>
+ * 
+ * 
  * Where: 
- *
- *   -v,  --verbose
- *     Increase verbosity of program output
- *
- *   -o <file>,  --outfile <file>
- *     Output image filename
- *
- *   -i <uint>,  --maxiter <uint>
- *     Maximum number of iterations (default 200)
- *
- *   -m <deg>,  --minstep <deg>
- *     Minimum step length (default rotation 0.5º)
- *
- *   -M <deg>,  --maxstep <deg>
- *     Maximum step length (default rotation 10º)
- *
- *   --,  --ignore_rest
- *     Ignores the rest of the labeled arguments following this flag.
- *
- *   --version
- *     Displays version information and exits.
- *
- *   -h,  --help
- *     Displays usage information and exits.
- *
- *   <source>
- *     (required)  source 2D image
- *
- *   <target>
- *     (required)  target 2D image
- *
- *
- *   rigidRegistration2D:  rigid registration of two 2D images
+ * 
+ *    -v,  --verbose
+ *      Increase verbosity of program output
+ * 
+ *    -o <file>,  --outfile <file>
+ *      Output image filename
+ * 
+ *    -i,  --invert
+ *      Invert gray values of images before registration
+ * 
+ *    -I <uint>,  --maxiter <uint>
+ *      Maximum number of iterations (default 200)
+ * 
+ *    -m <deg>,  --minstep <deg>
+ *      Minimum step length (default rotation 0.5º)
+ * 
+ *    -M <deg>,  --maxstep <deg>
+ *      Maximum step length (default rotation 10º)
+ * 
+ *    --,  --ignore_rest
+ *      Ignores the rest of the labeled arguments following this flag.
+ * 
+ *    --version
+ *      Displays version information and exits.
+ * 
+ *    -h,  --help
+ *      Displays usage information and exits.
+ * 
+ *    <source>
+ *      (required)  source 2D image
+ * 
+ *    <target>
+ *      (required)  target 2D image
+ * 
+ * 
+ *    rigidRegistration2D:  rigid registration of two 2D images
+ * 
  *
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -122,6 +126,9 @@ namespace fs = boost::filesystem;
 #include "itkMath.h"
 #include "itkRGBPixel.h"
 #include "itkRGBToLuminanceImageFilter.h"
+#include "itkInvertIntensityImageFilter.h"
+
+#include "itkMinimumMaximumImageCalculator.h"
 
 // entry point for the program
 int main(int argc, char** argv)
@@ -137,28 +144,27 @@ int main(int argc, char** argv)
   fs::path                            outImPath;
   double                              minimumStepLength, maximumStepLength;
   unsigned int                        maximumNumberOfIterations;
-  unsigned char                       backgroundGray;
+  bool                                invert;
   
   try {
     
     // Define the command line object, program description message, separator, version
     TCLAP::CmdLine cmd( "rigidRegistration2D:  rigid registration of two 2D images", ' ', "0.0" );
 
-    // input argument: background colour
-    TCLAP::ValueArg< unsigned short int > backgroundGrayArg("b", "background", "Background gray level (default 0, black)", false, 
-							    0, "0-255");
-    cmd.add(backgroundGrayArg);
-
     // input argument: optimizer parameters
     TCLAP::ValueArg< double > maximumStepLengthArg("M", "maxstep", "Maximum step length (default rotation 10º)", false, 
 						   10.0, "deg");
     TCLAP::ValueArg< double > minimumStepLengthArg("m", "minstep", "Minimum step length (default rotation 0.5º)", false, 
 						   0.5, "deg");
-    TCLAP::ValueArg< unsigned int > maximumNumberOfIterationsArg("i", "maxiter", "Maximum number of iterations (default 200)", false, 
+    TCLAP::ValueArg< unsigned int > maximumNumberOfIterationsArg("I", "maxiter", "Maximum number of iterations (default 200)", false, 
 						   200, "uint");
     cmd.add(maximumStepLengthArg);
     cmd.add(minimumStepLengthArg);
     cmd.add(maximumNumberOfIterationsArg);
+    
+    // input argument: invert
+    TCLAP::SwitchArg invertSwitch("i", "invert", "Invert gray values of images before registration", false);
+    cmd.add(invertSwitch);
     
     // input argument: filename of output image
     TCLAP::ValueArg< std::string > outImPathArg("o", "outfile", "Output image filename", false, "", "file");
@@ -185,7 +191,7 @@ int main(int argc, char** argv)
     maximumNumberOfIterations = maximumNumberOfIterationsArg.getValue();
     outImPath = fs::path(outImPathArg.getValue());
     verbose = verboseSwitch.getValue();
-    backgroundGray = (unsigned char)backgroundGrayArg.getValue();
+    invert = invertSwitch.getValue();
   
   } catch (const TCLAP::ArgException &e) { // catch any exceptions
     
@@ -259,6 +265,8 @@ int main(int argc, char** argv)
 
   typedef itk::RGBToLuminanceImageFilter<InputImageType,
 					 RegistrationImageType > RGBToLuminanceFilterType;
+  typedef itk::InvertIntensityImageFilter<RegistrationImageType,
+					  RegistrationImageType> InvertIntensityFilterType;
 
   typedef itk::RegularStepGradientDescentOptimizer     OptimizerType;
   typedef itk::MeanSquaresImageToImageMetric< RegistrationImageType,
@@ -274,6 +282,10 @@ int main(int argc, char** argv)
 
   typedef OptimizerType::ScalesType OptimizerScalesType;
 
+  // pointer to the images after the have been pre-processed for
+  // registration
+  RegistrationImageType::Pointer sourcePreprocessed, targetPreprocessed;
+
   // cast input image to a luminance image
   RGBToLuminanceFilterType::Pointer sourceCaster = RGBToLuminanceFilterType::New();
   RGBToLuminanceFilterType::Pointer targetCaster = RGBToLuminanceFilterType::New();
@@ -281,6 +293,32 @@ int main(int argc, char** argv)
   targetCaster->SetInput(targetImage);
   sourceCaster->Update();
   targetCaster->Update();
+  sourcePreprocessed = sourceCaster->GetOutput();
+  targetPreprocessed = targetCaster->GetOutput();
+
+  // invert gray levels, for images where the background is white and
+  // the object is dark
+  InvertIntensityFilterType::Pointer sourceInvertFilter = InvertIntensityFilterType::New();
+  InvertIntensityFilterType::Pointer targetInvertFilter = InvertIntensityFilterType::New();
+  if (invert) {
+    sourceInvertFilter->SetInput(sourcePreprocessed);
+    targetInvertFilter->SetInput(targetPreprocessed);
+    sourceInvertFilter->Update();
+    targetInvertFilter->Update();
+    sourcePreprocessed = sourceInvertFilter->GetOutput();
+    targetPreprocessed = targetInvertFilter->GetOutput();
+  }
+
+  // debug
+  if (verbose) {
+    itk::MinimumMaximumImageCalculator<RegistrationImageType>::Pointer
+      calc =
+      itk::MinimumMaximumImageCalculator<RegistrationImageType>::New();
+    calc->SetImage(targetPreprocessed);
+    calc->Compute();
+    std::cout << "# Registration image, min pixel intensity: " << (int)calc->GetMinimum() << std::endl;
+    std::cout << "# Registration image, max pixel intensity: " << (int)calc->GetMaximum() << std::endl;
+  }
 
   // instantiate registration components
   MetricType::Pointer metric = MetricType::New();
@@ -296,17 +334,23 @@ int main(int argc, char** argv)
   registration->SetInterpolator(interpolator);
 
   // connect input images to registration method
-  registration->SetFixedImage(targetCaster->GetOutput());
-  registration->SetMovingImage(sourceCaster->GetOutput());
+  registration->SetFixedImage(targetPreprocessed);
+  registration->SetMovingImage(sourcePreprocessed);
 
-  // use whole image for registration
-  registration->SetFixedImageRegion(targetCaster->GetOutput()->GetBufferedRegion());
+  // use whole target image for registration
+  registration->SetFixedImageRegion(targetPreprocessed->GetBufferedRegion());
+
+  // // DISABLED: due to a bug in ITK 3.21, using this option produces
+  // // "nan" values in the registration parameters
+  // // metric will ignore background pixels
+  // unsigned int intensityThreshold = 100;
+  // metric->SetFixedImageSamplesIntensityThreshold(intensityThreshold);
 
   // initial parameters of the transformation
   TransformInitializerType::Pointer initializer = TransformInitializerType::New();
-  initializer->SetTransform(transform );
-  initializer->SetFixedImage(targetCaster->GetOutput());
-  initializer->SetMovingImage(sourceCaster->GetOutput());
+  initializer->SetTransform(transform);
+  initializer->SetFixedImage(targetPreprocessed);
+  initializer->SetMovingImage(sourcePreprocessed);
   initializer->GeometryOn();
   initializer->InitializeTransform();
 
@@ -334,10 +378,14 @@ int main(int argc, char** argv)
   // http://www.itk.org/pipermail/insight-users/2007-March/021435.html
   OptimizerScalesType optimizerScales(transform->GetNumberOfParameters());
   optimizerScales[0] = 1.0; // rotation
-  optimizerScales[1] = (itk::Math::pi / 180.0 * 45.0) / (sourceSize[0] / 2.0 * sourceImage->GetSpacing()[0]); // center of rotation x
-  optimizerScales[2] = (itk::Math::pi / 180.0 * 45.0) / (sourceSize[1] / 2.0 * sourceImage->GetSpacing()[1]); // center of rotation y
-  optimizerScales[3] = (itk::Math::pi / 180.0 * 45.0) / (sourceSize[0] / 2.0 * sourceImage->GetSpacing()[0]); // translation x
-  optimizerScales[4] = (itk::Math::pi / 180.0 * 45.0) / (sourceSize[1] / 2.0 * sourceImage->GetSpacing()[1]); // translation y
+  optimizerScales[1] = (itk::Math::pi / 180.0 * 45.0) 
+    / (sourceSize[0] / 2.0 * sourceImage->GetSpacing()[0]); // center of rotation x
+  optimizerScales[2] = (itk::Math::pi / 180.0 * 45.0) 
+    / (sourceSize[1] / 2.0 * sourceImage->GetSpacing()[1]); // center of rotation y
+  optimizerScales[3] = (itk::Math::pi / 180.0 * 45.0) 
+    / (sourceSize[0] / 2.0 * sourceImage->GetSpacing()[0]); // translation x
+  optimizerScales[4] = (itk::Math::pi / 180.0 * 45.0) 
+    / (sourceSize[1] / 2.0 * sourceImage->GetSpacing()[1]); // translation y
   optimizer->SetScales(optimizerScales);
 
   // for RegularStepGradientDescentOptimizer
@@ -382,13 +430,13 @@ int main(int argc, char** argv)
     // create a filename for the output image by appending 
     // "reg" to the input image filename, if none is
     // provided explicitely in the command line
-    if ( outImPath.empty() ) {
+    if (outImPath.empty()) {
       outImPath = imsPath.branch_path() 
 	/ fs::path(fs::basename(imsPath) + "-reg" 
 		   + fs::extension(imsPath));
     }
     
-    if ( verbose ) {
+    if (verbose) {
       std::cout << "# Output filename: " << outImPath.string() << std::endl;
     }
     
@@ -400,9 +448,15 @@ int main(int argc, char** argv)
     resampler->SetOutputOrigin(targetImage->GetOrigin());
     resampler->SetOutputSpacing(targetImage->GetSpacing());
     RGBPixelType background;
-    background[0] = backgroundGray;
-    background[1] = backgroundGray;
-    background[2] = backgroundGray;
+    if (invert) {
+      background[0] = 255;
+      background[1] = 255;
+      background[2] = 255;
+    } else {
+      background[0] = 0;
+      background[1] = 0;
+      background[2] = 0;
+    }
     resampler->SetDefaultPixelValue(background);
 
     // create writer object        
