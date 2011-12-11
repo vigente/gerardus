@@ -14,6 +14,11 @@
  * smaller than 1.5º, or after 1000 iterations, and creates a file
  * source-reg.bmp with the RGB solution.
  *
+ * This function uses Mattes Mutual Information as the metric. With
+ * argment --verbose, it also provides information about the images
+ * and the solution found for the transformation values.
+ *
+ *
  * USAGE: 
  * 
  *    cpp/src/rigidRegistration2D  [-v] [-o <file>] [-i] [-I <uint>] [-m
@@ -65,7 +70,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -117,6 +122,7 @@ namespace fs = boost::filesystem;
 #include "itkImageFileWriter.h"
 #include "itkImageRegistrationMethod.h"
 #include "itkMeanSquaresImageToImageMetric.h"
+#include "itkMattesMutualInformationImageToImageMetric.h"
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkRegularStepGradientDescentOptimizer.h"
 #include "itkCenteredRigid2DTransform.h"
@@ -260,29 +266,15 @@ int main(int argc, char** argv)
   }
   
   /*******************************/
-  /** Register images           **/
+  /** Preprocess images         **/
   /*******************************/
 
   typedef itk::RGBToLuminanceImageFilter<InputImageType,
-					 RegistrationImageType > RGBToLuminanceFilterType;
+					 RegistrationImageType> RGBToLuminanceFilterType;
   typedef itk::InvertIntensityImageFilter<RegistrationImageType,
 					  RegistrationImageType> InvertIntensityFilterType;
 
-  typedef itk::RegularStepGradientDescentOptimizer     OptimizerType;
-  typedef itk::MeanSquaresImageToImageMetric< RegistrationImageType,
-					      RegistrationImageType > MetricType;
-  typedef itk:: LinearInterpolateImageFunction< RegistrationImageType, 
-						TScalarType> InterpolatorType;
-  typedef itk::ImageRegistrationMethod< RegistrationImageType,
-					RegistrationImageType > RegistrationType;
-  typedef itk::CenteredRigid2DTransform< TScalarType > TransformType;
-  typedef itk::CenteredTransformInitializer<TransformType,
-  					    RegistrationImageType,
-  					    RegistrationImageType > TransformInitializerType;
-
-  typedef OptimizerType::ScalesType OptimizerScalesType;
-
-  // pointer to the images after the have been pre-processed for
+  // pointer to the images after they have been pre-processed for
   // registration
   RegistrationImageType::Pointer sourcePreprocessed, targetPreprocessed;
 
@@ -309,16 +301,41 @@ int main(int argc, char** argv)
     targetPreprocessed = targetInvertFilter->GetOutput();
   }
 
-  // debug
+  // display values of brightest and darkest pixels in the luminance
+  // image used for registration
   if (verbose) {
     itk::MinimumMaximumImageCalculator<RegistrationImageType>::Pointer
       calc =
       itk::MinimumMaximumImageCalculator<RegistrationImageType>::New();
+    calc->SetImage(sourcePreprocessed);
+    calc->Compute();
+    std::cout << "# Source registration, min pixel intensity: " << (int)calc->GetMinimum() << std::endl;
+    std::cout << "# Source registration, max pixel intensity: " << (int)calc->GetMaximum() << std::endl;
     calc->SetImage(targetPreprocessed);
     calc->Compute();
-    std::cout << "# Registration image, min pixel intensity: " << (int)calc->GetMinimum() << std::endl;
-    std::cout << "# Registration image, max pixel intensity: " << (int)calc->GetMaximum() << std::endl;
+    std::cout << "# Target registration, min pixel intensity: " << (int)calc->GetMinimum() << std::endl;
+    std::cout << "# Target Registration, max pixel intensity: " << (int)calc->GetMaximum() << std::endl;
   }
+
+  /*******************************/
+  /** Register images           **/
+  /*******************************/
+
+  typedef itk::RegularStepGradientDescentOptimizer     OptimizerType;
+  // typedef itk::MeanSquaresImageToImageMetric<RegistrationImageType,
+  // 					      RegistrationImageType> MetricType;
+  typedef itk::MattesMutualInformationImageToImageMetric<RegistrationImageType,
+					      RegistrationImageType> MetricType;
+  typedef itk:: LinearInterpolateImageFunction<RegistrationImageType, 
+						TScalarType> InterpolatorType;
+  typedef itk::ImageRegistrationMethod<RegistrationImageType,
+					RegistrationImageType> RegistrationType;
+  typedef itk::CenteredRigid2DTransform<TScalarType> TransformType;
+  typedef itk::CenteredTransformInitializer<TransformType,
+  					    RegistrationImageType,
+  					    RegistrationImageType> TransformInitializerType;
+
+  typedef OptimizerType::ScalesType OptimizerScalesType;
 
   // instantiate registration components
   MetricType::Pointer metric = MetricType::New();
@@ -340,10 +357,14 @@ int main(int argc, char** argv)
   // use whole target image for registration
   registration->SetFixedImageRegion(targetPreprocessed->GetBufferedRegion());
 
+  // for mutual information metric, use only 20% of spatial samples
+  unsigned int numberOfBins = 50;
+  metric->SetNumberOfHistogramBins(numberOfBins);
+  metric->SetNumberOfSpatialSamples(targetPreprocessed->GetLargestPossibleRegion().GetNumberOfPixels() / 5);
+
   // // DISABLED: due to a bug in ITK 3.21, using this option produces
   // // "nan" values in the registration parameters
   // // metric will ignore background pixels
-  // unsigned int intensityThreshold = 100;
   // metric->SetFixedImageSamplesIntensityThreshold(intensityThreshold);
 
   // initial parameters of the transformation
@@ -354,16 +375,16 @@ int main(int argc, char** argv)
   initializer->GeometryOn();
   initializer->InitializeTransform();
 
-  if ( verbose ) {
+  if (verbose) {
     std::cout << "# Number of parameters: " 
 	      << transform->GetNumberOfParameters() << std::endl;
-    std::cout << "# Initial Rotation angle: " 
+    std::cout << "# Initial Rotation angle (º): " 
 	      << transform->GetParameters()[0] / itk::Math::pi * 180.0
-	      << "º" << std::endl;
-    std::cout << "# Initial Center of Rotation: " << transform->GetParameters()[1] 
-	      << ", " << transform->GetParameters()[2] << std::endl;
-    std::cout << "# Initial Translation: " << transform->GetParameters()[3] 
-	      << ", " << transform->GetParameters()[4] << std::endl;
+	      << std::endl;
+    std::cout << "# Initial Center of Rotation: [" << transform->GetParameters()[1] 
+	      << ", " << transform->GetParameters()[2] << "]" << std::endl;
+    std::cout << "# Initial Translation: [" << transform->GetParameters()[3] 
+	      << ", " << transform->GetParameters()[4] << "]" << std::endl;
   }
 
   registration->SetInitialTransformParameters(transform->GetParameters());
@@ -413,14 +434,15 @@ int main(int argc, char** argv)
     return EXIT_FAILURE;
   }
 
+
   /*******************************/
   /** Output block              **/
   /*******************************/
   
   typedef itk::VectorResampleImageFilter< InputImageType,
 					  InputImageType >   ResampleFilterType;
-  typedef itk::Image< RGBPixelType, Dimension > OutputImageType;
-  typedef itk::ImageFileWriter< OutputImageType > WriterType;
+  typedef itk::Image<RGBPixelType, Dimension> OutputImageType;
+  typedef itk::ImageFileWriter<OutputImageType> WriterType;
 
   // I/O variables
   WriterType::Pointer                                  writer;
