@@ -11,7 +11,7 @@
  * Clarity provides a CUDA implementation too. To enable it, read the
  * documentation in the wiki:
  *
- * http://code.google.com/p/gerardus/wiki/EnablingCUDA?ts=1326421502&updated=EnablingCUDA
+ * http://code.google.com/p/gerardus/wiki/EnablingCUDA
  *
  * A = DECONVOLVE(ALGO, B, PSF)
  *
