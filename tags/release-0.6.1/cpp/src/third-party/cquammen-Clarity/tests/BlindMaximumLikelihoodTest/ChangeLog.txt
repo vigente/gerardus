@@ -1,0 +1,7 @@
+2009-02-13  Cory Quammen <cquammen@cs.unc.edu>
+
+   * BlindMaximumLikelihoodTest.cxx: Changed number of iterations from 5 to 10.
+
+2008-12-15  Cory Quammen <cquammen@cs.unc.edu>
+
+   * BlindMaximumLikelihoodText.css, CMakeLists.txt: Initial check-in.
