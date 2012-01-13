@@ -15,13 +15,31 @@ OPTION(TIME_FFT "Time FFT forward and inverse operations." OFF)
 OPTION(TIME_DECONVOLVE "Time deconvolution operation only." OFF)
 OPTION(TIME_TOTAL "Time total deconvolution operation (includes image padding and clipping." OFF)
 
-SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/")
+# ramc: if CMAKE_MODULE_PATH has been set from the root CMakeLists.txt
+# of Gerardus, do not overwrite it
+IF(NOT CMAKE_MODULE_PATH)
+  SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/")
+ENDIF(NOT CMAKE_MODULE_PATH)
 
+# ramc: operations when compiling CUDA variant of Clarity
 IF(BUILD_WITH_CUDA)
   # Load CUDA macros
   FIND_PACKAGE(CUDA)
+  IF(CMAKE_COMPILER_IS_GNUCC)
+    # get version of compiler
+    EXECUTE_PROCESS(COMMAND ${CMAKE_C_COMPILER} -dumpversion
+      OUTPUT_VARIABLE GCC_VERSION)
+    IF(GCC_VERSION VERSION_LESS 4.5)
+      # ramc: CUDA v4.0 RC2 is incompatible with gcc >= 4.5. Gcc
+      # 4.4. is selected in the root gerardus CMakeLists.txt, but this
+      # flag needs to be set by hand, because otherwise nvcc will read
+      # the version of the default gcc in the system, that is v4.5
+      SET(CUDA_NVCC_FLAGS "-D__GNUC_MINOR__=4")
+    ENDIF(GCC_VERSION VERSION_LESS 4.5)
+  ENDIF(CMAKE_COMPILER_IS_GNUCC)
 ENDIF(BUILD_WITH_CUDA)
 
+# add FFTW library
 FIND_PACKAGE(FFTW)
 
 SET(Clarity_MAJOR_VERSION "1")
@@ -59,7 +77,7 @@ CONFIGURE_FILE(
 )
 
 IF(BUILD_WITH_CUDA)
-  SET ( Clarity_CUDA_SRCS
+  SET (Clarity_CUDA_SRCS
     src/ComputePrimitivesGPU.cu
     src/ModulateGPU.cu
     src/JansenVanCittertDeconvolveGPU.cu
