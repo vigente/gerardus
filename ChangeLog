@@ -17,7 +17,7 @@
 	make a big difference, though. This is a test on a volume with
 	size RxCx19 and a PSF of size 9x9x7. Time in seconds.
 
-	     | no CUDA  |  CUDA   |
+	 R,C | no CUDA  |  CUDA   |
 	---------------------------
 	 128 |   14.55  |  15.38  |
 	 256 |    9.13  |   9.85  |
