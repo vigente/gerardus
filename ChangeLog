@@ -1,5 +1,9 @@
 2012-01-13  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* release 0.6.1
+
+	- Added CUDA support with Matlab.
+
 	* CMakeLists.txt:
 
 	- Select gcc v4.4 automatically if we want to compile Clarity with
