@@ -1,3 +1,16 @@
+2012-01-13  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Replace cpp/src/third-party/cquammen-Clarity by the latest
+	version:
+
+	- Cory Quammen has fixed the bugs in Clarity that prevented it
+	from compiling with CUDA enabled at least in Ubuntu 11.10. Version
+	downloaded today from
+
+	https://github.com/cquammen/Clarity/downloads
+
+	as cquammen-Clarity-c73c97d.
+
 2011-12-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* cpp/src/RigidRegistration2D.cxx (v0.3.0):
