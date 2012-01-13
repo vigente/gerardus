@@ -30,14 +30,20 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 SET(CMAKE_BUILD_TYPE RELEASE)
 
-# In case for any reason we need to compile with an older gcc version
-#SET(CMAKE_C_COMPILER_RELEASE gcc-4.4)
-#SET(CMAKE_CXX_COMPILER_RELEASE g++-4.4)
+# the current version of CUDA Toolkit is not compatible with gcc >=
+# 4.5
+IF(BUILD_WITH_CUDA)
+  SET(CMAKE_C_COMPILER gcc-4.4)
+  SET(CMAKE_CXX_COMPILER g++-4.4)
+ENDIF(BUILD_WITH_CUDA)
 
 PROJECT(GERARDUS)
 
+# directories with ad hoc Findxxx.cmake files
+SET(CMAKE_MODULE_PATH
+  ${CMAKE_CURRENT_SOURCE_DIR}/matlab;${CMAKE_CURRENT_SOURCE_DIR}/cpp/src/third-party/cquammen-Clarity/CMake)
+
 # find Matlab
-SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/matlab)
 FIND_PACKAGE(Matlab)
 
 ##################################################################
