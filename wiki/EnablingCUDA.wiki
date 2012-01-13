@@ -43,3 +43,8 @@ Uncompressing NVIDIA CUDA.......................................................
 ..............................
 Enter install path (default /usr/local/cuda, '/cuda' will be appended):
 }}}
+ # Once CUDA is installed, enable it for the Gerardus build from Gerardus' root directory, e.g.
+{{{
+ $ cd ~/gerardus/bin
+ $ cmake -DBUILD_WITH_CUDA=ON ..
+}}}
