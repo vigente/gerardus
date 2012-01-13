@@ -7,9 +7,10 @@
 % machine, we have observed typical run times 1/2 to 1/3 of Matlab's native
 % deconvolution algorithms (e.g. deconvwnr, deconvlucy).
 %
-% In principle, Clarity provides a CUDA implementation too, to use the GPU
-% in nVidia graphic cards, but we have been unable to make it compile under
-% linux.
+% Clarity provides a CUDA implementation too. To enable it, read the
+% documentation in the wiki:
+%
+% http://code.google.com/p/gerardus/wiki/EnablingCUDA
 %
 % A = DECONVOLVE(ALGO, B, PSF)
 %
