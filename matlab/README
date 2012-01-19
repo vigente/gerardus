@@ -100,8 +100,8 @@ scinrrd_load.m
 	
 scinrrd_save.m
 
-	 SCINRRD_SAVE  Save a NRRD struct to a Matlab format that can be imported
-	 by Seg3D
+	 SCINRRD_SAVE  Save a NRRD struct to a Matlab/MetaImage format that can be
+	 imported by Seg3D
 	
 scinrrd_seg3d2matlab.m
 
@@ -125,6 +125,10 @@ sortdirbynum.m
 
 	 SORTDIRBYNUM  List the files in a directory ordering them by a numerical
 	 substring field in the file name
+	
+writemetaimagefile.m
+
+	 WRITEMETAIMAGEFILE  Write a MetaImage file (.mha) with both header and data
 	
 WriteMhaFile.m
 

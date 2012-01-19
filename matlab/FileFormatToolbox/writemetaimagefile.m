@@ -1,27 +1,24 @@
-function WriteMhaFile(filename, img_size, resolution, data_type, offset)
-% WRITEMHAFILE  Write the header part of a MetaImage file (.mha)
+function writemetaimagefile(filename, img, resolution, offset)
+% WRITEMETAIMAGEFILE  Write a MetaImage file (.mha) with both header and data
 %
-% WRITEMHAFILE(FILENAME, IMG_SIZE, RESOLUTION, DATA_TYPE, OFFSET)
+% WRITEMETAIMAGEFILE(FILENAME, IMG, RESOLUTION, DATA_TYPE, OFFSET)
 %
 %   FILENAME is the path and name of the file to be written, e.g.
 %   'foo.mha'.
 %
-%   IMG_SIZE is a 3-vector with the size of the output volume.
+%   IMG is a 3D matrix that contains the image volume.
 %
 %   RESOLUTION is a 3-vector with the voxel size in the 3 directions.
-%
-%   DATA_TYPE is a string with the data type as given my Matlab, e.g.
-%   'uint8', 'short', 'uint16'.
 %
 %   OFFSET is a vector with the real world coordinates in metres (not index
 %   coordinates) of the first voxel in the volume. For example,
 %   OFFSET=[0.014552, 0.010486, 0.00142]. By default, OFFSET=[0 0 0].
 %
-%   See also: WriteRawFile, writemetaimagefile.
+%   See also: WriteMhaFile, WriteRawFile.
 
 % Author(s): Ramon Casero <rcasero@gmail.com> and Vicente Grau
-% Copyright © 2009-2012 University of Oxford
-% Version: 0.1.1
+% Copyright © 2012 University of Oxford
+% Version: 0.1.0
 % $Rev$
 % $Date$
 % 
@@ -50,15 +47,22 @@ function WriteMhaFile(filename, img_size, resolution, data_type, offset)
 
 
 % check arguments
-error(nargchk(4, 5, nargin, 'struct'));
+error(nargchk(2, 4, nargin, 'struct'));
 error(nargoutchk(0, 0, nargout, 'struct'));
 
 % defaults
-if (nargin < 5 || isempty(offset))
+if (nargin < 3 || isempty(resolution))
+    resolution = [1.0 1.0 1.0];
+end
+if (nargin < 4 || isempty(offset))
     offset = [0.0 0.0 0.0];
 end
 
-[path, name] = fileparts(filename);
+% get image size
+img_size = size(img);
+
+% get pixel type
+data_type = class(img);
 
 % open file for writing
 fid=fopen(filename, 'w');
@@ -84,7 +88,7 @@ if(ndims == 3)
     end
 
     fprintf(fid, 'Offset = %1.6f %1.6f %1.6f\n', ...
-        offset(1), offset(2), offset(3));
+        offset( 1 ), offset( 2 ), offset( 3 ) );
 
     fprintf(fid, 'ElementSpacing = %1.12f %1.12f %1.12f\n', resolution(1), resolution(2), resolution(3));
 
@@ -104,7 +108,7 @@ elseif(ndims==4)
     end
 
     fprintf(fid, 'Offset = %1.6f %1.6f %1.6f\n', ...
-        offset(1), offset(2), offset(3));
+        offset( 1 ), offset( 2 ), offset( 3 ) );
 
     fprintf(fid, 'ElementSpacing = %1.12f %1.12f %1.12f %1.12f\n', resolution(1), resolution(2), resolution(3), resolution(4));
        
@@ -112,6 +116,9 @@ end
 
 fprintf(fid, 'ElementByteOrderMSB = False\n');
 
-fprintf(fid, 'ElementDataFile = %s\n', [name, '.raw']);
+fprintf(fid, 'ElementDataFile = LOCAL\n');
+
+% write image data to file
+fwrite(fid, img, data_type);
 
 fclose(fid);

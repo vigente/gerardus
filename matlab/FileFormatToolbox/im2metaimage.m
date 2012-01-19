@@ -10,7 +10,7 @@ function varargout = im2metaimage( str, res, scale, crop, ext, file )
 %     STR='/home/john/data/study01/study01.mha'; % linux
 %     STR='C:\data\study01\study01.mha';         % windows
 %
-%   It is assumed that the MetaImage files (.mha and .raw) will be created
+%   It is assumed that the MetaImage file (.mha) will be created
 %   from the image files found in the target directory.
 %
 % IM2METAIMAGE(STR, RES, SCALE, CROP, EXT, FILE)
@@ -62,7 +62,7 @@ function varargout = im2metaimage( str, res, scale, crop, ext, file )
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2009 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -165,13 +165,7 @@ else
 end
 
 % write mha file
-WriteMhaFile( [ dirdata filesep name '.mha' ], ...
-    [ size( im, 1 ), size( im, 2 ), size( im, 3 ) ], res, class( im ), ...
-    offset )
-
-% write raw file
-WriteRawFile( [ dirdata filesep name '.raw' ], ...
-    im, res, class( im ) )
+writemetaimagefile([dirdata filesep name '.mha'], im, res, offset);
 
 % avoid outputing the image volume unless the user has requested it
 % explicitly
