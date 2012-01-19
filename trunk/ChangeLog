@@ -1,3 +1,36 @@
+2012-01-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/FileFormatToolbox/dcm2metaimage.m (v0.1.1):
+	* matlab/FileFormatToolbox/im2metaimage.m (v0.1.1):
+
+	- Use new writemetaimagefile() function to write a single .mha
+	function instead of splitting header and image into .mha and .raw
+	files.
+
+	* Add matlab/FileFormatToolbox/writemetaimagefile.m (v0.1.0):
+
+	- WRITEMETAIMAGEFILE Write a MetaImage file (.mha) with both
+	header and data.
+
+	* matlab/FileFormatToolbox/scinrrd_save.m (v0.3.0):
+
+	- Now nrrd volumes can be saved to MetaImage format as well as
+	Matlab format. The reson to do this is that Seg3D at this point
+	cannot read the spacing and offset values from an image saved in
+	.mat format.
+
+	* matlab/FileFormatToolbox/WriteMhaFile.m (v0.1.1):
+
+	- Tidy up function. Remove unncessary input arguments. Images with
+	input type 'char' are not considered valid anymore.
+
+	* matlab/FileFormatToolbox/WriteRawFile.m (v0.2.0):
+
+	- Remove most of the code, that was redundant. What was happening
+	is that a header was being written, and then overwritten by the
+	raw data. Now only the raw data is written. Also, unnecessary
+	input arguments have been removed.
+
 2012-01-13  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* release 0.6.1
