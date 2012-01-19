@@ -1,13 +1,14 @@
 function scirunnrrd = scinrrd_save(file, scirunnrrd, touint8, v73)
-% SCINRRD_SAVE  Save a NRRD struct to a Matlab format that can be imported
-% by Seg3D
+% SCINRRD_SAVE  Save a NRRD struct to a Matlab/MetaImage format that can be
+% imported by Seg3D
 %
 % SCINRRD_SAVE(FILE, NRRD)
 %
-%   This function formats the NRRD volume and saves it to a .mat file that
-%   can be imported as a segmentation or opened as a volume by Seg3D.
+%   This function formats the NRRD volume and saves it to a .mat or .mha
+%   file that can be imported as a segmentation or opened as a volume by
+%   Seg3D.
 %
-%   FILE is a string with the path and name of the .mat file.
+%   FILE is a string with the path and name of the .mat/.mha file.
 %
 %   NRRD is the SCI NRRD struct.
 %
@@ -59,7 +60,7 @@ function scirunnrrd = scinrrd_save(file, scirunnrrd, touint8, v73)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.2.0
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
@@ -98,15 +99,35 @@ if (nargin < 4 || isempty(v73))
     v73 = false;
 end
 
-% make x-,y-coordinates compatible with the Seg3D convention
-scirunnrrd = scinrrd_seg3d2matlab(scirunnrrd);
+% get extension of output filename
+[~, ~, ext] = fileparts(file);
 
-% add dummy dimension, if necessary, and convert data to uint8
-scirunnrrd = scinrrd_unsqueeze(scirunnrrd, touint8);
-
-% save data
-if (v73)
-    save(file, 'scirunnrrd', '-v7.3');
-else
-    save(file, 'scirunnrrd');
+switch lower(ext)
+    case '.mat'
+        % make x-,y-coordinates compatible with the Seg3D convention
+        scirunnrrd = scinrrd_seg3d2matlab(scirunnrrd);
+        
+        % add dummy dimension, if necessary, and convert data to uint8, if
+        % requested
+        scirunnrrd = scinrrd_unsqueeze(scirunnrrd, touint8);
+        
+        % save data
+        if (v73)
+            save(file, 'scirunnrrd', '-v7.3');
+        else
+            save(file, 'scirunnrrd');
+        end
+    case '.mha'
+        % swap rows and columns so that we have x-coordinates in the first
+        % column, and y-coordinates in the second column, as expected by
+        % the MetaImage format
+        scirunnrrd.data = permute(scirunnrrd.data, [2 1 3:ndims(scirunnrrd.data)]);
+        
+        % save data
+        writemetaimagefile(file, scirunnrrd.data, ...
+            [scirunnrrd.axis.spacing], ...
+            [scirunnrrd.axis.min]);
+        
+    otherwise
+        error('Unrecognised output file format')
 end
