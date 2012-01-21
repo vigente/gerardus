@@ -1,5 +1,5 @@
 function nrrd = scinrrd_load(file)
-% SCINRRD_LOAD  Load a NRRD struct saved to Matlab or MetaImage format
+% SCINRRD_LOAD  Load a SCINRRD struct from a Matlab, MetaImage or LSM file
 %
 % NRRD = SCINRRD_LOAD(FILE)
 %
@@ -8,10 +8,8 @@ function nrrd = scinrrd_load(file)
 %   imagesc(nrrd.data(:,:,50)), it produces the same image as the 50 axial
 %   slice in Seg3D.
 %
-%   FILE is a string with the path and name of the .mat or .mha file that
-%   contains the NRRD volume. The function can load .mha files with the
-%   header and raw data, and also .mha files with the header that point at
-%   a .raw file with the data.
+%   FILE is a string with the path and name of the .mat, .mha or .lsm file
+%   that contains the 2D or 3D image.
 %
 %   NRRD is the SCI NRRD struct.
 %
@@ -37,7 +35,7 @@ function nrrd = scinrrd_load(file)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -72,141 +70,156 @@ error(nargoutchk(0, 1, nargout, 'struct'));
 [pathstr, ~, ext] = fileparts(file);
 ext = lower(ext);
 
-if strcmp(ext, '.mat') % Matlab file
-    % load data
-    nrrd = load(file);
+switch lower(ext)
     
-    % rename NRRD volume for convenience
-    nrrd = nrrd.scirunnrrd;
-    
-    % remove dummy dimension
-    nrrd = scinrrd_squeeze(nrrd);
-    
-    % correct x-,y-coordinates
-    nrrd = scinrrd_seg3d2matlab(nrrd);
-elseif strcmp(ext, '.mha') % MetaImage file
-    % open file to read
-    fid=fopen(file, 'r');
-    if (fid<=0)
-        error(['Cannot open file: ' file])
-    end
-    
-    % default values for the text header
-    N = [];
-    sz = [];
-    data_type = [];
-    offset = [];
-    res = [];
-    msb = [];
-    rawfile = [];
-    
-    % process text header, and stop if we get to the raw data
-    while 1
-        % read text header line
-        tline = fgetl(fid);
-        % if end of text header stop reading
-        if (tline(1) == 0), break, end
-        % update position of end of header
-        eoh = ftell(fid);
+    case '.mat' % Matlab file
+        % load data
+        nrrd = load(file);
         
-        % parse text header line
+        % rename NRRD volume for convenience
+        nrrd = nrrd.scirunnrrd;
         
-        % find location of "=" sign
-        idx = strfind(tline, '=');
-        if isempty(idx), break, end
+        % remove dummy dimension
+        nrrd = scinrrd_squeeze(nrrd);
         
-        switch getlabel(tline, idx)
-            case 'ndims'
-                N = getnumval(tline, idx);
-            case 'dimsize'
-                sz = getnumval(tline, idx);
-                % permute so that X-coordinates go along columns
-                sz([1 2]) = sz([2 1]);
-            case 'elementtype'
-                switch lower(strtrim(tline(idx+1:end)))
-                    case 'met_ushort'
-                        data_type = 'uint16';
-                    case 'met_short'
-                        data_type = 'short';
-                    case 'met_uchar'
-                        data_type = 'char';
-                    otherwise
-                        error('Unrecognized ElementType')
-                end
-            case 'offset'
-                offset = getnumval(tline, idx);
-            case 'elementspacing'
-                res = getnumval(tline, idx);
-            case 'elementbyteordermsb'
-                msb = strcmpi(strtrim(tline(idx+1:end)), 'true');
-            case 'elementdatafile'
-                rawfile = strtrim(tline(idx+1:end));
-            case 'compresseddata'
-                if strcmpi(strtrim(tline(idx+1:end)), 'true')
-                    error('Cannot read compressed MHA data')
-                end
-            otherwise
-                warning(['Unrecognized line: ' tline])
-        end
+        % correct x-,y-coordinates
+        nrrd = scinrrd_seg3d2matlab(nrrd);
         
-    end
-
-    % the raw data can be after the text header, or in a separate file. If
-    % there's a pointer to an external file, we assume that the data is
-    % there
-    if (isempty(rawfile) || strcmp(rawfile, 'LOCAL')) % data after text header
-        % move file pointer to the beginning of the raw data
-        if (fseek(fid, eoh, 'bof') == -1)
-            error('Cannot read file');
-        end
-    else % data in external file
-        % close mha file
-        fclose(fid);
-
-        % open raw file to read
-        fid=fopen([pathstr filesep rawfile], 'r');
+    case '.mha' % MetaImage file
+        
+        % open file to read
+        fid=fopen(file, 'r');
         if (fid<=0)
-            error(['Cannot open file: ' pathstr filesep rawfile])
+            error(['Cannot open file: ' file])
         end
-    end
-
-    % read all the raw data into a vector, because we cannot read it
-    % into a 3D volume
-    nrrd.data = fread(fid, prod(sz), [data_type '=>single']);
-    
-    % reshape the data to create the data volume
-    nrrd.data = reshape(nrrd.data, sz);
-    
-    % permute the X and Y coordinates
-    nrrd.data = permute(nrrd.data, [2 1 3]);
-    
-    % close file
-    fclose(fid);
-
-    % check that we have enough data to create the output struct
-    if (isempty(sz) || isempty(res) || isempty(offset))
-        error('Incomplete header in .mha file')
-    end
-    
-    % create output struct
-    for I = 1:N
-        nrrd.axis(I).size = sz(I);
-        nrrd.axis(I).spacing = res(I);
-        nrrd.axis(I).min = offset(I);
-        nrrd.axis(I).max = offset(I) + (sz(I)-1)*res(I);
-        nrrd.axis(I).center = 1;
-    end
-    nrrd.axis(1).label = 'axis 2';
-    nrrd.axis(2).label = 'axis 1';
-    nrrd.axis(3).label = 'axis 3';
-    nrrd.axis(1).unit = 'no unit';
-    nrrd.axis(2).unit = 'no unit';
-    nrrd.axis(3).unit = 'no unit';
-    nrrd.axis = nrrd.axis';
-    nrrd.property = [];
-    
-else
-    error('Invalid file extension')
+        
+        % default values for the text header
+        N = [];
+        sz = [];
+        data_type = [];
+        offset = [];
+        res = [];
+        msb = [];
+        rawfile = [];
+        
+        % process text header, and stop if we get to the raw data
+        while 1
+            % read text header line
+            tline = fgetl(fid);
+            % if end of text header stop reading
+            if (tline(1) == 0), break, end
+            % update position of end of header
+            eoh = ftell(fid);
+            
+            % parse text header line
+            
+            % find location of "=" sign
+            idx = strfind(tline, '=');
+            if isempty(idx), break, end
+            
+            switch getlabel(tline, idx)
+                case 'ndims'
+                    N = getnumval(tline, idx);
+                case 'dimsize'
+                    sz = getnumval(tline, idx);
+                    % permute so that X-coordinates go along columns
+                    sz([1 2]) = sz([2 1]);
+                case 'elementtype'
+                    switch lower(strtrim(tline(idx+1:end)))
+                        case 'met_ushort'
+                            data_type = 'uint16';
+                        case 'met_short'
+                            data_type = 'short';
+                        case 'met_uchar'
+                            data_type = 'char';
+                        otherwise
+                            error('Unrecognized ElementType')
+                    end
+                case 'offset'
+                    offset = getnumval(tline, idx);
+                case 'elementspacing'
+                    res = getnumval(tline, idx);
+                case 'elementbyteordermsb'
+                    msb = strcmpi(strtrim(tline(idx+1:end)), 'true');
+                case 'elementdatafile'
+                    rawfile = strtrim(tline(idx+1:end));
+                case 'compresseddata'
+                    if strcmpi(strtrim(tline(idx+1:end)), 'true')
+                        error('Cannot read compressed MHA data')
+                    end
+                otherwise
+                    warning(['Unrecognized line: ' tline])
+            end
+            
+        end
+        
+        % the raw data can be after the text header, or in a separate file. If
+        % there's a pointer to an external file, we assume that the data is
+        % there
+        if (isempty(rawfile) || strcmp(rawfile, 'LOCAL')) % data after text header
+            % move file pointer to the beginning of the raw data
+            if (fseek(fid, eoh, 'bof') == -1)
+                error('Cannot read file');
+            end
+        else % data in external file
+            % close mha file
+            fclose(fid);
+            
+            % open raw file to read
+            fid=fopen([pathstr filesep rawfile], 'r');
+            if (fid<=0)
+                error(['Cannot open file: ' pathstr filesep rawfile])
+            end
+        end
+        
+        % read all the raw data into a vector, because we cannot read it
+        % into a 3D volume
+        nrrd.data = fread(fid, prod(sz), [data_type '=>single']);
+        
+        % reshape the data to create the data volume
+        nrrd.data = reshape(nrrd.data, sz);
+        
+        % permute the X and Y coordinates
+        nrrd.data = permute(nrrd.data, [2 1 3]);
+        
+        % close file
+        fclose(fid);
+        
+        % check that we have enough data to create the output struct
+        if (isempty(sz) || isempty(res) || isempty(offset))
+            error('Incomplete header in .mha file')
+        end
+        
+        % create output struct
+        for I = 1:N
+            nrrd.axis(I).size = sz(I);
+            nrrd.axis(I).spacing = res(I);
+            nrrd.axis(I).min = offset(I);
+            nrrd.axis(I).max = offset(I) + (sz(I)-1)*res(I);
+            nrrd.axis(I).center = 1;
+        end
+        nrrd.axis(1).label = 'axis 2';
+        nrrd.axis(2).label = 'axis 1';
+        nrrd.axis(3).label = 'axis 3';
+        nrrd.axis(1).unit = 'no unit';
+        nrrd.axis(2).unit = 'no unit';
+        nrrd.axis(3).unit = 'no unit';
+        nrrd.axis = nrrd.axis';
+        nrrd.property = [];
+        
+    case '.lsm' % Carl Zeiss LSM format
+        
+        % read TIFF file
+        warning('off', 'tiffread2:LookUp')
+        stack = tiffread(file);
+        warning('on', 'tiffread2:LookUp')
+        
+        % convert to sci format
+        nrrd = scinrrd_tiff2nrrd(stack);
+        
+    otherwise
+        
+        error('Invalid file extension')
 end
 
 end
