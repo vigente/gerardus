@@ -26,7 +26,7 @@ function psf = typicalpsf(im, sidesz, thr)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -70,6 +70,15 @@ mask(im < thr) = 0;
 cc = bwconncomp(mask);
 clear mask
 
+% maximum intensity value for the image's data type
+if isinteger(im)
+    maxval = intmax(class(im));
+elseif isnumeric(im)
+    maxval = realmax(class(im));
+else
+    error('Image type is not numeric')
+end
+
 % convert image to double
 im = double(im);
 
@@ -87,19 +96,23 @@ idx = ([stats.Area] >= lo & [stats.Area] <= hi)';
 m = zeros(cc.NumObjects, 3);
 for I = 1:cc.NumObjects
     % whole image index of the voxel with maximum intensity
-    idx = cc.PixelIdxList{I}(im(cc.PixelIdxList{I}) == stats(I).MaxIntensity);
+    aux = cc.PixelIdxList{I}(im(cc.PixelIdxList{I}) == stats(I).MaxIntensity);
     
     % idx = > r, c, s
-    [m(I, 1), m(I, 2), m(I, 3)] = ind2sub(cc.ImageSize, idx(1));
+    [m(I, 1), m(I, 2), m(I, 3)] = ind2sub(cc.ImageSize, aux(1));
 end
 
 % components too close to the edges will be ignored
 bad = m(:, 1) <= sidesz(1) | m(:, 1) >= size(im, 1)-sidesz(1)+1 ...
     | m(:, 2) <= sidesz(2) | m(:, 2) >= size(im, 2)-sidesz(2)+1 ...
     | m(:, 3) <= sidesz(3) | m(:, 3) >= size(im, 3)-sidesz(3)+1;
+
+% exclude components that have saturated intensity values
+bad = bad | ([stats.MaxIntensity] >= maxval)';
+
 idx = idx & ~bad;
 
-% init matrix to put in each row one box
+% init matrix; each row of the matrix will contain the voxels in one box
 psf = nan(nnz(idx), prod(2*sidesz+1));
 
 % list of components to analyze
