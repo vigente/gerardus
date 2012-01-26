@@ -35,7 +35,7 @@ function nrrd = scinrrd_load(file)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -108,8 +108,9 @@ switch lower(ext)
             tline = fgetl(fid);
             % if end of text header stop reading
             if (tline(1) == 0), break, end
-            % update position of end of header
-            eoh = ftell(fid);
+            
+            % pointer to current position in header
+            eoh0 = ftell(fid);
             
             % parse text header line
             
@@ -151,6 +152,9 @@ switch lower(ext)
                     warning(['Unrecognized line: ' tline])
             end
             
+            % update position of end of header
+            eoh = eoh0;
+
         end
         
         % the raw data can be after the text header, or in a separate file. If
