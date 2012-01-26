@@ -1,3 +1,11 @@
+2012-01-26  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/FileFormatToolbox/scinrrd_load.m (v0.2.1):
+
+	- Fix bug. When raw data follows header in .mha file, the file
+	pointer was not being returned to the right position before
+	reading the raw data.
+
 2012-01-21  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/FiltersToolbox/typicalpsf.m (v0.1.1):
