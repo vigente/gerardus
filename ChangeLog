@@ -1,3 +1,10 @@
+2012-01-27  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/FileFormatToolbox/scinrrd_load.m (v0.2.2):
+
+	- Fix bug. All intensity values where converted to single. Now
+	nrrd.data has the same type as the data in the file.
+
 2012-01-26  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/FileFormatToolbox/scinrrd_load.m (v0.2.1):
