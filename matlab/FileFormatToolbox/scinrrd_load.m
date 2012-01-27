@@ -35,7 +35,7 @@ function nrrd = scinrrd_load(file)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 % 
@@ -178,7 +178,7 @@ switch lower(ext)
         
         % read all the raw data into a vector, because we cannot read it
         % into a 3D volume
-        nrrd.data = fread(fid, prod(sz), [data_type '=>single']);
+        nrrd.data = fread(fid, prod(sz), [data_type '=>' data_type]);
         
         % reshape the data to create the data volume
         nrrd.data = reshape(nrrd.data, sz);
