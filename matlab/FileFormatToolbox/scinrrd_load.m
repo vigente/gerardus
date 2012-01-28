@@ -35,7 +35,7 @@ function nrrd = scinrrd_load(file)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.2.2
+% Version: 0.2.3
 % $Rev$
 % $Date$
 % 
@@ -127,12 +127,22 @@ switch lower(ext)
                     sz([1 2]) = sz([2 1]);
                 case 'elementtype'
                     switch lower(strtrim(tline(idx+1:end)))
+                        case 'met_uchar'
+                            data_type = 'uint8';
+                        case 'met_char'
+                            data_type = 'int8';
                         case 'met_ushort'
                             data_type = 'uint16';
                         case 'met_short'
-                            data_type = 'short';
-                        case 'met_uchar'
-                            data_type = 'char';
+                            data_type = 'int16';
+                        case 'met_uint'
+                            data_type = 'uint32';
+                        case 'met_int'
+                            data_type = 'int32';
+                        case 'met_float'
+                            data_type = 'single';
+                        case 'met_double'
+                            data_type = 'double';
                         otherwise
                             error('Unrecognized ElementType')
                     end
