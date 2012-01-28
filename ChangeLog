@@ -1,6 +1,6 @@
 2012-01-28  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
-	* matlab/FileFormatToolbox/scinrrd_seg3d2matlab.m (v0.1.0):
+	* matlab/FileFormatToolbox/scinrrd_seg3d2matlab.m (v0.1.1):
 
 	- Fix bug. The function crashed if the scinrrd struct didn't
 	contain an "axis" field. Now it gives a warning.
