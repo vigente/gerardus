@@ -18,7 +18,7 @@ function writemetaimagefile(filename, img, resolution, offset)
 
 % Author(s): Ramon Casero <rcasero@gmail.com> and Vicente Grau
 % Copyright © 2012 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -77,14 +77,25 @@ if(ndims == 3)
 
     fprintf(fid, 'DimSize = %d %d %d\n', img_size(2), img_size(1), img_size(3));
 
-    if(strcmp(data_type, 'uint8'))
-        fprintf(fid, 'ElementType = MET_UCHAR\n');
-    elseif(strcmp(data_type, 'short'))
-        fprintf(fid, 'ElementType = MET_SHORT\n');
-    elseif (strcmp(data_type, 'uint16'))
-        fprintf(fid, 'ElementType = MET_USHORT\n');
-    else
-        error('Not implemented data type')
+    switch data_type
+        case 'uint8'
+            fprintf(fid, 'ElementType = MET_UCHAR\n');
+        case 'int8'
+            fprintf(fid, 'ElementType = MET_CHAR\n');
+        case 'uint16'
+            fprintf(fid, 'ElementType = MET_USHORT\n');
+        case 'int16'
+            fprintf(fid, 'ElementType = MET_SHORT\n');
+        case 'uint32'
+            fprintf(fid, 'ElementType = MET_UINT\n');
+        case 'int32'
+            fprintf(fid, 'ElementType = MET_INT\n');
+        case 'single'
+            fprintf(fid, 'ElementType = MET_FLOAT\n');
+        case 'double'
+            fprintf(fid, 'ElementType = MET_DOUBLE\n');
+        otherwise
+            error('Unrecognized data type')
     end
 
     fprintf(fid, 'Offset = %1.6f %1.6f %1.6f\n', ...
@@ -97,14 +108,25 @@ elseif(ndims==4)
 
     fprintf(fid, 'DimSize = %d %d %d %d\n', img_size(2), img_size(1), img_size(3), img_size(4));
 
-    if(strcmp(data_type, 'uint8'))
-        fprintf(fid, 'ElementType = MET_UCHAR\n');
-    elseif(strcmp(data_type, 'short'))
-        fprintf(fid, 'ElementType = MET_SHORT\n');
-    elseif (strcmp(data_type, 'uint16'))
-        fprintf(fid, 'ElementType = MET_USHORT\n');
-    else
-        error('Not implemented data type')
+    switch data_type
+        case 'uint8'
+            fprintf(fid, 'ElementType = MET_UCHAR\n');
+        case 'int8'
+            fprintf(fid, 'ElementType = MET_CHAR\n');
+        case 'uint16'
+            fprintf(fid, 'ElementType = MET_USHORT\n');
+        case 'int16'
+            fprintf(fid, 'ElementType = MET_SHORT\n');
+        case 'uint32'
+            fprintf(fid, 'ElementType = MET_UINT\n');
+        case 'int32'
+            fprintf(fid, 'ElementType = MET_INT\n');
+        case 'single'
+            fprintf(fid, 'ElementType = MET_FLOAT\n');
+        case 'double'
+            fprintf(fid, 'ElementType = MET_DOUBLE\n');
+        otherwise
+            error('Unrecognized data type')
     end
 
     fprintf(fid, 'Offset = %1.6f %1.6f %1.6f\n', ...
