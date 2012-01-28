@@ -63,21 +63,27 @@ function nrrd = scinrrd_seg3d2matlab(nrrd)
 error(nargchk(1, 1, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
-% axis info may be missing
-if (~isfield(nrrd, 'axis') || isempty(nrrd.axis) || ~isfield(nrrd.axis, 'size'))
+% axis info may be missing, due to a bug in Seg3D2. In that case, the image
+% will have 3 dimensions
+if (~isfield(nrrd, 'axis') || isempty(nrrd.axis) ...
+        || ~isfield(nrrd.axis, 'size'))
     warning('Missing axis information')
-    return
-end
-
-% the volume may have a dummy dimension or not (if scinrrd_squeeze() has
-% been used)
-if (length([nrrd.axis.size]) == 4) % dummy dimension present
-    % indices to swap rows and columns
-    idx = [1 3 2 4];
-else % dummy dimension removed
     % indices to swap rows and columns
     idx = [2 1 3];
+
+else
+    
+    % the volume may have a dummy dimension or not (if scinrrd_squeeze()
+    % has been used)
+    if (length([nrrd.axis.size]) == 4) % dummy dimension present
+        % indices to swap rows and columns
+        idx = [1 3 2 4];
+    else % dummy dimension removed
+        % indices to swap rows and columns
+        idx = [2 1 3];
+    end
+    
+    nrrd.axis = nrrd.axis(idx);
 end
 
 nrrd.data = permute(nrrd.data, idx);
-nrrd.axis = nrrd.axis(idx);
