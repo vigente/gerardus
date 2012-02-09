@@ -103,7 +103,7 @@ function nrrd = scinrrd_tiff2nrrd(stack)
          
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.2
+% Version: 0.2.3
 % $Rev$
 % $Date$
 % 
@@ -201,6 +201,19 @@ elseif isfield(stack, 'lsm') % stack read from an LSM v5 file
         
     else
         error('Unrecognized number of channels in LSM file')
+    end
+    
+    % the microscope camera can save to 12-bit, but this is read as uint16
+    % by the LSM reading function
+    if ((stack(1).lsm.IntensityDataType == 2) ...
+            && strcmp(class(nrrd.data), 'uint16')) % LSM data is 12-bit
+        
+        if (max(nrrd.data(:)) > (2^12-1))
+            warning('I think that LSM data is 12-bit, but values are larger than expected')
+        end
+        
+        % scale intensity values so that they cover the whole range
+        nrrd.data(:) = imadjust(nrrd.data(:), [0 (2^12-1)/(2^16-1)], [0 1]);
     end
     
     % voxel resolution

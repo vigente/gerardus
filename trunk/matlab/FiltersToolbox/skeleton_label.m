@@ -123,7 +123,7 @@ function [sk, cc, bifcc, mcon, madj, cc2, mmerge] = skeleton_label(sk, im, res, 
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.15.1
+% Version: 0.15.3
 % $Rev$
 % $Date$
 % 
@@ -182,6 +182,18 @@ end
 %% split skeleton into branches and bifurcation voxels, and create cc 
 %% struct
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% if there are no skeleton voxels, then we return sk with all voxels set to
+% 0, even if a non-empty segmentation was provided
+if (nnz(sk) == 0)
+    cc = [];
+    bifcc = [];
+    mcon = [];
+    madj = [];
+    cc2 = [];
+    mmerge = [];
+    return
+end
 
 % get sparse matrix of distances between voxels. To label the skeleton we
 % don't care about the actual distances, just need to know which voxels are
