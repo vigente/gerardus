@@ -64,7 +64,7 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio, alphamax,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % $Rev$
 % $Date$
 % 
@@ -117,6 +117,11 @@ if (nargin < 6 || isempty(p))
 end
 
 %% Step 1: removal of big clumps of voxels
+
+% if we have no voxels to prune, don't waste time processing
+if (nnz(nrrdsk.data) == 0)
+    return
+end
 
 % get sparse matrix of distances between voxels. To label the skeleton we
 % don't care about the actual distances, just need to know which voxels are
