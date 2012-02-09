@@ -1,3 +1,18 @@
+2012-02-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/FiltersToolbox/skeleton_label.m (v0.15.3):
+
+	- If we have no skeleton voxels, don't waste time processing.
+
+	* matlab/FiltersToolbox/scinrrd_skeleton_prune.m (v0.4.1):
+
+	- If we have no voxels to prune, don't waste time processing.
+
+	* matlab/FileFormatToolbox/scinrrd_tiff2nrrd.m (v0.2.3):
+
+	- If data was read by microscope as 12-bit, scale intensities so
+	that they cover the whole 16-bit range.
+
 2012-01-28  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/FileFormatToolbox/scinrrd_seg3d2matlab.m (v0.1.1):
