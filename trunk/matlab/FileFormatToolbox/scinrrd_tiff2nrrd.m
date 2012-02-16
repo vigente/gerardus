@@ -103,7 +103,7 @@ function nrrd = scinrrd_tiff2nrrd(stack)
          
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.3
+% Version: 0.2.4
 % $Rev$
 % $Date$
 % 
@@ -133,7 +133,6 @@ function nrrd = scinrrd_tiff2nrrd(stack)
 % check arguments
 error(nargchk(1, 1, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
-
 
 % if stack was read from a TIFF file, it will have an 'info' field
 if isfield(stack, 'info')
@@ -212,8 +211,6 @@ elseif isfield(stack, 'lsm') % stack read from an LSM v5 file
             warning('I think that LSM data is 12-bit, but values are larger than expected')
         end
         
-        % scale intensity values so that they cover the whole range
-        nrrd.data(:) = imadjust(nrrd.data(:), [0 (2^12-1)/(2^16-1)], [0 1]);
     end
     
     % voxel resolution

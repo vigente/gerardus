@@ -1,3 +1,20 @@
+2012-02-16  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/FiltersToolbox/typicalpsf.m (v0.2.0):
+
+	- Change input argument thr, so that now they represent quantile
+	values. This works better in terms of masking out the background
+	of the image.
+
+	- Add input argument minsz, a scalar with the minimum size of a
+	bead connected component in voxels. Smaller components will be
+	considered noise.
+
+	* matlab/FileFormatToolbox/scinrrd_tiff2nrrd.m (v0.2.4):
+
+	- Don't scale intensity values. This was a very bad idea. A load
+	function should not invisibly change intensity values.
+
 2012-02-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/FiltersToolbox/skeleton_label.m (v0.15.3):
