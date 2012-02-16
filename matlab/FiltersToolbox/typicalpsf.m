@@ -1,7 +1,7 @@
-function psf = typicalpsf(im, sidesz, thr)
+function [psf, n] = typicalpsf(im, sidesz, thr, minsz)
 % TYPICALPSF  Estimate point spread function from microbeads image
 %
-% PSF = TYPICALPSF(IM, SIDESZ, THR)
+% PSF = TYPICALPSF(IM, SIDESZ, THR, MINSZ)
 %
 %   PSF is an array with dimensions 2*SIDESZ+1 that contains the estimation
 %   of the typical point spread function (PSF) obtained from IM.
@@ -12,7 +12,12 @@ function psf = typicalpsf(im, sidesz, thr)
 %   noise.
 %
 %   THR is a scalar with the noise level. Any voxel with intensity < THR
-%   will be made 0.
+%   will be made 0. By default, THR = QUANTILE(IM, .99). This assumes an
+%   image with some bright points, but mostly background.
+%
+%   MINSZ is a scalar with the minimum size of a bead connected component
+%   in voxels. Smaller components will be considered noise. By default,
+%   MINSZ=4.
 %
 %   This function finds each potential bead in the image and counts the
 %   number of voxels it contains. Only beads with size between the 1st and
@@ -23,10 +28,15 @@ function psf = typicalpsf(im, sidesz, thr)
 %   It is necessary to provide an estimate of the bead image size. SIDESZ
 %   contains the number of voxels at each side of the centre. That is, we
 %   assume that the PSF is negligible beyond a box of size 2*SIDESZ+1.
+%
+% [PSF, N] = TYPICALPSF(...)
+%
+%   N is a scalar with the number of beads that were used to estimate the
+%   PSF.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -54,21 +64,8 @@ function psf = typicalpsf(im, sidesz, thr)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 3, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
-
-% defaults
-if (nargin < 3 || isempty(thr))
-    thr = max(im(:)) / 15;
-end
-
-% threshold to remove background noise
-mask = im;
-mask(im < thr) = 0;
-
-% compute connected components
-cc = bwconncomp(mask);
-clear mask
+error(nargchk(2, 4, nargin, 'struct'));
+error(nargoutchk(0, 2, nargout, 'struct'));
 
 % maximum intensity value for the image's data type
 if isinteger(im)
@@ -79,11 +76,35 @@ else
     error('Image type is not numeric')
 end
 
+% defaults
+if (nargin < 3 || isempty(thr))
+    thr = quantile(im(:), .99);
+else
+    thr = quantile(im(:), thr);
+end
+if (nargin < 4 || isempty(minsz))
+    minsz = 4;
+end
+
+% threshold to remove background noise
+mask = im;
+mask(im < thr) = 0;
+
+% compute connected components
+cc = bwconncomp(mask);
+clear mask
+
 % convert image to double
 im = double(im);
 
 % compute size of each component
 stats = regionprops(cc, im, 'Area', 'MaxIntensity');
+
+% remove connected components with small size, as they probably correspond to noise
+idx = [stats.Area] <= minsz;
+cc.PixelIdxList(idx) = [];
+cc.NumObjects = nnz(~idx);
+stats(idx) = [];
 
 % get the 1st and 3rd quantiles of the size of the beads image
 lo = quantile([stats.Area], .25);
@@ -118,8 +139,11 @@ psf = nan(nnz(idx), prod(2*sidesz+1));
 % list of components to analyze
 idx = find(idx)';
 
+% number of beads that will be used to estimate the PSF
+n = length(idx);
+
 % loop every valid object
-for I = 1:length(idx);
+for I = 1:n
     
     % coordinates of centroid in an easier nomenclature
     r = m(idx(I), 1);
@@ -142,4 +166,3 @@ psf = median(psf, 1);
 
 % recover box shape
 psf = reshape(psf, 2*sidesz+1);
-
