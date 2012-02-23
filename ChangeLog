@@ -1,3 +1,21 @@
+2012-02-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/FileFormatToolbox/scinrrd_save.m (v0.3.1):
+
+	- Fix bug. nrrd.axis.min points to the _corner_ of the first
+	voxel, whereas MetaImage's format Offset label referes to the
+	_centre_ of the first voxel. Now we are passing the correct offset
+	value by adding half the voxel size to nrrd.axis.min.
+
+	* matlab/FileFormatToolbox/writemetaimagefile.m (v0.1.2):
+
+	- Fix bug. Spacing and offset values were saved as a fixed-length
+	float with 6 decimal places. But microscopy images often have
+	spacing or offsets that can be smaller than that precision, so
+	they were being truncated to 0.000000. Now we use an exponential
+	format with 12 decimal places (e.g. -2.197265685380e-07), which
+	solves that problem.
+
 2012-02-16  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/FiltersToolbox/typicalpsf.m (v0.2.0):
