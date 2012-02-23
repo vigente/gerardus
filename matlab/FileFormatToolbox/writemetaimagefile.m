@@ -11,14 +11,15 @@ function writemetaimagefile(filename, img, resolution, offset)
 %   RESOLUTION is a 3-vector with the voxel size in the 3 directions.
 %
 %   OFFSET is a vector with the real world coordinates in metres (not index
-%   coordinates) of the first voxel in the volume. For example,
-%   OFFSET=[0.014552, 0.010486, 0.00142]. By default, OFFSET=[0 0 0].
+%   coordinates) of the centre of the first voxel in the volume. For
+%   example, OFFSET=[0.014552, 0.010486, 0.00142]. By default, 
+%   OFFSET=[0 0 0].
 %
 %   See also: WriteMhaFile, WriteRawFile.
 
 % Author(s): Ramon Casero <rcasero@gmail.com> and Vicente Grau
 % Copyright © 2012 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
@@ -98,15 +99,17 @@ if(ndims == 3)
             error('Unrecognized data type')
     end
 
-    fprintf(fid, 'Offset = %1.6f %1.6f %1.6f\n', ...
-        offset( 1 ), offset( 2 ), offset( 3 ) );
+    fprintf(fid, 'Offset = %1.12e %1.12e %1.12e\n', ...
+        offset(1), offset(2), offset(3));
 
-    fprintf(fid, 'ElementSpacing = %1.12f %1.12f %1.12f\n', resolution(1), resolution(2), resolution(3));
+    fprintf(fid, 'ElementSpacing = %1.12e %1.12e %1.12e\n', ...
+        resolution(1), resolution(2), resolution(3));
 
 elseif(ndims==4)
     fprintf(fid, 'NDims = 4\n');
 
-    fprintf(fid, 'DimSize = %d %d %d %d\n', img_size(2), img_size(1), img_size(3), img_size(4));
+    fprintf(fid, 'DimSize = %d %d %d %d\n', ...
+        img_size(2), img_size(1), img_size(3), img_size(4));
 
     switch data_type
         case 'uint8'
@@ -129,10 +132,11 @@ elseif(ndims==4)
             error('Unrecognized data type')
     end
 
-    fprintf(fid, 'Offset = %1.6f %1.6f %1.6f\n', ...
-        offset( 1 ), offset( 2 ), offset( 3 ) );
+    fprintf(fid, 'Offset = %1.12e %1.12e %1.12e\n', ...
+        offset(1), offset(2), offset(3));
 
-    fprintf(fid, 'ElementSpacing = %1.12f %1.12f %1.12f %1.12f\n', resolution(1), resolution(2), resolution(3), resolution(4));
+    fprintf(fid, 'ElementSpacing = %1.12e %1.12e %1.12e %1.12e\n', ...
+        resolution(1), resolution(2), resolution(3), resolution(4));
        
 end
 
