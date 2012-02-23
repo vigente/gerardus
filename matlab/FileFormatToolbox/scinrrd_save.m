@@ -60,7 +60,7 @@ function scirunnrrd = scinrrd_save(file, scirunnrrd, touint8, v73)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % $Rev$
 % $Date$
 % 
@@ -126,7 +126,7 @@ switch lower(ext)
         % save data
         writemetaimagefile(file, scirunnrrd.data, ...
             [scirunnrrd.axis.spacing], ...
-            [scirunnrrd.axis.min]);
+            [scirunnrrd.axis.min]+[scirunnrrd.axis.spacing]/2);
         
     otherwise
         error('Unrecognised output file format')
