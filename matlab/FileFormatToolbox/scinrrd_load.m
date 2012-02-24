@@ -35,7 +35,7 @@ function nrrd = scinrrd_load(file)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.2.3
+% Version: 0.2.4
 % $Rev$
 % $Date$
 % 
@@ -208,8 +208,8 @@ switch lower(ext)
         for I = 1:N
             nrrd.axis(I).size = sz(I);
             nrrd.axis(I).spacing = res(I);
-            nrrd.axis(I).min = offset(I);
-            nrrd.axis(I).max = offset(I) + (sz(I)-1)*res(I);
+            nrrd.axis(I).min = offset(I) - res(I)/2;
+            nrrd.axis(I).max = nrrd.axis(I).min + (sz(I)-1)*res(I);
             nrrd.axis(I).center = 1;
         end
         nrrd.axis(1).label = 'axis 2';
