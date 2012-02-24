@@ -1,3 +1,11 @@
+2012-02-24  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/FileFormatToolbox/scinrrd_load.m (v0.2.4):
+
+	- Fix bug. Similarly to yesterday's fixed bug, nrrd.axis.min was
+	not being read correctly from .mha files. We had forgotten to
+	remove half the voxel size from the offset value.
+
 2012-02-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/FileFormatToolbox/scinrrd_save.m (v0.3.1):
