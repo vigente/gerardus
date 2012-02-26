@@ -96,7 +96,7 @@ scinrrd_index2world.m
 	
 scinrrd_load.m
 
-	 SCINRRD_LOAD  Load a NRRD struct saved to Matlab or MetaImage format
+	 SCINRRD_LOAD  Load a SCINRRD struct from a Matlab, MetaImage or LSM file
 	
 scinrrd_save.m
 
@@ -142,6 +142,10 @@ WriteRawFile.m
 FiltersToolbox
 -------------------------------------------------------------
 
+blockproc3.m
+
+	 BLOCKPROC3  Block processing for a 3D image
+	
 bwregiongrow.m
 
 	 BWREGIONGROW  Fast region grow labelling of binary image from multiple
