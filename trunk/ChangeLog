@@ -1,6 +1,25 @@
 2012-02-28  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* matlab/FileFormatToolbox/scinrrd_save.m (v0.3.2):
+
+	- Fix bug. When writing to .mha file, function
+	writemetaimagefile() expects all input arguments in the order x,
+	y, z, so not only the image but also the size, spacing and offset
+	vectors had to be permuted accordingly.
+
+	* matlab/FileFormatToolbox/scinrrd_load.m (v0.2.5):
+
+	- Fix bug. Size vector shouldn't have permuted the x and y
+	components when reading from an .mha file. For consistency, it's
+	better to just read the size, spacing and offset values as they
+	are in the .mha file (x, y, z), and then permute the whole
+	nrrd.axis so that we have rows->y and cols->x.
+
 	* matlab/FileFormatToolbox/writemetaimagefile.m (v0.1.3):
+
+	- Fix bug. The expected input should be having all input arguments
+	(image data, spacing, offset, size) in the order x, y, z. And this
+	is the order that they have to be written to the .mha file too.
 
 	- Add "logical" (boolean) as input data type.
 

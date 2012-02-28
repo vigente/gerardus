@@ -6,16 +6,21 @@ function writemetaimagefile(filename, img, resolution, offset)
 %   FILENAME is the path and name of the file to be written, e.g.
 %   'foo.mha'.
 %
-%   IMG is a 3D matrix that contains the image volume.
+%   IMG is a 3D matrix that contains the image volume. The index-coordinate
+%   correspondence must be:
 %
-%   RESOLUTION is a 3-vector with the voxel size in the 3 directions.
+%     [row, col, slice] -> [x, y, z]
+%
+%   which is different from the Matlab standard for images, where rows
+%   correspond to the y-coordinate.
+%
+%   RESOLUTION is a 3-vector with the voxel size in the 3 directions. The
+%   order must be [dx, dy, dz].
 %
 %   OFFSET is a vector with the real world coordinates in metres (not index
 %   coordinates) of the centre of the first voxel in the volume. For
 %   example, OFFSET=[0.014552, 0.010486, 0.00142]. By default, 
-%   OFFSET=[0 0 0].
-%
-%   See also: WriteMhaFile, WriteRawFile.
+%   OFFSET=[0 0 0]. The order must be the same as in RESOLUTION.
 
 % Author(s): Ramon Casero <rcasero@gmail.com> and Vicente Grau
 % Copyright © 2012 University of Oxford
@@ -68,7 +73,7 @@ data_type = class(img);
 % open file for writing
 fid=fopen(filename, 'w');
 if(fid<=0) 
-    fprintf('Impossible to open file %s\n', filename);
+    fprintf('Could not open file: %s\n', filename);
 end
 
 ndims=numel(resolution);
@@ -76,7 +81,8 @@ ndims=numel(resolution);
 if(ndims == 3)
     fprintf(fid, 'NDims = 3\n');
 
-    fprintf(fid, 'DimSize = %d %d %d\n', img_size(2), img_size(1), img_size(3));
+    fprintf(fid, 'DimSize = %d %d %d\n', ...
+        img_size(1), img_size(2), img_size(3));
 
     switch data_type
         case {'logical', 'uint8'}
@@ -109,7 +115,7 @@ elseif(ndims==4)
     fprintf(fid, 'NDims = 4\n');
 
     fprintf(fid, 'DimSize = %d %d %d %d\n', ...
-        img_size(2), img_size(1), img_size(3), img_size(4));
+        img_size(1), img_size(2), img_size(3), img_size(4));
 
     switch data_type
         case {'logical', 'uint8'}
