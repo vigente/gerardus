@@ -35,7 +35,7 @@ function nrrd = scinrrd_load(file)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.2.4
+% Version: 0.2.5
 % $Rev$
 % $Date$
 % 
@@ -123,8 +123,6 @@ switch lower(ext)
                     N = getnumval(tline, idx);
                 case 'dimsize'
                     sz = getnumval(tline, idx);
-                    % permute so that X-coordinates go along columns
-                    sz([1 2]) = sz([2 1]);
                 case 'elementtype'
                     switch lower(strtrim(tline(idx+1:end)))
                         case 'met_uchar'
@@ -204,7 +202,7 @@ switch lower(ext)
             error('Incomplete header in .mha file')
         end
         
-        % create output struct
+        % create output struct (we have read sz, res, etc in x, y, z order)
         for I = 1:N
             nrrd.axis(I).size = sz(I);
             nrrd.axis(I).spacing = res(I);
@@ -212,14 +210,18 @@ switch lower(ext)
             nrrd.axis(I).max = nrrd.axis(I).min + (sz(I)-1)*res(I);
             nrrd.axis(I).center = 1;
         end
-        nrrd.axis(1).label = 'axis 2';
-        nrrd.axis(2).label = 'axis 1';
+        nrrd.axis(1).label = 'axis 1';
+        nrrd.axis(2).label = 'axis 2';
         nrrd.axis(3).label = 'axis 3';
         nrrd.axis(1).unit = 'no unit';
         nrrd.axis(2).unit = 'no unit';
         nrrd.axis(3).unit = 'no unit';
         nrrd.axis = nrrd.axis';
         nrrd.property = [];
+        
+        % now we need to permute the axis so that we have [row, col,
+        % slice]-> [y, x, z]
+        nrrd.axis([1 2]) = nrrd.axis([2 1]);
         
     case '.lsm' % Carl Zeiss LSM format
         
