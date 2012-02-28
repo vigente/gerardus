@@ -19,7 +19,7 @@ function writemetaimagefile(filename, img, resolution, offset)
 
 % Author(s): Ramon Casero <rcasero@gmail.com> and Vicente Grau
 % Copyright © 2012 University of Oxford
-% Version: 0.1.2
+% Version: 0.1.3
 % $Rev$
 % $Date$
 % 
@@ -79,7 +79,7 @@ if(ndims == 3)
     fprintf(fid, 'DimSize = %d %d %d\n', img_size(2), img_size(1), img_size(3));
 
     switch data_type
-        case 'uint8'
+        case {'logical', 'uint8'}
             fprintf(fid, 'ElementType = MET_UCHAR\n');
         case 'int8'
             fprintf(fid, 'ElementType = MET_CHAR\n');
@@ -112,7 +112,7 @@ elseif(ndims==4)
         img_size(2), img_size(1), img_size(3), img_size(4));
 
     switch data_type
-        case 'uint8'
+        case {'logical', 'uint8'}
             fprintf(fid, 'ElementType = MET_UCHAR\n');
         case 'int8'
             fprintf(fid, 'ElementType = MET_CHAR\n');
