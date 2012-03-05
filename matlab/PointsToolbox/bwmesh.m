@@ -9,17 +9,29 @@ function [tri, triboundary] = bwmesh(im, res)
 %   RES is a 3-vector with the size of the voxel in each coordinate. By
 %   default, RES=[1 1 1].
 %
-%   TRI is a 'TriRep' struct with the description of the mesh. To plot the
-%   volumetric mesh you can use (but note that this is very slow even for
-%   small meshes)
+%   TRI is a 4-column array where each row contains the indices of 4 nodes
+%   forming a tetrahedron. Indices correspond to linear indices of the IM
+%   array voxels.
 %
-%     >> tetramesh(tri)
+%   Example: If you have a SCI NRRD volume
 %
-%   TRIBOUNDARY is a 3-row array. Each column has the indices of 3 points
+%     >> [tri, trisurface] = bwmesh(nrrd.data, [nrrd.axis.spacing]);
+%
+%   To plot the volumetric mesh you can use (but note that this is very
+%   slow even for small meshes)
+%
+%     >> [r, c, s] = ind2sub(size(nrrd.data), find(nrrd.data));
+%     >> x = scinrrd_index2world([r c s], nrrd.axis);
+%     >> tetramesh(tri, x(:, 1), x(:, 2), x(:, 3))
+%
+%   TRIBOUNDARY is a 3-column array. Each row has the indices of 3 points
 %   that form a triangle on the surface of the mesh. To plot the surface
 %   mesh (usually very fast) you can use
 %
-%     >> trisurf(triboundary, x(:, 1), x(:, 2), x(:, 3))
+%     >> trisurf(triboundary, x(:, 1), x(:, 2), x(:, 3), 'EdgeColor', 'none')
+%     >> axis xy equal
+%     >> camlight('headlight')
+%     >> lighting gouraud
 %
 %   To obtain a list of indices of the points on the surface,
 %
@@ -30,7 +42,7 @@ function [tri, triboundary] = bwmesh(im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.2
+% Version: 0.1.3
 % $Rev$
 % $Date$
 %
