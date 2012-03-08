@@ -10,8 +10,15 @@ function [tri, triboundary] = bwmesh(im, res)
 %   default, RES=[1 1 1].
 %
 %   TRI is a 4-column array where each row contains the indices of 4 nodes
-%   forming a tetrahedron. Indices correspond to linear indices of the IM
-%   array voxels.
+%   forming a tetrahedron. E.g. TRI(2, :)=[23 178 3 90] means that the
+%   first tetrahedron contains nodes 23, 178, 3 and 90. Nodes are indexed
+%   in the order given by find(IM). For instance, the segmentation
+%
+%     0 1 1 0
+%     1 0 0 0
+%     0 1 0 1
+%
+%   has 5 nodes, with corresponding indices 1, 2, 3, 4 and 5.
 %
 %   Example: If you have a SCI NRRD volume
 %
@@ -24,7 +31,7 @@ function [tri, triboundary] = bwmesh(im, res)
 %     >> x = scinrrd_index2world([r c s], nrrd.axis);
 %     >> tetramesh(tri, x(:, 1), x(:, 2), x(:, 3))
 %
-%   TRIBOUNDARY is a 3-column array. Each row has the indices of 3 points
+%   TRIBOUNDARY is a 3-column array. Each row has the indices of 3 nodes
 %   that form a triangle on the surface of the mesh. To plot the surface
 %   mesh (usually very fast) you can use
 %
@@ -33,7 +40,7 @@ function [tri, triboundary] = bwmesh(im, res)
 %     >> camlight('headlight')
 %     >> lighting gouraud
 %
-%   To obtain a list of indices of the points on the surface,
+%   To obtain a list of all nodes on the surface,
 %
 %     >> idx = unique(triboundary(:));
 %
@@ -42,7 +49,7 @@ function [tri, triboundary] = bwmesh(im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.3
+% Version: 0.1.4
 % $Rev$
 % $Date$
 %
