@@ -1,3 +1,18 @@
+2012-03-14  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add matlab/ManifoldToolbox/smdscale.m (v0.1.0):
+
+	- MDSCALE Multidimensional scaling on the surface of a sphere.
+
+	* Add matlab/ManifoldToolbox/gdmatrix.m (v0.1.0):
+
+	- GDMATRIX  Matrix of geodesic distances between points on a
+	sphere, in degrees of arc.
+
+	* Add directory for new toolbox, matlab/ManifoldToolbox, for
+	functions that operate on Riemannian manifolds, instead of
+	Euclidean space.
+
 2012-03-08  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/PointsToolbox/bwmesh.m (v0.1.4):
