@@ -292,6 +292,19 @@ itk_pstransform.m
 	 defined from a known landmark correspondence
 	
 
+ManifoldToolbox
+-------------------------------------------------------------
+
+gdmatrix.m
+
+	 GDMATRIX  Matrix of geodesic distances between points on a sphere, in
+	 degrees of arc
+	
+smdscale.m
+
+	 SMDSCALE  Multidimensional scaling on the surface of a sphere
+	
+
 PointsToolbox
 -------------------------------------------------------------
 
