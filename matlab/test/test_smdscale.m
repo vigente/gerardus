@@ -42,9 +42,7 @@ lon = rand(1, N) * pi * 2;
 % constrain all points to be on the surface of a sphere of radius 1
 r = ones(1, N);
 
-% initialise point distribution
-
-% convert angles to degrees
+% convert angles from radians to degrees
 lat = lat / pi * 180;
 lon = lon / pi * 180;
 
@@ -52,7 +50,7 @@ lon = lon / pi * 180;
 % arc
 d = gdmatrix(lat, lon);
 
-% convert to Cartesian coordinates
+% convert latitude/longitude to Cartesian coordinates
 [x, y, z] = sph2cart(lon/180*pi, lat/180*pi, r);
 x = cat(1, x, y, z);
 clear y z
@@ -62,7 +60,7 @@ close all
 plot3(x(1, :), x(2, :), x(3, :), 'x')
 axis equal
 
-% save true coordinates for validation
+% save ground truth coordinates for validation
 lat0 = lat;
 lon0 = lon;
 x0 = x;
@@ -81,7 +79,7 @@ opt.fronorm = 1e-3;
 % opt.frorel = .001;
 [lat, lon, err, stopCondition, x] = smdscale(d, [], opt);
 
-% plot noisy points
+% plot initialization of the algorithm
 hold on
 plot3(x(1, :), x(2, :), x(3, :), 'r.')
 for I = 1:N
@@ -89,7 +87,7 @@ for I = 1:N
 end
 axis equal
 
-% convert to Cartesian coordinates
+% convert solution's latitude/longitude to Cartesian coordinates
 [x, y, z] = sph2cart(lon/180*pi, lat/180*pi, r);
 x = cat(1, x, y, z);
 clear y z
@@ -98,7 +96,7 @@ clear y z
 [~, x] = procrustes(x0', x');
 x = x';
 
-% plot de-noised points
+% plot solution
 hold on
 plot3(x(1, :), x(2, :), x(3, :), 'bo')
 axis equal
