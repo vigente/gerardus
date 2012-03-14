@@ -1,5 +1,9 @@
 2012-03-14  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* Add matlab/test/test_smdscale.m (v0.1.0):
+
+	- To test matlab/ManifoldToolbox/smdscale.m.
+
 	* Add matlab/ManifoldToolbox/smdscale.m (v0.1.0):
 
 	- MDSCALE Multidimensional scaling on the surface of a sphere.
