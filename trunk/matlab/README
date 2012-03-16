@@ -101,7 +101,7 @@ scinrrd_load.m
 scinrrd_save.m
 
 	 SCINRRD_SAVE  Save a NRRD struct to a Matlab/MetaImage format that can be
-	 imported by Seg3D
+	 imported by Seg3D and Seg3D2
 	
 scinrrd_seg3d2matlab.m
 
