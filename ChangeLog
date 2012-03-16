@@ -1,3 +1,13 @@
+2012-03-16  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/FileFormatToolbox/scinrrd_save.m (v0.4.0):
+
+	- Seg3D2 does not expect the scirunnrrd struct to have the 4th
+	dummy dimension in .mat files, so we no longer create
+	it. Currently, it's not possible to run Seg3D 1.x on my linux
+	computer, so I couldn't test whether these new .mat format also
+	loads in Seg3D 1.x.
+
 2012-03-14  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* Add matlab/test/test_smdscale.m (v0.1.0):

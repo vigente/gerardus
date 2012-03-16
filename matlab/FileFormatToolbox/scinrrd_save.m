@@ -1,6 +1,6 @@
-function nrrd = scinrrd_save(file, nrrd, touint8, v73)
+function scirunnrrd = scinrrd_save(file, scirunnrrd, touint8, v73)
 % SCINRRD_SAVE  Save a NRRD struct to a Matlab/MetaImage format that can be
-% imported by Seg3D
+% imported by Seg3D and Seg3D2
 %
 % SCINRRD_SAVE(FILE, NRRD)
 %
@@ -60,7 +60,7 @@ function nrrd = scinrrd_save(file, nrrd, touint8, v73)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.3.2
+% Version: 0.4.0
 % $Rev$
 % $Date$
 % 
@@ -105,11 +105,16 @@ end
 switch lower(ext)
     case '.mat'
         % make x-,y-coordinates compatible with the Seg3D convention
-        nrrd = scinrrd_seg3d2matlab(nrrd);
+        scirunnrrd = scinrrd_seg3d2matlab(scirunnrrd);
         
+        % Note: the following step has been skipped, as Seg3D2 doesn't
+        % expect the dummy dimension
         % add dummy dimension, if necessary, and convert data to uint8, if
         % requested
-        nrrd = scinrrd_unsqueeze(nrrd, touint8);
+%         scirunnrrd = scinrrd_unsqueeze(scirunnrrd, touint8);
+        if (touint8)
+            scinrunnrrd.data = uint8(scirunnrrd.data);
+        end
         
         % save data
         if (v73)
@@ -121,12 +126,12 @@ switch lower(ext)
         % swap rows and columns so that we have x-coordinates in the first
         % column, and y-coordinates in the second column, as expected by
         % the MetaImage format
-        nrrd.data = permute(nrrd.data, [2 1 3:ndims(nrrd.data)]);
+        scirunnrrd.data = permute(scirunnrrd.data, [2 1 3:ndims(scirunnrrd.data)]);
         
         % save data, doing the same permutation of the axis values
-        writemetaimagefile(file, nrrd.data, ...
-            [nrrd.axis([2 1 3]).spacing], ...
-            [nrrd.axis([2 1 3]).min]+[nrrd.axis([2 1 3]).spacing]/2);
+        writemetaimagefile(file, scirunnrrd.data, ...
+            [scirunnrrd.axis([2 1 3]).spacing], ...
+            [scirunnrrd.axis([2 1 3]).min]+[scirunnrrd.axis([2 1 3]).spacing]/2);
         
     otherwise
         error('Unrecognised output file format')
