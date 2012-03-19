@@ -90,5 +90,6 @@ $ make install
  # Click on the "Configure" button. Specify the generator for this project (the one I have tested is "Visual Studio 10" with "Use default native compilers")
  # Click on the "Generate" button
  # Open file `gerardus\bin\GERARDUS_MATLAB.sln` with your development environment (e.g. Visual Studio 10)
+ # Select "Release" from the configuration pull-down menu abive the Solution Explorer, instead of "Debug"
  # Select "Build -> Build Solution" from the menu.
  # In the "Solution Explorer", right click on "INSTALL" and select "Build". This will install the DLLs that correspond to the compiled MEX files
