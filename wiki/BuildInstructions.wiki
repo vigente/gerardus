@@ -31,8 +31,8 @@ $ sudo apt-get install cmake
 }}}
   * Note for Windows users: Download and run the Win32 Installer from the [http://www.cmake.org/cmake/resources/software.html CMake downloads page]
   * Note for other users: See the [http://www.cmake.org/cmake/resources/software.html CMake resources page] for more options
- * [http://www.itk.org/itkindex.html Insight Toolkit]
-  # [http://www.itk.org/ITK/resources/software.html Download the Insight Toolkit (ITK)] (Gerardus tested with version 3.20.1)
+ * [http://www.itk.org/itkindex.html Insight Toolkit] (Gerardus tested with version 3.20.1)
+  # [http://www.itk.org/ITK/resources/software.html Download the Insight Toolkit (ITK)]
   # Build and install ITK using CMake (see the [http://www.itk.org/ItkSoftwareGuide.pdf ITK Software Guide] for details)
   * Note for everyone: You need to set the following variables in your CMake build of ITK
 {{{
