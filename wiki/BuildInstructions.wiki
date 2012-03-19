@@ -48,7 +48,8 @@ $ cmake -DBUILD_SHARED_LIBS=ON -DITK_USE_REVIEW=ON \
 -DCMAKE_BUILD_TYPE=Release -DITK_LEGACY_REMOVE=ON \
 -DITK_USE_OPTIMIZED_REGISTRATION_METHODS=ON ..
 }}}
-   * Windows users can do this checking the "Advanced" box in the CMake interface, and then checking the `ITK_USE_REVIEW`, `ITK_LEGACY_REMOVE` and `ITK_USE_OPTIMIZED_REGISTRATION_METHODS` entries, and adding a new `CMAKE_BUILD_TYPE` entry of type "String", with Value "Release"
+   * Windows users can do this checking the "Advanced" box in the CMake interface, and then checking the `ITK_USE_REVIEW`, `ITK_LEGACY_REMOVE` and `ITK_USE_OPTIMIZED_REGISTRATION_METHODS` entries. If using Visual Studio, then the `CMAKE_BUILD_TYPE` entry will be ignored anyway, because Visual Studio is a multi-configuration sytem
+  * Note for Windows users: It's important to select "Release" instead of "Debug" from the pull-down configuration menu above the Solution Explorer. This will enable to build and install the Release version of ITK, which will then be needed by the Release build of Gerardus
   * Note for Windows users: Click on "Start" -> "My computer" -> "View system information", and in the "Advanced" tab click on "Environment Variables". Select the System variable `Path`, and click "Edit". Add the path to the `ITKCOMMON.DLL` library, e.g. "C:\Program Files\ITK\bin"
  * [http://www.boost.org/ Boost C++ libraries], development version (Gerardus tested with v1.46 for linux and v1.47 for Windows)
   * Note for Linux users: You can install the boost libraries with e.g.
