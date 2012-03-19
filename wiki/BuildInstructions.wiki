@@ -1,11 +1,13 @@
-#summary Documentation to build and run ITK code from Matlab using Gerardus
+#summary Documentation to build the Gerardus project
 #labels Phase-Deploy
 
 <wiki:toc max_depth="2" />
 
 = Introduction =
 
-This page documents `itk_imfilter()` and `itk_pstransform()`, MEX functions provided by Gerardus that allow to run ITK code from Matlab.
+Gerardus contains Matlab function that can be run directly without building any code. There are also C++ programs and C++ MEX files that need to be compiled and installed before they can be run. These instructions explain how to that.
+
+For instance, C++ MEX functions that need to be built are:
 
  * *[http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/ItkImFilter.cpp itk_imfilter()]:* Run ITK filters on a 2D or 3D image (This is similar to [http://matitk.cs.sfu.ca/ MATITK])
  * *[http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/ItkPSTransform.cpp itk_pstransform()]:* ITK warps between 3D point sets with a known correspondence (thin-plate spline, elastic, B-spline, etc)
