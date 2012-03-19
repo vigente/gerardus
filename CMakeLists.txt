@@ -28,7 +28,23 @@
 # <http://www.gnu.org/licenses/>.
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-SET(CMAKE_BUILD_TYPE RELEASE)
+
+# for Visual Studio or other multi-configuration systems, make available only the Debug and Release configurations
+# this needs to go before PROJECT() or it will be ignored
+SET(CMAKE_CONFIGURATION_TYPES Debug Release)
+SET(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
+  "Reset the configurations to Debug/Release only"
+  FORCE)
+
+# for single configuration systems, by default, choose the Release configuration
+IF(NOT CMAKE_BUILD_TYPE)
+  SET(CMAKE_BUILD_TYPE Release CACHE STRING
+      "Choose the type of build, options are: Debug Release"
+      FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
+
+# project name
+PROJECT(GERARDUS)
 
 # the current version of CUDA Toolkit is not compatible with gcc >=
 # 4.5
@@ -36,8 +52,6 @@ IF(BUILD_WITH_CUDA)
   SET(CMAKE_C_COMPILER gcc-4.4)
   SET(CMAKE_CXX_COMPILER g++-4.4)
 ENDIF(BUILD_WITH_CUDA)
-
-PROJECT(GERARDUS)
 
 # directories with ad hoc Findxxx.cmake files
 SET(CMAKE_MODULE_PATH

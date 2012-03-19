@@ -36,10 +36,6 @@ IF(NOT WIN32)
   ADD_DEFINITIONS("-O2 -Wall")
 ENDIF(NOT WIN32)
 
-SET(Libraries
-  ITKCommon ITKIO
-  )
-
 ################################################################
 ## itk_imfilter()
 ################################################################
@@ -60,7 +56,7 @@ INCLUDE_DIRECTORIES(
   ../../cpp/src/third-party/itkBinaryThinningImageFilter3D/Source
   )
 TARGET_LINK_LIBRARIES(itk_imfilter
-  ${Libraries})
+  ${ITK_LIBRARIES})
 
 ################################################################
 ## itk_pstransform
@@ -68,7 +64,7 @@ TARGET_LINK_LIBRARIES(itk_imfilter
 
 ADD_MEX_FILE(itk_pstransform ItkPSTransform.cpp)
 TARGET_LINK_LIBRARIES(itk_pstransform
-  ${Libraries})
+  ${ITK_LIBRARIES})
 
 ################################################################
 ## installation of targets

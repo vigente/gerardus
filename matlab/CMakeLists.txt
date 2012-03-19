@@ -31,7 +31,6 @@
 # your system. Edit section "Find Matlab" with your own path to Matlab.
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-SET(CMAKE_BUILD_TYPE RELEASE)
 
 PROJECT(GERARDUS_MATLAB)
 
