@@ -38,54 +38,69 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 # This project is designed to be built outside the Insight source tree
 PROJECT(GerardusItkToolsProject)
 
-# Find ITK.
+# Find ITK
 FIND_PACKAGE(ITK REQUIRED)
 IF(ITK_FOUND)
   INCLUDE(${ITK_USE_FILE})
 ENDIF(ITK_FOUND)
 
+# add Boost libraries to the include path
+FIND_PACKAGE(Boost COMPONENTS filesystem system REQUIRED)
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+
+# add TCLAP libraries to the include path
+INCLUDE_DIRECTORIES(D:/tclap-1.2.1/include)
+
 # extractVoxelCoordinatesFromSegmentationMask
 ADD_EXECUTABLE( extractVoxelCoordinatesFromSegmentationMask
   ExtractVoxelCoordinatesFromSegmentationMask.cxx )
 TARGET_LINK_LIBRARIES( extractVoxelCoordinatesFromSegmentationMask 
-  boost_system boost_filesystem ITKCommon ITKIO ITKNumerics )
+  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
+  ${ITK_LIBRARIES})
 
 # padImageWithVoxels
 ADD_EXECUTABLE( padSegmentationMaskWithVoxels
   PadSegmentationMaskWithVoxels.cxx )
 TARGET_LINK_LIBRARIES( padSegmentationMaskWithVoxels
-  boost_system boost_filesystem ITKCommon ITKIO )
+  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
+  ${ITK_LIBRARIES})
 
 # rotate3DImage
 ADD_EXECUTABLE( rotate3DImage
   Rotate3DImage.cxx )
 TARGET_LINK_LIBRARIES( rotate3DImage
-  boost_system boost_filesystem ITKCommon ITKIO )
+  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
+  ${ITK_LIBRARIES})
 
 # resize3DImage
 ADD_EXECUTABLE(resize3DImage
   Resize3DImage.cxx)
 TARGET_LINK_LIBRARIES(resize3DImage
-  boost_system boost_filesystem ITKCommon ITKIO)
+  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
+  ${ITK_LIBRARIES})
 
 # skeletonize3DSegmentation
 ADD_EXECUTABLE(skeletonize3DSegmentation
   Skeletonize3DSegmentation.cxx)
 INCLUDE_DIRECTORIES(third-party/itkBinaryThinningImageFilter3D/Source)
 TARGET_LINK_LIBRARIES(skeletonize3DSegmentation
-  boost_system boost_filesystem ITKCommon ITKIO)
+  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
+  ${ITK_LIBRARIES})
 
 # vesselness3DImage
 ADD_EXECUTABLE(vesselness3DImage
   Vesselness3DImage.cxx)
 TARGET_LINK_LIBRARIES(vesselness3DImage
-  boost_system boost_filesystem ITKCommon ITKIO)
+  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
+  ${ITK_LIBRARIES})
 
 # vesselness3DImage
 ADD_EXECUTABLE(rigidRegistration2D
   RigidRegistration2D.cxx)
 TARGET_LINK_LIBRARIES(rigidRegistration2D
-  boost_system boost_filesystem ITKCommon ITKIO ITKNumerics)
+  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
+  ${ITK_LIBRARIES})
 
 # call the subprojects
-ADD_SUBDIRECTORY(third-party/cquammen-Clarity)
+# ADD_SUBDIRECTORY(third-party/cquammen-Clarity)

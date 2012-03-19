@@ -1,5 +1,5 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright Â© 2011 University of Oxford
+# Copyright © 2011 University of Oxford
 # $Rev$
 # $Date$
 #
@@ -35,28 +35,30 @@ IF(NOT WIN32)
   ADD_DEFINITIONS("-O2 -Wall")
 ENDIF(NOT WIN32)
 
-SET(Libraries
-  ITKCommon ITKIO
-  )
-
 ################################################################
 ## bwregiongrow()
 ################################################################
 
 ADD_MEX_FILE(bwregiongrow bwregiongrow.cpp)
 TARGET_LINK_LIBRARIES(bwregiongrow
-  ${Libraries})
+  ${ITK_LIBRARIES})
 
 ################################################################
 ## deconvolve()
+## This function has been removed for three reasons:
+## 1) the Clarity library requires the FFTW library, which is
+##    another dependency to install
+## 2) Matlab has its own FFTW library, and I haven't found a
+##    way to make both coexist in Gerardus
+## 3) Matlab has very good deconvolution functions
 ################################################################
 
-LINK_DIRECTORIES(${CMAKE_INSTALL_PREFIX})
-INCLUDE_DIRECTORIES(${Clarity_BINARY_DIR})
-ADD_MEX_FILE(deconvolve Deconvolve.cpp)
-ADD_DEPENDENCIES(deconvolve Clarity)
-TARGET_LINK_LIBRARIES(deconvolve
-  ${Libraries} Clarity)
+#LINK_DIRECTORIES(${CMAKE_INSTALL_PREFIX})
+#INCLUDE_DIRECTORIES(${Clarity_BINARY_DIR})
+#ADD_MEX_FILE(deconvolve Deconvolve.cpp)
+#ADD_DEPENDENCIES(deconvolve Clarity)
+#TARGET_LINK_LIBRARIES(deconvolve
+#  ${ITK_LIBRARIES} Clarity)
 
 ################################################################
 ## Post-compilation for all targets
@@ -65,13 +67,13 @@ TARGET_LINK_LIBRARIES(deconvolve
 IF(WIN32)
   INSTALL(TARGETS
     bwregiongrow
-    deconvolve
+#    deconvolve
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ELSE(WIN32)
   INSTALL(TARGETS
     bwregiongrow
-    deconvolve
+#    deconvolve
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ENDIF(WIN32)
