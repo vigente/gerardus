@@ -2,59 +2,65 @@
 
 	* matlab/ItkToolbox/CMakeLists.txt:
 
-	- Bug spotted by Pablo Lamata: ITK v4.x requires to use ${ITK_LIBRARIES} instead
-	of e.g. ITKCommon ITKIO when defining targets. I have made the change now in
-	advance of moving to ITK 4.x.
+	- Bug spotted by Pablo Lamata: ITK v4.x requires to use
+	${ITK_LIBRARIES} instead of e.g. ITKCommon ITKIO when defining
+	targets. I have made the change now in advance of moving to ITK
+	4.x.
 
 	http://groups.google.com/group/gerardus-users/browse_thread/thread/62aa9fcb67045ae8
 
 	* matlab/FiltersToolbox/CMakeLists.txt:
 
-	- Bug spotted by Pablo Lamata: ITK v4.x requires to use ${ITK_LIBRARIES} instead
-	of e.g. ITKCommon ITKIO when defining targets. I have made the change now in
-	advance of moving to ITK 4.x.
+	- Bug spotted by Pablo Lamata: ITK v4.x requires to use
+	${ITK_LIBRARIES} instead of e.g. ITKCommon ITKIO when defining
+	targets. I have made the change now in advance of moving to ITK
+	4.x.
 
 	http://groups.google.com/group/gerardus-users/browse_thread/thread/62aa9fcb67045ae8
 
-	- No longer build the MEX function deconvolve(). It depends on the Clarity library, 
-	that depends on the FFTW library. Matlab has its own FFTW library, and I haven't found
-	the way yet of preventing them to clash with the ones installed outside Matlab.
+	- No longer build the MEX function deconvolve(). It depends on the
+	Clarity library, that depends on the FFTW library. Matlab has its
+	own FFTW library, and I haven't found the way yet of preventing
+	them to clash with the ones installed outside Matlab.
 
 	* matlab/CMakeLists.txt:
 
-	- Remove SET(CMAKE_BUILD_TYPE RELEASE). That's set in the root CMakeLists.txt,
-	not here.
+	- Remove SET(CMAKE_BUILD_TYPE RELEASE). That's set in the root
+	CMakeLists.txt, not here.
 
 	* cpp/src/CMakeLists.txt:
 
-	- No longer build the Clarity library, that depends on the FFTW library. 
-	Matlab has its own FFTW library, and I haven't found the way yet of preventing 
-	them to clash with the ones installed outside Matlab.
+	- No longer build the Clarity library, that depends on the FFTW
+	library.  Matlab has its own FFTW library, and I haven't found the
+	way yet of preventing them to clash with the ones installed
+	outside Matlab.
 
-	- We had forgotten to check for two required libraries: Boost and TCLAP. 
-	Now we are finding Boost correctly. I have made a temporal fix
-	for TCLAP on my computer, by harcoding the path to my TCLAP installation, but
-	that path will need to be detected automatically.
+	- We had forgotten to check for two required libraries: Boost and
+	TCLAP.  Now we are finding Boost correctly. I have made a temporal
+	fix for TCLAP on my computer, by harcoding the path to my TCLAP
+	installation, but that path will need to be detected
+	automatically.
 
-	- In Windows, we have to link to ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
-	instead of boost_system boost_filesystem, or else the linker cannot find the
-	libraries.
+	- In Windows, we have to link to ${Boost_SYSTEM_LIBRARY}
+	${Boost_FILESYSTEM_LIBRARY} instead of boost_system
+	boost_filesystem, or else the linker cannot find the libraries.
 
-	- Bug spotted by Pablo Lamata: ITK v4.x requires to use ${ITK_LIBRARIES} instead
-	of e.g. ITKCommon ITKIO when defining targets. I have made the change now in
-	advance of moving to ITK 4.x.
+	- Bug spotted by Pablo Lamata: ITK v4.x requires to use
+	${ITK_LIBRARIES} instead of e.g. ITKCommon ITKIO when defining
+	targets. I have made the change now in advance of moving to ITK
+	4.x.
 
 	http://groups.google.com/group/gerardus-users/browse_thread/thread/62aa9fcb67045ae8
 
 	* CMakeLists.txt:
 
-	- Multi-configuration systems (e.g. Visual Studio in Windows) 
-	are different from single configuration systems (e.g. gcc in Linux).
-	In the former, we use CMAKE_CONFIGURATION_TYPES to tell which 
-	configurations can be built (Debug; Release for Gerardus), and then 
-	the configuration is chosen in Visual Studio from a pull-down menu. 
-	In the latter, we use CMAKE_BUILD_TYPE to set the build as Release 
-	by default.
+	- Multi-configuration systems (e.g. Visual Studio in Windows) are
+	different from single configuration systems (e.g. gcc in Linux).
+	In the former, we use CMAKE_CONFIGURATION_TYPES to tell which
+	configurations can be built (Debug; Release for Gerardus), and
+	then the configuration is chosen in Visual Studio from a pull-down
+	menu.  In the latter, we use CMAKE_BUILD_TYPE to set the build as
+	Release by default.
 
 2012-03-16  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
