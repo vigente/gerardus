@@ -13,7 +13,18 @@ For instance, C++ MEX functions that need to be built are:
  * *[http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/ItkPSTransform.cpp itk_pstransform()]:* ITK warps between 3D point sets with a known correspondence (thin-plate spline, elastic, B-spline, etc)
 
 
-= Requirements =
+= Requirements (Linux and Windows) =
+
+== Summary ==
+
+ * Subversion client
+ * CMake
+ * Insight Toolkit
+ * Boost C++ libraries
+ * Matlab
+ * Gerardus
+
+== In detail ==
 
  * [http://subversion.apache.org/ Subversion client]
   # Download and install the subversion package appropriate for your operating system
