@@ -1,7 +1,22 @@
 2012-03-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* release 0.7.0.
+
+	- CMake build system now builds and installs all the command-line
+	programs and MEX files in the project. Some had been forgotten,
+	after I compiled them by hand from Matlab. But now, everything can
+	be compiled from the root CMakeLists.txt.
+
+	- Compilation and build tested for
+
+		Linux 64 bit, gcc 4.6.1, CMake 2.8, ITK 3.20.1,
+		Matlab R2011b, Boost 1.46
+
+		Windows 32 bit, Visual Studio 9 (2008), CMake 2.8,
+		ITK 3.20.1, Matlab R2008a, Boost 1.47
+
 	* matlab/ThirdPartyToolbox/dijkstra.cpp:
-	
+
 	- Resolve some warnings removing unused variables.
 
 	* matlab/PointsToolbox/CMakeLists.txt (v0.1.1):
@@ -23,7 +38,7 @@
 
 	* CMakeLists.txt (v0.1.1):
 	* cpp/src/CMakeLists.txt (v0.1.2):
-	
+
 	- Hide some warnings given by MSVC compiler.
 
 	- Move search for ITK and Boost to the root directory, so that
