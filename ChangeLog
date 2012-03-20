@@ -1,5 +1,11 @@
 2012-03-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* cpp/src/CMakeLists.txt:
+
+	- Fix project name. No good reason why this was called GerardusItkToolsProject. Now called GERARDUS_CPP.
+
+	- Instead of relying on having TCLAP installed externally, now we distribute it with Gerardus as a third-party library.
+
 	* Add cpp/src/third-party/tclap-1.2.1:
 
 	- TCLAP is the Templatized C++ Command Line Parser Library
