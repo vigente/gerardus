@@ -28,7 +28,6 @@ Matlab MEX functions (file names given following the linux 64 bit convention. In
   * `ItkToolbox/itk_imfilter.mexa64`
   * `FiltersToolbox/bwregiongrow.mexa64`
   * `FiltersToolbox/im2imat.mexa64`
-  * `FiltersToolbox/deconvolve.mexa64`
   * `PointsToolbox/sparse_breakdown.mexa64`
   * `PointsToolbox/itk_kernel_transform.mexa64`
   * `PointsToolbox/mba_surface_interpolation.mexa64`
