@@ -787,8 +787,7 @@ void dodijk_sparse(
              FibHeap  *theHeap  )
 {
    int      finished;
-   long int i,startind,endind,whichneighbor,ndone,index,switchwith,closest,closesti;
-   long int *INDICES;
+   long int i,startind,endind,whichneighbor,ndone,closest;
    double   closestD,arclength; 
    double   INF,SMALL,olddist;
    HeapNode *Min;
@@ -956,7 +955,7 @@ void mexFunction(
   double    *sr,*D,*P,*SS,*Dsmall;
   double *Psmall;
   mwIndex       *irs,*jcs;
-  mwSize  M,N,S,MS,NS,i,j,in;
+  mwSize  M,N,S,MS,NS,i,j;
 
   HeapNode *A = NULL;
   FibHeap  *theHeap = NULL;
