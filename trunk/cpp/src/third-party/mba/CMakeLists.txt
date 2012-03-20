@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.1.0
+# Version: 0.1.1
 # $Rev$
 # $Date$
 #
@@ -41,7 +41,7 @@ IF(NOT WIN32)
 ENDIF(NOT WIN32)
 
 #FIND_PACKAGE(OpenGL REQUIRED)
-ADD_LIBRARY(MBA SHARED
+ADD_LIBRARY(MBA SHARED STATIC
   src/filterRestrict2D.cpp
   src/MBA.cpp
   src/MBAdata.cpp
@@ -50,9 +50,9 @@ ADD_LIBRARY(MBA SHARED
   src/UCBsplineSurface.cpp
   src/UCButils.cpp)
 
-INCLUDE_DIRECTORIES(include)
+INCLUDE_DIRECTORIES(include "${Boost_INCLUDE_DIRS}")
 #TARGET_LINK_LIBRARIES(MBA glut GLU GL)
 
 INSTALL(TARGETS MBA 
-  LIBRARY DESTINATION 
+  DESTINATION 
   ${CMAKE_CURRENT_SOURCE_DIR}/lib)
