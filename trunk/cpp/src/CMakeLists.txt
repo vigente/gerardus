@@ -39,6 +39,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 # This project is designed to be built outside the Insight source tree
 PROJECT(GERARDUS_CPP)
 
+# avoid MSVC compiler warnings like
+#    'std::copy': Function call with parameters that may be unsafe
+# given by ITK functions
+ADD_DEFINITIONS("-D_SCL_SECURE_NO_WARNINGS")
+
 # add TCLAP libraries to the include path
 INCLUDE_DIRECTORIES("${GERARDUS_SOURCE_DIR}/cpp/src/third-party/tclap-1.2.1/include")
 

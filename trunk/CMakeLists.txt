@@ -65,6 +65,16 @@ IF(BUILD_WITH_CUDA)
   SET(CMAKE_CXX_COMPILER g++-4.4)
 ENDIF(BUILD_WITH_CUDA)
 
+## flags for all targets
+IF(WIN32)
+  # to remove warnings from MSVC compiler asking to use fopen_s() an other unportable
+  # functions exclusive to Microsoft
+  ADD_DEFINITIONS("-D_CRT_SECURE_NO_DEPRECATE")
+ELSE(WIN32)
+  # optimise and show all warnings
+  ADD_DEFINITIONS("-O2 -Wall")
+ENDIF(WIN32)
+
 # directories with ad hoc Findxxx.cmake files
 SET(CMAKE_MODULE_PATH
   ${CMAKE_CURRENT_SOURCE_DIR}/matlab;${CMAKE_CURRENT_SOURCE_DIR}/cpp/src/third-party/cquammen-Clarity/CMake)
