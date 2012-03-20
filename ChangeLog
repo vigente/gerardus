@@ -1,5 +1,10 @@
 2012-03-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* matlab/FileFormatToolbox/scinrrd_load.m (v0.2.6):
+
+	- Stop reading after ElementDataFile, as we assume this is the end
+	of the header.
+
 	* release 0.7.0.
 
 	- CMake build system now builds and installs all the command-line
