@@ -1,5 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
+# Version: 0.1.1
 # $Rev$
 # $Date$
 #
@@ -45,6 +46,17 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 
 # project name
 PROJECT(GERARDUS)
+
+# Find ITK
+FIND_PACKAGE(ITK REQUIRED)
+IF(ITK_FOUND)
+  INCLUDE(${ITK_USE_FILE})
+ENDIF(ITK_FOUND)
+
+# add Boost libraries to the include path
+FIND_PACKAGE(Boost COMPONENTS filesystem system REQUIRED)
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 # the current version of CUDA Toolkit is not compatible with gcc >=
 # 4.5
