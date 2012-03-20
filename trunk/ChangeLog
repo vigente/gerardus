@@ -2,9 +2,11 @@
 
 	* cpp/src/CMakeLists.txt:
 
-	- Fix project name. No good reason why this was called GerardusItkToolsProject. Now called GERARDUS_CPP.
+	- Fix project name. No good reason why this was called
+	GerardusItkToolsProject. Now called GERARDUS_CPP.
 
-	- Instead of relying on having TCLAP installed externally, now we distribute it with Gerardus as a third-party library.
+	- Instead of relying on having TCLAP installed externally, now we
+	distribute it with Gerardus as a third-party library.
 
 	* Add cpp/src/third-party/tclap-1.2.1:
 
@@ -12,11 +14,14 @@
 
 	http://tclap.sourceforge.net/
 
-	We use it in C++ programmes to set the syntax of the command and read input arguments from the command line.
-	It's trivial to install in Linux, but Windows users have to download, unzip and copy it to a local folder.
-	Then, writing a FindTCLAP.cmake would be a bit complicated. As the library doesn't need to be compiled
-	(it works as a collection of templated C++ header files), it's going to be much simpler to just redistribute
-	the library in Gerardus.
+	We use it in C++ programmes to set the syntax of the command and
+	read input arguments from the command line.  It's trivial to
+	install in Linux, but Windows users have to download, unzip and
+	copy it to a local folder.  Then, writing a FindTCLAP.cmake would
+	be a bit complicated. As the library doesn't need to be compiled
+	(it works as a collection of templated C++ header files), it's
+	going to be much simpler to just redistribute the library in
+	Gerardus.
 
 2012-03-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
