@@ -31,7 +31,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 # for Visual Studio or other multi-configuration systems, make available only the Debug and Release configurations
 # this needs to go before PROJECT() or it will be ignored
-SET(CMAKE_CONFIGURATION_TYPES Debug Release)
+SET(CMAKE_CONFIGURATION_TYPES Release Debug)
 SET(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
   "Reset the configurations to Debug/Release only"
   FORCE)
