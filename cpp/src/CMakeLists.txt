@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2010-2011 University of Oxford
-# Version: 0.1.1
+# Version: 0.1.2
 # $Rev$
 # $Date$
 #
@@ -39,19 +39,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 # This project is designed to be built outside the Insight source tree
 PROJECT(GERARDUS_CPP)
 
-# Find ITK
-FIND_PACKAGE(ITK REQUIRED)
-IF(ITK_FOUND)
-  INCLUDE(${ITK_USE_FILE})
-ENDIF(ITK_FOUND)
-
-# add Boost libraries to the include path
-FIND_PACKAGE(Boost COMPONENTS filesystem system REQUIRED)
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
-LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
-
 # add TCLAP libraries to the include path
-INCLUDE_DIRECTORIES(${GERARDUS_SOURCE_DIR}/cpp/src/third-party/tclap-1.2.1/include)
+INCLUDE_DIRECTORIES("${GERARDUS_SOURCE_DIR}/cpp/src/third-party/tclap-1.2.1/include")
 
 # extractVoxelCoordinatesFromSegmentationMask
 ADD_EXECUTABLE(extractVoxelCoordinatesFromSegmentationMask
