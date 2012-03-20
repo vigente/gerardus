@@ -82,7 +82,33 @@ $ svn co http://gerardus.googlecode.com/svn/trunk/ gerardus
 
 = Build and install =
 
-== Linux users ==
+== Expected outcomes ==
+
+After building and installing Gerardus, you should have the following command line programs (file names given following the linux convention. In Windows, executables have the extension `.exe`):
+
+ * `gerardus/programs/`
+  * `extractVoxelCoordinatesFromSegmentationMask`
+  * `padSegmentationMaskWithVoxels`
+  * `resize3DImage`
+  * `rigidRegistration2D`
+  * `rotate3DImage`
+  * `skeletonize3DSegmentation`
+  * `vesselness3DImage`
+
+and the following Matlab MEX functions (file names given following the linux 64 bit convention. In linux 32 bit and Windows 32/64 bit the extension is different)
+
+ * `gerardus/matlab/`
+  * `ThirdPartyToolbox/dijkstra.mexa64`
+  * `ItkToolbox/itk_pstransform.mexa64`
+  * `ItkToolbox/itk_imfilter.mexa64`
+  * `FiltersToolbox/bwregiongrow.mexa64`
+  * `FiltersToolbox/im2imat.mexa64`
+  * `FiltersToolbox/deconvolve.mexa64`
+  * `PointsToolbox/sparse_breakdown.mexa64`
+  * `PointsToolbox/itk_kernel_transform.mexa64`
+  * `PointsToolbox/mba_surface_interpolation.mexa64`
+
+== Instructions for Linux users ==
 
  # Run from the command line the following code. If everything works, this will create and install the corresponding MEX files to directory `gerardus/matlab/ItkToolkit` with an extension appropriate to the architecture, e.g.
   * `itk_pstransform.mexa64`, `itk_imfilter.mexa64` (Linux 64-bit)
@@ -97,7 +123,7 @@ $ make install
 }}}
  # Add `gerardus/matlab/ItkToolkit` to the Matlab path
 
-== Windows users ==
+== Instructions for Windows users ==
 
  # Open file `gerardus\CMakeLists.txt` with your CMake program
  # Click on the "Configure" button. Specify the generator for this project (the one I have tested is "Visual Studio 10" with "Use default native compilers")
