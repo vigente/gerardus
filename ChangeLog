@@ -1,6 +1,12 @@
 2012-03-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* Add programs directory, where compiled command line programs
+	will be installed.
+
 	* cpp/src/CMakeLists.txt:
+
+	- Add code to install all compiled command line programs into new
+	gerardus/programs directory.
 
 	- Fix project name. No good reason why this was called
 	GerardusItkToolsProject. Now called GERARDUS_CPP.
