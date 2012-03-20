@@ -41,14 +41,25 @@ IF(NOT WIN32)
 ENDIF(NOT WIN32)
 
 #FIND_PACKAGE(OpenGL REQUIRED)
-ADD_LIBRARY(MBA SHARED STATIC
-  src/filterRestrict2D.cpp
-  src/MBA.cpp
-  src/MBAdata.cpp
-  src/PointAccessUtils.cpp
-  src/UCBsplines.cpp
-  src/UCBsplineSurface.cpp
-  src/UCButils.cpp)
+IF(WIN32)
+  ADD_LIBRARY(MBA SHARED STATIC
+    src/filterRestrict2D.cpp
+    src/MBA.cpp
+    src/MBAdata.cpp
+    src/PointAccessUtils.cpp
+    src/UCBsplines.cpp
+    src/UCBsplineSurface.cpp
+    src/UCButils.cpp)
+ELSE(WIN32)
+  ADD_LIBRARY(MBA SHARED
+    src/filterRestrict2D.cpp
+    src/MBA.cpp
+    src/MBAdata.cpp
+    src/PointAccessUtils.cpp
+    src/UCBsplines.cpp
+    src/UCBsplineSurface.cpp
+    src/UCButils.cpp)
+ENDIF(WIN32)
 
 INCLUDE_DIRECTORIES(include "${Boost_INCLUDE_DIRS}")
 #TARGET_LINK_LIBRARIES(MBA glut GLU GL)
