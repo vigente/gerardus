@@ -1,5 +1,9 @@
 2012-03-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* matlab/ThirdPartyToolbox/dijkstra.cpp:
+	
+	- Resolve some warnings removing unused variables.
+
 	* matlab/PointsToolbox/CMakeLists.txt (v0.1.1):
 
 	- Fix bug. In Windows, we need to specify where the Boost include
@@ -19,6 +23,8 @@
 
 	* CMakeLists.txt (v0.1.1):
 	* cpp/src/CMakeLists.txt (v0.1.2):
+	
+	- Hide some warnings given by MSVC compiler.
 
 	- Move search for ITK and Boost to the root directory, so that
 	they are available for the cpp and matlab projects.
@@ -33,6 +39,8 @@
 	build system.
 
 	* Add cpp/src/third-party/mba/CMakeLists.txt (v0.1.0):
+
+	- Hide some warnings given by MSVC compiler.
 
 	- This directory was not part of the cmake build system. Now the
 	MBA library is built and installed in

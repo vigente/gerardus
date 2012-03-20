@@ -32,13 +32,15 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 # MBA library
 
-################################################################
 ## flags for all targets
-################################################################
-
-IF(NOT WIN32)
+IF(WIN32)
+  # to remove warnings from MSVC compiler asking to use fopen_s() an other unportable
+  # functions exclusive to Microsoft
+  ADD_DEFINITIONS("-D_CRT_SECURE_NO_DEPRECATE")
+ELSE(WIN32)
+  # optimise and show all warnings
   ADD_DEFINITIONS("-O2 -Wall")
-ENDIF(NOT WIN32)
+ENDIF(WIN32)
 
 #FIND_PACKAGE(OpenGL REQUIRED)
 IF(WIN32)
