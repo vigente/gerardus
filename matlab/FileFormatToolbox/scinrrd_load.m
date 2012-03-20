@@ -35,7 +35,7 @@ function nrrd = scinrrd_load(file)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.2.5
+% Version: 0.2.6
 % $Rev$
 % $Date$
 % 
@@ -106,7 +106,11 @@ switch lower(ext)
         while 1
             % read text header line
             tline = fgetl(fid);
+            
             % if end of text header stop reading
+            % Warning: this only works if the first voxel=0. Otherwise, we
+            % would read some voxels as part of a header line. To avoid it,
+            % we now break after finding ElementDataFile
             if (tline(1) == 0), break, end
             
             % pointer to current position in header
@@ -152,6 +156,7 @@ switch lower(ext)
                     msb = strcmpi(strtrim(tline(idx+1:end)), 'true');
                 case 'elementdatafile'
                     rawfile = strtrim(tline(idx+1:end));
+                    break;
                 case 'compresseddata'
                     if strcmpi(strtrim(tline(idx+1:end)), 'true')
                         error('Cannot read compressed MHA data')
