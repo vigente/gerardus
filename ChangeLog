@@ -1,5 +1,22 @@
 2012-03-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* matlab/PointsToolbox/CMakeLists.txt (v0.1.1):
+	
+	- Fix bug. In Windows, we need to specify where the Boost include directory is.
+
+	* cpp/src/third-party/mba/CMakeLists.txt (v0.1.1):
+	
+	- Fix bug. In Windows, build fails if INSTALL specifies LIBRARY. Removing the word LIBRARY solved the problem.
+	
+	- Fix bug. In Windows, we need to specify where the Boost include directory is.
+	
+	- Fix big. In Windows, we need to build the static as well as the dynamic MBA library. Otherwise, mba_surface_interpolation() cannot link to it.
+
+	* CMakeLists.txt (v0.1.1):
+	* cpp/src/CMakeLists.txt (v0.1.2):
+	
+	- Move search for ITK and Boost to the root directory, so that they are available for the cpp and matlab projects.
+
 	* cpp/src/CMakeLists.txt (v0.1.1):
 
 	- Add subdirectory third-party/mba to the build system.
