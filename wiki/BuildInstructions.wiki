@@ -7,11 +7,31 @@
 
 Gerardus contains Matlab function that can be run directly without building any code. There are also C++ programs and C++ MEX files that need to be compiled and installed before they can be run. These instructions explain how to that.
 
-For instance, C++ MEX functions that need to be built are:
+After building and installing Gerardus, you should have the command line programs and Matlab MEX functions listed below.
 
- * *[http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/ItkImFilter.cpp itk_imfilter()]:* Run ITK filters on a 2D or 3D image (This is similar to [http://matitk.cs.sfu.ca/ MATITK])
- * *[http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/ItkPSTransform.cpp itk_pstransform()]:* ITK warps between 3D point sets with a known correspondence (thin-plate spline, elastic, B-spline, etc)
+Command line programs (file names given following the linux convention. In Windows, executables have the extension `.exe`):
 
+ * `gerardus/programs/`
+  * `extractVoxelCoordinatesFromSegmentationMask`
+  * `padSegmentationMaskWithVoxels`
+  * `resize3DImage`
+  * `rigidRegistration2D`
+  * `rotate3DImage`
+  * `skeletonize3DSegmentation`
+  * `vesselness3DImage`
+
+Matlab MEX functions (file names given following the linux 64 bit convention. In linux 32 bit and Windows 32/64 bit the extension is different):
+
+ * `gerardus/matlab/`
+  * `ThirdPartyToolbox/dijkstra.mexa64`
+  * `ItkToolbox/itk_pstransform.mexa64`
+  * `ItkToolbox/itk_imfilter.mexa64`
+  * `FiltersToolbox/bwregiongrow.mexa64`
+  * `FiltersToolbox/im2imat.mexa64`
+  * `FiltersToolbox/deconvolve.mexa64`
+  * `PointsToolbox/sparse_breakdown.mexa64`
+  * `PointsToolbox/itk_kernel_transform.mexa64`
+  * `PointsToolbox/mba_surface_interpolation.mexa64`
 
 = Requirements (Linux and Windows) =
 
@@ -81,32 +101,6 @@ $ svn co http://gerardus.googlecode.com/svn/trunk/ gerardus
   * Note for Windows users: If you are using a graphic interface like TortoiseSVN, choose "Checkout" from the menu options, and enter `http://gerardus.googlecode.com/svn/trunk/` as the repository's URL. Name the destination folder `gerardus`
 
 = Build and install =
-
-== Expected outcomes ==
-
-After building and installing Gerardus, you should have the following command line programs (file names given following the linux convention. In Windows, executables have the extension `.exe`):
-
- * `gerardus/programs/`
-  * `extractVoxelCoordinatesFromSegmentationMask`
-  * `padSegmentationMaskWithVoxels`
-  * `resize3DImage`
-  * `rigidRegistration2D`
-  * `rotate3DImage`
-  * `skeletonize3DSegmentation`
-  * `vesselness3DImage`
-
-and the following Matlab MEX functions (file names given following the linux 64 bit convention. In linux 32 bit and Windows 32/64 bit the extension is different)
-
- * `gerardus/matlab/`
-  * `ThirdPartyToolbox/dijkstra.mexa64`
-  * `ItkToolbox/itk_pstransform.mexa64`
-  * `ItkToolbox/itk_imfilter.mexa64`
-  * `FiltersToolbox/bwregiongrow.mexa64`
-  * `FiltersToolbox/im2imat.mexa64`
-  * `FiltersToolbox/deconvolve.mexa64`
-  * `PointsToolbox/sparse_breakdown.mexa64`
-  * `PointsToolbox/itk_kernel_transform.mexa64`
-  * `PointsToolbox/mba_surface_interpolation.mexa64`
 
 == Instructions for Linux users ==
 
