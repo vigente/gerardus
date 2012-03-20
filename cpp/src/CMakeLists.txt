@@ -53,23 +53,23 @@ LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 INCLUDE_DIRECTORIES(${GERARDUS_SOURCE_DIR}/cpp/src/third-party/tclap-1.2.1/include)
 
 # extractVoxelCoordinatesFromSegmentationMask
-ADD_EXECUTABLE( extractVoxelCoordinatesFromSegmentationMask
+ADD_EXECUTABLE(extractVoxelCoordinatesFromSegmentationMask
   ExtractVoxelCoordinatesFromSegmentationMask.cxx )
 TARGET_LINK_LIBRARIES( extractVoxelCoordinatesFromSegmentationMask 
   ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
   ${ITK_LIBRARIES})
 
 # padImageWithVoxels
-ADD_EXECUTABLE( padSegmentationMaskWithVoxels
-  PadSegmentationMaskWithVoxels.cxx )
+ADD_EXECUTABLE(padSegmentationMaskWithVoxels
+  PadSegmentationMaskWithVoxels.cxx)
 TARGET_LINK_LIBRARIES( padSegmentationMaskWithVoxels
   ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
   ${ITK_LIBRARIES})
 
 # rotate3DImage
-ADD_EXECUTABLE( rotate3DImage
+ADD_EXECUTABLE(rotate3DImage
   Rotate3DImage.cxx )
-TARGET_LINK_LIBRARIES( rotate3DImage
+TARGET_LINK_LIBRARIES(rotate3DImage
   ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
   ${ITK_LIBRARIES})
 
@@ -104,3 +104,18 @@ TARGET_LINK_LIBRARIES(rigidRegistration2D
 
 # call the subprojects
 # ADD_SUBDIRECTORY(third-party/cquammen-Clarity)
+
+################################################################
+## installation of targets
+################################################################
+
+INSTALL(TARGETS
+  extractVoxelCoordinatesFromSegmentationMask
+  padSegmentationMaskWithVoxels
+  rotate3DImage
+  resize3DImage
+  skeletonize3DSegmentation
+  vesselness3DImage
+  rigidRegistration2D
+  RUNTIME
+  DESTINATION ${GERARDUS_SOURCE_DIR}/programs)
