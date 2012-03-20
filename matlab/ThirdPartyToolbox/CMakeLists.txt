@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2011 University of Oxford
-# Version: 0.1.1
+# Copyright © 2012 University of Oxford
+# Version: 0.1.0
 # $Rev$
 # $Date$
 #
@@ -28,38 +28,33 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-# Note: You'll probably have to edit this file to make it compile in
-# your system. Edit section "Find Matlab" with your own path to Matlab.
+################################################################
+## Post-compilation for all targets
+################################################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+IF(NOT WIN32)
+  ADD_DEFINITIONS("-O2 -Wall")
+ENDIF(NOT WIN32)
 
-PROJECT(GERARDUS_MATLAB)
+################################################################
+## dijkstra()
+################################################################
 
-# Find ITK.
-FIND_PACKAGE(ITK REQUIRED)
-IF(ITK_FOUND)
-  MESSAGE(STATUS "ITK found")
-  INCLUDE(${ITK_USE_FILE})
-ELSE(ITK_FOUND)
-  MESSAGE(FATAL_ERROR "ITK not found")
-ENDIF(ITK_FOUND)
+ADD_MEX_FILE(dijkstra
+  dijkstra.cpp)
 
-# Find Matlab
-SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-FIND_PACKAGE(Matlab REQUIRED)
-IF(MATLAB_FOUND)
-  MESSAGE(STATUS "Matlab found")
-ELSE(MATLAB_FOUND)
-  MESSAGE(FATAL_ERROR "Matlab not found")
-ENDIF(MATLAB_FOUND)
+################################################################
+## installation of targets
+################################################################
 
-INCLUDE_DIRECTORIES(${MATLAB_INCLUDE_DIR})
-
-# Add macros to build MEX files
-INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/MatlabMakeMacros.cmake)
-
-# build mex functions in the toolboxes
-ADD_SUBDIRECTORY(ItkToolbox)
-ADD_SUBDIRECTORY(FiltersToolbox)
-ADD_SUBDIRECTORY(ThirdPartyToolbox)
-ADD_SUBDIRECTORY(PointsToolbox)
+IF(WIN32)
+  INSTALL(TARGETS
+    dijkstra
+    RUNTIME
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
+ELSE(WIN32)
+  INSTALL(TARGETS
+    dijkstra
+    LIBRARY
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
+ENDIF(WIN32)

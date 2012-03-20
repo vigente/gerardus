@@ -1,5 +1,38 @@
 2012-03-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* cpp/src/CMakeLists.txt (v0.1.1):
+
+	- Add subdirectory third-party/mba to the build system.
+
+	* matlab/CMakeLists.txt (v0.1.1):
+
+	- Add subdirectories ThirdPartyToolbox and PointsToolbox to the
+	build system.
+
+	* Add cpp/src/third-party/mba/CMakeLists.txt (v0.1.0):
+
+	- This directory was not part of the cmake build system. Now the
+	MBA library is built and installed in
+	cpp/src/third-party/mba/lib. This library is linked to by the MEX
+	function mba_surface_interpolation().
+
+	* Add matlab/PointsToolbox/CMakeLists.txt (v0.1.0):
+	* Add matlab/ThirdPartyToolbox/CMakeLists.txt (v0.1.0):
+
+	- This directory was not part of the cmake build system. I had
+	compiled the MEX files
+
+	sparse_breakdown()
+	mba_surface_interpolation()
+	dijkstra()
+
+	by hand, so I hadn't noticed they were no being compiled until
+	now.
+
+	* matlab/PointsToolbox/sparse_breakdown.cpp (v0.1.1):
+
+	- Fix bug. Missing #include.
+
 	* Add programs directory, where compiled command line programs
 	will be installed.
 
