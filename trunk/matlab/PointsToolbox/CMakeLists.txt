@@ -28,10 +28,6 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-
-# MBA library
-
 ################################################################
 ## flags for all targets
 ################################################################
@@ -40,19 +36,44 @@ IF(NOT WIN32)
   ADD_DEFINITIONS("-O2 -Wall")
 ENDIF(NOT WIN32)
 
-#FIND_PACKAGE(OpenGL REQUIRED)
-ADD_LIBRARY(MBA SHARED
-  src/filterRestrict2D.cpp
-  src/MBA.cpp
-  src/MBAdata.cpp
-  src/PointAccessUtils.cpp
-  src/UCBsplines.cpp
-  src/UCBsplineSurface.cpp
-  src/UCButils.cpp)
+################################################################
+## sparse_breakdown()
+################################################################
 
-INCLUDE_DIRECTORIES(include)
-#TARGET_LINK_LIBRARIES(MBA glut GLU GL)
+ADD_MEX_FILE(sparse_breakdown
+  sparse_breakdown.cpp)
 
-INSTALL(TARGETS MBA 
-  LIBRARY DESTINATION 
-  ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+################################################################
+## mba_surface_interpolation()
+################################################################
+
+ADD_MEX_FILE(mba_surface_interpolation
+  mba_surface_interpolation.cpp)
+
+INCLUDE_DIRECTORIES(
+  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/mba/include)
+
+LINK_DIRECTORIES(
+  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/mba/lib)
+
+TARGET_LINK_LIBRARIES(mba_surface_interpolation
+  MBA)
+
+
+################################################################
+## installation of targets
+################################################################
+
+IF(WIN32)
+  INSTALL(TARGETS
+    sparse_breakdown
+    mba_surface_interpolation
+    RUNTIME
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
+ELSE(WIN32)
+  INSTALL(TARGETS
+    sparse_breakdown
+    mba_surface_interpolation
+    LIBRARY
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
+ENDIF(WIN32)
