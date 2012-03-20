@@ -57,6 +57,7 @@ $ cmake -DBUILD_SHARED_LIBS=ON -DITK_USE_REVIEW=ON \
 $ sudo apt-get install libboost1.46-all-dev
 }}}
   * Note for Windows users: Use the [http://www.boostpro.com/download/ installer from BoostPro], !BoostPro 1.47.0 Installer (205K .exe) as of this writing.
+  * Note for all users: For those users who need to save space, note that in fact, only the `filesystem` and `system` components of the Boost Libraries are required
  * [http://www.mathworks.com/products/matlab/ Matlab]
   # Matlab has its own installer for each operating system (Linux, Windows, MacOS X, etc)
   * Note for Windows users: Similarly to the previous step, add to the `Path` environment variable the path to your Matlab `LIBMEX.DLL` and `LIBMX.DLL` libraries, e.g. "C:\Program Files\MATLAB\R2010b\bin\win32" (32 bit) or "C:\Program Files\MATLAB\R2010b\bin\win64" (64 bit)
