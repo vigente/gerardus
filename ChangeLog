@@ -1,3 +1,15 @@
+2012-03-21  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1:
+
+	- C++ ITK classes that implement the paper
+
+	Enquobahrie A., Ibanez L., Bullitt E., Aylward S., "Vessel
+	Enhancing Diffusion Filter", Insight Journal - 2007 MICCAI Open
+	Science Workshop.
+
+	http://hdl.handle.net/1926/558
+
 2012-03-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/FileFormatToolbox/scinrrd_load.m (v0.2.6):
