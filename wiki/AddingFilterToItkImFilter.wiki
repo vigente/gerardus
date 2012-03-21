@@ -1,5 +1,7 @@
 #summary Instructions on how to add a new ITK filter to itk_imfilter().
 
+<wiki:toc max_depth="2" />
+
 = Introduction =
 
 This page provides step-by-step instructions on how to add a new ITK filter to the Gerardus Matlab MEX function itk_imfilter().
@@ -41,7 +43,10 @@ $ ./add_filter_template.sh AnisotropicDiffusionVesselEnhancementImageFilter adve
 MexTemplateFilter.hpp -> MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp
 MexTemplateFilter.cpp -> MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp
 }}}
- # If the filter doesn't take input arguments, then you can skip this step. If the filter needs input parameters, then edit `MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp` to comment out the "without parameters" constructor and uncomment the "with parameters" constructor so that the file looks like this
+
+== If filter takes extra input arguments apart from the image to be filtered ==
+
+If the filter doesn't take input arguments, then you can skip this step. If the filter needs input parameters, then edit `MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp` to comment out the "without parameters" constructor and uncomment the "with parameters" constructor so that the file looks like this
 {{{
   // // constructor for filters without parameters
   // MexAnisotropicDiffusionVesselEnhancementImageFilter(const NrrdImage &_nrrd, 
@@ -65,11 +70,24 @@ MexTemplateFilter.cpp -> MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp
 
   }
 }}}
- # At this point, your new filter has inherited three methods from `MexBaseFilter`, with the following default behaviour:
-  * `void CheckNumberOfOutputs();`: Error if the number of outputs is >1.
-  * `void FilterAdvancedSetup();`: Empty.
-  * `void ExportOtherFilterOutputsToMatlab();`: Empty.
-  The new filter may have different requirements, though. For example, `SignedMaurerDistanceMapImageFilter` needs some extra filter configuration. This is accomplished by declaring `FilterAdvancedSetup()` in [http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/MexSignedMaurerDistanceMapImageFilter.hpp MexSignedMaurerDistanceMapImageFilter.hpp]
+
+== If filter can return more outputs apart from the filtered image ==
+
+The new filter inherits from `MexBaseFilter` the virtual method
+{{{
+void CheckNumberOfOutputs();
+}}}
+The default behaviour is to give a "Too many output arguments" error if the number of outputs requested from Matlab is >1.
+
+== If filter needs some specific configuration steps ==
+
+The new filter inherits from `MexBaseFilter` the virtual method
+{{{
+void FilterAdvancedSetup();
+}}}
+The default behaviour is to do nothing.
+
+The default behaviour can be overridden, if necessary. For example, `SignedMaurerDistanceMapImageFilter` needs some extra filter configuration. This is accomplished by declaring `FilterAdvancedSetup()` in [http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/MexSignedMaurerDistanceMapImageFilter.hpp MexSignedMaurerDistanceMapImageFilter.hpp]
 {{{
   // methods from BaseFilter that this filter needs to override
   void FilterAdvancedSetup();
@@ -105,3 +123,12 @@ void MexSignedMaurerDistanceMapImageFilter<InVoxelType,
 
 }}}
   This way, the method defined in the child class (`MexSignedMaurerDistanceMapImageFilter::FilterSetup()`) overrides the virtual method inherited from the parent class (`MexBaseFilter::FilterSetup()`)
+
+== If filter returns an output in a format that needs to be processed to a format that Matlab understands ==
+
+The new filter inherits from `MexBaseFilter` the virtual method
+{{{
+void ExportOtherFilterOutputsToMatlab();
+}}}
+The default behaviour is to do nothing.
+
