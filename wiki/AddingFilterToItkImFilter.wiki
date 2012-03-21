@@ -46,10 +46,20 @@ MexTemplateFilter.cpp -> MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp
 
 == If filter takes extra input arguments apart from the image to be filtered ==
 
-If the filter doesn't take input arguments, then you can skip this step. If the filter needs input parameters, then edit `MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp` to comment out the "without parameters" constructor and uncomment the "with parameters" constructor so that the file looks like this
+If the filter doesn't take input arguments, then you can skip this step. 
+
+But some filters do. For example, `MexBinaryDilateImageFilter` requires a scalar input argument with the radius of the dilation. 
+
+First, we edit [http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/MexBinaryDilateImageFilter.hpp MexBinaryDilateImageFilter.hpp] so that we can store the input argument
+{{{
+protected:
+
+  unsigned long radius;
+}}}
+We also comment out the "without parameters" constructor and uncomment the "with parameters" constructor
 {{{
   // // constructor for filters without parameters
-  // MexAnisotropicDiffusionVesselEnhancementImageFilter(const NrrdImage &_nrrd, 
+  // MexBinaryDilateImageFilter(const NrrdImage &_nrrd, 
   // 			 int _nargout, mxArray** _argOut)
   //   : MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut) {
 
@@ -59,7 +69,7 @@ If the filter doesn't take input arguments, then you can skip this step. If the 
   // }
 
   // constructor for filters that take user-defined parameters
-  MexAnisotropicDiffusionVesselEnhancementImageFilter(const NrrdImage &_nrrd, 
+  MexBinaryDilateImageFilter(const NrrdImage &_nrrd, 
   			 int _nargout, mxArray** _argOut,
   			 const int _nargin, const mxArray** _argIn)
     : MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut,
@@ -70,6 +80,53 @@ If the filter doesn't take input arguments, then you can skip this step. If the 
 
   }
 }}}
+How to deal with the input arguments is implemented in [http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/MexBinaryDilateImageFilter.cpp MexBinaryDilateImageFilter.cpp] by overriding `FilterAdvancedSetup()`
+{{{
+template <class InVoxelType, class OutVoxelType>
+void MexBinaryDilateImageFilter<InVoxelType, OutVoxelType>::FilterAdvancedSetup() {
+  
+  // list of user-provided parameters for this filter (compulsory or
+  // optional)
+  unsigned long radius;   // (comp) radius of the ball in voxels
+  InVoxelType foreground; // (opt) voxels with this value will be
+                          // dilated. Default, maximum value of the
+                          // pixel type
+
+  // check number of input parameters
+  if (this->nparam < 1) {
+    mexErrMsgTxt("Not enough input arguments");
+  }
+  if (this->nparam > 2) {
+    mexErrMsgTxt("Too many input arguments");
+  }
+  if (this->nparam > 0 && this->argParam == NULL) {
+    mexErrMsgTxt("Assertion fail: There is at least one parameter, but pointer to parameter array is NULL");
+  }
+  
+  // get parameters
+  radius  = this->template 
+    GetScalarParamValue<unsigned long>("RADIUS", 0, 0);
+  foreground = this->template 
+    GetScalarParamValue<InVoxelType>("FOREGROUND", 1, std::numeric_limits<InVoxelType>::max());
+  
+  // create a local pointer to the filter so that we can use
+  // methods that are not part of the MexBaseFilter
+  typename FilterType::Pointer localFilter = 
+    dynamic_cast<typename MexBinaryDilateImageFilter<InVoxelType,
+			     OutVoxelType>::FilterType *>(this->filter.GetPointer());
+  
+  // instantiate structuring element
+  StructuringElementType structuringElement;
+  structuringElement.SetRadius(radius);
+  structuringElement.CreateStructuringElement();
+  localFilter->SetKernel(structuringElement);
+  
+  // pass parameters to filter
+  localFilter->SetForegroundValue(foreground);
+
+}
+}}}
+
 
 == If filter can return more outputs apart from the filtered image ==
 
@@ -131,4 +188,3 @@ The new filter inherits from `MexBaseFilter` the virtual method
 void ExportOtherFilterOutputsToMatlab();
 }}}
 The default behaviour is to do nothing.
-
