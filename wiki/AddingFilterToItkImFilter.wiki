@@ -1,0 +1,33 @@
+#summary Instructions on how to add a new ITK filter to itk_imfilter().
+
+= Introduction =
+
+This page provides step-by-step instructions on how to add a new ITK filter to the Gerardus Matlab MEX function itk_imfilter().
+
+All filters must either of type [http://www.itk.org/Doxygen320/html/classitk_1_1ImageToImageFilter.html itk::ImageToImageFilter] or inherit from it.
+
+= Changes needed on the C++ side of Gerardus (`gerardus/cpp/src/third-party`) =
+
+ * If the filter is already part of ITK (whether the standard or Review packages), then nothing needs to be done in this section
+ * If the filter comes from an external source, e.g. the [http://hdl.handle.net/1926/558 itk::AnisotropicDiffusionVesselEnhancementImageFilter] from the Insight Journal, then
+  # Put the filter's C++ files in a new subdirectory within `gerardus/cpp/src/third-party`, e.g. 
+{{{
+gerardus/cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1
+}}}
+  # Add the new subdirectory to the repository, add a reference in the `ChangeLog` file to where the code was downloaded from, and commit it, e.g.
+{{{
+$ cd gerardus
+$ svn add cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1
+$ emacs ChangeLog
+$ svn ci
+}}}
+
+= Changes needed on the Matlab side of Gerardus (`gerardus/matlab/ItkToolbox`) =
+
+  # edit `gerardus/matlab/ItkToolbox/CMakeLists.txt` to include the new subdirectory in the build
+{{{
+INCLUDE_DIRECTORIES(
+  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/itkBinaryThinningImageFilter3D/Source
+  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1
+  )
+}}}
