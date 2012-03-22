@@ -114,7 +114,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.5.2
+  * Version: 0.6.0
   * $Rev$
   * $Date$
   *
@@ -247,7 +247,8 @@ public:
 		 const int nargin, const mxArray** argIn,
 		 MexBaseFilter<InVoxelType, OutVoxelType> *&filter) {
     filter = new MexBinaryThinningImageFilter3D<InVoxelType, 
-						OutVoxelType>(nrrd, nargout, argOut);
+						OutVoxelType>(nrrd, nargout, argOut,
+							      nargin, argIn);
   }
 };
 
@@ -260,7 +261,8 @@ public:
 		 const int nargin, const mxArray** argIn,
 		 MexBaseFilter<InVoxelType, OutVoxelType> *&filter) {
     filter = new MexDanielssonDistanceMapImageFilter<InVoxelType, 
-						     OutVoxelType>(nrrd, nargout, argOut);
+						     OutVoxelType>(nrrd, nargout, argOut,
+								   nargin, argIn);
   }
 };
 
@@ -273,7 +275,8 @@ public:
 		 const int nargin, const mxArray** argIn,
 		 MexBaseFilter<InVoxelType, OutVoxelType> *&filter) {
     filter = new MexSignedMaurerDistanceMapImageFilter<InVoxelType, 
-						       OutVoxelType>(nrrd, nargout, argOut);
+						       OutVoxelType>(nrrd, nargout, argOut,
+								     nargin, argIn);
   }
 };
 
@@ -361,14 +364,12 @@ void parseOutputTypeToTemplate(const int nargin,
 			       mxArray** argOut,
 			       const NrrdImage &nrrd) {
 
-  // establish output voxel type according to the filter
-  if (filterEnum == nMexBinaryThinningImageFilter3D) {
-
-    runFilter<nMexBinaryThinningImageFilter3D,
-	      InVoxelType, 
-	      InVoxelType>(nargin, argIn, nargout, argOut, nrrd);
-
-  } else if (filterEnum == nMexDanielssonDistanceMapImageFilter) {
+  // establish output voxel type according to the filter. We begin
+  // with filters that have InVoxelType != OutVoxelType, and implement
+  // their special requirements. The rest of filters are assumend to
+  // have InVoxelType == OutVoxelType and are all instantiated with
+  // the same code
+  if (filterEnum == nMexDanielssonDistanceMapImageFilter) {
 
     // find how many bits we need to represent the maximum distance
     // that two voxels can have between them (in voxel units)
@@ -404,22 +405,14 @@ void parseOutputTypeToTemplate(const int nargin,
 	      InVoxelType, 
 	      double>(nargin, argIn, nargout, argOut, nrrd);
 
-  } else if (filterEnum == nMexBinaryDilateImageFilter) {
-
-    runFilter<nMexBinaryDilateImageFilter,
-	      InVoxelType, 
-	      InVoxelType>(nargin, argIn, nargout, argOut, nrrd);
-
-  } else if (filterEnum == nMexBinaryErodeImageFilter) {
-
-    runFilter<nMexBinaryErodeImageFilter,
-	      InVoxelType, 
-	      InVoxelType>(nargin, argIn, nargout, argOut, nrrd);
-
-    /* Insertion point: parseOutputTypeToTemplate (DO NOT DELETE THIS COMMENT) */
-
   } else {
-    mexErrMsgTxt("Filter type not implemented");
+
+    // any filter that produces the same image type at the output as
+    // it receives at the input
+    runFilter<filterEnum,
+	      InVoxelType, 
+	      InVoxelType>(nargin, argIn, nargout, argOut, nrrd);
+
   }
 
 }

@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -107,11 +107,35 @@ struct TypeIsUint8< uint8_T >
 { static const bool value = true; };
 
 template< class T >
+struct TypeIsInt8
+{ static const bool value = false; };
+
+template<>
+struct TypeIsInt8< int8_T >
+{ static const bool value = true; };
+
+template< class T >
 struct TypeIsUint16
 { static const bool value = false; };
 
 template<>
 struct TypeIsUint16< uint16_T >
+{ static const bool value = true; };
+
+template< class T >
+struct TypeIsInt16
+{ static const bool value = false; };
+
+template<>
+struct TypeIsInt16< int16_T >
+{ static const bool value = true; };
+
+template< class T >
+struct TypeIsInt32
+{ static const bool value = false; };
+
+template<>
+struct TypeIsInt32< int32_T >
 { static const bool value = true; };
 
 template< class T >

@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.1
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -63,32 +63,17 @@ private:
 
 protected:
 
+  // user-provided input parameters
+
 public:
 
-  // constructor for filters that take user-defined parameters
+  // constructor (to instantiate the filter and process the
+  // user-provided input parameters, if any)
   MexTemplateImageFilter(const NrrdImage &_nrrd, 
 			 int _nargout, mxArray** _argOut,
-			 const int _nargin, const mxArray** _argIn)
-    : MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut,
-					     _nargin, _argIn) {
+			 const int _nargin, const mxArray** _argIn);
 
-    // instantiate filter
-    this->filter = FilterType::New();
-
-  }
-
-  // constructor for filters without parameters
-
-  // MexTemplateImageFilter(const NrrdImage &_nrrd, 
-  // 			 int _nargout, mxArray** _argOut)
-  //   : MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut) {
-
-  //   // instantiate filter
-  //   this->filter = FilterType::New();
-
-  // }
-
-  // if this particular filter needs to redifine one or more BaseFilter
+  // if this particular filter needs to redefine one or more MexBaseFilter
   // virtual methods, the corresponding declarations go here
   // void CheckNumberOfOutputs();
   // void FilterAdvancedSetup();

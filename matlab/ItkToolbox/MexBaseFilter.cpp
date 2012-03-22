@@ -59,9 +59,6 @@
 #include "GerardusCommon.hpp"
 #include "NrrdImage.hpp"
 #include "MexBaseFilter.hpp"
-#include "MexDanielssonDistanceMapImageFilter.hpp"
-#include "MexSignedMaurerDistanceMapImageFilter.hpp"
-#include "MexBinaryThinningImageFilter3D.hpp"
 
 /*
  * MexBaseFilter<InVoxelType, OutVoxelType>: This is where
@@ -79,12 +76,18 @@ const std::string MexBaseFilter<std::string, std::string>::shortname = "base";
 // filter type and image
 template <class InVoxelType, class OutVoxelType>
 MexBaseFilter<InVoxelType, OutVoxelType>::MexBaseFilter(const NrrdImage &_nrrd, 
-							int _nargout, 
-							mxArray** _argOut,
-							const int _nargin, 
-							const mxArray** _argIn)
+							int _nargout, mxArray** _argOut,
+							const int _nargin, const mxArray** _argIn)
   : nrrd(_nrrd), nargout(_nargout), argOut(_argOut) {
-  // number of parameters
+
+  // check that we have at least filter type and input image as input
+  // arguments
+  if (_nargin < 2) {
+    mexErrMsgTxt("Not enough input arguments");
+  }
+
+  // number of extra parameters. Every specific filter has different
+  // requirements in terms of this number
   nparam = (mwSize)(_nargin - 2);
   if (nparam < 0) {
     mexErrMsgTxt("Assertion error: Number of parameters cannot be negative");
@@ -93,16 +96,6 @@ MexBaseFilter<InVoxelType, OutVoxelType>::MexBaseFilter(const NrrdImage &_nrrd,
   } else {
     argParam = &_argIn[2];
   }
-}
-
-// constructor when the filter takes no user-provided parameters
-template <class InVoxelType, class OutVoxelType>
-MexBaseFilter<InVoxelType, OutVoxelType>::MexBaseFilter(const NrrdImage &_nrrd, 
-							int _nargout, 
-							mxArray** _argOut)
-  : nrrd(_nrrd), nargout(_nargout), argOut(_argOut) {
-  nparam = 0;
-  argParam = NULL;
 }
 
 // destructor to deallocate any memory that the Matlab garbage

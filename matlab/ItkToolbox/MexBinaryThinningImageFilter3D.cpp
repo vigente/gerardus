@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.4
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -48,6 +48,40 @@ const std::string MexBinaryThinningImageFilter3D<std::string,
 		  std::string>::longname = "BinaryThinningImageFilter3D";
 const std::string MexBinaryThinningImageFilter3D<std::string, 
 		  std::string>::shortname = "skel";
+
+/* 
+ * constructor (here we instantiate the filter and process the
+ * user-provided input parameters, if any)
+ */
+template <class InVoxelType, class OutVoxelType>
+MexBinaryThinningImageFilter3D<InVoxelType, OutVoxelType>::MexBinaryThinningImageFilter3D(
+                                const NrrdImage &_nrrd, 
+				int _nargout, mxArray** _argOut,
+				const int _nargin, const mxArray** _argIn) :
+  MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut, _nargin, _argIn) {
+
+  // instantiate filter
+  this->filter = FilterType::New();
+
+  // check number of user-provided parameters (user-provided
+  // parameters are the extra input arguments apart from the filter
+  // type and input image)
+  if (this->nparam < 0) {
+    mexErrMsgTxt("Not enough input arguments");
+  }
+  if (this->nparam > 0) {
+    mexErrMsgTxt("Too many input arguments");
+  }
+  if (this->nparam > 0 && this->argParam == NULL) {
+    mexErrMsgTxt("Assertion fail: There is at least one parameter, but pointer to parameter array is NULL");
+  }
+  
+  // get user-provided parameters
+  // Example: 
+  // this->foreground = this->template 
+  //   GetScalarParamValue<InVoxelType>("FOREGROUND", 1, std::numeric_limits<InVoxelType>::max());
+
+}
 
 /* 
  * MexBinaryThinningImageFilter3D : MexBaseFilter
