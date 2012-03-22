@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.4.1
+  * Version: 0.5.0
   * $Rev$
   * $Date$
   *
@@ -66,17 +66,13 @@ protected:
 
 public:
 
-  // constructor
+  // constructor (to instantiate the filter and process the
+  // user-provided input parameters, if any)
   MexDanielssonDistanceMapImageFilter(const NrrdImage &_nrrd, 
-				      int _nargout, mxArray** _argOut)
-    : MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut) {
+				      int _nargout, mxArray** _argOut,
+				      const int _nargin, const mxArray** _argIn);
 
-    // instantiate filter
-    this->filter = FilterType::New();
-
-  }
-
-  // if this particular filter needs to redifine one or more BaseFilter
+  // if this particular filter needs to redefine one or more BaseFilter
   // virtual methods, the corresponding declarations go here
   void CheckNumberOfOutputs();
   void ExportOtherFilterOutputsToMatlab();

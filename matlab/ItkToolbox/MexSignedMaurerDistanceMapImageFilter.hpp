@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.8
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -67,15 +67,12 @@ public:
 
   // constructor
   MexSignedMaurerDistanceMapImageFilter(const NrrdImage &_nrrd, 
-					int _nargout, mxArray** _argOut) :
-    MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut) {
-
-    // instantiate filter
-    this->filter = FilterType::New();
-  }
+					int _nargout, mxArray** _argOut,
+					const int _nargin, const mxArray** _argIn);
 
   // methods from BaseFilter that this filter needs to override
   void FilterAdvancedSetup();
+
 };
 
 // input/output voxel type is never going to be a string, so we are

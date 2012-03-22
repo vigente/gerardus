@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -53,8 +53,41 @@ const std::string MexTemplateImageFilter<std::string,
 		  std::string>::shortname = "template";
 
 /* 
- * if this particular filter needs to redifine one or more BaseFilter
- * virtual methods, the corresponding definitions go here
+ * constructor (here we instantiate the filter and process the
+ * user-provided input parameters, if any)
+ */
+template <class InVoxelType, class OutVoxelType>
+MexTemplateImageFilter<InVoxelType, OutVoxelType>::MexTemplateImageFilter(
+                                const NrrdImage &_nrrd, 
+				int _nargout, mxArray** _argOut,
+				const int _nargin, const mxArray** _argIn) :
+  MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut, _nargin, _argIn) {
+
+  // instantiate filter
+  this->filter = FilterType::New();
+
+  // check number of user-provided parameters (user-provided
+  // parameters are the extra input arguments apart from the filter
+  // type and input image)
+  if (this->nparam < 0) {
+    mexErrMsgTxt("Not enough input arguments");
+  }
+  if (this->nparam > 0) {
+    mexErrMsgTxt("Too many input arguments");
+  }
+  if (this->nparam > 0 && this->argParam == NULL) {
+    mexErrMsgTxt("Assertion fail: There is at least one parameter, but pointer to parameter array is NULL");
+  }
+  
+  // get user-provided parameters
+  // Example: 
+  // this->foreground = this->template 
+  //   GetScalarParamValue<InVoxelType>("FOREGROUND", 1, std::numeric_limits<InVoxelType>::max());
+
+}
+
+/* 
+ * overriding of MexBaseFilter virtual methods, if needed
  */
 
 // // check numer of outputs requested by the user. By default, the

@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2011 University of Oxford
-# Version: 0.4.1
+# Copyright Â© 2011 University of Oxford
+# Version: 0.4.2
 # $Rev$
 # $Date$
 #
@@ -53,7 +53,8 @@ ADD_MEX_FILE(itk_imfilter
   ItkImFilter.cpp)
 
 INCLUDE_DIRECTORIES(
-  ../../cpp/src/third-party/itkBinaryThinningImageFilter3D/Source
+  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/itkBinaryThinningImageFilter3D/Source
+  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1
   )
 TARGET_LINK_LIBRARIES(itk_imfilter
   ${ITK_LIBRARIES})

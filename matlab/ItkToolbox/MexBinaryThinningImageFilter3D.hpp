@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.9
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -66,14 +66,12 @@ protected:
 
 public:
   
-  // constructor
-  MexBinaryThinningImageFilter3D(const NrrdImage &_nrrd, int _nargout, 
-				 mxArray** _argOut) :
-    MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut) {
-    
-    // instantiate filter
-    this->filter = FilterType::New();
-  }
+  // constructor (to instantiate the filter and process the
+  // user-provided input parameters, if any)
+  MexBinaryThinningImageFilter3D(const NrrdImage &_nrrd, 
+				 int _nargout, mxArray** _argOut,
+				 const int _nargin, const mxArray** _argIn);
+
 };
 
 // input/output voxel type is never going to be a string, so we are
