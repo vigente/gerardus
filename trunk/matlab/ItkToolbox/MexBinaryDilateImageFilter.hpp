@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.7
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -69,21 +69,20 @@ private:
 
 protected:
 
-  unsigned long radius;
+  // user-provided input arguments
+  unsigned long radius;   // (comp) radius of the ball in voxels
+  InVoxelType foreground; // (opt) voxels with this value will be
+                          // dilated. Default, maximum value of the
+                          // pixel type
 
 public:
 
   // constructor for filters that take user-defined parameters
-  MexBinaryDilateImageFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut,
-			     const int _nargin, const mxArray** _argIn) :
-    MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut,
-					     _nargin, _argIn) {
+  MexBinaryDilateImageFilter(const NrrdImage &_nrrd, 
+			     int _nargout, mxArray** _argOut,
+			     const int _nargin, const mxArray** _argIn);
 
-    // instantiate filter
-    this->filter = FilterType::New();
-  }
-
-  // if this particular filter needs to redifine one or more BaseFilter
+  // if this particular filter needs to redefine one or more BaseFilter
   // virtual methods, the corresponding declarations go here
   void FilterAdvancedSetup();
 

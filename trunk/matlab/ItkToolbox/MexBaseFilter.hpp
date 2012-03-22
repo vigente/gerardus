@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.6.2
+  * Version: 0.7.0
   * $Rev$
   * $Date$
   *
@@ -91,15 +91,12 @@ protected:
 
 public:
 
-  // constructor when the filter takes user-provided parameters
-  // (e.g. dilation radius) apart from the input arguments with the
-  // filter type and image
+  // constructor. We assume that the first two input arguments are
+  // filter type and image (common to all filters), and the rest are
+  // user-provided parameters (filter-dependent), e.g. dilation radius
   MexBaseFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut,
 		const int _nargin, const mxArray** _argIn);
   
-  // constructor when the filter takes no user-provided parameters
-  MexBaseFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut);
-
   // destructor to deallocate any memory that the Matlab garbage
   // collector won't free automatically. The destructor has to be
   // virtual so that derived classes can add their own local memory
@@ -261,8 +258,14 @@ void MexBaseFilter<InVoxelType,
     outputVoxelClassId = mxLOGICAL_CLASS;
   } else if (TypeIsUint8<OutputType>::value) {
     outputVoxelClassId = mxUINT8_CLASS;
+  } else if (TypeIsInt8<OutputType>::value) {
+    outputVoxelClassId = mxINT8_CLASS;
   } else if (TypeIsUint16<OutputType>::value) {
     outputVoxelClassId = mxUINT16_CLASS;
+  } else if (TypeIsInt16<OutputType>::value) {
+    outputVoxelClassId = mxINT16_CLASS;
+  } else if (TypeIsInt32<OutputType>::value) {
+    outputVoxelClassId = mxINT32_CLASS;
   } else if (TypeIsFloat<OutputType>::value) {
     outputVoxelClassId = mxSINGLE_CLASS;
   } else if (TypeIsDouble<OutputType>::value) {

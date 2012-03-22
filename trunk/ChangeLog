@@ -1,3 +1,64 @@
+2012-03-22  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/ItkToolbox/CMakeLists.txt (v0.4.2):
+
+	- Include IJ-Vessel_Enhancement_Diffusion.1 in the build of itk_imfilter().
+
+	* matlab/ItkToolbox/MexSignedMaurerDistanceMapImageFilter.hpp (v0.3.0):
+	* matlab/ItkToolbox/MexSignedMaurerDistanceMapImageFilter.cpp (v0.3.0):
+	* matlab/ItkToolbox/MexBinaryThinningImageFilter3D.hpp (v0.3.0):
+	* matlab/ItkToolbox/MexBinaryThinningImageFilter3D.cpp (v0.2.0):
+	* matlab/ItkToolbox/MexDanielssonDistanceMapImageFilter.hpp (v0.5.0):
+	* matlab/ItkToolbox/MexDanielssonDistanceMapImageFilter.cpp (v0.5.0):
+	* matlab/ItkToolbox/MexTemplateFilter.hpp (v0.3.0):
+	* matlab/ItkToolbox/MexTemplateFilter.cpp (v0.3.0):
+	* matlab/ItkToolbox/MexBinaryDilateImageFilter.hpp (v0.2.0):
+	* matlab/ItkToolbox/MexBinaryDilateImageFilter.cpp (v0.2.0):
+	* matlab/ItkToolbox/MexBinaryErodeImageFilter.hpp (v0.2.0):
+	* matlab/ItkToolbox/MexBinaryErodeImageFilter.cpp (v0.2.0):
+
+	- Important changes to the code:
+
+	- Unify without-parameters and with-parameters constructors as
+	with-parameters constructor. Put the declaration in the .hpp
+	file. Put the definition in the .cpp file. This simplifies and
+	unclutters the code.
+
+	- Now the constructor in charge of checking number of extra input
+	parameters, and reading them, instead of
+	FilterAdvancedSetup(). Store them to protected member
+	variables. Pass then input parameters to filter using
+	FilterAdvancedSetup().
+
+	* matlab/ItkToolbox/ItkImFilter.cpp (v0.6.0):
+
+	- Important changes to the code.
+
+	- Without-parameters and with-parameters constructors have been
+	unified.
+
+	- Code that decides the output voxel type from the filter and
+	input voxel type has been simplified. Now we have special code
+	only for filters that don't return the same type as input
+	image. The rest are all grouped together.
+
+	* matlab/ItkToolbox/MexBaseFilter.hpp (0.7.0):
+	* matlab/ItkToolbox/MexBaseFilter.cpp (0.2.0):
+
+	- Now the constructor checks that there are at least 2 input
+	arguments (filter type and input image).
+
+	- Remove the constructor without user-provided parameters. To
+	simplify the code, we are going to use only a general constructor
+	always with input parameters (that can be empty for filters that
+	don't require them).
+
+	- Add missing types of output voxel: int8, int16, int32.
+
+	* matlab/ItkToolbox/GerardusCommon.hpp (v0.3.1):
+
+	- Add tests for missing types of output voxel: int8, int16, int32.
+
 2012-03-21  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* Add cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1:

@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.2
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -56,14 +56,22 @@ const std::string MexBinaryErodeImageFilter<std::string,
 		  std::string>::shortname = "bwerode";
 
 /* 
- * if this particular filter needs to redifine one or more BaseFilter
- * virtual methods, the corresponding definitions go here
+ * constructor
  */
-
 template <class InVoxelType, class OutVoxelType>
-void MexBinaryErodeImageFilter<InVoxelType, OutVoxelType>::FilterAdvancedSetup() {
-  
-  // check input parameters
+MexBinaryErodeImageFilter<InVoxelType, OutVoxelType>::MexBinaryErodeImageFilter(
+                                const NrrdImage &_nrrd, int _nargout, mxArray** _argOut,
+				const int _nargin, const mxArray** _argIn)  :
+  MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut,
+					   _nargin, _argIn) {
+
+  // instantiate filter
+  this->filter = FilterType::New();
+
+  // check number of input parameters
+  if (this->nparam < 1) {
+    mexErrMsgTxt("Not enough input arguments");
+  }
   if (this->nparam > 2) {
     mexErrMsgTxt("Too many input arguments");
   }
@@ -71,24 +79,21 @@ void MexBinaryErodeImageFilter<InVoxelType, OutVoxelType>::FilterAdvancedSetup()
     mexErrMsgTxt("Assertion fail: There is at least one parameter, but pointer to parameter array is NULL");
   }
   
-  // list of user-provided parameters for this filter (compulsory or
-  // optional)
-  unsigned long radius;   // (comp) radius of the ball in voxels
-  InVoxelType foreground; // (opt) voxels with this value will be
-                          // dilated. Default, maximum value of the
-                          // pixel type
-
-  // get parameters
-  if (this->nparam < 1) {
-    mexErrMsgTxt("Not enough input arguments");
-  }
-  if (this->nparam > 2) {
-    mexErrMsgTxt("Too many input arguments");
-  }
-  radius  = this->template 
+  // get user-provided parameters
+  this->radius  = this->template 
     GetScalarParamValue<unsigned long>("RADIUS", 0, 0);
-  foreground = this->template 
+  this->foreground = this->template 
     GetScalarParamValue<InVoxelType>("FOREGROUND", 1, std::numeric_limits<InVoxelType>::max());
+
+}
+
+/* 
+ * if this particular filter needs to redifine one or more BaseFilter
+ * virtual methods, the corresponding definitions go here
+ */
+
+template <class InVoxelType, class OutVoxelType>
+void MexBinaryErodeImageFilter<InVoxelType, OutVoxelType>::FilterAdvancedSetup() {
   
   // create a local pointer to the filter so that we can use
   // methods that are not part of the MexBaseFilter
@@ -98,12 +103,12 @@ void MexBinaryErodeImageFilter<InVoxelType, OutVoxelType>::FilterAdvancedSetup()
   
   // instantiate structuring element
   StructuringElementType structuringElement;
-  structuringElement.SetRadius(radius);
+  structuringElement.SetRadius(this->radius);
   structuringElement.CreateStructuringElement();
   localFilter->SetKernel(structuringElement);
   
-  // pass parameters to filter
-  localFilter->SetForegroundValue(foreground);
+  // pass other parameters to filter
+  localFilter->SetForegroundValue(this->foreground);
 
 }
 
