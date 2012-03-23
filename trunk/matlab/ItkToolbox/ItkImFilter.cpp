@@ -114,7 +114,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.6.0
+  * Version: 0.6.1
   * $Rev$
   * $Date$
   *
@@ -170,7 +170,6 @@
 #include "MexDanielssonDistanceMapImageFilter.hpp"
 #include "MexSignedMaurerDistanceMapImageFilter.hpp"
 #include "NrrdImage.hpp"
-/* End Gerardus headers (DO NOT DELETE THIS COMMENT) */
 
 /*
  * Argument Parsers
@@ -238,75 +237,31 @@ public:
   }
 };
 
-// select filter MexBinaryThinningImageFilter3D
-template <class InVoxelType, class OutVoxelType>
-class FilterSelector<nMexBinaryThinningImageFilter3D, InVoxelType, OutVoxelType> {
-public:
-  FilterSelector(const NrrdImage & nrrd, 
-		 int nargout, mxArray** argOut,
-		 const int nargin, const mxArray** argIn,
-		 MexBaseFilter<InVoxelType, OutVoxelType> *&filter) {
-    filter = new MexBinaryThinningImageFilter3D<InVoxelType, 
-						OutVoxelType>(nrrd, nargout, argOut,
-							      nargin, argIn);
-  }
-};
+#define SELECTFILTER(filterEnum, mexFilterType)				\
+  template <class InVoxelType, class OutVoxelType>			\
+  class FilterSelector<filterEnum, InVoxelType, OutVoxelType> {		\
+  public:								\
+  FilterSelector(const NrrdImage & nrrd,				\
+		 int nargout, mxArray** argOut,				\
+		 const int nargin, const mxArray** argIn,		\
+		 MexBaseFilter<InVoxelType, OutVoxelType> *&filter) {	\
+    filter = new mexFilterType<InVoxelType, OutVoxelType>(nrrd, nargout, argOut, \
+							  nargin, argIn); \
+  }									\
+  };
 
-// select filter MexDanielssonDistanceMapImageFilter
-template <class InVoxelType, class OutVoxelType>
-class FilterSelector<nMexDanielssonDistanceMapImageFilter, InVoxelType, OutVoxelType> {
-public:
-  FilterSelector(const NrrdImage & nrrd, 
-		 int nargout, mxArray** argOut,
-		 const int nargin, const mxArray** argIn,
-		 MexBaseFilter<InVoxelType, OutVoxelType> *&filter) {
-    filter = new MexDanielssonDistanceMapImageFilter<InVoxelType, 
-						     OutVoxelType>(nrrd, nargout, argOut,
-								   nargin, argIn);
-  }
-};
-
-// select filter MexSignedMaurerDistanceMapImageFilter
-template <class InVoxelType, class OutVoxelType>
-class FilterSelector<nMexSignedMaurerDistanceMapImageFilter, InVoxelType, OutVoxelType> {
-public:
-  FilterSelector(const NrrdImage & nrrd, 
-		 int nargout, mxArray** argOut,
-		 const int nargin, const mxArray** argIn,
-		 MexBaseFilter<InVoxelType, OutVoxelType> *&filter) {
-    filter = new MexSignedMaurerDistanceMapImageFilter<InVoxelType, 
-						       OutVoxelType>(nrrd, nargout, argOut,
-								     nargin, argIn);
-  }
-};
-
-// select filter MexBinaryDilateImageFilter
-template <class InVoxelType, class OutVoxelType>
-class FilterSelector<nMexBinaryDilateImageFilter, InVoxelType, OutVoxelType> {
-public:
-  FilterSelector(const NrrdImage & nrrd, 
-		 int nargout, mxArray** argOut,
-		 const int nargin, const mxArray** argIn,
-		 MexBaseFilter<InVoxelType, OutVoxelType> *&filter) {
-    filter = new MexBinaryDilateImageFilter<InVoxelType, 
-					    OutVoxelType>(nrrd, nargout, argOut,
-							  nargin, argIn);
-  }
-};
-
-// select filter MexBinaryErodeImageFilter
-template <class InVoxelType, class OutVoxelType>
-class FilterSelector<nMexBinaryErodeImageFilter, InVoxelType, OutVoxelType> {
-public:
-  FilterSelector(const NrrdImage & nrrd, 
-		 int nargout, mxArray** argOut,
-		 const int nargin, const mxArray** argIn,
-		 MexBaseFilter<InVoxelType, OutVoxelType> *&filter) {
-    filter = new MexBinaryErodeImageFilter<InVoxelType, 
-					   OutVoxelType>(nrrd, nargout, argOut,
-							  nargin, argIn);
-  }
-};
+// select filters
+SELECTFILTER(nMexBinaryThinningImageFilter3D,
+             MexBinaryThinningImageFilter3D)
+SELECTFILTER(nMexDanielssonDistanceMapImageFilter,
+             MexDanielssonDistanceMapImageFilter)
+SELECTFILTER(nMexSignedMaurerDistanceMapImageFilter,
+             MexSignedMaurerDistanceMapImageFilter)
+SELECTFILTER(nMexBinaryDilateImageFilter,
+             MexBinaryDilateImageFilter)
+SELECTFILTER(nMexBinaryErodeImageFilter,
+             MexBinaryErodeImageFilter)
+#undef SELECTFILTER
 
 /*
  * call the batch of methods that create the filter, set it up,
@@ -425,12 +380,10 @@ void parseOutputTypeToTemplate(const int nargin,
 					      int, mxArray**,		\
 					      const NrrdImage &) {	\
     mexErrMsgTxt("Input type incompatible with this filter");		\
-}
+  }
 
 INVALIDINPUTTYPE(nMexBinaryThinningImageFilter3D, mxLogical)
 INVALIDINPUTTYPE(nMexSignedMaurerDistanceMapImageFilter, mxLogical)
-/* Insertion point: INVALIDINPUTTYPE */
-
 #undef INVALIDINPUTTYPE
 
 // parseInputTypeToTemplate()
@@ -514,7 +467,10 @@ void parseFilterTypeToTemplate(const int nargin,
   !strcmp(x, T<std::string, std::string>::shortname.c_str())		\
     || !strcmp(x, T<std::string, std::string>::longname.c_str())
 
-  // convert run-time filter string to template
+  // map run-time filter string to filter enum, and then start the
+  // chain of parsers that will convert run-time types (input type,
+  // filter type) to templates, and calculate the appropriate output
+  // type
   if (ISFILTER(filterName, MexBinaryThinningImageFilter3D)) {
     
     parseInputTypeToTemplate<nMexBinaryThinningImageFilter3D>(nargin, argIn,
@@ -538,7 +494,8 @@ void parseFilterTypeToTemplate(const int nargin,
   } else if (ISFILTER(filterName, MexBinaryErodeImageFilter)) {
 
     parseInputTypeToTemplate<nMexBinaryErodeImageFilter>(nargin, argIn,
-							 nargout, argOut);
+							 nargout,
+							 argOut);
 
     /* Insertion point: parseFilterTypeToTemplate (DO NOT DELETE THIS COMMENT) */
 

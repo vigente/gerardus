@@ -1,3 +1,22 @@
+2012-03-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/ItkToolbox/MexTemplateFilter.cpp (v0.3.1):
+
+	- Comment out the filter instantiations that are not
+	OutputTye==InputType, as this is the default.
+
+	* Add matlab/ItkToolbox/add_filter_template.sh (v0.1.0):
+
+	- Script that partly automates adding a new filter to
+	itk_imfilter().
+
+	* matlab/ItkToolbox/ItkImFilter.cpp (v0.6.1):
+
+	- Prepare file to allow for script add_filter_template.sh to
+	insert code for new filters automatically.
+
+	- Add SELECTFILTER macro to tidy up code.
+
 2012-03-22  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/ItkToolbox/CMakeLists.txt (v0.4.2):
