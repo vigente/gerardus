@@ -14,6 +14,10 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
+/*=========================================================================
+Minor modification by Ramon Casero <rcasero@gmail.com> for Project Gerardus
+Version 0.1.1
+=========================================================================*/
 #ifndef __itkAnisotropicDiffusionVesselEnhancementFunction_txx
 #define __itkAnisotropicDiffusionVesselEnhancementFunction_txx
 
@@ -80,7 +84,7 @@ AnisotropicDiffusionVesselEnhancementFunction< TImageType >
                 const FloatOffsetType& offset)
 {
   unsigned int i, j;  
-  const ScalarValueType ZERO = NumericTraits<ScalarValueType>::Zero;
+//  const ScalarValueType ZERO = NumericTraits<ScalarValueType>::Zero;
   const ScalarValueType center_value  = it.GetCenterPixel();
 
   // Global data structure
