@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.4.2
+# Version: 0.4.3
 # $Rev$
 # $Date$
 #
@@ -49,12 +49,12 @@ ADD_MEX_FILE(itk_imfilter
   MexSignedMaurerDistanceMapImageFilter.cpp
   MexBinaryDilateImageFilter.cpp
   MexBinaryErodeImageFilter.cpp
-# Insertion point: itk_imfilter
+  MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp
   ItkImFilter.cpp)
 
 INCLUDE_DIRECTORIES(
-  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/itkBinaryThinningImageFilter3D/Source
   ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1
+  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/itkBinaryThinningImageFilter3D/Source
   )
 TARGET_LINK_LIBRARIES(itk_imfilter
   ${ITK_LIBRARIES})
