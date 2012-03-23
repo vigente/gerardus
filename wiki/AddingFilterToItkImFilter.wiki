@@ -77,6 +77,6 @@ protected:
     GetScalarParamValue<double>("SIGMAMIN", 0, 0.2);
   this->sigmaMax = this->template
     GetScalarParamValue<double>("SIGMAMAX", 1, 2.0);
-  this->sigmaMax = this->template
+  this->numSigmaSteps = this->template
     GetScalarParamValue<int>("NUMSIGMASTEPS", 2, 10);
 }}}
