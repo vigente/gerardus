@@ -1,5 +1,18 @@
 2012-03-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* matlab/ItkToolbox/MexTemplateFilter.cpp (v0.3.2):
+	* matlab/ItkToolbox/ItkImFilter.cpp (v0.6.3):
+
+	- Reorder methods. Minor edits.
+
+	* matlab/ItkToolbox/itk_imfilter.m (v0.4.4):
+	* matlab/ItkToolbox/MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp
+	(v0.1.1):
+	* matlab/ItkToolbox/MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp
+	(v0.1.1):
+
+	- Enable user-provided input arguments: sigmaMin, sigmaMax, numSigmaSteps.
+
 	* Add matlab/ItkToolbox/MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp
 	(v0.1.0):
 	* Add matlab/ItkToolbox/MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp
