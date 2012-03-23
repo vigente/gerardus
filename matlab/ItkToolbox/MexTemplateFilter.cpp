@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.1
+  * Version: 0.3.2
   * $Rev$
   * $Date$
   *
@@ -79,10 +79,13 @@ MexTemplateImageFilter<InVoxelType, OutVoxelType>::MexTemplateImageFilter(
     mexErrMsgTxt("Assertion fail: There is at least one parameter, but pointer to parameter array is NULL");
   }
   
-  // get user-provided parameters
+  // get user-provided parameters: 
+  //    parameter name
+  //    index (0 = first parameter)
+  //    default value
   // Example: 
   // this->foreground = this->template 
-  //   GetScalarParamValue<InVoxelType>("FOREGROUND", 1, std::numeric_limits<InVoxelType>::max());
+  //   GetScalarParamValue<InVoxelType>("FOREGROUND", 0, std::numeric_limits<InVoxelType>::max());
 
 }
 
@@ -90,35 +93,41 @@ MexTemplateImageFilter<InVoxelType, OutVoxelType>::MexTemplateImageFilter(
  * overriding of MexBaseFilter virtual methods, if needed
  */
 
-// // check numer of outputs requested by the user. By default, the
-// // function provides 0 or 1 output (the filtered image), but this
-// // method can be overriden in child filters with more outputs
+// // add code here if you need to pass user-provided parameters to the
+// // filter, or perform any other kind of filter setup
+// template <class InVoxelType, class OutVoxelType>
+// void MexTemplateImageFilter<InVoxelType, 
+// 			    OutVoxelType>::FilterAdvancedSetup() {
+//
+//   // create a local pointer to the filter so that we can use
+//   // methods that are not part of the MexBaseFilter
+//   typename FilterType::Pointer localFilter = 
+//     dynamic_cast<typename MexTemplateImageFilter<InVoxelType,
+// 				 OutVoxelType>::FilterType *>(this->filter.GetPointer());
+//
+// }
+
+// // this method overrides MexBaseFilter::CheckNumberOfOutputs(). Change
+// // the code here if this filter provides more than one output
 // template <class InVoxelType, class OutVoxelType>
 // void MexTemplateImageFilter<InVoxelType, 
 // 			    OutVoxelType>::CheckNumberOfOutputs() {
-  
+//
 //   // prevent the user from asking for too many output arguments
 //   if (this->nargout > 1) {
 //     mexErrMsgTxt("Too many output arguments");
 //   }
-
+//
 // }
 
-// // by default, this method doesn't do anything, but can be overriden
-// // when a filter needs some extra setput steps (e.g. passing parameters)
-// template <class InVoxelType, class OutVoxelType>
-// void MexTemplateImageFilter<InVoxelType, 
-// 			    OutVoxelType>::FilterAdvancedSetup() {
-  
-// }
-
-// // by default, this method doesn't do anything, but can be overriden
-// // when a child filter provides other outputs apart from the
-// // filtered image
+// // this method overrides
+// // MexBaseFilter::ExportOtherFilterOutputsToMatlab(). Add code here
+// // if you want to extract extra outputs from the filter, apart from
+// // the main filtered image output
 // template <class InVoxelType, class OutVoxelType>
 // void MexTemplateImageFilter<InVoxelType, 
 // 			    OutVoxelType>::ExportOtherFilterOutputsToMatlab() {
-  
+//
 // }
 
 /*

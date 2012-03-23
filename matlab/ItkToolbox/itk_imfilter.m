@@ -106,10 +106,16 @@ function im = itk_imfilter(~, ~)
 %   2007. http://hdl.handle.net/1926/558.
 %
 %   B has the same size and class as A
+%
+%   SIGMAMIN, SIGMAMAX are scalars with the limits of the
+%   multiscale scheme. By default, SIGMAMIN=0.2, SIGMAMIN=2.0.
+%
+%   NUMSIGMASTEPS is a scalar with the number of scales for the
+%   analysis. By default, NUMSIGMASTEPS=10.
  
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.3
+% Version: 0.4.4
 % $Rev$
 % $Date$
 %
