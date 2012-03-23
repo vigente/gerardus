@@ -1,5 +1,21 @@
 2012-03-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* matlab/ItkToolbox/itk_imfilter.m (v0.4.3):
+	* matlab/ItkToolbox/CMakeLists.txt (v0.4.3):
+	* matlab/ItkToolbox/ItkImFilter.cpp (v0.6.2):
+
+	- Add AnisotropicDiffusionVesselEnhancementImageFilter using
+	automatic script add_filter_template.sh. It compiles, but of
+	course we cannot pass user-provided parameters yet.
+
+	* matlab/ItkToolbox/add_filter_template.sh (v0.1.1):
+
+	- Automate adding MexFilter.cpp file to list of source files to
+	build itk_imfilter.
+
+	- Automate adding include path for new filter if it's a function
+	not in ITK.
+
 	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementFunction.txx
 	(v0.1.1):
 

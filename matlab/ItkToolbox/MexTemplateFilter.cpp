@@ -128,7 +128,6 @@ MexTemplateImageFilter<InVoxelType, OutVoxelType>::MexTemplateImageFilter(
  * slower and maybe the executable larger
  */
 
-#error FILTERINST types cannot be automatically determined by add_itk_imfilter_template.sh
 #define FILTERINST(T1, T2)				\
   template class MexTemplateImageFilter<T1, T2>;
 

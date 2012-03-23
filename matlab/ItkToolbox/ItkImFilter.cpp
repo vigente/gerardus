@@ -97,24 +97,23 @@
  *   type, e.g. FOREGROUND=255 if the image is uint8. This is the default in
  *   ITK, so we respect it even if we would rather have 1 as the default.
  *
+ * B = ITK_IMFILTER('advess', A)
  *
+ *   (itk::AnisotropicDiffusionVesselEnhancementImageFilter)
+ *   Anisotropic difussion vessel enhancement.
  *
- * itk_imfilter() must be compiled before it can be used from Matlab.
- * If Gerardus' root directory is e.g. ~/gerardus, type from a linux
- * shell
+ *   Enquobahrie A., Ibanez L., Bullitt E., Aylward S. "Vessel
+ *   Enhancing Diffusion Filter", Insight Journal,
+ *   2007. http://hdl.handle.net/1926/558.
  *
- *    $ cd ~/gerardus/matlab
- *    $ mkdir bin
- *    $ cd bin
- *    $ cmake ..
- *    $ make install
+ *   B has the same size and class as A
  *
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.6.1
+  * Version: 0.6.2
   * $Rev$
   * $Date$
   *
@@ -169,6 +168,7 @@
 #include "MexBinaryThinningImageFilter3D.hpp"
 #include "MexDanielssonDistanceMapImageFilter.hpp"
 #include "MexSignedMaurerDistanceMapImageFilter.hpp"
+#include "MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp"
 #include "NrrdImage.hpp"
 
 /*
@@ -213,6 +213,7 @@
 // list of supported filters. It has to be an enum so that we can pass
 // it as a template constant parameter
 enum SupportedFilter {
+  nMexAnisotropicDiffusionVesselEnhancementImageFilter,
   nMexBinaryThinningImageFilter3D,
   nMexDanielssonDistanceMapImageFilter,
   nMexSignedMaurerDistanceMapImageFilter,
@@ -261,6 +262,8 @@ SELECTFILTER(nMexBinaryDilateImageFilter,
              MexBinaryDilateImageFilter)
 SELECTFILTER(nMexBinaryErodeImageFilter,
              MexBinaryErodeImageFilter)
+SELECTFILTER(nMexAnisotropicDiffusionVesselEnhancementImageFilter,
+             MexAnisotropicDiffusionVesselEnhancementImageFilter)
 #undef SELECTFILTER
 
 /*
@@ -496,6 +499,11 @@ void parseFilterTypeToTemplate(const int nargin,
     parseInputTypeToTemplate<nMexBinaryErodeImageFilter>(nargin, argIn,
 							 nargout,
 							 argOut);
+
+  } else if (ISFILTER(filterName, MexAnisotropicDiffusionVesselEnhancementImageFilter)) {
+
+    parseInputTypeToTemplate<nMexAnisotropicDiffusionVesselEnhancementImageFilter>(nargin, argIn,
+							 nargout, argOut);
 
     /* Insertion point: parseFilterTypeToTemplate (DO NOT DELETE THIS COMMENT) */
 

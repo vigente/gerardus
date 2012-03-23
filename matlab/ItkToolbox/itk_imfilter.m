@@ -95,21 +95,21 @@ function im = itk_imfilter(~, ~)
 %   dilated. By default, FOREGROUND is the maximum value allowed for the
 %   type, e.g. FOREGROUND=255 if the image is uint8. This is the default in
 %   ITK, so we respect it.
-%   
 %
-% This function must be compiled before it can be used from Matlab.
-% If Gerardus' root directory is e.g. ~/gerardus, type from a
-% linux shell
+% B = ITK_IMFILTER('advess', A)
 %
-%    $ cd ~/gerardus/matlab
-%    $ mkdir bin
-%    $ cd bin
-%    $ cmake ..
-%    $ make install
+%   (itk::AnisotropicDiffusionVesselEnhancementImageFilter)
+%   Anisotropic difussion vessel enhancement.
+%
+%   Enquobahrie A., Ibanez L., Bullitt E., Aylward S. "Vessel
+%   Enhancing Diffusion Filter", Insight Journal,
+%   2007. http://hdl.handle.net/1926/558.
+%
+%   B has the same size and class as A
  
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.2
+% Version: 0.4.3
 % $Rev$
 % $Date$
 %

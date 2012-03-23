@@ -18,7 +18,7 @@
 
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.1.0
+# Version: 0.1.1
 # $Rev$
 # $Date$
 #
@@ -61,6 +61,10 @@ echo -e "Creating template files to add filter to itk_imfilter():\n... $filter"
 # uppercase name of filter for #define declarations
 defilter="${filter^^}"
 
+#############################################################
+## MexFilter .hpp and .cpp files
+#############################################################
+
 # copy template .hpp and .cpp files
 cp MexTemplateFilter.hpp Mex${filter}.hpp
 cp MexTemplateFilter.cpp Mex${filter}.cpp
@@ -74,16 +78,16 @@ sed -i -e "s/Copyright.*/Copyright © `date +%Y` University of Oxford/g" \
     Mex${filter}.hpp Mex${filter}.cpp
 sed -i 's/Version:.*/Version: 0.1.0/g' \
     Mex${filter}.hpp Mex${filter}.cpp
-sed -i 's/$Rev: .*/$Rev$/g' \
+sed -i 's/$Rev$/g' \
     Mex${filter}.hpp Mex${filter}.cpp
-sed -i 's/$Date: .*/$Date$/g' \
+sed -i 's/$Date$/g' \
     Mex${filter}.hpp Mex${filter}.cpp
 sed -i -e "s/shortname = \"template\"/shortname = \"${shortname}\"/g" \
     Mex${filter}.hpp Mex${filter}.cpp
 
-## add new filter to ItkImFilter.cpp
-## in each case we check whether the line we want to add is already in
-## the file, and if so, don't duplicate it
+#############################################################
+## ItkImFilter.cpp
+#############################################################
 
 # #include MexFilter.hpp
 line="#include \"Mex${filter}.hpp\""
@@ -123,3 +127,36 @@ then
     sed -ie "/Insertion point: parseFilterTypeToTemplate/i \  ${line}" \
 	ItkImFilter.cpp
 fi
+
+#############################################################
+## CmakeLists.txt
+#############################################################
+
+# add MexFilter.cpp file to list of source files to build
+# itk_imfilter() from
+line="Mex${filter}.cpp"
+if [ `grep -c "$line" CMakeLists.txt` == 0 ]
+then
+    sed -i "/  ItkImFilter.cpp/i \  ${line}" \
+	CMakeLists.txt
+fi
+
+# if the filter is a third-party filter, we need to add its directory
+# to the list of includes
+pushd ../../cpp/src/third-party
+incpath=`find . -name itk${filter}.h`
+if [ -n $incpath ]
+then
+    # remove the file name from the path, keeping only the directory
+    incpath=`dirname "$incpath"`
+    # remove the trailing ./ from the path
+    incpath=${incpath:2}
+    # line to add
+    line='${GERARDUS_SOURCE_DIR}/cpp/src/third-party/'"${incpath}"
+    if [ `grep -c "cpp/src/third-party/$incpath" ../../../matlab/ItkToolbox/CMakeLists.txt` == 0 ]
+    then
+	sed -ie "/INCLUDE_DIRECTORIES/a \  ${line}" \
+	    ../../../matlab/ItkToolbox/CMakeLists.txt
+    fi
+fi
+popd
