@@ -6,185 +6,77 @@
 
 This page provides step-by-step instructions on how to add a new ITK filter to the Gerardus Matlab MEX function itk_imfilter().
 
-All filters must either of type [http://www.itk.org/Doxygen320/html/classitk_1_1ImageToImageFilter.html itk::ImageToImageFilter] or inherit from it.
+If the automatic script wants to be used, then it's necessary to use bash on Linux or cygwin on Windows.
 
-= Changes needed on the C++ side of Gerardus (`gerardus/cpp/src/third-party`) =
+All filters must inherit from class [http://www.itk.org/Doxygen320/html/classitk_1_1ImageToImageFilter.html itk::ImageToImageFilter].
 
- * If the filter is already part of ITK (whether the standard or Review packages), then nothing needs to be done in this section
- * If the filter comes from an external source, e.g. the [http://hdl.handle.net/1926/558 itk::AnisotropicDiffusionVesselEnhancementImageFilter] from the Insight Journal, then
-  # Put the filter's C++ files in a new subdirectory within `gerardus/cpp/src/third-party`, e.g. 
+= Common steps to all filters =
+
+ # Make the filter's C++ code available to Gerardus
+  * If the filter is already part of ITK (whether the standard or Review packages), then Gerardus can already see the code, and you can jump to the next step
+  * If the filter comes from an external source, e.g. the [http://hdl.handle.net/1926/558 itk::AnisotropicDiffusionVesselEnhancementImageFilter] from the Insight Journal, then
+   # Put the filter's C++ files in a new subdirectory within `gerardus/cpp/src/third-party`, e.g. 
 {{{
 gerardus/cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1
 }}}
-  # Add the new subdirectory to the repository, add a reference in the `ChangeLog` file to where the code was downloaded from, and commit it, e.g.
+   # Add the new subdirectory to the subversion repository, add a reference in the `ChangeLog` file to where the code was downloaded from, and commit it, e.g.
 {{{
 $ cd gerardus
 $ svn add cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1
+$ svn propset svn:eol-style native cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/*
 $ emacs ChangeLog
 $ svn ci
 }}}
-
-= Changes needed on the Matlab side of Gerardus (`gerardus/matlab/ItkToolbox`) =
-
- # Edit `gerardus/matlab/ItkToolbox/CMakeLists.txt` to include the new subdirectory in the build
+ # Run bash script [http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/add_filter_template.sh add_filter_template.sh] as described below to get the new filter into `itk_imfilter()`:
 {{{
-INCLUDE_DIRECTORIES(
-  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/itkBinaryThinningImageFilter3D/Source
-  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1
-  )
-}}}
- # Run the script to add template MEX files for the filter, giving the filter class name and the short string that will be used in Matlab to invoke the filter
-{{{
-$ cd matlab/ItkToolbox
+$ cd gerardus/matlab/ItkToolbox
 $ ./add_filter_template.sh AnisotropicDiffusionVesselEnhancementImageFilter advess
 }}}
-  * Alternatively, you can manually make copies of the template files and then edit them by hand
+  where `AnisotropicDiffusionVesselEnhancementImageFilter` is the name of the filter, that is assumed to correspond to an `itk::AnisotropicDiffusionVesselEnhancementImageFilter` class that inherits from `itk::ImageToImageFilter`; and `advess` is the short name of the filter. That is, from Matlab the filter can be invoked running
 {{{
-MexTemplateFilter.hpp -> MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp
-MexTemplateFilter.cpp -> MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp
+>> im2 = itk_imfilter('advess', im);
 }}}
 
-== If filter takes extra input arguments apart from the image to be filtered ==
+The script `add_filter_template.sh` automates the steps for "vanilla" filters that:
+  * return the same output image type as the input image type
+  * don't require user-provided parameters (e.g. radius, threhold, etc.)
+  * don't require specific setup steps
 
-If the filter doesn't take input arguments, then you can skip this step. 
+Below we describe the manual changes that are necessary for more complicated filters.
 
-But some filters do. For example, `MexBinaryDilateImageFilter` requires a scalar input argument with the radius of the dilation. 
+== If filter accepts user-provided parameters ==
 
-First, we edit [http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/MexBinaryDilateImageFilter.hpp MexBinaryDilateImageFilter.hpp] so that we can store the input argument
+For example, filter `AnisotropicDiffusionVesselEnhancement` accepts the following user-provided parameters according to the paper and the code:
+ * Minimum sigma (`double`, default 0.2)
+ * Maximum sigma (`double`, default 2.0)
+ * Number of sigma steps (`int`, default 10)
+
+ # Edit the .hpp file automatically created for the new filter, [http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp]. Add accepted user-provided parameters as member variables
 {{{
 protected:
 
-  unsigned long radius;
+  // user-provided input parameters
+  double sigmaMin;
+  double sigmaMax;
+  int    numSigmaSteps;
 }}}
-We also comment out the "without parameters" constructor and uncomment the "with parameters" constructor
+ # Edit the .cpp file automatically created, [http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp].
+  # Correct the number of input parameters that are accepted
 {{{
-  // // constructor for filters without parameters
-  // MexBinaryDilateImageFilter(const NrrdImage &_nrrd, 
-  // 			 int _nargout, mxArray** _argOut)
-  //   : MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut) {
-
-  //   // instantiate filter
-  //   this->filter = FilterType::New();
-
-  // }
-
-  // constructor for filters that take user-defined parameters
-  MexBinaryDilateImageFilter(const NrrdImage &_nrrd, 
-  			 int _nargout, mxArray** _argOut,
-  			 const int _nargin, const mxArray** _argIn)
-    : MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut,
-  					     _nargin, _argIn) {
-
-    // instantiate filter
-    this->filter = FilterType::New();
-
-  }
-}}}
-How to deal with the input arguments is implemented in [http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/MexBinaryDilateImageFilter.cpp MexBinaryDilateImageFilter.cpp] by overriding `FilterAdvancedSetup()`
-{{{
-template <class InVoxelType, class OutVoxelType>
-void MexBinaryDilateImageFilter<InVoxelType, OutVoxelType>::FilterAdvancedSetup() {
-  
-  // list of user-provided parameters for this filter (compulsory or
-  // optional)
-  unsigned long radius;   // (comp) radius of the ball in voxels
-  InVoxelType foreground; // (opt) voxels with this value will be
-                          // dilated. Default, maximum value of the
-                          // pixel type
-
-  // check number of input parameters
-  if (this->nparam < 1) {
-    mexErrMsgTxt("Not enough input arguments");
-  }
-  if (this->nparam > 2) {
+  if (this->nparam > 3) {
     mexErrMsgTxt("Too many input arguments");
   }
-  if (this->nparam > 0 && this->argParam == NULL) {
-    mexErrMsgTxt("Assertion fail: There is at least one parameter, but pointer to parameter array is NULL");
-  }
-  
-  // get parameters
-  radius  = this->template 
-    GetScalarParamValue<unsigned long>("RADIUS", 0, 0);
-  foreground = this->template 
-    GetScalarParamValue<InVoxelType>("FOREGROUND", 1, std::numeric_limits<InVoxelType>::max());
-  
-  // create a local pointer to the filter so that we can use
-  // methods that are not part of the MexBaseFilter
-  typename FilterType::Pointer localFilter = 
-    dynamic_cast<typename MexBinaryDilateImageFilter<InVoxelType,
-			     OutVoxelType>::FilterType *>(this->filter.GetPointer());
-  
-  // instantiate structuring element
-  StructuringElementType structuringElement;
-  structuringElement.SetRadius(radius);
-  structuringElement.CreateStructuringElement();
-  localFilter->SetKernel(structuringElement);
-  
-  // pass parameters to filter
-  localFilter->SetForegroundValue(foreground);
-
-}
 }}}
-
-
-== If filter can return more outputs apart from the filtered image ==
-
-The new filter inherits from `MexBaseFilter` the virtual method
+  # read the parameters from the input
 {{{
-void CheckNumberOfOutputs();
+  // get user-provided parameters: 
+  //    parameter name
+  //    index (0 = first parameter)
+  //    default value
+  this->sigmaMin = this->template
+    GetScalarParamValue<double>("SIGMAMIN", 0, 0.2);
+  this->sigmaMax = this->template
+    GetScalarParamValue<double>("SIGMAMAX", 1, 2.0);
+  this->sigmaMax = this->template
+    GetScalarParamValue<int>("NUMSIGMASTEPS", 2, 10);
 }}}
-The default behaviour is to give a "Too many output arguments" error if the number of outputs requested from Matlab is >1.
-
-== If filter needs some specific configuration steps ==
-
-The new filter inherits from `MexBaseFilter` the virtual method
-{{{
-void FilterAdvancedSetup();
-}}}
-The default behaviour is to do nothing.
-
-The default behaviour can be overridden, if necessary. For example, `SignedMaurerDistanceMapImageFilter` needs some extra filter configuration. This is accomplished by declaring `FilterAdvancedSetup()` in [http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/MexSignedMaurerDistanceMapImageFilter.hpp MexSignedMaurerDistanceMapImageFilter.hpp]
-{{{
-  // methods from BaseFilter that this filter needs to override
-  void FilterAdvancedSetup();
-}}}
-  and then defining it in [http://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/MexSignedMaurerDistanceMapImageFilter.cpp MexSignedMaurerDistanceMapImageFilter.cpp]
-{{{
-/* 
- * MexSignedMaurerDistanceMapImageFilter::FilterSetup()
- */
-template <class InVoxelType, class OutVoxelType>
-void MexSignedMaurerDistanceMapImageFilter<InVoxelType, 
-                                           OutVoxelType>::FilterAdvancedSetup() {
-  
-  // the filter member variable is declared in MexBaseFilter as a
-  // general ImageToImageFilter, but we want to use some methods that
-  // belong only to the derived filter class
-  // SignedMaurerDistanceMapImageFilter. In order to do this, we need
-  // to declare a local filter variable that is of type
-  // SignedMaurerDistanceMapImageFilter, and dynamic cast it to filter
-  // in the MexBaseFilter class
-
-  typename FilterType::Pointer localFilter = 
-    dynamic_cast<typename MexSignedMaurerDistanceMapImageFilter<InVoxelType,
-    OutVoxelType>::FilterType *>(this->filter.GetPointer());
-
-  // compute distances using real world coordinates, instead of voxel
-  // indices
-  localFilter->SetUseImageSpacing(true);
-
-  // give output as actual distances, instead of squared distances
-  localFilter->SquaredDistanceOff();
-}
-
-}}}
-  This way, the method defined in the child class (`MexSignedMaurerDistanceMapImageFilter::FilterSetup()`) overrides the virtual method inherited from the parent class (`MexBaseFilter::FilterSetup()`)
-
-== If filter returns an output in a format that needs to be processed to a format that Matlab understands ==
-
-The new filter inherits from `MexBaseFilter` the virtual method
-{{{
-void ExportOtherFilterOutputsToMatlab();
-}}}
-The default behaviour is to do nothing.
