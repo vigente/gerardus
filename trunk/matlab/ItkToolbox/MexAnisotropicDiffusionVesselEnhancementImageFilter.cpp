@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -72,17 +72,23 @@ MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType, OutVoxelType>::
   if (this->nparam < 0) {
     mexErrMsgTxt("Not enough input arguments");
   }
-  if (this->nparam > 0) {
+  if (this->nparam > 3) {
     mexErrMsgTxt("Too many input arguments");
   }
   if (this->nparam > 0 && this->argParam == NULL) {
     mexErrMsgTxt("Assertion fail: There is at least one parameter, but pointer to parameter array is NULL");
   }
   
-  // get user-provided parameters
-  // Example: 
-  // this->foreground = this->template 
-  //   GetScalarParamValue<InVoxelType>("FOREGROUND", 1, std::numeric_limits<InVoxelType>::max());
+  // get user-provided parameters: 
+  //    parameter name
+  //    index (0 = first parameter)
+  //    default value
+  this->sigmaMin = this->template
+    GetScalarParamValue<double>("SIGMAMIN", 0, 0.2);
+  this->sigmaMax = this->template
+    GetScalarParamValue<double>("SIGMAMAX", 1, 2.0);
+  this->sigmaMax = this->template
+    GetScalarParamValue<int>("NUMSIGMASTEPS", 2, 10);
 
 }
 
@@ -90,35 +96,46 @@ MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType, OutVoxelType>::
  * overriding of MexBaseFilter virtual methods, if needed
  */
 
-// // check numer of outputs requested by the user. By default, the
-// // function provides 0 or 1 output (the filtered image), but this
-// // method can be overriden in child filters with more outputs
+// add code here if you need to pass user-provided parameters to the
+// filter, or perform any other kind of filter setup
+template <class InVoxelType, class OutVoxelType>
+void MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType, 
+			    OutVoxelType>::FilterAdvancedSetup() {
+  
+  // create a local pointer to the filter so that we can use
+  // methods that are not part of the MexBaseFilter
+  typename FilterType::Pointer localFilter = 
+    dynamic_cast<typename MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType,
+				 OutVoxelType>::FilterType *>(this->filter.GetPointer());
+
+  // set user-provided parameters
+  localFilter->SetSigmaMin(this->sigmaMin);
+  localFilter->SetSigmaMax(this->sigmaMax);
+  localFilter->SetNumberOfSigmaSteps(this->numSigmaSteps);
+
+}
+
+// // this method overrides MexBaseFilter::CheckNumberOfOutputs(). Change
+// // the code here if this filter provides more than one output
 // template <class InVoxelType, class OutVoxelType>
 // void MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType, 
 // 			    OutVoxelType>::CheckNumberOfOutputs() {
-  
+//  
 //   // prevent the user from asking for too many output arguments
 //   if (this->nargout > 1) {
 //     mexErrMsgTxt("Too many output arguments");
 //   }
-
+//
 // }
 
-// // by default, this method doesn't do anything, but can be overriden
-// // when a filter needs some extra setput steps (e.g. passing parameters)
-// template <class InVoxelType, class OutVoxelType>
-// void MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType, 
-// 			    OutVoxelType>::FilterAdvancedSetup() {
-  
-// }
-
-// // by default, this method doesn't do anything, but can be overriden
-// // when a child filter provides other outputs apart from the
-// // filtered image
+// // this method overrides
+// // MexBaseFilter::ExportOtherFilterOutputsToMatlab(). Add code here
+// // if you want to extract extra outputs from the filter, apart from
+// // the main filtered image output
 // template <class InVoxelType, class OutVoxelType>
 // void MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType, 
 // 			    OutVoxelType>::ExportOtherFilterOutputsToMatlab() {
-  
+//
 // }
 
 /*

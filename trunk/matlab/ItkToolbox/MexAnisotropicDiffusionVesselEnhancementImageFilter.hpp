@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -64,6 +64,9 @@ private:
 protected:
 
   // user-provided input parameters
+  double sigmaMin;
+  double sigmaMax;
+  int    numSigmaSteps;
 
 public:
 
@@ -76,7 +79,7 @@ public:
   // if this particular filter needs to redefine one or more MexBaseFilter
   // virtual methods, the corresponding declarations go here
   // void CheckNumberOfOutputs();
-  // void FilterAdvancedSetup();
+  void FilterAdvancedSetup();
   // void ExportOtherFilterOutputsToMatlab();
 
 };
