@@ -53,14 +53,14 @@
  *
  * B = ITK_IMFILTER('skel', A)
  *
- *   (itk::BinaryThinningImageFilter3D) Skeletonize a binary mask
+ *   (itk::BinaryThinningImageFilter3D) Skeletonize a binary mask.
  *
  *   B has the same size and class as A
  *
- * [B, NV] = ITK_IMFILTER('dandist', A)
+ * [B, NV] = ITK_IMFILTER('dandist', A).
  *
  *   (itk::DanielssonDistanceMapImageFilter) Compute unsigned distance map
- *   for a binary mask. Distance values are given in voxel coordinates
+ *   for a binary mask. Distance values are given in voxel coordinates.
  *
  *   B has the same size as A. B has a type large enough to store the
  *   maximum distance in the image. The largest available type is double. If
@@ -76,7 +76,7 @@
  *   (itk::SignedMaurerDistanceMapImageFilter) Compute signed distance map
  *   for a binary mask. Distance values are given in real world coordinates,
  *   if the input image is given as an NRRD struct, or in voxel units, if
- *   the input image is a normal array. 
+ *   the input image is a normal array.
  *
  *   The output type is always double.
  *
@@ -97,7 +97,7 @@
  *   type, e.g. FOREGROUND=255 if the image is uint8. This is the default in
  *   ITK, so we respect it even if we would rather have 1 as the default.
  *
- * B = ITK_IMFILTER('advess', A)
+ * B = ITK_IMFILTER('advess', A, SIGMAMIN, SIGMAMAX, NUMSIGMASTEPS)
  *
  *   (itk::AnisotropicDiffusionVesselEnhancementImageFilter)
  *   Anisotropic difussion vessel enhancement.
@@ -106,14 +106,20 @@
  *   Enhancing Diffusion Filter", Insight Journal,
  *   2007. http://hdl.handle.net/1926/558.
  *
- *   B has the same size and class as A
+ *   B has the same size and class as A.
+ *
+ *   SIGMAMIN, SIGMAMAX are scalars with the limits of the
+ *   multiscale scheme. By default, SIGMAMIN=0.2, SIGMAMIN=2.0.
+ *
+ *   NUMSIGMASTEPS is a scalar with the number of scales for the
+ *   analysis. By default, NUMSIGMASTEPS=10.
  *
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.6.2
+  * Version: 0.6.3
   * $Rev$
   * $Date$
   *
