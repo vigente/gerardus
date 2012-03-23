@@ -1,5 +1,11 @@
 2012-03-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementFunction.txx
+	(v0.1.1):
+
+	- Comment out unused variable declaration to avoid compilation
+	warnings.
+
 	* matlab/ItkToolbox/MexTemplateFilter.cpp (v0.3.1):
 
 	- Comment out the filter instantiations that are not
