@@ -46,7 +46,7 @@ Below we describe the manual changes that are necessary for more complicated fil
 
 == If filter accepts user-provided parameters ==
 
-For example, filter `AnisotropicDiffusionVesselEnhancement` accepts the following user-provided parameters according to the paper and the code:
+For example, filter `AnisotropicDiffusionVesselEnhancement` accepts, amongst others, the following user-provided parameters according to the paper and the code:
  * Minimum sigma (`double`, default 0.2)
  * Maximum sigma (`double`, default 2.0)
  * Number of sigma steps (`int`, default 10)
@@ -74,11 +74,11 @@ protected:
   //    index (0 = first parameter)
   //    default value
   this->sigmaMin = this->template
-    GetScalarParamValue<double>("SIGMAMIN", 0, 0.2);
+    GetScalarParamValue<double>("SIGMAMIN",    0, 0.2);
   this->sigmaMax = this->template
-    GetScalarParamValue<double>("SIGMAMAX", 1, 2.0);
+    GetScalarParamValue<double>("SIGMAMAX",    1, 2.0);
   this->numSigmaSteps = this->template
-    GetScalarParamValue<int>("NUMSIGMASTEPS", 2, 10);
+    GetScalarParamValue<int>("NUMSIGMASTEPS",  2, 10);
 }}}
  # Go back to the .hpp file, and uncomment the declaration of `FilterAdvancedSetup()`
 {{{
