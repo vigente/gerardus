@@ -70,7 +70,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.5
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -123,7 +123,9 @@
 #include "itkThinPlateSplineKernelTransform.h"
 #include "itkThinPlateR2LogRSplineKernelTransform.h"
 #include "itkVolumeSplineKernelTransform.h"
+#ifdef ITK3
 #include "itkBSplineScatteredDataPointSetToImageFilter.h"
+#endif
 
 /* Gerardus headers */
 #include "GerardusCommon.hpp"
@@ -131,6 +133,7 @@
 /* Functions */
 
 // runBSplineTransform<TScalarType, Dimension>()
+#ifdef ITK3
 template <class TScalarType, unsigned int Dimension>
 void runBSplineTransform(int nArgIn, const mxArray** argIn,
 			 mxArray** argOut) {
@@ -316,6 +319,7 @@ void runBSplineTransform(int nArgIn, const mxArray** argIn,
   return;
 
 }
+#endif
 
 // runKernelTransform<TScalarType, Dimension, TransformType>()
 template <class TScalarType, unsigned int Dimension, class TransformType>
@@ -439,8 +443,10 @@ void parseTransformType(int nArgIn, const mxArray** argIn,
   } else if (!strcmp(transform, "volume")) {
     runKernelTransform<TScalarType, Dimension, 
 		       VolumeTransformType>(nArgIn, argIn, argOut);
+#ifdef ITK3
   } else if (!strcmp(transform, "bspline")) {
     runBSplineTransform<TScalarType, Dimension>(nArgIn, argIn, argOut);
+#endif
   } else if (!strcmp(transform, "")) {
     std::cout << 
       "Implemented transform types: elastic, elasticr, tps, tpsr2, volume, bspline" 

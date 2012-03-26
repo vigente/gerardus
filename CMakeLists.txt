@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.1.1
+# Version: 0.1.2
 # $Rev$
 # $Date$
 #
@@ -47,11 +47,19 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 # project name
 PROJECT(GERARDUS)
 
-# Find ITK
+# find ITK
 FIND_PACKAGE(ITK REQUIRED)
 IF(ITK_FOUND)
   INCLUDE(${ITK_USE_FILE})
+  MESSAGE("   ITK v" ${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR}.${ITK_VERSION_PATCH})
 ENDIF(ITK_FOUND)
+
+# due to changes in ITK from v3.20.x to v4.1.x, some code needs to be
+# compiled differently for each version. Here we define a directive
+# that the C++ pre-processor can read
+IF(${ITK_VERSION_MAJOR} LESS 4)
+  ADD_DEFINITIONS("-DITK3")
+ENDIF(${ITK_VERSION_MAJOR} LESS 4)
 
 # add Boost libraries to the include path
 FIND_PACKAGE(Boost COMPONENTS filesystem system REQUIRED)
@@ -81,6 +89,9 @@ SET(CMAKE_MODULE_PATH
 
 # find Matlab
 FIND_PACKAGE(Matlab)
+IF(MATLAB_FOUND)
+  MESSAGE("   Matlab: " ${MATLAB_ROOT})
+ENDIF(MATLAB_FOUND)
 
 ##################################################################
 ## Block so that rpaths are added to both the MEX file in the build
