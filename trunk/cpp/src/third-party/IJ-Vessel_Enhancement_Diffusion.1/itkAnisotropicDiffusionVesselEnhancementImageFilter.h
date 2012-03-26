@@ -14,6 +14,12 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
+/*=========================================================================
+   Edits by Ramon Casero <rcasero@gmail.com> for project Gerardus
+   	 * adapt code to compile with ITK v4.x
+   	 * remove progress messages
+   Version: 0.2.0
+=========================================================================*/
 #ifndef __itkAnisotropicDiffusionVesselEnhancementImageFilter_h
 #define __itkAnisotropicDiffusionVesselEnhancementImageFilter_h
 
@@ -173,7 +179,11 @@ protected:
   /** This method applies changes from the m_UpdateBuffer to the output using
    * the ThreadedApplyUpdate() method and a multithreading mechanism.  "dt" is
    * the time step to use for the update of each pixel. */
+#ifdef ITK3
   virtual void ApplyUpdate(TimeStepType dt);
+#else
+  virtual void ApplyUpdate(const TimeStepType &dt);
+#endif
 
   /** Method to allow subclasses to get direct access to the update
    * buffer */
@@ -233,6 +243,7 @@ private:
 
   /** Structure for passing information into static callback methods.  Used in
    * the subclasses' threading mechanisms. */
+#ifdef ITK3
   struct DenseFDThreadStruct
     {
     AnisotropicDiffusionVesselEnhancementImageFilter *Filter;
@@ -240,6 +251,14 @@ private:
     TimeStepType *TimeStepList;
     bool *ValidTimeStepList;
     };
+#else
+  struct DenseFDThreadStruct {
+    AnisotropicDiffusionVesselEnhancementImageFilter *Filter;
+    TimeStepType TimeStep;
+    std::vector< TimeStepType > TimeStepList;
+    std::vector< bool > ValidTimeStepList;
+  };
+#endif
     
   /** This callback method uses ImageSource::SplitRequestedRegion to acquire an
    * output region that it passes to ThreadedApplyUpdate for processing. */
