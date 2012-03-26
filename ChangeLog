@@ -1,5 +1,9 @@
 2012-03-26  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* matlab/FileFormatToolbox/scinrrd_load.m (v0.2.7):
+
+	- Accept .mhd extension for MetaImage format.
+
 	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementImageFilter.txx:
 
 	- Fix bug. Wrong #define label for debug function.
