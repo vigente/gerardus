@@ -15,7 +15,7 @@
 
 =========================================================================*/
 /*=========================================================================
-   Minor bug fix by Ramon Casero <rcasero@gmail.com> for project Gerardus
+   Minor edits by Ramon Casero <rcasero@gmail.com> for project Gerardus
 =========================================================================*/
 #ifndef __itkAnisotropicDiffusionVesselEnhancementImageFilter_txx_
 #define __itkAnisotropicDiffusionVesselEnhancementImageFilter_txx_
@@ -370,7 +370,7 @@ AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
                                            this->GetOutput()->GetLargestPossibleRegion());
   om.Begin();
 
-  std::cout << "Generate tensor matrix: " << std::endl;
+//  std::cout << "Generate tensor matrix: " << std::endl;
  
   //DEBUG: DELETE LATER
   // Generate a vector image of the eigen values
@@ -767,7 +767,7 @@ AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
 
   while ( ! this->Halt() )
     {
-    std::cout << "Iteration:\t" << iter << std::endl;
+//    std::cout << "Iteration:\t" << iter << std::endl;
     this->InitializeIteration(); // An optional method for precalculating
                                  // global values, or otherwise setting up
                                  // for the next iteration
