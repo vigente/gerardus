@@ -14,6 +14,9 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
+/*=========================================================================
+   Minor edits by Ramon Casero <rcasero@gmail.com> for project Gerardus
+=========================================================================*/
 #ifndef __itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter_txx
 #define __itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter_txx
 
@@ -96,8 +99,8 @@ MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter
 
   while ( sigma <= m_SigmaMax )
     {
-    std::cout << "Computing vesselness for scale with sigma= " 
-              << sigma << std::endl;
+//    std::cout << "Computing vesselness for scale with sigma= " 
+//              << sigma << std::endl;
 
     m_HessianFilter->SetSigma( sigma );
 

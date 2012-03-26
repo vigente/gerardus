@@ -1,5 +1,12 @@
 2012-03-26  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter.txx:
+	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementImageFilter.txx:
+
+	- Comment out standard output messages. In Matlab, these are not
+	seen until the algorithm finishes, so they don't help to know how
+	the algorithm progresses.
+
 	* matlab/FileFormatToolbox/scinrrd_load.m (v0.2.7):
 
 	- Accept .mhd extension for MetaImage format.
