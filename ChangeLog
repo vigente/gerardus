@@ -2,7 +2,7 @@
 
 	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementImageFilter.txx:
 
-	- Bug fix. Wrong #define label for debug function.
+	- Fix bug. Wrong #define label for debug function.
 
 	* matlab/ItkToolbox/MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp
 	(v0.1.2):
