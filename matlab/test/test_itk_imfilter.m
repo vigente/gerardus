@@ -45,7 +45,7 @@ imagesc(nrrd.data(:, :, 3))
 % user-provided parameters
 sigmaMin = nrrd.axis(1).spacing * 5;
 sigmaMax = nrrd.axis(1).spacing * 10;
-sigmaSteps = 20;
+sigmaSteps = 15;
 iterations = 30;
 wStrength = 24;
 sensitivity = 4.0;
