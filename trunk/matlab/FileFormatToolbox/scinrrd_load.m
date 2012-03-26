@@ -35,7 +35,7 @@ function nrrd = scinrrd_load(file)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.2.6
+% Version: 0.2.7
 % $Rev$
 % $Date$
 % 
@@ -85,7 +85,7 @@ switch lower(ext)
         % correct x-,y-coordinates
         nrrd = scinrrd_seg3d2matlab(nrrd);
         
-    case '.mha' % MetaImage file
+    case {'.mha', '.mhd'} % MetaImage file
         
         % open file to read
         fid=fopen(file, 'r');
