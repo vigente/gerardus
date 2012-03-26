@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.1.2
   * $Rev$
   * $Date$
   *
@@ -72,7 +72,7 @@ MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType, OutVoxelType>::
   if (this->nparam < 0) {
     mexErrMsgTxt("Not enough input arguments");
   }
-  if (this->nparam > 3) {
+  if (this->nparam > 8) {
     mexErrMsgTxt("Too many input arguments");
   }
   if (this->nparam > 0 && this->argParam == NULL) {
@@ -84,11 +84,21 @@ MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType, OutVoxelType>::
   //    index (0 = first parameter)
   //    default value
   this->sigmaMin = this->template
-    GetScalarParamValue<double>("SIGMAMIN", 0, 0.2);
+    GetScalarParamValue<double>("SIGMAMIN",    0, 0.2);
   this->sigmaMax = this->template
-    GetScalarParamValue<double>("SIGMAMAX", 1, 2.0);
-  this->sigmaMax = this->template
-    GetScalarParamValue<int>("NUMSIGMASTEPS", 2, 10);
+    GetScalarParamValue<double>("SIGMAMAX",    1, 2.0);
+  this->numSigmaSteps = this->template
+    GetScalarParamValue<int>("NUMSIGMASTEPS",  2, 10);
+  this->numIterations = this->template
+    GetScalarParamValue<int>("NUMITERATIONS",  3, 1);
+  this->wStrength = this->template
+    GetScalarParamValue<double>("WSTRENGTH",   4, 25.0);
+  this->sensitivity = this->template
+    GetScalarParamValue<double>("SENSITIVITY", 5, 5.0);
+  this->timeStep = this->template
+    GetScalarParamValue<double>("TIMESTEP",    6, 1e-3);
+  this->epsilon = this->template
+    GetScalarParamValue<double>("EPSILON",     7, 1e-2);
 
 }
 
@@ -112,6 +122,20 @@ void MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType,
   localFilter->SetSigmaMin(this->sigmaMin);
   localFilter->SetSigmaMax(this->sigmaMax);
   localFilter->SetNumberOfSigmaSteps(this->numSigmaSteps);
+  localFilter->SetNumberOfIterations(this->numIterations);
+  localFilter->SetTimeStep(this->timeStep);
+  localFilter->SetEpsilon(this->epsilon);
+  localFilter->SetWStrength(this->wStrength);
+  localFilter->SetSensitivity(this->sensitivity);
+
+  std::cout << "sigmaMin = " << localFilter->GetSigmaMin() << std::endl;
+  std::cout << "sigmaMax = " << localFilter->GetSigmaMax() << std::endl;
+  std::cout << "NumberOfSigmaSteps = " << localFilter->GetNumberOfSigmaSteps() << std::endl;
+  std::cout << "NumberOfIterations = " << localFilter->GetNumberOfIterations() << std::endl;
+  std::cout << "timeStep = " << localFilter->GetTimeStep() << std::endl;
+  std::cout << "epsilon = " << localFilter->GetEpsilon() << std::endl;
+  std::cout << "wStrength = " << localFilter->GetWStrength() << std::endl;
+  std::cout << "sensitivity = " << localFilter->GetSensitivity() << std::endl;
 
 }
 

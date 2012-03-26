@@ -97,7 +97,8 @@
  *   type, e.g. FOREGROUND=255 if the image is uint8. This is the default in
  *   ITK, so we respect it even if we would rather have 1 as the default.
  *
- * B = ITK_IMFILTER('advess', A, SIGMAMIN, SIGMAMAX, NUMSIGMASTEPS)
+ * B = ITK_IMFILTER('advess', A, SIGMAMIN, SIGMAMAX, NUMSIGMASTEPS, NUMITERATIONS,
+ *                  WSTRENGTH, SENSITIVITY, TIMESTEP, EPSILON)
  *
  *   (itk::AnisotropicDiffusionVesselEnhancementImageFilter)
  *   Anisotropic difussion vessel enhancement.
@@ -108,18 +109,45 @@
  *
  *   B has the same size and class as A.
  *
- *   SIGMAMIN, SIGMAMAX are scalars with the limits of the
- *   multiscale scheme. By default, SIGMAMIN=0.2, SIGMAMIN=2.0.
+ *   SIGMAMIN, SIGMAMAX are scalars with the limits of the multiscale
+ *   scheme, in the same units as the image. They should be set to
+ *   roughly the diameters of the smallest and largest vessels in the
+ *   image. By default, SIGMAMIN=0.2, SIGMAMAX=2.0.
  *
  *   NUMSIGMASTEPS is a scalar with the number of scales for the
- *   analysis. By default, NUMSIGMASTEPS=10.
+ *   analysis. The scales change exponentially, not linearly. Casual
+ *   testing suggests that the final result does not depend heavily on
+ *   this parameter. By default, NUMSIGMASTEPS=10.
+ *
+ *   NUMITERATIONS is a scalar with the number of times the multiscale
+ *   anisotropic difussion method is run. In practice, a higher number
+ *   of iterations means more blurring along the vessels, which is
+ *   usually desirable. The result will depend heavily on the number
+ *   of iterations chosen. By default, NUMITERATIONS=10.
+ *
+ *   WSTRENGTH is a scalar that indicates the strength of anisotropic
+ *   diffusion. Casual testing suggests that the result doesn't depend
+ *   much on this value. By default, WSTRENGTH=25.0.
+ *
+ *   SENSITIVITY is a scalar that indicates the sensitivity to the
+ *   vesselness response. Casual testing suggests that the result
+ *   doesn't depend much on this value. By default, SENSITIVITY=5.0.
+ *
+ *   TIMESTEP is a scalar with the time step size in the difussion
+ *   process. It needs to be small enough to avoid divergence, but
+ *   otherwise casual testing suggests that the result doesn't depend
+ *   much on this value. For 3D images, TIMESTEP < 0.0625. By default,
+ *   TIMESTEP=0.001.
+ *
+ *   EPSILON is a scalar. It's a small number to ensure the positive
+ *   definiteness of the diffusion tensor. By default, EPSILON=0.01.
  *
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.6.3
+  * Version: 0.6.4
   * $Rev$
   * $Date$
   *
