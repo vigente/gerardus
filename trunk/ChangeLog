@@ -1,5 +1,10 @@
 2012-03-26  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* matlab/test/test_itk_imfilter.m (v0.1.0):
+
+	- Add Script to test the filters provided by itk_imfilter (code
+	for the moment only for "advess" filter).
+
 	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter.txx:
 	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementImageFilter.txx:
 
