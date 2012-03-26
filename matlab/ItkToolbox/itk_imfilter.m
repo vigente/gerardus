@@ -108,6 +108,11 @@ function im = itk_imfilter(~, ~)
 %
 %   B has the same size and class as A.
 %
+%   Note that A should have a signed type (e.g. int8, int16,
+%   double...). Images with unsigned types (e.g. uint8) will cause
+%   intermediate results that should be negative to be truncated to
+%   0, and the result will not be meaningful.
+%
 %   SIGMAMIN, SIGMAMAX are scalars with the limits of the multiscale
 %   scheme, in the same units as the image. They should be set to
 %   roughly the diameters of the smallest and largest vessels in the
