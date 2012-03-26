@@ -15,7 +15,10 @@
 
 =========================================================================*/
 /*=========================================================================
-   Minor edits by Ramon Casero <rcasero@gmail.com> for project Gerardus
+   Edits by Ramon Casero <rcasero@gmail.com> for project Gerardus
+   	 * adapt code to compile with ITK v4.x
+   	 * remove progress messages
+   Version: 0.2.0
 =========================================================================*/
 #ifndef __itkAnisotropicDiffusionVesselEnhancementImageFilter_txx_
 #define __itkAnisotropicDiffusionVesselEnhancementImageFilter_txx_
@@ -469,8 +472,13 @@ AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
 
 template<class TInputImage, class TOutputImage>
 void
+#ifdef ITK3
 AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
 ::ApplyUpdate(TimeStepType dt)
+#else
+AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
+::ApplyUpdate(const TimeStepType &dt)
+#endif
 {
   itkDebugMacro( << "ApplyUpdate Invoked with time step size: " << dt ); 
   // Set up for multithreaded processing.
@@ -548,18 +556,29 @@ AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
   // various threads.  There is one distinct slot for each possible thread,
   // so this data structure is thread-safe.
   threadCount = this->GetMultiThreader()->GetNumberOfThreads();  
+#ifdef ITK3
   str.TimeStepList = new TimeStepType[threadCount];
   str.ValidTimeStepList = new bool[threadCount];
   for (int i =0; i < threadCount; ++i)
     {      str.ValidTimeStepList[i] = false;    } 
+#else
+  str.TimeStepList.resize(threadCount);
+  str.ValidTimeStepList.assign(threadCount, false);
+#endif
 
   // Multithread the execution
   this->GetMultiThreader()->SingleMethodExecute();
 
   // Resolve the single value time step to return
+#ifdef ITK3
   dt = this->ResolveTimeStep(str.TimeStepList, str.ValidTimeStepList, threadCount);
   delete [] str.TimeStepList;
   delete [] str.ValidTimeStepList;
+#else
+  dt = this->ResolveTimeStep(str.TimeStepList, str.ValidTimeStepList);
+  str.TimeStepList.clear();
+  str.ValidTimeStepList.clear();
+#endif
 
   return  dt;
 }
@@ -740,7 +759,11 @@ AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
 {
   itkDebugMacro( << "GenerateData is called" );
 
+#ifdef ITK3
   if (this->GetState() == Superclass::UNINITIALIZED)
+#else
+  if (!this->GetIsInitialized())
+#endif
     {
 
     // Allocate the output image

@@ -1,3 +1,14 @@
+2012-03-27  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* CMakeLists.txt (v0.1.2):
+	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementImageFilter.h
+	(v0.2.0):
+	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementImageFilter.txx
+	(v0.2.0):
+	* matlab/ItkToolbox/ItkPSTransform.cpp (v0.3.0):
+
+	- Enable compilation with ITK v4.x.
+
 2012-03-26  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/test/test_itk_imfilter.m (v0.1.0):
