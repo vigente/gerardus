@@ -14,6 +14,9 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
+/*=========================================================================
+   Minor bug fix by Ramon Casero <rcasero@gmail.com> for project Gerardus
+=========================================================================*/
 #ifndef __itkAnisotropicDiffusionVesselEnhancementImageFilter_txx_
 #define __itkAnisotropicDiffusionVesselEnhancementImageFilter_txx_
 
@@ -319,7 +322,7 @@ AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
 
   ig.GoToBegin();
 
-#ifdef IINTERMEDIATE_OUTPUTS
+#ifdef INTERMEDIATE_OUTPUTS
   typedef ImageFileWriter< OutputMatrixImageType > EigenVectorMatrixWriterType;
 
   typename EigenVectorMatrixWriterType::Pointer 

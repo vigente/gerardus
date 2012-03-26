@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.1.2
   * $Rev$
   * $Date$
   *
@@ -67,6 +67,11 @@ protected:
   double sigmaMin;
   double sigmaMax;
   int    numSigmaSteps;
+  int    numIterations;
+  double timeStep;
+  double epsilon;
+  double wStrength;
+  double sensitivity;
 
 public:
 
