@@ -1,3 +1,22 @@
+2012-03-26  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementImageFilter.txx:
+
+	- Bug fix. Wrong #define label for debug function.
+
+	* matlab/ItkToolbox/MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp
+	(v0.1.2):
+	* matlab/ItkToolbox/MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp
+	(v0.1.2):
+
+	- Add missing user-provided input parameters: NUMITERATIONS,
+	WSTRENGTH, SENSITIVITY, TIMESTEP, EPSILON.
+
+	* matlab/ItkToolbox/itk_imfilter (v0.4.5):
+	* matlab/ItkToolbox/ItkImFilter.cpp (v0.6.4):
+
+	- Add syntax of filter advess to help header.
+
 2012-03-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/ItkToolbox/MexTemplateFilter.cpp (v0.3.2):
