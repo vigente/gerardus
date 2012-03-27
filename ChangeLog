@@ -6,8 +6,8 @@
 	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementImageFilter.txx
 	(v0.2.1):
 
-	- Suggestion by Bradley Lowekamp to replace my new ITK3 by the
-	standard ITK_VERSION_MAJOR.
+	- Suggestion by Bradley Lowekamp to replace my new preprocessor
+	macro ITK3 by the standard ITK_VERSION_MAJOR.
 
 	* CMakeLists.txt (v0.1.2):
 	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementImageFilter.h
