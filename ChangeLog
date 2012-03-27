@@ -1,5 +1,12 @@
 2012-03-27  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* matlab/ItkToolbox/ItkPSTransform.cpp (v0.3.1):
+
+	- Enable bspline warp also for ITK v4.x. With help from Nicholas
+	Tustison in this thread of the insight-users' mailing list
+
+	http://www.itk.org/pipermail/insight-users/2012-March/044238.html
+
 	* CMakeLists.txt (v0.1.3):
 	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementImageFilter.h
 	(v0.2.1):
