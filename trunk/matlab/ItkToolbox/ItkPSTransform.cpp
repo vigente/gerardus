@@ -55,16 +55,6 @@
  *   in the algorithm. A higher number of levels will make the spline
  *   more flexible and match the landmarks better. By default, LEVELS=5.
  *
- * This function must be compiled before it can be used from Matlab.
- * If Gerardus' root directory is e.g. ~/gerardus, type from a
- * linux shell
- *
- *    $ cd ~/gerardus/matlab
- *    $ mkdir bin
- *    $ cd bin
- *    $ cmake ..
- *    $ make install
- *
  */
 
  /*
