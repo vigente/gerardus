@@ -70,7 +70,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -123,8 +123,9 @@
 #include "itkThinPlateSplineKernelTransform.h"
 #include "itkThinPlateR2LogRSplineKernelTransform.h"
 #include "itkVolumeSplineKernelTransform.h"
-#ifdef ITK3
 #include "itkBSplineScatteredDataPointSetToImageFilter.h"
+#if ITK_VERSION_MAJOR>=4
+#include "itkBSplineControlPointImageFunction.h"
 #endif
 
 /* Gerardus headers */
@@ -133,7 +134,6 @@
 /* Functions */
 
 // runBSplineTransform<TScalarType, Dimension>()
-#ifdef ITK3
 template <class TScalarType, unsigned int Dimension>
 void runBSplineTransform(int nArgIn, const mxArray** argIn,
 			 mxArray** argOut) {
@@ -302,6 +302,25 @@ void runBSplineTransform(int nArgIn, const mxArray** argIn,
   					      mxREAL);
   TScalarType *yi = (TScalarType *)mxGetData(argOut[0]);
 
+  // from ITK v4.x, we need to instantiate a function to evaluate
+  // points of the B-spline, as the Evaluate() method has been removed
+  // from the TransformType
+#if ITK_VERSION_MAJOR>=4
+  // Note: in the following, we have to use TCoordRep=double, because
+  // ITK gives a compilation error of an abstract class not having
+  // been implemented. Otherwise, we would use
+  // TCoordRep=TScalar=float, as in the rest of this program
+  typedef typename 
+    itk::BSplineControlPointImageFunction<ImageType, double> EvalFunctionType;
+  typename EvalFunctionType::Pointer function = EvalFunctionType::New();
+
+  function->SetSplineOrder(splineOrder);
+  function->SetOrigin(origZero);
+  function->SetSpacing(spacing);
+  function->SetSize(sz);
+  function->SetInputImage(transform->GetPhiLattice());
+#endif
+
   // sample the warp field
   DataType vi; // warp field sample
   typename PointSetType::PointType xiParam; // sampling coordinates
@@ -309,7 +328,11 @@ void runBSplineTransform(int nArgIn, const mxArray** argIn,
     for (mwSize col=0; col < (mwSize)Dimension; ++col) {
       xiParam[CAST2MWSIZE(col)] = (xi[Mxi * col + row] - orig[CAST2MWSIZE(col)]) / lenmax;
     }
+#if ITK_VERSION_MAJOR<4
     transform->Evaluate(xiParam, vi);
+#else
+    vi = function->Evaluate(xiParam);
+#endif
     for (mwSize col=0; col < (mwSize)Dimension; ++col) {
       yi[Mxi * col + row] = xi[Mxi * col + row] + vi[CAST2MWSIZE(col)] * lenmax;
     }
@@ -319,7 +342,6 @@ void runBSplineTransform(int nArgIn, const mxArray** argIn,
   return;
 
 }
-#endif
 
 // runKernelTransform<TScalarType, Dimension, TransformType>()
 template <class TScalarType, unsigned int Dimension, class TransformType>
@@ -443,10 +465,8 @@ void parseTransformType(int nArgIn, const mxArray** argIn,
   } else if (!strcmp(transform, "volume")) {
     runKernelTransform<TScalarType, Dimension, 
 		       VolumeTransformType>(nArgIn, argIn, argOut);
-#ifdef ITK3
   } else if (!strcmp(transform, "bspline")) {
     runBSplineTransform<TScalarType, Dimension>(nArgIn, argIn, argOut);
-#endif
   } else if (!strcmp(transform, "")) {
     std::cout << 
       "Implemented transform types: elastic, elasticr, tps, tpsr2, volume, bspline" 
