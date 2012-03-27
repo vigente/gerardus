@@ -18,7 +18,7 @@
    Edits by Ramon Casero <rcasero@gmail.com> for project Gerardus
    	 * adapt code to compile with ITK v4.x
    	 * remove progress messages
-   Version: 0.2.0
+   Version: 0.2.1
 =========================================================================*/
 #ifndef __itkAnisotropicDiffusionVesselEnhancementImageFilter_txx_
 #define __itkAnisotropicDiffusionVesselEnhancementImageFilter_txx_
@@ -472,7 +472,7 @@ AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
 
 template<class TInputImage, class TOutputImage>
 void
-#ifdef ITK3
+#if ITK_VERSION_MAJOR<4
 AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
 ::ApplyUpdate(TimeStepType dt)
 #else
@@ -556,7 +556,7 @@ AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
   // various threads.  There is one distinct slot for each possible thread,
   // so this data structure is thread-safe.
   threadCount = this->GetMultiThreader()->GetNumberOfThreads();  
-#ifdef ITK3
+#if ITK_VERSION_MAJOR<4
   str.TimeStepList = new TimeStepType[threadCount];
   str.ValidTimeStepList = new bool[threadCount];
   for (int i =0; i < threadCount; ++i)
@@ -570,7 +570,7 @@ AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
   this->GetMultiThreader()->SingleMethodExecute();
 
   // Resolve the single value time step to return
-#ifdef ITK3
+#if ITK_VERSION_MAJOR<4
   dt = this->ResolveTimeStep(str.TimeStepList, str.ValidTimeStepList, threadCount);
   delete [] str.TimeStepList;
   delete [] str.ValidTimeStepList;
@@ -759,7 +759,7 @@ AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
 {
   itkDebugMacro( << "GenerateData is called" );
 
-#ifdef ITK3
+#if ITK_VERSION_MAJOR<4
   if (this->GetState() == Superclass::UNINITIALIZED)
 #else
   if (!this->GetIsInitialized())
