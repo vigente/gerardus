@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.2
+  * Version: 0.1.3
   * $Rev$
   * $Date$
   *
@@ -127,15 +127,6 @@ void MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType,
   localFilter->SetEpsilon(this->epsilon);
   localFilter->SetWStrength(this->wStrength);
   localFilter->SetSensitivity(this->sensitivity);
-
-  std::cout << "sigmaMin = " << localFilter->GetSigmaMin() << std::endl;
-  std::cout << "sigmaMax = " << localFilter->GetSigmaMax() << std::endl;
-  std::cout << "NumberOfSigmaSteps = " << localFilter->GetNumberOfSigmaSteps() << std::endl;
-  std::cout << "NumberOfIterations = " << localFilter->GetNumberOfIterations() << std::endl;
-  std::cout << "timeStep = " << localFilter->GetTimeStep() << std::endl;
-  std::cout << "epsilon = " << localFilter->GetEpsilon() << std::endl;
-  std::cout << "wStrength = " << localFilter->GetWStrength() << std::endl;
-  std::cout << "sensitivity = " << localFilter->GetSensitivity() << std::endl;
 
 }
 
