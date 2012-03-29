@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.3
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -72,7 +72,7 @@ MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType, OutVoxelType>::
   if (this->nparam < 0) {
     mexErrMsgTxt("Not enough input arguments");
   }
-  if (this->nparam > 8) {
+  if (this->nparam > 9) {
     mexErrMsgTxt("Too many input arguments");
   }
   if (this->nparam > 0 && this->argParam == NULL) {
@@ -84,21 +84,23 @@ MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType, OutVoxelType>::
   //    index (0 = first parameter)
   //    default value
   this->sigmaMin = this->template
-    GetScalarParamValue<double>("SIGMAMIN",    0, 0.2);
+    GetScalarParamValue<double>("SIGMAMIN",     0, 0.2);
   this->sigmaMax = this->template
-    GetScalarParamValue<double>("SIGMAMAX",    1, 2.0);
+    GetScalarParamValue<double>("SIGMAMAX",     1, 2.0);
   this->numSigmaSteps = this->template
-    GetScalarParamValue<int>("NUMSIGMASTEPS",  2, 10);
+    GetScalarParamValue<int>("NUMSIGMASTEPS",   2, 10);
+  this->isSigmaStepLog = this->template
+    GetScalarParamValue<bool>("ISSIGMASTEPLOG", 3, true);
   this->numIterations = this->template
-    GetScalarParamValue<int>("NUMITERATIONS",  3, 1);
+    GetScalarParamValue<int>("NUMITERATIONS",   4, 1);
   this->wStrength = this->template
-    GetScalarParamValue<double>("WSTRENGTH",   4, 25.0);
+    GetScalarParamValue<double>("WSTRENGTH",    5, 25.0);
   this->sensitivity = this->template
-    GetScalarParamValue<double>("SENSITIVITY", 5, 5.0);
+    GetScalarParamValue<double>("SENSITIVITY",  6, 5.0);
   this->timeStep = this->template
-    GetScalarParamValue<double>("TIMESTEP",    6, 1e-3);
+    GetScalarParamValue<double>("TIMESTEP",     7, 1e-3);
   this->epsilon = this->template
-    GetScalarParamValue<double>("EPSILON",     7, 1e-2);
+    GetScalarParamValue<double>("EPSILON",      8, 1e-2);
 
 }
 
@@ -122,6 +124,7 @@ void MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType,
   localFilter->SetSigmaMin(this->sigmaMin);
   localFilter->SetSigmaMax(this->sigmaMax);
   localFilter->SetNumberOfSigmaSteps(this->numSigmaSteps);
+  localFilter->SetIsSigmaStepLog(this->isSigmaStepLog);
   localFilter->SetNumberOfIterations(this->numIterations);
   localFilter->SetTimeStep(this->timeStep);
   localFilter->SetEpsilon(this->epsilon);
