@@ -97,8 +97,8 @@
  *   type, e.g. FOREGROUND=255 if the image is uint8. This is the default in
  *   ITK, so we respect it even if we would rather have 1 as the default.
  *
- * B = ITK_IMFILTER('advess', A, SIGMAMIN, SIGMAMAX, NUMSIGMASTEPS, NUMITERATIONS,
- *                  WSTRENGTH, SENSITIVITY, TIMESTEP, EPSILON)
+ * B = ITK_IMFILTER('advess', A, SIGMAMIN, SIGMAMAX, NUMSIGMASTEPS, ISSIGMASTEPLOG,
+ *                  NUMITERATIONS, WSTRENGTH, SENSITIVITY, TIMESTEP, EPSILON)
  *
  *   (itk::AnisotropicDiffusionVesselEnhancementImageFilter)
  *   Anisotropic difussion vessel enhancement.
@@ -112,7 +112,12 @@
  *   Note: A should have a signed type (e.g. int16, single). Images
  *   with unsigned types (e.g. uint16) will cause intermediate results
  *   that should be negative to be truncated to 0, and the result will
- *   not be meaningful.
+ *   not be meaningful. The best compromise between accuracy and
+ *   saving memory seems to be type single (= float).
+ *
+ *   Note: While it is possible to run the filter on a NRRD struct,
+ *   results seem better if run directly on the image (nrrd.data). The
+ *   filter doesn't seem to be spacing invariant.
  *
  *   SIGMAMIN, SIGMAMAX are scalars with the limits of the multiscale
  *   scheme, in the same units as the image. They should be set to
@@ -123,6 +128,11 @@
  *   analysis. The scales change exponentially, not linearly. Casual
  *   testing suggests that the final result does not depend heavily on
  *   this parameter. By default, NUMSIGMASTEPS=10.
+ *
+ *   ISSIGMASTEPLOG is a boolean that determines whether the
+ *   intermediate scales between SIGMAMIN to SIGMAMAX are distributed
+ *   logarithmically (true) or linearly (false). The latter seems to
+ *   work better for small ranges.
  *
  *   NUMITERATIONS is a scalar with the number of times the multiscale
  *   anisotropic difussion method is run. In practice, a higher number
@@ -152,7 +162,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.6.4
+  * Version: 0.6.5
   * $Rev$
   * $Date$
   *
