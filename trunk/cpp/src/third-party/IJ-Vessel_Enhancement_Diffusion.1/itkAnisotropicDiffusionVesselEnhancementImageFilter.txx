@@ -16,9 +16,10 @@
 =========================================================================*/
 /*=========================================================================
    Edits by Ramon Casero <rcasero@gmail.com> for project Gerardus
+         * add linear scales besides logarithmic scales
    	 * adapt code to compile with ITK v4.x
    	 * remove progress messages
-   Version: 0.2.1
+   Version: 0.3.0
 =========================================================================*/
 #ifndef __itkAnisotropicDiffusionVesselEnhancementImageFilter_txx_
 #define __itkAnisotropicDiffusionVesselEnhancementImageFilter_txx_
@@ -71,6 +72,7 @@ AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
   m_MultiScaleVesselnessFilter->SetSigmaMin( 0.2 );
   m_MultiScaleVesselnessFilter->SetSigmaMax( 2.0 );
   m_MultiScaleVesselnessFilter->SetNumberOfSigmaSteps( 10 );
+  m_MultiScaleVesselnessFilter->SetIsSigmaStepLog( true );
 
   // Vesselness guided vesselness function algorithm parameter
   m_WStrength  = 25.0;
@@ -168,6 +170,15 @@ AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
 ::SetNumberOfSigmaSteps( int value )
 {
   m_MultiScaleVesselnessFilter->SetNumberOfSigmaSteps( value );
+  this->Modified();
+}
+
+template <class TInputImage, class TOutputImage>
+void
+AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
+::SetIsSigmaStepLog( bool value )
+{
+  m_MultiScaleVesselnessFilter->SetIsSigmaStepLog( value );
   this->Modified();
 }
 

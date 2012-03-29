@@ -15,7 +15,10 @@
 
 =========================================================================*/
 /*=========================================================================
-   Minor edits by Ramon Casero <rcasero@gmail.com> for project Gerardus
+   Edits by Ramon Casero <rcasero@gmail.com> for project Gerardus
+   Version: 0.2.0
+    * Add linear scales besides logarithmic scales
+    * Some minor
 =========================================================================*/
 #ifndef __itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter_txx
 #define __itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter_txx
@@ -42,6 +45,7 @@ MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter
   m_SigmaMax = 2.0;
 
   m_NumberOfSigmaSteps = 10;
+  m_IsSigmaStepLog = true;
 
   m_HessianFilter                = HessianFilterType::New();
   m_VesselnessFilter             = VesselnessFilterType::New();
@@ -170,15 +174,25 @@ MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter
 <TInputImage,TOutputImage>
 ::ComputeSigmaValue( int ScaleLevel )
 {
-  double stepSize = 
-     ( vcl_log( m_SigmaMax )  - vcl_log( m_SigmaMin) ) / m_NumberOfSigmaSteps;
+  double stepSize;
+  if (this->m_IsSigmaStepLog) {
+    stepSize = 
+       ( vcl_log( m_SigmaMax )  - vcl_log( m_SigmaMin) ) / m_NumberOfSigmaSteps;
+  } else {
+    stepSize = 
+       ( m_SigmaMax - m_SigmaMin) / m_NumberOfSigmaSteps;
+  }
 
   if( stepSize <= 1e-10 )
     {
     stepSize = 1e-10;
     } 
 
-  return ( vcl_exp( vcl_log (m_SigmaMin) + stepSize * ScaleLevel) );
+  if (this->m_IsSigmaStepLog) {
+    return ( vcl_exp( vcl_log (m_SigmaMin) + stepSize * ScaleLevel) );
+  } else {
+    return ( m_SigmaMin + stepSize * ScaleLevel );
+  }
 }
 
 template <typename TInputImage, typename TOutputImage >

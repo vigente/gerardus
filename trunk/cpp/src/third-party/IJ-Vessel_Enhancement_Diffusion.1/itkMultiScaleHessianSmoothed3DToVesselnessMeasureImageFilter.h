@@ -14,6 +14,11 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
+/*=========================================================================
+   Edits by Ramon Casero <rcasero@gmail.com> for project Gerardus
+   Version: 0.2.0
+    * Add linear scales besides logarithmic scales
+=========================================================================*/
 #ifndef __itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter_h
 #define __itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter_h
 
@@ -100,6 +105,9 @@ public:
   itkSetMacro(NumberOfSigmaSteps, int);
   itkGetMacro(NumberOfSigmaSteps, int);
 
+  /** Set/Get macros for whether the scales are logarithmic or linear */
+  itkSetMacro(IsSigmaStepLog, bool);
+  itkGetMacro(IsSigmaStepLog, bool);
 
 protected:
   MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter();
@@ -130,6 +138,8 @@ private:
   double                                            m_SigmaMax;
 
   int                                               m_NumberOfSigmaSteps;
+
+  bool                                              m_IsSigmaStepLog;
 
   typename VesselnessFilterType::Pointer            m_VesselnessFilter;
   typename HessianFilterType::Pointer               m_HessianFilter;
