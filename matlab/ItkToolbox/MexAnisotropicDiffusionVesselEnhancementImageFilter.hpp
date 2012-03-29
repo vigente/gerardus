@@ -67,6 +67,7 @@ protected:
   double sigmaMin;
   double sigmaMax;
   int    numSigmaSteps;
+  bool   isSigmaStepLog;
   int    numIterations;
   double timeStep;
   double epsilon;
