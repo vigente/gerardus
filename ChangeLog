@@ -1,3 +1,20 @@
+2012-03-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/ItkToolbox/MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp
+	(v0.2.0):
+	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementImageFilter.h
+	(v0.3.0):
+	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementImageFilter.txx
+	(v0.3.0):
+	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter.h
+	(v0.2.0):
+	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter.txx
+	(v0.2.0):
+
+	- Add linear scales besides logarithmic scales. It seems that for
+	small ranges of sigma values, a linear scale covers the range
+	better than a logarithmic scale.
+
 2012-03-28  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/ItkToolbox/MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp

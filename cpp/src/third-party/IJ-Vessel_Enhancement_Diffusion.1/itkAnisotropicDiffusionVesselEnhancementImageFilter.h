@@ -16,9 +16,10 @@
 =========================================================================*/
 /*=========================================================================
    Edits by Ramon Casero <rcasero@gmail.com> for project Gerardus
+         * add linear scales besides logarithmic scales
    	 * adapt code to compile with ITK v4.x
    	 * remove progress messages
-   Version: 0.2.1
+   Version: 0.3.0
 =========================================================================*/
 #ifndef __itkAnisotropicDiffusionVesselEnhancementImageFilter_h
 #define __itkAnisotropicDiffusionVesselEnhancementImageFilter_h
@@ -158,10 +159,12 @@ public:
   void SetSigmaMin( double ); 
   void SetSigmaMax( double ); 
   void SetNumberOfSigmaSteps( int );
+  void SetIsSigmaStepLog( bool );
 
   double GetSigmaMin( ); 
   double GetSigmaMax( ); 
   int GetNumberOfSigmaSteps( );
+  bool GetIsSigmaStepLog( );
 
 protected:
   AnisotropicDiffusionVesselEnhancementImageFilter();
