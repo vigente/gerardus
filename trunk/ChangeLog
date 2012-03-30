@@ -1,3 +1,10 @@
+2012-03-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/ItkToolbox/add_filter_template.sh (v0.1.2):
+
+	- Fix bug. Rev and Date seach patterns in sed expression were too
+	specific.
+
 2012-03-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/ItkToolbox/ItkImFilter.cpp (v0.6.5):
