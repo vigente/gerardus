@@ -32,7 +32,7 @@
 % along with this program.  If not, see
 % <http://www.gnu.org/licenses/>.
 
-%% advess filter
+%% itk::AnisotropicDiffusionVesselEnhancementImageFilter (advess) filter
 
 % load test data
 nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
@@ -46,6 +46,7 @@ imagesc(nrrd.data(:, :, 3))
 sigmaMin = nrrd.axis(1).spacing * 5;
 sigmaMax = nrrd.axis(1).spacing * 10;
 sigmaSteps = 15;
+isSigmaStepLog = false;
 iterations = 30;
 wStrength = 24;
 sensitivity = 4.0;
@@ -55,7 +56,7 @@ epsilon = 1e-2;
 % smooth along vessels (11.4 s)
 tic
 im = itk_imfilter('advess', nrrd, sigmaMin, sigmaMax, sigmaSteps, ...
-    iterations, wStrength, sensitivity, timeStep, epsilon);
+    isSigmaStepLog, iterations, wStrength, sensitivity, timeStep, epsilon);
 toc
 
 figure
@@ -63,3 +64,30 @@ imagesc(im(:, :, 3))
 
 figure
 imagesc(nrrd.data(:, 2:end, 3) - im(:, 2:end, 3))
+
+%% itk::MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter (hesves)
+
+% load test data
+nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+
+% plot data
+close all
+imagesc(nrrd.data(:, :, 5))
+
+% user-provided parameters
+sigmaMin = 1;
+sigmaMax = 8;
+sigmaSteps = 4;
+isSigmaStepLog = false;
+
+% compute vesselness measure
+tic
+im = itk_imfilter('hesves', nrrd.data, sigmaMin, sigmaMax, sigmaSteps, ...
+    isSigmaStepLog);
+toc
+
+figure
+imagesc(im(:, :, 5))
+
+figure
+imagesc(im(:, :, 5) .* double(nrrd.data(:, :, 5)));

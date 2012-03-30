@@ -6,7 +6,7 @@
  * all ITK filters that inherit from itk::ImageToImageFilter on a
  * Matlab 2D image or 3D image volume.
  *
- * B = ITK_IMFILTER(TYPE, A, [FILTER PARAMETERS])
+ * B = itk_imfilter(TYPE, A, [FILTER PARAMETERS])
  *
  *   TYPE is a string with the filter we want to run. See below for a whole
  *   list of options.
@@ -51,13 +51,13 @@
  * Supported filters:
  * -------------------------------------------------------------------------
  *
- * B = ITK_IMFILTER('skel', A)
+ * B = itk_imfilter('skel', A)
  *
  *   (itk::BinaryThinningImageFilter3D) Skeletonize a binary mask.
  *
  *   B has the same size and class as A
  *
- * [B, NV] = ITK_IMFILTER('dandist', A).
+ * [B, NV] = itk_imfilter('dandist', A).
  *
  *   (itk::DanielssonDistanceMapImageFilter) Compute unsigned distance map
  *   for a binary mask. Distance values are given in voxel coordinates.
@@ -71,7 +71,7 @@
  *   closest foreground voxel. For example, NV(4) = 7 means that voxel
  *   4 is the closest foreground voxel to voxel 7.
  *
- * B = ITK_IMFILTER('maudist', A)
+ * B = itk_imfilter('maudist', A)
  *
  *   (itk::SignedMaurerDistanceMapImageFilter) Compute signed distance map
  *   for a binary mask. Distance values are given in real world coordinates,
@@ -80,8 +80,8 @@
  *
  *   The output type is always double.
  *
- * B = ITK_IMFILTER('bwdilate', A, RADIUS, FOREGROUND)
- * B = ITK_IMFILTER('bwerode', A, RADIUS, FOREGROUND)
+ * B = itk_imfilter('bwdilate', A, RADIUS, FOREGROUND)
+ * B = itk_imfilter('bwerode', A, RADIUS, FOREGROUND)
  *
  *   (itk::BinaryDilateImageFilter). Binary dilation. The structuring
  *   element is a ball.
@@ -97,7 +97,7 @@
  *   type, e.g. FOREGROUND=255 if the image is uint8. This is the default in
  *   ITK, so we respect it even if we would rather have 1 as the default.
  *
- * B = ITK_IMFILTER('advess', A, SIGMAMIN, SIGMAMAX, NUMSIGMASTEPS, ISSIGMASTEPLOG,
+ * B = itk_imfilter('advess', A, SIGMAMIN, SIGMAMAX, NUMSIGMASTEPS, ISSIGMASTEPLOG,
  *                  NUMITERATIONS, WSTRENGTH, SENSITIVITY, TIMESTEP, EPSILON)
  *
  *   (itk::AnisotropicDiffusionVesselEnhancementImageFilter)
@@ -157,12 +157,26 @@
  *   EPSILON is a scalar. It's a small number to ensure the positive
  *   definiteness of the diffusion tensor. By default, EPSILON=0.01.
  *
+ * B = itk_imfilter('hesves', A, SIGMAMIN, SIGMAMAX, NUMSIGMASTEPS, ISSIGMASTEPLOG)
+ *
+ *   (itk::MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter)
+ *   Vesselness measure from a multiscale scheme based on
+ *   eigenanalysis of the Hessian.
+ *
+ *   Enquobahrie A., Ibanez L., Bullitt E., Aylward S. "Vessel
+ *   Enhancing Diffusion Filter", Insight Journal,
+ *   2007. http://hdl.handle.net/1926/558.
+ *
+ *   B has the same size as A, but is always of type double.
+ *
+ *   Input arguments are the same as the four first input arguments of
+ *   filter "advess" above.
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.6.5
+  * Version: 0.6.6
   * $Rev$
   * $Date$
   *
@@ -218,6 +232,7 @@
 #include "MexDanielssonDistanceMapImageFilter.hpp"
 #include "MexSignedMaurerDistanceMapImageFilter.hpp"
 #include "MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp"
+#include "MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter.hpp"
 #include "NrrdImage.hpp"
 
 /*
@@ -262,6 +277,7 @@
 // list of supported filters. It has to be an enum so that we can pass
 // it as a template constant parameter
 enum SupportedFilter {
+  nMexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter,
   nMexAnisotropicDiffusionVesselEnhancementImageFilter,
   nMexBinaryThinningImageFilter3D,
   nMexDanielssonDistanceMapImageFilter,
@@ -313,6 +329,8 @@ SELECTFILTER(nMexBinaryErodeImageFilter,
              MexBinaryErodeImageFilter)
 SELECTFILTER(nMexAnisotropicDiffusionVesselEnhancementImageFilter,
              MexAnisotropicDiffusionVesselEnhancementImageFilter)
+SELECTFILTER(nMexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter,
+             MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter)
 #undef SELECTFILTER
 
 /*
@@ -409,6 +427,12 @@ void parseOutputTypeToTemplate(const int nargin,
   } else if (filterEnum == nMexSignedMaurerDistanceMapImageFilter) {
     
     runFilter<nMexSignedMaurerDistanceMapImageFilter,
+	      InVoxelType, 
+	      double>(nargin, argIn, nargout, argOut, nrrd);
+
+  } else if (filterEnum == nMexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter) {
+    
+    runFilter<nMexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter,
 	      InVoxelType, 
 	      double>(nargin, argIn, nargout, argOut, nrrd);
 
@@ -552,6 +576,11 @@ void parseFilterTypeToTemplate(const int nargin,
   } else if (ISFILTER(filterName, MexAnisotropicDiffusionVesselEnhancementImageFilter)) {
 
     parseInputTypeToTemplate<nMexAnisotropicDiffusionVesselEnhancementImageFilter>(nargin, argIn,
+							 nargout, argOut);
+
+  } else if (ISFILTER(filterName, MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter)) {
+
+    parseInputTypeToTemplate<nMexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter>(nargin, argIn,
 							 nargout, argOut);
 
     /* Insertion point: parseFilterTypeToTemplate (DO NOT DELETE THIS COMMENT) */
