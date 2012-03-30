@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.4.3
+# Version: 0.4.4
 # $Rev$
 # $Date$
 #
@@ -50,6 +50,7 @@ ADD_MEX_FILE(itk_imfilter
   MexBinaryDilateImageFilter.cpp
   MexBinaryErodeImageFilter.cpp
   MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp
+  MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter.cpp
   ItkImFilter.cpp)
 
 INCLUDE_DIRECTORIES(
