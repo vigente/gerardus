@@ -155,10 +155,24 @@ function im = itk_imfilter(~, ~)
 %
 %   EPSILON is a scalar. It's a small number to ensure the positive
 %   definiteness of the diffusion tensor. By default, EPSILON=0.01.
- 
+% B = itk_imfilter('hesves', A, SIGMAMIN, SIGMAMAX, NUMSIGMASTEPS, ISSIGMASTEPLOG)
+%
+%   (itk::MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter)
+%   Vesselness measure from a multiscale scheme based on
+%   eigenanalysis of the Hessian.
+%
+%   Enquobahrie A., Ibanez L., Bullitt E., Aylward S. "Vessel
+%   Enhancing Diffusion Filter", Insight Journal,
+%   2007. http://hdl.handle.net/1926/558.
+%
+%   B has the same size as A, but is always of type double.
+%
+%   Input arguments are the same as the four first input arguments of
+%   filter "advess" above.
+
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.6
+% Version: 0.4.7
 % $Rev$
 % $Date$
 %
