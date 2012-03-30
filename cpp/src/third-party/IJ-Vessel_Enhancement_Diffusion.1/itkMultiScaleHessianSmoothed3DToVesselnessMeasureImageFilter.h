@@ -42,10 +42,11 @@ namespace itk
  * at each scale level and the best response is selected.  The vesselness 
  * measure is computed using HessianSmoothed3DToVesselnessMeasureImageFilter.
  *
- * Minimum and maximum sigma value can be set using SetMinSigma and SetMaxSigma
- * methods respectively. The number of scale levels is set using 
- * SetNumberOfSigmaSteps method. Exponentially distributed scale levels are 
- * computed within the bound set by the minimum and maximum sigma values 
+ * Minimum and maximum sigma value can be set using SetMinSigma and
+ * SetMaxSigma methods respectively. The number of scale levels is set
+ * using SetNumberOfSigmaSteps method. Exponentially (or linear with
+ * the Gerardus modification) distributed scale levels are computed
+ * within the bound set by the minimum and maximum sigma values
  *  
  *
  * \par References
