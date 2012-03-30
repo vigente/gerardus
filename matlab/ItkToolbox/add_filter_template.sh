@@ -18,7 +18,7 @@
 
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.1.1
+# Version: 0.1.2
 # $Rev$
 # $Date$
 #
@@ -56,7 +56,7 @@ fi
 # mnemonic for input arguments
 filter="$1"
 shortname="$2"
-echo -e "Creating template files to add filter to itk_imfilter():\n... $filter"
+echo -e "Creating template files to add filter to itk_imfilter():\n    $filter"
 
 # uppercase name of filter for #define declarations
 defilter="${filter^^}"
@@ -78,12 +78,14 @@ sed -i -e "s/Copyright.*/Copyright © `date +%Y` University of Oxford/g" \
     Mex${filter}.hpp Mex${filter}.cpp
 sed -i 's/Version:.*/Version: 0.1.0/g' \
     Mex${filter}.hpp Mex${filter}.cpp
-sed -i 's/$Rev$/g' \
+sed -i 's/$Rev:.*/$Rev$/g' \
     Mex${filter}.hpp Mex${filter}.cpp
-sed -i 's/$Date$/g' \
+sed -i 's/$Date:.*/$Date$/g' \
     Mex${filter}.hpp Mex${filter}.cpp
 sed -i -e "s/shortname = \"template\"/shortname = \"${shortname}\"/g" \
     Mex${filter}.hpp Mex${filter}.cpp
+
+echo "    ... Created Mex${filter}.hpp/cpp"
 
 #############################################################
 ## ItkImFilter.cpp
@@ -128,6 +130,8 @@ then
 	ItkImFilter.cpp
 fi
 
+echo "    ... Modified ItkImFilter.cpp"
+
 #############################################################
 ## CmakeLists.txt
 #############################################################
@@ -143,7 +147,7 @@ fi
 
 # if the filter is a third-party filter, we need to add its directory
 # to the list of includes
-pushd ../../cpp/src/third-party
+pushd ../../cpp/src/third-party > /dev/null
 incpath=`find . -name itk${filter}.h`
 if [ -n $incpath ]
 then
@@ -159,4 +163,6 @@ then
 	    ../../../matlab/ItkToolbox/CMakeLists.txt
     fi
 fi
-popd
+popd > /dev/null
+
+echo "    ... Modified CMakeLists.txt"
