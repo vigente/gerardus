@@ -36,7 +36,7 @@ namespace itk
  * 
  * The vesselness measure is based on the analysis of the the Hessian 
  * eigen system. The vesseleness function is a smoothed (continous) 
- * version of the Frang's vesselness function. The filter takes an 
+ * version of the Frangi's vesselness function. The filter takes an 
  * image of any pixel type and generates a Hessian image pixels at different
  * scale levels. The vesselness measure is computed from the Hessian image 
  * at each scale level and the best response is selected.  The vesselness 
