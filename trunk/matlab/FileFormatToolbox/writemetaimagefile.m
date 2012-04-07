@@ -24,7 +24,7 @@ function writemetaimagefile(filename, img, resolution, offset)
 
 % Author(s): Ramon Casero <rcasero@gmail.com> and Vicente Grau
 % Copyright © 2012 University of Oxford
-% Version: 0.1.3
+% Version: 0.1.4
 % $Rev$
 % $Date$
 % 
@@ -76,9 +76,42 @@ if(fid<=0)
     fprintf('Could not open file: %s\n', filename);
 end
 
-ndims=numel(resolution);
+ndims=numel(img_size);
 
-if(ndims == 3)
+if(ndims == 2)
+    fprintf(fid, 'NDims = 2\n');
+
+    fprintf(fid, 'DimSize = %d %d\n', ...
+        img_size(1), img_size(2));
+
+    switch data_type
+        case {'logical', 'uint8'}
+            fprintf(fid, 'ElementType = MET_UCHAR\n');
+        case 'int8'
+            fprintf(fid, 'ElementType = MET_CHAR\n');
+        case 'uint16'
+            fprintf(fid, 'ElementType = MET_USHORT\n');
+        case 'int16'
+            fprintf(fid, 'ElementType = MET_SHORT\n');
+        case 'uint32'
+            fprintf(fid, 'ElementType = MET_UINT\n');
+        case 'int32'
+            fprintf(fid, 'ElementType = MET_INT\n');
+        case 'single'
+            fprintf(fid, 'ElementType = MET_FLOAT\n');
+        case 'double'
+            fprintf(fid, 'ElementType = MET_DOUBLE\n');
+        otherwise
+            error('Unrecognized data type')
+    end
+
+    fprintf(fid, 'Offset = %1.12e %1.12e\n', ...
+        offset(1), offset(2));
+
+    fprintf(fid, 'ElementSpacing = %1.12e %1.12e\n', ...
+        resolution(1), resolution(2));
+
+elseif(ndims == 3)
     fprintf(fid, 'NDims = 3\n');
 
     fprintf(fid, 'DimSize = %d %d %d\n', ...
@@ -143,6 +176,10 @@ elseif(ndims==4)
 
     fprintf(fid, 'ElementSpacing = %1.12e %1.12e %1.12e %1.12e\n', ...
         resolution(1), resolution(2), resolution(3), resolution(4));
+    
+else
+    
+    error('Unsupported number of dimensions')
        
 end
 
