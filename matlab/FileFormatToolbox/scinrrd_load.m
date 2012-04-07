@@ -35,7 +35,7 @@ function nrrd = scinrrd_load(file)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.2.7
+% Version: 0.2.8
 % $Rev$
 % $Date$
 % 
@@ -114,7 +114,7 @@ switch lower(ext)
             if (tline(1) == 0), break, end
             
             % pointer to current position in header
-            eoh0 = ftell(fid);
+            eoh = ftell(fid);
             
             % parse text header line
             
@@ -165,19 +165,15 @@ switch lower(ext)
                     warning(['Unrecognized line: ' tline])
             end
             
-            % update position of end of header
-            eoh = eoh0;
-
         end
         
         % the raw data can be after the text header, or in a separate file. If
         % there's a pointer to an external file, we assume that the data is
         % there
-        if (isempty(rawfile) || strcmp(rawfile, 'LOCAL')) % data after text header
-            % move file pointer to the beginning of the raw data
-            if (fseek(fid, eoh, 'bof') == -1)
-                error('Cannot read file');
-            end
+        if (isempty(rawfile))
+            error('No pointer to data in header')
+        elseif (strcmp(rawfile, 'LOCAL')) % data after text header
+            % do nothing
         else % data in external file
             % close mha file
             fclose(fid);
