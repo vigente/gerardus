@@ -1,3 +1,13 @@
+2012-04-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/FiltersToolbox/blockproc3.m (v0.2.0):
+
+	- Enable parallel computation using Matlab's parfor loop from the
+	Parallel Computing Toolbox.
+
+	- Remove processing of nrrd.data structs, it's really meaningless
+	here.
+
 2012-04-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/FileFormatToolbox/scinrrd_load.m (v0.2.8):
