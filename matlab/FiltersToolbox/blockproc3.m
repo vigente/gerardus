@@ -29,8 +29,8 @@ function im2 = blockproc3(im, blksz, fun, border, useparallel)
 %
 % Example:
 %
-%       fun = @(im) deconvblind(im, ones(20, 20, 10));
-%       nrrd.data = blockproc3d(nrrd.data, [256 256 128], fun, [30 30 10]);
+%       fun = @(x) deconvblind(x, ones(20, 20, 10));
+%       im2 = blockproc3d(im, [256 256 128], fun, [30 30 10]);
 %
 % IM2 = blockproc3(..., PARALLEL)
 %
@@ -97,11 +97,7 @@ error(nargoutchk(0, 1, nargout, 'struct'));
 
 % defaults
 if isempty(blksz)
-    if isstruct(im)
-        blksz = size(im.data);
-    else
-        blksz = size(im);
-    end
+    blksz = size(im);
 end
 if (nargin < 4) || isempty(border)
     border = [0 0 0];
@@ -117,11 +113,7 @@ if (length(blksz) < 3)
 end
 
 % image size
-if isstruct(im)
-    imsz = size(im.data);
-else
-    imsz = size(im);
-end
+imsz = size(im);
 
 % block limits without the extra borders...
 
