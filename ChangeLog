@@ -1,3 +1,15 @@
+2012-04-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add matlab/ItkToolbox/MexMedianImageFilter.hpp (v0.1.0):
+	* Add matlab/ItkToolbox/MexMedianImageFilter.cpp (v0.1.0):
+	* matlab/ItkToolbox/itk_imfilter.m (v0.4.8):
+	* matlab/test/test_itk_imfilter.m (v0.2.0):
+	* matlab/ItkToolbox/ItkImFilter.cpp (v0.6.7):
+	* matlab/ItkToolbox/CMakeLists.txt (v0.4.5):
+
+	- Add itk::MedianImageFilter, with half-size of filter's box as
+	input arguments.
+
 2012-04-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/FiltersToolbox/blockproc3.m (v0.2.0):
