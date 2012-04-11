@@ -169,10 +169,22 @@ function im = itk_imfilter(~, ~)
 %
 %   Input arguments are the same as the four first input arguments of
 %   filter "advess" above.
+%
+% B = itk_imfilter('median', A, RADR, RADC, RADS)
+%
+%   (itk::MedianImageFilter)
+%   Median of a rectangular neighbourhood.
+%
+%   B has the same size and class as A.
+%
+%   RADR, RADC, RADS are scalars with the half-size of the filter's
+%   box in each dimension. E.g. RADR=2, RADC=3, RADS=4 means that the
+%   median is computed in a rectangular neighbourhood of [5, 7, 9]
+%   voxels.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.7
+% Version: 0.4.8
 % $Rev$
 % $Date$
 %
