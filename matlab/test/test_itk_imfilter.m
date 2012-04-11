@@ -4,7 +4,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -91,3 +91,51 @@ imagesc(im(:, :, 5))
 
 figure
 imagesc(im(:, :, 5) .* double(nrrd.data(:, :, 5)));
+
+
+%% itk::MedianImageFilter (median)
+
+% load test data
+nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+
+% default median filtering (no filtering)
+im2 = itk_imfilter('median', nrrd);
+
+err = im2 - nrrd.data;
+% expected result = 0
+any(err(:) ~= 0)
+
+% median filtering only along rows, line of length 5+1+5=11
+im2 = itk_imfilter('median', nrrd, 5);
+
+% plot difference
+subplot(2, 1, 1)
+imagesc(nrrd.data(:, :, 4))
+subplot(2, 1, 2)
+imagesc(im2(:, :, 4))
+
+% median filtering only along columns, line of length 20+1+20=41
+im2 = itk_imfilter('median', nrrd, 0, 20);
+
+% plot difference
+subplot(2, 1, 1)
+imagesc(nrrd.data(:, :, 4))
+subplot(2, 1, 2)
+imagesc(im2(:, :, 4))
+
+% compare speed and results with Matlab's implementation
+tic
+im2 = itk_imfilter('median', nrrd, 10, 10, 10); % 5.8 sec
+toc
+tic
+im3 = medfilt3(nrrd.data, [21, 21, 21]); % 36.3 sec
+toc
+
+% difference: expected result = 0
+any(double(im2(:)) - double(im3(:)))
+
+% plot both results
+subplot(2, 1, 1)
+imagesc(im2(:, :, 4))
+subplot(2, 1, 2)
+imagesc(im3(:, :, 4))

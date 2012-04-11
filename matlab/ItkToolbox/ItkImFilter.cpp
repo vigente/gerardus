@@ -171,12 +171,25 @@
  *
  *   Input arguments are the same as the four first input arguments of
  *   filter "advess" above.
+ *
+ * B = itk_imfilter('median', A, RADR, RADC, RADS)
+ *
+ *   (itk::MedianImageFilter)
+ *   Median of a rectangular neighbourhood.
+ *
+ *   B has the same size and class as A.
+ *
+ *   RADR, RADC, RADS are scalars with the half-size of the filter's
+ *   box in each dimension. E.g. RADR=2, RADC=3, RADS=4 means that the
+ *   median is computed in a rectangular neighbourhood of [5, 7, 9]
+ *   voxels.
+ *
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.6.6
+  * Version: 0.6.7
   * $Rev$
   * $Date$
   *
@@ -233,6 +246,7 @@
 #include "MexSignedMaurerDistanceMapImageFilter.hpp"
 #include "MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp"
 #include "MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter.hpp"
+#include "MexMedianImageFilter.hpp"
 #include "NrrdImage.hpp"
 
 /*
@@ -277,6 +291,7 @@
 // list of supported filters. It has to be an enum so that we can pass
 // it as a template constant parameter
 enum SupportedFilter {
+  nMexMedianImageFilter,
   nMexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter,
   nMexAnisotropicDiffusionVesselEnhancementImageFilter,
   nMexBinaryThinningImageFilter3D,
@@ -331,6 +346,8 @@ SELECTFILTER(nMexAnisotropicDiffusionVesselEnhancementImageFilter,
              MexAnisotropicDiffusionVesselEnhancementImageFilter)
 SELECTFILTER(nMexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter,
              MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter)
+SELECTFILTER(nMexMedianImageFilter,
+             MexMedianImageFilter)
 #undef SELECTFILTER
 
 /*
@@ -581,6 +598,11 @@ void parseFilterTypeToTemplate(const int nargin,
   } else if (ISFILTER(filterName, MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter)) {
 
     parseInputTypeToTemplate<nMexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter>(nargin, argIn,
+							 nargout, argOut);
+
+  } else if (ISFILTER(filterName, MexMedianImageFilter)) {
+
+    parseInputTypeToTemplate<nMexMedianImageFilter>(nargin, argIn,
 							 nargout, argOut);
 
     /* Insertion point: parseFilterTypeToTemplate (DO NOT DELETE THIS COMMENT) */
