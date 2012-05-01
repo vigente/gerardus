@@ -1,3 +1,9 @@
+2012-05-01  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* cpp/src/Resize3DImage.cxx (v0.2.0):
+
+	- Add "compress" input argument.
+
 2012-04-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* Add matlab/ItkToolbox/MexMedianImageFilter.hpp (v0.1.0):
