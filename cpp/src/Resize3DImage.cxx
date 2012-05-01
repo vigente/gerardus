@@ -19,6 +19,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2010-2011 University of Oxford
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -90,6 +91,7 @@ int main(int argc, char** argv)
     float                               sigX, sigY, sigZ; // user-defined Gaussian std
     bool                                sigmaSeg3D; // whether to use a very similar blurring to Seg3D's
     bool                                sigmaInVoxels; // whether sigma units are in voxels or real world coordinates
+    bool                                compress; // whether output image will be saved compressed
     
     try {
         
@@ -101,10 +103,14 @@ int main(int argc, char** argv)
         TCLAP::ValueArg< float > sigXArg("", "sigx", "Gaussian std X", false, -1.0, "float");
         TCLAP::ValueArg< float > sigYArg("", "sigy", "Gaussian std Y", false, -1.0, "float");
         TCLAP::ValueArg< float > sigZArg("", "sigz", "Gaussian std Z", false, -1.0, "float");
-	cmd.add(sigXArg);
-	cmd.add(sigYArg);
 	cmd.add(sigZArg);
+	cmd.add(sigYArg);
+	cmd.add(sigXArg);
 
+        // input argument: save output data compressed
+        TCLAP::SwitchArg compressSwitch("c", "compress", "Compress saved output image", false);
+        cmd.add(compressSwitch);
+        
         // input argument: Seg3D's low-pass blurring
         TCLAP::SwitchArg sigmaSeg3DSwitch("", "sigmaSeg3D", "Use similar low-pass blurring as Seg3D's Resample tool", false);
         cmd.add(sigmaSeg3DSwitch);
@@ -151,6 +157,7 @@ int main(int argc, char** argv)
         sigX = sigXArg.getValue();
         sigY = sigYArg.getValue();
         sigZ = sigZArg.getValue();
+        compress = compressSwitch.getValue();
         sigmaSeg3D = sigmaSeg3DSwitch.getValue();
 	sigmaInVoxels = sigmaInVoxelsSwitch.getValue();
         
@@ -440,7 +447,7 @@ int main(int argc, char** argv)
         // write output file
         writer->SetInput(imOut);
         writer->SetFileName(outImPath.string());
-        writer->SetUseCompression(true);
+        writer->SetUseCompression(compress);
         writer->Update();
            
     } catch( const std::exception &e )  // catch any exceptions
