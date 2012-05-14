@@ -85,7 +85,12 @@ $ cmake -DBUILD_SHARED_LIBS=ON -DITK_USE_REVIEW=ON \
 {{{
 $ sudo apt-get install libboost1.46-all-dev
 }}}
-  * Note for Windows users: Use the [http://www.boostpro.com/download/ installer from BoostPro], !BoostPro 1.47.0 Installer (205K .exe) as of this writing.
+  * Note for Windows 32 bit users: Use the [http://www.boostpro.com/download/ installer from BoostPro], !BoostPro 1.47.0 Installer (205K .exe) as of this writing.
+  * Note for Windows 64 bit users: The libraries are not available in !BoostPro. It is necessary to download the source code, and [http://www.boost.org/doc/libs/1_47_0/more/getting_started/windows.html compile it on the Windows command line] with the commands
+{{{
+C:\> bootstrap
+C:\> bjam link=shared
+}}}
   * Note for all users: For those users who need to save space, note that in fact, only the `filesystem` and `system` components of the Boost Libraries are required
  * [http://www.mathworks.com/products/matlab/ Matlab]
   # Matlab has its own installer for each operating system (Linux, Windows, MacOS X, etc)
