@@ -155,6 +155,7 @@ function im = itk_imfilter(~, ~)
 %
 %   EPSILON is a scalar. It's a small number to ensure the positive
 %   definiteness of the diffusion tensor. By default, EPSILON=0.01.
+%
 % B = itk_imfilter('hesves', A, SIGMAMIN, SIGMAMAX, NUMSIGMASTEPS, ISSIGMASTEPLOG)
 %
 %   (itk::MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter)
