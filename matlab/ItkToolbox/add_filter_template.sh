@@ -18,7 +18,7 @@
 
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.1.2
+# Version: 0.1.3
 # $Rev$
 # $Date$
 #
@@ -65,6 +65,8 @@ defilter="${filter^^}"
 ## MexFilter .hpp and .cpp files
 #############################################################
 
+pushd MexFilter
+
 # copy template .hpp and .cpp files
 cp MexTemplateFilter.hpp Mex${filter}.hpp
 cp MexTemplateFilter.cpp Mex${filter}.cpp
@@ -86,6 +88,8 @@ sed -i -e "s/shortname = \"template\"/shortname = \"${shortname}\"/g" \
     Mex${filter}.hpp Mex${filter}.cpp
 
 echo "    ... Created Mex${filter}.hpp/cpp"
+
+popd
 
 #############################################################
 ## ItkImFilter.cpp
