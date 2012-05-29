@@ -307,11 +307,11 @@ void MexBaseFilter<InVoxelType,
 
   // impersonate the data buffer in the filter with the Matlab output
   // buffer
-  const bool filterWillDeleteTheInputBuffer = false;
+  const bool filterWillDeleteTheBuffer = false;
   this->filter->GetOutput(idx)->GetPixelContainer()
     ->SetImportPointer(imOutp,
 		       mxGetNumberOfElements(this->nrrd.getData()),
-		       filterWillDeleteTheInputBuffer);
+		       filterWillDeleteTheBuffer);
   this->filter->GetOutput()->Allocate();
 
   return;
