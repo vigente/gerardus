@@ -1,5 +1,12 @@
 2012-05-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* matlab/ItkToolbox/MexBaseFilter.hpp (v0.7.1):
+
+	- Fix memory leak. We were allocating memory for the output image
+	twice, once using Matlab's mxCreateNumericArray, and then again in
+	GraftMatlabOutputBufferIntoItkFilterOutput() using
+	this->filter->GetOutput()->Allocate();
+
 	* matlab/ItkToolbox/ItkImFilter.cpp (v0.6.8):
 
 	- We don't need to mummify the first output of the filter with
