@@ -1,3 +1,12 @@
+2012-05-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/ItkToolbox/ItkImFilter.cpp (v0.6.8):
+
+	- We don't need to mummify the first output of the filter with
+	MummifyFilterOutput(), because we are already mummifying it with
+	option filterWillDeleteTheInputBuffer=false when we graft the
+	Matlab buffer into the filter output.
+
 2012-05-28  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/ItkToolbox/add_filter_template.sh (v0.1.3):
