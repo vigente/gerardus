@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.7.0
+  * Version: 0.7.1
   * $Rev$
   * $Date$
   *
@@ -312,7 +312,6 @@ void MexBaseFilter<InVoxelType,
     ->SetImportPointer(imOutp,
 		       mxGetNumberOfElements(this->nrrd.getData()),
 		       filterWillDeleteTheBuffer);
-  this->filter->GetOutput()->Allocate();
 
   return;
 
