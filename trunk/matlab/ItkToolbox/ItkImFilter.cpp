@@ -189,7 +189,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.6.7
+  * Version: 0.6.8
   * $Rev$
   * $Date$
   *
@@ -380,7 +380,6 @@ void runFilter(const int nargin, const mxArray** argIn,
   filter->GraftMatlabInputBufferIntoItkImportFilter();
   filter->FilterBasicSetup();
   filter->FilterAdvancedSetup();
-  filter->MummifyFilterOutput(0);
   filter->RunFilter();
   filter->ExportOtherFilterOutputsToMatlab();
 
