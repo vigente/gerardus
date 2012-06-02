@@ -1,8 +1,8 @@
-function nrrd = scinrrd_surface_interpolation(nrrd, x, PARAM, INTERP, KLIM)
-% SCINRRD_SURFACE_INTERPOLATION  Interpolate a surface and create a
+function nrrd = scinrrd_surface_interpolation(nrrd, x, PARAM, INTERP, KLIM, nlev)
+% scinrrd_surface_interpolation  Interpolate a surface and create a
 % segmentation mask from a scattered set of points
 %
-% NRRD = SCINRRD_SURFACE_INTERPOLATION(NRRD0, X)
+% NRRD = scinrrd_surface_interpolation(NRRD0, X)
 %
 %   NRRD0 is the SCI NRRD struct that contains the image.
 %
@@ -12,7 +12,7 @@ function nrrd = scinrrd_surface_interpolation(nrrd, x, PARAM, INTERP, KLIM)
 %   NRRD is a SCI NRRD struct with a segmentation of the surface that
 %   interpolates the points in X.
 %
-% NRRD = SCINRRD_SURFACE_INTERPOLATION(NRRD0, X, PARAM, INTERP, KLIM)
+% NRRD = scinrrd_surface_interpolation(NRRD0, X, PARAM, INTERP, KLIM, NLEV)
 %
 %   PARAM is a string with the method used to parametrize the surface and
 %   X. For options, see help surface_interpolation.m.
@@ -24,6 +24,10 @@ function nrrd = scinrrd_surface_interpolation(nrrd, x, PARAM, INTERP, KLIM)
 %   By default, KLIM=1 and the interpolation domain is a rectangle that
 %   tightly contains X. Sections of the interpolated surface that protude
 %   from the image volume are removed.
+%
+%   NLEV is the number of levels in the hierarchical construction of 'mba'
+%   and 'mbae'. For other INTERP options, it will be ignored. By default,
+%   NLEV = 7.
 %
 %
 %   Note on SCI NRRD: Software applications developed at the University of
@@ -44,7 +48,7 @@ function nrrd = scinrrd_surface_interpolation(nrrd, x, PARAM, INTERP, KLIM)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.3
+% Version: 0.4.0
 % $Rev$
 % $Date$
 % 
@@ -72,28 +76,32 @@ function nrrd = scinrrd_surface_interpolation(nrrd, x, PARAM, INTERP, KLIM)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 5, nargin, 'struct'));
+error(nargchk(2, 6, nargin, 'struct'));
 error(nargoutchk(0, 1, nargout, 'struct'));
 
 % defaults
 if (nargin < 3 || isempty(PARAM))
-    PARAM='xy';
+    PARAM = 'xy';
 end
 if (nargin < 4 || isempty(INTERP))
-    INTERP='tps';
+    INTERP = 'tps';
 end
 if (nargin < 5 || isempty(KLIM))
-    KLIM=1;
+    KLIM = 1;
 end
-
-% extract data volume and convert to boolean to save space
-nrrd.data = boolean(nrrd.data);
+if (nargin > 5 && ~isempty(nlev) ...
+        && ~(strcmp(INTERP, 'mba') || strcmp(INTERP, 'mbae')))
+    warning('NLEV input argument ignored for this INTERP option')
+end
+if (nargin < 6 || isempty(nlev))
+    nlev = 7;
+end
 
 % get voxel size
 res = [nrrd.axis.spacing];
 
 %% compute interpolating surface
-y = surface_interpolation(x, PARAM, INTERP, res, KLIM);
+y = surface_interpolation(x, PARAM, INTERP, res, KLIM, nlev);
 
 %% map interpolated surface points to voxels
 
@@ -104,8 +112,10 @@ idx = round(scinrrd_world2index(y, nrrd.axis));
 badidx = isnan(sum(idx, 2));
 idx = idx(~badidx, :);
 
-% construct new segmentation mask. Note that zz has type double.
-nrrd.data = nrrd.data * 0;
+% reset segmentation mask
+nrrd.data = zeros([nrrd.axis.size], 'uint8');
+
+% construct new segmentation mask
 nrrd.data(sub2ind(size(nrrd.data), ...
     idx(:, 1), idx(:, 2), floor(idx(:, 3)))) = 1;
 nrrd.data(sub2ind(size(nrrd.data), ...
