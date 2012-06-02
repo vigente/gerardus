@@ -18,18 +18,11 @@
  *   ZI is a vector of the same length as XI and YI, with the
  *   interpolated values.
  *
- * To compile this MEX-file in a 64-bit linux architecture, run from
- * your gerardus/matlab directory
+ * ZI = MBA_SURFACE_INTERPOLATION(X, Y, Z, XI, YI, NLEV)
  *
- * >> mex -v -largeArrayDims -outdir PointsToolbox/ -f ./engopts.sh PointsToolbox/mba_surface_interpolation.cpp
+ *   NLEV is the number of levels in the hierarchical construction of the
+ *   interpolant. By default, NLEV = 7.
  *
- * To compile in a 32-bit linux architecture, run (untested)
- *
- * >> mex -v -outdir PointsToolbox/ -f ./engopts.sh PointsToolbox/mba_surface_interpolation.cpp
- *
- * For Windows, Mac or other architectures, the corresponding section
- * in the ../engopts.sh file will need to be edited before it
- * compiles. I cannot test them, so I haven't touched those sections.
  *
  * [1] MBA - Multilevel B-Spline Approximation
  * Library. http://www.sintef.no/Projectweb/Geometry-Toolkits/MBA/
@@ -38,7 +31,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -91,8 +84,8 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   // check number of input and output arguments
-  if (nrhs != 5) {
-    mexErrMsgTxt("Five input arguments required.");
+  if ((nrhs < 5) || (nrhs > 6)) {
+    mexErrMsgTxt("Five or six input arguments required.");
   }
   else if (nlhs > 1) {
     mexErrMsgTxt("Too many output arguments.");
@@ -106,10 +99,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   if (mxGetN(prhs[2]) != 1) mexErrMsgTxt( "Z must have one column." );
   if (mxGetN(prhs[3]) != 1) mexErrMsgTxt( "XI must have one column." );
   if (mxGetN(prhs[4]) != 1) mexErrMsgTxt( "YI must have one column." );
-  if (Mx != mxGetM(prhs[1]) || Mx != mxGetM(prhs[2])) 
+  if (nrhs > 5) {
+    if ((mxGetN(prhs[5]) != 1) || ((mxGetM(prhs[5]) != 1))) {
+      mexErrMsgTxt( "NLEV must be a scalar." );
+    }
+  }
+  if (Mx != mxGetM(prhs[1]) || Mx != mxGetM(prhs[2])) {
     mexErrMsgTxt( "X, Y and Z must have the same number of points (rows)." );
-  if (mxGetM(prhs[3]) != mxGetM(prhs[4])) 
+  }
+  if (mxGetM(prhs[3]) != mxGetM(prhs[4])) {
     mexErrMsgTxt( "XI and YI must have the same number of points (rows)." );
+  }
 
   // create output vector and pointer to populate it
   plhs[0] = mxCreateDoubleMatrix(Mxi, 1, mxREAL);
@@ -121,6 +121,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   double *z = mxGetPr(prhs[2]);
   double *xi = mxGetPr(prhs[3]);
   double *yi = mxGetPr(prhs[4]);
+  
+  // fetch optional input argument for number of levels in the reconstruction
+  int nlev = 7;
+  if (nrhs > 5) {
+    if (!mxIsEmpty(prhs[5])) {
+      double *nlevp = mxGetPr(prhs[5]);
+      nlev = int(*nlevp);
+    }
+  }
   
   // duplicate the input data in vector format so that we can pass it
   // to the MBA library
@@ -163,11 +172,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   // create the Multilevel B-spline object
   MBA mba(xv, yv, zv);
 
-  // compute the interpolat
+  // compute the interpolant
   if ((xmax-xmin)/(ymax-ymin) > 1.0) {
-    mba.MBAalg((xmax-xmin)/(ymax-ymin), 1.0, 7);
+    mba.MBAalg((xmax-xmin)/(ymax-ymin), 1.0, nlev);
   } else {
-    mba.MBAalg(1.0, (ymax-ymin)/(xmax-xmin), 8);
+    mba.MBAalg(1.0, (ymax-ymin)/(xmax-xmin), nlev);
   }
 
   // get the surface object
