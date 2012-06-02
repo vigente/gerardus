@@ -1,3 +1,26 @@
+2012-06-02  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/PointsToolbox/mba_surface_interpolation.m (v0.2.0):
+	* matlab/PointsToolbox/scinrrd_surface_interpolation.m (v0.4.0):
+	* matlab/PointsToolbox/mba_surface_interpolation.cpp (v0.2.0):
+	* matlab/PointsToolbox/surface_interpolation.m (v0.2.0):
+
+	- Some minor edits to warn when the new input argument is ignored,
+	and in terms of style and help header.
+
+	- Patch submitted by Tom Doel, to add a new input argument to set
+	the number of levels in the MBA and MBAE interpolants.
+
+	* matlab/test/test_scinrrd_surface_interpolation.m (v0.1.0):
+
+	- Add test script for scinrrd_surface_interpolation().
+
+	* cpp/src/third-party/mba/CMakeLists.txt (v0.1.2):
+
+	- Fix bug. Install MBA library to the Gerardus lib directory
+	instead of in the third-party library, so that it can be found by
+	the mex files in matlab.
+
 2012-05-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/ItkToolbox/MexBaseFilter.hpp (v0.7.1):

@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.1.1
+# Version: 0.1.2
 # $Rev$
 # $Date$
 #
@@ -68,4 +68,4 @@ INCLUDE_DIRECTORIES(include "${Boost_INCLUDE_DIRS}")
 
 INSTALL(TARGETS MBA 
   DESTINATION 
-  ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+  ${GERARDUS_SOURCE_DIR}/lib)
