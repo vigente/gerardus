@@ -1,7 +1,7 @@
-function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM)
-% SURFACE_INTERPOLATION  Interpolate a surface from a scattered set of points
+function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM, nlev)
+% surface_interpolation  Interpolate a surface from a scattered set of points
 %
-% [XI, EM, GX, GY] = SURFACE_INTERPOLATION(X)
+% [XI, EM, GX, GY] = surface_interpolation(X)
 %
 %   X is a 3-row matrix. Each column has the coordinates of a point that
 %   belongs to the surface we want to interpolate.
@@ -15,7 +15,7 @@ function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM)
 %
 %   GX, GY are the grid for the box that contains EM.
 %
-% ... = SURFACE_INTERPOLATION(X, PARAM, INTERP, RES, KLIM)
+% ... = surface_interpolation(X, PARAM, INTERP, RES, KLIM, NLEV)
 %
 %   PARAM is a string with the method used to parametrize the surface and
 %   X:
@@ -59,6 +59,10 @@ function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM)
 %   tightly contains X. Sections of the interpolated surface that protude
 %   from the image volume are removed.
 %
+%   NLEV is the number of levels in the hierarchical construction of 'mba'
+%   and 'mbae'. For other INTERP options, it will be ignored.  By default,
+%   NLEV = 7.
+%
 %
 % [1] J.B. Tenenbaum, V. de Silva and J.C. Langford, "A Global Geometric
 % Framework for Nonlinear Dimensionality Reduction", Science 290(5500):
@@ -75,7 +79,7 @@ function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.1.2
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -103,21 +107,28 @@ function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 5, nargin, 'struct'));
+error(nargchk(2, 6, nargin, 'struct'));
 error(nargoutchk(0, 4, nargout, 'struct'));
 
 % defaults
 if (nargin < 2 || isempty(PARAM))
-    PARAM='xy';
+    PARAM = 'xy';
 end
 if (nargin < 3 || isempty(INTERP))
-    INTERP='tps';
+    INTERP = 'tps';
 end
 if (nargin < 4 || isempty(res))
-    res=[1 1];
+    res = [1 1];
 end
 if (nargin < 5 || isempty(KLIM))
-    KLIM=1;
+    KLIM = 1;
+end
+if (nargin > 5 && ~isempty(nlev) ...
+        && ~(strcmp(INTERP, 'mba') || strcmp(INTERP, 'mbae')))
+    warning('NLEV input argument ignored for this INTERP option')
+end
+if (nargin < 6 || isempty(nlev))
+    nlev = 7;
 end
 
 %% map the 3D points (x,y,z) to a 2D domain (u,v)
@@ -208,9 +219,9 @@ switch INTERP
         xi = [fx(:) fy(:) fz(:)];
     case 'mba' % Multilevel B-Spline Approximation Library
         xi = [...
-            mba_surface_interpolation(em(1, :)', em(2, :)', x(1, :)', gx(:), gy(:)) ...
-            mba_surface_interpolation(em(1, :)', em(2, :)', x(2, :)', gx(:), gy(:)) ...
-            mba_surface_interpolation(em(1, :)', em(2, :)', x(3, :)', gx(:), gy(:))];
+            mba_surface_interpolation(em(1, :)', em(2, :)', x(1, :)', gx(:), gy(:), nlev) ...
+            mba_surface_interpolation(em(1, :)', em(2, :)', x(2, :)', gx(:), gy(:), nlev) ...
+            mba_surface_interpolation(em(1, :)', em(2, :)', x(3, :)', gx(:), gy(:), nlev)];
     case 'mbae' % MBA extrapolated using a TPS
         % use TPS to interpolate the points, but we are only interested in
         % the edges and corners of the interpolation, where the TPS is
@@ -226,9 +237,9 @@ switch INTERP
         % the TPS
         em = [em em2(:, 1:10:end)];
         xi = [...
-            mba_surface_interpolation(em(1, :)', em(2, :)', x(1, :)', gx(:), gy(:)) ...
-            mba_surface_interpolation(em(1, :)', em(2, :)', x(2, :)', gx(:), gy(:)) ...
-            mba_surface_interpolation(em(1, :)', em(2, :)', x(3, :)', gx(:), gy(:))];
+            mba_surface_interpolation(em(1, :)', em(2, :)', x(1, :)', gx(:), gy(:), nlev) ...
+            mba_surface_interpolation(em(1, :)', em(2, :)', x(2, :)', gx(:), gy(:), nlev) ...
+            mba_surface_interpolation(em(1, :)', em(2, :)', x(3, :)', gx(:), gy(:), nlev)];
     otherwise
         error('Interpolation method not implemented')
 end

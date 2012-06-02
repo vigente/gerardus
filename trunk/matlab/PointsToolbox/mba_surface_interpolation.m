@@ -1,10 +1,10 @@
-function zi = mba_surface_interpolation(x, y, z, xi, yi)
+function zi = mba_surface_interpolation(x, y, z, xi, yi, nlev)
 % MBA_SURFACE_INTERPOLATION  Scattered data Multilevel B-spline interpolation
 %
 % This MEX-function uses the MBA library [1] to compute a Multilevel
 % B-spline interpolated surface from a scattered set of points.
 %
-% ZI = MBA_SURFACE_INTERPOLATION(X, Y, Z, XI, YI)
+% ZI = mba_surface_interpolation(X, Y, Z, XI, YI, NLEV)
 %
 %   X, Y, Z are column vectors of the same size with the 3D
 %   coordinates of a scattered set of points.
@@ -16,12 +16,16 @@ function zi = mba_surface_interpolation(x, y, z, xi, yi)
 %   ZI is a vector of the same length as XI and YI, with the
 %   interpolated values.
 %
+%   NLEV is the number of levels in the hierarchical construction of the
+%   interpolant. By default, NLEV = 7.
+%
+%
 % [1] MBA - Multilevel B-Spline Approximation
 % Library. http://www.sintef.no/Projectweb/Geometry-Toolkits/MBA/
 %
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
