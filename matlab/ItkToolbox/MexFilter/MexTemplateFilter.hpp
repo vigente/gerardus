@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -59,7 +59,12 @@ private:
   
   typedef itk::TemplateImageFilter< 
     itk::Image<InVoxelType, Dimension>,
-    itk::Image<OutVoxelType, Dimension> > FilterType;
+    itk::Image<OutVoxelType, Dimension> > DerivedImageToImageFilterType;
+
+  // this->filter is the base filter, and doesn't provide access to
+  // methods that are exclusive to this derived filter. derivedFilter
+  // is a pointer that provides said access
+  typename DerivedImageToImageFilterType::Pointer derivedFilter;
 
 protected:
 

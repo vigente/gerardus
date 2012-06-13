@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.7.1
+  * Version: 0.7.2
   * $Rev$
   * $Date$
   *
@@ -61,7 +61,7 @@ protected:
 
   typedef typename itk::Image<InVoxelType, Dimension> InImageType;
   typedef typename itk::Image<OutVoxelType, Dimension> OutImageType;
-  typedef typename itk::ImageToImageFilter<InImageType, OutImageType> MexBaseFilterType;
+  typedef typename itk::ImageToImageFilter<InImageType, OutImageType> ImageToImageFilterType;
   typedef itk::ImportImageFilter<InVoxelType, Dimension> ImportFilterType;
   typename ImportFilterType::Pointer importFilter;
   NrrdImage nrrd;
@@ -69,7 +69,7 @@ protected:
   mxArray** argOut;
   mwSize nparam;
   const mxArray** argParam;
-  typename MexBaseFilterType::Pointer filter;
+  typename ImageToImageFilterType::Pointer filter;
 
   // get the value of input parameters that are numeric scalars from
   // the array of input arguments
@@ -80,14 +80,23 @@ protected:
   // allocate memory for a Matlab output buffer
   template <class OutputType>
   void MallocMatlabOutputBuffer(unsigned int idx);
+  template <class OutputType, int Dimension>
+  void MallocMatlabOutputBuffer(unsigned int idx);
 
   // make the filter use a Matlab buffer for one of its outputs. This
   // is the fastest and least memory-consuming way of working with the
   // filter outputs, because results don't need to be duplicated by
-  // copying them to a separate Matlab array. But not all filter
-  // outputs have types that can be directly exported to Matlab
+  // copying them to a separate Matlab array.
+  //
+  // for outputs with simple voxels
   template <class OutputType>
   void GraftMatlabOutputBufferIntoItkFilterOutput(unsigned int idx);
+
+  // for outputs with vector voxels
+  template <class OutputType, int Dimension>
+  void GraftMatlabOutputBufferIntoItkFilterOutput(unsigned int idx);
+  template <class OutputType, int Dimension>
+  void foo(unsigned int idx, ImageToImageFilterType *derivedFilter);
 
 public:
 
@@ -251,6 +260,14 @@ template <class InVoxelType, class OutVoxelType>
 template <class OutputType>
 void MexBaseFilter<InVoxelType, 
 		   OutVoxelType>::MallocMatlabOutputBuffer(unsigned int idx) {
+  this->template MallocMatlabOutputBuffer<OutputType, 1>(idx);
+  return;
+}
+
+template <class InVoxelType, class OutVoxelType>
+template <class OutputType, int Dimension>
+void MexBaseFilter<InVoxelType, 
+		   OutVoxelType>::MallocMatlabOutputBuffer(unsigned int idx) {
 
   // convert output data type to output class ID
   mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
@@ -266,6 +283,12 @@ void MexBaseFilter<InVoxelType,
     outputVoxelClassId = mxINT16_CLASS;
   } else if (TypeIsInt32<OutputType>::value) {
     outputVoxelClassId = mxINT32_CLASS;
+  } else if (TypeIsInt64<OutputType>::value) {
+    outputVoxelClassId = mxINT64_CLASS;
+    // a signed long can be 32- or 64-bit depending on the
+    // architecture. 64-bit is the safest option
+  } else if (TypeIsSignedLong<OutputType>::value) {
+    outputVoxelClassId = mxINT64_CLASS;
   } else if (TypeIsFloat<OutputType>::value) {
     outputVoxelClassId = mxSINGLE_CLASS;
   } else if (TypeIsDouble<OutputType>::value) {
@@ -274,12 +297,30 @@ void MexBaseFilter<InVoxelType,
     mexErrMsgTxt("Assertion fail: Unrecognised output data type");
   }
 
+  // dimensions for the output array. For vector images, we have an
+  // extra dimension apart from the image size itself
+  mwSize dims[this->nrrd.getNdim() + 1]; // allocate enough space even
+                                         // if Dimension==1 and we don't use it
+  mwSize ndim;
+  if (Dimension > 1) {
+    dims[0] = Dimension;
+    for (mwSize i = 0; i < this->nrrd.getNdim(); ++i) {
+      dims[i+1] = this->nrrd.getDims()[i];
+    }
+    ndim = this->nrrd.getNdim() + 1;
+  } else{
+    for (mwSize i = 0; i < this->nrrd.getNdim(); ++i) {
+      dims[i] = this->nrrd.getDims()[i];
+    }
+    ndim = this->nrrd.getNdim();
+  }
+
   // create output matrix for Matlab's result
   if (this->nrrd.getR() == 0 || this->nrrd.getC() == 0) {
     this->argOut[idx] = mxCreateDoubleMatrix(0, 0, mxREAL);
   } else {
-    this->argOut[idx] = (mxArray *)mxCreateNumericArray(this->nrrd.getNdim(), 
-							this->nrrd.getDims(),
+    this->argOut[idx] = (mxArray *)mxCreateNumericArray(ndim, 
+							dims,
 							outputVoxelClassId,
 							mxREAL);
   }
@@ -299,6 +340,17 @@ template <class OutputType>
 void MexBaseFilter<InVoxelType, 
 		   OutVoxelType>::GraftMatlabOutputBufferIntoItkFilterOutput(unsigned int idx) {
 
+  this->template GraftMatlabOutputBufferIntoItkFilterOutput<OutputType, 1>(idx);
+  return;
+
+}
+
+// for outputs with vector voxels
+template <class InVoxelType, class OutVoxelType>
+template <class OutputType, int Dimension>
+void MexBaseFilter<InVoxelType, 
+		   OutVoxelType>::GraftMatlabOutputBufferIntoItkFilterOutput(unsigned int idx) {
+
   // pointer to the Matlab output buffer
   OutputType *imOutp =  (OutputType *)mxGetData(this->argOut[idx]);
   if (imOutp == NULL) {
@@ -310,11 +362,51 @@ void MexBaseFilter<InVoxelType,
   const bool filterWillDeleteTheBuffer = false;
   this->filter->GetOutput(idx)->GetPixelContainer()
     ->SetImportPointer(imOutp,
-		       mxGetNumberOfElements(this->nrrd.getData()),
-		       filterWillDeleteTheBuffer);
+  		       Dimension * mxGetNumberOfElements(this->nrrd.getData()),
+  		       filterWillDeleteTheBuffer);
+  
 
   return;
 
 }
+
+
+#include "itkDanielssonDistanceMapImageFilter.h"
+
+template <class InVoxelType, class OutVoxelType>
+template <class OutputType, int Dimension>
+void MexBaseFilter<InVoxelType, 
+		   OutVoxelType>::foo(unsigned int idx, 
+				      ImageToImageFilterType *derivedFilter) {
+
+  // pointer to the Matlab output buffer
+  OutputType *imOutp =  (OutputType *)mxGetData(this->argOut[idx]);
+  if (imOutp == NULL) {
+    mexErrMsgTxt("Output buffer memory has not been allocated before trying to graft the buffer");
+  }
+
+  // impersonate the data buffer in the filter with the Matlab output
+  // buffer
+  const bool filterWillDeleteTheBuffer = false;
+  // this->filter->GetOutput(idx)->GetPixelContainer()
+  //   ->SetImportPointer(imOutp,
+  // 		       Dimension * mxGetNumberOfElements(this->nrrd.getData()),
+  // 		       filterWillDeleteTheBuffer);
+  // typedef typename itk::DanielssonDistanceMapImageFilter<InImageType, 
+  // 					 OutImageType>::VectorImageType ImageType;
+  typedef typename itk::Image<OutputType, Dimension> ImageType;
+  std::cout << "ImageType = " << print_T<ImageType>() << std::endl;
+  std::cout << "output " << idx << " = " 
+	    << derivedFilter->GetOutput(idx) << std::endl;//////////
+  ImageType *p = dynamic_cast<ImageType *>(derivedFilter->GetOutput(idx));
+
+  p->GetPixelContainer()->SetImportPointer(imOutp,
+  		       Dimension * mxGetNumberOfElements(this->nrrd.getData()),
+  		       filterWillDeleteTheBuffer);
+
+  return;
+
+}
+
 
 #endif /* MEXBASEFILTER_HPP */
