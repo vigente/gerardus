@@ -1,3 +1,66 @@
+2012-06-13  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/ItkToolbox/GerardusCommon.hpp (v0.3.2):
+
+	- Add more TypeIs... templated functions.
+
+	* matlab/ItkToolbox/MexBaseFilter.hpp (v0.7.2):
+
+	- Rename MexBaseFilterType as ImageToImageFilterType to make it
+	clearer what it represents.
+
+	- Add a Dimension template to MallocMatlabOutputBuffer() so that
+	we can allocate memory for vector images.
+
+	- Note: I have left some commented out test code that I'm going to
+	need for the next changes.
+
+	- Add more types that images are allowed to have.
+
+	* matlab/ItkToolbox/MexFilter/MexDanielssonDistanceMapImageFilter.cpp
+	(v0.5.1):
+
+	- Note: I have left some commented out test code that I'm going to
+	need for the next changes.
+
+	* matlab/ItkToolbox/MexFilter/MexBinaryThinningImageFilter3D.cpp (v0.2.1):
+	* matlab/ItkToolbox/MexFilter/MexTemplateFilter.cpp (v0.3.3):
+	* matlab/ItkToolbox/MexFilter/MexDanielssonDistanceMapImageFilter.cpp
+	(v0.5.1):
+	* matlab/ItkToolbox/MexFilter/MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter.cpp
+	(v0.1.1):
+	* matlab/ItkToolbox/MexFilter/MexBinaryDilateImageFilter.cpp (v0.2.1):
+	* matlab/ItkToolbox/MexFilter/MexBinaryErodeImageFilter.cpp (V0.2.1):
+	* matlab/ItkToolbox/MexFilter/MexSignedMaurerDistanceMapImageFilter.cpp
+	(v0.3.1):
+	* matlab/ItkToolbox/MexFilter/MexMedianImageFilter.cpp (v0.1.1):
+	* matlab/ItkToolbox/MexFilter/MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp
+	(v0.2.1):
+
+	- Rename FilterType as DerivedImageToImageFilterType to make it
+	clearer what it refers to.
+
+	- Get pointer to the derived filter in the constructor, so that
+	it's available to other methods.
+
+	* matlab/ItkToolbox/MexFilter/MexBinaryErodeImageFilter.hpp (v0.2.1):
+	* matlab/ItkToolbox/MexFilter/MexSignedMaurerDistanceMapImageFilter.hpp
+	(v0.3.1):
+	* matlab/ItkToolbox/MexFilter/MexMedianImageFilter.hpp (v0.1.1):
+	* matlab/ItkToolbox/MexFilter/MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp
+	(v0.1.3):
+	* matlab/ItkToolbox/MexFilter/MexBinaryThinningImageFilter3D.hpp (v0.3.1):
+	* matlab/ItkToolbox/MexFilter/MexTemplateFilter.hpp (v0.3.1):
+	* matlab/ItkToolbox/MexFilter/MexDanielssonDistanceMapImageFilter.hpp
+	(v0.5.1):
+	* matlab/ItkToolbox/MexFilter/MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter.hpp
+	(v0.1.1):
+	* matlab/ItkToolbox/MexFilter/MexBinaryDilateImageFilter.hpp
+	(v0.2.1):
+
+	- Add pointer to the derived filter as a member variable, so that
+	then we can use it from any method.
+
 2012-06-02  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/PointsToolbox/mba_surface_interpolation.m (v0.2.0):
