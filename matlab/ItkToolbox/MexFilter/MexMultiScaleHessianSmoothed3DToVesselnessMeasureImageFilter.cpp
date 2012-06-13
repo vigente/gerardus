@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -63,8 +63,17 @@ MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter<InVoxelType, OutVox
 				const int _nargin, const mxArray** _argIn) :
   MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut, _nargin, _argIn) {
 
-  // instantiate filter
-  this->filter = FilterType::New();
+  // instantiate filter in this derived class, but on the base class
+  // pointer, thanks to polimorphism. This way, we can run methods on
+  // the derived class from the base class
+  this->filter = DerivedImageToImageFilterType::New();
+
+  // get a pointer to the filter in this derived class. We cannot use
+  // this->filter if we want to access methods that are only in the
+  // derived class, because this->filter points to the filter in the
+  // base class
+  derivedFilter = 
+    dynamic_cast<DerivedImageToImageFilterType *>(this->filter.GetPointer());
 
   // check number of user-provided parameters (user-provided
   // parameters are the extra input arguments apart from the filter
@@ -107,17 +116,11 @@ template <class InVoxelType, class OutVoxelType>
 void MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter<InVoxelType, 
 			    OutVoxelType>::FilterAdvancedSetup() {
 
-  // create a local pointer to the filter so that we can use
-  // methods that are not part of the MexBaseFilter
-  typename FilterType::Pointer localFilter = 
-    dynamic_cast<typename MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter<InVoxelType,
-				 OutVoxelType>::FilterType *>(this->filter.GetPointer());
-
   // set user-provided parameters
-  localFilter->SetSigmaMin(this->sigmaMin);
-  localFilter->SetSigmaMax(this->sigmaMax);
-  localFilter->SetNumberOfSigmaSteps(this->numSigmaSteps);
-  localFilter->SetIsSigmaStepLog(this->isSigmaStepLog);
+  derivedFilter->SetSigmaMin(this->sigmaMin);
+  derivedFilter->SetSigmaMax(this->sigmaMax);
+  derivedFilter->SetNumberOfSigmaSteps(this->numSigmaSteps);
+  derivedFilter->SetIsSigmaStepLog(this->isSigmaStepLog);
 
 }
 

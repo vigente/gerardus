@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -61,8 +61,17 @@ MexSignedMaurerDistanceMapImageFilter<InVoxelType, OutVoxelType>::MexSignedMaure
   MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut,
 					   _nargin, _argIn) {
 
-  // instantiate filter
-  this->filter = FilterType::New();
+  // instantiate filter in this derived class, but on the base class
+  // pointer, thanks to polimorphism. This way, we can run methods on
+  // the derived class from the base class
+  this->filter = DerivedImageToImageFilterType::New();
+
+  // get a pointer to the filter in this derived class. We cannot use
+  // this->filter if we want to access methods that are only in the
+  // derived class, because this->filter points to the filter in the
+  // base class
+  derivedFilter = 
+    dynamic_cast<DerivedImageToImageFilterType *>(this->filter.GetPointer());
 
   // check number of user-provided parameters (user-provided
   // parameters are the extra input arguments apart from the filter
@@ -87,24 +96,12 @@ template <class InVoxelType, class OutVoxelType>
 void MexSignedMaurerDistanceMapImageFilter<InVoxelType, 
 					   OutVoxelType>::FilterAdvancedSetup() {
   
-  // the filter member variable is declared in MexBaseFilter as a
-  // general ImageToImageFilter, but we want to use some methods that
-  // belong only to the derived filter class
-  // SignedMaurerDistanceMapImageFilter. In order to do this, we need
-  // to declare a local filter variable that is of type
-  // SignedMaurerDistanceMapImageFilter, and dynamic cast it to filter
-  // in the MexBaseFilter class
-
-  typename FilterType::Pointer localFilter = 
-    dynamic_cast<typename MexSignedMaurerDistanceMapImageFilter<InVoxelType,
-    OutVoxelType>::FilterType *>(this->filter.GetPointer());
-
   // compute distances using real world coordinates, instead of voxel
   // indices
-  localFilter->SetUseImageSpacing(true);
+  derivedFilter->SetUseImageSpacing(true);
 
   // give output as actual distances, instead of squared distances
-  localFilter->SquaredDistanceOff();
+  derivedFilter->SquaredDistanceOff();
 }
 
 /*

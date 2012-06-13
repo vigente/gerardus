@@ -576,33 +576,33 @@ void parseFilterTypeToTemplate(const int nargin,
   }  else if (ISFILTER(filterName, MexSignedMaurerDistanceMapImageFilter)) {
 
     parseInputTypeToTemplate<nMexSignedMaurerDistanceMapImageFilter>(nargin, argIn,
-								     nargout, argOut);
+  								     nargout, argOut);
 
   } else if (ISFILTER(filterName, MexBinaryDilateImageFilter)) {
 
     parseInputTypeToTemplate<nMexBinaryDilateImageFilter>(nargin, argIn,
-							  nargout, argOut);
+  							  nargout, argOut);
 
   } else if (ISFILTER(filterName, MexBinaryErodeImageFilter)) {
 
     parseInputTypeToTemplate<nMexBinaryErodeImageFilter>(nargin, argIn,
-							 nargout,
-							 argOut);
+  							 nargout,
+  							 argOut);
 
   } else if (ISFILTER(filterName, MexAnisotropicDiffusionVesselEnhancementImageFilter)) {
 
     parseInputTypeToTemplate<nMexAnisotropicDiffusionVesselEnhancementImageFilter>(nargin, argIn,
-							 nargout, argOut);
+  							 nargout, argOut);
 
   } else if (ISFILTER(filterName, MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter)) {
 
     parseInputTypeToTemplate<nMexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter>(nargin, argIn,
-							 nargout, argOut);
+  							 nargout, argOut);
 
   } else if (ISFILTER(filterName, MexMedianImageFilter)) {
 
     parseInputTypeToTemplate<nMexMedianImageFilter>(nargin, argIn,
-							 nargout, argOut);
+  							 nargout, argOut);
 
     /* Insertion point: parseFilterTypeToTemplate (DO NOT DELETE THIS COMMENT) */
 

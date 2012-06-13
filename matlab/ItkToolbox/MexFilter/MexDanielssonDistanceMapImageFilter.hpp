@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.5.0
+  * Version: 0.5.1
   * $Rev$
   * $Date$
   *
@@ -58,7 +58,12 @@ class MexDanielssonDistanceMapImageFilter :
 private:
   typedef itk::DanielssonDistanceMapImageFilter< 
   itk::Image<InVoxelType, Dimension>,
-  itk::Image<OutVoxelType, Dimension> > FilterType;
+  itk::Image<OutVoxelType, Dimension> > DerivedImageToImageFilterType;
+
+  // this->filter is the base filter, and doesn't provide access to
+  // methods that are exclusive to this derived filter. derivedFilter
+  // is a pointer that provides said access
+  typename DerivedImageToImageFilterType::Pointer derivedFilter;
 
 protected:
 

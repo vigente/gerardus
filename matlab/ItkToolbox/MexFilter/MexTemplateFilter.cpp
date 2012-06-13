@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.2
+  * Version: 0.3.3
   * $Rev$
   * $Date$
   *
@@ -63,8 +63,17 @@ MexTemplateImageFilter<InVoxelType, OutVoxelType>::MexTemplateImageFilter(
 				const int _nargin, const mxArray** _argIn) :
   MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut, _nargin, _argIn) {
 
-  // instantiate filter
-  this->filter = FilterType::New();
+  // instantiate filter in this derived class, but on the base class
+  // pointer, thanks to polimorphism. This way, we can run methods on
+  // the derived class from the base class
+  this->filter = DerivedImageToImageFilterType::New();
+
+  // get a pointer to the filter in this derived class. We cannot use
+  // this->filter if we want to access methods that are only in the
+  // derived class, because this->filter points to the filter in the
+  // base class
+  derivedFilter = 
+    dynamic_cast<DerivedImageToImageFilterType *>(this->filter.GetPointer());
 
   // check number of user-provided parameters (user-provided
   // parameters are the extra input arguments apart from the filter
@@ -98,12 +107,6 @@ MexTemplateImageFilter<InVoxelType, OutVoxelType>::MexTemplateImageFilter(
 // template <class InVoxelType, class OutVoxelType>
 // void MexTemplateImageFilter<InVoxelType, 
 // 			    OutVoxelType>::FilterAdvancedSetup() {
-//
-//   // create a local pointer to the filter so that we can use
-//   // methods that are not part of the MexBaseFilter
-//   typename FilterType::Pointer localFilter = 
-//     dynamic_cast<typename MexTemplateImageFilter<InVoxelType,
-// 				 OutVoxelType>::FilterType *>(this->filter.GetPointer());
 //
 // }
 

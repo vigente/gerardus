@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.1
+  * Version: 0.3.2
   * $Rev$
   * $Date$
   *
@@ -139,6 +139,22 @@ struct TypeIsInt32< int32_T >
 { static const bool value = true; };
 
 template< class T >
+struct TypeIsInt64
+{ static const bool value = false; };
+
+template<>
+struct TypeIsInt64< int64_T >
+{ static const bool value = true; };
+
+template< class T >
+struct TypeIsSignedLong
+{ static const bool value = false; };
+
+template<>
+struct TypeIsSignedLong< signed long >
+{ static const bool value = true; };
+
+template< class T >
 struct TypeIsFloat
 { static const bool value = false; };
 
@@ -153,5 +169,17 @@ struct TypeIsDouble
 template<>
 struct TypeIsDouble< double >
 { static const bool value = true; };
+
+/**
+ * Debugging class to get a string with the type of a template, e.g.
+ *   std::cout << print_T<OffsetType>() << std::endl;
+ * returns
+ *   OffsetType = std::string print_T() 
+ *   [with T = itk::Offset<3u>, std::string = std::basic_string<char>]
+ */
+template<typename T>
+std::string print_T() {
+  return __PRETTY_FUNCTION__;
+}
 
 #endif /* GERARDUSCOMMON_HPP */
