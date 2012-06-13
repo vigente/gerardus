@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.2.1
   * $Rev$
   * $Date$
   *
@@ -63,8 +63,17 @@ MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType, OutVoxelType>::
 				const int _nargin, const mxArray** _argIn) :
   MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut, _nargin, _argIn) {
 
-  // instantiate filter
-  this->filter = FilterType::New();
+  // instantiate filter in this derived class, but on the base class
+  // pointer, thanks to polimorphism. This way, we can run methods on
+  // the derived class from the base class
+  this->filter = DerivedImageToImageFilterType::New();
+
+  // get a pointer to the filter in this derived class. We cannot use
+  // this->filter if we want to access methods that are only in the
+  // derived class, because this->filter points to the filter in the
+  // base class
+  derivedFilter = 
+    dynamic_cast<DerivedImageToImageFilterType *>(this->filter.GetPointer());
 
   // check number of user-provided parameters (user-provided
   // parameters are the extra input arguments apart from the filter
@@ -114,22 +123,16 @@ template <class InVoxelType, class OutVoxelType>
 void MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType, 
 			    OutVoxelType>::FilterAdvancedSetup() {
   
-  // create a local pointer to the filter so that we can use
-  // methods that are not part of the MexBaseFilter
-  typename FilterType::Pointer localFilter = 
-    dynamic_cast<typename MexAnisotropicDiffusionVesselEnhancementImageFilter<InVoxelType,
-				 OutVoxelType>::FilterType *>(this->filter.GetPointer());
-
   // set user-provided parameters
-  localFilter->SetSigmaMin(this->sigmaMin);
-  localFilter->SetSigmaMax(this->sigmaMax);
-  localFilter->SetNumberOfSigmaSteps(this->numSigmaSteps);
-  localFilter->SetIsSigmaStepLog(this->isSigmaStepLog);
-  localFilter->SetNumberOfIterations(this->numIterations);
-  localFilter->SetTimeStep(this->timeStep);
-  localFilter->SetEpsilon(this->epsilon);
-  localFilter->SetWStrength(this->wStrength);
-  localFilter->SetSensitivity(this->sensitivity);
+  derivedFilter->SetSigmaMin(this->sigmaMin);
+  derivedFilter->SetSigmaMax(this->sigmaMax);
+  derivedFilter->SetNumberOfSigmaSteps(this->numSigmaSteps);
+  derivedFilter->SetIsSigmaStepLog(this->isSigmaStepLog);
+  derivedFilter->SetNumberOfIterations(this->numIterations);
+  derivedFilter->SetTimeStep(this->timeStep);
+  derivedFilter->SetEpsilon(this->epsilon);
+  derivedFilter->SetWStrength(this->wStrength);
+  derivedFilter->SetSensitivity(this->sensitivity);
 
 }
 

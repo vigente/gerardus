@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.5.0
+  * Version: 0.5.1
   * $Rev$
   * $Date$
   *
@@ -67,8 +67,27 @@ MexDanielssonDistanceMapImageFilter<InVoxelType, OutVoxelType>::MexDanielssonDis
   MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut,
 					   _nargin, _argIn) {
 
-  // instantiate filter
-  this->filter = FilterType::New();
+  // instantiate filter in this derived class, but on the base class
+  // pointer, thanks to polimorphism. This way, we can run methods on
+  // the derived class from the base class
+  this->filter = DerivedImageToImageFilterType::New();
+
+  // std::cout << "this->filter 0 = " 
+  // 	    << this->filter->GetOutput(0) << std::endl;//////////
+  // std::cout << "this->filter 1 = " 
+  // 	    << this->filter->GetOutput(1) << std::endl;//////////
+  // std::cout << "this->filter 2 = " 
+  // 	    << this->filter->GetOutput(2) << std::endl;//////////
+
+  // std::cout << "this->filter NumberOfOutputs = " 
+  // 	    << this->filter->GetNumberOfOutputs() << std::endl;//////////
+
+  // get a pointer to the filter in this derived class. We cannot use
+  // this->filter if we want to access methods that are only in the
+  // derived class, because this->filter points to the filter in the
+  // base class
+  derivedFilter = 
+    dynamic_cast<DerivedImageToImageFilterType *>(this->filter.GetPointer());
 
   // check number of user-provided parameters (user-provided
   // parameters are the extra input arguments apart from the filter
@@ -109,12 +128,40 @@ void MexDanielssonDistanceMapImageFilter<InVoxelType,
 template <class InVoxelType, class OutVoxelType>
 void MexDanielssonDistanceMapImageFilter<InVoxelType,
 		      OutVoxelType>::ExportOtherFilterOutputsToMatlab() {
-  
+
   // convert the 3-vector format to index of nearest segmented
   // voxel. This way, we can give the output as a matrix of the same
   // size as the input
   if (this->nargout > 1) {
     CopyFilterNearestOutputToMatlab();
+
+    // link the filter's second output to ITK's second output
+    // typedef typename MexBaseFilter<InVoxelType, OutVoxelType>::InImageType::OffsetType OffsetType;
+    // typedef typename OffsetType::OffsetValueType OffsetValueType;
+    // std::cout << "OffsetType = " << print_T<OffsetType>() << std::endl;
+    // std::cout << "OffsetValueType = " << print_T<typename OffsetType::OffsetValueType>() << std::endl;
+
+    // this->template MallocMatlabOutputBuffer<OffsetValueType, Dimension>(2);
+    // std::cout << "before 0 = " 
+    // 	      << derivedFilter->GetOutput(0) << std::endl;//////////
+    // std::cout << "before 1 = " 
+    // 	      << derivedFilter->GetOutput(1) << std::endl;//////////
+    // std::cout << "before 2 = " 
+    // 	      << derivedFilter->GetOutput(2) << std::endl;//////////
+
+    // derivedFilter->itk::ProcessObject::GetOutput(2);
+
+    // std::cout << "ProcessObject 2 = " 
+    // 	      << derivedFilter->ProcessObject::GetOutput(2) << std::endl;//////////
+
+  //   std::cout << "derivedFilter GetVectorDistanceMap = " 
+  // 	      << derivedFilter->GetVectorDistanceMap() << std::endl;//////////
+
+  //   std::cout << "derivedFilter NumberOfOutputs = " 
+  // 	      << derivedFilter->GetNumberOfOutputs() << std::endl;//////////
+
+  //   this->template foo<OffsetValueType, Dimension>(2, 
+  // 	  dynamic_cast<typename MexBaseFilter<InVoxelType, OutVoxelType>::ImageToImageFilterType *>(derivedFilter.GetPointer()));
   }
 
 }
@@ -141,24 +188,13 @@ void MexDanielssonDistanceMapImageFilter<InVoxelType,
   
   // populate output image
   typedef typename MexDanielssonDistanceMapImageFilter<InVoxelType, 
-    OutVoxelType>::FilterType::VectorImageType OffsetImageType;
-
-  // the filter member variable is declared in MexBaseFilter as a
-  // general ImageToImageFilter, but we want to use some methods that
-  // belong only to the derived filter class
-  // DanielssonDistanceMapImageFilter. In order to do this, we need to
-  // declare a local filter variable that is of type
-  // DanielssonDistanceMapImageFilter, and dynamic cast it to filter
-  // in the MexBaseFilter class
-  typename FilterType::Pointer localFilter = 
-    dynamic_cast<typename MexDanielssonDistanceMapImageFilter<InVoxelType, 
-    OutVoxelType>::FilterType *>(this->filter.GetPointer());
+    OutVoxelType>::DerivedImageToImageFilterType::VectorImageType OffsetImageType;
 
   typedef itk::ImageRegionConstIterator<OffsetImageType> 
     OutConstIteratorType;
 
-  OutConstIteratorType citer(localFilter->GetVectorDistanceMap(),
-	     localFilter->GetVectorDistanceMap()->GetLargestPossibleRegion());
+  OutConstIteratorType citer(derivedFilter->GetVectorDistanceMap(),
+	     derivedFilter->GetVectorDistanceMap()->GetLargestPossibleRegion());
 
   itk::Offset<Dimension> idx3;
   mwIndex i = 0; // voxel linear index

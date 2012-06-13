@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.2.1
   * $Rev$
   * $Date$
   *
@@ -61,7 +61,14 @@ MexBinaryThinningImageFilter3D<InVoxelType, OutVoxelType>::MexBinaryThinningImag
   MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut, _nargin, _argIn) {
 
   // instantiate filter
-  this->filter = FilterType::New();
+  this->filter = DerivedImageToImageFilterType::New();
+
+  // get a pointer to the filter in this derived class. We cannot use
+  // this->filter if we want to access methods that are only in the
+  // derived class, because this->filter points to the filter in the
+  // base class
+  derivedFilter = 
+    dynamic_cast<DerivedImageToImageFilterType *>(this->filter.GetPointer());
 
   // check number of user-provided parameters (user-provided
   // parameters are the extra input arguments apart from the filter

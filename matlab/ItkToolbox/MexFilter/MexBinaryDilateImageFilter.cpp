@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.2.1
   * $Rev$
   * $Date$
   *
@@ -67,8 +67,17 @@ MexBinaryDilateImageFilter<InVoxelType, OutVoxelType>::MexBinaryDilateImageFilte
   MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut,
 					   _nargin, _argIn) {
 
-  // instantiate filter
-  this->filter = FilterType::New();
+  // instantiate filter in this derived class, but on the base class
+  // pointer, thanks to polimorphism. This way, we can run methods on
+  // the derived class from the base class
+  this->filter = DerivedImageToImageFilterType::New();
+
+  // get a pointer to the filter in this derived class. We cannot use
+  // this->filter if we want to access methods that are only in the
+  // derived class, because this->filter points to the filter in the
+  // base class
+  derivedFilter = 
+    dynamic_cast<DerivedImageToImageFilterType *>(this->filter.GetPointer());
 
   // check number of input parameters
   if (this->nparam < 1) {
@@ -98,20 +107,14 @@ template <class InVoxelType, class OutVoxelType>
 void MexBinaryDilateImageFilter<InVoxelType, OutVoxelType>::FilterAdvancedSetup() {
 
   
-  // create a local pointer to the filter so that we can use
-  // methods that are not part of the MexBaseFilter
-  typename FilterType::Pointer localFilter = 
-    dynamic_cast<typename MexBinaryDilateImageFilter<InVoxelType,
-			     OutVoxelType>::FilterType *>(this->filter.GetPointer());
-  
   // instantiate structuring element
   StructuringElementType structuringElement;
   structuringElement.SetRadius(this->radius);
   structuringElement.CreateStructuringElement();
-  localFilter->SetKernel(structuringElement);
+  derivedFilter->SetKernel(structuringElement);
   
   // pass other parameters to filter
-  localFilter->SetForegroundValue(this->foreground);
+  derivedFilter->SetForegroundValue(this->foreground);
 
 }
 
