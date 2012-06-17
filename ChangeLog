@@ -1,5 +1,10 @@
 2012-06-17  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* matlab/ItkToolbox/MexBaseFilter.hpp: (v0.7.4)
+	* matlab/ItkToolbox/MexBaseFilter.cpp: (v0.5.4)
+
+	- Remove deprecated method MummifyFilterOutput().
+
 	* matlab/ItkToolbox/ItkImFilter.cpp: (v0.7.0)
 	* matlab/ItkToolbox/itk_imfilter.m: (v0.4.9)
 
