@@ -57,19 +57,21 @@
  *
  *   B has the same size and class as A
  *
- * [B, NV] = itk_imfilter('dandist', A).
+ * [B, V, W] = itk_imfilter('dandist', A).
  *
  *   (itk::DanielssonDistanceMapImageFilter) Compute unsigned distance map
  *   for a binary mask. Distance values are given in voxel coordinates.
  *
- *   B has the same size as A. B has a type large enough to store the
- *   maximum distance in the image. The largest available type is double. If
- *   this is not enough, a warning message is displayed, and double is used
- *   as the output type.
+ *   B has the same size as A and type double. Each element in B
+ *   contains an approximation to the Euclidean distance of that voxel
+ *   to the closest foreground voxel, in index units.
  *
- *   NV has the same size as A. Each element has the index of the
- *   closest foreground voxel. For example, NV(4) = 7 means that voxel
- *   4 is the closest foreground voxel to voxel 7.
+ *   V has the same size and type as A. V is a Voronoi partition of A,
+ *   using the same indices.
+ *
+ *   W has size (3,R,C,S) if A has size (R,C,S), and type int64. Each
+ *   3-vector W(:,i,j,k) is a vector pointing to the closest
+ *   foreground voxel from A(i,j,k).
  *
  * B = itk_imfilter('maudist', A)
  *
@@ -189,7 +191,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.6.8
+  * Version: 0.7.0
   * $Rev$
   * $Date$
   *
@@ -380,8 +382,8 @@ void runFilter(const int nargin, const mxArray** argIn,
   filter->GraftMatlabInputBufferIntoItkImportFilter();
   filter->FilterBasicSetup();
   filter->FilterAdvancedSetup();
-  filter->RunFilter();
   filter->ExportOtherFilterOutputsToMatlab();
+  filter->RunFilter();
 
   // call the destructor of the filter object, so that it can free up
   // the memory buffers that it doesn't pass to Matlab
@@ -412,33 +414,9 @@ void parseOutputTypeToTemplate(const int nargin,
   // the same code
   if (filterEnum == nMexDanielssonDistanceMapImageFilter) {
 
-    // find how many bits we need to represent the maximum distance
-    // that two voxels can have between them (in voxel units)
-    mwSize nbit = (mwSize)ceil(log(nrrd.maxVoxDistance()) / log(2.0));
-    
-    // select an output voxel size enough to save the maximum distance
-    // value
-    if (nbit <= 2) {
-      runFilter<nMexDanielssonDistanceMapImageFilter,
-		InVoxelType, 
-		mxLogical>(nargin, argIn, nargout, argOut, nrrd);
-    } else if (nbit <= 8) {
-      runFilter<nMexDanielssonDistanceMapImageFilter,
-		InVoxelType, 
-		uint8_T>(nargin, argIn, nargout, argOut, nrrd);
-    } else if (nbit <= 16) {
-      runFilter<nMexDanielssonDistanceMapImageFilter,
-		InVoxelType, 
-		uint16_T>(nargin, argIn, nargout, argOut, nrrd);
-    } else if (nbit <= 128) {
-      runFilter<nMexDanielssonDistanceMapImageFilter,
-		InVoxelType, 
-		float>(nargin, argIn, nargout, argOut, nrrd);
-    } else {
-      runFilter<nMexDanielssonDistanceMapImageFilter,
-		InVoxelType, 
-		double>(nargin, argIn, nargout, argOut, nrrd);
-    }
+    runFilter<nMexDanielssonDistanceMapImageFilter,
+	      InVoxelType, 
+	      double>(nargin, argIn, nargout, argOut, nrrd);
     
   } else if (filterEnum == nMexSignedMaurerDistanceMapImageFilter) {
     

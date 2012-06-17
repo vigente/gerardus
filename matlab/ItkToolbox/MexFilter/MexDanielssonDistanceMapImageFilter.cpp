@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.5.1
+  * Version: 0.6.0
   * $Rev$
   * $Date$
   *
@@ -72,16 +72,6 @@ MexDanielssonDistanceMapImageFilter<InVoxelType, OutVoxelType>::MexDanielssonDis
   // the derived class from the base class
   this->filter = DerivedImageToImageFilterType::New();
 
-  // std::cout << "this->filter 0 = " 
-  // 	    << this->filter->GetOutput(0) << std::endl;//////////
-  // std::cout << "this->filter 1 = " 
-  // 	    << this->filter->GetOutput(1) << std::endl;//////////
-  // std::cout << "this->filter 2 = " 
-  // 	    << this->filter->GetOutput(2) << std::endl;//////////
-
-  // std::cout << "this->filter NumberOfOutputs = " 
-  // 	    << this->filter->GetNumberOfOutputs() << std::endl;//////////
-
   // get a pointer to the filter in this derived class. We cannot use
   // this->filter if we want to access methods that are only in the
   // derived class, because this->filter points to the filter in the
@@ -119,7 +109,7 @@ void MexDanielssonDistanceMapImageFilter<InVoxelType,
 					 OutVoxelType>::CheckNumberOfOutputs() {
   
   // prevent the user from asking for too many output arguments
-  if (this->nargout > 2) {
+  if (this->nargout > 3) {
     mexErrMsgTxt("Too many output arguments");
   }
 
@@ -133,87 +123,22 @@ void MexDanielssonDistanceMapImageFilter<InVoxelType,
   // voxel. This way, we can give the output as a matrix of the same
   // size as the input
   if (this->nargout > 1) {
-    CopyFilterNearestOutputToMatlab();
 
-    // link the filter's second output to ITK's second output
-    // typedef typename MexBaseFilter<InVoxelType, OutVoxelType>::InImageType::OffsetType OffsetType;
-    // typedef typename OffsetType::OffsetValueType OffsetValueType;
-    // std::cout << "OffsetType = " << print_T<OffsetType>() << std::endl;
-    // std::cout << "OffsetValueType = " << print_T<typename OffsetType::OffsetValueType>() << std::endl;
+    // CopyFilterNearestOutputToMatlab();
+    this->template MallocMatlabOutputBuffer<InVoxelType>(1);
+    this->template GraftMatlabOutputBufferIntoItkFilterOutput<InVoxelType>(1);
 
-    // this->template MallocMatlabOutputBuffer<OffsetValueType, Dimension>(2);
-    // std::cout << "before 0 = " 
-    // 	      << derivedFilter->GetOutput(0) << std::endl;//////////
-    // std::cout << "before 1 = " 
-    // 	      << derivedFilter->GetOutput(1) << std::endl;//////////
-    // std::cout << "before 2 = " 
-    // 	      << derivedFilter->GetOutput(2) << std::endl;//////////
-
-    // derivedFilter->itk::ProcessObject::GetOutput(2);
-
-    // std::cout << "ProcessObject 2 = " 
-    // 	      << derivedFilter->ProcessObject::GetOutput(2) << std::endl;//////////
-
-  //   std::cout << "derivedFilter GetVectorDistanceMap = " 
-  // 	      << derivedFilter->GetVectorDistanceMap() << std::endl;//////////
-
-  //   std::cout << "derivedFilter NumberOfOutputs = " 
-  // 	      << derivedFilter->GetNumberOfOutputs() << std::endl;//////////
-
-  //   this->template foo<OffsetValueType, Dimension>(2, 
-  // 	  dynamic_cast<typename MexBaseFilter<InVoxelType, OutVoxelType>::ImageToImageFilterType *>(derivedFilter.GetPointer()));
   }
 
-}
+  if (this->nargout > 2) {
 
-/*
- * MexDanielssonDistanceMapImageFilter::CopyFilterNearestOutputToMatlab()
- *
- * Pass to Matlab an array of the same size as the image. Each element
- * has the linear index of the closest object voxel to each image
- * voxel. The distance between both voxels is the distance returned in
- * the distance map. This is a reformatting of the output provided by
- * itk::DanielssonDistanceMapImageFilter::GetVectorDistanceMap()
- */
-template <class InVoxelType, class OutVoxelType>
-void MexDanielssonDistanceMapImageFilter<InVoxelType, 
-					 OutVoxelType>::CopyFilterNearestOutputToMatlab() {
+    // link the filter's second output to ITK's second output
+    typedef typename MexBaseFilter<InVoxelType, OutVoxelType>::InImageType::OffsetType OffsetType;
+    typedef typename OffsetType::OffsetValueType OffsetValueType;
 
-  typedef double OutputType;
+    this->template MallocMatlabOutputBuffer<OffsetValueType>(2, Dimension);
+    this->template GraftMatlabOutputBufferIntoItkFilterOutput<OffsetType>(2);
 
-  // allocate memory for the output buffer
-  this->template MallocMatlabOutputBuffer<OutputType>(1);
-
-  OutputType *imOutp =  (OutputType *)mxGetData(this->argOut[1]);
-  
-  // populate output image
-  typedef typename MexDanielssonDistanceMapImageFilter<InVoxelType, 
-    OutVoxelType>::DerivedImageToImageFilterType::VectorImageType OffsetImageType;
-
-  typedef itk::ImageRegionConstIterator<OffsetImageType> 
-    OutConstIteratorType;
-
-  OutConstIteratorType citer(derivedFilter->GetVectorDistanceMap(),
-	     derivedFilter->GetVectorDistanceMap()->GetLargestPossibleRegion());
-
-  itk::Offset<Dimension> idx3;
-  mwIndex i = 0; // voxel linear index
-  for (citer.GoToBegin(), i = 0; !citer.IsAtEnd(); ++citer, ++i) {
-
-    // current voxel in the image
-    // image linear index => r, c, s indices
-    idx3 = ind2sub_itkOffset(this->nrrd.getR(), this->nrrd.getC(), 
-			     this->nrrd.getS(), i);
-
-    // compute coordinates of the closest object voxel to the current
-    // voxel
-    idx3 += citer.Get();
-
-    // convert image r, c, s indices => linear index
-    // Note: we need to add 1 to the index to follow Matlab's convention
-    imOutp[i] = sub2ind(this->nrrd.getR(), this->nrrd.getC(), 
-			this->nrrd.getS(), idx3) + 1;
-    
   }
 
 }
