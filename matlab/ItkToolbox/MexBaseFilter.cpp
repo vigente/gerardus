@@ -14,7 +14,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.5.3
+  * Version: 0.5.4
   * $Rev$
   * $Date$
   *
@@ -232,20 +232,6 @@ void MexBaseFilter<InVoxelType, OutVoxelType>::RunFilter() {
   
   // run filter
   filter->Update();
-  
-}
-
-// prevent the C++ destructor from deleting the data of a filter
-// output when program returns. This is necessary in order to use
-// that output from Matlab
-template <class InVoxelType, class OutVoxelType>
-void MexBaseFilter<InVoxelType,
-		   OutVoxelType>::MummifyFilterOutput(unsigned int idx) {
-
-  // mummify filter output buffer for Matlab
-  typename OutImageType::PixelContainer * container;
-  container = this->filter->GetOutput(idx)->GetPixelContainer();
-  container->SetContainerManageMemory(false);
   
 }
 

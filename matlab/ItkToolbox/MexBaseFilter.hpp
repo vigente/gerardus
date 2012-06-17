@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.7.3
+  * Version: 0.7.4
   * $Rev$
   * $Date$
   *
@@ -127,11 +127,6 @@ public:
 
   // filter the image
   void RunFilter();
-
-  // prevent the C++ destructor from deleting the data of a filter
-  // output when program returns. This is necessary in order to use
-  // that output from Matlab
-  void MummifyFilterOutput(unsigned int idx);
 
   // by default, this method doesn't do anything, but can be overriden
   // when a child filter provides other outputs apart from the
