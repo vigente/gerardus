@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.5.1
+  * Version: 0.6.0
   * $Rev$
   * $Date$
   *
@@ -66,8 +66,6 @@ private:
   typename DerivedImageToImageFilterType::Pointer derivedFilter;
 
 protected:
-
-  void CopyFilterNearestOutputToMatlab();
 
 public:
 

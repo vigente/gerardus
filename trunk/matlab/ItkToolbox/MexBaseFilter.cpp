@@ -14,7 +14,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.5.2
+  * Version: 0.5.3
   * $Rev$
   * $Date$
   *
@@ -217,22 +217,6 @@ void MexBaseFilter<InVoxelType, OutVoxelType>::GraftMatlabInputBufferIntoItkImpo
 
   importFilter->Update();
   
-}
-
-// filter setup code common to all filters: pass image to the
-// filter, allocate memory for the Matlab output, and graft the
-// Matlab output into the filter output
-template <class InVoxelType, class OutVoxelType>
-void MexBaseFilter<InVoxelType, OutVoxelType>::FilterBasicSetup() {
-
-  // pass input image to filter
-  this->filter->SetInput(this->importFilter->GetOutput());
-
-  // link the filter main output (the filtered image) to the first
-  // Matlab output buffer
-  this->template MallocMatlabOutputBuffer<OutVoxelType>(0);
-  this->template GraftMatlabOutputBufferIntoItkFilterOutput<OutVoxelType>(0);
-
 }
 
 // by default, this method doesn't do anything, but can be overriden
