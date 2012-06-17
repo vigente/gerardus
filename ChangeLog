@@ -1,3 +1,37 @@
+2012-06-17  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/ItkToolbox/ItkImFilter.cpp: (v0.7.0)
+	* matlab/ItkToolbox/itk_imfilter.m: (v0.4.9)
+
+	- Now we can give vector image outputs from the filters as outputs
+	in Matlab. Implemented in the DanielssonDistanceMapImageFilter.
+
+	- This means that now we can graft all filter outputs onto Matlab
+	before running the filter with ExportOtherFilterOutputsToMatlab(),
+	instead of after. This set ups the scene to completely rewrite the
+	interface provided by MexBaseFilter.
+
+	* matlab/ItkToolbox/MexBaseFilter.hpp: (v0.7.3)
+	* matlab/ItkToolbox/MexBaseFilter.cpp: (v0.5.3)
+
+	- Modify MallocMatlabOutputBuffer() and
+	GraftMatlabOutputBufferIntoItkFilterOutput() so that now we can
+	also graft vector image outputs onto Matlab, and not only scalar
+	ones.
+
+	* matlab/ItkToolbox/MexFilter/MexDanielssonDistanceMapImageFilter.cpp:
+	(v0.6.0)
+	* matlab/ItkToolbox/MexFilter/MexDanielssonDistanceMapImageFilter.hpp:
+	(v0.6.0)
+
+	- Now the 2nd output is the Voronoi partition, and the 3rd output
+	are the vectors to the closest foreground voxels. Thanks to the
+	new functionality in MexBaseFilter, we can work with vector
+	outputs as well as scalar outputs. So we can graft all outputs
+	before running the filter, and we no longer need to convert and
+	copy them to Matlab space afterwards with
+	CopyFilterNearestOutputToMatlab().
+
 2012-06-13  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/ItkToolbox/GerardusCommon.hpp (v0.3.2):
