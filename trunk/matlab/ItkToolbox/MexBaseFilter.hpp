@@ -347,6 +347,11 @@ void MexBaseFilter<InVoxelType,
   typedef typename itk::Image<OutputType, Dimension> ScalarImageType;
   ScalarImageType *ps;
 
+  // note that SetImportPointer() does not create a memory leak,
+  // because at this point the output has size 0 (it has not been
+  // allocated yet). After running SetImportPointer(), the output has
+  // size>0, which means that the filter will see that this output's
+  // memory has been allocated already, and won't need to do it itself
   ps = dynamic_cast<ScalarImageType *>(this->filter->GetOutputs()[idx].GetPointer());
   if (ps == NULL) {
     mexErrMsgTxt("Cannot get pointer to filter scalar output");
