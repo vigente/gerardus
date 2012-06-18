@@ -59,9 +59,9 @@ const std::string MexTemplateImageFilter<std::string,
 template <class InVoxelType, class OutVoxelType>
 MexTemplateImageFilter<InVoxelType, OutVoxelType>::MexTemplateImageFilter(
                                 const NrrdImage &_nrrd, 
-				int _nargout, mxArray** _argOut,
-				const int _nargin, const mxArray** _argIn) :
-  MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut, _nargin, _argIn) {
+				int _numArgOut, mxArray** _argOut,
+				const int _numArgIn, const mxArray** _argIn) :
+  MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _numArgOut, _argOut, _numArgIn, _argIn) {
 
   // instantiate filter in this derived class, but on the base class
   // pointer, thanks to polimorphism. This way, we can run methods on
@@ -78,13 +78,13 @@ MexTemplateImageFilter<InVoxelType, OutVoxelType>::MexTemplateImageFilter(
   // check number of user-provided parameters (user-provided
   // parameters are the extra input arguments apart from the filter
   // type and input image)
-  if (this->nparam < 0) {
+  if (this->numParam < 0) {
     mexErrMsgTxt("Not enough input arguments");
   }
-  if (this->nparam > 0) {
+  if (this->numParam > 0) {
     mexErrMsgTxt("Too many input arguments");
   }
-  if (this->nparam > 0 && this->argParam == NULL) {
+  if (this->numParam > 0 && this->argParam == NULL) {
     mexErrMsgTxt("Assertion fail: There is at least one parameter, but pointer to parameter array is NULL");
   }
   
@@ -117,7 +117,7 @@ MexTemplateImageFilter<InVoxelType, OutVoxelType>::MexTemplateImageFilter(
 // 			    OutVoxelType>::CheckNumberOfOutputs() {
 //
 //   // prevent the user from asking for too many output arguments
-//   if (this->nargout > 1) {
+//   if (this->numArgOut > 1) {
 //     mexErrMsgTxt("Too many output arguments");
 //   }
 //

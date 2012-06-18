@@ -74,8 +74,8 @@ public:
   // constructor (to instantiate the filter and process the
   // user-provided input parameters, if any)
   MexBinaryThinningImageFilter3D(const NrrdImage &_nrrd, 
-				 int _nargout, mxArray** _argOut,
-				 const int _nargin, const mxArray** _argIn);
+				 int _numArgOut, mxArray** _argOut,
+				 const int _numArgIn, const mxArray** _argIn);
 
 };
 
