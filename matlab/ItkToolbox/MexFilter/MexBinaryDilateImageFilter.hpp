@@ -84,8 +84,8 @@ public:
 
   // constructor for filters that take user-defined parameters
   MexBinaryDilateImageFilter(const NrrdImage &_nrrd, 
-			     int _nargout, mxArray** _argOut,
-			     const int _nargin, const mxArray** _argIn);
+			     int _numArgOut, mxArray** _argOut,
+			     const int _numArgIn, const mxArray** _argIn);
 
   // if this particular filter needs to redefine one or more BaseFilter
   // virtual methods, the corresponding declarations go here

@@ -76,28 +76,27 @@ const std::string MexBaseFilter<std::string, std::string>::shortname = "base";
 // filter type and image
 template <class InVoxelType, class OutVoxelType>
 MexBaseFilter<InVoxelType, OutVoxelType>::MexBaseFilter(const NrrdImage &_nrrd, 
-							int _nargout, mxArray** _argOut,
-							const int _nargin, const mxArray** _argIn)
-  : nrrd(_nrrd), nargout(_nargout), argOut(_argOut) {
+							unsigned int _numArgOut, mxArray** _argOut,
+							const unsigned int _numArgIn, const mxArray** _argIn)
+  : nrrd(_nrrd), numArgOut(_numArgOut), argOut(_argOut) {
 
   // check that we have at least filter type and input image as input
   // arguments
-  if (_nargin < 2) {
+  if (_numArgIn < 2) {
     mexErrMsgTxt("Not enough input arguments");
   }
 
   // number of extra parameters. Every specific filter has different
   // requirements in terms of this number
-  nparam = (mwSize)(_nargin - 2);
-  if (nparam < 0) {
+  this->numParam = (mwSize)(_numArgIn - 2);
+  if (this->numParam < 0) {
     mexErrMsgTxt("Assertion error: Number of parameters cannot be negative");
-  } else if (nparam == 0) {
+  } else if (this->numParam == 0) {
     argParam = NULL;
   } else {
     argParam = &_argIn[2];
   }
 }
-//@@
 
 // destructor to deallocate any memory that the Matlab garbage
 // collector won't free automatically. The destructor has to be
@@ -120,7 +119,7 @@ template <class InVoxelType, class OutVoxelType>
 void MexBaseFilter<InVoxelType, OutVoxelType>::CheckNumberOfOutputs() {
   
   // prevent the user from asking for too many output arguments
-  if (nargout > 1) {
+  if (numArgOut > 1) {
     mexErrMsgTxt("Too many output arguments");
   }
 

@@ -60,10 +60,10 @@ const std::string MexBinaryErodeImageFilter<std::string,
  */
 template <class InVoxelType, class OutVoxelType>
 MexBinaryErodeImageFilter<InVoxelType, OutVoxelType>::MexBinaryErodeImageFilter(
-                                const NrrdImage &_nrrd, int _nargout, mxArray** _argOut,
-				const int _nargin, const mxArray** _argIn)  :
-  MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut,
-					   _nargin, _argIn) {
+                                const NrrdImage &_nrrd, int _numArgOut, mxArray** _argOut,
+				const int _numArgIn, const mxArray** _argIn)  :
+  MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _numArgOut, _argOut,
+					   _numArgIn, _argIn) {
 
   // instantiate filter in this derived class, but on the base class
   // pointer, thanks to polimorphism. This way, we can run methods on
@@ -78,13 +78,13 @@ MexBinaryErodeImageFilter<InVoxelType, OutVoxelType>::MexBinaryErodeImageFilter(
     dynamic_cast<DerivedImageToImageFilterType *>(this->filter.GetPointer());
 
   // check number of input parameters
-  if (this->nparam < 1) {
+  if (this->numParam < 1) {
     mexErrMsgTxt("Not enough input arguments");
   }
-  if (this->nparam > 2) {
+  if (this->numParam > 2) {
     mexErrMsgTxt("Too many input arguments");
   }
-  if (this->nparam > 0 && this->argParam == NULL) {
+  if (this->numParam > 0 && this->argParam == NULL) {
     mexErrMsgTxt("Assertion fail: There is at least one parameter, but pointer to parameter array is NULL");
   }
   

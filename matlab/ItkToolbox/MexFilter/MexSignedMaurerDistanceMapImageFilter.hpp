@@ -72,8 +72,8 @@ public:
 
   // constructor
   MexSignedMaurerDistanceMapImageFilter(const NrrdImage &_nrrd, 
-					int _nargout, mxArray** _argOut,
-					const int _nargin, const mxArray** _argIn);
+					int _numArgOut, mxArray** _argOut,
+					const int _numArgIn, const mxArray** _argIn);
 
   // methods from BaseFilter that this filter needs to override
   void FilterAdvancedSetup();
