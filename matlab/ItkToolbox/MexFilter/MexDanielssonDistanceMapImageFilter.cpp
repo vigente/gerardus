@@ -119,9 +119,7 @@ template <class InVoxelType, class OutVoxelType>
 void MexDanielssonDistanceMapImageFilter<InVoxelType,
 		      OutVoxelType>::ExportOtherFilterOutputsToMatlab() {
 
-  // convert the 3-vector format to index of nearest segmented
-  // voxel. This way, we can give the output as a matrix of the same
-  // size as the input
+  // output 1: Voronoi map
   if (this->nargout > 1) {
 
     // CopyFilterNearestOutputToMatlab();
@@ -130,6 +128,7 @@ void MexDanielssonDistanceMapImageFilter<InVoxelType,
 
   }
 
+  // output 2: vectors pointing to closest foreground voxel
   if (this->nargout > 2) {
 
     // link the filter's second output to ITK's second output
