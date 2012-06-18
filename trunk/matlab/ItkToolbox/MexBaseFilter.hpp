@@ -66,9 +66,9 @@ protected:
   typedef itk::ImportImageFilter<InVoxelType, Dimension> ImportFilterType;
   typename ImportFilterType::Pointer importFilter;
   NrrdImage nrrd;
-  int nargout;
+  int numArgOut;
   mxArray** argOut;
-  mwSize nparam;
+  mwSize numParam;
   const mxArray** argParam;
   typename ImageToImageFilterType::Pointer filter;
 
@@ -91,11 +91,12 @@ protected:
 
 public:
 
-  // constructor. We assume that the first two input arguments are
-  // filter type and image (common to all filters), and the rest are
-  // user-provided parameters (filter-dependent), e.g. dilation radius
-  MexBaseFilter(const NrrdImage &_nrrd, int _nargout, mxArray** _argOut,
-		const int _nargin, const mxArray** _argIn);
+  // constructor. We assume that the first two input arguments in
+  // _argIn are filter type and image (common to all filters), and the
+  // rest are user-provided parameters (filter-dependent),
+  // e.g. dilation radius
+  MexBaseFilter(const NrrdImage &_nrrd, unsigned int _numArgOut, mxArray** _argOut,
+		const unsigned int _numArgIn, const mxArray** _argIn);
   
   // destructor to deallocate any memory that the Matlab garbage
   // collector won't free automatically. The destructor has to be
@@ -164,7 +165,7 @@ ParamType MexBaseFilter<InVoxelType,
 							ParamType def) {
   
   // if user didn't provide a value, or provided an empty array, return the default
-  if (idx >= this->nparam || mxIsEmpty(this->argParam[idx])) {
+  if (idx >= this->numParam || mxIsEmpty(this->argParam[idx])) {
     return def;
   }
 

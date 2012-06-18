@@ -56,9 +56,9 @@ const std::string MexBinaryThinningImageFilter3D<std::string,
 template <class InVoxelType, class OutVoxelType>
 MexBinaryThinningImageFilter3D<InVoxelType, OutVoxelType>::MexBinaryThinningImageFilter3D(
                                 const NrrdImage &_nrrd, 
-				int _nargout, mxArray** _argOut,
-				const int _nargin, const mxArray** _argIn) :
-  MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut, _nargin, _argIn) {
+				int _numArgOut, mxArray** _argOut,
+				const int _numArgIn, const mxArray** _argIn) :
+  MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _numArgOut, _argOut, _numArgIn, _argIn) {
 
   // instantiate filter
   this->filter = DerivedImageToImageFilterType::New();
@@ -73,13 +73,13 @@ MexBinaryThinningImageFilter3D<InVoxelType, OutVoxelType>::MexBinaryThinningImag
   // check number of user-provided parameters (user-provided
   // parameters are the extra input arguments apart from the filter
   // type and input image)
-  if (this->nparam < 0) {
+  if (this->numParam < 0) {
     mexErrMsgTxt("Not enough input arguments");
   }
-  if (this->nparam > 0) {
+  if (this->numParam > 0) {
     mexErrMsgTxt("Too many input arguments");
   }
-  if (this->nparam > 0 && this->argParam == NULL) {
+  if (this->numParam > 0 && this->argParam == NULL) {
     mexErrMsgTxt("Assertion fail: There is at least one parameter, but pointer to parameter array is NULL");
   }
   
