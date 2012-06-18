@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.7.4
+  * Version: 0.7.5
   * $Rev$
   * $Date$
   *
@@ -345,20 +345,23 @@ void MexBaseFilter<InVoxelType,
   // buffer
   const bool filterWillDeleteTheBuffer = false;
   typedef typename itk::Image<OutputType, Dimension> ScalarImageType;
-  ScalarImageType *ps;
+  ScalarImageType *pOutput;
 
   // note that SetImportPointer() does not create a memory leak,
   // because at this point the output has size 0 (it has not been
   // allocated yet). After running SetImportPointer(), the output has
   // size>0, which means that the filter will see that this output's
   // memory has been allocated already, and won't need to do it itself
-  ps = dynamic_cast<ScalarImageType *>(this->filter->GetOutputs()[idx].GetPointer());
-  if (ps == NULL) {
+  pOutput = dynamic_cast<ScalarImageType *>(this->filter->GetOutputs()[idx].GetPointer());
+  if (pOutput == NULL) {
     mexErrMsgTxt("Cannot get pointer to filter scalar output");
   }
-  ps->GetPixelContainer()->SetImportPointer(imOutp,
-					    mxGetNumberOfElements(this->nrrd.getData()),
-					    filterWillDeleteTheBuffer);
+  if (pOutput->GetPixelContainer()->Size() != 0) {
+    mexWarnMsgTxt("Memory leak, ITK output has size>0 before grafting it onto Matlab");
+  }
+  pOutput->GetPixelContainer()->SetImportPointer(imOutp,
+						 mxGetNumberOfElements(this->nrrd.getData()),
+						 filterWillDeleteTheBuffer);
   
   return;
 
