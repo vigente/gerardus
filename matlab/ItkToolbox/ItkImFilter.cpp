@@ -366,28 +366,28 @@ void runFilter(const int nargin, const mxArray** argIn,
 	       const NrrdImage &nrrd) {
 
   // pointer to the filter object (we are using polymorphism)
-  MexBaseFilter<InVoxelType, OutVoxelType> *filter = NULL;
+  MexBaseFilter<InVoxelType, OutVoxelType> *mexFilter = NULL;
   
   // select the appropriate filter
   FilterSelector<filterEnum, InVoxelType, OutVoxelType> 
-    filterSelector(nrrd, nargout, argOut, nargin, argIn, filter);
-  if (filter == NULL) {
+    filterSelector(nrrd, nargout, argOut, nargin, argIn, mexFilter);
+  if (mexFilter == NULL) {
     mexErrMsgTxt("Assertion fail: filter is NULL in runFilter()");
   }
 
   // check number of output arguments
-  filter->CheckNumberOfOutputs();
+  mexFilter->CheckNumberOfOutputs();
   
   // set up and run filter
-  filter->GraftMatlabInputBufferIntoItkImportFilter();
-  filter->FilterBasicSetup();
-  filter->FilterAdvancedSetup();
-  filter->ExportOtherFilterOutputsToMatlab();
-  filter->RunFilter();
+  mexFilter->GraftMatlabInputBufferIntoItkImportFilter();
+  mexFilter->FilterBasicSetup();
+  mexFilter->FilterAdvancedSetup();
+  mexFilter->ExportOtherFilterOutputsToMatlab();
+  mexFilter->RunFilter();
 
   // call the destructor of the filter object, so that it can free up
   // the memory buffers that it doesn't pass to Matlab
-  delete filter;
+  delete mexFilter;
 
   // successful exit
   return;

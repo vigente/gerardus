@@ -97,6 +97,7 @@ MexBaseFilter<InVoxelType, OutVoxelType>::MexBaseFilter(const NrrdImage &_nrrd,
     argParam = &_argIn[2];
   }
 }
+//@@
 
 // destructor to deallocate any memory that the Matlab garbage
 // collector won't free automatically. The destructor has to be
