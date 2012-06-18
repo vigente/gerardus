@@ -62,10 +62,10 @@ const std::string MexDanielssonDistanceMapImageFilter<std::string,
 template <class InVoxelType, class OutVoxelType>
 MexDanielssonDistanceMapImageFilter<InVoxelType, OutVoxelType>::MexDanielssonDistanceMapImageFilter(
                                 const NrrdImage &_nrrd, 
-				int _nargout, mxArray** _argOut,
-				const int _nargin, const mxArray** _argIn) :
-  MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _nargout, _argOut,
-					   _nargin, _argIn) {
+				int _numArgOut, mxArray** _argOut,
+				const int _numArgIn, const mxArray** _argIn) :
+  MexBaseFilter<InVoxelType, OutVoxelType>(_nrrd, _numArgOut, _argOut,
+					   _numArgIn, _argIn) {
 
   // instantiate filter in this derived class, but on the base class
   // pointer, thanks to polimorphism. This way, we can run methods on
@@ -82,13 +82,13 @@ MexDanielssonDistanceMapImageFilter<InVoxelType, OutVoxelType>::MexDanielssonDis
   // check number of user-provided parameters (user-provided
   // parameters are the extra input arguments apart from the filter
   // type and input image)
-  if (this->nparam < 0) {
+  if (this->numParam < 0) {
     mexErrMsgTxt("Not enough input arguments");
   }
-  if (this->nparam > 0) {
+  if (this->numParam > 0) {
     mexErrMsgTxt("Too many input arguments");
   }
-  if (this->nparam > 0 && this->argParam == NULL) {
+  if (this->numParam > 0 && this->argParam == NULL) {
     mexErrMsgTxt("Assertion fail: There is at least one parameter, but pointer to parameter array is NULL");
   }
   
@@ -109,7 +109,7 @@ void MexDanielssonDistanceMapImageFilter<InVoxelType,
 					 OutVoxelType>::CheckNumberOfOutputs() {
   
   // prevent the user from asking for too many output arguments
-  if (this->nargout > 3) {
+  if (this->numArgOut > 3) {
     mexErrMsgTxt("Too many output arguments");
   }
 
@@ -120,7 +120,7 @@ void MexDanielssonDistanceMapImageFilter<InVoxelType,
 		      OutVoxelType>::ExportOtherFilterOutputsToMatlab() {
 
   // output 1: Voronoi map
-  if (this->nargout > 1) {
+  if (this->numArgOut > 1) {
 
     // CopyFilterNearestOutputToMatlab();
     this->template MallocMatlabOutputBuffer<InVoxelType>(1);
@@ -129,7 +129,7 @@ void MexDanielssonDistanceMapImageFilter<InVoxelType,
   }
 
   // output 2: vectors pointing to closest foreground voxel
-  if (this->nargout > 2) {
+  if (this->numArgOut > 2) {
 
     // link the filter's second output to ITK's second output
     typedef typename MexBaseFilter<InVoxelType, OutVoxelType>::InImageType::OffsetType OffsetType;
