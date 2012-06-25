@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.1.3
+# Version: 0.1.4
 # $Rev$
 # $Date$
 #
@@ -74,6 +74,16 @@ IF(WIN32)
 ELSE(WIN32)
   # optimise and show all warnings
   ADD_DEFINITIONS("-O2 -Wall")
+
+  # For Mac OSX, we need to specify the system architecture.
+  # If this hasn't been set, we choose 64-bit intel.
+  IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    IF(NOT CMAKE_OSX_ARCHITECTURES)
+      SET(CMAKE_OSX_ARCHITECTURES x86_64)
+    ENDIF(NOT CMAKE_OSX_ARCHITECTURES)
+  ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
+
 ENDIF(WIN32)
 
 # directories with ad hoc Findxxx.cmake files
