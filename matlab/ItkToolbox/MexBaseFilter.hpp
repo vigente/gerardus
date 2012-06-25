@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.7.5
+  * Version: 0.7.6
   * $Rev$
   * $Date$
   *
@@ -80,7 +80,7 @@ protected:
 
   // allocate memory for a Matlab output buffer
   template <class OutputType>
-  void MallocMatlabOutputBuffer(unsigned int idx, int vectorSize);
+  void MallocMatlabOutputBuffer(unsigned int idx, int vectorSize=1);
 
   // make the filter use a Matlab buffer for one of its outputs. This
   // is the fastest and least memory-consuming way of working with the
@@ -246,7 +246,7 @@ ParamType MexBaseFilter<InVoxelType,
 template <class InVoxelType, class OutVoxelType>
 template <class OutputType>
 void MexBaseFilter<InVoxelType, 
-		   OutVoxelType>::MallocMatlabOutputBuffer(unsigned int idx, int vectorSize=1) {
+		   OutVoxelType>::MallocMatlabOutputBuffer(unsigned int idx, int vectorSize) {
 
   // convert output data type to output class ID
   mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
