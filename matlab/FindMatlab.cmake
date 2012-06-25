@@ -15,8 +15,8 @@
 #
 # (Note that the original file does work for Ubuntu Natty)
 #
-# Author: Ramon Casero <rcasero@gmail.com>
-# Version: 0.2.2
+# Author: Ramon Casero <rcasero@gmail.com>, Tom Doel
+# Version: 0.2.3
 # $Rev$
 # $Date$
 #
@@ -120,20 +120,46 @@ ELSE(WIN32)
       )
   ENDIF((NOT DEFINED MATLAB_ROOT) 
     OR ("${MATLAB_ROOT}" STREQUAL ""))
+
+  # Check if this is a Mac
+  IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
+    SET(LIBRARY_EXTENSION .dylib)
+
+    # If this is a Mac and the attempts to find MATLAB_ROOT have so far failed, 
+    # we look in the applications folder
+    IF((NOT DEFINED MATLAB_ROOT) OR ("${MATLAB_ROOT}" STREQUAL ""))
+
+    # Search for a version of Matlab available, starting from the most modern one to older versions
+      FOREACH(MATVER "R2013b" "R2013a" "R2012b" "R2012a" "R2011b" "R2011a" "R2010b" "R2010a" "R2009b" "R2009a" "R2008b")
+        IF((NOT DEFINED MATLAB_ROOT) OR ("${MATLAB_ROOT}" STREQUAL ""))
+          IF(EXISTS /Applications/MATLAB_${MATVER}.app)
+            SET(MATLAB_ROOT /Applications/MATLAB_${MATVER}.app)
     
+          ENDIF(EXISTS /Applications/MATLAB_${MATVER}.app)
+        ENDIF((NOT DEFINED MATLAB_ROOT) OR ("${MATLAB_ROOT}" STREQUAL ""))
+      ENDFOREACH(MATVER)
+
+    ENDIF((NOT DEFINED MATLAB_ROOT) OR ("${MATLAB_ROOT}" STREQUAL ""))
+
+  ELSE(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    SET(LIBRARY_EXTENSION .so)
+
+  ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
   # Get path to the MEX libraries
   EXECUTE_PROCESS(
-    COMMAND find "${MATLAB_ROOT}/bin" -name libmex.so
+    COMMAND find "${MATLAB_ROOT}/bin" -name libmex${LIBRARY_EXTENSION}
     COMMAND xargs echo -n
     OUTPUT_VARIABLE MATLAB_MEX_LIBRARY
     )
   EXECUTE_PROCESS(
-    COMMAND find "${MATLAB_ROOT}/bin" -name libmx.so
+    COMMAND find "${MATLAB_ROOT}/bin" -name libmx${LIBRARY_EXTENSION}
     COMMAND xargs echo -n
     OUTPUT_VARIABLE MATLAB_MX_LIBRARY
     )
   EXECUTE_PROCESS(
-    COMMAND find "${MATLAB_ROOT}/bin" -name libeng.so
+    COMMAND find "${MATLAB_ROOT}/bin" -name libeng${LIBRARY_EXTENSION}
     COMMAND xargs echo -n
     OUTPUT_VARIABLE MATLAB_ENG_LIBRARY
     )

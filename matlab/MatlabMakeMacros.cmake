@@ -38,13 +38,19 @@ MACRO(ADD_MEX_FILE Target)
   
   # Determine mex suffix
   IF(UNIX)
-    IF(APPLE)
+    # if this is OSX (which is UNIX) then the library suffixes depend on the architecture
+    IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
       IF(CMAKE_OSX_ARCHITECTURES MATCHES i386)
+        # mac intel 32-bit
         SET_TARGET_PROPERTIES(${Target} PROPERTIES SUFFIX ".mexmaci")
+      ELSEIF(CMAKE_OSX_ARCHITECTURES MATCHES x86_64)
+        # mac intel 64-bit
+        SET_TARGET_PROPERTIES(${Target} PROPERTIES SUFFIX ".mexmaci64")
       ELSE(CMAKE_OSX_ARCHITECTURES MATCHES i386)
+        # Mac Power PC
         SET_TARGET_PROPERTIES(${Target} PROPERTIES SUFFIX ".mexmac")
       ENDIF(CMAKE_OSX_ARCHITECTURES MATCHES i386)
-    ELSE(APPLE)
+    ELSE(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
       IF(CMAKE_SIZEOF_VOID_P MATCHES "4")
         SET_TARGET_PROPERTIES(${Target} PROPERTIES SUFFIX ".mexglx")
       ELSEIF(CMAKE_SIZEOF_VOID_P MATCHES "8")
@@ -53,7 +59,7 @@ MACRO(ADD_MEX_FILE Target)
         MESSAGE(FATAL_ERROR 
           "CMAKE_SIZEOF_VOID_P (${CMAKE_SIZEOF_VOID_P}) doesn't indicate a valid platform")
       ENDIF(CMAKE_SIZEOF_VOID_P MATCHES "4")
-    ENDIF(APPLE)
+    ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   ELSEIF(WIN32)
     IF(CMAKE_SIZEOF_VOID_P MATCHES "4")
       SET_TARGET_PROPERTIES(${Target} PROPERTIES SUFFIX ".mexw32")
@@ -79,17 +85,21 @@ MACRO(ADD_MEX_FILE Target)
     ENDIF(CMAKE_SIZEOF_VOID_P MATCHES "4")
     SD_APPEND_TARGET_PROPERTIES(${Target} COMPILE_FLAGS ${MATLAB_FLAGS})
     
-    IF(APPLE)
+    IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
       IF(CMAKE_OSX_ARCHITECTURES MATCHES i386)
-        # mac intel
+        # mac intel 32-bit
         SET_TARGET_PROPERTIES(${Target} PROPERTIES 
-          LINK_FLAGS "-L${MATLAB_SYS} -Wl,-flat_namespace -undefined suppress")
+          LINK_FLAGS "-L${MATLAB_ROOT}/bin/maci -Wl,-flat_namespace -undefined suppress")
+      ELSEIF(CMAKE_OSX_ARCHITECTURES MATCHES x86_64)
+        # mac intel 64-bit
+        SET_TARGET_PROPERTIES(${Target} PROPERTIES 
+          LINK_FLAGS "-L${MATLAB_ROOT}/bin/maci64 -Wl,-flat_namespace -undefined suppress")
       ELSE(CMAKE_OSX_ARCHITECTURES MATCHES i386)
         # mac powerpc?
         SET_TARGET_PROPERTIES(${Target} PROPERTIES 
           LINK_FLAGS "-L${MATLAB_SYS} -Wl,-flat_namespace -undefined suppress")
       ENDIF(CMAKE_OSX_ARCHITECTURES MATCHES i386)
-    ELSE(APPLE)
+    ELSE(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
       IF(CMAKE_SIZEOF_VOID_P MATCHES "4")
         SET_TARGET_PROPERTIES(${Target} PROPERTIES 
           LINK_FLAGS "-Wl,-E -Wl,--no-undefined")
@@ -100,7 +110,7 @@ MACRO(ADD_MEX_FILE Target)
         MESSAGE(FATAL_ERROR 
           "CMAKE_SIZEOF_VOID_P (${CMAKE_SIZEOF_VOID_P}) doesn't indicate a valid platform")
       ENDIF(CMAKE_SIZEOF_VOID_P MATCHES "4")
-    ENDIF(APPLE)
+    ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   ENDIF(MSVC)
 ENDMACRO(ADD_MEX_FILE)
 
