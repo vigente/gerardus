@@ -1,3 +1,58 @@
+2012-06-26  Tom Doel  <tom.doel@cs.ox.ac.uk>
+
+	Changelog
+
+	* Update changelog for my previous two commits
+
+2012-06-25  Tom Doel  <tom.doel@cs.ox.ac.uk>
+
+	Changes to make gerardus compile under Mac OSX.
+	Tested on OSX 10.7.4 (Lion). Should also work for other
+	versions of OSX (not tested) 
+
+	* CMakeLists.txt
+
+	- For compiling on a Mac, we need to specify the system
+	architecture (e.g. Intel 64-bit, Intel 32-bit, Power PC) using the
+	CMAKE_OSX_ARCHITECTURES flag. If not specified we assume 64-bit
+	intel, which is the desired option for Macs running Snow Leopard
+	or later.
+
+	* matlab/MatlabMakeMacros.cmake
+
+	- Changed the Mac check IF(APPLE) to 
+	IF(${CMAKE_SYSTEM_NAME} MATCHES	"Darwin"), which is the preferred
+	way of testing for an OSX system
+
+	- Added a new target for 64-bit OSX (i.e. Snow Leopard and later),
+	for which Matlab uses the mex suffix mexmaci64
+
+	* matlab/FindMatlab.cmake
+
+	- Change Matlab library extension to .dylib for Mac OSX.
+
+	- Add an additional heuristic for setting MATLAB_ROOT for OSX. If
+	MATLAB_ROOT has not been set and cannot be found using the UNIX
+	heuristics (e.g. which) then we search for Matlab in 
+	/Applications/MATLAB_xxxx.app, where xxxx is the version name
+	(R2012a, R2011b etc) and choose the most recent.
+
+	 - Added a linking directory for Matlab library files 
+	${MATLAB_ROOT}/bin/maci
+
+2012-06-25  Tom Doel  <tom.doel@cs.ox.ac.uk>
+
+	* matlab/ItkToolbox/MexBaseFilter.hpp: (v0.7.6)
+
+	- Fixed a problem with MallocMatlabOutputBuffer which was 
+	preventing compilation on my system.
+
+	The setting of a default parameter argument vectorSize=1 was 
+	being done in the function implementation when (if I understand 
+	correctly) default parameters should be set in the function 
+	declaration. I have moved this into the function declaration
+	and it now compiles fine.
+
 2012-06-18  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/ItkToolbox/MexBaseFilter.hpp: (v0.7.5)
