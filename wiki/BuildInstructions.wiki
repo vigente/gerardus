@@ -96,7 +96,7 @@ $ cmake -DBUILD_SHARED_LIBS=ON -DITK_USE_REVIEW=ON \
 {{{
 $ sudo apt-get install libboost1.46-all-dev
 }}}
-  * Note for Mac users: if you have MacPorts installed, you can easily install Boost using
+  * Note for Mac users: if you have [http://www.macports.org/install.php MacPorts] installed, you can easily install Boost using
 {{{
 $ sudo port install boost
 }}}
