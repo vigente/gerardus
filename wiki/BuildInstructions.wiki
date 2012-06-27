@@ -59,7 +59,7 @@ $ sudo apt-get install subversion
   * Note for other users: See the [http://subversion.apache.org/packages.html subversion package download page] for more options
  * C++ Compiler
    * Linux users will probably already have gcc installed.
-   * Mac users can install [https://developer.apple.com/xcode/ Xcode] free from Apple's App Store. This includes gcc and Subversion. After installing Xcode you need to install the command-line tools - to do this start Xcode, open the Xcode menu and choose Preferences. Then click the Downloads tab and click Install next to the `Command Line Tools` in the Components list.
+   * Mac users can install [https://developer.apple.com/xcode/ Xcode] free from Apple's App Store. This includes gcc and Subversion. After installing Xcode you need to install the command-line tools - to do this open the preferences window in Xcode (start Xcode, open the Xcode menu and choose Preferences). Then click the Downloads tab and click the install button next to the `Command Line Tools` in the Components list.
    * For windows users, [http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express Visual C++ Express] is available free from Microsoft and includes C++ compilers.
  * [http://www.cmake.org/ CMake] (Gerardus tested with version 2.8)
   # Download and install CMake for your system (Linux, Windows, MacOS X, etc). 
