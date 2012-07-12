@@ -4,7 +4,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 %
@@ -31,6 +31,113 @@
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see
 % <http://www.gnu.org/licenses/>.
+
+%% itk::BinaryThinningImageFilter3D (skel) filter
+
+% load test data
+nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+nrrd.data = nrrd.data > 150;
+
+% plot data
+close all
+imagesc(nrrd.data(:, :, 3))
+
+% skeletonise (0.04 s)
+tic
+im = itk_imfilter('skel', nrrd);
+toc
+
+figure
+imagesc(im(:, :, 3))
+
+
+%% itk::DanielssonDistanceMapImageFilter (dandist) filter
+
+% load test data
+nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+nrrd2 = nrrd;
+nrrd2.data(:) = 0;
+nrrd2.data(:, 20, :) = 1;
+nrrd2.data(:, 45, :) = 2;
+
+% plot data
+close all
+imagesc(nrrd2.data(:, :, 3))
+
+% compute distance (0.11 s)
+tic
+[im, v, w] = itk_imfilter('dandist', nrrd2);
+toc
+
+% distance map
+figure
+imagesc(im(:, :, 3))
+
+% voronoi diagram
+figure
+imagesc(v(:, :, 3))
+
+
+%% itk::SignedMaurerDistanceMapImageFilter (maudist) filter
+
+% load test data
+nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+nrrd2 = nrrd;
+nrrd2.data(:) = 0;
+nrrd2.data(:, 20:23, :) = 1;
+nrrd2.data = uint16(nrrd2.data);
+
+% plot data
+close all
+imagesc(nrrd2.data(:, :, 3))
+
+% compute distance (0.11 s)
+tic
+im = itk_imfilter('maudist', nrrd2.data);
+toc
+
+% distance map
+figure
+imagesc(im(:, :, 3))
+
+
+%% itk:::BinaryDilateImageFilter (bwdilate) filter
+
+% load test data
+nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+nrrd.data = nrrd.data > 150;
+
+% plot data
+close all
+imagesc(nrrd.data(:, :, 3))
+
+% dilate (0.02 s)
+tic
+im = itk_imfilter('bwdilate', nrrd, 4);
+toc
+
+figure
+imagesc(im(:, :, 3))
+
+
+%% itk:::BinaryErodeImageFilter (bwerode) filter
+
+% load test data
+nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+nrrd.data = nrrd.data > 150;
+
+% plot data
+close all
+imagesc(nrrd.data(:, :, 3))
+
+% erode (0.02 s)
+tic
+im = itk_imfilter('bwerode', nrrd, 1);
+toc
+
+figure
+imagesc(im(:, :, 3))
+
 
 %% itk::AnisotropicDiffusionVesselEnhancementImageFilter (advess) filter
 
@@ -69,6 +176,7 @@ imagesc(nrrd.data(:, 2:end, 3) - im(:, 2:end, 3))
 
 % load test data
 nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+nrrd.data = single(nrrd.data);
 
 % plot data
 close all
@@ -89,9 +197,6 @@ toc
 figure
 imagesc(im(:, :, 5))
 
-figure
-imagesc(im(:, :, 5) .* double(nrrd.data(:, :, 5)));
-
 
 %% itk::MedianImageFilter (median)
 
@@ -106,7 +211,7 @@ err = im2 - nrrd.data;
 any(err(:) ~= 0)
 
 % median filtering only along rows, line of length 5+1+5=11
-im2 = itk_imfilter('median', nrrd, 5);
+im2 = itk_imfilter('median', nrrd, [5 0 0]);
 
 % plot difference
 subplot(2, 1, 1)
@@ -115,7 +220,7 @@ subplot(2, 1, 2)
 imagesc(im2(:, :, 4))
 
 % median filtering only along columns, line of length 20+1+20=41
-im2 = itk_imfilter('median', nrrd, 0, 20);
+im2 = itk_imfilter('median', nrrd, [0, 20, 0]);
 
 % plot difference
 subplot(2, 1, 1)
@@ -125,10 +230,10 @@ imagesc(im2(:, :, 4))
 
 % compare speed and results with Matlab's implementation
 tic
-im2 = itk_imfilter('median', nrrd, 10, 10, 10); % 5.8 sec
+im2 = itk_imfilter('median', nrrd, [10, 10, 10]); % 5.9 sec
 toc
 tic
-im3 = medfilt3(nrrd.data, [21, 21, 21]); % 36.3 sec
+im3 = medfilt3(nrrd.data, [21, 21, 21]); % 36.5 sec
 toc
 
 % difference: expected result = 0
