@@ -1,19 +1,19 @@
 /* ItkImFilter.cpp
  *
- * ITK_IMFILTER: Run ITK filter on a 2D or 3D image
+ * ITK_IMFILTER: Run ITK filter on a 2D, 3D, 4D or 5D image
  *
  * This MEX function is a multiple-purpose wrapper to be able to run
  * all ITK filters that inherit from itk::ImageToImageFilter on a
- * Matlab 2D image or 3D image volume.
+ * Matlab 2D image or 3D, 4D or 5D image volume.
  *
  * B = itk_imfilter(TYPE, A, [FILTER PARAMETERS])
  *
  *   TYPE is a string with the filter we want to run. See below for a whole
  *   list of options.
  *
- *   A is a 2D matrix or 3D volume with the image or
- *   segmentation. Currently, A can be of any of the following
- *   Matlab classes:
+ *   A is a 2D matrix or 3D, 4D or 5D volume with the image or
+ *   segmentation. Currently, A can be of any of the following Matlab
+ *   classes:
  *
  *     boolean
  *     double
@@ -25,19 +25,19 @@
  *     int32
  *     int64
  *
- *   A can also be a SCI NRRD struct, A = nrrd, with the following fields:
+ *   A can also be a SCI MAT struct, A = scimat, with the following fields:
  *
- *     nrrd.data: 2D or 3D array with the image or segmentation, as above
- *     nrrd.axis: 3x1 struct array with fields:
- *       nnrd.axis.size:    number of voxels in the image
- *       nnrd.axis.spacing: voxel size, image resolution
- *       nnrd.axis.min:     real world coordinates of "left" edge of first voxel
- *       nnrd.axis.max:     ignored
- *       nnrd.axis.center:  ignored
- *       nnrd.axis.label:   ignored
- *       nnrd.axis.unit:    ignored
+ *     scimat.data: 2D or 3D array with the image or segmentation, as above
+ *     scimat.axis: 3x1 struct array with fields:
+ *       scimat.axis.size:    number of voxels in the image
+ *       scimat.axis.spacing: voxel size, image resolution
+ *       scimat.axis.min:     real world coordinates of "left" edge of first voxel
+ *       scimat.axis.max:     ignored
+ *       scimat.axis.center:  ignored
+ *       scimat.axis.label:   ignored
+ *       scimat.axis.unit:    ignored
  *
- *   (An SCI NRRD struct is the output of Matlab's function scinrrd_load(),
+ *   (An SCI MAT struct is the output of Matlab's function scinrrd_load(),
  *   also available from Gerardus.)
  *
  *   [FILTER PARAMETERS] is an optional list of parameters, specific for
@@ -75,10 +75,10 @@
  *
  * B = itk_imfilter('maudist', A)
  *
- *   (itk::SignedMaurerDistanceMapImageFilter) Compute signed distance map
- *   for a binary mask. Distance values are given in real world coordinates,
- *   if the input image is given as an NRRD struct, or in voxel units, if
- *   the input image is a normal array.
+ *   (itk::SignedMaurerDistanceMapImageFilter) Compute signed distance
+ *   map for a binary mask. Distance values are given in real world
+ *   coordinates, if the input image is given as an SCI MAT struct, or
+ *   in voxel units, if the input image is a normal array.
  *
  *   The output type is always double.
  *
@@ -117,9 +117,9 @@
  *   not be meaningful. The best compromise between accuracy and
  *   saving memory seems to be type single (= float).
  *
- *   Note: While it is possible to run the filter on a NRRD struct,
- *   results seem better if run directly on the image (nrrd.data). The
- *   filter doesn't seem to be spacing invariant.
+ *   Note: While it is possible to run the filter on a SCI MAT struct,
+ *   results seem better if run directly on the image. The filter
+ *   doesn't seem to be spacing invariant.
  *
  *   SIGMAMIN, SIGMAMAX are scalars with the limits of the multiscale
  *   scheme, in the same units as the image. They should be set to
@@ -174,15 +174,15 @@
  *   Input arguments are the same as the four first input arguments of
  *   filter "advess" above.
  *
- * B = itk_imfilter('median', A, RADR, RADC, RADS)
+ * B = itk_imfilter('median', A, RADIUS)
  *
  *   (itk::MedianImageFilter)
  *   Median of a rectangular neighbourhood.
  *
  *   B has the same size and class as A.
  *
- *   RADR, RADC, RADS are scalars with the half-size of the filter's
- *   box in each dimension. E.g. RADR=2, RADC=3, RADS=4 means that the
+ *   RADIUS is a vector of scalars with the half-size of the filter's
+ *   box in each dimension. E.g. RADIUS=[2, 3, 4] means that the
  *   median is computed in a rectangular neighbourhood of [5, 7, 9]
  *   voxels.
  *
@@ -191,7 +191,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.7.0
+  * Version: 1.0.0
   * $Rev$
   * $Date$
   *
@@ -238,18 +238,517 @@
 
 /* ITK headers */
 #include "itkImage.h"
+#include "itkMedianImageFilter.h"
+#include "itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter.h"
+#include "itkAnisotropicDiffusionVesselEnhancementImageFilter.h"
+#include "itkBinaryThinningImageFilter3D.h"
+#include "itkDanielssonDistanceMapImageFilter.h"
+#include "itkSignedMaurerDistanceMapImageFilter.h"
+#include "itkBinaryBallStructuringElement.h"
+#include "itkBinaryDilateImageFilter.h"
+#include "itkBinaryErodeImageFilter.h"
 
 /* Gerardus headers */
-#include "MexBaseFilter.hpp"
-#include "MexBinaryErodeImageFilter.hpp"
-#include "MexBinaryDilateImageFilter.hpp"
-#include "MexBinaryThinningImageFilter3D.hpp"
-#include "MexDanielssonDistanceMapImageFilter.hpp"
-#include "MexSignedMaurerDistanceMapImageFilter.hpp"
-#include "MexAnisotropicDiffusionVesselEnhancementImageFilter.hpp"
-#include "MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter.hpp"
-#include "MexMedianImageFilter.hpp"
-#include "NrrdImage.hpp"
+#include "MatlabImageHeader.h"
+#include "MatlabImportFilter.h"
+#include "MatlabExportFilter.h"
+
+// list of supported filters. It has to be an enum so that we can pass
+// it as a template constant parameter
+enum SupportedFilter {
+  nMedianImageFilter,
+  nMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter,
+  nAnisotropicDiffusionVesselEnhancementImageFilter,
+  nBinaryThinningImageFilter3D,
+  nDanielssonDistanceMapImageFilter,
+  nSignedMaurerDistanceMapImageFilter,
+  nBinaryDilateImageFilter,
+  nBinaryErodeImageFilter
+};
+
+// FilterWrapper():
+//
+// This block contains one FilterWrapper partial specialisation per
+// filter. In this class, the filter acquires the inputs from Matlab,
+// parameters are set, and the outputs are grafted onto Matlab.
+//
+// The reason to use an encapsulating class like this FilterWrapper is
+// because some filters do not accept certains dimensions or input
+// types. Thus, we can use partial template specialisation to give a
+// runtime error in those cases and avoid instantiating the ITK
+// filter, which would give a compilation error
+template <class TPixelIn, class TPixelOut, unsigned int VImageDimension,
+	  unsigned int FilterEnum>
+class FilterWrapper {
+public:
+  FilterWrapper(MatlabImportFilter::Pointer matlabImport,
+		MatlabExportFilter::Pointer matlabExport,
+		MatlabImageHeader &im) {
+    mexErrMsgTxt("Unsupported filter type");
+  }
+};
+
+// MedianImageFilter
+template <class TPixelIn, class TPixelOut, unsigned int VImageDimension>
+class FilterWrapper<TPixelIn, TPixelOut, VImageDimension,
+		    nMedianImageFilter> {
+public:
+  
+  FilterWrapper(MatlabImportFilter::Pointer matlabImport,
+		MatlabExportFilter::Pointer matlabExport,
+		MatlabImageHeader &im) {
+    
+    // instantiate the filter
+    typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
+    typedef InImageType OutImageType;
+    typedef itk::MedianImageFilter<InImageType, OutImageType>
+      FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+    
+    // check number of input and output arguments
+    matlabImport->CheckNumberOfArguments(2, 5);
+    matlabExport->CheckNumberOfArguments(0, 1);
+    
+    // connect Matlab inputs to ITK filter
+    filter->SetInput(matlabImport->
+		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+    
+    // set half size of the filter's box
+    typedef typename itk::BoxImageFilter<
+      itk::Image<TPixelIn, VImageDimension>,
+      itk::Image<TPixelOut, VImageDimension> > BoxFilterType;
+    typename BoxFilterType::RadiusType radius;
+    radius.Fill(0);
+    filter->SetRadius(matlabImport->
+		      GetVectorArgument<typename BoxFilterType::RadiusType, 
+					typename BoxFilterType::RadiusValueType>
+		      (2, "RADIUS", radius));
+  
+    // connect ITK filter outputs to Matlab outputs
+    if (matlabExport->GetNumberOfArguments() >= 1) {
+      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+	(filter->GetOutputs()[0], im.size, 0, "0");
+    }
+
+    // run filter
+    filter->Update();
+
+  }
+};
+
+// MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter
+template <class TPixelIn, class TPixelOut, unsigned int VImageDimension>
+class FilterWrapper<TPixelIn, TPixelOut, VImageDimension,
+		    nMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter> {
+public:
+  
+  FilterWrapper(MatlabImportFilter::Pointer matlabImport,
+		MatlabExportFilter::Pointer matlabExport,
+		MatlabImageHeader &im) {
+    
+    // instantiate the filter
+    typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
+    typedef typename itk::Image<TPixelOut, VImageDimension> OutImageType;
+    typedef itk::MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter
+      <InImageType, OutImageType> FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+    
+    // check number of input and output arguments
+    matlabImport->CheckNumberOfArguments(2, 6);
+    matlabExport->CheckNumberOfArguments(0, 1);
+    
+    // connect Matlab inputs to ITK filter
+    filter->SetInput(matlabImport->
+		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+    
+    // filter parameters
+    filter->SetSigmaMin(matlabImport->template
+			GetScalarArgument<double>(2, "SIGMAMIN", 0.2));
+    filter->SetSigmaMax(matlabImport->template
+			GetScalarArgument<double>(3, "SIGMAMAX", 2.0));
+    filter->SetNumberOfSigmaSteps(matlabImport->template
+			GetScalarArgument<int>(4, "NUMSIGMASTEPS", 10));
+    filter->SetIsSigmaStepLog(matlabImport->template
+			GetScalarArgument<bool>(5, "ISSIGMASTEPLOG", true));
+
+    // connect ITK filter outputs to Matlab outputs
+    if (matlabExport->GetNumberOfArguments() >= 1) {
+      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+	(filter->GetOutputs()[0], im.size, 0, "0");
+    }
+
+    // run filter
+    filter->Update();
+
+  }
+};
+
+template <class TPixelIn, class TPixelOut>
+class FilterWrapper<TPixelIn, TPixelOut, 2,
+		    nMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter> {
+public:
+  FilterWrapper(MatlabImportFilter::Pointer, MatlabExportFilter::Pointer,
+		MatlabImageHeader &) {
+    mexErrMsgTxt("MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter only accepts 3D input images");
+  }
+};
+
+template <class TPixelIn, class TPixelOut>
+class FilterWrapper<TPixelIn, TPixelOut, 4,
+		    nMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter> {
+public:
+  FilterWrapper(MatlabImportFilter::Pointer, MatlabExportFilter::Pointer,
+		MatlabImageHeader &) {
+    mexErrMsgTxt("MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter only accepts 3D input images");
+  }
+};
+
+// AnisotropicDiffusionVesselEnhancementImageFilter
+template <class TPixelIn, class TPixelOut, unsigned int VImageDimension>
+class FilterWrapper<TPixelIn, TPixelOut, VImageDimension,
+		    nAnisotropicDiffusionVesselEnhancementImageFilter> {
+public:
+
+  FilterWrapper(MatlabImportFilter::Pointer matlabImport,
+		MatlabExportFilter::Pointer matlabExport,
+		MatlabImageHeader &im) {
+    
+    // instantiate the filter
+    typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
+    typedef InImageType OutImageType;
+    typedef itk::AnisotropicDiffusionVesselEnhancementImageFilter<InImageType, OutImageType>
+      FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+    
+    // check number of input and output arguments
+    matlabImport->CheckNumberOfArguments(2, 11);
+    matlabExport->CheckNumberOfArguments(0, 1);
+
+    // connect Matlab inputs to ITK filter
+    filter->SetInput(matlabImport->GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+
+    filter->SetSigmaMin(matlabImport->
+		       GetScalarArgument<double>(2,  "SIGMAMIN", 0.2));
+    filter->SetSigmaMax(matlabImport->
+		       GetScalarArgument<double>(3,  "SIGMAMAX", 2.0));
+    filter->SetNumberOfSigmaSteps(matlabImport->
+		       GetScalarArgument<int>   (4,  "NUMSIGMASTEPS", 10));
+    filter->SetIsSigmaStepLog(matlabImport->
+		       GetScalarArgument<bool>  (5,  "ISSIGMASTEPLOG", true));
+    filter->SetNumberOfIterations(matlabImport->
+		       GetScalarArgument<int>   (6,  "NUMITERATIONS", 1));
+    filter->SetWStrength(matlabImport->
+		       GetScalarArgument<double>(7,  "WSTRENGTH", 25.0));
+    filter->SetSensitivity(matlabImport->
+		       GetScalarArgument<double>(8,  "SENSITIVITY", 5.0));
+    filter->SetTimeStep(matlabImport->
+		       GetScalarArgument<double>(9,  "TIMESTEP", 1e-3));
+    filter->SetEpsilon(matlabImport->
+		       GetScalarArgument<double>(10, "EPSILON", 1e-2));
+    
+    // connect ITK filter outputs to Matlab outputs
+    if (matlabExport->GetNumberOfArguments() >= 1) {
+      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+	(filter->GetOutputs()[0], im.size, 0, "0");
+    }
+
+    // run filter
+    filter->Update();
+
+  }
+};
+
+template <class TPixelIn, class TPixelOut>
+class FilterWrapper<TPixelIn, TPixelOut, 2,
+		    nAnisotropicDiffusionVesselEnhancementImageFilter> {
+public:
+  FilterWrapper(MatlabImportFilter::Pointer, MatlabExportFilter::Pointer,
+		MatlabImageHeader &) {
+    mexErrMsgTxt("AnisotropicDiffusionVesselEnhancementImageFilter only accepts 3D input images");
+  }
+};
+
+template <class TPixelIn, class TPixelOut>
+class FilterWrapper<TPixelIn, TPixelOut, 4,
+	      nAnisotropicDiffusionVesselEnhancementImageFilter> {
+public:
+  FilterWrapper(MatlabImportFilter::Pointer, MatlabExportFilter::Pointer,
+		MatlabImageHeader &) {
+    mexErrMsgTxt("AnisotropicDiffusionVesselEnhancementImageFilter only accepts 3D input images");
+  }
+};
+
+// BinaryThinningImageFilter3D
+template <class TPixelIn, class TPixelOut, unsigned int VImageDimension>
+class FilterWrapper<TPixelIn, TPixelOut, VImageDimension,
+		    nBinaryThinningImageFilter3D> {
+public:
+  
+  FilterWrapper(MatlabImportFilter::Pointer matlabImport,
+		MatlabExportFilter::Pointer matlabExport,
+		MatlabImageHeader &im) {
+    
+    // instantiate the filter
+    typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
+    typedef InImageType OutImageType;
+    typedef itk::BinaryThinningImageFilter3D<InImageType, OutImageType>
+      FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+    
+    // check number of input and output arguments
+    matlabImport->CheckNumberOfArguments(2, 2);
+    matlabExport->CheckNumberOfArguments(0, 1);
+    
+    // connect Matlab inputs to ITK filter
+    filter->SetInput(matlabImport->
+		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+
+    // connect ITK filter outputs to Matlab outputs
+    if (matlabExport->GetNumberOfArguments() >= 1) {
+      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+	(filter->GetOutputs()[0], im.size, 0, "0");
+    }
+
+    // run filter
+    filter->Update();
+
+  }
+};
+
+template <class TPixelIn, class TPixelOut>
+class FilterWrapper<TPixelIn, TPixelOut, 2,
+		    nBinaryThinningImageFilter3D> {
+public:
+  FilterWrapper(MatlabImportFilter::Pointer, MatlabExportFilter::Pointer,
+		MatlabImageHeader &) {
+    mexErrMsgTxt("BinaryThinningImageFilter3D only accepts 3D input images");
+  }
+};
+
+template <class TPixelIn, class TPixelOut>
+class FilterWrapper<TPixelIn, TPixelOut, 4,
+		    nBinaryThinningImageFilter3D> {
+public:
+  FilterWrapper(MatlabImportFilter::Pointer, MatlabExportFilter::Pointer,
+		MatlabImageHeader &) {
+    mexErrMsgTxt("BinaryThinningImageFilter3D only accepts 3D input images");
+  }
+};
+
+// DanielssonDistanceMapImageFilter
+template <class TPixelIn, class TPixelOut, unsigned int VImageDimension>
+class FilterWrapper<TPixelIn, TPixelOut, VImageDimension,
+		    nDanielssonDistanceMapImageFilter> {
+public:
+  
+  FilterWrapper(MatlabImportFilter::Pointer matlabImport,
+		MatlabExportFilter::Pointer matlabExport,
+		MatlabImageHeader &im) {
+    
+    // instantiate the filter
+    typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
+    typedef typename itk::Image<TPixelOut, VImageDimension> OutImageType;
+    typedef itk::DanielssonDistanceMapImageFilter<InImageType, OutImageType>
+      FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+    
+    // check number of input and output arguments
+    matlabImport->CheckNumberOfArguments(2, 2);
+    matlabExport->CheckNumberOfArguments(0, 3);
+    
+    // connect Matlab inputs to ITK filter
+    filter->SetInput(matlabImport->
+		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+
+    // connect ITK filter outputs to Matlab outputs
+
+    // distance map
+    if (matlabExport->GetNumberOfArguments() >= 1) {
+      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+	(filter->GetOutputs()[0], im.size, 0, "0");
+    }
+    // Voronoi map
+    if (matlabExport->GetNumberOfArguments() >= 2) {
+      matlabExport->GraftItkImageOntoMatlab<TPixelIn, VImageDimension>
+	(filter->GetOutputs()[1], im.size, 1, "1");
+    }
+    // vectors pointing to closest foreground voxel
+    if (matlabExport->GetNumberOfArguments() >= 3) {
+      matlabExport->GraftItkImageOntoMatlab<typename InImageType::OffsetType::OffsetValueType,
+					    VImageDimension,
+					    typename InImageType::OffsetType::OffsetType>
+	(filter->GetOutputs()[2], im.size, 2, "2");
+    }
+
+    // run filter
+    filter->Update();
+
+  }
+};
+
+// SignedMaurerDistanceMapImageFilter
+template <class TPixelIn, class TPixelOut, unsigned int VImageDimension>
+class FilterWrapper<TPixelIn, TPixelOut, VImageDimension,
+		    nSignedMaurerDistanceMapImageFilter> {
+public:
+  
+  FilterWrapper(MatlabImportFilter::Pointer matlabImport,
+		MatlabExportFilter::Pointer matlabExport,
+		MatlabImageHeader &im) {
+    
+    // instantiate the filter
+    typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
+    typedef typename itk::Image<TPixelOut, VImageDimension> OutImageType;
+    typedef itk::SignedMaurerDistanceMapImageFilter<InImageType, OutImageType>
+      FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+    
+    // check number of input and output arguments
+    matlabImport->CheckNumberOfArguments(2, 2);
+    matlabExport->CheckNumberOfArguments(0, 1);
+    
+    // compute distances using real world coordinates, instead of voxel
+    // indices
+    filter->SetUseImageSpacing(true);
+    
+    // give output as actual distances
+    filter->SquaredDistanceOff();
+    
+    // connect Matlab inputs to ITK filter
+    filter->SetInput(matlabImport->
+		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+
+    // connect ITK filter outputs to Matlab outputs
+
+    // distance map
+    if (matlabExport->GetNumberOfArguments() >= 1) {
+      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+	(filter->GetOutputs()[0], im.size, 0, "0");
+    }
+
+    // run filter
+    filter->Update();
+
+  }
+};
+
+template <class TPixelOut, unsigned int VImageDimension>
+class FilterWrapper<mxLogical, TPixelOut, VImageDimension,
+		    nSignedMaurerDistanceMapImageFilter> {
+public:
+  FilterWrapper(MatlabImportFilter::Pointer, MatlabExportFilter::Pointer,
+		MatlabImageHeader &) {
+    mexErrMsgTxt("SignedMaurerDistanceMapImageFilter does not accept input image with type boolean");
+  }
+};
+
+// BinaryDilateImageFilter
+template <class TPixelIn, class TPixelOut, unsigned int VImageDimension>
+class FilterWrapper<TPixelIn, TPixelOut, VImageDimension,
+		    nBinaryDilateImageFilter> {
+public:
+  
+  FilterWrapper(MatlabImportFilter::Pointer matlabImport,
+		MatlabExportFilter::Pointer matlabExport,
+		MatlabImageHeader &im) {
+    
+    // instantiate the filter
+    typedef itk::BinaryBallStructuringElement<TPixelIn, VImageDimension>
+      StructuringElementType;
+    typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
+    typedef InImageType OutImageType;
+    typedef itk::BinaryDilateImageFilter<InImageType, OutImageType, StructuringElementType>
+      FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+    
+    // check number of input and output arguments
+    matlabImport->CheckNumberOfArguments(2, 4);
+    matlabExport->CheckNumberOfArguments(0, 1);
+    
+    // connect Matlab inputs to ITK filter
+    filter->SetInput(matlabImport->
+		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+    
+    // instantiate structuring element
+    // (comp) radius of the ball in voxels
+    StructuringElementType structuringElement;
+    structuringElement.SetRadius(matlabImport->
+				 GetScalarArgument<unsigned long>(2, "RADIUS", 0));
+    structuringElement.CreateStructuringElement();
+    filter->SetKernel(structuringElement);
+
+    // pass other parameters to filter
+    // (opt) voxels with this value will be dilated. Default, maximum
+    // value of the pixel type (this is the ITK default, so we
+    // reproduce it here, even if it "1" would be more convenient)
+    filter->SetForegroundValue(matlabImport->template
+			       GetScalarArgument<TPixelIn>(3, "FOREGROUND", std::numeric_limits<TPixelIn>::max()));
+
+    // connect ITK filter outputs to Matlab outputs
+    if (matlabExport->GetNumberOfArguments() >= 1) {
+      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+	(filter->GetOutputs()[0], im.size, 0, "0");
+    }
+
+    // run filter
+    filter->Update();
+
+  }
+};
+
+// BinaryErodeImageFilter
+template <class TPixelIn, class TPixelOut, unsigned int VImageDimension>
+class FilterWrapper<TPixelIn, TPixelOut, VImageDimension,
+		    nBinaryErodeImageFilter> {
+public:
+  
+  FilterWrapper(MatlabImportFilter::Pointer matlabImport,
+		MatlabExportFilter::Pointer matlabExport,
+		MatlabImageHeader &im) {
+    
+    // instantiate the filter
+    typedef itk::BinaryBallStructuringElement<TPixelIn, VImageDimension>
+      StructuringElementType;
+    typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
+    typedef InImageType OutImageType;
+    typedef itk::BinaryErodeImageFilter<InImageType, OutImageType, StructuringElementType>
+      FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+    
+    // check number of input and output arguments
+    matlabImport->CheckNumberOfArguments(2, 4);
+    matlabExport->CheckNumberOfArguments(0, 1);
+    
+    // connect Matlab inputs to ITK filter
+    filter->SetInput(matlabImport->
+		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+    
+    // instantiate structuring element
+    // (comp) radius of the ball in voxels
+    StructuringElementType structuringElement;
+    structuringElement.SetRadius(matlabImport->
+				 GetScalarArgument<unsigned long>(2, "RADIUS", 0));
+    structuringElement.CreateStructuringElement();
+    filter->SetKernel(structuringElement);
+
+    // pass other parameters to filter
+    // (opt) voxels with this value will be dilated. Default, maximum
+    // value of the pixel type (this is the ITK default, so we
+    // reproduce it here, even if it "1" would be more convenient)
+    filter->SetForegroundValue(matlabImport->template
+			       GetScalarArgument<TPixelIn>(3, "FOREGROUND", std::numeric_limits<TPixelIn>::max()));
+
+    // connect ITK filter outputs to Matlab outputs
+    if (matlabExport->GetNumberOfArguments() >= 1) {
+      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+	(filter->GetOutputs()[0], im.size, 0, "0");
+    }
+
+    // run filter
+    filter->Update();
+
+  }
+};
 
 /*
  * Argument Parsers
@@ -258,251 +757,119 @@
  * data types that are only know at run-time, and the input/output
  * data templates that ITK requires and must be know at compilation
  * time.
- *
- * To avoid a nesting nightmare:
- *
- * switch FilterType {
- *   switch InputDataType {
- *     switch OutputDataType {
- *     }
- *   }
- * }
- *
- * we split the conversion in 3 steps. The first function,
- * parseInputTypeToTemplate() reads the input data type and the filter
- * type, and instantiates parseOutputTypeToTemplate<InVoxelType>() for
- * each input data type.
- *
- * This way, we have effectively mapped the input type from a run-time
- * variable to a set of compilation time templates.
- *
- * Then parseOutputTypeToTemplate<InVoxelType>() decides on the output
- * data type depending on the filter and the input, and instantiates
- * one parseFilterTypeAndRun<InVoxelType, OutVoxelType>() for each
- * output data type.
- *
- * This way, we have instantiated all combinations of input/output
- * data types, without having to code them explicitly.
- *
- * Finally, parseFilterTypeAndRun<InVoxelType, OutVoxelType>() checks
- * that the requested filter is implemented, maps the filter variable,
- * and runs the actual filtering, using derived filter classes from
- * MexBaseFilter.
  */
 
-// list of supported filters. It has to be an enum so that we can pass
-// it as a template constant parameter
-enum SupportedFilter {
-  nMexMedianImageFilter,
-  nMexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter,
-  nMexAnisotropicDiffusionVesselEnhancementImageFilter,
-  nMexBinaryThinningImageFilter3D,
-  nMexDanielssonDistanceMapImageFilter,
-  nMexSignedMaurerDistanceMapImageFilter,
-  nMexBinaryDilateImageFilter,
-  nMexBinaryErodeImageFilter
-};
-
-/* 
- * partial explicit specialization to choose which filter we want to
- * instantiate
- */
-
-// general declaration
-template <SupportedFilter filterEnum, class InVoxelType, class OutVoxelType>
-class FilterSelector {
-public:
-  FilterSelector(const NrrdImage &, int, mxArray**, 
-		 const int, const mxArray**,
-		 MexBaseFilter<InVoxelType, OutVoxelType> *&) {
-    // #error Assertion fail: non-supported filter has been instantiated
-    mexErrMsgTxt("Assertion fail: Filter not supported");
-  }
-};
-
-#define SELECTFILTER(filterEnum, mexFilterType)				\
-  template <class InVoxelType, class OutVoxelType>			\
-  class FilterSelector<filterEnum, InVoxelType, OutVoxelType> {		\
-  public:								\
-  FilterSelector(const NrrdImage & nrrd,				\
-		 int nargout, mxArray** argOut,				\
-		 const int nargin, const mxArray** argIn,		\
-		 MexBaseFilter<InVoxelType, OutVoxelType> *&filter) {	\
-    filter = new mexFilterType<InVoxelType, OutVoxelType>(nrrd, nargout, argOut, \
-							  nargin, argIn); \
-  }									\
-  };
-
-// select filters
-SELECTFILTER(nMexBinaryThinningImageFilter3D,
-             MexBinaryThinningImageFilter3D)
-SELECTFILTER(nMexDanielssonDistanceMapImageFilter,
-             MexDanielssonDistanceMapImageFilter)
-SELECTFILTER(nMexSignedMaurerDistanceMapImageFilter,
-             MexSignedMaurerDistanceMapImageFilter)
-SELECTFILTER(nMexBinaryDilateImageFilter,
-             MexBinaryDilateImageFilter)
-SELECTFILTER(nMexBinaryErodeImageFilter,
-             MexBinaryErodeImageFilter)
-SELECTFILTER(nMexAnisotropicDiffusionVesselEnhancementImageFilter,
-             MexAnisotropicDiffusionVesselEnhancementImageFilter)
-SELECTFILTER(nMexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter,
-             MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter)
-SELECTFILTER(nMexMedianImageFilter,
-             MexMedianImageFilter)
-#undef SELECTFILTER
-
-/*
- * call the batch of methods that create the filter, set it up,
- * connect it to the Matlab inputs and outputs, read parameters, and
- * perform the actual filtering
- *
- */
-
-// runFilter<SupportedFilter, InVoxelType, OutVoxelType>()
-template <SupportedFilter filterEnum, class InVoxelType, class OutVoxelType>
-void runFilter(const int nargin, const mxArray** argIn,
-	       int nargout, mxArray** argOut,
-	       const NrrdImage &nrrd) {
-
-  // pointer to the filter object (we are using polymorphism)
-  MexBaseFilter<InVoxelType, OutVoxelType> *mexFilter = NULL;
-  
-  // select the appropriate filter
-  FilterSelector<filterEnum, InVoxelType, OutVoxelType> 
-    filterSelector(nrrd, nargout, argOut, nargin, argIn, mexFilter);
-  if (mexFilter == NULL) {
-    mexErrMsgTxt("Assertion fail: filter is NULL in runFilter()");
-  }
-
-  // check number of output arguments
-  mexFilter->CheckNumberOfOutputs();
-  
-  // set up and run filter
-  mexFilter->GraftMatlabInputBufferIntoItkImportFilter();
-  mexFilter->FilterBasicSetup();
-  mexFilter->FilterAdvancedSetup();
-  mexFilter->ExportOtherFilterOutputsToMatlab();
-  mexFilter->RunFilter();
-
-  // call the destructor of the filter object, so that it can free up
-  // the memory buffers that it doesn't pass to Matlab
-  delete mexFilter;
-
-  // successful exit
-  return;
-  
-}
-
-/*
- * series of parser functions that convert input run-time variables to
- * compilation-time templates
- */
-
-// parseOutputTypeToTemplate<InVoxelType>()
-template <SupportedFilter filterEnum, class InVoxelType>
-void parseOutputTypeToTemplate(const int nargin,
-			       const mxArray** argIn,
-			       int nargout,
-			       mxArray** argOut,
-			       const NrrdImage &nrrd) {
-
-  // establish output voxel type according to the filter. We begin
-  // with filters that have InVoxelType != OutVoxelType, and implement
-  // their special requirements. The rest of filters are assumend to
-  // have InVoxelType == OutVoxelType and are all instantiated with
-  // the same code
-  if (filterEnum == nMexDanielssonDistanceMapImageFilter) {
-
-    runFilter<nMexDanielssonDistanceMapImageFilter,
-	      InVoxelType, 
-	      double>(nargin, argIn, nargout, argOut, nrrd);
-    
-  } else if (filterEnum == nMexSignedMaurerDistanceMapImageFilter) {
-    
-    runFilter<nMexSignedMaurerDistanceMapImageFilter,
-	      InVoxelType, 
-	      double>(nargin, argIn, nargout, argOut, nrrd);
-
-  } else if (filterEnum == nMexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter) {
-    
-    runFilter<nMexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter,
-	      InVoxelType, 
-	      double>(nargin, argIn, nargout, argOut, nrrd);
-
-  } else {
-
-    // any filter that produces the same image type at the output as
-    // it receives at the input
-    runFilter<filterEnum,
-	      InVoxelType, 
-	      InVoxelType>(nargin, argIn, nargout, argOut, nrrd);
-
-  }
-
-}
-
-// list of filters incompatible with certain input types
-#define INVALIDINPUTTYPE(filterEnum, InVoxelType)			\
-  template <>								\
-  void parseOutputTypeToTemplate<filterEnum,				\
-				 InVoxelType>(const int, const mxArray**, \
-					      int, mxArray**,		\
-					      const NrrdImage &) {	\
-    mexErrMsgTxt("Input type incompatible with this filter");		\
-  }
-
-INVALIDINPUTTYPE(nMexBinaryThinningImageFilter3D, mxLogical)
-INVALIDINPUTTYPE(nMexSignedMaurerDistanceMapImageFilter, mxLogical)
-#undef INVALIDINPUTTYPE
-
-// parseInputTypeToTemplate()
-template <SupportedFilter filterEnum>
-void parseInputTypeToTemplate(const int nargin,
-			      const mxArray** argIn,
-			      int nargout,
-			      mxArray** argOut) {
-  
-  // read image and its parameters, whether it's in NRRD format, or
-  // just a 2D or 3D array
-  //
-  // we need to do this here, and not later at the filter parsing
-  // stage, because in some cases the output type will depend on the
-  // size of the image volume
-  NrrdImage nrrd(argIn[1]);
+// parseOutputImageTypeToTemplate()
+template <class TPixelIn, unsigned int VImageDimension>
+void parseOutputImageTypeToTemplate(MatlabImportFilter::Pointer matlabImport,
+				    MatlabExportFilter::Pointer matlabExport,
+				    MatlabImageHeader &im) {
 
   // input image type
-  mxClassID inputVoxelClassId = mxGetClassID(nrrd.getData());
+  typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
 
-  switch(inputVoxelClassId)  { // swith input image type
+  // name of the filter
+  std::string filterName = matlabImport->GetStringArgument(0, "0", "");
+
+  // select the output type corresponding to each filter
+  if (filterName == "median" 
+	     || filterName == "MedianImageFilter") {
+
+    FilterWrapper<TPixelIn, TPixelIn, VImageDimension, 
+		  nMedianImageFilter> 
+      filterWrapper(matlabImport, matlabExport, im);
+
+  } else if (filterName == "advess" 
+      || filterName == "AnisotropicDiffusionVesselEnhancementImageFilter") {
+
+    FilterWrapper<TPixelIn, TPixelIn, VImageDimension, 
+		  nAnisotropicDiffusionVesselEnhancementImageFilter> 
+      wrapper(matlabImport, matlabExport, im);
+
+  } else if (filterName == "bwdilate" 
+	     || filterName == "BinaryDilateImageFilter") {
+
+    FilterWrapper<TPixelIn, TPixelIn, VImageDimension, 
+		  nBinaryDilateImageFilter> 
+      filterWrapper(matlabImport, matlabExport, im);
+
+  } else if (filterName == "bwerode" 
+	     || filterName == "BinaryErodeImageFilter") {
+
+    FilterWrapper<TPixelIn, TPixelIn, VImageDimension, 
+		  nBinaryErodeImageFilter> 
+      filterWrapper(matlabImport, matlabExport, im);
+
+  } else if (filterName == "skel" 
+	     || filterName == "BinaryThinningImageFilter3D") {
+
+    FilterWrapper<TPixelIn, TPixelIn, VImageDimension, 
+		  nBinaryThinningImageFilter3D>
+      filterWrapper(matlabImport, matlabExport, im);
+
+  } else if (filterName == "dandist" 
+	     || filterName == "DanielssonDistanceMapImageFilter") {
+
+    FilterWrapper<TPixelIn, double, VImageDimension, 
+		  nDanielssonDistanceMapImageFilter>
+      filterWrapper(matlabImport, matlabExport, im);
+
+  } else if (filterName == "hesves" 
+	     || filterName == "MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter") {
+
+    FilterWrapper<TPixelIn, double, VImageDimension, 
+		  nMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter>
+      filterWrapper(matlabImport, matlabExport, im);
+
+  } else if (filterName == "maudist" 
+	     || filterName == "SignedMaurerDistanceMapImageFilter") {
+
+    FilterWrapper<TPixelIn, int, VImageDimension, 
+		  nSignedMaurerDistanceMapImageFilter>
+      filterWrapper(matlabImport, matlabExport, im);
+
+  } else {
+    mexErrMsgTxt("Invalid filter type");    
+  }  
+
+}
+  
+// parseInputImageTypeToTemplate()
+template <unsigned int VImageDimension>
+void parseInputImageTypeToTemplate(MatlabImportFilter::Pointer matlabImport,
+				   MatlabExportFilter::Pointer matlabExport,
+				   MatlabImageHeader &im) {
+  
+  // input image type
+  switch(im.type)  {
   case mxLOGICAL_CLASS:
-    parseOutputTypeToTemplate<filterEnum, mxLogical>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputImageTypeToTemplate<mxLogical, VImageDimension>(matlabImport, matlabExport, im);
     break;
   case mxDOUBLE_CLASS:
-    parseOutputTypeToTemplate<filterEnum, double>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputImageTypeToTemplate<double, VImageDimension>(matlabImport, matlabExport, im);
     break;
   case mxSINGLE_CLASS:
-    parseOutputTypeToTemplate<filterEnum, float>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputImageTypeToTemplate<float, VImageDimension>(matlabImport, matlabExport, im);
     break;
   case mxINT8_CLASS:
-    parseOutputTypeToTemplate<filterEnum, int8_T>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputImageTypeToTemplate<int8_T, VImageDimension>(matlabImport, matlabExport, im);
     break;
   case mxUINT8_CLASS:
-    parseOutputTypeToTemplate<filterEnum, uint8_T>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputImageTypeToTemplate<uint8_T, VImageDimension>(matlabImport, matlabExport, im);
     break;
   case mxINT16_CLASS:
-    parseOutputTypeToTemplate<filterEnum, int16_T>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputImageTypeToTemplate<int16_T, VImageDimension>(matlabImport, matlabExport, im);
     break;
   case mxUINT16_CLASS:
-    parseOutputTypeToTemplate<filterEnum, uint16_T>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputImageTypeToTemplate<uint16_T, VImageDimension>(matlabImport, matlabExport, im);
     break;
   case mxINT32_CLASS:
-    parseOutputTypeToTemplate<filterEnum, int32_T>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputImageTypeToTemplate<int32_T, VImageDimension>(matlabImport, matlabExport, im);
     break;
   // case mxUINT32_CLASS:
   //   break;
   case mxINT64_CLASS:
-    parseOutputTypeToTemplate<filterEnum, int64_T>(nargin, argIn, nargout, argOut, nrrd);
+    parseOutputImageTypeToTemplate<int64_T, VImageDimension>(matlabImport, matlabExport, im);
     break;
   // case mxUINT64_CLASS:
   //   break;
@@ -519,100 +886,57 @@ void parseInputTypeToTemplate(const int nargin,
 
 }
 
-// parseFilterTypeToTemplate()
-void parseFilterTypeToTemplate(const int nargin,
-			       const mxArray** argIn,
-			       int nargout,
-			       mxArray** argOut) {
+void parseInputImageDimensionToTemplate(MatlabImportFilter::Pointer matlabImport,
+					MatlabExportFilter::Pointer matlabExport) {
+  
+  // the 2nd input argument is the input image. It can be given as an
+  // array, or a SCI MAT struct, so it's necessary to pre-process the
+  // pointer to do checks and extract the meta information
+  MatlabImageHeader im(matlabImport->GetArg(1), "1");
 
-  // get type of filter
-  char *filterName = mxArrayToString(argIn[0]);
-  if (filterName == NULL) {
-    mexErrMsgTxt("Invalid FILTER string");
+  switch (im.GetNumberOfDimensions()) {
+  case 2:
+    parseInputImageTypeToTemplate<2>(matlabImport, matlabExport, im);
+    break;
+  case 3:
+    parseInputImageTypeToTemplate<3>(matlabImport, matlabExport, im);
+    break;
+  case 4:
+    parseInputImageTypeToTemplate<4>(matlabImport, matlabExport, im);
+    break;
+  // case 5:
+  //   parseInputImageTypeToTemplate<5>(matlabImport, matlabExport, im);
+  //   break;
+  default:
+    mexErrMsgTxt("Input image can only have 2 to 5 dimensions");
+    break;
   }
-
-  // macro that returns true if the string in x is either the short or
-  // long name of the filter type T
-#define ISFILTER(x, T)							\
-  !strcmp(x, T<std::string, std::string>::shortname.c_str())		\
-    || !strcmp(x, T<std::string, std::string>::longname.c_str())
-
-  // map run-time filter string to filter enum, and then start the
-  // chain of parsers that will convert run-time types (input type,
-  // filter type) to templates, and calculate the appropriate output
-  // type
-  if (ISFILTER(filterName, MexBinaryThinningImageFilter3D)) {
-    
-    parseInputTypeToTemplate<nMexBinaryThinningImageFilter3D>(nargin, argIn,
-							      nargout, argOut);
-
-  }  else if (ISFILTER(filterName, MexDanielssonDistanceMapImageFilter)) {
-    
-    parseInputTypeToTemplate<nMexDanielssonDistanceMapImageFilter>(nargin, argIn,
-								   nargout, argOut);
-
-  }  else if (ISFILTER(filterName, MexSignedMaurerDistanceMapImageFilter)) {
-
-    parseInputTypeToTemplate<nMexSignedMaurerDistanceMapImageFilter>(nargin, argIn,
-  								     nargout, argOut);
-
-  } else if (ISFILTER(filterName, MexBinaryDilateImageFilter)) {
-
-    parseInputTypeToTemplate<nMexBinaryDilateImageFilter>(nargin, argIn,
-  							  nargout, argOut);
-
-  } else if (ISFILTER(filterName, MexBinaryErodeImageFilter)) {
-
-    parseInputTypeToTemplate<nMexBinaryErodeImageFilter>(nargin, argIn,
-  							 nargout,
-  							 argOut);
-
-  } else if (ISFILTER(filterName, MexAnisotropicDiffusionVesselEnhancementImageFilter)) {
-
-    parseInputTypeToTemplate<nMexAnisotropicDiffusionVesselEnhancementImageFilter>(nargin, argIn,
-  							 nargout, argOut);
-
-  } else if (ISFILTER(filterName, MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter)) {
-
-    parseInputTypeToTemplate<nMexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter>(nargin, argIn,
-  							 nargout, argOut);
-
-  } else if (ISFILTER(filterName, MexMedianImageFilter)) {
-
-    parseInputTypeToTemplate<nMexMedianImageFilter>(nargin, argIn,
-  							 nargout, argOut);
-
-    /* Insertion point: parseFilterTypeToTemplate (DO NOT DELETE THIS COMMENT) */
-
-  } else {
-    mexErrMsgTxt("Filter type not implemented");
-  }
-
-#undef ISFILTER
-
-  // exit successfully
-  return;
 
 }
+
 
 /*
  * mexFunction(): entry point for the mex function
  */
 void mexFunction(int nlhs, mxArray *plhs[], 
 		 int nrhs, const mxArray *prhs[]) {
-  // check number of input and output arguments
-  if (nrhs < 2) {
-    mexErrMsgTxt("Not enough input arguments");
-  }
+
+  // interface to deal with input arguments from Matlab
+  MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
+  matlabImport->SetMatlabArgumentsPointer(nrhs, prhs);
+
+  // check that we have at least a filter name and input image
+  matlabImport->CheckNumberOfArguments(2, UINT_MAX);
+
+  // interface to deal with output arguments from Matlab
+  MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
+  matlabExport->SetMatlabArgumentsPointer(nlhs, plhs);
 
   // run filter (this function starts a cascade of functions designed
   // to translate the run-time type variables like inputVoxelClassId
   // to templates, so that we don't need to nest lots of "switch" or
   // "if" statements)
-  parseFilterTypeToTemplate(nrhs,
-			    prhs,
-			    nlhs,
-			    plhs);
+  parseInputImageDimensionToTemplate(matlabImport, matlabExport);
 
   // exit successfully
   return;

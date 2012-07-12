@@ -1,14 +1,102 @@
+2012-07-12  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/ItkToolbox/CMakeLists.txt: (v0.5.0)
+	* matlab/ItkToolbox/ItkImFilter.cpp: (v1.0.0)
+
+	- Full rewrite of the architecture.
+
+	- Now we admit input images with dimensions from 2 to 5.
+
+	- Many layers of the architecture have been removed, to simplify
+	the program. Now we have the parsers to connect Matlab runtime
+	variables followed by a FilterWrapper. The FilterWrapper is a
+	class so that we can use template partial specialisation and write
+	an implementation for each filter. Also, if a filter doesn't
+	accept a certain dimension or input type, we can deal with it this
+	way.
+
+	- We now use the new MatlabImportFilter and MatlabExportFilter
+	interfaces to deal with the lists of input and output arguments.
+
+	- We no longer have the Nrrd class. Instead, we have a
+	MatlabImageHeader class that parses the metainformation of input
+	images.
+
+	- Now we can have vectors as input arguments.
+
+	- We can also deal with output vector images, as with the last
+	version, but now in a simple single method.
+
+	* matlab/ItkToolbox/MatlabImageHeader.h: (v0.1.0)
+	* matlab/ItkToolbox/MatlabImageHeader.cxx: (v0.1.0)
+
+	- Class to provide an interface to read the metadata from a an
+	input image. This allows to create a header class that can be used
+	to deal with the image more easily.
+
+	* Add matlab/ItkToolbox/MatlabExportFilter.h: (v0.1.0)
+	* Add matlab/ItkToolbox/MatlabExportFilter.hxx: (v0.1.0)
+
+	- Class to provide an interface to graft ITK images onto Matlab
+	outputs.
+
+	* Add matlab/ItkToolbox/MatlabImportFilter.h: (v0.1.0)
+	* Add matlab/ItkToolbox/MatlabImportFilter.hxx: (v0.1.0)
+
+	- Class to provide an interface to import data from Matlab
+	mxArrays into ITK.
+
+	* matlab/ItkToolbox/itk_imfilter.m: (v0.5.0)
+
+	- Interface of a couple of filters has changed a bit, so change
+	the help accordingly.
+
+	* matlab/ItkToolbox/GerardusCommon.hpp: (v0.4.0)
+	* matlab/ItkToolbox/GerardusCommon.cpp: (v0.4.0)
+
+	- Remove the Dimension constant, as we want to be able to deal
+	with different dimensions, not only 3D.
+
+	- Remove the sub2ind() and ind2sub() methods that use
+	std::vector<mwIndex>. As they use R, C and S, we know the vector
+	must have length 3.
+
+	* matlab/test/test_itk_imfilter.m: (v0.2.1)
+
+	- Add tests for all the filters. There seems to be a problem with
+	the itk::SignedMaurerDistanceMapImageFilter, distances are not
+	computed.
+
+	* Delete matlab/ItkToolbox/MexBaseFilter.hpp:
+	* Delete matlab/ItkToolbox/MexBaseFilter.cpp:
+
+	- No longer used. We have removed this base filter layer of the
+	architecture. Instead, we have simply the FilterWrapper class to
+	implement each filter separatedly in its constructor.
+
+	* Delete matlab/ItkToolbox/MexFilter:
+
+	- This directory contains all the Mex...ImageFilter derived
+	filters that are no longer used. Instead of having so many files,
+	now we only have the FilterWrapper class.
+
+	* Delete matlab/ItkToolbox/NrrdImage.hpp:
+	* Delete matlab/ItkToolbox/NrrdImage.cpp:
+
+	- No longer used. Now we use class MatlabImageHeader instead to
+	access the image's metadata.
+
 2012-06-26  Tom Doel  <tom.doel@cs.ox.ac.uk>
 
-	Changelog
+	* Changelog:
 
-	* Update changelog for my previous two commits
+	- Update changelog for my previous two commits
 
 2012-06-25  Tom Doel  <tom.doel@cs.ox.ac.uk>
 
-	Changes to make gerardus compile under Mac OSX.
-	Tested on OSX 10.7.4 (Lion). Should also work for other
-	versions of OSX (not tested) 
+	Changes to make gerardus compile under Mac OSX.  Tested on OSX
+	10.7.4 (Lion). Should also work for other versions of OSX (not
+	tested).
 
 	* CMakeLists.txt
 
@@ -20,9 +108,9 @@
 
 	* matlab/MatlabMakeMacros.cmake
 
-	- Changed the Mac check IF(APPLE) to 
-	IF(${CMAKE_SYSTEM_NAME} MATCHES	"Darwin"), which is the preferred
-	way of testing for an OSX system
+	- Changed the Mac check IF(APPLE) to IF(${CMAKE_SYSTEM_NAME}
+	MATCHES "Darwin"), which is the preferred way of testing for an
+	OSX system
 
 	- Added a new target for 64-bit OSX (i.e. Snow Leopard and later),
 	for which Matlab uses the mex suffix mexmaci64
@@ -33,25 +121,25 @@
 
 	- Add an additional heuristic for setting MATLAB_ROOT for OSX. If
 	MATLAB_ROOT has not been set and cannot be found using the UNIX
-	heuristics (e.g. which) then we search for Matlab in 
+	heuristics (e.g. which) then we search for Matlab in
 	/Applications/MATLAB_xxxx.app, where xxxx is the version name
 	(R2012a, R2011b etc) and choose the most recent.
 
-	 - Added a linking directory for Matlab library files 
+	 - Added a linking directory for Matlab library files
 	${MATLAB_ROOT}/bin/maci
 
 2012-06-25  Tom Doel  <tom.doel@cs.ox.ac.uk>
 
 	* matlab/ItkToolbox/MexBaseFilter.hpp: (v0.7.6)
 
-	- Fixed a problem with MallocMatlabOutputBuffer which was 
+	- Fixed a problem with MallocMatlabOutputBuffer which was
 	preventing compilation on my system.
 
-	The setting of a default parameter argument vectorSize=1 was 
-	being done in the function implementation when (if I understand 
-	correctly) default parameters should be set in the function 
-	declaration. I have moved this into the function declaration
-	and it now compiles fine.
+	The setting of a default parameter argument vectorSize=1 was being
+	done in the function implementation when (if I understand
+	correctly) default parameters should be set in the function
+	declaration. I have moved this into the function declaration and
+	it now compiles fine.
 
 2012-06-18  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 

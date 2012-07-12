@@ -1,16 +1,16 @@
 function im = itk_imfilter(~, ~)
-% ITK_IMFILTER: Run ITK filter on a 2D or 3D image
+% ITK_IMFILTER: Run ITK filter on a 2D, 3D, 4D or 5D image
 %
 % This MEX function is a multiple-purpose wrapper to be able to run
 % all ITK filters that inherit from itk::ImageToImageFilter on a
-% Matlab 2D image or 3D image volume.
+% Matlab 2D image or 3D, 4D or 5D image volume.
 %
 % B = ITK_IMFILTER(TYPE, A, [FILTER PARAMETERS])
 %
 %   TYPE is a string with the filter we want to run. See below for a whole
 %   list of options.
 %
-%   A is a 2D matrix or 3D volume with the image or
+%   A is a 2D matrix or 3D, 4D or 5D volume with the image or
 %   segmentation. Currently, A can be of any of the following
 %   Matlab classes:
 %
@@ -24,19 +24,19 @@ function im = itk_imfilter(~, ~)
 %     int32
 %     int64
 %
-%   A can also be a SCI NRRD struct, A = nrrd, with the following fields:
+%   A can also be a SCI MAT struct, A = scimat, with the following fields:
 %
-%     nrrd.data: 2D or 3D array with the image or segmentation, as above
-%     nrrd.axis: 3x1 struct array with fields:
-%       nnrd.axis.size:    number of voxels in the image
-%       nnrd.axis.spacing: voxel size, image resolution
-%       nnrd.axis.min:     real world coordinates of image origin
-%       nnrd.axis.max:     ignored
-%       nnrd.axis.center:  ignored
-%       nnrd.axis.label:   ignored
-%       nnrd.axis.unit:    ignored
+%     scimat.data: 2D or 3D array with the image or segmentation, as above
+%     scimat.axis: 3x1 struct array with fields:
+%       scimat.axis.size:    number of voxels in the image
+%       scimat.axis.spacing: voxel size, image resolution
+%       scimat.axis.min:     real world coordinates of image origin
+%       scimat.axis.max:     ignored
+%       scimat.axis.center:  ignored
+%       scimat.axis.label:   ignored
+%       scimat.axis.unit:    ignored
 %
-%   (An SCI NRRD struct is the output of Matlab's function scinrrd_load(),
+%   (An SCI MAT struct is the output of Matlab's function scinrrd_load(),
 %   also available from Gerardus.)
 %
 %   [FILTER PARAMETERS] is an optional list of parameters, specific for
@@ -76,7 +76,7 @@ function im = itk_imfilter(~, ~)
 %
 %   (itk::SignedMaurerDistanceMapImageFilter) Compute signed distance map
 %   for a binary mask. Distance values are given in real world coordinates,
-%   if the input image is given as an NRRD struct, or in voxel units, if
+%   if the input image is given as a SCI MAT struct, or in voxel units, if
 %   the input image is a normal array. 
 %
 %   The output type is always double.
@@ -116,8 +116,8 @@ function im = itk_imfilter(~, ~)
 %   not be meaningful. The best compromise between accuracy and
 %   saving memory seems to be type single (= float).
 %
-%   Note: While it is possible to run the filter on a NRRD struct,
-%   results seem better if run directly on the image (nrrd.data). The
+%   Note: While it is possible to run the filter on a SCI MAT struct,
+%   results seem better if run directly on the image. The
 %   filter doesn't seem to be spacing invariant.
 %
 %   SIGMAMIN, SIGMAMAX are scalars with the limits of the multiscale
@@ -173,21 +173,21 @@ function im = itk_imfilter(~, ~)
 %   Input arguments are the same as the four first input arguments of
 %   filter "advess" above.
 %
-% B = itk_imfilter('median', A, RADR, RADC, RADS)
+% B = itk_imfilter('median', A, RADIUS)
 %
 %   (itk::MedianImageFilter)
 %   Median of a rectangular neighbourhood.
 %
 %   B has the same size and class as A.
 %
-%   RADR, RADC, RADS are scalars with the half-size of the filter's
-%   box in each dimension. E.g. RADR=2, RADC=3, RADS=4 means that the
+%   RADIUS is a vector of scalars with the half-size of the filter's
+%   box in each dimension. E.g. RADIUS=[2, 3, 4] means that the
 %   median is computed in a rectangular neighbourhood of [5, 7, 9]
 %   voxels.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.9
+% Version: 0.5.0
 % $Rev$
 % $Date$
 %
