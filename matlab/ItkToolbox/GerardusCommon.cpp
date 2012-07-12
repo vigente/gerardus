@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.1
+  * Version: 0.4.0
   * $Rev$
   * $Date$
   *
@@ -58,37 +58,7 @@
  *            start at 0)
  *
  */
-mwIndex sub2ind(mwSize R, mwSize C, mwSize S,
-		std::vector<mwIndex> rcs) {
-  // check for out of range index
-  if (
-      (rcs[0] < 0) || (rcs[0] >= R) 
-      || (rcs[1] < 0) || (rcs[1] >= C)
-      || (rcs[2] < 0) || (rcs[2] >= S)
-      ) {
-    mexErrMsgTxt("Out of range index");
-  }
-  if ((R*C*S == 0) || (R < 0) || (C < 0) || (S < 0)) {
-    mexErrMsgTxt("Size values cannot be 0 or negative");
-  }
-
-  // check that input vector has 3 elements
-  if (rcs.size() != 3) {
-    mexErrMsgTxt("Input vector must have 3 elements");
-  }
-
-  // convert r, c, s to linear index
-  mwIndex idx = rcs[0] + rcs[1] * R + rcs[2] * R * C;
-
-  // // DEBUG
-  // std::cout << "idx = " << idx
-  // 	    << std::endl;
-  
-  return idx;
-}
-
-mwIndex sub2ind(mwSize R, mwSize C, mwSize S,
-		itk::Offset<Dimension> rcs) {
+mwIndex sub2ind(mwSize R, mwSize C, mwSize S, itk::Offset<3> rcs) {
   // check for out of range index
   if (
       ((mwSize)rcs[0] < 0) || ((mwSize)rcs[0] >= R) 
@@ -118,8 +88,7 @@ mwIndex sub2ind(mwSize R, mwSize C, mwSize S,
  *            start at 0)
  *
  */
-std::vector<mwIndex> ind2sub(mwSize R, mwSize C, mwSize S,
-			     mwIndex idx) {
+itk::Offset<3> ind2sub_itkOffset(mwSize R, mwSize C, mwSize S, mwIndex idx) {
   // check for out of range index
   if (idx >= R*C*S || idx < 0) {
     mexErrMsgTxt("Out of range index");
@@ -129,37 +98,7 @@ std::vector<mwIndex> ind2sub(mwSize R, mwSize C, mwSize S,
   }
 
   // init output
-  std::vector<mwIndex> rcs(3);
-
-  // convert linear index to r, c, s 
-  rcs[2] = idx / (R*C); // slice value (Note: integer division)
-  idx %= (R*C);
-
-  rcs[1] = idx / R; // column value (Note: integer division)
-
-  rcs[0] = idx % R; // row value
-
-  // // DEBUG
-  // std::cout << "rcs = " << rcs[0] << ", " 
-  // 	    << rcs[1] << ", "
-  // 	    << rcs[2]
-  // 	    << std::endl;
-  
-  return rcs;
-}
-
-itk::Offset<Dimension> ind2sub_itkOffset(mwSize R, mwSize C, mwSize S,
-					 mwIndex idx) {
-  // check for out of range index
-  if (idx >= R*C*S || idx < 0) {
-    mexErrMsgTxt("Out of range index");
-  }
-  if (R*C*S == 0 || R < 0 || C < 0 || S < 0) {
-    mexErrMsgTxt("Size values cannot be 0 or negative");
-  }
-
-  // init output
-  itk::Offset<Dimension> rcs;
+  itk::Offset<3> rcs;
   
   // convert linear index to r, c, s 
   rcs[2] = idx / (R*C); // slice value (Note: integer division)

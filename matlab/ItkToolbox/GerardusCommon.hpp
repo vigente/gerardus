@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.2
+  * Version: 0.4.0
   * $Rev$
   * $Date$
   *
@@ -48,10 +48,6 @@
 /* ITK headers */
 #include "itkOffset.h"
 
-/* Global constants */
-static const unsigned int Dimension = 3; // volume data dimension
-                                         // (3D volume)
-
 /* 
  * CAST2MWSIZE(): macro to cast to mwSize type. This definition is
  *                necessary for ITK v3.20.0 to avoid an error when
@@ -73,8 +69,7 @@ static const unsigned int Dimension = 3; // volume data dimension
  *            start at 0)
  *
  */
-mwIndex sub2ind(mwSize R, mwSize C, mwSize S, std::vector<mwIndex> rcs);
-mwIndex sub2ind(mwSize R, mwSize C, mwSize S, itk::Offset<Dimension> rcs);
+mwIndex sub2ind(mwSize R, mwSize C, mwSize S, itk::Offset<3> rcs);
 
 /*
  * ind2sub(): function that converts linear indices in a 3D array to
@@ -83,13 +78,19 @@ mwIndex sub2ind(mwSize R, mwSize C, mwSize S, itk::Offset<Dimension> rcs);
  *            start at 0)
  *
  */
-std::vector<mwIndex> ind2sub(mwSize R, mwSize C, mwSize S, mwIndex idx);
-itk::Offset<Dimension> ind2sub_itkOffset(mwSize R, mwSize C, mwSize S, 
-					 mwIndex idx);
+itk::Offset<3> ind2sub_itkOffset(mwSize R, mwSize C, mwSize S, mwIndex idx);
 
 /*
  * Block of functions to allow testing of template types
  */
+template< class T1, class T2 >
+struct TypesAreEqual
+{ static const bool value = false; };
+
+template< class T >
+struct TypesAreEqual< T, T >
+{ static const bool value = true; };
+
 template< class T >
 struct TypeIsBool
 { static const bool value = false; };
