@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.4.6
+# Version: 0.5.0
 # $Rev$
 # $Date$
 #
@@ -42,21 +42,11 @@ ENDIF(NOT WIN32)
 
 ADD_MEX_FILE(itk_imfilter 
   GerardusCommon.cpp
-  NrrdImage.cpp
-  MexBaseFilter.cpp
-  MexFilter/MexBinaryThinningImageFilter3D.cpp
-  MexFilter/MexDanielssonDistanceMapImageFilter.cpp
-  MexFilter/MexSignedMaurerDistanceMapImageFilter.cpp
-  MexFilter/MexBinaryDilateImageFilter.cpp
-  MexFilter/MexBinaryErodeImageFilter.cpp
-  MexFilter/MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp
-  MexFilter/MexMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter.cpp
-  MexFilter/MexMedianImageFilter.cpp
+  MatlabImageHeader.cxx
   ItkImFilter.cpp)
 
 INCLUDE_DIRECTORIES(
   .
-  MexFilter
   ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1
   ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/itkBinaryThinningImageFilter3D/Source
   )
