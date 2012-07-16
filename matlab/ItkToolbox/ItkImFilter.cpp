@@ -190,7 +190,7 @@
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
-  * Copyright © 2011 University of Oxford
+  * Copyright © 2011-2012 University of Oxford
   * Version: 1.0.0
   * $Rev$
   * $Date$
