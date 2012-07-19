@@ -5,10 +5,6 @@ function im2 = blockproc3(im, blksz, fun, border, useparallel)
 % provides function blockproc(), that works on 2D images only. This
 % blockproc3() function, on the other hand, works also with 3D images.
 %
-% The original Matlab function blockproc() can run processing in parallel
-% (if the ). This function doesn't
-% support that functionality yet.
-%
 % IM2 = blockproc3(IM, BLKSZ, FUN)
 %
 %   IM is a 2D or 3D-array with a grayscale image.
