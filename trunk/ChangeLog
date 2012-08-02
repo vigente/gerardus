@@ -1,5 +1,9 @@
 2012-08-02  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* matlab/MatlabImportFilter.hxx: (v0.1.1)
+
+	- Fix bug. Missing include of header file.
+
 	* matlab/ItkToolbox/GerardusCommon.hpp
 	* matlab/ItkToolbox/GerardusCommon.cpp
 	* matlab/ItkToolbox/MatlabImageHeader.h
