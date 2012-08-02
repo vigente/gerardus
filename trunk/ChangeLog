@@ -1,3 +1,16 @@
+2012-08-02  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add cpp/src/third-party/CGAL-4.0.2:
+
+	- Third party library. CGAL is the Computational Geometry
+	Algorithms Library. It provides meshing and triangulation
+	capabilities, although at this point we just want to use it to
+	query whether points are inside or outside a polyhedron.
+
+	Downloaded from
+
+	http://www.cgal.org/download.html
+
 2012-07-12  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/ItkToolbox/CMakeLists.txt: (v0.5.0)
