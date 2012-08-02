@@ -1,5 +1,22 @@
 2012-08-02  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* matlab/ItkToolbox/GerardusCommon.hpp
+	* matlab/ItkToolbox/GerardusCommon.cpp
+	* matlab/ItkToolbox/MatlabImageHeader.h
+	* matlab/ItkToolbox/MatlabImageHeader.cxx
+	* matlab/ItkToolbox/MatlabImportFilter.h
+	* matlab/ItkToolbox/MatlabImportFilter.hxx
+	* matlab/ItkToolbox/MatlabExportFilter.h
+	* matlab/ItkToolbox/MatlabExportFilter.hxx
+
+	- Move to matlab/, instead of having them in ItkToolbox, as they
+	can be reused.
+
+	* matlab/ItkToolbox/CMakeLists.txt: (v0.5.1)
+
+	- Move GerardusCommon and Matlab import/export classes to matlab/,
+	instead of having them in ItkToolbox, as they can be reused.
+
 	* Add matlab/FiltersToolbox/scimat_blockproc3.m: (v0.1.0)
 
 	- Block processing for a 3D SCI MAT volume.
