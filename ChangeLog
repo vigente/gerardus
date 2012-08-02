@@ -1,5 +1,13 @@
 2012-08-02  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* Add matlab/FiltersToolbox/scimat_blockproc3.m: (v0.1.0)
+
+	- Block processing for a 3D SCI MAT volume.
+
+	* matlab/FiltersToolbox/blockproc3.m: (v0.2.1)
+
+	- Minor changes to help header.
+
 	* Delete matlab/engopts.sh:
 
 	- It's a relic, we no longer use Matlab's mex function to compile
