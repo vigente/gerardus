@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.5.0
+# Version: 0.5.1
 # $Rev$
 # $Date$
 #
@@ -41,16 +41,31 @@ ENDIF(NOT WIN32)
 ################################################################
 
 ADD_MEX_FILE(itk_imfilter 
-  GerardusCommon.cpp
-  MatlabImageHeader.cxx
+  ../GerardusCommon.cpp
+  ../MatlabImageHeader.cxx
   ItkImFilter.cpp)
 
 INCLUDE_DIRECTORIES(
-  .
+  ..
   ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1
   ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/itkBinaryThinningImageFilter3D/Source
   )
 TARGET_LINK_LIBRARIES(itk_imfilter
+  ${ITK_LIBRARIES})
+
+################################################################
+## itk_registration()
+################################################################
+
+ADD_MEX_FILE(itk_registration 
+  ../GerardusCommon.cpp
+  ../MatlabImageHeader.cxx
+  ItkRegistration.cpp)
+
+INCLUDE_DIRECTORIES(
+  .
+  )
+TARGET_LINK_LIBRARIES(itk_registration
   ${ITK_LIBRARIES})
 
 ################################################################
@@ -69,12 +84,14 @@ IF(WIN32)
   INSTALL(TARGETS
     itk_imfilter
     itk_pstransform
+    itk_registration
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ELSE(WIN32)
   INSTALL(TARGETS
     itk_imfilter
     itk_pstransform
+    itk_registration
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ENDIF(WIN32)
