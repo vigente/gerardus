@@ -1,5 +1,10 @@
 2012-08-02  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* Delete matlab/engopts.sh:
+
+	- It's a relic, we no longer use Matlab's mex function to compile
+	our mex files.
+
 	* Add cpp/src/third-party/CGAL-4.0.2:
 
 	- Third party library. CGAL is the Computational Geometry
