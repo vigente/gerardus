@@ -1,3 +1,14 @@
+2012-08-03  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add cpp/src/third-party/gmp-5.0.5:
+
+	- The GNU Multiple Precision Arithmetic Library is required by
+	CGAL so that CGAL Core can be compiled.
+
+	Downloaded from
+
+	http://gmplib.org/
+
 2012-08-02  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* matlab/MatlabImportFilter.hxx: (v0.1.1)
