@@ -1,5 +1,11 @@
 2012-08-03  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* cpp/src/third-party/gmp-5.0.5/CMakeLists.txt: (v0.1.0)
+
+	- The GMP library is released with an autotool build system. Here,
+	instead of rewriting everything in CMake, we are just going to use
+	CMake as a wrapper of GMP's own build system.
+
 	* Add cpp/src/third-party/mpfr-3.1.1:
 
 	- The MPFR GNU library is required by CGAL so that CGAL Core can
