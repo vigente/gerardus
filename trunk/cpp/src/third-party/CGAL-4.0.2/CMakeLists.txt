@@ -1,8 +1,23 @@
+# This file is provided by the CGAL project.
+# Modifications by Ramon Casero  <ramon.casero@cs.ox.ac.uk> to
+# integrate CGAL within project Gerardus.
+#
+# Version: 0.1.0
+#
+# - Variables have been renamed so that CGAL can be a subproject of
+# Gerardus, e.g. CMAKE_SOURCE_DIR to CGAL_SOURCE_DIR.
+#
+# - We skip building some CGAL libraries that we don't need for
+# Gerardus.
+#
+# - We constrain the file name when listing the files in directory
+# scripts, to avoid getting an error from the .svn directory.
+
 # Top level CMakeLists.txt for CGAL
 # The name of our project is "CGAL".  CMakeLists files in this project can
-# refer to the root source directory of the project as ${CMAKE_SOURCE_DIR} or
-# ${CMAKE_SOURCE_DIR} and to the root binary directory of the project as
-# ${CMAKE_BINARY_DIR} or ${CMAKE_BINARY_DIR}.
+# refer to the root source directory of the project as ${CGAL_SOURCE_DIR} or
+# ${CGAL_SOURCE_DIR} and to the root binary directory of the project as
+# ${CGAL_BINARY_DIR} or ${CGAL_BINARY_DIR}.
 project(CGAL CXX)
 
 # Minimal version of CMake:
@@ -21,6 +36,11 @@ if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" VERSION_GREATER 2.6)
   endif()
 endif()
 
+# gerardus: don't build libraries that we don't need
+set(WITH_CGAL_Qt3 OFF CACHE BOOL "Whether library CGAL_Qt3 is selected")
+set(WITH_CGAL_Qt4 OFF CACHE BOOL "Whether library CGAL_Qt4 is selected")
+set(WITH_CGAL_ImageIO OFF CACHE BOOL "Whether library CGAL_ImageIO is selected")
+
 #--------------------------------------------------------------------------------------------------
 #
 #                                    -= PACKAGE SETUP =-
@@ -32,20 +52,20 @@ if ( CGAL_BRANCH_BUILD )
   message( STATUS "Build CGAL from ${CGAL_SCM_NAME}-branch: ${CGAL_SCM_BRANCH_NAME}" )
 
   # list packages
-  file(GLOB CGAL_CONFIGURED_PACKAGES RELATIVE ${CMAKE_SOURCE_DIR} "${CMAKE_SOURCE_DIR}/*")
+  file(GLOB CGAL_CONFIGURED_PACKAGES RELATIVE ${CGAL_SOURCE_DIR} "${CGAL_SOURCE_DIR}/*")
   list(REMOVE_ITEM CGAL_CONFIGURED_PACKAGES copyright CMakeLists.txt .svn .git)
 
   # detect and remove not existing package-directories
   foreach (package ${CGAL_CONFIGURED_PACKAGES})
-    if (NOT IS_DIRECTORY "${CMAKE_SOURCE_DIR}/${package}")
+    if (NOT IS_DIRECTORY "${CGAL_SOURCE_DIR}/${package}")
       list(APPEND CGAL_WRONG_PACKAGES ${package})
-    elseif(NOT IS_DIRECTORY "${CMAKE_SOURCE_DIR}/${package}/package_info")
+    elseif(NOT IS_DIRECTORY "${CGAL_SOURCE_DIR}/${package}/package_info")
       list(APPEND CGAL_WRONG_PACKAGES ${package})
     endif()
   endforeach()
 
   find_program(CGAL_CREATE_CMAKE_SCRIPT cgal_create_cmake_script
-               HINT ${CMAKE_SOURCE_DIR}/Scripts/scripts
+               HINT ${CGAL_SOURCE_DIR}/Scripts/scripts
 	       DOC "Script cgal_create_cmake_script, that creates CMakeLists.txt files"
 	       NO_DEFAULT_PATH
 	       NO_CMAKE_ENVIRONMENT_PATH)
@@ -58,13 +78,12 @@ if ( CGAL_BRANCH_BUILD )
   set(CGAL_CONFIGURED_PACKAGES_NAMES ${CGAL_CONFIGURED_PACKAGES})
   set(CGAL_CONFIGURED_PACKAGES)
   foreach (package ${CGAL_CONFIGURED_PACKAGES_NAMES})
-    list(APPEND CGAL_CONFIGURED_PACKAGES "${CMAKE_SOURCE_DIR}/${package}")
+    list(APPEND CGAL_CONFIGURED_PACKAGES "${CGAL_SOURCE_DIR}/${package}")
   endforeach()
 
-
-  set(CGAL_INSTALLATION_PACKAGE_DIR "${CMAKE_SOURCE_DIR}/Installation" CACHE PATH "Directory containing the Installation package")
-  set(CGAL_MAINTENANCE_PACKAGE_DIR "${CMAKE_SOURCE_DIR}/Maintenance" CACHE PATH "Directory containing the Maintenance package")
-  set(CGAL_CORE_PACKAGE_DIR "${CMAKE_SOURCE_DIR}/Core" CACHE PATH "Directory containing the Core package")
+  set(CGAL_INSTALLATION_PACKAGE_DIR "${CGAL_SOURCE_DIR}/Installation" CACHE PATH "Directory containing the Installation package")
+  set(CGAL_MAINTENANCE_PACKAGE_DIR "${CGAL_SOURCE_DIR}/Maintenance" CACHE PATH "Directory containing the Maintenance package")
+  set(CGAL_CORE_PACKAGE_DIR "${CGAL_SOURCE_DIR}/Core" CACHE PATH "Directory containing the Core package")
   mark_as_advanced(CGAL_INSTALLATION_PACKAGE_DIR)
   mark_as_advanced(CGAL_MAINTENANCE_PACKAGE_DIR)
   mark_as_advanced(CGAL_CORE_PACKAGE_DIR)
@@ -76,20 +95,20 @@ if ( CGAL_BRANCH_BUILD )
 else ( CGAL_BRANCH_BUILD )
 
   # get release name
-  file(TO_CMAKE_PATH ${CMAKE_SOURCE_DIR} CMAKE_SOURCE_CDIR)
-  string(REGEX REPLACE "^/" "" CMAKE_SOURCE_DDIR ${CMAKE_SOURCE_CDIR})
-  string(REPLACE "/" ";" CMAKE_SOURCE_PDIR ${CMAKE_SOURCE_DDIR})
-  list(GET CMAKE_SOURCE_PDIR -1 CGAL_RELEASE_NAME)
+  file(TO_CMAKE_PATH ${CGAL_SOURCE_DIR} CGAL_SOURCE_CDIR)
+  string(REGEX REPLACE "^/" "" CGAL_SOURCE_DDIR ${CGAL_SOURCE_CDIR})
+  string(REPLACE "/" ";" CGAL_SOURCE_PDIR ${CGAL_SOURCE_DDIR})
+  list(GET CGAL_SOURCE_PDIR -1 CGAL_RELEASE_NAME)
   message( STATUS "Build CGAL from release in directory ${CGAL_RELEASE_NAME}" )
 
   set(CGAL_CONFIGURED_PACKAGES_NAMES ${CGAL_RELEASE_NAME})
 
   # list packages
-  set(CGAL_CONFIGURED_PACKAGES "${CMAKE_SOURCE_DIR}")
+  set(CGAL_CONFIGURED_PACKAGES "${CGAL_SOURCE_DIR}")
 
-  set(CGAL_INSTALLATION_PACKAGE_DIR "${CMAKE_SOURCE_DIR}" CACHE PATH "Directory containing the Installation package")
-  set(CGAL_MAINTENANCE_PACKAGE_DIR "${CMAKE_SOURCE_DIR}" CACHE PATH "Directory containing the Maintenance package")
-  set(CGAL_CORE_PACKAGE_DIR "${CMAKE_SOURCE_DIR}" CACHE PATH "Directory containing the Core package")
+  set(CGAL_INSTALLATION_PACKAGE_DIR "${CGAL_SOURCE_DIR}" CACHE PATH "Directory containing the Installation package")
+  set(CGAL_MAINTENANCE_PACKAGE_DIR "${CGAL_SOURCE_DIR}" CACHE PATH "Directory containing the Maintenance package")
+  set(CGAL_CORE_PACKAGE_DIR "${CGAL_SOURCE_DIR}" CACHE PATH "Directory containing the Core package")
 
 endif (CGAL_BRANCH_BUILD )
 
@@ -112,7 +131,7 @@ if ( CGAL_BRANCH_BUILD )
   set(CGAL_BUILD_VERSION 900)
 
   message( STATUS "Generate VERSION file")
-  file(REMOVE ${CMAKE_BINARY_DIR}/VERSION)
+  file(REMOVE ${CGAL_BINARY_DIR}/VERSION)
   if (CGAL_BUGFIX_VERSION AND CGAL_BUGFIX_VERSION GREATER 0)  
     set(CGAL_CREATED_VERSION_NUM "${CGAL_MAJOR_VERSION}.${CGAL_MINOR_VERSION}.${CGAL_BUGFIX_VERSION}")
   else()
@@ -123,7 +142,7 @@ if ( CGAL_BRANCH_BUILD )
   set(CGAL_CREATED_VERSION "${CGAL_CREATED_VERSION_NUM}-I-${CGAL_BUILD_VERSION}")
   set(CGAL_VERSION "${CGAL_CREATED_VERSION_NUM}-I-${CGAL_BUILD_VERSION}")
 
-  file(WRITE "${CMAKE_BINARY_DIR}/VERSION" "${CGAL_CREATED_VERSION_NUM}")
+  file(WRITE "${CGAL_BINARY_DIR}/VERSION" "${CGAL_CREATED_VERSION_NUM}")
 
   message( STATUS "Generate version.h file")
 
@@ -158,7 +177,7 @@ if ( CGAL_BRANCH_BUILD )
   if ( ${CGAL_SCM_NAME} STREQUAL "svn" )
 
     # The function Subversion_GET_REVISION is defined in ../CMakeLists.txt
-    Subversion_GET_REVISION("${CMAKE_SOURCE_DIR}" CGAL_TMP_REVISION)
+    Subversion_GET_REVISION("${CGAL_SOURCE_DIR}" CGAL_TMP_REVISION)
     set(CGAL_CREATED_SVN_REVISION "${CGAL_TMP_REVISION}")
     message(STATUS "CGAL_SVN_REVISION is ${CGAL_TMP_REVISION}")
   
@@ -172,8 +191,8 @@ if ( CGAL_BRANCH_BUILD )
     message(STATUS "CGAL_GIT_HASH is ${CGAL_GIT_HASH}")
   endif()
 
-  file(REMOVE ${CMAKE_BINARY_DIR}/include/CGAL/version.h)
-  configure_file(${CGAL_INSTALLATION_PACKAGE_DIR}/config/version.h.in ${CMAKE_BINARY_DIR}/include/CGAL/version.h @ONLY)
+  file(REMOVE ${CGAL_BINARY_DIR}/include/CGAL/version.h)
+  configure_file(${CGAL_INSTALLATION_PACKAGE_DIR}/config/version.h.in ${CGAL_BINARY_DIR}/include/CGAL/version.h @ONLY)
 
   #
   # Duplicate files
@@ -229,7 +248,7 @@ if ( CGAL_BRANCH_BUILD )
 
 else()
 
-  if (NOT EXISTS "${CMAKE_SOURCE_DIR}/VERSION" OR NOT EXISTS "${CMAKE_SOURCE_DIR}/include/CGAL/version.h")
+  if (NOT EXISTS "${CGAL_SOURCE_DIR}/VERSION" OR NOT EXISTS "${CGAL_SOURCE_DIR}/include/CGAL/version.h")
     message(FATAL_ERROR "File VERSION or include/CGAL/version.h are missing, required by release-build.")
   endif()
 
@@ -237,7 +256,7 @@ else()
   # Read and parse CGAL version number from VERSION file
   #
 
-  file( READ "${CMAKE_SOURCE_DIR}/VERSION" CGAL_VERSION )
+  file( READ "${CGAL_SOURCE_DIR}/VERSION" CGAL_VERSION )
   set(CGAL_FULL_VERSION ${CGAL_VERSION})
   string( REPLACE "-" "." CGAL_VERSION_TOKENS1 ${CGAL_VERSION} )
   string( REPLACE "." ";" CGAL_VERSION_TOKENS ${CGAL_VERSION_TOKENS1} )
@@ -509,14 +528,14 @@ file(GLOB all_config_tests "${CGAL_INSTALLATION_PACKAGE_DIR}/config/testfiles/*.
 
 list( SORT all_config_tests )
 
-file( WRITE ${CMAKE_BINARY_DIR}/include/CGAL/compiler_config.h "//\n// compiler_config.h is included by CGAL headers to load the needed compiler settings.\n//\n// DO NOT EDIT compiler_config.h. It is generated by CMake.\n//\n\n")
+file( WRITE ${CGAL_SOURCE_DIR}/include/CGAL/compiler_config.h "//\n// compiler_config.h is included by CGAL headers to load the needed compiler settings.\n//\n// DO NOT EDIT compiler_config.h. It is generated by CMake.\n//\n\n")
 
 macro( add_config_flag flag )
 
     if ( ${flag} )
-      file( APPEND ${CMAKE_BINARY_DIR}/include/CGAL/compiler_config.h "#define ${flag} 1\n\n")
+      file( APPEND ${CGAL_SOURCE_DIR}/include/CGAL/compiler_config.h "#define ${flag} 1\n\n")
     else()
-      file( APPEND ${CMAKE_BINARY_DIR}/include/CGAL/compiler_config.h "//#define ${flag} 1\n\n")
+      file( APPEND ${CGAL_SOURCE_DIR}/include/CGAL/compiler_config.h "//#define ${flag} 1\n\n")
     endif()
 
 endmacro()
@@ -562,7 +581,7 @@ add_config_flag( CGAL_USE_CORE )
 # as external lib and not as CGAL component (EBEB: 24 Jan 2012)
 
 if ( RUNNING_CGAL_AUTO_TEST AND MSVC )
-  file( APPEND "${CMAKE_BINARY_DIR}/include/CGAL/compiler_config.h" "#include <CGAL/Testsuite/vc_debug_hook.h>\n\n" )
+  file( APPEND "${CGAL_SOURCE_DIR}/include/CGAL/compiler_config.h" "#include <CGAL/Testsuite/vc_debug_hook.h>\n\n" )
 endif()
 
 #--------------------------------------------------------------------------------------------------
@@ -571,28 +590,28 @@ endif()
 #
 #--------------------------------------------------------------------------------------------------
 
-set ( CGAL_INSTALL_INC_DIR "include" CACHE STRING "The folder where CGAL header files will be installed, relative to CMAKE_INSTALL_PREFIX" )
-set ( CGAL_INSTALL_LIB_DIR "lib"     CACHE STRING "The folder where CGAL libraries will be installed, relative to CMAKE_INSTALL_PREFIX" )
+set ( CGAL_INSTALL_INC_DIR "include" CACHE STRING "The folder where CGAL header files will be installed, relative to CGAL_INSTALL_PREFIX" )
+set ( CGAL_INSTALL_LIB_DIR "lib"     CACHE STRING "The folder where CGAL libraries will be installed, relative to CGAL_INSTALL_PREFIX" )
 
 if ( CGAL_WIN32_CMAKE_ON_CYGWIN )
-  exec_program(cygpath ARGS -w "${CMAKE_INSTALL_PREFIX}" OUTPUT_VARIABLE CMAKE_INSTALL_PREFIX2 )
-  file ( TO_CMAKE_PATH ${CMAKE_INSTALL_PREFIX2} CMAKE_INSTALL_PREFIX )
+  exec_program(cygpath ARGS -w "${CGAL_INSTALL_PREFIX}" OUTPUT_VARIABLE CGAL_INSTALL_PREFIX2 )
+  file ( TO_CMAKE_PATH ${CGAL_INSTALL_PREFIX2} CGAL_INSTALL_PREFIX )
 endif()
 
 set ( CGAL_INSTALL_BIN_DIR    "bin"                     
-  CACHE STRING "The folder where CGAL user-side scripts will be installed, relative to CMAKE_INSTALL_PREFIX" 
+  CACHE STRING "The folder where CGAL user-side scripts will be installed, relative to CGAL_INSTALL_PREFIX" 
   )
 
 set ( CGAL_INSTALL_CMAKE_DIR "${CGAL_INSTALL_LIB_DIR}/CGAL"
-  CACHE STRING "The folder where CGAL CMake modules will be installed, relative to CMAKE_INSTALL_PREFIX" 
+  CACHE STRING "The folder where CGAL CMake modules will be installed, relative to CGAL_INSTALL_PREFIX" 
   )
 
 set ( CGAL_INSTALL_DOC_DIR "share/doc/${CGAL_VERSION_DIR}"  
-  CACHE STRING "The folder where CGAL documentation and license files will be installed, relative to CMAKE_INSTALL_PREFIX" 
+  CACHE STRING "The folder where CGAL documentation and license files will be installed, relative to CGAL_INSTALL_PREFIX" 
   )
 
 set ( CGAL_INSTALL_MAN_DIR "share/man/man1"  
-  CACHE STRING "The folder where manual pages for CGAL scripts will be installed, relative to CMAKE_INSTALL_PREFIX" 
+  CACHE STRING "The folder where manual pages for CGAL scripts will be installed, relative to CGAL_INSTALL_PREFIX" 
   )
 
 #--------------------------------------------------------------------------------------------------
@@ -601,9 +620,9 @@ set ( CGAL_INSTALL_MAN_DIR "share/man/man1"
 #
 #--------------------------------------------------------------------------------------------------
 
-set(CGAL_LIBRARIES_DIR ${CMAKE_BINARY_DIR}/lib)
+set(CGAL_LIBRARIES_DIR ${CGAL_BINARY_DIR}/lib)
 
-set(CGAL_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/include)
+set(CGAL_INCLUDE_DIRS ${CGAL_BINARY_DIR}/include)
 
 foreach (package ${CGAL_CONFIGURED_PACKAGES})
   set(CGAL_INCLUDE_DIRS ${CGAL_INCLUDE_DIRS} ${package}/include)
@@ -704,9 +723,9 @@ foreach (dir ${CGAL_CONFIGURED_PACKAGES})
     install(DIRECTORY ${dir}/include/CGAL              DESTINATION ${CGAL_INSTALL_INC_DIR} PATTERN ".svn" EXCLUDE)
   endif()
 endforeach()
-install(DIRECTORY ${CMAKE_BINARY_DIR}/include/CGAL     DESTINATION ${CGAL_INSTALL_INC_DIR} PATTERN ".svn" EXCLUDE)
+install(DIRECTORY ${CGAL_BINARY_DIR}/include/CGAL     DESTINATION ${CGAL_INSTALL_INC_DIR} PATTERN ".svn" EXCLUDE)
 
-file(GLOB scripts "scripts/*")
+file(GLOB scripts "scripts/cgal_*")
 list(REMOVE_ITEM scripts 
   ${CMAKE_CURRENT_SOURCE_DIR}/scripts/cgal_create_assertions.sh 
   ${CMAKE_CURRENT_SOURCE_DIR}/scripts/cgal_create_cmake_script_with_options)
@@ -732,7 +751,7 @@ if ( ZLIB_IN_AUXILIARY )
 endif()
 
 
-install(FILES ${CMAKE_BINARY_DIR}/config/CGALConfig.cmake DESTINATION ${CGAL_INSTALL_CMAKE_DIR} )
+install(FILES ${CGAL_BINARY_DIR}/config/CGALConfig.cmake DESTINATION ${CGAL_INSTALL_CMAKE_DIR} )
 
 if(CGAL_INSTALL_MAN_DIR)
   install(FILES auxiliary/cgal_create_cmake_script.1 DESTINATION ${CGAL_INSTALL_MAN_DIR} )
@@ -781,7 +800,7 @@ macro( add_programs subdir target ON_OFF )
 endmacro()
 
 # This allows programs to locate CGALConfig.cmake
-set(CGAL_DIR ${CMAKE_BINARY_DIR} )
+set(CGAL_DIR ${CGAL_BINARY_DIR} )
 
 if ( NOT RUNNING_CGAL_AUTO_TEST )
 
