@@ -1,3 +1,12 @@
+# This file is provided by the CGAL project.
+# Modifications by Ramon Casero  <ramon.casero@cs.ox.ac.uk> to
+# integrate CGAL within project Gerardus.
+#
+# Version: 0.1.0
+#
+# - Fix bug. Variable names had not been enclosed in ${}, and where
+# being ignored.
+
 # Try to find the MPFR libraries
 # MPFR_FOUND - system has MPFR lib
 # MPFR_INCLUDE_DIR - the MPFR include directory
@@ -26,19 +35,21 @@ if (MPFR_in_cache)
   
 else()  
 
+  MESSAGE("FOO: " ${MPFR_INC_DIR})
   find_path(MPFR_INCLUDE_DIR 
-            NAMES mpfr.h 
-            PATHS ENV MPFR_INC_DIR
-                  ${CGAL_INSTALLATION_PACKAGE_DIR}/auxiliary/gmp/include
-  	    DOC "The directory containing the MPFR header files"
-           )
+    NAMES mpfr.h 
+    PATHS ${ENV} ${MPFR_INC_DIR}
+    ${CGAL_INSTALLATION_PACKAGE_DIR}/auxiliary/gmp/include
+    DOC "The directory containing the MPFR header files"
+    )
+  MESSAGE("Hola: " ${MPFR_INCLUDE_DIR})
 
   if ( MPFR_INCLUDE_DIR STREQUAL "${CGAL_INSTALLATION_PACKAGE_DIR}/auxiliary/gmp/include" )
     cache_set( MPFR_IN_CGAL_AUXILIARY TRUE )
   endif()
   
   find_library(MPFR_LIBRARIES NAMES mpfr libmpfr-4 libmpfr-1
-    PATHS ENV MPFR_LIB_DIR
+    PATHS ${ENV} ${MPFR_LIB_DIR}
     ${CGAL_INSTALLATION_PACKAGE_DIR}/auxiliary/gmp/lib
     DOC "Path to the MPFR library"
     )

@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2010-2011 University of Oxford
-# Version: 0.1.2
+# Version: 0.1.3
 # $Rev$
 # $Date$
 #
@@ -99,6 +99,12 @@ TARGET_LINK_LIBRARIES(rigidRegistration2D
 
 # call the subprojects
 ADD_SUBDIRECTORY(third-party/mba)
+
+ADD_SUBDIRECTORY(third-party/gmp-5.0.5)
+
+ADD_SUBDIRECTORY(third-party/mpfr-3.1.1)
+
+ADD_SUBDIRECTORY(third-party/CGAL-4.0.2)
 # ADD_SUBDIRECTORY(third-party/cquammen-Clarity)
 
 ################################################################

@@ -1,3 +1,12 @@
+# This file is provided by the CGAL project.
+# Modifications by Ramon Casero  <ramon.casero@cs.ox.ac.uk> to
+# integrate CGAL within project Gerardus.
+#
+# Version: 0.1.0
+#
+# - Fix bug. Variable names had not been enclosed in ${}, and where
+# being ignored.
+
 # Try to find the GMP libraries
 # GMP_FOUND - system has GMP lib
 # GMP_INCLUDE_DIR - the GMP include directory
@@ -21,24 +30,25 @@ endif()
 
 # Is it already configured?
 if (GMP_in_cache)
-   
+
   set(GMP_FOUND TRUE)
   
 else()  
+  
+  find_path(GMP_INCLUDE_DIR
+    NAMES gmp.h 
+    PATHS ${ENV} ${GMP_INC_DIR}
+    ${CGAL_INSTALLATION_PACKAGE_DIR}/auxiliary/gmp/include
+    DOC "The directory containing the GMP header files"
+    )
 
-  find_path(GMP_INCLUDE_DIR 
-            NAMES gmp.h 
-            PATHS ENV GMP_INC_DIR
-                  ${CGAL_INSTALLATION_PACKAGE_DIR}/auxiliary/gmp/include
-  	        DOC "The directory containing the GMP header files"
-           )
-
-  if ( GMP_INCLUDE_DIR STREQUAL "${CGAL_INSTALLATION_PACKAGE_DIR}/auxiliary/gmp/include" )
-    cache_set( GMP_IN_CGAL_AUXILIARY TRUE )
+  if (GMP_INCLUDE_DIR STREQUAL 
+      "${CGAL_INSTALLATION_PACKAGE_DIR}/auxiliary/gmp/include" )
+    cache_set(GMP_IN_CGAL_AUXILIARY TRUE)
   endif()
   
   find_library(GMP_LIBRARIES NAMES gmp libgmp-10
-    PATHS ENV GMP_LIB_DIR
+    PATHS ${ENV} ${GMP_LIB_DIR}
     ${CGAL_INSTALLATION_PACKAGE_DIR}/auxiliary/gmp/lib
     DOC "Path to the GMP library"
     )
