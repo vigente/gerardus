@@ -1,3 +1,11 @@
+# This file is provided by the CGAL project.
+# Modifications by Ramon Casero  <ramon.casero@cs.ox.ac.uk> to
+# integrate CGAL within project Gerardus.
+#
+# Version: 0.1.0
+#
+# - Add dependency to libraries GMP and MPFR.
+
 project (CGAL_Core)
    
 # Minimal version of CMake:
@@ -22,7 +30,7 @@ include_directories( ${CGAL_3RD_PARTY_INCLUDE_DIRS} )
 
 build_cgal_library(CGAL_Core CGALCore "")
 
-add_dependencies( CGAL_Core CGAL )
+add_dependencies(CGAL_Core CGAL gmp mpfr)
 
 add_definitions ( ${CGAL_3RD_PARTY_DEFINITIONS} )
   

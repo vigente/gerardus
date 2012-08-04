@@ -1,3 +1,48 @@
+2012-08-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* cpp/src/CMakeLists.txt: (v0.1.3)
+
+	- Add build of GMP, MPFR and CGAL libraries.
+
+	* Add cpp/src/third-party/mpfr-3.1.1/CMakeLists.txt: (v0.1.0)
+
+	- The MPFR library is released with an autotool build
+	system. Here, instead of rewriting everything in CMake, we are
+	just going to use CMake as a wrapper of MPFR's own build system.
+
+	* cpp/src/third-party/gmp-5.0.5/CMakeLists.txt: (v0.2.0)
+
+	- Replace add_custom_command() by execute_process() to wrap the
+	autotools build system of GMP. Effectively, this means that we
+	will compile and install the library at configuration (cmake)
+	rather than compilation (make )time. The reason is that CGAL's
+	configuration needs GMP and MPFR to have been compiled and
+	installed before it can be configured.
+
+	* cpp/src/third-party/CGAL-4.0.2/src/CGALCore/CMakeLists.txt:
+	(v0.1.0)
+
+	- Add dependency to libraries GMP and MPFR.
+
+	* cpp/src/third-party/CGAL-4.0.2/cmake/modules/FindGMP.cmake:
+	(v0.1.0)
+	* cpp/src/third-party/CGAL-4.0.2/cmake/modules/FindMPFR.cmake:
+	(v0.1.0)
+
+	- Fix bug. Variable names had not been enclosed in ${}, and where
+	being ignored.
+
+	* cpp/src/third-party/CGAL-4.0.2/CMakeLists.txt: (v0.1.0)
+
+	- Variables have been renamed so that CGAL can be a subproject of
+	Gerardus, e.g. CMAKE_SOURCE_DIR to CGAL_SOURCE_DIR.
+
+	- We skip building some CGAL libraries that we don't need for
+	Gerardus.
+
+	- We constrain the file name when listing the files in directory
+	scripts, to avoid getting an error from the .svn directory.
+
 2012-08-03  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* cpp/src/third-party/gmp-5.0.5/CMakeLists.txt: (v0.1.0)
