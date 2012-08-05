@@ -12,8 +12,8 @@ function [xg, yg, zg] = scinrrd_ndgrid(nrrd)
 %   rows, to accommodate the usual coordinate frame convention.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010 University of Oxford
-% Version: 0.1.0
+% Copyright © 2010-2012 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -41,20 +41,24 @@ function [xg, yg, zg] = scinrrd_ndgrid(nrrd)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 1, nargin, 'struct' ) );
-error( nargoutchk( 0, 3, nargout, 'struct' ) );
+error(nargchk(1, 1, nargin, 'struct' ));
+error(nargoutchk(0, 3, nargout, 'struct'));
 
 % squeeze the non-used first dimension of data
-nrrd = scinrrd_squeeze( nrrd );
+nrrd = scinrrd_squeeze(nrrd);
 
 % get image vertices
-vmin = [ nrrd.axis.min ];
-vmax = [ nrrd.axis.max ];
+vmin = [nrrd.axis.min];
+vmax = [nrrd.axis.max];
 
 % get voxel size
-res = [ nrrd.axis.spacing ];
+res = [nrrd.axis.spacing];
+
+% point to voxel centres instead of voxel left edge
+vmin = vmin + res/2;
+vmax = vmax + res/2;
 
 % generate 3D grid of coordinates: note the inversion of coordinates,
 % necessary so that xg will change with columns, and yg with rows
-[ yg, xg, zg ] = ndgrid( vmin(1):res(1):vmax(1), ...
-    vmin(2):res(2):vmax(2), vmin(3):res(3):vmax(3) );
+[yg, xg, zg] = ndgrid(vmin(1):res(1):vmax(1), ...
+    vmin(2):res(2):vmax(2), vmin(3):res(3):vmax(3));
