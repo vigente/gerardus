@@ -137,7 +137,7 @@ end
 
 % convert indices to real world coordinates
 for I = 1:D
-    x(:, I) = (idx(:, I) - .5) * dx(I) + xmin(I) + dx(I)/2;
+    x(:, I) = (idx(:, I) - 1) * dx(I) + xmin(I) + dx(I)/2;
 end
 
 % (y, x, z) => (x, y, z)
