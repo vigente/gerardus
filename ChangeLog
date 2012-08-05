@@ -8,6 +8,8 @@
 
 	http://www.mathworks.com/matlabcentral/fileexchange/27390-mesh-voxelisation
 
+	This function was recommended by Valentina Carapella.
+
 	* matlab/FileFormatToolbox/scinrrd_index2world.m: (v0.2.1)
 	* matlab/FileFormatToolbox/scinrrd_world2index.m: (v0.2.2)
 
