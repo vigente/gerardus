@@ -1,3 +1,10 @@
+2012-08-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* matlab/FiltersToolbox/scinrrd_ndgrid.m: (v0.1.1)
+
+	- Fix bug. Give coordinates of centre of voxels, instead of left
+	edge.
+
 2012-08-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* cpp/src/CMakeLists.txt: (v0.1.3)
