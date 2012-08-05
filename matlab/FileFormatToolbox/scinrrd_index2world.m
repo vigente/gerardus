@@ -71,8 +71,8 @@ function x = scinrrd_index2world(idx, ax, CHOP)
 % See also: scinrrd_world2index.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2009-2011 University of Oxford
-% Version: 0.2.0
+% Copyright © 2009-2012 University of Oxford
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -137,7 +137,7 @@ end
 
 % convert indices to real world coordinates
 for I = 1:D
-    x(:, I) = (idx(:, I) - .5) * dx(I) + xmin(I);
+    x(:, I) = (idx(:, I) - .5) * dx(I) + xmin(I) + dx(I)/2;
 end
 
 % (y, x, z) => (x, y, z)
