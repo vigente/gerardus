@@ -1,5 +1,13 @@
 2012-08-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* Add matlab/ThirdPartyToolbox/MeshVoxelisation:
+
+	- Function to voxelise a closed (ie. watertight)
+	triangular-polygon mesh. By Adam H. Aitkenhead. Downloaded from
+	here
+
+	http://www.mathworks.com/matlabcentral/fileexchange/27390-mesh-voxelisation
+
 	* matlab/FileFormatToolbox/scinrrd_index2world.m: (v0.2.1)
 	* matlab/FileFormatToolbox/scinrrd_world2index.m: (v0.2.2)
 
