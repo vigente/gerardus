@@ -134,7 +134,7 @@ x = x(:, [2 1 3]);
 
 % convert real world coordinates to indices
 for I = 1:D
-    idx(:, I) = (x(:, I) - xmin(I) - dx(I)/2) / dx(I) + .5;
+    idx(:, I) = (x(:, I) - xmin(I) - dx(I)/2) / dx(I) + 1;
 end
 
 
