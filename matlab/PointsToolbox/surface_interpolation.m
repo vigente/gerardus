@@ -1,5 +1,5 @@
 function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM, nlev)
-% surface_interpolation  Interpolate a surface from a scattered set of points
+% SURFACE_INTERPOLATION  Interpolate a surface from a scattered set of points
 %
 % [XI, EM, GX, GY] = surface_interpolation(X)
 %
