@@ -1,5 +1,10 @@
 2012-08-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* Add matlab/FiltersToolbox/scimat_local_convhull.m: (v0.1.0)
+
+	- SCIMAT_LOCAL_CONVHULL  Smoothing of a binary image using a local
+	convex hull.
+
 	* Add ThirdPartyToolbox/alphavol.m:
 	* Add ThirdPartyToolbox/license-alphavol.txt:
 
