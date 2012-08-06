@@ -1,3 +1,12 @@
+2012-08-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add ThirdPartyToolbox/alphavol.m:
+	* Add ThirdPartyToolbox/license-alphavol.txt:
+
+	- Add alpha-shapes function by Jonas Lundgren, last updat 08 Mar 2012,
+
+	http://www.mathworks.nl/matlabcentral/fileexchange/28851-alpha-shapes
+
 2012-08-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* Add matlab/ThirdPartyToolbox/MeshVoxelisation:
