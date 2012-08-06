@@ -183,6 +183,15 @@ labmathmorph.m
 	 LABMATHMORPH  Mathematical morphology operators on a labelled
 	 segmentation, one label at a time
 	
+scimat_blockproc3.m
+
+	 SCIMAT_BLOCKPROC3  Block processing for a 3D SCI MAT volume
+	
+scimat_lconvhull_smoothing.m
+
+	 SCIMAT_LCONVHULL_SMOOTHING  Smoothing of a binary image using a local
+	 convex hull
+	
 scinrrd_box.m
 
 	 SCINRRD_BOX  Compute tight box around SCI NRRD segmentation
@@ -284,7 +293,7 @@ ItkToolbox
 
 itk_imfilter.m
 
-	 ITK_IMFILTER: Run ITK filter on a 2D or 3D image
+	 ITK_IMFILTER: Run ITK filter on a 2D, 3D, 4D or 5D image
 	
 itk_pstransform.m
 
@@ -473,6 +482,10 @@ vec2rotmat.m
 ThirdPartyToolbox
 -------------------------------------------------------------
 
+alphavol.m
+
+	 ALPHAVOL Alpha shape of 2D or 3D point set.
+	
 dijkstra.m
 
 	 DIJKSTRA  Shortests path tree from sparse matrix graph
