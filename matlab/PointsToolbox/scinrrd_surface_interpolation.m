@@ -1,5 +1,5 @@
 function nrrd = scinrrd_surface_interpolation(nrrd, x, PARAM, INTERP, KLIM, nlev)
-% scinrrd_surface_interpolation  Interpolate a surface and create a
+% SCINRRD_SURFACE_INTERPOLATION  Interpolate a surface and create a
 % segmentation mask from a scattered set of points
 %
 % NRRD = scinrrd_surface_interpolation(NRRD0, X)
