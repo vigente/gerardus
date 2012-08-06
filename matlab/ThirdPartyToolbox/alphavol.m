@@ -1,5 +1,6 @@
 function [V,S] = alphavol(X,R,fig)
-%ALPHAVOL Alpha shape of 2D or 3D point set.
+% ALPHAVOL Alpha shape of 2D or 3D point set.
+%
 %   V = ALPHAVOL(X,R) gives the area or volume V of the basic alpha shape
 %   for a 2D or 3D point set. X is a coordinate matrix of size Nx2 or Nx3.
 %
