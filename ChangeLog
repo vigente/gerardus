@@ -1,5 +1,10 @@
 2012-08-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
+	* FiltersToolbox/scinrrd_ndgrid.m: (v0.2.0)
+
+	- Add ri, ci, si variables so that the user can enter the indices
+	of the image block the grid should be generated for.
+
 	* Add matlab/FiltersToolbox/scimat_local_convhull.m: (v0.1.0)
 
 	- SCIMAT_LOCAL_CONVHULL  Smoothing of a binary image using a local
