@@ -1,19 +1,28 @@
-function [xg, yg, zg] = scinrrd_ndgrid(nrrd)
+function [xg, yg, zg] = scinrrd_ndgrid(nrrd, ri, ci, si)
 % SCINRRD_NDGRID  Generation of arrays for 3D SCI NRRD image volumes
 %
-% [XG, YG, ZG] = SCINRRD_NDGRID(NRRD)
+% [XG, YG, ZG] = scinrrd_ndgrid(NRRD)
 %
-%   NRRD is a SCI image volume.
+%   NRRD is a SCI MAT image volume.
 %
 %   XG, YG, ZG are arrays with the x-, y-, z-coordinates of the voxels in
 %   NRRD.
 %
 %   Note that XG values change with columns, and YG values change with
 %   rows, to accommodate the usual coordinate frame convention.
+%
+% [XG, YG, ZG] = scinrrd_ndgrid(NRRD, RI, CI, SI)
+%
+%   RI, CI, SI are vectors of voxel indices (rows, columns and slices). The
+%   output grid will be generated only for the corresponding image block.
+%   For example, RI=1:4, CI=3:6, SI=5:7 means that the grid of coordinates
+%   will be generated only for the block of voxels (1:4, 3:6, 5:7).
+%
+% See also: ndgrid.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2012 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -41,24 +50,31 @@ function [xg, yg, zg] = scinrrd_ndgrid(nrrd)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 1, nargin, 'struct' ));
+error(nargchk(1, 4, nargin, 'struct' ));
 error(nargoutchk(0, 3, nargout, 'struct'));
 
 % squeeze the non-used first dimension of data
 nrrd = scinrrd_squeeze(nrrd);
 
-% get image vertices
-vmin = [nrrd.axis.min];
-vmax = [nrrd.axis.max];
+% defaults
+if (nargin < 2 || isempty(ri))
+    ri = 1:size(nrrd.data, 1);
+end
+if (nargin < 3 || isempty(ci))
+    ci = 1:size(nrrd.data, 2);
+end
+if (nargin < 4 || isempty(si))
+    si = 1:size(nrrd.data, 3);
+end
 
-% get voxel size
+% local variables
 res = [nrrd.axis.spacing];
 
-% point to voxel centres instead of voxel left edge
-vmin = vmin + res/2;
-vmax = vmax + res/2;
+% convert indices to real world coordinates
+r = (ri - 1) * res(1) + nrrd.axis(1).min + res(1)/2;
+c = (ci - 1) * res(2) + nrrd.axis(2).min + res(2)/2;
+s = (si - 1) * res(3) + nrrd.axis(3).min + res(3)/2;
 
 % generate 3D grid of coordinates: note the inversion of coordinates,
 % necessary so that xg will change with columns, and yg with rows
-[yg, xg, zg] = ndgrid(vmin(1):res(1):vmax(1), ...
-    vmin(2):res(2):vmax(2), vmin(3):res(3):vmax(3));
+[yg, xg, zg] = ndgrid(r, c, s);
