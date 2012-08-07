@@ -354,6 +354,10 @@ extmat2rotmat.m
 	 EXTMAT2ROTMAT  Convert rotation in extended matrix form into centroid and
 	 matrix pair
 	
+findpeaksn.m
+
+	 FINDPEAKSN  Find local peaks (local maxima) in n-dimensional data
+	
 gram2dsq.m
 
 	 GRAM2DSQ  Convert Gram matrix to squared distance matrix

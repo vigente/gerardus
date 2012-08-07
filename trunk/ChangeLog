@@ -1,3 +1,9 @@
+2012-08-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+
+	* Add matlab/PointsToolbox/findpeaksn.m: (v0.1.0)
+
+	- Find local peaks (local maxima) in n-dimensional data.
+
 2012-08-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* FiltersToolbox/scinrrd_ndgrid.m: (v0.2.0)
