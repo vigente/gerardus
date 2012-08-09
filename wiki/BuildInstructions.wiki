@@ -95,16 +95,17 @@ $ cmake -DBUILD_SHARED_LIBS=ON -DITK_USE_REVIEW=ON \
   * Note for Windows users: It's important to select "Release" instead of "Debug" from the pull-down configuration menu above the Solution Explorer. This will enable to build and install the Release version of ITK, which will then be needed by the Release build of Gerardus
   * Note for Windows users: Click on "Start" -> "My computer" -> "View system information", and in the "Advanced" tab click on "Environment Variables". Select the System variable `Path`, and click "Edit". Add the path to the `ITKCOMMON.DLL` library, e.g. "C:\Program Files\ITK\bin"
  * [http://www.boost.org/ Boost C++ libraries], development version (Gerardus tested with v1.46 for linux and v1.47 for Windows)
-  * Note for Linux users: You can install the boost libraries with e.g.
+  * Not all of Boost is required, only the following libraries: filesystem, system and thread.
+   * Note for Linux users: You can install the boost libraries with e.g.
 {{{
-$ sudo apt-get install libboost-filesystem-dev libboost-system-dev
+$ sudo apt-get install libboost-filesystem-dev libboost-system-dev libboost-thread-dev
 }}}
-  * Note for Mac users: if you have [http://www.macports.org/install.php MacPorts] installed, you can easily install Boost using
+   * Note for Mac users: if you have [http://www.macports.org/install.php MacPorts] installed, you can easily install Boost using
 {{{
 $ sudo port install boost
 }}}
-  * Note for Windows 32 bit users: Use the [http://www.boostpro.com/download/ installer from BoostPro], !BoostPro 1.47.0 Installer (205K .exe) as of this writing.
-  * Note for Windows 64 bit users: The libraries are not available in !BoostPro. It is necessary to download the source code, and [http://www.boost.org/doc/libs/1_47_0/more/getting_started/windows.html compile it on the Windows command line] with the commands
+   * Note for Windows 32 bit users: Use the [http://www.boostpro.com/download/ installer from BoostPro], !BoostPro 1.47.0 Installer (205K .exe) as of this writing.
+   * Note for Windows 64 bit users: The libraries are not available in !BoostPro. It is necessary to download the source code, and [http://www.boost.org/doc/libs/1_47_0/more/getting_started/windows.html compile it on the Windows command line] with the commands
 {{{
 C:\> bootstrap
 C:\> bjam link=shared
