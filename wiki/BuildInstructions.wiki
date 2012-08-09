@@ -97,7 +97,7 @@ $ cmake -DBUILD_SHARED_LIBS=ON -DITK_USE_REVIEW=ON \
  * [http://www.boost.org/ Boost C++ libraries], development version (Gerardus tested with v1.46 for linux and v1.47 for Windows)
   * Note for Linux users: You can install the boost libraries with e.g.
 {{{
-$ sudo apt-get install libboost1.46-all-dev
+$ sudo apt-get install libboost-filesystem-dev libboost-system-dev
 }}}
   * Note for Mac users: if you have [http://www.macports.org/install.php MacPorts] installed, you can easily install Boost using
 {{{
@@ -109,7 +109,6 @@ $ sudo port install boost
 C:\> bootstrap
 C:\> bjam link=shared
 }}}
-  * Note for all users: For those users who need to save space, note that in fact, only the `filesystem` and `system` components of the Boost Libraries are required
  * [http://www.mathworks.com/products/matlab/ Matlab]
   # Matlab has its own installer for each operating system (Linux, Windows, MacOS X, etc)
   * Note for Windows users: Similarly to the previous step, add to the `Path` environment variable the path to your Matlab `LIBMEX.DLL` and `LIBMX.DLL` libraries, e.g. "C:\Program Files\MATLAB\R2010b\bin\win32" (32 bit) or "C:\Program Files\MATLAB\R2010b\bin\win64" (64 bit)
