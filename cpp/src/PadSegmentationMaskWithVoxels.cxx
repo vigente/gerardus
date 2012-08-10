@@ -16,6 +16,7 @@
  /*
   * Author: Ramón Casero <rcasero@gmail.com>
   * Copyright © 2009-2011 University of Oxford
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -239,7 +240,7 @@ int main(int argc, char** argv)
 		IteratorType itOut( imOut, imOut->GetRequestedRegion() );
 	
   		
-  		for ( itIn = itIn.Begin(), itOut = itOut.Begin(); !itIn.IsAtEnd(); ++itIn, ++itOut ) 
+  		for ( itIn.GoToBegin(), itOut.GoToBegin(); !itIn.IsAtEnd(); ++itIn, ++itOut ) 
   		{
   			itOut.Set( itIn.Get() );
   		}
