@@ -1,3 +1,11 @@
+2012-08-10  Ramon Casero  <rcasero@boron>
+
+	* cpp/src/PadSegmentationMaskWithVoxels.cxx: (v0.2.0)
+	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementImageFilter.txx: (0.3.1)
+
+	- Fix bug. ITK v2.4 and over no longer support .Begin() method in
+	itk::ImageRegionIterator.
+
 2012-08-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
 
 	* Add matlab/PointsToolbox/findpeaksn.m: (v0.1.0)

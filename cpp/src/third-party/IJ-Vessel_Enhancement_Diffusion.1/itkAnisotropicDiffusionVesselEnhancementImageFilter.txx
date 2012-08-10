@@ -19,7 +19,7 @@
          * add linear scales besides logarithmic scales
    	 * adapt code to compile with ITK v4.x
    	 * remove progress messages
-   Version: 0.3.0
+   Version: 0.3.1
 =========================================================================*/
 #ifndef __itkAnisotropicDiffusionVesselEnhancementImageFilter_txx_
 #define __itkAnisotropicDiffusionVesselEnhancementImageFilter_txx_
@@ -382,7 +382,7 @@ AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
   /* ======================= */
   ImageRegionIterator<OutputImageType>  om(this->GetOutput(),
                                            this->GetOutput()->GetLargestPossibleRegion());
-  om.Begin();
+  om.GoToBegin();
 
 //  std::cout << "Generate tensor matrix: " << std::endl;
  
@@ -404,7 +404,7 @@ AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
 
   ImageRegionIterator<EigenValueImageType>  eigenImageIterator(eigenValueImage,
                                            eigenValueImage->GetLargestPossibleRegion());
-  eigenImageIterator.Begin();
+  eigenImageIterator.GoToBegin();
 
   VectorPixelType eigenVectorPixel;
  
@@ -640,8 +640,8 @@ AnisotropicDiffusionVesselEnhancementImageFilter<TInputImage, TOutputImage>
   ImageRegionIterator<UpdateBufferType> u(m_UpdateBuffer,    regionToProcess);
   ImageRegionIterator<OutputImageType>  o(this->GetOutput(), regionToProcess);
 
-  u = u.Begin();
-  o = o.Begin();
+  u.GoToBegin();
+  o.GoToBegin();
 
   while ( !u.IsAtEnd() )
     {
