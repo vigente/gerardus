@@ -17,7 +17,7 @@ function nrrd = scinrrd_im2nrrd(im, res, offset)
 %
 %     RES(1) --> rows     (y axis)
 %     RES(2) --> columns  (x axis)
-%     RES(1) --> slices   (z axis)
+%     RES(3) --> slices   (z axis)
 %
 %   OFFSET is a 3-vector with the coordinates of the *centre* of the first
 %   voxel in the image. The same correspondence with rows, columns and
