@@ -2,7 +2,7 @@
 # Modifications by Ramon Casero  <ramon.casero@cs.ox.ac.uk> to
 # integrate CGAL within project Gerardus.
 #
-# Version: 0.1.0
+# Version: 0.1.1
 #
 # - Variables have been renamed so that CGAL can be a subproject of
 # Gerardus, e.g. CMAKE_SOURCE_DIR to CGAL_SOURCE_DIR.
@@ -590,29 +590,29 @@ endif()
 #
 #--------------------------------------------------------------------------------------------------
 
-set ( CGAL_INSTALL_INC_DIR "include" CACHE STRING "The folder where CGAL header files will be installed, relative to CGAL_INSTALL_PREFIX" )
-set ( CGAL_INSTALL_LIB_DIR "lib"     CACHE STRING "The folder where CGAL libraries will be installed, relative to CGAL_INSTALL_PREFIX" )
+#set ( CGAL_INSTALL_INC_DIR "include" CACHE STRING "The folder where CGAL header files will be installed, relative to CGAL_INSTALL_PREFIX" )
+set ( CGAL_INSTALL_LIB_DIR "CGAL"     CACHE STRING "The folder where CGAL libraries will be installed, relative to CGAL_INSTALL_PREFIX" )
 
 if ( CGAL_WIN32_CMAKE_ON_CYGWIN )
   exec_program(cygpath ARGS -w "${CGAL_INSTALL_PREFIX}" OUTPUT_VARIABLE CGAL_INSTALL_PREFIX2 )
   file ( TO_CMAKE_PATH ${CGAL_INSTALL_PREFIX2} CGAL_INSTALL_PREFIX )
 endif()
 
-set ( CGAL_INSTALL_BIN_DIR    "bin"                     
+set ( CGAL_INSTALL_BIN_DIR    "CGAL"                     
   CACHE STRING "The folder where CGAL user-side scripts will be installed, relative to CGAL_INSTALL_PREFIX" 
   )
 
-set ( CGAL_INSTALL_CMAKE_DIR "${CGAL_INSTALL_LIB_DIR}/CGAL"
-  CACHE STRING "The folder where CGAL CMake modules will be installed, relative to CGAL_INSTALL_PREFIX" 
-  )
+# set ( CGAL_INSTALL_CMAKE_DIR "${CGAL_INSTALL_LIB_DIR}/CGAL"
+#   CACHE STRING "The folder where CGAL CMake modules will be installed, relative to CGAL_INSTALL_PREFIX" 
+#   )
 
-set ( CGAL_INSTALL_DOC_DIR "share/doc/${CGAL_VERSION_DIR}"  
-  CACHE STRING "The folder where CGAL documentation and license files will be installed, relative to CGAL_INSTALL_PREFIX" 
-  )
+# set ( CGAL_INSTALL_DOC_DIR "share/doc/${CGAL_VERSION_DIR}"  
+#   CACHE STRING "The folder where CGAL documentation and license files will be installed, relative to CGAL_INSTALL_PREFIX" 
+#   )
 
-set ( CGAL_INSTALL_MAN_DIR "share/man/man1"  
-  CACHE STRING "The folder where manual pages for CGAL scripts will be installed, relative to CGAL_INSTALL_PREFIX" 
-  )
+# set ( CGAL_INSTALL_MAN_DIR "share/man/man1"  
+#   CACHE STRING "The folder where manual pages for CGAL scripts will be installed, relative to CGAL_INSTALL_PREFIX" 
+#   )
 
 #--------------------------------------------------------------------------------------------------
 #
@@ -709,53 +709,51 @@ create_CGALconfig_files()
 #
 #--------------------------------------------------------------------------------------------------
 
-# DESTINATION option is mandatory; skipping it breaks CPack!
+# gerardus: we don't need to install these files
 
-if(CGAL_INSTALL_DOC_DIR)
-  install(FILES AUTHORS CHANGES LICENSE LICENSE.FREE_USE LICENSE.GPL LICENSE.LGPL DESTINATION ${CGAL_INSTALL_DOC_DIR} )
-endif()
+# DESTINATION option is mandatory; skipping it breaks CPack!
+# if(CGAL_INSTALL_DOC_DIR)
+#   install(FILES AUTHORS CHANGES LICENSE LICENSE.FREE_USE LICENSE.GPL LICENSE.LGPL DESTINATION ${CGAL_INSTALL_DOC_DIR} )
+# endif()
 
 #install all includes collected in trunk et cetera
 
+# foreach (dir ${CGAL_CONFIGURED_PACKAGES})
+#   if (EXISTS ${dir}/include/CGAL) 
+#     install(DIRECTORY ${dir}/include/CGAL              DESTINATION ${CGAL_INSTALL_INC_DIR} PATTERN ".svn" EXCLUDE)
+#   endif()
+# endforeach()
+# install(DIRECTORY ${CGAL_BINARY_DIR}/include/CGAL     DESTINATION ${CGAL_INSTALL_INC_DIR} PATTERN ".svn" EXCLUDE)
 
-foreach (dir ${CGAL_CONFIGURED_PACKAGES})
-  if (EXISTS ${dir}/include/CGAL) 
-    install(DIRECTORY ${dir}/include/CGAL              DESTINATION ${CGAL_INSTALL_INC_DIR} PATTERN ".svn" EXCLUDE)
-  endif()
-endforeach()
-install(DIRECTORY ${CGAL_BINARY_DIR}/include/CGAL     DESTINATION ${CGAL_INSTALL_INC_DIR} PATTERN ".svn" EXCLUDE)
+# file(GLOB scripts "scripts/cgal_*")
+# list(REMOVE_ITEM scripts 
+#   ${CMAKE_CURRENT_SOURCE_DIR}/scripts/cgal_create_assertions.sh 
+#   ${CMAKE_CURRENT_SOURCE_DIR}/scripts/cgal_create_cmake_script_with_options)
+# install(PROGRAMS ${scripts} DESTINATION ${CGAL_INSTALL_BIN_DIR})
 
-file(GLOB scripts "scripts/cgal_*")
-list(REMOVE_ITEM scripts 
-  ${CMAKE_CURRENT_SOURCE_DIR}/scripts/cgal_create_assertions.sh 
-  ${CMAKE_CURRENT_SOURCE_DIR}/scripts/cgal_create_cmake_script_with_options)
-install(PROGRAMS ${scripts} DESTINATION ${CGAL_INSTALL_BIN_DIR})
+# install(DIRECTORY ${CGAL_MODULES_REL_DIR}/                DESTINATION ${CGAL_INSTALL_CMAKE_DIR} )
+# install(FILES     ${CGAL_MODULES_REL_DIR}/UseCGAL.cmake   DESTINATION ${CGAL_INSTALL_CMAKE_DIR} )
 
-install(DIRECTORY ${CGAL_MODULES_REL_DIR}/                DESTINATION ${CGAL_INSTALL_CMAKE_DIR} )
-install(FILES     ${CGAL_MODULES_REL_DIR}/UseCGAL.cmake   DESTINATION ${CGAL_INSTALL_CMAKE_DIR} )
+# if (GMP_IN_AUXILIARY)
+#   install(DIRECTORY auxiliary/gmp/include/ DESTINATION ${CGAL_INSTALL_INC_DIR} )
+#   install(DIRECTORY auxiliary/gmp/lib/     DESTINATION ${CGAL_INSTALL_LIB_DIR} )
+# endif()
 
+# if ( TAUCS_IN_AUXILIARY )
+#   install(DIRECTORY auxiliary/taucs/include/ DESTINATION ${CGAL_INSTALL_INC_DIR} )
+#   install(DIRECTORY auxiliary/taucs/lib/     DESTINATION ${CGAL_INSTALL_LIB_DIR} )
+# endif()
 
-if ( GMP_IN_AUXILIARY )
-  install(DIRECTORY auxiliary/gmp/include/ DESTINATION ${CGAL_INSTALL_INC_DIR} )
-  install(DIRECTORY auxiliary/gmp/lib/     DESTINATION ${CGAL_INSTALL_LIB_DIR} )
-endif()
+# if ( ZLIB_IN_AUXILIARY )
+#   install(DIRECTORY auxiliary/zlib/include/ DESTINATION ${CGAL_INSTALL_INC_DIR} )
+#   install(DIRECTORY auxiliary/zlib/lib/     DESTINATION ${CGAL_INSTALL_LIB_DIR} )
+# endif()
 
-if ( TAUCS_IN_AUXILIARY )
-  install(DIRECTORY auxiliary/taucs/include/ DESTINATION ${CGAL_INSTALL_INC_DIR} )
-  install(DIRECTORY auxiliary/taucs/lib/     DESTINATION ${CGAL_INSTALL_LIB_DIR} )
-endif()
+#install(FILES ${CGAL_BINARY_DIR}/config/CGALConfig.cmake DESTINATION ${CGAL_INSTALL_CMAKE_DIR} )
 
-if ( ZLIB_IN_AUXILIARY )
-  install(DIRECTORY auxiliary/zlib/include/ DESTINATION ${CGAL_INSTALL_INC_DIR} )
-  install(DIRECTORY auxiliary/zlib/lib/     DESTINATION ${CGAL_INSTALL_LIB_DIR} )
-endif()
-
-
-install(FILES ${CGAL_BINARY_DIR}/config/CGALConfig.cmake DESTINATION ${CGAL_INSTALL_CMAKE_DIR} )
-
-if(CGAL_INSTALL_MAN_DIR)
-  install(FILES auxiliary/cgal_create_cmake_script.1 DESTINATION ${CGAL_INSTALL_MAN_DIR} )
-endif()
+# if(CGAL_INSTALL_MAN_DIR)
+#   install(FILES auxiliary/cgal_create_cmake_script.1 DESTINATION ${CGAL_INSTALL_MAN_DIR} )
+# endif()
 
 #--------------------------------------------------------------------------------------------------
 #
@@ -766,13 +764,15 @@ endif()
 # Installing FindCGAL into cmake itself is implemented as a custom target
 # because it requires superuser privileges
 
-if ( NOT "${CMAKE_ROOT}" STREQUAL "" )
-  if ( EXISTS ${CMAKE_ROOT}/Modules )
-    add_custom_target( install_FindCGAL
-                      COMMAND ${CMAKE_COMMAND} -E copy ${CGAL_MODULES_DIR}/FindCGAL.cmake ${CMAKE_ROOT}/Modules
-                    ) 
-  endif()
-endif()  
+# gerardus: this is not needed
+
+# if ( NOT "${CMAKE_ROOT}" STREQUAL "" )
+#   if ( EXISTS ${CMAKE_ROOT}/Modules )
+#     add_custom_target( install_FindCGAL
+#                       COMMAND ${CMAKE_COMMAND} -E copy ${CGAL_MODULES_DIR}/FindCGAL.cmake ${CMAKE_ROOT}/Modules
+#                     ) 
+#   endif()
+# endif()  
 
 #--------------------------------------------------------------------------------------------------
 #
