@@ -2,7 +2,7 @@
 # Modifications by Ramon Casero  <ramon.casero@cs.ox.ac.uk> to
 # integrate CGAL within project Gerardus.
 #
-# Version: 0.1.0
+# Version: 0.1.1
 #
 # - Fix bug. Variable names had not been enclosed in ${}, and where
 # being ignored.
@@ -35,14 +35,12 @@ if (MPFR_in_cache)
   
 else()  
 
-  MESSAGE("FOO: " ${MPFR_INC_DIR})
   find_path(MPFR_INCLUDE_DIR 
     NAMES mpfr.h 
     PATHS ${ENV} ${MPFR_INC_DIR}
     ${CGAL_INSTALLATION_PACKAGE_DIR}/auxiliary/gmp/include
     DOC "The directory containing the MPFR header files"
     )
-  MESSAGE("Hola: " ${MPFR_INCLUDE_DIR})
 
   if ( MPFR_INCLUDE_DIR STREQUAL "${CGAL_INSTALLATION_PACKAGE_DIR}/auxiliary/gmp/include" )
     cache_set( MPFR_IN_CGAL_AUXILIARY TRUE )
