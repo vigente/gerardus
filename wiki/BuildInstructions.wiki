@@ -84,7 +84,7 @@ BUILD_SHARED_LIBS  ON
 ITK_USE_REVIEW     ON
 ITK_LEGACY_REMOVE  ON
 }}}
-   * Note for everyone: ITK needs to be compiled with the same version of the compiler used for Matlab. This can be ensured setting the following CMake variables (e.g. Matlab2012a for Linux requires gcc 4.4)
+   * Note for everyone: ITK needs to be compiled with the same version of the compiler used for Matlab. This can be ensured setting the following CMake variables (e.g. [http://www.mathworks.com/support/compilers/R2012a Matlab2012a for Linux requires gcc 4.4])
 {{{
 CMAKE_C_COMPILER gcc-4.4
 CMAKE_CXX_COMPILER g++-4.4
