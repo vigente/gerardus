@@ -16,7 +16,7 @@
 # (Note that the original file does work for Ubuntu Natty)
 #
 # Author: Ramon Casero <rcasero@gmail.com>, Tom Doel
-# Version: 0.2.3
+# Version: 0.2.4
 # $Rev$
 # $Date$
 #
@@ -121,6 +121,17 @@ ELSE(WIN32)
   ENDIF((NOT DEFINED MATLAB_ROOT) 
     OR ("${MATLAB_ROOT}" STREQUAL ""))
 
+  # Get Matlab version
+  EXECUTE_PROCESS(
+    COMMAND matlab -nosplash -nodesktop -nojvm -r "version, exit"
+    COMMAND grep ans -A 2
+    COMMAND tail -n 1
+    COMMAND awk "{print $2}"
+    COMMAND tr -d "()"
+    COMMAND xargs echo -n
+    OUTPUT_VARIABLE MATLAB_VERSION
+    )
+
   # Check if this is a Mac
   IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
@@ -191,4 +202,5 @@ MARK_AS_ADVANCED(
   MATLAB_INCLUDE_DIR
   MATLAB_FOUND
   MATLAB_ROOT
+  MATLAB_VERSION
 )

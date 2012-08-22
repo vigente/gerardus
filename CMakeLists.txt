@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.1.4
+# Version: 0.1.5
 # $Rev$
 # $Date$
 #
@@ -44,6 +44,28 @@ IF(NOT CMAKE_BUILD_TYPE)
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
+# directories with ad hoc Findxxx.cmake files
+SET(CMAKE_MODULE_PATH
+  ${CMAKE_CURRENT_SOURCE_DIR}/matlab;${CMAKE_CURRENT_SOURCE_DIR}/cpp/src/third-party/cquammen-Clarity/CMake)
+
+# find Matlab
+FIND_PACKAGE(Matlab)
+IF(MATLAB_FOUND)
+  MESSAGE("   Matlab " ${MATLAB_VERSION} ": " ${MATLAB_ROOT})
+ENDIF(MATLAB_FOUND)
+
+# some versions of Matlab or some libraries are not compatible with
+# more advanced gcc versions
+#
+# the compiler version has to be set up before project(), otherwise we
+# will get an infinite loop
+IF(NOT WIN32)
+  IF(BUILD_WITH_CUDA OR ${MATLAB_VERSION} MATCHES "R2012a")
+    SET(CMAKE_C_COMPILER gcc-4.4)
+    SET(CMAKE_CXX_COMPILER g++-4.4)
+  ENDIF(BUILD_WITH_CUDA OR ${MATLAB_VERSION} MATCHES "R2012a")
+ENDIF(NOT WIN32)
+
 # project name
 PROJECT(GERARDUS)
 
@@ -58,13 +80,6 @@ ENDIF(ITK_FOUND)
 FIND_PACKAGE(Boost COMPONENTS filesystem system REQUIRED)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
-
-# the current version of CUDA Toolkit is not compatible with gcc >=
-# 4.5
-IF(BUILD_WITH_CUDA)
-  SET(CMAKE_C_COMPILER gcc-4.4)
-  SET(CMAKE_CXX_COMPILER g++-4.4)
-ENDIF(BUILD_WITH_CUDA)
 
 ## flags for all targets
 IF(WIN32)
@@ -83,18 +98,7 @@ ELSE(WIN32)
     ENDIF(NOT CMAKE_OSX_ARCHITECTURES)
   ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
-
 ENDIF(WIN32)
-
-# directories with ad hoc Findxxx.cmake files
-SET(CMAKE_MODULE_PATH
-  ${CMAKE_CURRENT_SOURCE_DIR}/matlab;${CMAKE_CURRENT_SOURCE_DIR}/cpp/src/third-party/cquammen-Clarity/CMake)
-
-# find Matlab
-FIND_PACKAGE(Matlab)
-IF(MATLAB_FOUND)
-  MESSAGE("   Matlab: " ${MATLAB_ROOT})
-ENDIF(MATLAB_FOUND)
 
 ##################################################################
 ## Block so that rpaths are added to both the MEX file in the build
