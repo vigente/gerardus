@@ -1,4 +1,10 @@
-2012-08-17  Ramon Casero  <rcasero@boron>
+2012-08-22  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/itk_imfilter.m: (v0.5.1)
+
+	- Allow variable number of input arguments.
+
+2012-08-17  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/third-party/CGAL-4.0.2/CMakeLists.txt: (v0.1.1)
 
@@ -12,7 +18,7 @@
 
 	- Remove two debug MESSAGE() that I had left by mistake.
 
-2012-08-10  Ramon Casero  <rcasero@boron>
+2012-08-10  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/PadSegmentationMaskWithVoxels.cxx: (v0.2.0)
 	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementImageFilter.txx: (0.3.1)
