@@ -83,13 +83,18 @@ CMAKE_BUILD_TYPE   Release
 BUILD_SHARED_LIBS  ON
 ITK_USE_REVIEW     ON
 ITK_LEGACY_REMOVE  ON
-ITK_USE_OPTIMIZED_REGISTRATION_METHODS ON
 }}}
-   * Linux users can do this with flags when running cmake, e.g.
+   * Note for everyone: ITK needs to be compiled with the same version of the compiler used for Matlab. This can be ensured setting the following CMake variables (e.g. Matlab2012a for Linux requires gcc 4.4)
+{{{
+CMAKE_C_COMPILER gcc-4.4
+CMAKE_CXX_COMPILER g++-4.4
+}}}
+   * Linux and MacOSX users can do this with flags when running cmake, e.g.
 {{{
 $ cmake -DBUILD_SHARED_LIBS=ON -DITK_USE_REVIEW=ON \
 -DCMAKE_BUILD_TYPE=Release -DITK_LEGACY_REMOVE=ON \
--DITK_USE_OPTIMIZED_REGISTRATION_METHODS=ON ..
+-DCMAKE_C_COMPILER=/usr/bin/gcc-4.4 \
+-DCMAKE_CXX_COMPILER=/usr/bin/g++-4.4  ..
 }}}
    * Windows users can do this checking the "Advanced" box in the CMake interface, and then checking the `ITK_USE_REVIEW`, `ITK_LEGACY_REMOVE` and `ITK_USE_OPTIMIZED_REGISTRATION_METHODS` entries. If using Visual Studio, then the `CMAKE_BUILD_TYPE` entry will be ignored anyway, because Visual Studio is a multi-configuration sytem
   * Note for Windows users: It's important to select "Release" instead of "Debug" from the pull-down configuration menu above the Solution Explorer. This will enable to build and install the Release version of ITK, which will then be needed by the Release build of Gerardus
