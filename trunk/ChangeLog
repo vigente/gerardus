@@ -1,5 +1,19 @@
 2012-08-22  Ramon Casero  <rcasero@gmail.com>
 
+	* CMakeLists.txt: (v0.1.5)
+
+	- We need to find Matlab at the beginning, so that we can decide
+	which version of gcc we need to compile gerardus with. We need to
+	compile ITK and Gerardus with the same gcc version Matlab was
+	compiled with.
+
+	* matlab/FindMatlab.cmake: (v0.2.4)
+
+	- In Linux and Mac OSX systems, find which Matlab version we have,
+	and assign it to variable MATLAB_VERSION.
+
+2012-08-22  Ramon Casero  <rcasero@gmail.com>
+
 	* matlab/ItkToolbox/itk_imfilter.m: (v0.5.1)
 
 	- Allow variable number of input arguments.
