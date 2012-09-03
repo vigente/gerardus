@@ -26,7 +26,7 @@ function scimat = scimat_lconvhull_smoothing(scimat, alpha)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -54,11 +54,8 @@ function scimat = scimat_lconvhull_smoothing(scimat, alpha)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 2, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
-
-% voxels on the boundary of the segmentation mask
-scimat.data = bwperim(scimat.data);
+narginchk(2, 2);
+nargoutchk(0, 1);
 
 % coordinates of segmented voxels
 [r, c, s] = ind2sub(size(scimat.data), find(scimat.data));
