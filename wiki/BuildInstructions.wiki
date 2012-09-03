@@ -154,3 +154,23 @@ $ make install
  # Select "Release" from the configuration pull-down menu abive the Solution Explorer, instead of "Debug"
  # Select "Build -> Build Solution" from the menu.
  # In the "Solution Explorer", right click on "INSTALL" and select "Build". This will install the DLLs that correspond to the compiled MEX files
+
+= Only for developers =
+
+= Integrating the Boost C++ libraries in gerardus =
+
+ # Go to the C++ third-party directory
+{{{
+$ cd cpp/src/third-part
+}}}
+ # Download the source code of the [https://svn.boost.org/trac/boost/wiki/CMakeModularizationStatus#CMakeSupport CMake-fied Boost project]
+{{{
+$ git clone http://github.com/ryppl/boost-zero boost
+$ cd boost
+$ git submodule update --init
+}}}
+ # Delete git metadata, documentation
+{{{
+$ find . -name .git | xargs rm -rf
+$ find . -name doc | xargs rm -rf
+}}}
