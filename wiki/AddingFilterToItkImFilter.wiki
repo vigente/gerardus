@@ -1,6 +1,11 @@
 #summary Instructions on how to add a new ITK filter to itk_imfilter().
+#labels Deprecated
 
 <wiki:toc max_depth="2" />
+
+= Important note =
+
+This page is obsolete. The architecture of itk_imfilter() has completely changed since it was written.
 
 = Introduction =
 
