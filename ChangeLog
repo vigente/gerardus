@@ -1,3 +1,10 @@
+2012-09-03  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (v0.1.1)
+
+	- Fix bug. We need to pass the whole segmentation to alphavol(),
+	otherwise the computed surface mesh has holes and other problems.
+
 2012-08-22  Ramon Casero  <rcasero@gmail.com>
 
 	* CMakeLists.txt: (v0.1.5)
