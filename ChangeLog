@@ -1,5 +1,13 @@
 2012-09-03  Ramon Casero  <rcasero@gmail.com>
 
+	* cpp/src/third-party/CGAL-4.0.2/CMakeLists.txt:
+
+	- Install CGAL libraries to gerardus/lib, instead of
+	gerardus/lib/CGAL. This way, we don't need to add more paths to
+	where the MEX files can look for libraries.
+
+2012-09-03  Ramon Casero  <rcasero@gmail.com>
+
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (v0.1.1)
 
 	- Fix bug. We need to pass the whole segmentation to alphavol(),
