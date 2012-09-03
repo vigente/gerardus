@@ -100,8 +100,8 @@ function x = scinrrd_index2world(idx, ax, CHOP)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 3, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
+narginchk(2, 3);
+nargoutchk(0, 1);
 
 % defaults
 if (nargin < 3 || isempty(CHOP))
