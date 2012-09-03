@@ -591,7 +591,7 @@ endif()
 #--------------------------------------------------------------------------------------------------
 
 #set ( CGAL_INSTALL_INC_DIR "include" CACHE STRING "The folder where CGAL header files will be installed, relative to CGAL_INSTALL_PREFIX" )
-set ( CGAL_INSTALL_LIB_DIR "CGAL"     CACHE STRING "The folder where CGAL libraries will be installed, relative to CGAL_INSTALL_PREFIX" )
+set ( CGAL_INSTALL_LIB_DIR "."     CACHE STRING "The folder where CGAL libraries will be installed, relative to CGAL_INSTALL_PREFIX" )
 
 if ( CGAL_WIN32_CMAKE_ON_CYGWIN )
   exec_program(cygpath ARGS -w "${CGAL_INSTALL_PREFIX}" OUTPUT_VARIABLE CGAL_INSTALL_PREFIX2 )
