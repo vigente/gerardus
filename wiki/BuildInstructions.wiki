@@ -175,9 +175,33 @@ $ find . -name .git | xargs rm -rf
 $ find . -name doc | xargs rm -rf
 $ find . -name test | xargs rm -rf
 }}}
+ # Add the remaining files to Gerardus' subversion repository
+{{{
+$ svn add ../boost
+}}}
+ # Create a test file with the commit message, e.g. `boost/svn-commit.txt`
+{{{
+2012-09-04  Ramon Casero  <rcasero@gmail.com>
+
+	* Add cpp/src/third-party/boost:
+
+	- CMake-fied Boost C++ libraries downloaded from
+
+	https://github.com/ryppl/boost-zero
+
+	See details in
+
+	http://code.google.com/p/gerardus/wiki/BuildInstructions#Integrating_the_Boost_C++_libraries_in_gerardus
+}}}
+ # Start committing directories to the repository. We have to do this in smaller commits, because Google Code won't accept a large commit
+{{{
+$ svn ci --force-log --file svn-commit.txt -N .
+$ svn ci --force-log --file svn-commit.txt build.cmake CMakeLists.txt LICENSE_1_0.txt ryppl
+$ svn ci --force-log --file svn-commit.txt -N boost
+$ for i in {a..z}; do svn ci --force-log --file svn-commit.txt boost/$i*; done
+}}}
  # Comment out doc and test subdirectories from each module's CMakeLists.txt
 {{{
 $ find . -name CMakeLists.txt | xargs sed -i 's/ryppl_add_doc_subdirectory(doc)/#ryppl_add_doc_subdirectory(doc)/'
 $ find . -name CMakeLists.txt | xargs sed -i 's/ryppl_add_test_subdirectory(test)/#ryppl_add_test_subdirectory(test)/'
-$ 
 }}}
