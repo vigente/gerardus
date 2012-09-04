@@ -198,7 +198,7 @@ target_link_libraries(boost_locale
   ${link_libraries}
   )
 
-ryppl_add_test_subdirectory(test)
+#ryppl_add_test_subdirectory(test)
 
 
 ryppl_export(
