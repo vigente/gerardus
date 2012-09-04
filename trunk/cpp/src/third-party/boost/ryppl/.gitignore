@@ -1,0 +1,12 @@
+build
+dist
+._*
+*.pyc
+*.orig
+#*#
+.#*
+**/*~
+*.egg-info
+.noseids
+.DS_Store
+/boost/existing.cache
