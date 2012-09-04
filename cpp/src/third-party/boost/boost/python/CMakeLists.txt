@@ -80,25 +80,25 @@ if(NOT BUILD_SHARED_LIBS)
     )
 endif(NOT BUILD_SHARED_LIBS)
 
-ryppl_export(
-  TARGETS
-    boost_python
-  DEPENDS
-    BoostBind
-    BoostConfig
-    BoostConversion
-    BoostCore
-    BoostForeach
-    BoostFunction
-    BoostIterator
-    BoostMPL
-    BoostNumericConversion
-    BoostPreprocessor
-    BoostSmartPtr
-    BoostStaticAssert
-    BoostTuple
-    BoostTypeTraits
-    BoostUtility
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   TARGETS
+#     boost_python
+#   DEPENDS
+#     BoostBind
+#     BoostConfig
+#     BoostConversion
+#     BoostCore
+#     BoostForeach
+#     BoostFunction
+#     BoostIterator
+#     BoostMPL
+#     BoostNumericConversion
+#     BoostPreprocessor
+#     BoostSmartPtr
+#     BoostStaticAssert
+#     BoostTuple
+#     BoostTypeTraits
+#     BoostUtility
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

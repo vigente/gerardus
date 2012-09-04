@@ -45,4 +45,4 @@ target_link_libraries(quickbook
   boost_system
   )
 
-ryppl_export(TARGETS quickbook)
+# ryppl_export(TARGETS quickbook)

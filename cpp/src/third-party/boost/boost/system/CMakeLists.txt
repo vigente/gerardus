@@ -26,13 +26,13 @@ endif(NOT BUILD_SHARED_LIBS)
 #add_subdirectory(doc)
 
 
-ryppl_export(
-  TARGETS
-    boost_system
-  DEPENDS
-    BoostConfig
-    BoostInteger
-    BoostUtility
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   TARGETS
+#     boost_system
+#   DEPENDS
+#     BoostConfig
+#     BoostInteger
+#     BoostUtility
+#   INCLUDE_DIRECTORIES
+#     include
+#   )
