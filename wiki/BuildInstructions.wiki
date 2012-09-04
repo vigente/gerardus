@@ -171,7 +171,7 @@ $ git submodule update --init
 }}}
  # Delete git metadata, and documentation and test directories
 {{{
-$ find . -name .git | xargs rm -rf
+$ find . -name .git* | xargs rm -rf
 $ find . -name doc | xargs rm -rf
 $ find . -name test | xargs rm -rf
 $ rm -rf .gitmodules
