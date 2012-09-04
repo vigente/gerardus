@@ -169,8 +169,15 @@ $ git clone http://github.com/ryppl/boost-zero boost
 $ cd boost
 $ git submodule update --init
 }}}
- # Delete git metadata, documentation
+ # Delete git metadata, and documentation and test directories
 {{{
 $ find . -name .git | xargs rm -rf
 $ find . -name doc | xargs rm -rf
+$ find . -name test | xargs rm -rf
+}}}
+ # Comment out doc and test subdirectories from each module's CMakeLists.txt
+{{{
+$ find . -name CMakeLists.txt | xargs sed -i 's/ryppl_add_doc_subdirectory(doc)/#ryppl_add_doc_subdirectory(doc)/'
+$ find . -name CMakeLists.txt | xargs sed -i 's/ryppl_add_test_subdirectory(test)/#ryppl_add_test_subdirectory(test)/'
+$ 
 }}}
