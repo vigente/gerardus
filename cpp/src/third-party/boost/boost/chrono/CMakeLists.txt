@@ -27,25 +27,25 @@ target_link_libraries(boost_chrono
   ${RT_LIBRARY}
   )
 
-ryppl_export(
-  TARGETS
-    boost_chrono
-  DEPENDS
-    BoostAccumulators
-    BoostConfig
-    BoostCore
-    BoostException
-    BoostFormat
-    BoostInteger
-    BoostInterprocess
-    BoostMPL
-    BoostMath
-    BoostRatio
-    BoostStaticAssert
-    BoostSystem
-    BoostTypeTraits
-    BoostTypeof
-    BoostUtility
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   TARGETS
+#     boost_chrono
+#   DEPENDS
+#     BoostAccumulators
+#     BoostConfig
+#     BoostCore
+#     BoostException
+#     BoostFormat
+#     BoostInteger
+#     BoostInterprocess
+#     BoostMPL
+#     BoostMath
+#     BoostRatio
+#     BoostStaticAssert
+#     BoostSystem
+#     BoostTypeTraits
+#     BoostTypeof
+#     BoostUtility
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

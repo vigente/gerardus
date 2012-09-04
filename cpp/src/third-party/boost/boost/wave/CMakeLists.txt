@@ -48,30 +48,30 @@ target_link_libraries(boost_wave
 #   boost_wave
 #   )
 
-ryppl_export(
-  TARGETS
-    boost_wave
-    # wave
-  DEPENDS
-    BoostConceptCheck
-    BoostConfig
-    BoostCore
-    BoostException
-    BoostFilesystem
-    BoostInteger
-    BoostIterator
-    BoostMPL
-    BoostMultiIndex
-    BoostPool
-    BoostPreprocessor
-    BoostSmartPtr
-    BoostSpirit
-    BoostSpiritClassic
-    BoostStaticAssert
-    BoostTypeTraits
-    BoostUtility
-  RECOMMENDS
-    BoostSerialization
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   TARGETS
+#     boost_wave
+#     # wave
+#   DEPENDS
+#     BoostConceptCheck
+#     BoostConfig
+#     BoostCore
+#     BoostException
+#     BoostFilesystem
+#     BoostInteger
+#     BoostIterator
+#     BoostMPL
+#     BoostMultiIndex
+#     BoostPool
+#     BoostPreprocessor
+#     BoostSmartPtr
+#     BoostSpirit
+#     BoostSpiritClassic
+#     BoostStaticAssert
+#     BoostTypeTraits
+#     BoostUtility
+#   RECOMMENDS
+#     BoostSerialization
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

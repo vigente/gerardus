@@ -9,7 +9,7 @@ include(Ryppl)
 
 #boost_documentation(index.html)
 
-ryppl_export(
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

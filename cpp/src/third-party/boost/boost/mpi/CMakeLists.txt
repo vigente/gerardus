@@ -115,28 +115,28 @@ if(BUILD_SHARED_LIBS)
   endif(WIN32)
 endif(BUILD_SHARED_LIBS)
 
-ryppl_export(
-  TARGETS
-    boost_mpi
-    boost_mpi_python
-  DEPENDS
-    BoostConfig
-    BoostCore
-    BoostException
-    BoostFunction
-    BoostGraph
-    BoostInteger
-    BoostIterator
-    BoostMPL
-    BoostOptional
-    BoostPropertyMap
-    BoostSmartPtr
-    BoostStaticAssert
-    BoostTypeTraits
-    BoostUtility
-  RECOMMENDS
-    BoostPython
-    BoostSerialization
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   TARGETS
+#     boost_mpi
+#     boost_mpi_python
+#   DEPENDS
+#     BoostConfig
+#     BoostCore
+#     BoostException
+#     BoostFunction
+#     BoostGraph
+#     BoostInteger
+#     BoostIterator
+#     BoostMPL
+#     BoostOptional
+#     BoostPropertyMap
+#     BoostSmartPtr
+#     BoostStaticAssert
+#     BoostTypeTraits
+#     BoostUtility
+#   RECOMMENDS
+#     BoostPython
+#     BoostSerialization
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

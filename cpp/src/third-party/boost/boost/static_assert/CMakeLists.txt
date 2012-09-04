@@ -6,13 +6,13 @@ project(BoostStaticAssert NONE)
 
 include(Ryppl)
 
-ryppl_export(
-  DEPENDS
-    BoostConfig
-    BoostCore
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   DEPENDS
+#     BoostConfig
+#     BoostCore
+#   INCLUDE_DIRECTORIES
+#     include
+#   )
 
 return()
 
