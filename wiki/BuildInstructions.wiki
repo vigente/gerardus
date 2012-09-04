@@ -219,3 +219,7 @@ $ sed -i 's/#add_subdirectory(boost\/chrono)/add_subdirectory(boost\/chrono)/' C
 {{{
 #include <../src/pthread/timeconv.inl>
 }}}
+ # Comment out all the `ryppl_export()` blocks in the `CMakeLists.txt` to prevent `make install` from filling `gerardus/lib` with lots of boost files
+{{{
+$ find . -name CMakeLists.txt | xargs sed -i '/ryppl_export/,/)/s/.*/# &/'
+}}}
