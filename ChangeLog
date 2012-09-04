@@ -1,4 +1,14 @@
-2012-09-03  Ramon Casero  <rcasero@gmail.com>
+2012-09-04  Ramon Casero  <rcasero@gmail.com>
+
+	* Add cpp/src/third-party/boost:
+
+	- CMake-fied Boost C++ libraries downloaded from
+
+	https://github.com/ryppl/boost-zero
+
+	See details in
+
+	http://code.google.com/p/gerardus/wiki/BuildInstructions#Integrating_the_Boost_C++_libraries_in_gerardus
 
 	* cpp/src/third-party/CGAL-4.0.2/CMakeLists.txt:
 
