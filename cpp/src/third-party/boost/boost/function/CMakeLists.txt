@@ -8,7 +8,7 @@ include(Ryppl)
 
 #boost_documentation(doc/function.xml)
 
-ryppl_add_test_subdirectory(test)
+#ryppl_add_test_subdirectory(test)
 
 
 ryppl_export(

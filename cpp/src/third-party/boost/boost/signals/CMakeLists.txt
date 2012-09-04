@@ -34,7 +34,7 @@ add_library(boost_signals
   src/slot.cpp
   )
 
-ryppl_add_test_subdirectory(test)
+#ryppl_add_test_subdirectory(test)
 
 ryppl_export(
   TARGETS

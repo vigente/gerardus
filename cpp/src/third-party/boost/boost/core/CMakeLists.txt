@@ -17,7 +17,7 @@ string(REPLACE "." "_" BOOST_LIB_VERSION "${Boost_VERSION}")
 
 configure_file(include/boost/version.hpp.in include/boost/version.hpp)
 
-ryppl_add_test_subdirectory(test)
+#ryppl_add_test_subdirectory(test)
 
 
 ryppl_export(
