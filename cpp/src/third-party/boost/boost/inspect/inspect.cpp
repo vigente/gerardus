@@ -15,6 +15,9 @@
 
 //  See http://www.boost.org/tools/inspect/ for more information.
 
+// Minor bug fix to allow compilation by Ramon Casero
+// <rcasero@gmail.com> for project Gerardus
+
 const char* boost_no_inspect = "boost-" "no-inspect";
 
 //  Directories with a file name of the boost_no_inspect value are not inspected.
@@ -868,8 +871,8 @@ int cpp_main( int argc_param, char * argv_param[] )
       inspectors.push_back( inspector_element( new boost::inspect::apple_macro_check ) );
   if ( assert_ck )
       inspectors.push_back( inspector_element( new boost::inspect::assert_macro_check ) );
-  if ( deprecated_ck )
-      inspectors.push_back( inspector_element( new boost::inspect::deprecated_macro_check ) );
+  // if ( deprecated_ck )
+  //     inspectors.push_back( inspector_element( new boost::inspect::deprecated_macro_check ) );
   if ( minmax_ck )
       inspectors.push_back( inspector_element( new boost::inspect::minmax_check ) );
   if ( unnamed_ck )
