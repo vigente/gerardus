@@ -1,5 +1,23 @@
 2012-09-04  Ramon Casero  <rcasero@gmail.com>
 
+	* cpp/src/third-party/CGAL-4.0.2/cmake/modules:
+
+	- Delete FindBLAS.cmake FindBoost.cmake FindLAPACK.cmake
+	FindOpenGL.cmake FindPackageMessage.cmake, as these modules are
+	available with CMake.
+
+	* cpp/src/third-party/boost/boost/thread/src/pthread/thread.cpp:
+
+	- Fix bug. Wrong path in #include.
+
+	* cpp/src/third-party/boost/CMakeLists.txt:
+
+	- Comment out boost modules that are not required by Gerardus.
+
+	* cpp/src/third-party/boost/*/CMakeLists.txt:
+
+	- Ignore all doc and test directories for the build.
+
 	* Add cpp/src/third-party/boost:
 
 	- CMake-fied Boost C++ libraries downloaded from
