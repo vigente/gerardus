@@ -223,3 +223,18 @@ $ sed -i 's/#add_subdirectory(boost\/chrono)/add_subdirectory(boost\/chrono)/' C
 {{{
 $ find . -name CMakeLists.txt | xargs sed -i '/ryppl_export/,/)/s/.*/# &/'
 }}}
+ # We have removed all the boost targets, so now we need to create them manually. Add to the `CMakeLists.txt` of every Boost module that Gerardus needs (`system`, `filesystem`, `thread`) something like
+{{{
+# install compiled libraries
+if(WIN32)
+  install(TARGETS
+    boost_system
+    RUNTIME ARCHIVE
+    DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
+else(WIN32)
+  install(TARGETS
+    boost_system
+    LIBRARY ARCHIVE
+    DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
+endif(WIN32)
+}}}
