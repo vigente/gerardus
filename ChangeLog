@@ -1,5 +1,7 @@
 2012-09-04  Ramon Casero  <rcasero@gmail.com>
 
+	* Add include directory to contain header files.
+
 	* cpp/src/third-party/boost/boost/*/CMakeLists.txt:
 
 	- Comment out all the `ryppl_xport()` blocks in the
