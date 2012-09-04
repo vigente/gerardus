@@ -24,4 +24,4 @@ target_link_libraries(auto_index
   boost_regex
   )
 
-ryppl_export(TARGETS auto_index)
+# ryppl_export(TARGETS auto_index)

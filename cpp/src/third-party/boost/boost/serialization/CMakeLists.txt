@@ -70,26 +70,26 @@ target_link_libraries(boost_wserialization
   boost_serialization
   )
 
-ryppl_export(
-  TARGETS
-    boost_serialization
-    boost_wserialization
-  DEPENDS
-    BoostArray
-    BoostConfig
-    BoostCore
-    BoostIO
-    BoostInteger
-    BoostIterator
-    BoostMPL
-    BoostOptional
-    BoostPreprocessor
-    BoostSmartPtr
-    BoostSpiritClassic
-    BoostStaticAssert
-    BoostTypeTraits
-    BoostUtility
-    BoostVariant
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   TARGETS
+#     boost_serialization
+#     boost_wserialization
+#   DEPENDS
+#     BoostArray
+#     BoostConfig
+#     BoostCore
+#     BoostIO
+#     BoostInteger
+#     BoostIterator
+#     BoostMPL
+#     BoostOptional
+#     BoostPreprocessor
+#     BoostSmartPtr
+#     BoostSpiritClassic
+#     BoostStaticAssert
+#     BoostTypeTraits
+#     BoostUtility
+#     BoostVariant
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

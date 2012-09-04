@@ -10,13 +10,13 @@ include(Ryppl)
 #ryppl_add_test_subdirectory(test)
 #boost_documentation(doc/array.xml)
 
-ryppl_export(
-  DEPENDS
-    BoostConfig
-    BoostCore
-    BoostException
-    BoostFunctionalHash
-    BoostUtility
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   DEPENDS
+#     BoostConfig
+#     BoostCore
+#     BoostException
+#     BoostFunctionalHash
+#     BoostUtility
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

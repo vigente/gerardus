@@ -47,26 +47,26 @@ target_link_libraries(boost_iostreams
   ${link_libraries}
   )
 
-ryppl_export(
-  TARGETS
-    boost_iostreams
-  DEPENDS
-    BoostBind
-    BoostConfig
-    BoostCore
-    BoostException
-    BoostFunction
-    BoostInteger
-    BoostMPL
-    BoostPreprocessor
-    BoostRange
-    BoostRegex
-    BoostSmartPtr
-    BoostStaticAssert
-    BoostTypeTraits
-    BoostUtility
-  RECOMMENDS
-    BoostRandom
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   TARGETS
+#     boost_iostreams
+#   DEPENDS
+#     BoostBind
+#     BoostConfig
+#     BoostCore
+#     BoostException
+#     BoostFunction
+#     BoostInteger
+#     BoostMPL
+#     BoostPreprocessor
+#     BoostRange
+#     BoostRegex
+#     BoostSmartPtr
+#     BoostStaticAssert
+#     BoostTypeTraits
+#     BoostUtility
+#   RECOMMENDS
+#     BoostRandom
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

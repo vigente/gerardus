@@ -6,27 +6,27 @@ project(BoostTR1 NONE)
 
 include(Ryppl)
 
-ryppl_export(
-  DEPENDS
-    BoostArray
-    BoostBind
-    BoostConfig
-    BoostCore
-    BoostFunction
-    BoostFunctionalHash
-    BoostFusion
-    BoostIterator
-    BoostMPL
-    BoostMath
-    BoostRegex
-    BoostSmartPtr
-    BoostStaticAssert
-    BoostTuple
-    BoostTypeTraits
-    BoostUnordered
-    BoostUtility
-  RECOMMENDS
-    BoostRandom
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   DEPENDS
+#     BoostArray
+#     BoostBind
+#     BoostConfig
+#     BoostCore
+#     BoostFunction
+#     BoostFunctionalHash
+#     BoostFusion
+#     BoostIterator
+#     BoostMPL
+#     BoostMath
+#     BoostRegex
+#     BoostSmartPtr
+#     BoostStaticAssert
+#     BoostTuple
+#     BoostTypeTraits
+#     BoostUnordered
+#     BoostUtility
+#   RECOMMENDS
+#     BoostRandom
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

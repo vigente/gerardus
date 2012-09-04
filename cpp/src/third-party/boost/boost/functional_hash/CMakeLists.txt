@@ -6,15 +6,15 @@ project(BoostFunctionalHash NONE)
 
 include(Ryppl)
 
-ryppl_export(
-  DEPENDS
-    BoostConfig
-    BoostCore
-    BoostInteger
-    BoostPreprocessor
-    BoostStaticAssert
-    BoostTypeTraits
-    BoostUtility
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   DEPENDS
+#     BoostConfig
+#     BoostCore
+#     BoostInteger
+#     BoostPreprocessor
+#     BoostStaticAssert
+#     BoostTypeTraits
+#     BoostUtility
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

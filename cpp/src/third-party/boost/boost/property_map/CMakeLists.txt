@@ -9,27 +9,27 @@ include(Ryppl)
 #ryppl_add_test_subdirectory(test)
 
 
-ryppl_export(
-  DEPENDS
-    BoostAny
-    BoostBind
-    BoostConceptCheck
-    BoostConfig
-    BoostConversion
-    BoostCore
-    BoostException
-    BoostFunction
-    BoostGraph
-    BoostGraphParallel
-    BoostIterator
-    BoostMPL
-    BoostMultiIndex
-    BoostOptional
-    BoostSmartPtr
-    BoostTypeTraits
-    BoostUtility
-  RECOMMENDS
-    BoostSerialization
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   DEPENDS
+#     BoostAny
+#     BoostBind
+#     BoostConceptCheck
+#     BoostConfig
+#     BoostConversion
+#     BoostCore
+#     BoostException
+#     BoostFunction
+#     BoostGraph
+#     BoostGraphParallel
+#     BoostIterator
+#     BoostMPL
+#     BoostMultiIndex
+#     BoostOptional
+#     BoostSmartPtr
+#     BoostTypeTraits
+#     BoostUtility
+#   RECOMMENDS
+#     BoostSerialization
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

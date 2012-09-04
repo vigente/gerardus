@@ -6,18 +6,18 @@ project(BoostUBLAS NONE)
 
 include(Ryppl)
 
-ryppl_export(
-  DEPENDS
-    BoostConceptCheck
-    BoostConfig
-    BoostMPL
-    BoostSmartPtr
-    BoostStaticAssert
-    BoostTypeTraits
-    BoostTypeof
-    BoostUtility
-  RECOMMENDS
-    BoostSerialization
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   DEPENDS
+#     BoostConceptCheck
+#     BoostConfig
+#     BoostMPL
+#     BoostSmartPtr
+#     BoostStaticAssert
+#     BoostTypeTraits
+#     BoostTypeof
+#     BoostUtility
+#   RECOMMENDS
+#     BoostSerialization
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

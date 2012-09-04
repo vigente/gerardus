@@ -33,21 +33,21 @@ target_link_libraries(boost_filesystem
 #ryppl_add_test_subdirectory(test)
 
 
-ryppl_export(
-  TARGETS
-    boost_filesystem
-  DEPENDS
-    BoostConfig
-    BoostCore
-    BoostFunctionalHash
-    BoostIO
-    BoostInteger
-    BoostIterator
-    BoostSmartPtr
-    BoostStaticAssert
-    BoostSystem
-    BoostTypeTraits
-    BoostUtility
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   TARGETS
+#     boost_filesystem
+#   DEPENDS
+#     BoostConfig
+#     BoostCore
+#     BoostFunctionalHash
+#     BoostIO
+#     BoostInteger
+#     BoostIterator
+#     BoostSmartPtr
+#     BoostStaticAssert
+#     BoostSystem
+#     BoostTypeTraits
+#     BoostUtility
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

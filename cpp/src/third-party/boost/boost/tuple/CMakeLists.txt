@@ -8,13 +8,13 @@ include(Ryppl)
 
 #ryppl_add_test_subdirectory(test)
 
-ryppl_export(
-  DEPENDS
-    BoostConfig
-    BoostCore
-    BoostStaticAssert
-    BoostTypeTraits
-    BoostUtility
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   DEPENDS
+#     BoostConfig
+#     BoostCore
+#     BoostStaticAssert
+#     BoostTypeTraits
+#     BoostUtility
+#   INCLUDE_DIRECTORIES
+#     include
+#   )
