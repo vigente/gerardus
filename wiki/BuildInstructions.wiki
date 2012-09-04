@@ -209,6 +209,7 @@ $ find . -name CMakeLists.txt | xargs sed -i 's/ryppl_add_test_subdirectory(test
  # Comment out all Boost modules that we don't need for Gerardus
 {{{
 $ sed -i 's/^add_subdirectory/#add_subdirectory/' CMakeLists.txt
+$ sed -i 's/#add_subdirectory(boost\/config)/add_subdirectory(boost\/config)/' CMakeLists.txt
 $ sed -i 's/#add_subdirectory(boost\/date_time)/add_subdirectory(boost\/date_time)/' CMakeLists.txt
 $ sed -i 's/#add_subdirectory(boost\/filesystem)/add_subdirectory(boost\/filesystem)/' CMakeLists.txt
 $ sed -i 's/#add_subdirectory(boost\/system)/add_subdirectory(boost\/system)/' CMakeLists.txt
@@ -219,14 +220,14 @@ $ sed -i 's/#add_subdirectory(boost\/chrono)/add_subdirectory(boost\/chrono)/' C
 {{{
 #include <../src/pthread/timeconv.inl>
 }}}
- # Build and install Boost separately. This creates, amongst other files and directories, an `include/boost` directory with the header files. Move this `boost` directory to `gerardus/include`, so that the header files are available to the rest of Gerardus
+ # Build and install Boost separately. This creates, amongst other files and directories, an `include/boost` directory with the header files. Delete all the `.svn` directories, and move this `boost` directory to `gerardus/include`, so that the header files are available to the rest of Gerardus
  # Comment out all the `ryppl_export()` blocks in the `CMakeLists.txt` to prevent `make install` from filling `gerardus/lib` with all the files we just saw above when we build Gerardus
 {{{
 $ find . -name CMakeLists.txt | xargs sed -i '/ryppl_export/,/)/s/.*/# &/'
 }}}
   * If in some case we need to uncomment the `ryppl_export()` blocks, run
 {{{
-$ find . -name CMakeLists.txt | xargs sed -i '/# ryppl_export/,/)/s/^#\(.*\)/\1/g'
+$ find . -name CMakeLists.txt | xargs sed -i '/# ryppl_export/,/)/s/^# \(.*\)/\1/g'
 }}}
  # We have removed all the boost targets, so now we need to create them manually. Add to the `CMakeLists.txt` of every Boost module that Gerardus needs (`system`, `filesystem`, `thread`) something like
 {{{
