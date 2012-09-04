@@ -30,7 +30,7 @@ target_link_libraries(boost_filesystem
   boost_system
   )
 
-ryppl_add_test_subdirectory(test)
+#ryppl_add_test_subdirectory(test)
 
 
 ryppl_export(

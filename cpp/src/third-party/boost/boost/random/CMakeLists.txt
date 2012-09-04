@@ -12,7 +12,7 @@ add_library(boost_random
   src/random_device.cpp
   )
   
-ryppl_add_test_subdirectory(test)
+#ryppl_add_test_subdirectory(test)
 
 
 

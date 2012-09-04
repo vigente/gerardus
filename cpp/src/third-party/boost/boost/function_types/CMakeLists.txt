@@ -6,7 +6,7 @@ project(BoostFunctionTypes NONE)
 
 include(Ryppl)
   
-ryppl_add_test_subdirectory(test)
+#ryppl_add_test_subdirectory(test)
 
 
 ryppl_export(

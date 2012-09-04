@@ -6,6 +6,9 @@
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+// Minor changes by Ramon Casero <rcasero@gmail.com> for project
+// Gerardus
+
 #include <boost/thread/detail/config.hpp>
 
 #include <boost/thread/thread.hpp>
@@ -24,7 +27,7 @@
 #include <unistd.h>
 #endif
 
-#include <libs/thread/src/pthread/timeconv.inl>
+#include <../src/pthread/timeconv.inl>
 
 namespace boost
 {

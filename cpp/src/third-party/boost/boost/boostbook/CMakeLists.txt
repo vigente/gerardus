@@ -6,7 +6,7 @@ project(Boostbook)
 
 include(Ryppl)
 
-ryppl_add_doc_subdirectory(doc)
+#ryppl_add_doc_subdirectory(doc)
 
 if(WIN32)
   set(BOOSTBOOK_DIR "boostbook")
