@@ -37,4 +37,4 @@ target_link_libraries(inspect
   boost_regex
   )
 
-ryppl_export(TARGETS inspect)
+# ryppl_export(TARGETS inspect)

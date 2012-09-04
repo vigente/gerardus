@@ -1,5 +1,11 @@
 2012-09-04  Ramon Casero  <rcasero@gmail.com>
 
+	* cpp/src/third-party/boost/boost/*/CMakeLists.txt:
+
+	- Comment out all the `ryppl_xport()` blocks in the
+	`CMakeLists.txt` to prevent `make install` from filling
+	`gerardus/lib` with lots of boost files.
+
 	* cpp/src/third-party/CGAL-4.0.2/cmake/modules:
 
 	- Delete FindBLAS.cmake FindBoost.cmake FindLAPACK.cmake

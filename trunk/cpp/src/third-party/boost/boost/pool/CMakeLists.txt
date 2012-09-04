@@ -6,16 +6,16 @@ project(BoostPool NONE)
 
 include(Ryppl)
 
-ryppl_export(
-  DEPENDS
-    BoostConfig
-    BoostCore
-    BoostException
-    BoostMath
-    BoostTypeTraits
-    BoostUtility
-  RECOMMENDS
-    BoostThread
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   DEPENDS
+#     BoostConfig
+#     BoostCore
+#     BoostException
+#     BoostMath
+#     BoostTypeTraits
+#     BoostUtility
+#   RECOMMENDS
+#     BoostThread
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

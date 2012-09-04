@@ -21,28 +21,28 @@ add_library(boost_date_time
   src/gregorian/date_generators.cpp
   )
 
-ryppl_export(
-  TARGETS
-    boost_date_time
-  DEPENDS
-    BoostAlgorithm
-    BoostConfig
-    BoostConversion
-    BoostCore
-    BoostException
-    BoostIO
-    BoostInteger
-    BoostMPL
-    BoostRange
-    BoostSmartPtr
-    BoostTokenizer
-    BoostTypeTraits
-    BoostUtility
-  RECOMMENDS
-    BoostSerialization
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   TARGETS
+#     boost_date_time
+#   DEPENDS
+#     BoostAlgorithm
+#     BoostConfig
+#     BoostConversion
+#     BoostCore
+#     BoostException
+#     BoostIO
+#     BoostInteger
+#     BoostMPL
+#     BoostRange
+#     BoostSmartPtr
+#     BoostTokenizer
+#     BoostTypeTraits
+#     BoostUtility
+#   RECOMMENDS
+#     BoostSerialization
+#   INCLUDE_DIRECTORIES
+#     include
+#   )
 
 return()
 

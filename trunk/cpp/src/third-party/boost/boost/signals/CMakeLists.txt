@@ -36,20 +36,20 @@ add_library(boost_signals
 
 #ryppl_add_test_subdirectory(test)
 
-ryppl_export(
-  TARGETS
-    boost_signals
-  DEPENDS
-    BoostAny
-    BoostConfig
-    BoostCore
-    BoostFunction
-    BoostIterator
-    BoostMPL
-    BoostOptional
-    BoostSmartPtr
-    BoostTypeTraits
-    BoostUtility
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   TARGETS
+#     boost_signals
+#   DEPENDS
+#     BoostAny
+#     BoostConfig
+#     BoostCore
+#     BoostFunction
+#     BoostIterator
+#     BoostMPL
+#     BoostOptional
+#     BoostSmartPtr
+#     BoostTypeTraits
+#     BoostUtility
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

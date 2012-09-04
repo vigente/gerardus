@@ -6,17 +6,17 @@ project(BoostScopeExit NONE)
 
 include(Ryppl)
 
-ryppl_export(
-  DEPENDS
-    BoostConfig
-    BoostCore
-    BoostFunction
-    BoostLocalFunction
-    BoostMPL
-    BoostPreprocessor
-    BoostTypeTraits
-    BoostTypeof
-    BoostUtility
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   DEPENDS
+#     BoostConfig
+#     BoostCore
+#     BoostFunction
+#     BoostLocalFunction
+#     BoostMPL
+#     BoostPreprocessor
+#     BoostTypeTraits
+#     BoostTypeof
+#     BoostUtility
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

@@ -52,29 +52,29 @@ else()
     )
 endif()
 
-ryppl_export(
-  TARGETS
-    boost_thread
-  DEPENDS
-    BoostBind
-    BoostChrono
-    BoostConfig
-    BoostContainer
-    BoostCore
-    BoostDateTime
-    BoostException
-    BoostFunction
-    BoostFunctionalHash
-    BoostIO
-    BoostInteger
-    BoostMPL
-    BoostMove
-    BoostOptional
-    BoostSmartPtr
-    BoostStaticAssert
-    BoostSystem
-    BoostTypeTraits
-    BoostUtility
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   TARGETS
+#     boost_thread
+#   DEPENDS
+#     BoostBind
+#     BoostChrono
+#     BoostConfig
+#     BoostContainer
+#     BoostCore
+#     BoostDateTime
+#     BoostException
+#     BoostFunction
+#     BoostFunctionalHash
+#     BoostIO
+#     BoostInteger
+#     BoostMPL
+#     BoostMove
+#     BoostOptional
+#     BoostSmartPtr
+#     BoostStaticAssert
+#     BoostSystem
+#     BoostTypeTraits
+#     BoostUtility
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

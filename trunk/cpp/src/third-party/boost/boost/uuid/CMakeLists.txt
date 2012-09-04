@@ -6,20 +6,20 @@ project(BoostUUID NONE)
 
 include(Ryppl)
 
-ryppl_export(
-  DEPENDS
-    BoostConfig
-    BoostException
-    BoostIO
-    BoostInteger
-    BoostIterator
-    BoostSmartPtr
-    BoostStaticAssert
-    BoostTypeTraits
-    BoostUtility
-  RECOMMENDS
-    BoostRandom
-    BoostSerialization
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   DEPENDS
+#     BoostConfig
+#     BoostException
+#     BoostIO
+#     BoostInteger
+#     BoostIterator
+#     BoostSmartPtr
+#     BoostStaticAssert
+#     BoostTypeTraits
+#     BoostUtility
+#   RECOMMENDS
+#     BoostRandom
+#     BoostSerialization
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

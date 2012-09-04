@@ -6,26 +6,26 @@ project(BoostSpiritClassic NONE)
 
 include(Ryppl)
 
-ryppl_export(
-  DEPENDS
-    BoostConceptCheck
-    BoostConfig
-    BoostCore
-    BoostException
-    BoostInteger
-    BoostIterator
-    BoostMPL
-    BoostOptional
-    BoostPool
-    BoostPreprocessor
-    BoostRegex
-    BoostSmartPtr
-    BoostStaticAssert
-    BoostTypeTraits
-    BoostTypeof
-    BoostUtility
-  RECOMMENDS
-    BoostThread
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   DEPENDS
+#     BoostConceptCheck
+#     BoostConfig
+#     BoostCore
+#     BoostException
+#     BoostInteger
+#     BoostIterator
+#     BoostMPL
+#     BoostOptional
+#     BoostPool
+#     BoostPreprocessor
+#     BoostRegex
+#     BoostSmartPtr
+#     BoostStaticAssert
+#     BoostTypeTraits
+#     BoostTypeof
+#     BoostUtility
+#   RECOMMENDS
+#     BoostThread
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

@@ -6,11 +6,11 @@ project(BoostNumericInterval NONE)
 
 include(Ryppl)
 
-ryppl_export(
-  DEPENDS
-    BoostConfig
-    BoostCore
-    BoostLogic
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   DEPENDS
+#     BoostConfig
+#     BoostCore
+#     BoostLogic
+#   INCLUDE_DIRECTORIES
+#     include
+#   )

@@ -21,16 +21,16 @@ target_link_libraries(boost_timer
   boost_chrono
   )
 
-ryppl_export(
-  TARGETS
-    boost_timer
-  DEPENDS
-    BoostChrono
-    BoostConfig
-    BoostCore
-    BoostInteger
-    BoostSystem
-    BoostUtility
-  INCLUDE_DIRECTORIES
-    include
-  )
+# ryppl_export(
+#   TARGETS
+#     boost_timer
+#   DEPENDS
+#     BoostChrono
+#     BoostConfig
+#     BoostCore
+#     BoostInteger
+#     BoostSystem
+#     BoostUtility
+#   INCLUDE_DIRECTORIES
+#     include
+#   )
