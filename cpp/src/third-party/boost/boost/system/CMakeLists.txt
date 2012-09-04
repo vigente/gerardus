@@ -1,6 +1,8 @@
 # Distributed under the Boost Software License, Version 1.0.
 # See http://www.boost.org/LICENSE_1_0.txt
 
+## Changes by Ramon Casero <rcasero@gmail.com> for project Gerardus
+
 cmake_minimum_required(VERSION 2.8.8)
 project(BoostSystem CXX)
 
@@ -36,3 +38,16 @@ endif(NOT BUILD_SHARED_LIBS)
 #   INCLUDE_DIRECTORIES
 #     include
 #   )
+
+# install compiled libraries
+if(WIN32)
+  install(TARGETS
+    boost_system
+    RUNTIME ARCHIVE
+    DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
+else(WIN32)
+  install(TARGETS
+    boost_system
+    LIBRARY ARCHIVE
+    DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
+endif(WIN32)
