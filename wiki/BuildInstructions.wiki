@@ -206,6 +206,16 @@ $ for i in {a..z}; do svn ci --force-log --file svn-commit.txt boost/$i*; done
 $ find . -name CMakeLists.txt | xargs sed -i 's/ryppl_add_doc_subdirectory(doc)/#ryppl_add_doc_subdirectory(doc)/'
 $ find . -name CMakeLists.txt | xargs sed -i 's/ryppl_add_test_subdirectory(test)/#ryppl_add_test_subdirectory(test)/'
 }}}
+ # Fix small bug in `cpp/src/third-party/boost/boost/thread/src/pthread/thread.cpp`
+{{{
+#include <../src/pthread/timeconv.inl>
+}}}
+ # Fix small bug in `cpp/src/third-party/boost/boost/inspect/inspect.cpp`. Comment out the paragraph
+{{{
+  if ( deprecated_ck )
+      inspectors.push_back( inspector_element( new boost::inspect::deprecated_macro_check ) );
+}}}
+ # Build and install Boost separately. This creates, amongst other files and directories, an `include/boost` directory with the header files. Delete all the `.svn` directories, and move this `boost` directory to `gerardus/include`, so that the header files are available to the rest of Gerardus
  # Comment out all Boost modules that we don't need for Gerardus
 {{{
 $ sed -i 's/^add_subdirectory/#add_subdirectory/' CMakeLists.txt
@@ -216,11 +226,6 @@ $ sed -i 's/#add_subdirectory(boost\/system)/add_subdirectory(boost\/system)/' C
 $ sed -i 's/#add_subdirectory(boost\/thread)/add_subdirectory(boost\/thread)/' CMakeLists.txt
 $ sed -i 's/#add_subdirectory(boost\/chrono)/add_subdirectory(boost\/chrono)/' CMakeLists.txt
 }}}
- # Fix small bug in `cpp/src/third-party/boost/boost/thread/src/pthread/thread.cpp`
-{{{
-#include <../src/pthread/timeconv.inl>
-}}}
- # Build and install Boost separately. This creates, amongst other files and directories, an `include/boost` directory with the header files. Delete all the `.svn` directories, and move this `boost` directory to `gerardus/include`, so that the header files are available to the rest of Gerardus
  # Comment out all the `ryppl_export()` blocks in the `CMakeLists.txt` to prevent `make install` from filling `gerardus/lib` with all the files we just saw above when we build Gerardus
 {{{
 $ find . -name CMakeLists.txt | xargs sed -i '/ryppl_export/,/)/s/.*/# &/'
