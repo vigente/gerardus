@@ -206,3 +206,16 @@ $ for i in {a..z}; do svn ci --force-log --file svn-commit.txt boost/$i*; done
 $ find . -name CMakeLists.txt | xargs sed -i 's/ryppl_add_doc_subdirectory(doc)/#ryppl_add_doc_subdirectory(doc)/'
 $ find . -name CMakeLists.txt | xargs sed -i 's/ryppl_add_test_subdirectory(test)/#ryppl_add_test_subdirectory(test)/'
 }}}
+ # Comment out all Boost modules that we don't need for Gerardus
+{{{
+$ sed -i 's/^add_subdirectory/#add_subdirectory/' CMakeLists.txt
+$ sed -i 's/#add_subdirectory(boost\/date_time)/add_subdirectory(boost\/date_time)/' CMakeLists.txt
+$ sed -i 's/#add_subdirectory(boost\/filesystem)/add_subdirectory(boost\/filesystem)/' CMakeLists.txt
+$ sed -i 's/#add_subdirectory(boost\/system)/add_subdirectory(boost\/system)/' CMakeLists.txt
+$ sed -i 's/#add_subdirectory(boost\/thread)/add_subdirectory(boost\/thread)/' CMakeLists.txt
+$ sed -i 's/#add_subdirectory(boost\/chrono)/add_subdirectory(boost\/chrono)/' CMakeLists.txt
+}}}
+ # Fix small bug in `cpp/src/third-party/boost/boost/thread/src/pthread/thread.cpp`
+{{{
+#include <../src/pthread/timeconv.inl>
+}}}
