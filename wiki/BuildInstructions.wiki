@@ -161,7 +161,7 @@ $ make install
 
  # Go to the C++ third-party directory
 {{{
-$ cd cpp/src/third-part
+$ cd cpp/src/third-party
 }}}
  # Download the source code of the [https://svn.boost.org/trac/boost/wiki/CMakeModularizationStatus#CMakeSupport CMake-fied Boost project]
 {{{
