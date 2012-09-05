@@ -1,5 +1,13 @@
 2012-09-05  Ramon Casero  <rcasero@gmail.com>
 
+	* CMakeLists.txt: (v0.2.0)
+
+	- Boost library is now distributed with Gerardus, so it's no
+	longer an external dependency that can be configured with
+	find_package(). Instead, we set up the required variables here.
+
+	- Tidy up the messages displayed.
+
 	* cpp/src/CMakeLists.txt: (v0.1.4)
 
 	- Because boost is now part of Gerardus, we link to its libraries
