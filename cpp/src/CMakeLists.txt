@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2010-2011 University of Oxford
-# Version: 0.1.3
+# Version: 0.1.4
 # $Rev$
 # $Date$
 #
@@ -47,32 +47,36 @@ ADD_DEFINITIONS("-D_SCL_SECURE_NO_WARNINGS")
 # add TCLAP libraries to the include path
 INCLUDE_DIRECTORIES("${GERARDUS_SOURCE_DIR}/cpp/src/third-party/tclap-1.2.1/include")
 
+# add Boost libraries to the include and linking paths
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+
 # extractVoxelCoordinatesFromSegmentationMask
 ADD_EXECUTABLE(extractVoxelCoordinatesFromSegmentationMask
   ExtractVoxelCoordinatesFromSegmentationMask.cxx )
 TARGET_LINK_LIBRARIES( extractVoxelCoordinatesFromSegmentationMask 
-  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
+  boost_system boost_filesystem
   ${ITK_LIBRARIES})
 
 # padImageWithVoxels
 ADD_EXECUTABLE(padSegmentationMaskWithVoxels
   PadSegmentationMaskWithVoxels.cxx)
 TARGET_LINK_LIBRARIES( padSegmentationMaskWithVoxels
-  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
+  boost_system boost_filesystem
   ${ITK_LIBRARIES})
 
 # rotate3DImage
 ADD_EXECUTABLE(rotate3DImage
   Rotate3DImage.cxx )
 TARGET_LINK_LIBRARIES(rotate3DImage
-  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
+  boost_system boost_filesystem
   ${ITK_LIBRARIES})
 
 # resize3DImage
 ADD_EXECUTABLE(resize3DImage
   Resize3DImage.cxx)
 TARGET_LINK_LIBRARIES(resize3DImage
-  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
+  boost_system boost_filesystem
   ${ITK_LIBRARIES})
 
 # skeletonize3DSegmentation
@@ -80,24 +84,26 @@ ADD_EXECUTABLE(skeletonize3DSegmentation
   Skeletonize3DSegmentation.cxx)
 INCLUDE_DIRECTORIES(third-party/itkBinaryThinningImageFilter3D/Source)
 TARGET_LINK_LIBRARIES(skeletonize3DSegmentation
-  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
+  boost_system boost_filesystem
   ${ITK_LIBRARIES})
 
 # vesselness3DImage
 ADD_EXECUTABLE(vesselness3DImage
   Vesselness3DImage.cxx)
 TARGET_LINK_LIBRARIES(vesselness3DImage
-  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
+  boost_system boost_filesystem
   ${ITK_LIBRARIES})
 
-# vesselness3DImage
+# rigidRegistration2D
 ADD_EXECUTABLE(rigidRegistration2D
   RigidRegistration2D.cxx)
 TARGET_LINK_LIBRARIES(rigidRegistration2D
-  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
+  boost_system boost_filesystem
   ${ITK_LIBRARIES})
 
 # call the subprojects
+ADD_SUBDIRECTORY(third-party/boost)
+
 ADD_SUBDIRECTORY(third-party/mba)
 
 ADD_SUBDIRECTORY(third-party/gmp-5.0.5)
