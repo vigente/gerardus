@@ -128,9 +128,11 @@ $ cd gerardus
 $ mkdir bin
 $ cd bin
 $ cmake ..
+$ cmake ..
 $ make
 $ make install
 }}}
+ Note: `cmake` has to be run twice, as this is a requirement of the boost libraries.
  # Add `gerardus/matlab/ItkToolkit` to the Matlab path
 
 == Instructions for Windows users ==
