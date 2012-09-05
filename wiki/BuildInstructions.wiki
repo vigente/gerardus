@@ -63,11 +63,16 @@ $ sudo apt-get install g++
 }}}
    * Mac users can install [https://developer.apple.com/xcode/ Xcode] free from Apple's App Store. This includes gcc and Subversion. After installing Xcode you need to install the command-line tools - to do this open the preferences window in Xcode (start Xcode, open the Xcode menu and choose Preferences). Then click the Downloads tab and click the install button next to the `Command Line Tools` in the Components list.
    * For windows users, [http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express Visual C++ Express] is available free from Microsoft and includes C++ compilers.
- * [http://www.cmake.org/ CMake] (Gerardus tested with version 2.8)
+ * [http://www.cmake.org/ CMake] (Gerardus requires version >= 2.8.8)
   # Download and install CMake for your system (Linux, Windows, MacOS X, etc). 
-  * Note for Linux users: CMake is probably packaged for your distribution. For example, Ubuntu users can install it doing
+  * Note for Linux users: CMake is probably packaged for your distribution. Ubuntu packages CMake 2.8.6 in Precise Pangolin (12.04), so it's necessary to install cmake 2.8.9 from the upcoming Quantal Quetzal (12.10). This can be done by replacing `precise` by `quantal` in `/etc/apt/sources.list`, then running
 {{{
+$ sudo apt-get update
 $ sudo apt-get install cmake
+}}}
+   Then undo the edit and run again
+{{{
+$ sudo apt-get update
 }}}
   * Note for Windows users: Download and run the Win32 Installer from the [http://www.cmake.org/cmake/resources/software.html CMake downloads page]
   * Note for Mac users: Download and run the Mac OSX 64/32-bit Universal Installer from the [http://www.cmake.org/cmake/resources/software.html CMake downloads page]
