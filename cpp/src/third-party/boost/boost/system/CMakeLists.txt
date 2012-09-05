@@ -40,14 +40,6 @@ endif(NOT BUILD_SHARED_LIBS)
 #   )
 
 # install compiled libraries
-if(WIN32)
-  install(TARGETS
-    boost_system
-    RUNTIME ARCHIVE
-    DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
-else(WIN32)
-  install(TARGETS
-    boost_system
-    LIBRARY ARCHIVE
-    DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
-endif(WIN32)
+install(TARGETS
+  boost_system
+  DESTINATION ${GERARDUS_SOURCE_DIR}/lib)

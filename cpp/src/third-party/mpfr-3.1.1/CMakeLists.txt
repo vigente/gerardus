@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.1.0
+# Version: 0.1.1
 # $Rev$
 # $Date$
 #
@@ -45,8 +45,8 @@ find_package(MPFR)
 
 if(MPFR_FOUND)
 
-  message(STATUS "MPFR include found in ${MPFR_INCLUDE_DIR}")
-  message(STATUS "MPFR lib found in ${MPFR_LIBRARIES_DIR}")
+#  message(STATUS "MPFR include found in ${MPFR_INCLUDE_DIR}")
+#  message(STATUS "MPFR lib found in ${MPFR_LIBRARIES_DIR}")
 
 else(MPFR_FOUND)
 

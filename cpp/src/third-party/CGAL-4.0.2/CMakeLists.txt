@@ -2,7 +2,11 @@
 # Modifications by Ramon Casero  <ramon.casero@cs.ox.ac.uk> to
 # integrate CGAL within project Gerardus.
 #
-# Version: 0.1.1
+# Version: 0.1.2
+#
+# - Remove some of the messages. This library produces a lot of output
+# - at configuration time, and that makes it harder to see what's
+# - going on with Gerardus' configuration as a whole.
 #
 # - Variables have been renamed so that CGAL can be a subproject of
 # Gerardus, e.g. CMAKE_SOURCE_DIR to CGAL_SOURCE_DIR.
@@ -88,9 +92,9 @@ if ( CGAL_BRANCH_BUILD )
   mark_as_advanced(CGAL_MAINTENANCE_PACKAGE_DIR)
   mark_as_advanced(CGAL_CORE_PACKAGE_DIR)
 
-  message(STATUS "Installation package directory: ${CGAL_INSTALLATION_PACKAGE_DIR}")
-  message(STATUS "Maintenance package directory: ${CGAL_MAINTENANCE_PACKAGE_DIR}")
-  message(STATUS "Core package directory: ${CGAL_CORE_PACKAGE_DIR}")
+#  message(STATUS "Installation package directory: ${CGAL_INSTALLATION_PACKAGE_DIR}")
+#  message(STATUS "Maintenance package directory: ${CGAL_MAINTENANCE_PACKAGE_DIR}")
+#  message(STATUS "Core package directory: ${CGAL_CORE_PACKAGE_DIR}")
 
 else ( CGAL_BRANCH_BUILD )
 
@@ -99,7 +103,7 @@ else ( CGAL_BRANCH_BUILD )
   string(REGEX REPLACE "^/" "" CGAL_SOURCE_DDIR ${CGAL_SOURCE_CDIR})
   string(REPLACE "/" ";" CGAL_SOURCE_PDIR ${CGAL_SOURCE_DDIR})
   list(GET CGAL_SOURCE_PDIR -1 CGAL_RELEASE_NAME)
-  message( STATUS "Build CGAL from release in directory ${CGAL_RELEASE_NAME}" )
+#  message( STATUS "Build CGAL from release in directory ${CGAL_RELEASE_NAME}" )
 
   set(CGAL_CONFIGURED_PACKAGES_NAMES ${CGAL_RELEASE_NAME})
 
@@ -116,7 +120,7 @@ endif (CGAL_BRANCH_BUILD )
 
 list(SORT CGAL_CONFIGURED_PACKAGES_NAMES)
 
-message(STATUS "Packagenames: ${CGAL_CONFIGURED_PACKAGES_NAMES}")
+#message(STATUS "Packagenames: ${CGAL_CONFIGURED_PACKAGES_NAMES}")
 
 if ( CGAL_BRANCH_BUILD ) 
     
@@ -130,7 +134,7 @@ if ( CGAL_BRANCH_BUILD )
 
   set(CGAL_BUILD_VERSION 900)
 
-  message( STATUS "Generate VERSION file")
+#  message( STATUS "Generate VERSION file")
   file(REMOVE ${CGAL_BINARY_DIR}/VERSION)
   if (CGAL_BUGFIX_VERSION AND CGAL_BUGFIX_VERSION GREATER 0)  
     set(CGAL_CREATED_VERSION_NUM "${CGAL_MAJOR_VERSION}.${CGAL_MINOR_VERSION}.${CGAL_BUGFIX_VERSION}")
@@ -144,7 +148,7 @@ if ( CGAL_BRANCH_BUILD )
 
   file(WRITE "${CGAL_BINARY_DIR}/VERSION" "${CGAL_CREATED_VERSION_NUM}")
 
-  message( STATUS "Generate version.h file")
+#  message( STATUS "Generate version.h file")
 
   #define CGAL_VERSION 3.5-I-135
   message(STATUS "CGAL_VERSION is ${CGAL_CREATED_VERSION}")
@@ -172,14 +176,14 @@ if ( CGAL_BRANCH_BUILD )
   endwhile()
 
   set(CGAL_CREATED_VERSION_NR "1${CGAL_TMP_MAJOR}${CGAL_TMP_MINOR}${CGAL_BUGFIX_VERSION}${CGAL_TMP_BUILD}")
-  message(STATUS "CGAL_VERSION_NR is ${CGAL_CREATED_VERSION_NR}")
+#  message(STATUS "CGAL_VERSION_NR is ${CGAL_CREATED_VERSION_NR}")
 
   if ( ${CGAL_SCM_NAME} STREQUAL "svn" )
 
     # The function Subversion_GET_REVISION is defined in ../CMakeLists.txt
     Subversion_GET_REVISION("${CGAL_SOURCE_DIR}" CGAL_TMP_REVISION)
     set(CGAL_CREATED_SVN_REVISION "${CGAL_TMP_REVISION}")
-    message(STATUS "CGAL_SVN_REVISION is ${CGAL_TMP_REVISION}")
+#    message(STATUS "CGAL_SVN_REVISION is ${CGAL_TMP_REVISION}")
   
   endif()
 
@@ -188,7 +192,7 @@ if ( CGAL_BRANCH_BUILD )
     ### TODO GIT_NR?
     set(CGAL_GIT_HASH "n/a")
 
-    message(STATUS "CGAL_GIT_HASH is ${CGAL_GIT_HASH}")
+#    message(STATUS "CGAL_GIT_HASH is ${CGAL_GIT_HASH}")
   endif()
 
   file(REMOVE ${CGAL_BINARY_DIR}/include/CGAL/version.h)
@@ -200,7 +204,7 @@ if ( CGAL_BRANCH_BUILD )
 
   if (CGAL_REPORT_DUPLICATE_FILES) 
 
-    message(STATUS "Searching for duplicate files")
+#    message(STATUS "Searching for duplicate files")
 
     foreach (package ${CGAL_CONFIGURED_PACKAGES})
 
@@ -231,7 +235,7 @@ if ( CGAL_BRANCH_BUILD )
       list(FIND CGAL_DUPLICATE_HEADER_FILES "${file}" CGAL_FILE_IDX)
       list(REMOVE_AT CGAL_DUPLICATE_HEADER_FILES ${CGAL_FILE_IDX})
     endforeach()
-    message(STATUS "Duplicate header files (will be repeated at end): ${CGAL_DUPLICATE_HEADER_FILES}")
+#    message(STATUS "Duplicate header files (will be repeated at end): ${CGAL_DUPLICATE_HEADER_FILES}")
 
     list(SORT CGAL_CPP_FILES)
     set(CGAL_UNIQUE_CPP_FILES ${CGAL_CPP_FILES})
@@ -242,7 +246,7 @@ if ( CGAL_BRANCH_BUILD )
       list(FIND CGAL_DUPLICATE_CPP_FILES "${file}" CGAL_FILE_IDX)
       list(REMOVE_AT CGAL_DUPLICATE_CPP_FILES ${CGAL_FILE_IDX})
     endforeach()
-    message(STATUS "Duplicate cpp files (will be repeated at end): ${CGAL_DUPLICATE_CPP_FILES}")
+#    message(STATUS "Duplicate cpp files (will be repeated at end): ${CGAL_DUPLICATE_CPP_FILES}")
 
   endif(CGAL_REPORT_DUPLICATE_FILES)
 
@@ -308,12 +312,12 @@ endif()
 #
 #--------------------------------------------------------------------------------------------------
 
-message( STATUS "CGAL_MAJOR_VERSION=${CGAL_MAJOR_VERSION}" )
-message( STATUS "CGAL_MINOR_VERSION=${CGAL_MINOR_VERSION}" )
-message( STATUS "CGAL_BUGFIX_VERSION=${CGAL_BUGFIX_VERSION}" )
-if(CGAL_BUILD_VERSION LESS 1000)
-  message( STATUS "CGAL_BUILD_VERSION=${CGAL_BUILD_VERSION}" )
-endif()
+#message( STATUS "CGAL_MAJOR_VERSION=${CGAL_MAJOR_VERSION}" )
+#message( STATUS "CGAL_MINOR_VERSION=${CGAL_MINOR_VERSION}" )
+#message( STATUS "CGAL_BUGFIX_VERSION=${CGAL_BUGFIX_VERSION}" )
+#if(CGAL_BUILD_VERSION LESS 1000)
+#  message( STATUS "CGAL_BUILD_VERSION=${CGAL_BUILD_VERSION}" )
+#endif()
 
 # SONAME, SOVERSION
 #
@@ -345,8 +349,8 @@ endif()
 set( CGAL_SONAME_VERSION "9" )
 set( CGAL_SOVERSION      "9.0.0" )
 
-message( STATUS "CGAL_SONAME_VERSION=${CGAL_SONAME_VERSION}" )
-message( STATUS "CGAL_SOVERSION     =${CGAL_SOVERSION}" )
+#message( STATUS "CGAL_SONAME_VERSION=${CGAL_SONAME_VERSION}" )
+#message( STATUS "CGAL_SOVERSION     =${CGAL_SOVERSION}" )
 set( CGAL_BUILDING_LIBS TRUE )
 
 set( CGAL_VERSION_DIR     CGAL-${CGAL_VERSION} )
@@ -356,7 +360,7 @@ set( CGAL_MODULES_DIR     ${CGAL_INSTALLATION_PACKAGE_DIR}/${CGAL_MODULES_REL_DI
 include(${CGAL_MODULES_DIR}/CGAL_Macros.cmake)
 cgal_setup_module_path()
 
-message( STATUS "CGAL_REFERENCE_CACHE_DIR=${CGAL_REFERENCE_CACHE_DIR}" )
+#message( STATUS "CGAL_REFERENCE_CACHE_DIR=${CGAL_REFERENCE_CACHE_DIR}" )
 
 if ( RUNNING_CGAL_AUTO_TEST )
   message(STATUS "Operating system:")
@@ -410,8 +414,8 @@ include(CGAL_CheckCXXFileRuns)
 
 mark_as_advanced(CMAKE_BACKWARDS_COMPATIBILITY)
 
-message( STATUS "USING CMake version: ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}" )
-message( STATUS "System: ${CMAKE_SYSTEM_NAME}" )
+#message( STATUS "USING CMake version: ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}" )
+#message( STATUS "System: ${CMAKE_SYSTEM_NAME}" )
 
 #--------------------------------------------------------------------------------------------------
 #
@@ -476,17 +480,17 @@ if ( CMAKE_COMPILER_IS_GNUCXX )
     endif()
     
     if ( "${GCC_VERSION}" MATCHES "^4." )
-      message( STATUS "Using gcc version 4 or later. Adding -frounding-math" )
+#      message( STATUS "Using gcc version 4 or later. Adding -frounding-math" )
       uniquely_add_flags( CGAL_CXX_FLAGS "-frounding-math" )
     endif()
     
     if ( "${GCC_VERSION}" MATCHES "^4.2" )
-      message( STATUS "Using gcc version 4.2. Adding -fno-strict-aliasing" )
+#      message( STATUS "Using gcc version 4.2. Adding -fno-strict-aliasing" )
       uniquely_add_flags( CGAL_CXX_FLAGS "-fno-strict-aliasing" )
     endif()
     
     if ( "${CMAKE_SYSTEM_PROCESSOR}" MATCHES "alpha" )
-      message( STATUS "Using gcc on alpha. Adding -mieee -mfp-rounding-mode=d" )
+#      message( STATUS "Using gcc on alpha. Adding -mieee -mfp-rounding-mode=d" )
       uniquely_add_flags( CGAL_CXX_FLAGS "-mieee -mfp-rounding-mode=d" )
     endif()
     
@@ -866,4 +870,3 @@ if( WITH_CPACK AND EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake" )
     include(CPack)
     
 endif()
-

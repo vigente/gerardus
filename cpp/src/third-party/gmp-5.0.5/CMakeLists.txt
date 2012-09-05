@@ -45,8 +45,8 @@ find_package(GMP)
 
 if(GMP_FOUND)
 
-  message(STATUS "GMP include found in ${GMP_INCLUDE_DIR}")
-  message(STATUS "GMP lib found in ${GMP_LIBRARIES_DIR}")
+#  message(STATUS "GMP include found in ${GMP_INCLUDE_DIR}")
+#  message(STATUS "GMP lib found in ${GMP_LIBRARIES_DIR}")
 
 else(GMP_FOUND)
 
