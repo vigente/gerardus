@@ -1,5 +1,10 @@
 2012-09-05  Ramon Casero  <rcasero@gmail.com>
 
+	* cpp/src/CMakeLists.txt: (v0.1.4)
+
+	- Because boost is now part of Gerardus, we link to its libraries
+	as targets, not as library files.
+
 	* cpp/src/third-party/boost/boost/thread/CMakeLists.txt
 	* cpp/src/third-party/boost/boost/system/CMakeLists.txt
 	* cpp/src/third-party/boost/boost/filesystem/CMakeLists.txt
