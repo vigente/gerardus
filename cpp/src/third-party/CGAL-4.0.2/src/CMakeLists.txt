@@ -1,3 +1,6 @@
+# Small modifications by Ramon Casero <rcasero@gmail.com> for project
+# Gerardus
+
 function (build_cgal_library LIBRARY_NAME LIBRARY_DIR_NAME ADDITIONAL_FILES)
   # IMPORTANT: First delete all_files.cpp
   if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/all_files.cpp)
@@ -122,7 +125,7 @@ foreach(package ${CGAL_CONFIGURED_PACKAGES})
 
       string(REPLACE "CGAL" "" CGAL_CONFIGURED_LIBRARY_NAME ${CGAL_CONFIGURED_LIBRARY_SUBDIR})
 
-      message(STATUS "Library config detected: ${CGAL_CONFIGURED_LIBRARY_NAME}")
+      #message(STATUS "Library config detected: ${CGAL_CONFIGURED_LIBRARY_NAME}")
       list(APPEND CGAL_CONFIGURED_LIBRARIES ${CGAL_CONFIGURED_LIBRARY_NAME})
       #message(STATUS "Library config detected: ${CGAL_CONFIGURED_LIBRARIES}")
 
@@ -166,5 +169,4 @@ list(REMOVE_DUPLICATES CGAL_CONFIGURED_LIBRARIES)
 list(SORT CGAL_CONFIGURED_LIBRARIES)
 cache_set(CGAL_CONFIGURED_LIBRARIES "${CGAL_CONFIGURED_LIBRARIES}")
 
-message(STATUS "Library configs detected: ${CGAL_CONFIGURED_LIBRARIES}")
-
+message(STATUS "CGAL library configs detected: ${CGAL_CONFIGURED_LIBRARIES}")

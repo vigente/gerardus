@@ -82,14 +82,6 @@ endif()
 #   )
 
 # install compiled libraries
-if(WIN32)
-  install(TARGETS
-    boost_thread
-    RUNTIME ARCHIVE
-    DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
-else(WIN32)
-  install(TARGETS
-    boost_thread
-    LIBRARY ARCHIVE
-    DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
-endif(WIN32)
+install(TARGETS
+  boost_thread
+  DESTINATION ${GERARDUS_SOURCE_DIR}/lib)

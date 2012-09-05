@@ -1,3 +1,6 @@
+# Small modifications by Ramon Casero <rcasero@gmail.com> for project
+# Gerardus
+
 if ( NOT CGAL_GMP_SETUP )
   
   find_package( GMP )
@@ -8,14 +11,14 @@ if ( NOT CGAL_GMP_SETUP )
       
       include(CGAL_Macros)
     
-      message( STATUS "GMP include:     ${GMP_INCLUDE_DIR}" )
-      message( STATUS "GMP libraries:   ${GMP_LIBRARIES}" )
-      message( STATUS "GMP definitions: ${GMP_DEFINITIONS}" )
+#      message( STATUS "GMP include:     ${GMP_INCLUDE_DIR}" )
+#      message( STATUS "GMP libraries:   ${GMP_LIBRARIES}" )
+#      message( STATUS "GMP definitions: ${GMP_DEFINITIONS}" )
       get_dependency_version(GMP)
 
-      message( STATUS "MPFR include:      ${MPFR_INCLUDE_DIR}" )
-      message( STATUS "MPFR libraries:    ${MPFR_LIBRARIES}" )
-      message( STATUS "MPFR definitions:  ${MPFR_DEFINITIONS}" )
+#      message( STATUS "MPFR include:      ${MPFR_INCLUDE_DIR}" )
+#      message( STATUS "MPFR libraries:    ${MPFR_LIBRARIES}" )
+#      message( STATUS "MPFR definitions:  ${MPFR_DEFINITIONS}" )
       set( MPFR_DEPENDENCY_LIBRARIES   ${GMP_LIBRARIES} )
       set( MPFR_DEPENDENCY_INCLUDE_DIR ${GMP_INCLUDE_DIR} )
       get_dependency_version(MPFR)
