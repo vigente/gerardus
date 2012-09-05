@@ -1,5 +1,11 @@
 2012-09-05  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/CMakeLists.txt: (v0.5.2)
+
+	- Fix bug. ItkRegistration.cpp is experimental code that hasn't
+	been added to the repository yet, so comment out creating a
+	target for it.
+
 	* CMakeLists.txt: (v0.2.0)
 
 	- Boost library is now distributed with Gerardus, so it's no
