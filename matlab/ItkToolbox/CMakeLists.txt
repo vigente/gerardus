@@ -84,14 +84,14 @@ IF(WIN32)
   INSTALL(TARGETS
     itk_imfilter
     itk_pstransform
-    itk_registration
+#    itk_registration
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ELSE(WIN32)
   INSTALL(TARGETS
     itk_imfilter
     itk_pstransform
-    itk_registration
+#    itk_registration
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ENDIF(WIN32)
