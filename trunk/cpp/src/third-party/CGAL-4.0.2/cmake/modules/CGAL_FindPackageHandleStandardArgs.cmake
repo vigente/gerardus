@@ -17,6 +17,9 @@
 #    be "Could NOT find LibXml2", if you don't like this message you can specify
 #    your own custom failure message there.
 
+# Small modifications by Ramon Casero <rcasero@gmail.com> for project
+# Gerardus
+
 macro(FIND_PACKAGE_HANDLE_STANDARD_ARGS _NAME _FAIL_MSG _VAR1 )
 
   if("${_FAIL_MSG}" STREQUAL "DEFAULT_MSG")
@@ -40,7 +43,7 @@ macro(FIND_PACKAGE_HANDLE_STANDARD_ARGS _NAME _FAIL_MSG _VAR1 )
   
   if (${_NAME_UPPER}_FOUND)
     if (NOT ${_NAME}_FIND_QUIETLY)
-      message(STATUS "Found ${_NAME}: ${${_VAR1}}")
+#      message(STATUS "Found ${_NAME}: ${${_VAR1}}")
     endif()
   else()
     if (${_NAME}_FIND_REQUIRED)

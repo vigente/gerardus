@@ -1,3 +1,6 @@
+# Small modifications by Ramon Casero <rcasero@gmail.com> for project
+# Gerardus
+
 if( NOT CGAL_MACROS_FILE_INCLUDED )
   set(CGAL_MACROS_FILE_INCLUDED 1 )
 
@@ -108,7 +111,7 @@ if( NOT CGAL_MACROS_FILE_INCLUDED )
 
   function( CGAL_display_compiler_version )
     set(search_dirs "")
-    message("Compiler version:")
+#    message("Compiler version:")
     set(version "Unknown compiler. Cannot display its version")
     if(MSVC)
       execute_process(COMMAND "${CMAKE_CXX_COMPILER}"
@@ -140,10 +143,10 @@ if( NOT CGAL_MACROS_FILE_INCLUDED )
         endif()
       endforeach()
     endif()
-    message("${version}")
+#    message("${version}")
     if(search_dirs)
-      message("Search dirs:")
-      message("${search_dirs}")
+#      message("Search dirs:")
+#      message("${search_dirs}")
     endif()
   endfunction()
   
@@ -198,7 +201,7 @@ if( NOT CGAL_MACROS_FILE_INCLUDED )
         
       endif() 
       
-      message( STATUS "USING ${LIB}_VERSION = '${${LIB}_VERSION}'" )
+      message(STATUS "Library ${LIB} v${${LIB}_VERSION}")
   
     endif()
     
@@ -459,7 +462,7 @@ endif()
 function(process_CGAL_subdirectory entry subdir type_name)
   # For example, subdir can be "examples", type_name "example", and entry "Mesh_2"
 
-  message( STATUS "Configuring ${subdir} in ${entry}" )
+#  message( STATUS "Configuring ${subdir} in ${entry}" )
 
   if ( CGAL_BRANCH_BUILD )
     string( REGEX REPLACE "${CMAKE_SOURCE_DIR}/.*/${subdir}/" "" ENTRY_DIR_NAME "${entry}" )
@@ -504,7 +507,7 @@ function(process_CGAL_subdirectory entry subdir type_name)
       endif()
     endif()
   else()
-    message(STATUS "${subdir}/${ENTRY_DIR_NAME} is in dont_submit")
+#    message(STATUS "${subdir}/${ENTRY_DIR_NAME} is in dont_submit")
   endif()
 endfunction()
 
