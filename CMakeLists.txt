@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.1.5
+# Version: 0.2.0
 # $Rev$
 # $Date$
 #
@@ -48,10 +48,13 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 SET(CMAKE_MODULE_PATH
   ${CMAKE_CURRENT_SOURCE_DIR}/matlab;${CMAKE_CURRENT_SOURCE_DIR}/cpp/src/third-party/cquammen-Clarity/CMake)
 
+# display type of build (e.g. Release)
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
 # find Matlab
 FIND_PACKAGE(Matlab)
 IF(MATLAB_FOUND)
-  MESSAGE("   Matlab " ${MATLAB_VERSION} ": " ${MATLAB_ROOT})
+  MESSAGE(STATUS "Matlab " ${MATLAB_VERSION} ": " ${MATLAB_ROOT})
 ENDIF(MATLAB_FOUND)
 
 # some versions of Matlab or some libraries are not compatible with
@@ -73,13 +76,40 @@ PROJECT(GERARDUS)
 FIND_PACKAGE(ITK REQUIRED)
 IF(ITK_FOUND)
   INCLUDE(${ITK_USE_FILE})
-  MESSAGE("   ITK v" ${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR}.${ITK_VERSION_PATCH})
+  MESSAGE(STATUS "ITK v" ${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR}.${ITK_VERSION_PATCH})
 ENDIF(ITK_FOUND)
 
-# add Boost libraries to the include path
-FIND_PACKAGE(Boost COMPONENTS filesystem system REQUIRED)
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
-LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+# route to find Boost header files and libraries
+SET(Boost_INCLUDE_DIR ${GERARDUS_SOURCE_DIR}/include 
+  CACHE PATH "Path to Boost header files")
+SET(Boost_LIBRARY_DIR ${GERARDUS_SOURCE_DIR}/lib
+  CACHE PATH "Path to Boost libraries")
+SET(Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIR}
+  CACHE PATH "Path to Boost header files")
+SET(Boost_LIBRARY_DIRS ${Boost_LIBRARY_DIR}
+  CACHE PATH "Path to Boost libraries")
+SET(Boost_LIBRARIES boost_system boost_filesystem boost_system
+  CACHE STRING "Available Boost libraries")
+SET(Boost_DEFINITIONS ""
+  CACHE STRING "Definitions for Boost libraries")
+
+# Get Boost version number from its config.hpp file
+set(BOOST_VERSION 0)
+file(READ "${Boost_INCLUDE_DIR}/boost/version.hpp" _boost_VERSION_HPP_CONTENTS)
+string(REGEX REPLACE ".*#define BOOST_VERSION ([0-9]+).*" "\\1" 
+  Boost_VERSION "${_boost_VERSION_HPP_CONTENTS}")
+set(Boost_VERSION ${Boost_VERSION} CACHE INTERNAL 
+  "The version number for boost libraries")
+if(NOT "${Boost_VERSION}" STREQUAL "0")
+  math(EXPR Boost_MAJOR_VERSION "${Boost_VERSION} / 100000")
+  math(EXPR Boost_MINOR_VERSION "${Boost_VERSION} / 100 % 1000")
+  math(EXPR Boost_SUBMINOR_VERSION "${Boost_VERSION} % 100")
+endif()
+
+#message(STATUS "Boost include:     ${Boost_INCLUDE_DIRS}")
+message(STATUS "Boost libraries:   ${Boost_LIBRARIES}")
+#message(STATUS "Boost definitions: ${Boost_DEFINITIONS}")
+message(STATUS "Boost version: '${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}'")
 
 ## flags for all targets
 IF(WIN32)
