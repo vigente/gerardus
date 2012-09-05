@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.5.1
+# Version: 0.5.2
 # $Rev$
 # $Date$
 #
@@ -53,20 +53,20 @@ INCLUDE_DIRECTORIES(
 TARGET_LINK_LIBRARIES(itk_imfilter
   ${ITK_LIBRARIES})
 
-################################################################
-## itk_registration()
-################################################################
+# ################################################################
+# ## itk_registration()
+# ################################################################
 
-ADD_MEX_FILE(itk_registration 
-  ../GerardusCommon.cpp
-  ../MatlabImageHeader.cxx
-  ItkRegistration.cpp)
+# ADD_MEX_FILE(itk_registration 
+#   ../GerardusCommon.cpp
+#   ../MatlabImageHeader.cxx
+#   ItkRegistration.cpp)
 
-INCLUDE_DIRECTORIES(
-  .
-  )
-TARGET_LINK_LIBRARIES(itk_registration
-  ${ITK_LIBRARIES})
+# INCLUDE_DIRECTORIES(
+#   .
+#   )
+# TARGET_LINK_LIBRARIES(itk_registration
+#   ${ITK_LIBRARIES})
 
 ################################################################
 ## itk_pstransform
