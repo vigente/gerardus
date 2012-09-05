@@ -1,13 +1,19 @@
+# Small modifications by Ramon Casero <rcasero@gmail.com> for project
+# Gerardus
+
 if ( NOT CGAL_Boost_Setup )
 
-  include(CGAL_TweakFindBoost)
+  # gerardus: We distribute the boost libraries with gerardus, so we
+  # don't need to look for them as an external package
+
+#  include(CGAL_TweakFindBoost)
   # In the documentation, we say we require Boost-1.39, but technically we
   # require 1.33.1. Some packages may require more recent versions, though.
-  find_package( Boost 1.33.1 REQUIRED thread )
+#  find_package( Boost 1.33.1 REQUIRED thread )
   
-  message( STATUS "Boost include:     ${Boost_INCLUDE_DIRS}" )
-  message( STATUS "Boost libraries:   ${Boost_LIBRARIES}" )
-  message( STATUS "Boost definitions: ${Boost_DEFINITIONS}" )
+ # message( STATUS "Boost include:     ${Boost_INCLUDE_DIRS}" )
+ # message( STATUS "Boost libraries:   ${Boost_LIBRARIES}" )
+ # message( STATUS "Boost definitions: ${Boost_DEFINITIONS}" )
   
   set ( CGAL_USE_BOOST 1 )
   
@@ -21,9 +27,8 @@ if ( NOT CGAL_Boost_Setup )
     add_to_cached_list(CGAL_3RD_PARTY_LIBRARIES ${Boost_LIBRARIES} )
   endif()
   
-  message( STATUS "USING BOOST_VERSION = '${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}'" )
+#  message( STATUS "Boost version: '${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}'" )
   
-  set ( CGAL_Boost_Setup TRUE )
+  set (CGAL_Boost_Setup TRUE)
   
 endif()
-

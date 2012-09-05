@@ -15,6 +15,9 @@
 # Adapted to CGAL from IST's CheckCXXSourceRuns.cmake and
 # KDE4's CheckCSourceRuns.cmake
 
+# Small modifications by Ramon Casero <rcasero@gmail.com> for project
+# Gerardus
+
 MACRO(CHECK_CXX_FILE_RUNS FILE VAR TEST)
 
   # Set compiler settings
@@ -50,13 +53,13 @@ MACRO(CHECK_CXX_FILE_RUNS FILE VAR TEST)
   SET(result_var ${${VAR}})
   if("${result_var}" EQUAL 0)
     SET(${VAR} 1 CACHE INTERNAL "Test ${TEST}" FORCE )
-    MESSAGE(STATUS "Performing Test ${TEST} - Success")
+#    MESSAGE(STATUS "Performing Test ${TEST} - Success")
     FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
       "Performing C++ SOURCE FILE Test ${TEST} succeded with the following output:\n"
       "${OUTPUT}\n"
       "Source file was:\n${SOURCE}\n")
   else()
-    MESSAGE(STATUS "Performing Test ${TEST} - Failed")
+#    MESSAGE(STATUS "Performing Test ${TEST} - Failed")
     SET(${VAR} "" CACHE INTERNAL "Test ${TEST}" FORCE )
     FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
       "Performing C++ SOURCE FILE Test ${TEST} failed with the following output:\n"

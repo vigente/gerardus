@@ -1,3 +1,38 @@
+2012-09-05  Ramon Casero  <rcasero@gmail.com>
+
+	* cpp/src/third-party/boost/boost/thread/CMakeLists.txt
+	* cpp/src/third-party/boost/boost/system/CMakeLists.txt
+	* cpp/src/third-party/boost/boost/filesystem/CMakeLists.txt
+
+	- Don't limit building the boost library to static libraries. By
+	not specifying RUNTIME, ARCHIVE or LIBRARY, the right type of
+	library will be selected.
+
+	* cpp/src/third-party/CGAL-4.0.2/cmake/modules/CGAL_SetupBoost.cmake
+
+	- We distribute the boost libraries with gerardus, so we don't
+	need to look for them as an external package.
+
+	- Remove some of the messages. The CGAL library produces a lot of
+	output at configuration time, and that makes it harder to see
+	what's going on with Gerardus' configuration as a whole.
+
+	* cpp/src/third-party/CGAL-4.0.2/CMakeLists.txt: (v0.1.2)
+	* cpp/src/third-party/CGAL-4.0.2/cmake/modules/CGAL_SetupGMP.cmake
+	* cpp/src/third-party/CGAL-4.0.2/cmake/modules/CGAL_SetupFlags.cmake
+	* cpp/src/third-party/CGAL-4.0.2/cmake/modules/CGAL_Macros.cmake
+	* cpp/src/third-party/CGAL-4.0.2/cmake/modules/CGAL_Common.cmake
+	* cpp/src/third-party/CGAL-4.0.2/cmake/modules/CGAL_FindPackageHandleStandardArgs.cmake
+	* cpp/src/third-party/CGAL-4.0.2/cmake/modules/CGAL_CheckCXXFileRuns.cmake
+	* cpp/src/third-party/CGAL-4.0.2/cmake/modules/CGAL_GeneratorSpecificSettings.cmake
+	* cpp/src/third-party/CGAL-4.0.2/src/CMakeLists.txt
+	* cpp/src/third-party/gmp-5.0.5/CMakeLists.txt
+	* cpp/src/third-party/mpfr-3.1.1/CMakeLists.txt
+
+	- Remove some of the messages. The CGAL library produces a lot of
+	output at configuration time, and that makes it harder to see
+	what's going on with Gerardus' configuration as a whole.
+
 2012-09-04  Ramon Casero  <rcasero@gmail.com>
 
 	* Add include directory to contain header files.
