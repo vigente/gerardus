@@ -39,7 +39,6 @@ Matlab MEX functions (file names given following the linux 64 bit convention. In
  * C++ compiler
  * CMake
  * Insight Toolkit
- * Boost C++ libraries
  * Matlab
  * Gerardus
 
@@ -99,22 +98,6 @@ $ cmake -DBUILD_SHARED_LIBS=ON -DITK_USE_REVIEW=ON \
    * Windows users can do this checking the "Advanced" box in the CMake interface, and then checking the `ITK_USE_REVIEW`, `ITK_LEGACY_REMOVE` and `ITK_USE_OPTIMIZED_REGISTRATION_METHODS` entries. If using Visual Studio, then the `CMAKE_BUILD_TYPE` entry will be ignored anyway, because Visual Studio is a multi-configuration sytem
   * Note for Windows users: It's important to select "Release" instead of "Debug" from the pull-down configuration menu above the Solution Explorer. This will enable to build and install the Release version of ITK, which will then be needed by the Release build of Gerardus
   * Note for Windows users: Click on "Start" -> "My computer" -> "View system information", and in the "Advanced" tab click on "Environment Variables". Select the System variable `Path`, and click "Edit". Add the path to the `ITKCOMMON.DLL` library, e.g. "C:\Program Files\ITK\bin"
- * [http://www.boost.org/ Boost C++ libraries], development version (Gerardus tested with v1.46 for linux and v1.47 for Windows)
-  * Not all of Boost is required, only the following libraries: filesystem, system and thread.
-   * Note for Linux users: You can install the boost libraries with e.g.
-{{{
-$ sudo apt-get install libboost-filesystem-dev libboost-system-dev libboost-thread-dev
-}}}
-   * Note for Mac users: if you have [http://www.macports.org/install.php MacPorts] installed, you can easily install Boost using
-{{{
-$ sudo port install boost
-}}}
-   * Note for Windows 32 bit users: Use the [http://www.boostpro.com/download/ installer from BoostPro], !BoostPro 1.47.0 Installer (205K .exe) as of this writing.
-   * Note for Windows 64 bit users: The libraries are not available in !BoostPro. It is necessary to download the source code, and [http://www.boost.org/doc/libs/1_47_0/more/getting_started/windows.html compile it on the Windows command line] with the commands
-{{{
-C:\> bootstrap
-C:\> bjam link=shared
-}}}
  * [http://www.mathworks.com/products/matlab/ Matlab]
   # Matlab has its own installer for each operating system (Linux, Windows, MacOS X, etc)
   * Note for Windows users: Similarly to the previous step, add to the `Path` environment variable the path to your Matlab `LIBMEX.DLL` and `LIBMX.DLL` libraries, e.g. "C:\Program Files\MATLAB\R2010b\bin\win32" (32 bit) or "C:\Program Files\MATLAB\R2010b\bin\win64" (64 bit)
