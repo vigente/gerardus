@@ -1,5 +1,10 @@
 2012-09-06  Ramon Casero  <rcasero@gmail.com>
 
+	* cpp/src/CMakeLists.txt: (v0.2.1)
+
+	- Create targets for the GMP and MPFR libraries, so that we can
+	use them as dependencies, link to them, etc...
+
 	* cpp/src/CMakeLists.txt: (v0.2.0)
 	* Delete cpp/src/third-party/gmp-5.0.5/CMakeLists.txt
 	* Delete cpp/src/third-party/mpfr-3.1.1/CMakeLists.txt
