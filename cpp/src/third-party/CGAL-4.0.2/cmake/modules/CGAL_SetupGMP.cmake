@@ -3,8 +3,8 @@
 
 if ( NOT CGAL_GMP_SETUP )
   
-  find_package( GMP )
-  find_package( MPFR )
+#  find_package( GMP )
+#  find_package( MPFR )
 
   if( GMP_FOUND )
     if( MPFR_FOUND )
@@ -33,7 +33,7 @@ if ( NOT CGAL_GMP_SETUP )
       add_to_cached_list(CGAL_3RD_PARTY_INCLUDE_DIRS   ${GMP_INCLUDE_DIR}   )
       add_to_cached_list(CGAL_3RD_PARTY_LIBRARIES_DIRS ${GMP_LIBRARIES_DIR} )
       add_to_cached_list(CGAL_3RD_PARTY_DEFINITIONS    ${GMP_DEFINITIONS}   )
-    
+
       add_to_cached_list(CGAL_3RD_PARTY_LIBRARIES ${MPFR_LIBRARIES} )
       add_to_cached_list(CGAL_3RD_PARTY_LIBRARIES ${GMP_LIBRARIES} )
     else( MPFR_FOUND )

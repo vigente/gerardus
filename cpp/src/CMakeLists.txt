@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2010-2011 University of Oxford
-# Version: 0.2.1
+# Version: 0.2.2
 # $Rev$
 # $Date$
 #
@@ -129,9 +129,18 @@ else(WIN32 AND NOT CYGWIN)
     LOG_TEST 1
     LOG_INSTALL 1
     )
-  add_library(gmp UNKNOWN IMPORTED GLOBAL)
+  add_library(gmp STATIC IMPORTED GLOBAL)
   set_property(TARGET gmp PROPERTY IMPORTED_LOCATION ${GMP_SOURCE_DIR}/output/lib)
-  set(GMP_LIBRARIES gmp)
+  set(GMP_FOUND TRUE 
+    CACHE BOOL "GMP library is part of Gerardus, so this is always true")
+  set(GMP_INCLUDE_DIR ${GMP_SOURCE_DIR}
+    CACHE PATH "Path to GMP include files")
+  set(GMP_LIBRARY_DIR ${GMP_SOURCE_DIR}/output/lib
+    CACHE PATH "Path to GMP library")
+  set(GMP_LIBRARY_DIRS ${GMP_SOURCE_DIR}/output/lib
+    CACHE PATH "Path to GMP library")
+  set(GMP_LIBRARIES_DIR ${GMP_SOURCE_DIR}/output/lib
+    CACHE PATH "Path to GMP library")
   
   ExternalProject_Add(MPFR
     DEPENDS GMP
@@ -150,9 +159,16 @@ else(WIN32 AND NOT CYGWIN)
     LOG_TEST 1
     LOG_INSTALL 1
     )
-  add_library(mpfr UNKNOWN IMPORTED GLOBAL)
-  set_property(TARGET mpfr PROPERTY IMPORTED_LOCATION ${MPFR_SOURCE_DIR}/output/lib)
-  set(MPFR_LIBRARIES mpfr)
+  set(MPFR_FOUND TRUE 
+    CACHE BOOL "MPFR library is part of Gerardus, so this is always true")
+  set(MPFR_INCLUDE_DIR ${MPFR_SOURCE_DIR}/src
+    CACHE PATH "Path to MPFR include files")
+  set(MPFR_LIBRARY_DIR ${MPFR_SOURCE_DIR}/output/lib
+    CACHE PATH "Path to MPFR library")
+  set(MPFR_LIBRARY_DIRS ${MPFR_SOURCE_DIR}/output/lib
+    CACHE PATH "Path to MPFR library")
+  set(MPFR_LIBRARIES_DIR ${MPFR_SOURCE_DIR}/output/lib
+    CACHE PATH "Path to MPFR library")
 
 endif(WIN32 AND NOT CYGWIN)
 
