@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2010-2011 University of Oxford
-# Version: 0.2.0
+# Version: 0.2.1
 # $Rev$
 # $Date$
 #
@@ -129,7 +129,10 @@ else(WIN32 AND NOT CYGWIN)
     LOG_TEST 1
     LOG_INSTALL 1
     )
-
+  add_library(gmp UNKNOWN IMPORTED GLOBAL)
+  set_property(TARGET gmp PROPERTY IMPORTED_LOCATION ${GMP_SOURCE_DIR}/output/lib)
+  set(GMP_LIBRARIES gmp)
+  
   ExternalProject_Add(MPFR
     DEPENDS GMP
     PREFIX ${MPFR_SOURCE_DIR}
@@ -147,6 +150,10 @@ else(WIN32 AND NOT CYGWIN)
     LOG_TEST 1
     LOG_INSTALL 1
     )
+  add_library(mpfr UNKNOWN IMPORTED GLOBAL)
+  set_property(TARGET mpfr PROPERTY IMPORTED_LOCATION ${MPFR_SOURCE_DIR}/output/lib)
+  set(MPFR_LIBRARIES mpfr)
+
 endif(WIN32 AND NOT CYGWIN)
 
 # call the subprojects
