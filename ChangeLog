@@ -1,5 +1,18 @@
 2012-09-06  Ramon Casero  <rcasero@gmail.com>
 
+	* cpp/src/third-party/CGAL-4.0.2/cmake/modules/CGAL_SetupGMP.cmake:
+
+	- Don't use find_package() for GMP and MPFR. Now they are part of
+	gerardus, and we use ExternalProject_Add() to build them.
+
+	* cpp/src/CMakeLists.txt: (v0.2.2)
+
+	- Fix bug. Imported libraries cannot be of type unknown.
+
+	- Add several variables that provide the path to the GMP and MPFR
+	libraries. <package>_LIBRARIES_DIR is not a standard variable
+	name, but it's used by CGAL.
+
 	* cpp/src/CMakeLists.txt: (v0.2.1)
 
 	- Create targets for the GMP and MPFR libraries, so that we can
