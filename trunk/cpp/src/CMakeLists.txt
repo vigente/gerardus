@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2010-2011 University of Oxford
-# Version: 0.1.4
+# Version: 0.2.0
 # $Rev$
 # $Date$
 #
@@ -101,14 +101,58 @@ TARGET_LINK_LIBRARIES(rigidRegistration2D
   boost_system boost_filesystem
   ${ITK_LIBRARIES})
 
+# subprojects that are not built using CMake
+set(GMP_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/gmp-5.0.5)
+set(MPFR_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/mpfr-3.1.1)
+
+if(WIN32 AND NOT CYGWIN)
+
+  message(FATAL_ERROR "GMP and MPFR build not implemented for Windows")
+
+else(WIN32 AND NOT CYGWIN)
+
+  include(ExternalProject)
+
+  ExternalProject_Add(GMP
+    PREFIX ${GMP_SOURCE_DIR}
+    STAMP_DIR ${GMP_SOURCE_DIR}/output
+    SOURCE_DIR ${GMP_SOURCE_DIR}
+    CONFIGURE_COMMAND ./configure --prefix=${GMP_SOURCE_DIR}/output
+    BINARY_DIR ${GMP_SOURCE_DIR}
+    BUILD_COMMAND make -j3
+    TEST_BEFORE_INSTALL 1
+    TEST_COMMAND make check -j3
+    INSTALL_DIR ${GMP_SOURCE_DIR}/output
+    INSTALL_COMMAND make install
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_TEST 1
+    LOG_INSTALL 1
+    )
+
+  ExternalProject_Add(MPFR
+    DEPENDS GMP
+    PREFIX ${MPFR_SOURCE_DIR}
+    STAMP_DIR ${MPFR_SOURCE_DIR}/output
+    SOURCE_DIR ${MPFR_SOURCE_DIR}
+    CONFIGURE_COMMAND ./configure --prefix=${MPFR_SOURCE_DIR}/output --with-gmp-include=${GMP_SOURCE_DIR}/output/include --with-gmp-lib=${GMP_SOURCE_DIR}/output/lib
+    BINARY_DIR ${MPFR_SOURCE_DIR}
+    BUILD_COMMAND make -j3
+    TEST_BEFORE_INSTALL 1
+    TEST_COMMAND make check -j3
+    INSTALL_DIR ${MPFR_SOURCE_DIR}/output
+    INSTALL_COMMAND make install
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_TEST 1
+    LOG_INSTALL 1
+    )
+endif(WIN32 AND NOT CYGWIN)
+
 # call the subprojects
 ADD_SUBDIRECTORY(third-party/boost)
 
 ADD_SUBDIRECTORY(third-party/mba)
-
-ADD_SUBDIRECTORY(third-party/gmp-5.0.5)
-
-ADD_SUBDIRECTORY(third-party/mpfr-3.1.1)
 
 ADD_SUBDIRECTORY(third-party/CGAL-4.0.2)
 # ADD_SUBDIRECTORY(third-party/cquammen-Clarity)
