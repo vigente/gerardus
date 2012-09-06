@@ -119,9 +119,9 @@ else(WIN32 AND NOT CYGWIN)
     SOURCE_DIR ${GMP_SOURCE_DIR}
     CONFIGURE_COMMAND ./configure --prefix=${GMP_SOURCE_DIR}/output
     BINARY_DIR ${GMP_SOURCE_DIR}
-    BUILD_COMMAND make -j3
+    BUILD_COMMAND make
     TEST_BEFORE_INSTALL 1
-    TEST_COMMAND make check -j3
+    TEST_COMMAND make check
     INSTALL_DIR ${GMP_SOURCE_DIR}/output
     INSTALL_COMMAND make install
     LOG_CONFIGURE 1
@@ -137,9 +137,9 @@ else(WIN32 AND NOT CYGWIN)
     SOURCE_DIR ${MPFR_SOURCE_DIR}
     CONFIGURE_COMMAND ./configure --prefix=${MPFR_SOURCE_DIR}/output --with-gmp-include=${GMP_SOURCE_DIR}/output/include --with-gmp-lib=${GMP_SOURCE_DIR}/output/lib
     BINARY_DIR ${MPFR_SOURCE_DIR}
-    BUILD_COMMAND make -j3
+    BUILD_COMMAND make
     TEST_BEFORE_INSTALL 1
-    TEST_COMMAND make check -j3
+    TEST_COMMAND make check
     INSTALL_DIR ${MPFR_SOURCE_DIR}/output
     INSTALL_COMMAND make install
     LOG_CONFIGURE 1
