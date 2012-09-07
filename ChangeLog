@@ -1,3 +1,11 @@
+2012-09-07  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/MatlabImportFilter.h: (v0.1.1)
+	* matlab/MatlabImportFilter.hxx: (v0.1.2)
+
+	- Add method GetStaticVector3Argument to read from a Matlab matrix
+	row a static 3-vector.
+
 2012-09-06  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/third-party/CGAL-4.0.2/cmake/modules/CGAL_SetupGMP.cmake:

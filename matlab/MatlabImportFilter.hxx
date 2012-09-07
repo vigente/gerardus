@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.1.2
   * $Rev$
   * $Date$
   *
@@ -363,5 +363,130 @@ MatlabImportFilter::GetImageArgument(unsigned int idx, std::string paramName) {
   return importFilter->GetOutput();
 
 }
+
+// function to read a static 3-vector (a vector with 3 elements that
+// can only be created using the constructor) from one row of a 2D
+// input matrix with 3 columns
+//
+// ParamType: a class of objects that are constructed like
+//            x(-2, 0.3, 5), e.g. CGAL::Point_3< CGAL::Simple_cartesian<double> >
+// idx: parameter index
+// row: row index (C++ convention row = 0, 1, 2, ..., nrows-1)
+template <class ParamType>
+ParamType 
+MatlabImportFilter::GetStaticVector3Argument(unsigned int idx, 
+					     mwIndex row, 
+					     std::string paramName,
+					     ParamType def) {
+  
+  // if user didn't provide a value, or provided an empty array,
+  // return default
+  if (idx >= this->numArgs || mxIsEmpty(this->args[idx])) {
+    return def;
+  }
+  
+  // check for null pointer
+  if (this->args[idx] == NULL) {
+    mexErrMsgTxt(("Parameter " + paramName + " provided, but NULL pointer.").c_str());
+  }
+
+  // check that we have a 2D matrix, numeric or boolean
+  if (mxGetNumberOfDimensions(this->args[idx]) > 2) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + " must be a 2D matrix.").c_str());
+  }
+  if (!mxIsNumeric(this->args[idx]) && !mxIsLogical(this->args[idx])) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + " must be a numeric or logical matrix.").c_str());
+  }
+
+  // matrix dimensions
+  mwSize nrows = mxGetM(this->args[idx]);
+  mwSize ncols = mxGetN(this->args[idx]);
+
+  // check that we have 3 columns
+  if (ncols != 3) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + " must have 3 columns.").c_str());
+  }
+
+  // check that row index is within range
+  if (row < 0 || row >= nrows) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + ": row index out of bounds.").c_str());
+  }
+
+  // auxiliary vector to read the row from the matrix. We cannot read
+  // directly into the output parameter, because the parameter needs
+  // to be initialised with its constructor, and its scope needs to be
+  // the same as the return at the end of this function
+  std::vector<long double> v;
+
+  // input matrix type
+  mxClassID inputVoxelClassId = mxGetClassID(this->args[idx]);
+  
+  // macro to make the code in the switch statement cleaner
+  // col is the column index
+  // i is the linearised matrix index
+#define GETVALUE(Tx)							\
+  {									\
+    Tx *valuep = (Tx *)mxGetData(this->args[idx]);			\
+    v.push_back((Tx)valuep[row]);					\
+    v.push_back((Tx)valuep[row + nrows]);				\
+    v.push_back((Tx)valuep[row + nrows + nrows]);			\
+  }
+  
+  // cast the class type provided by Matlab to the type requested by
+  // the user
+  switch(inputVoxelClassId)  { 
+  case mxLOGICAL_CLASS:
+    GETVALUE(mxLogical);
+    break;
+  case mxDOUBLE_CLASS:
+    GETVALUE(double);
+    break;
+  case mxSINGLE_CLASS:
+    GETVALUE(float);
+    break;
+  case mxINT8_CLASS:
+    GETVALUE(int8_T);
+    break;
+  case mxUINT8_CLASS:
+    GETVALUE(uint8_T);
+    break;
+  case mxINT16_CLASS:
+    GETVALUE(int16_T);
+    break;
+  case mxUINT16_CLASS:
+    GETVALUE(uint16_T);
+    break;
+  case mxINT32_CLASS:
+    GETVALUE(int32_T);
+    break;
+    // case mxUINT32_CLASS:
+    //   break;
+  case mxINT64_CLASS:
+    GETVALUE(int64_T);
+    break;
+    // case mxUINT64_CLASS:
+    //   break;
+  case mxUNKNOWN_CLASS:
+    mexErrMsgTxt(("Parameter " + paramName + " has unknown type.").c_str());
+    break;
+  default:
+    mexErrMsgTxt(("Parameter " + paramName + " has invalid type.").c_str());
+    break;
+  }
+
+#undef GETVALUE
+
+  // parameter to be returned
+  ParamType param(v[0], v[1], v[2]);
+
+  // return row from input matrix
+  return param;
+  
+}
+
 
 #endif /* MATLABIMPORTFILTER_HXX */
