@@ -3,8 +3,8 @@
 	* matlab/MatlabImportFilter.h: (v0.1.1)
 	* matlab/MatlabImportFilter.hxx: (v0.1.2)
 
-	- Add method GetStaticVector3Argument to read from a Matlab matrix
-	row a static 3-vector.
+	- Add method GetStaticVector3Argument to read a static 3-vector
+	from a Matlab matrix row.
 
 2012-09-06  Ramon Casero  <rcasero@gmail.com>
 
