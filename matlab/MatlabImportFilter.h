@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -51,6 +51,9 @@
 #include "itkSmartPointer.h"
 #include "itkImportImageFilter.h"
 
+/* CGAL headers */
+#include <CGAL/Simple_cartesian.h>
+
 class MatlabImportFilter: public itk::Object {
 
 private:
@@ -76,8 +79,8 @@ public:
   // run-time type information (and related methods)
   itkTypeMacro(MatlabImportFilter, Object);
 
-  // function to import into this class the array with the arguments
-  // provided by Matlab
+  // function to capture the array with the arguments provided by
+  // Matlab
   void SetMatlabArgumentsPointer(int _nrhs, const mxArray *_prhs[]) {
     this->numArgs = _nrhs;
     this->args = _prhs;
@@ -92,6 +95,8 @@ public:
   }
 
   // function to get direct pointers to the Matlab input arguments
+  //
+  // idx: parameter index
   const mxArray *GetArg(unsigned int idx) {
     if ((idx >= 0) && (idx < this->numArgs)) {
       return this->args[idx];
@@ -106,12 +111,18 @@ public:
   void CheckNumberOfArguments(unsigned int min, unsigned int max);
 
   // function to get the value of input arguments that are strings
+  //
+  // idx: parameter index
+  // def: value returned by default if argument is empty or not provided
   std::string GetStringArgument(unsigned int idx,
 				std::string paramName,
 				std::string def);
 
   // function to get the value of input arguments that are numeric
   // scalars from the array of input arguments
+  //
+  // idx: parameter index
+  // def: value returned by default if argument is empty or not provided
   template <class ParamType>
   ParamType GetScalarArgument(unsigned int idx, 
 			      std::string paramName,
@@ -119,6 +130,9 @@ public:
 
   // function to get the an input argument that is a vector of scalars
   // from the array of input arguments
+  //
+  // idx: parameter index
+  // def: value returned by default if argument is empty or not provided
   template <class ParamType, class ParamValueType>
   ParamType GetVectorArgument(unsigned int idx, 
 			      std::string paramName,
@@ -128,9 +142,25 @@ public:
   // returns an itk::ImportImageFilter, which can be used wherever an
   // itk:Image is required, without having to duplicate the Matlab
   // buffer
+  //
+  // idx: parameter index
   template <class TPixel, unsigned int VImageDimension>
   typename itk::Image<TPixel, VImageDimension>::Pointer
   GetImageArgument(unsigned int idx, std::string paramName);
+
+  // function to read a static 3-vector (a vector with 3 elements that
+  // can only be created using the constructor) from one row of a 2D
+  // input matrix with 3 columns
+  //
+  // ParamType: a class of objects that are constructed like
+  //            x(-2, 0.3, 5), e.g. CGAL::Point_3< CGAL::Simple_cartesian<double> >
+  // idx: parameter index
+  // row: row index (C++ convention row = 0, 1, 2, ..., n-1)
+  template <class ParamType>
+    ParamType GetStaticVector3Argument(unsigned int idx, 
+				       mwIndex row, 
+				       std::string paramName,
+				       ParamType def);
 
 };
 
