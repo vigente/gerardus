@@ -1,5 +1,10 @@
 2012-09-10  Ramon Casero  <rcasero@gmail.com>
 
+	* Delete matlab/ThirdPartyToolbox/MeshVoxelisation:
+
+	- We found VOXELISE to be buggy and misclassify voxels with our
+	cardiac cavity surfaces.
+
 	* Add matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp: (v0.1.0)
 	* Add matlab/CgalToolbox/cgal_insurftri.m: (v0.1.0)
 	* Add matlab/CgalToolbox/CMakeLists.txt: (v0.1.0)
