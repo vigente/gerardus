@@ -1,3 +1,33 @@
+2012-09-10  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp: (v0.1.0)
+	* Add matlab/CgalToolbox/cgal_insurftri.m: (v0.1.0)
+	* Add matlab/CgalToolbox/CMakeLists.txt: (v0.1.0)
+	* Add matlab/test/test_cgal_insurftri.m: (v0.1.0)
+
+	- CGAL_INSURFACETRIANGULATION Find whether a point is inside or
+	outside a closed surface.
+
+	- This Matlab MEX function replaces the third party Matlab
+	function VOXELISE, that was found to be buggy (a lot of voxels are
+	misclassified in our tests).
+
+	* matlab/MatlabImportFilter.h: (v0.2.0)
+	* matlab/MatlabImportFilter.hxx: (v0.2.0)
+
+	- Overload method GetScalarArgument() so that we can read a scalar
+	from any position in a matrix. Before, we assumed that scalar
+	arguments had only 1 element.
+
+	- Add method GetVectorOfStaticVector3Argument(). Each row of a
+	3-column matrix becomes an element of a vector.
+
+	* matlab/ItkToolbox/CMakeLists.txt: (v0.5.3)
+
+	- Now MatlabImport links to CGal, which links to
+	Boost. ItkImFilter uses MatlabImport, so add those directories to
+	include.
+
 2012-09-07  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/MatlabImportFilter.h: (v0.1.1)
