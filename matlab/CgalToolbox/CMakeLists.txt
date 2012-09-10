@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2011 University of Oxford
-# Version: 0.5.3
+# Copyright © 2012 University of Oxford
+# Version: 0.1.0
 # $Rev$
 # $Date$
 #
@@ -37,45 +37,19 @@ IF(NOT WIN32)
 ENDIF(NOT WIN32)
 
 ################################################################
-## itk_imfilter()
+## cgal_insurftri()
 ################################################################
 
-ADD_MEX_FILE(itk_imfilter 
-  ../GerardusCommon.cpp
-  ../MatlabImageHeader.cxx
-  ItkImFilter.cpp)
+ADD_MEX_FILE(cgal_insurftri
+  CgalInSurfaceTriangulation.cpp)
 
 INCLUDE_DIRECTORIES(
-  ..
   ${GERARDUS_SOURCE_DIR}/include
   ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.0.2/include
-  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1
-  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/itkBinaryThinningImageFilter3D/Source
+  ..
   )
-TARGET_LINK_LIBRARIES(itk_imfilter
-  ${ITK_LIBRARIES})
-
-# ################################################################
-# ## itk_registration()
-# ################################################################
-
-# ADD_MEX_FILE(itk_registration 
-#   ../GerardusCommon.cpp
-#   ../MatlabImageHeader.cxx
-#   ItkRegistration.cpp)
-
-# INCLUDE_DIRECTORIES(
-#   .
-#   )
-# TARGET_LINK_LIBRARIES(itk_registration
-#   ${ITK_LIBRARIES})
-
-################################################################
-## itk_pstransform
-################################################################
-
-ADD_MEX_FILE(itk_pstransform ItkPSTransform.cpp)
-TARGET_LINK_LIBRARIES(itk_pstransform
+TARGET_LINK_LIBRARIES(cgal_insurftri
+  CGAL
   ${ITK_LIBRARIES})
 
 ################################################################
@@ -84,16 +58,12 @@ TARGET_LINK_LIBRARIES(itk_pstransform
 
 IF(WIN32)
   INSTALL(TARGETS
-    itk_imfilter
-    itk_pstransform
-#    itk_registration
+    cgal_insurftri
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ELSE(WIN32)
   INSTALL(TARGETS
-    itk_imfilter
-    itk_pstransform
-#    itk_registration
+    cgal_insurftri
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ENDIF(WIN32)

@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -118,8 +118,18 @@ public:
 				std::string paramName,
 				std::string def);
 
-  // function to get the value of input arguments that are numeric
-  // scalars from the array of input arguments
+  // function to get the an input argument that is a vector of scalars
+  // from the array of input arguments
+  //
+  // idx: parameter index
+  // def: value returned by default if argument is empty or not provided
+  template <class ParamType, class ParamValueType>
+  ParamType GetVectorArgument(unsigned int idx, 
+			      std::string paramName,
+			      ParamType def);
+
+  // function to get the value of an input argument that is a numeric
+  // scalar
   //
   // idx: parameter index
   // def: value returned by default if argument is empty or not provided
@@ -128,13 +138,16 @@ public:
 			      std::string paramName,
 			      ParamType def);
 
-  // function to get the an input argument that is a vector of scalars
-  // from the array of input arguments
+  // function to get one scalar value from an input argument that is a matrix
   //
   // idx: parameter index
+  // row: matrix row index of the scalar
+  // col: matrix column index of the scalar
   // def: value returned by default if argument is empty or not provided
-  template <class ParamType, class ParamValueType>
-  ParamType GetVectorArgument(unsigned int idx, 
+  template <class ParamType>
+  ParamType GetScalarArgument(unsigned int idx,
+			      mwIndex row,
+			      mwIndex col,
 			      std::string paramName,
 			      ParamType def);
 
@@ -161,6 +174,12 @@ public:
 				       mwIndex row, 
 				       std::string paramName,
 				       ParamType def);
+
+  // function to read a matrix where each row is a static 3-vector
+  template <class ParamType>
+    std::vector<ParamType> GetVectorOfStaticVector3Argument(unsigned int idx, 
+							    std::string paramName,
+							    std::vector<ParamType> def);
 
 };
 
