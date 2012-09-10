@@ -1,8 +1,7 @@
 /*
  * MatlabExportFilter.h
  *
- * Class to provide an interface to graft ITK images onto Matlab
- * outputs
+ * Class to provide an interface to pass C++ data to Matlab
  *
  */
 
@@ -110,7 +109,8 @@ public:
     void GraftItkImageOntoMatlab(typename itk::DataObject::Pointer image, 
 				 std::vector<unsigned int> size,
 				 unsigned int idx, std::string paramName) {
-    GraftItkImageOntoMatlab<TPixel, VectorDimension, TPixel>(image, size, idx, paramName);
+    GraftItkImageOntoMatlab<TPixel, VectorDimension, TPixel>(image, size, 
+							     idx, paramName);
   }
 
 };
