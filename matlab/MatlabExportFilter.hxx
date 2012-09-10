@@ -82,7 +82,8 @@ MatlabExportFilter::GraftItkImageOntoMatlab(typename itk::DataObject::Pointer im
 					    unsigned int idx, std::string paramName) {
 
   if (size.size() != VectorDimension) {
-    mexErrMsgTxt(("Output image " + paramName + ": wrong length for size vector").c_str());
+    mexErrMsgTxt(("Output image " + paramName 
+		  + ": wrong length for size vector").c_str());
   }
 
   // convert output data type to output class ID
