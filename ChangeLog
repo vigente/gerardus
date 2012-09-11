@@ -1,3 +1,9 @@
+2012-09-11  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CMakeLists.txt: (v0.1.2)
+
+	- Fix bug, directory CgalToolbox was being ignored.
+
 2012-09-10  Ramon Casero  <rcasero@gmail.com>
 
 	* Delete matlab/ThirdPartyToolbox/MeshVoxelisation:
