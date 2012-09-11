@@ -26,7 +26,7 @@ function scimat = scimat_lconvhull_smoothing(scimat, alpha)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.2.0
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
@@ -82,8 +82,16 @@ clear s
 % ylabel('y (mm)')
 % zlabel('z (mm)')
 
-% coordinates of first and last voxels in the image
-box = scinrrd_index2world([1 1 1; size(scimat.data)], scimat.axis);
+% initialise the output
+scimat.data = false(size(scimat.data));
+
+% tight box around the surface
+aux = x(tri(:), :);
+box = [min(aux); max(aux)];
+
+% world-coordinates to index values. We only need to search within this
+% box, as voxels outside the box are definitely outside the surface too.
+idx = round(scinrrd_world2index(box, scimat.axis));
 
 % vectors that define the sampling area of the image
 xi = box(1, 1):scimat.axis(2).spacing:box(2, 1);
@@ -91,4 +99,7 @@ yi = box(1, 2):scimat.axis(1).spacing:box(2, 2);
 zi = box(1, 3):scimat.axis(3).spacing:box(2, 3);
 
 % convert the triangulation surface to a binary mask
-scimat.data = cgal_insurftri(tri, x, {xi, yi, zi}, rand(5, 3));
+scimat.data(idx(1, 1):idx(2, 1), ...
+    idx(1, 2):idx(2, 2), ...
+    idx(1, 3):idx(2, 3)) = ...
+    cgal_insurftri(tri, x, {xi, yi, zi}, rand(3, 3));
