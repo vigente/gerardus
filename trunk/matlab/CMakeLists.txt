@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.1.1
+# Version: 0.1.2
 # $Rev$
 # $Date$
 #
@@ -60,6 +60,7 @@ INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/MatlabMakeMacros.cmake)
 
 # build mex functions in the toolboxes
 ADD_SUBDIRECTORY(ItkToolbox)
+ADD_SUBDIRECTORY(CgalToolbox)
 ADD_SUBDIRECTORY(FiltersToolbox)
 ADD_SUBDIRECTORY(ThirdPartyToolbox)
 ADD_SUBDIRECTORY(PointsToolbox)
