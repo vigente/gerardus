@@ -5,6 +5,9 @@
 	- Replace third-party VOXELISE(), that has been deleted from
 	Gerardus, by our own cgal_insurftri().
 
+	- We can save a lot of time by not testing voxels that are outside
+	of the tight box that contains the surface.
+
 	* matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp: (v0.2.0)
 	* matlab/CgalToolbox/cgal_insurftri.m: (v0.2.0)
 	* matlab/test/test_cgal_insurftri.m: (v0.2.0)
