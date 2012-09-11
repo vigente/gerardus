@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -50,8 +50,7 @@
 
 // constructor
 MatlabImportFilter::MatlabImportFilter() {
-  this->args = NULL;
-  this->numArgs = 0;
+  this->args.clear();
 }
 
 // destructor
@@ -62,10 +61,10 @@ MatlabImportFilter::~MatlabImportFilter() {}
 // function to check that number of input arguments is within
 // certain limits
 void MatlabImportFilter::CheckNumberOfArguments(unsigned int min, unsigned int max) {
-  if (this->numArgs < min) {
+  if (this->args.size() < min) {
     mexErrMsgTxt("Not enough input arguments");
   }
-  if (this->numArgs > max) {
+  if (this->args.size() > max) {
     mexErrMsgTxt("Too many input arguments");
   }
 }
@@ -76,7 +75,7 @@ std::string MatlabImportFilter::GetStringArgument(unsigned int idx,
 						       std::string def) {
   
   // if user didn't provide a value, or provided an empty array, return the default
-  if (idx >= this->numArgs || mxIsEmpty(this->args[idx])) {
+  if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
     return def;
   }
 
@@ -101,7 +100,7 @@ ParamType MatlabImportFilter::GetScalarArgument(unsigned int idx,
 
 // function to get one scalar value from an input argument that is a matrix
 //
-// idx: parameter index
+// idx: argument index
 // row: matrix row index of the scalar
 // col: matrix column index of the scalar
 // def: value returned by default if argument is empty or not provided
@@ -113,7 +112,7 @@ ParamType MatlabImportFilter::GetScalarArgument(unsigned int idx,
 						ParamType def) {
 
   // if user didn't provide a value, or provided an empty array, return the default
-  if (idx >= this->numArgs || mxIsEmpty(this->args[idx])) {
+  if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
     return def;
   }
   
@@ -214,7 +213,7 @@ ParamType MatlabImportFilter::GetVectorArgument(unsigned int idx,
 
   // if user didn't provide a value, or provided an empty array,
   // return default
-  if (idx >= this->numArgs || mxIsEmpty(this->args[idx])) {
+  if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
     return def;
   }
 
@@ -411,7 +410,7 @@ MatlabImportFilter::GetStaticVector3Argument(unsigned int idx,
   
   // if user didn't provide a value, or provided an empty array,
   // return default
-  if (idx >= this->numArgs || mxIsEmpty(this->args[idx])) {
+  if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
     return def;
   }
   
@@ -522,7 +521,7 @@ MatlabImportFilter::GetVectorOfStaticVector3Argument(unsigned int idx,
 
   // if user didn't provide a value, or provided an empty array,
   // return default
-  if (idx >= this->numArgs || mxIsEmpty(this->args[idx])) {
+  if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
     return def;
   }
   
