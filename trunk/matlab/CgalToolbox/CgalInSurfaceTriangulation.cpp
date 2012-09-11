@@ -24,13 +24,29 @@
  *
  *   XI is a 3-column matrix. Each row represents the Carterian coordinates
  *   of a point for which we want to find whether it's inside or outside the
- *   closed surface.
+ *   closed surface. Note that if you want to test all the voxels in an
+ *   image, it is very slow and memory intensive to generate coordinates for
+ *   each voxel. In that scenario, it is much better to use the cell array
+ *   CI syntax shown below, and provide only values for the coordinate axes.
  *
  *   ISIN is a boolean vector with one element per point in XI. True means
  *   that the corresponding point is inside the closed surface (or on the
  *   surface), and false means that it's outside.
  *
- * ISIN = cgal_insurftri(TRI, X, XI, DIRECTIONS, TOL)
+ * ISIN = cgal_insurftri(TRI, X, CI)
+ *
+ *   CI is a cell array CI={XI, YI, ZI}, where XI, YI and ZI are row vectors
+ *   that describe a rectangular grid. For example,
+ *
+ *     CI={linspace(-.25, .25, 5), ...
+ *         linspace(-.25, .25, 4), ...
+ *         linspace(-.25, .25, 3)};
+ *
+ *   describes a sampling grid of 4 rows x 5 columns x 3 slices (note that
+ *   rows correspond to YI and columns to XI), of a domain 
+ *   [-0.25, 0.25] x [-0.25, 0.25] x [-0.25, 0.25].
+ *
+ * ISIN = cgal_insurftri(..., DIRECTIONS, TOL)
  *
  *   DIRECTIONS is a 3-column matrix. Each row represents a vector with a
  *   ray direction. By default, 
@@ -42,7 +58,10 @@
  *   This default can fail with regular voxels, as rays may cross vertices.
  *   A good practical alternative is to use a few random directions, e.g.
  *
- *          DIRECTIONS=rand(4, 3);
+ *          DIRECTIONS=rand(5, 3);
+ *
+ *   Warning! For the voting system to make sense, select an odd number of
+ *   rays.
  *
  *   TOL is a scalar with the distance tolerance. Points at distance <= TOL
  *   are considered to be on the surface, and thus "inside". By default,
@@ -53,7 +72,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -115,6 +134,45 @@ typedef CGAL::AABB_traits<K, Primitive>           AABB_triangle_traits;
 typedef CGAL::AABB_tree<AABB_triangle_traits>     Tree;
 
 /*
+ * pointIsIn(): auxiliary function to test whether a point is inside
+ * or outside the surface
+ */
+bool pointIsIn(Point xi, Tree &tree, 
+	       std::vector<Direction> &direction, double tol) {
+  
+  // minimum distance from the test point to the surface
+  double d = tree.squared_distance(xi);
+  
+  // if the test point is close enough to the surface, we consider
+  // it part of the surface, and thus an inside point
+  if (d <= tol) {
+    return true;
+  }
+  
+  // otherwise, we are going to shoot rays from the point in
+  // arbitrary directions, and count the intersections with the
+  // surface. An odd number of intersections means that the point is
+  // inside. If a ray lies on an edge or facet, it will produce many
+  // spurious intersections. That's why we use several rays, and
+  // take the result of the majority
+  
+  // rays starting at the test point, in the ray directions
+  Ray ray_query;
+  unsigned int isin_vote = 0;
+  for (unsigned int j = 0; j < direction.size(); ++j) {
+    
+    ray_query = Ray(xi, direction[j]);
+    
+    // if the number of intersections is odd, the point is inside the
+    // surface
+    isin_vote += tree.number_of_intersected_primitives(ray_query) % 2;
+  }
+  
+  // the majority of rays decide whether the point is inside or outside
+  return isin_vote > (direction.size() / 2);
+}
+
+/*
  * mexFunction(): entry point for the mex function
  */
 void mexFunction(int nlhs, mxArray *plhs[], 
@@ -163,18 +221,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mexErrMsgTxt("All input arguments must have 3 columns");
   }
 
-  // initialise output
-  plhs[0] = mxCreateNumericMatrix(nrowsXi, 1, mxLOGICAL_CLASS, mxREAL);
-  if (plhs[0] == NULL) {
-    mexErrMsgTxt("Cannot allocate memory for output");
-  }
-  
-  // pointer to the output
-  bool *isin = (bool *)mxGetData(plhs[0]);
-  if (isin == NULL) {
-    mexErrMsgTxt("Cannot get pointer to allocated output");
-  }
-
   // read triangular mesh from function
   std::list<Triangle> triangles;
   mwIndex v0, v1, v2; // indices of the 3 vertices of each triangle
@@ -208,47 +254,120 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mexErrMsgTxt("Not enough memory to accelerate distance queries");
   }
 
-  // loop every point that is tested to see whether it's inside or
-  // outside the surface
-  Point xi; // test point coordinates
-  double d; // distance from test point to surface
-  for (mwIndex i = 0; i < nrowsXi; ++i) {
+  if (mxIsCell(matlabImport->GetArg(2))) { // xi is given by 3 vectors
+					   // that describe a
+					   // rectangular volume we
+					   // want to test
 
-    // get point coordinates to be tested
-    xi = matlabImport->GetStaticVector3Argument<Point>(2, i, "XI", def);
-
-    // minimum distance from the test point to the surface
-    d = tree.squared_distance(xi);
-
-    // if the test point is close enough to the surface, we consider
-    // it part of the surface, and thus an inside point
-    if (d <= tol) {
-      isin[i] = true;
-      continue;
+    // check that the cell contains three vectors and get pointers to them
+    if (mxGetN(matlabImport->GetArg(2)) != 3) {
+      mexErrMsgTxt("CI must be a cell array given as a row with 3 elements");
     }
-
-    // otherwise, we are going to shoot rays from the point in
-    // arbitrary directions, and count the intersections with the
-    // surface. An odd number of intersections means that the point is
-    // inside. If a ray lies on an edge or facet, it will produce many
-    // spurious intersections. That's why we use several rays, and
-    // take the result of the majority
-
-    // rays starting at the test point, in the ray directions
-    Ray ray_query;
-    unsigned int isin_vote = 0;
-    for (unsigned int j = 0; j < direction.size(); ++j) {
-
-      ray_query = Ray(xi, direction[j]);
-
-      // if the number of intersections is odd, the point is inside the
-      // surface
-      isin_vote += tree.number_of_intersected_primitives(ray_query) % 2;
+    mxArray *pXi = mxGetCell(matlabImport->GetArg(2), 0);
+    mxArray *pYi = mxGetCell(matlabImport->GetArg(2), 1);
+    mxArray *pZi = mxGetCell(matlabImport->GetArg(2), 2);
+    if (pXi == NULL || pYi == NULL || pZi == NULL) {
+      mexErrMsgTxt("Cannot get pointer to vectors inside cell array CI");
     }
     
-    // the majority of rays decide whether the point is inside or outside
-    isin[i] = isin_vote > (direction.size() / 2);
-  }
+    // if any of the vectors is empty, we return an empty output
+    if (mxIsEmpty(pXi) || mxIsEmpty(pYi) || mxIsEmpty(pZi)) {
+      plhs[0] = mxCreateNumericMatrix(0, 0, mxDOUBLE_CLASS, mxREAL);
+      return;
+    }
+
+    // check that the cell array contains vectors, instead of matrices
+    if (mxGetM(pXi) != 1) {
+      mexErrMsgTxt("XI contained in CI must be a row vector");
+    }
+    if (mxGetM(pYi) != 1) {
+      mexErrMsgTxt("YI contained in CI must be a row vector");
+    }
+    if (mxGetM(pZi) != 1) {
+      mexErrMsgTxt("ZI contained in CI must be a row vector");
+    }
+
+    // get length of each vector in CI
+    size_t lenXi = std::max(mxGetM(pXi), mxGetN(pXi));
+    size_t lenYi = std::max(mxGetM(pYi), mxGetN(pYi));
+    size_t lenZi = std::max(mxGetM(pZi), mxGetN(pZi));
+    
+    // initialise output (note that rows correspond to Y coordinates,
+    // and columns correspond to X coordinates)
+    const mwSize dims[3] = {lenYi, lenXi, lenZi};
+    plhs[0] = mxCreateNumericArray(3, dims, mxLOGICAL_CLASS, mxREAL);
+    if (plhs[0] == NULL) {
+      mexErrMsgTxt("Cannot allocate memory for output");
+    }
+    
+    // pointer to the output
+    bool *isin = (bool *)mxGetData(plhs[0]);
+    if (isin == NULL) {
+      mexErrMsgTxt("Cannot get pointer to allocated output");
+    }
+
+    // register the vectors in the cell array CI with the matlab
+    // import interface so that we can access their values
+    size_t idXi = matlabImport->SetAdditionalMatlabArgumentPointer(pXi);
+    size_t idYi = matlabImport->SetAdditionalMatlabArgumentPointer(pYi);
+    size_t idZi = matlabImport->SetAdditionalMatlabArgumentPointer(pZi);
+
+    // loop every point that is tested to see whether it's inside or
+    // outside the surface
+    Point xi; // test point coordinates
+    for (mwIndex s = 0; s < lenZi; ++s) { // slice (slowest varying)
+
+      // z-coordinate of the point to be tested
+      double xi_z = matlabImport->GetScalarArgument<double>(idZi, 0, s,
+							    "ZI in CI", 
+							    mxGetNaN());
+      for (mwIndex c = 0; c < lenXi; ++c) { // column
+
+	// x-coordinate of the point to be tested
+	double xi_x = matlabImport->GetScalarArgument<double>(idXi, 0, c,
+							      "XI in CI", 
+							      mxGetNaN());
+	for (mwIndex r = 0; r < lenYi; ++r) { // row (fastest varying)
+	  
+	  // y-coordinate of the point to be tested
+	  double xi_y = matlabImport->GetScalarArgument<double>(idYi, 0, r,
+								"YI in CI", 
+								mxGetNaN());
+
+	  // test whether point is inside or outside the surface
+	  isin[sub2ind(dims[0], dims[1], dims[2], r, c, s)] 
+	    = pointIsIn(Point(xi_x, xi_y, xi_z), tree, direction, tol);
+	} // r
+      } // c
+    } // s
+
+  } else { // each row of xi is a point to test
+    
+    // initialise output
+    plhs[0] = mxCreateNumericMatrix(nrowsXi, 1, mxLOGICAL_CLASS, mxREAL);
+    if (plhs[0] == NULL) {
+      mexErrMsgTxt("Cannot allocate memory for output");
+    }
+    
+    // pointer to the output
+    bool *isin = (bool *)mxGetData(plhs[0]);
+    if (isin == NULL) {
+      mexErrMsgTxt("Cannot get pointer to allocated output");
+    }
+    
+    // loop every point that is tested to see whether it's inside or
+    // outside the surface
+    Point xi; // test point coordinates
+    for (mwIndex i = 0; i < nrowsXi; ++i) {
+      
+      // get point coordinates to be tested
+      xi = matlabImport->GetStaticVector3Argument<Point>(2, i, "XI", def);
+
+      // test whether point is inside or outside the surface
+      isin[i] = pointIsIn(xi, tree, direction, tol);
+    }
+
+  } // ENDELSE: each row of xi is a point to test
   
 }
 

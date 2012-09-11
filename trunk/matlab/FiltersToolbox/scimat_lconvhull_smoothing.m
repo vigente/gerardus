@@ -15,18 +15,18 @@ function scimat = scimat_lconvhull_smoothing(scimat, alpha)
 %   voxels within ALPHA distance can be connected. When ALPHA=Inf, the
 %   convex hull is obtained.
 %
-%   The inside of the triangulation is converted to voxels using a
-%   third-party function. This function sometimes misses some of the inside
-%   voxels, so a hole-filling filter is run to correct for this problem.
+%   The inside of the triangulation is converted to voxels using
+%   cgal_insurftri().
 %
 %   ALPHA2 is the same SCI MAT volume with the local convex hull of SCIMAT.
 %
-% This function uses alphavol() by Jonas Lundgren and VOXELISE() by Adam H.
-% Aitkenhead.
+% This function uses alphavol() by Jonas Lundgren.
+%
+% See also: cgal_insurftri.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -82,26 +82,13 @@ clear s
 % ylabel('y (mm)')
 % zlabel('z (mm)')
 
-% reformat node coordinates so that they are easier to use in VOXELISE
-y = x(:, 2);
-z = x(:, 3);
-x = x(:, 1);
+% coordinates of first and last voxels in the image
+box = scinrrd_index2world([1 1 1; size(scimat.data)], scimat.axis);
 
-% get image size
-sr = size(scimat.data, 1);
-sc = size(scimat.data, 2);
-ss = size(scimat.data, 3);
-
-% vectors that define the grid sampling in the image domain
-gy = scinrrd_index2world([(1:sr)' ones(sr, 1) ones(sr, 1)], scimat.axis);
-gy = gy(:, 2)';
-gx = scinrrd_index2world([ones(sc, 1) (1:sc)' ones(sc, 1)], scimat.axis);
-gx = gx(:, 1)';
-gz = scinrrd_index2world([ones(ss, 1) ones(ss, 1) (1:ss)'], scimat.axis);
-gz = gz(:, 3)';
+% vectors that define the sampling area of the image
+xi = box(1, 1):scimat.axis(2).spacing:box(2, 1);
+yi = box(1, 2):scimat.axis(1).spacing:box(2, 2);
+zi = box(1, 3):scimat.axis(3).spacing:box(2, 3);
 
 % convert the triangulation surface to a binary mask
-scimat.data = VOXELISE(gy, gx, gz, y(tri)', x(tri)', z(tri)', 'xyz');
-
-% fill holes in the mask
-scimat.data = imfill(scimat.data, 'holes');
+scimat.data = cgal_insurftri(tri, x, {xi, yi, zi}, rand(5, 3));

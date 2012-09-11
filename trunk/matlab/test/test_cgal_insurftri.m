@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -65,6 +65,8 @@ tri = [...
 trisurf(tri, x, y, z, 1:12, 'EdgeColor', 'none')
 axis xy equal
 
+%% test individual arbitrary points inside and outside the cube
+
 % with the default directions, the last test point fails, because as it's
 % in the middle of the cube, the rays go through vertices/edges
 cgal_insurftri(tri, [x y z], ...
@@ -77,7 +79,7 @@ cgal_insurftri(tri, [x y z], ...
     ])
 
 % choose four random ray directions
-directions = rand(4, 3);
+directions = rand(5, 3);
 cgal_insurftri(tri, [x y z], ...
     [0 0 0; ... % on vertex, a ray will be on adjacent edge
     .5 .5 .5; ... % on vertex, a ray won't touch anything else from surface
@@ -87,4 +89,12 @@ cgal_insurftri(tri, [x y z], ...
     .25 .25 .25; ... % in the middle of the cube
     .1 .25 0; ... % on a facet, away from an edge
     ], ...
+    directions)
+
+%% test a rectangular volume
+
+% choose four random ray directions
+directions = rand(5, 3);
+cgal_insurftri(tri, [x y z], ...
+    {linspace(-.25, .25, 5), linspace(-.25, .25, 4), linspace(-.25, .25, 3)}, ...
     directions)

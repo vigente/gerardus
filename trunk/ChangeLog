@@ -1,5 +1,52 @@
 2012-09-11  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp: (v0.2.0)
+	* matlab/CgalToolbox/cgal_insurftri.m: (v0.2.0)
+	* matlab/test/test_cgal_insurftri.m: (v0.2.0)
+	* matlab/CgalToolbox/CMakeLists.txt: (v0.1.1)
+
+	- If we want to test all voxels in an image, it's very slow and
+	memory intensive to generate coordinates for each voxel. Now we
+	provide a new syntax in cgal_insurftri(), so that it's possible to
+	provide 3 row vectors to describe a rectangular grid, instead of
+	having to provide coordinates for each voxel.
+
+	- Add warning in the help header that the number of ray queries
+	must be odd for the voting system to make sense.
+
+	* matlab/MatlabImportFilter.h: (v0.3.0)
+	* matlab/MatlabImportFilter.hxx: (v0.3.0)
+
+	- Now we keep the list of input arguments as a std::vector<const
+	mxArray*>, instead of const mxArray**. This is much better,
+	because we can easily add or delete arguments. Also, we don't need
+	to keep track of the number of arguments in a separate variable,
+	because an std::vector always knows its size.
+
+	- Add method SetAdditionalMatlabArgumentPointer() to register
+	additional arrays that are not at the top level of the input
+	argument list. For example, if we pass the argument {[1 2], [0
+	-3]}, the corresponding top level element in the input argument
+	list is a cell array, but we have no way to access the vectors [1
+	2] and [0 -3]. With this function, we can register these vectors
+	in the MatlabImport interface, and then access them as if they
+	were normal top level input arguments.
+
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (v0.2.0)
+
+	- Replace third-party VOXELISE() by our own cgal_insurftri()
+	function.
+
+	* matlab/GerardusCommon.hpp: (v0.5.0)
+	* matlab/GerardusCommon.cpp: (v0.5.0)
+
+	- Overload sub2ind() so that we can provide the indices as
+	separate scalars and don't need to instantiate an itk::Offset
+	object.
+
+	- Add some help notes to make it more clear which arguments are
+	size and which are indices in sub2ind() and ind2sub().
+
 	* matlab/CMakeLists.txt: (v0.1.2)
 
 	- Fix bug, directory CgalToolbox was being ignored.

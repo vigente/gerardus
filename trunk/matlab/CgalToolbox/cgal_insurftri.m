@@ -23,13 +23,29 @@ function varargout = cgal_insurftri(varargin)
 %
 %   XI is a 3-column matrix. Each row represents the Carterian coordinates
 %   of a point for which we want to find whether it's inside or outside the
-%   closed surface.
+%   closed surface. Note that if you want to test all the voxels in an
+%   image, it is very slow and memory intensive to generate coordinates for
+%   each voxel. In that scenario, it is much better to use the cell array
+%   CI syntax shown below, and provide only values for the coordinate axes.
 %
 %   ISIN is a boolean vector with one element per point in XI. True means
 %   that the corresponding point is inside the closed surface (or on the
 %   surface), and false means that it's outside.
 %
-% ISIN = cgal_insurftri(TRI, X, XI, DIRECTIONS, TOL)
+% ISIN = cgal_insurftri(TRI, X, CI)
+%
+%   CI is a cell array CI={XI, YI, ZI}, where XI, YI and ZI are row vectors
+%   that describe a rectangular grid. For example,
+%
+%     CI={linspace(-.25, .25, 5), ...
+%         linspace(-.25, .25, 4), ...
+%         linspace(-.25, .25, 3)};
+%
+%   describes a sampling grid of 4 rows x 5 columns x 3 slices (note that
+%   rows correspond to YI and columns to XI), of a domain 
+%   [-0.25, 0.25] x [-0.25, 0.25] x [-0.25, 0.25].
+%
+% ISIN = cgal_insurftri(..., DIRECTIONS, TOL)
 %
 %   DIRECTIONS is a 3-column matrix. Each row represents a vector with a
 %   ray direction. By default, 
@@ -41,7 +57,10 @@ function varargout = cgal_insurftri(varargin)
 %   This default can fail with regular voxels, as rays may cross vertices.
 %   A good practical alternative is to use a few random directions, e.g.
 %
-%          DIRECTIONS=rand(4, 3);
+%          DIRECTIONS=rand(5, 3);
+%
+%   Warning! For the voting system to make sense, select an odd number of
+%   rays.
 %
 %   TOL is a scalar with the distance tolerance. Points at distance <= TOL
 %   are considered to be on the surface, and thus "inside". By default,
@@ -49,7 +68,7 @@ function varargout = cgal_insurftri(varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
