@@ -1,5 +1,10 @@
 2012-09-11  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (v0.3.0)
+
+	- Replace third-party VOXELISE(), that has been deleted from
+	Gerardus, by our own cgal_insurftri().
+
 	* matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp: (v0.2.0)
 	* matlab/CgalToolbox/cgal_insurftri.m: (v0.2.0)
 	* matlab/test/test_cgal_insurftri.m: (v0.2.0)
