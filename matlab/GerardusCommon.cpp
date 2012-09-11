@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.4.0
+  * Version: 0.5.0
   * $Rev$
   * $Date$
   *
@@ -57,6 +57,10 @@
  *            although in Matlab indices start at 1, and in C++, they
  *            start at 0)
  *
+ * R, C, S: size of the array in rows, columns and slices, respectively
+ * rcs: subindices to be converted
+ * r, c, s: subindices to be converted
+ *
  */
 mwIndex sub2ind(mwSize R, mwSize C, mwSize S, itk::Offset<3> rcs) {
   // check for out of range index
@@ -65,14 +69,40 @@ mwIndex sub2ind(mwSize R, mwSize C, mwSize S, itk::Offset<3> rcs) {
       || ((mwSize)rcs[1] < 0) || ((mwSize)rcs[1] >= C)
       || ((mwSize)rcs[2] < 0) || ((mwSize)rcs[2] >= S)
       ) {
-    mexErrMsgTxt("Out of range index");
+    mexErrMsgTxt("sub2ind: Out of range index");
   }
   if ((R*C*S == 0) || (R < 0) || (C < 0) || (S < 0)) {
-    mexErrMsgTxt("Size values cannot be 0 or negative");
+    mexErrMsgTxt("sub2ind: Size values cannot be 0 or negative");
   }
 
   // convert r, c, s to linear index
   mwIndex idx = rcs[0] + rcs[1] * R + rcs[2] * R * C;
+
+  // // DEBUG
+  // std::cout << "idx = " << idx
+  // 	    << std::endl;
+  
+  return idx;
+}
+
+/*
+ * sub2ind(): overloaded
+ */
+mwIndex sub2ind(mwSize R, mwSize C, mwSize S, mwIndex r, mwIndex c, mwIndex s) {
+  // check for out of range index
+  if (
+      ((mwSize)r < 0) || ((mwSize)r >= R) 
+      || ((mwSize)c < 0) || ((mwSize)c >= C)
+      || ((mwSize)s < 0) || ((mwSize)s >= S)
+      ) {
+    mexErrMsgTxt("sub2ind: Out of range index");
+  }
+  if ((R*C*S == 0) || (R < 0) || (C < 0) || (S < 0)) {
+    mexErrMsgTxt("sub2ind: Size values cannot be 0 or negative");
+  }
+
+  // convert r, c, s to linear index
+  mwIndex idx = r + c * R + s * R * C;
 
   // // DEBUG
   // std::cout << "idx = " << idx
@@ -87,14 +117,17 @@ mwIndex sub2ind(mwSize R, mwSize C, mwSize S, itk::Offset<3> rcs) {
  *            although in Matlab indices start at 1, and in C++, they
  *            start at 0)
  *
+ * R, C, S: size of the array in rows, columns and slices, respectively
+ * rcs: subindices to be converted
+ *
  */
-itk::Offset<3> ind2sub_itkOffset(mwSize R, mwSize C, mwSize S, mwIndex idx) {
+itk::Offset<3> ind2sub(mwSize R, mwSize C, mwSize S, mwIndex idx) {
   // check for out of range index
   if (idx >= R*C*S || idx < 0) {
-    mexErrMsgTxt("Out of range index");
+    mexErrMsgTxt("ind2sub: Out of range index");
   }
   if (R*C*S == 0 || R < 0 || C < 0 || S < 0) {
-    mexErrMsgTxt("Size values cannot be 0 or negative");
+    mexErrMsgTxt("ind2sub: Size values cannot be 0 or negative");
   }
 
   // init output

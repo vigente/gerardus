@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -58,8 +58,8 @@ class MatlabImportFilter: public itk::Object {
 
 private:
 
-  unsigned int    numArgs;
-  const mxArray **args;
+  // input arguments registered with this import interface
+  std::vector<const mxArray*> args;
 
 protected:
 
@@ -82,23 +82,44 @@ public:
   // function to capture the array with the arguments provided by
   // Matlab
   void SetMatlabArgumentsPointer(int _nrhs, const mxArray *_prhs[]) {
-    this->numArgs = _nrhs;
-    this->args = _prhs;
-    if (this->args == NULL) {
+    if (_prhs == NULL) {
       mexErrMsgTxt("Pointer to arguments array is NULL");
     }
+    for (mwIndex i = 0; i < (mwIndex)_nrhs; i++) {
+      this->args.push_back(_prhs[i]);
+    }
+  }
+
+  // function to register an additional array to import Matlab data
+  // from, but that is not directly a top level input argument. For
+  // example, if we pass the argument {[1 2], [0 -3]}, the
+  // corresponding top level element in the input argument list is a
+  // cell array, but we have no way to access the vectors [1 2] and 
+  // [0 -3]. With this function, we can register these vectors in the
+  // MatlabImport interface, and then access them as if they were
+  // normal top level input arguments.
+  //
+  // returns: an index to identify the newly registered input
+  //          array. This index can then be used to access the array, e.g. with
+  //          GetStringArgument(idx, ...)
+  size_t SetAdditionalMatlabArgumentPointer(const mxArray *mp) {
+    if (mp == NULL) {
+      mexErrMsgTxt("Pointer to argument is NULL");
+    }
+    this->args.push_back(mp);
+    return this->args.size() - 1;
   }
 
   // get number of elements in the list of arguments
   unsigned int GetNumberOfArguments() {
-    return this->numArgs;
+    return this->args.size();
   }
 
   // function to get direct pointers to the Matlab input arguments
   //
   // idx: parameter index
   const mxArray *GetArg(unsigned int idx) {
-    if ((idx >= 0) && (idx < this->numArgs)) {
+    if ((idx >= 0) && (idx < this->args.size())) {
       return this->args[idx];
     } else {
       mexErrMsgTxt("Index out of range of Matlab input arguments");
