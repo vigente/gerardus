@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.5.3
+# Version: 0.5.6
 # $Rev$
 # $Date$
 #
@@ -41,7 +41,6 @@ ENDIF(NOT WIN32)
 ################################################################
 
 ADD_MEX_FILE(itk_imfilter 
-  ../GerardusCommon.cpp
   ../MatlabImageHeader.cxx
   ItkImFilter.cpp)
 
@@ -53,6 +52,7 @@ INCLUDE_DIRECTORIES(
   ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/itkBinaryThinningImageFilter3D/Source
   )
 TARGET_LINK_LIBRARIES(itk_imfilter
+  gerardusCommon
   ${ITK_LIBRARIES})
 
 # ################################################################
@@ -68,6 +68,7 @@ TARGET_LINK_LIBRARIES(itk_imfilter
 #   .
 #   )
 # TARGET_LINK_LIBRARIES(itk_registration
+#   gerardusCommon
 #   ${ITK_LIBRARIES})
 
 ################################################################
@@ -76,6 +77,7 @@ TARGET_LINK_LIBRARIES(itk_imfilter
 
 ADD_MEX_FILE(itk_pstransform ItkPSTransform.cpp)
 TARGET_LINK_LIBRARIES(itk_pstransform
+  gerardusCommon
   ${ITK_LIBRARIES})
 
 ################################################################

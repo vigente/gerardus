@@ -2,6 +2,11 @@
 # Vercauteren T., "An ITK Implementation of the Symmetric Log-Domain
 # Diffeomorphic Demons Algorithm", Insight Journal, 2009 Jan-Jun
 # http://hdl.handle.net/10380/3060
+#
+# The file has been edited for project Gerardus
+# Version: 0.2.0
+# $Rev$
+# $Date$
 
 MACRO(LOAD_REQUIRED_PACKAGE Package)
   LOADPACKAGE(${Package})
@@ -24,12 +29,14 @@ MACRO(ADD_MEX_FILE Target)
       ${MATLAB_MX_LIBRARY} 
       ${MATLAB_MEX_LIBRARY} 
       ${MATLAB_MAT_LIBRARY} 
+      ${MATLAB_UT_LIBRARY} 
       )
   ELSE(WIN32)
     TARGET_LINK_LIBRARIES(${Target} 
       ${MATLAB_MX_LIBRARY} 
       ${MATLAB_MEX_LIBRARY} 
       ${MATLAB_MAT_LIBRARY} 
+      ${MATLAB_UT_LIBRARY} 
       m
       )
   ENDIF(WIN32)
