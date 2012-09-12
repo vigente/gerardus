@@ -4,6 +4,7 @@
 #  MATLAB_LIBRARIES:   required libraries: libmex, etc
 #  MATLAB_MEX_LIBRARY: path to libmex.lib
 #  MATLAB_MX_LIBRARY:  path to libmx.lib
+#  MATLAB_UT_LIBRARY:  path to libut.so
 #  MATLAB_ENG_LIBRARY: path to libeng.lib
 #  MATLAB_ROOT: path to Matlab's root directory
 
@@ -16,7 +17,7 @@
 # (Note that the original file does work for Ubuntu Natty)
 #
 # Author: Ramon Casero <rcasero@gmail.com>, Tom Doel
-# Version: 0.2.4
+# Version: 0.2.5
 # $Rev$
 # $Date$
 #
@@ -98,6 +99,10 @@ IF(WIN32)
     libeng
     ${MATLAB_LIBRARIES_DIR}
     )
+  FIND_LIBRARY(MATLAB_UT_LIBRARY
+    libut
+    ${MATLAB_LIBRARIES_DIR}
+    )
 
   # Get path to the include directory
   FIND_PATH(MATLAB_INCLUDE_DIR
@@ -174,6 +179,11 @@ ELSE(WIN32)
     COMMAND xargs echo -n
     OUTPUT_VARIABLE MATLAB_ENG_LIBRARY
     )
+  EXECUTE_PROCESS(
+    COMMAND find "${MATLAB_ROOT}/bin" -name libut${LIBRARY_EXTENSION}
+    COMMAND xargs echo -n
+    OUTPUT_VARIABLE MATLAB_UT_LIBRARY
+    )
 
   # Get path to the include directory
   FIND_PATH(MATLAB_INCLUDE_DIR
@@ -188,6 +198,7 @@ SET(MATLAB_LIBRARIES
   ${MATLAB_MEX_LIBRARY}
   ${MATLAB_MX_LIBRARY}
   ${MATLAB_ENG_LIBRARY}
+  ${MATLAB_UT_LIBRARY}
 )
 
 IF(MATLAB_INCLUDE_DIR AND MATLAB_LIBRARIES)
@@ -199,6 +210,7 @@ MARK_AS_ADVANCED(
   MATLAB_MEX_LIBRARY
   MATLAB_MX_LIBRARY
   MATLAB_ENG_LIBRARY
+  MATLAB_UT_LIBRARY
   MATLAB_INCLUDE_DIR
   MATLAB_FOUND
   MATLAB_ROOT

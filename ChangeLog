@@ -1,3 +1,34 @@
+2012-09-12  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/GerardusCommon.hpp: (v0.6.0)
+
+	- Add function ctrlcCheckPoint(). This function can be put
+	e.g. inside a slow loop in your C++ file, and will exit execution
+	with an error if the user presses Ctrl+C.
+
+	Ctrl+C works in Matlab code, but there's no documented way of
+	reproducing the same behavious in MEX C++ code. Thanks to Wotao
+	Yin, who explains an undocumented function in the Matlab ut
+	library that captures the Ctrl+C signal, I could write this
+	ctrlcCheckPoint() function.
+
+	* matlab/FindMatlab.cmake: (v0.2.5)
+
+	- Find and create variable for the "ut" library. This undocumented
+	library contains function utIsInterruptPending(), that returns
+	true if the user has pressed Ctrl+C.
+
+	* matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp: (v0.2.1)
+
+	- Add Ctrl+C checkpoints so that the user can stop execution.
+
+	* matlab/CMakeLists.txt: (v0.2.0)
+	* matlab/CgalToolbox/CMakeLists.txt: (v0.1.2)
+	* matlab/ItkToolbox/CMakeLists.txt: (v0.5.6)
+
+	- GerardusCommon.cpp is now compiled into a dynamic library, and
+	Gerardus MEX functions link to it.
+
 2012-09-11  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (v0.3.0)

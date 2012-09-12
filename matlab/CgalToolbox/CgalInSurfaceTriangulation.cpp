@@ -72,7 +72,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.2.1
   * $Rev$
   * $Date$
   *
@@ -227,6 +227,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
   Point x0, x1, x2; // coordinates of the 3 vertices of each triangle
   for (mwIndex i = 0; i < nrowsTri; ++i) {
 
+    // exit if user pressed Ctrl+C
+    ctrlcCheckPoint(__FILE__, __LINE__);
+
     // get indices of the 3 vertices of each triangle. These indices
     // follow Matlab's convention v0 = 1, 2, ..., n
     v0 = matlabImport->GetScalarArgument<mwIndex>(0, i, 0, "TRI", mxGetNaN());
@@ -329,6 +332,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
 							      mxGetNaN());
 	for (mwIndex r = 0; r < lenYi; ++r) { // row (fastest varying)
 	  
+	  // exit if user pressed Ctrl+C
+	  ctrlcCheckPoint(__FILE__, __LINE__);
+    
 	  // y-coordinate of the point to be tested
 	  double xi_y = matlabImport->GetScalarArgument<double>(idYi, 0, r,
 								"YI in CI", 
@@ -360,6 +366,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     Point xi; // test point coordinates
     for (mwIndex i = 0; i < nrowsXi; ++i) {
       
+      // exit if user pressed Ctrl+C
+      ctrlcCheckPoint(__FILE__, __LINE__);
+
       // get point coordinates to be tested
       xi = matlabImport->GetStaticVector3Argument<Point>(2, i, "XI", def);
 
