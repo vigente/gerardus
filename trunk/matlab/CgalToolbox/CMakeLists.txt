@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.1.1
+# Version: 0.1.2
 # $Rev$
 # $Date$
 #
@@ -41,7 +41,6 @@ ENDIF(NOT WIN32)
 ################################################################
 
 ADD_MEX_FILE(cgal_insurftri
-  ../GerardusCommon.cpp
   CgalInSurfaceTriangulation.cpp)
 
 INCLUDE_DIRECTORIES(
@@ -50,6 +49,7 @@ INCLUDE_DIRECTORIES(
   ..
   )
 TARGET_LINK_LIBRARIES(cgal_insurftri
+  gerardusCommon
   CGAL
   ${ITK_LIBRARIES})
 
