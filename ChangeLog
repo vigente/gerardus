@@ -12,6 +12,8 @@
 	library that captures the Ctrl+C signal, I could write this
 	ctrlcCheckPoint() function.
 
+	http://www.caam.rice.edu/~wy1/links/mex_ctrl_c_trick/
+
 	* matlab/FindMatlab.cmake: (v0.2.5)
 
 	- Find and create variable for the "ut" library. This undocumented
