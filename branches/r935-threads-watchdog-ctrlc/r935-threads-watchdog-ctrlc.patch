@@ -1,0 +1,247 @@
+Index: matlab/GerardusCommon.hpp
+===================================================================
+--- matlab/GerardusCommon.hpp	(revision 952)
++++ matlab/GerardusCommon.hpp	(working copy)
+@@ -43,7 +43,12 @@
+ #include <mex.h>
+ 
+ /* C++ headers */
++#include <exception>
++#include <csignal>
+ 
++/* boost headers */
++#include <boost/thread.hpp>
++
+ /* ITK headers */
+ #include "itkOffset.h"
+ 
+@@ -136,6 +141,76 @@
+   }
+ }
+ 
++inline
++void ctrlcWatchdogThread(std::string sourceFile, int lineNumber) {
++
++  printf("ctrlcWatchdogThread: Start\n");///////////////////
++
++  // loop until the user presses Ctrl+C or until the parent thread
++  // exits
++  while (!utIsInterruptPending() 
++	 && !boost::this_thread::interruption_requested()) {
++    boost::this_thread::sleep(boost::posix_time::seconds(1));
++    printf("ctrlcWatchdogThread: iteration...\n");///////////////////
++  }
++
++  // if Ctrl+C has been pressed, throw an exception in the parent
++  // thread to interrupt it (we cannot use parent.interrupt(), because
++  // in Matlab MEX files, threads have a non-interruptible status by
++  // default)
++  if (utIsInterruptPending()) {
++    printf("ctrlcWatchdogThread: terminating because Ctrl+C detected\n");/////////////////
++    // raise(SIGINT);
++  } else {
++    printf("ctrlcWatchdogThread: terminating because of interruption\n");/////////////////
++  }
++    
++  // // run from here the following code in the Matlab side:
++  // //
++  // // >> path = mfilename('fullpath')
++  // //
++  // // this provides the full path and function name of the function
++  // // that called ctrlcCheckPoint()
++  // int nlhs = 1; // number of output arguments we expect
++  // mxArray *plhs[nlhs]; // to store the output argument
++  // int nrhs = 1; // number of input arguments we are going to pass
++  // mxArray *prhs[1]; // to store the input argument we are going to pass
++  // prhs[0] = mxCreateString("fullpath"); // input argument to pass
++  // if (mexCallMATLAB(nlhs, plhs, nrhs, prhs, "mfilename")) { // run mfilename('fullpath')
++  //   mexErrMsgTxt("ctrlcCheckPoint(): mfilename('fullpath') returned error");
++  // }
++  // if (plhs == NULL) {
++  //   mexErrMsgTxt("ctrlcCheckPoint(): mfilename('fullpath') returned NULL array of outputs");
++  // }
++  // if (plhs[0] == NULL) {
++  //   mexErrMsgTxt("ctrlcCheckPoint(): mfilename('fullpath') returned NULL output instead of valid path");
++  // }
++  
++  // // get full path to current function, including function's name
++  // // (without the file extension)
++  // char *pathAndName = mxArrayToString(plhs[0]);
++  // if (pathAndName == NULL) {
++  //   mexErrMsgTxt("ctrlcCheckPoint(): mfilename('fullpath') output cannot be converted to string");
++  // }
++  
++  // // for some reason, using mexErrMsgTxt() to give this output
++  // // doesn't work. Instead, we have to give the output to the
++  // // standar error, and then call mexErrMsgTxt() to terminate
++  // // execution of the program
++  // std::cerr << "Operation terminated by user during " 
++  // 	    << "<a href=\"matlab:helpUtils.errorDocCallback('"
++  // 	    << mexFunctionName()
++  // 	    << "', '" << pathAndName << ".m', " << lineNumber << ")\">"
++  // 	    << mexFunctionName()
++  // 	    << "</a> (<a href=\"matlab:opentoline('"
++  // 	    << sourceFile
++  // 	    << "'," << lineNumber << ",0)\">line " << lineNumber
++  // 	    << "</a>)"
++  // 	    << std::endl;
++  // mexErrMsgTxt("");
++  
++}
++
+ /* 
+  * CAST2MWSIZE(): macro to cast to mwSize type. This definition is
+  *                necessary for ITK v3.20.0 to avoid an error when
+Index: matlab/CMakeLists.txt
+===================================================================
+--- matlab/CMakeLists.txt	(revision 952)
++++ matlab/CMakeLists.txt	(working copy)
+@@ -62,7 +62,13 @@
+ # common to all of Gerardus MEX files
+ add_library(gerardusCommon SHARED
+   GerardusCommon.cpp)
+-include_directories(.)
++include_directories(
++  .
++  ${GERARDUS_SOURCE_DIR}/include
++  )
++target_link_libraries(gerardusCommon
++  boost_thread
++  )
+ if(WIN32)
+   install(TARGETS
+     gerardusCommon
+@@ -76,8 +82,8 @@
+ endif(WIN32)
+ 
+ # build mex functions in the toolboxes
+-ADD_SUBDIRECTORY(ItkToolbox)
++#ADD_SUBDIRECTORY(ItkToolbox)
+ ADD_SUBDIRECTORY(CgalToolbox)
+-ADD_SUBDIRECTORY(FiltersToolbox)
+-ADD_SUBDIRECTORY(ThirdPartyToolbox)
+-ADD_SUBDIRECTORY(PointsToolbox)
++#ADD_SUBDIRECTORY(FiltersToolbox)
++#ADD_SUBDIRECTORY(ThirdPartyToolbox)
++#ADD_SUBDIRECTORY(PointsToolbox)
+Index: matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp
+===================================================================
+--- matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp	(revision 952)
++++ matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp	(working copy)
+@@ -109,8 +109,10 @@
+ 
+ /* C++ headers */
+ #include <iostream>
++#include <csignal>
+ 
+ /* Gerardus headers */
++#include "GerardusCommon.hpp"
+ #include "MatlabImportFilter.h"
+ #include "MatlabExportFilter.h"
+ 
+@@ -172,12 +174,46 @@
+   return isin_vote > (direction.size() / 2);
+ }
+ 
++////////////////////////////////////////////////////////////////////////
++void interrupt(int param) {
++  printf("Interrupt signal detected\n");
++  mexErrMsgTxt("Crash everything");
++}
++////////////////////////////////////////////////////////////////////////
++
++
+ /*
+  * mexFunction(): entry point for the mex function
+  */
+ void mexFunction(int nlhs, mxArray *plhs[], 
+ 		 int nrhs, const mxArray *prhs[]) {
+ 
++  // if the watchdog detects a Ctrl+C, it will send a SIGINT
++  // signal. Matlab blocks these, so we need to tell it what to do
++  void (*matlabHandler)(int);
++  matlabHandler = signal(SIGINT, SIG_DFL);
++  if (matlabHandler == SIG_IGN) {
++    printf("SIGINT was being ignored\n");
++  } else if (matlabHandler == SIG_DFL) {
++    printf("SIGINT was being managed by default handler\n");
++  } else {
++    printf("SIGINT was being managed by another handler\n");
++  }
++
++
++  // void (*prev_fn)(int);
++  // prev_fn = signal(SIGINT, interrupt);
++  // if (prev_fn==SIG_IGN) {
++  //   printf("SIGINT is being ignored\n");
++  // }
++
++  // create the watchdog that allows the user to interrupt this
++  // function pressing Ctrl+C
++  boost::thread ctrlcThread(ctrlcWatchdogThread, 
++  			    __FILE__, __LINE__);
++
++  // boost::this_thread::sleep(boost::posix_time::seconds(5));
++  
+   // interface to deal with input arguments from Matlab
+   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
+   matlabImport->SetMatlabArgumentsPointer(nrhs, prhs);
+@@ -228,7 +264,7 @@
+   for (mwIndex i = 0; i < nrowsTri; ++i) {
+ 
+     // exit if user pressed Ctrl+C
+-    ctrlcCheckPoint(__FILE__, __LINE__);
++    //    ctrlcCheckPoint(__FILE__, __LINE__);
+ 
+     // get indices of the 3 vertices of each triangle. These indices
+     // follow Matlab's convention v0 = 1, 2, ..., n
+@@ -320,6 +356,8 @@
+     Point xi; // test point coordinates
+     for (mwIndex s = 0; s < lenZi; ++s) { // slice (slowest varying)
+ 
++      // printf("...here...\n");///////////////////
++
+       // z-coordinate of the point to be tested
+       double xi_z = matlabImport->GetScalarArgument<double>(idZi, 0, s,
+ 							    "ZI in CI", 
+@@ -333,7 +371,7 @@
+ 	for (mwIndex r = 0; r < lenYi; ++r) { // row (fastest varying)
+ 	  
+ 	  // exit if user pressed Ctrl+C
+-	  ctrlcCheckPoint(__FILE__, __LINE__);
++	  //	  ctrlcCheckPoint(__FILE__, __LINE__);
+     
+ 	  // y-coordinate of the point to be tested
+ 	  double xi_y = matlabImport->GetScalarArgument<double>(idYi, 0, r,
+@@ -367,7 +405,7 @@
+     for (mwIndex i = 0; i < nrowsXi; ++i) {
+       
+       // exit if user pressed Ctrl+C
+-      ctrlcCheckPoint(__FILE__, __LINE__);
++      //      ctrlcCheckPoint(__FILE__, __LINE__);
+ 
+       // get point coordinates to be tested
+       xi = matlabImport->GetStaticVector3Argument<Point>(2, i, "XI", def);
+@@ -377,7 +415,21 @@
+     }
+ 
+   } // ENDELSE: each row of xi is a point to test
+-  
++
++  // the watchdog thread needs a different approach, because it runs
++  // on an infinite loop unless the user presses Ctrl+C, so we cannot
++  // ctrlcThread.join(), as it would never finish without user
++  // input. Instead, what we are going to do is send an interrupt
++  // request. This will detach the watchdog thread, so that Matlab
++  // doesn't crash when mexFunction() exits. While mexFunction() is
++  // active, the watchdog won't see the interrupt request. But when
++  // mexFunction() exits, the interrupt request will be true, and this
++  // will allow the watchdog to exit the infinite loop and finish
++  // without user input
++  printf("cgal_surftri: interrupting watchdogthread\n");/////////////
++  ctrlcThread.interrupt();
++  printf("cgal_surftri: watchdog thread interrupted\n");/////////////
++
+ }
+ 
+ #endif /* CGALINSURFACETRIANGULATION */
