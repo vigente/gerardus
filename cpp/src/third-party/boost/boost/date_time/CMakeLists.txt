@@ -1,6 +1,8 @@
 # Distributed under the Boost Software License, Version 1.0.
 # See http://www.boost.org/LICENSE_1_0.txt
 
+## Changes by Ramon Casero <rcasero@gmail.com> for project Gerardus
+
 cmake_minimum_required(VERSION 2.8.8)
 project(BoostDateTime)
 
@@ -43,6 +45,11 @@ add_library(boost_date_time
 #   INCLUDE_DIRECTORIES
 #     include
 #   )
+
+# install compiled libraries
+install(TARGETS
+  boost_date_time
+  DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
 
 return()
 

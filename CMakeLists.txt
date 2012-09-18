@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.2.0
+# Version: 0.2.1
 # $Rev$
 # $Date$
 #
@@ -88,7 +88,12 @@ SET(Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIR}
   CACHE PATH "Path to Boost header files")
 SET(Boost_LIBRARY_DIRS ${Boost_LIBRARY_DIR}
   CACHE PATH "Path to Boost libraries")
-SET(Boost_LIBRARIES boost_system boost_filesystem boost_system
+SET(Boost_LIBRARIES 
+  boost_system 
+  boost_filesystem 
+  boost_thread
+  boost_chrono
+  boost_date_time
   CACHE STRING "Available Boost libraries")
 SET(Boost_DEFINITIONS ""
   CACHE STRING "Definitions for Boost libraries")
