@@ -62,7 +62,7 @@ function im2 = blockproc3(im, blksz, fun, border, useparallel)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 % 
@@ -90,8 +90,8 @@ function im2 = blockproc3(im, blksz, fun, border, useparallel)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(3, 5, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
+narginchk(3, 5);
+nargoutchk(0, 1);
 
 % defaults
 if isempty(blksz)
