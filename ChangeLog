@@ -1,5 +1,9 @@
 2012-09-18  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat_blockproc3.m: (v0.1.1)
+
+	- Update syntax to check number of input and output arguments.
+
 	* Add matlab/FiltersToolbox/ccwrap.m: (v0.1.0)
 
 	- Wrapper that enables CTRL+C interruption of MEX files.
