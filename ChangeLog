@@ -1,3 +1,12 @@
+2012-09-18  Ramon Casero  <rcasero@gmail.com>
+
+	* CMakeLists.txt: (v0.2.1)
+	* cpp/src/third-party/boost/boost/chrono/CMakeLists.txt:
+	* cpp/src/third-party/boost/boost/date_time/CMakeLists.txt:
+
+	- Add some boost libraries that were dependencies of the ones we
+	were using, but were not bing built and linked to.
+
 2012-09-12  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/GerardusCommon.hpp: (v0.6.0)
