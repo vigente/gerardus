@@ -1,6 +1,7 @@
 2012-09-18  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/scimat_blockproc3.m: (v0.1.1)
+	* matlab/FiltersToolbox/blockproc3.m: (v0.2.2)
 
 	- Update syntax to check number of input and output arguments.
 
