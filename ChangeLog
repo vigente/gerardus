@@ -1,5 +1,11 @@
 2012-09-19  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat_blockproc3.m: (v0.2.1)
+	* matlab/FiltersToolbox/blockproc3.m: (v0.3.1)
+
+	- Fix bug. We forgot to compute the I,J,K indices, so all results
+	were being saved to the same output block.
+
 	* Delete matlab/FiltersToolbox/Deconvolve.cpp:
 	* Delete matlab/FiltersToolbox/deconvolve.m:
 	* Delete cpp/src/third-party/cquammen-Clarity:
