@@ -336,13 +336,13 @@
 	- Fix bug. ITK v2.4 and over no longer support .Begin() method in
 	itk::ImageRegionIterator.
 
-2012-08-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-08-07  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/PointsToolbox/findpeaksn.m: (v0.1.0)
 
 	- Find local peaks (local maxima) in n-dimensional data.
 
-2012-08-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-08-06  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_ndgrid.m: (v0.2.0)
 
@@ -361,7 +361,7 @@
 
 	http://www.mathworks.nl/matlabcentral/fileexchange/28851-alpha-shapes
 
-2012-08-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-08-05  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ThirdPartyToolbox/MeshVoxelisation:
 
@@ -384,7 +384,7 @@
 	- Fix bug. Give coordinates of centre of voxels, instead of left
 	edge.
 
-2012-08-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-08-04  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/CMakeLists.txt: (v0.1.3)
 
@@ -429,7 +429,7 @@
 	- We constrain the file name when listing the files in directory
 	scripts, to avoid getting an error from the .svn directory.
 
-2012-08-03  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-08-03  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/third-party/gmp-5.0.5/CMakeLists.txt: (v0.1.0)
 
@@ -455,7 +455,7 @@
 
 	http://gmplib.org/
 
-2012-08-02  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-08-02  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/MatlabImportFilter.hxx: (v0.1.1)
 
@@ -502,7 +502,7 @@
 
 	http://www.cgal.org/download.html
 
-2012-07-12  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-07-12  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/CMakeLists.txt: (v0.5.0)
 	* matlab/ItkToolbox/ItkImFilter.cpp: (v1.0.0)
@@ -645,14 +645,14 @@
 	declaration. I have moved this into the function declaration and
 	it now compiles fine.
 
-2012-06-18  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-06-18  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/MexBaseFilter.hpp: (v0.7.5)
 
 	- Add warning message if grafting output onto Matlab produces a
 	memory leak.
 
-2012-06-17  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-06-17  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/MexBaseFilter.hpp: (v0.7.4)
 	* matlab/ItkToolbox/MexBaseFilter.cpp: (v0.5.4)
@@ -691,7 +691,7 @@
 	copy them to Matlab space afterwards with
 	CopyFilterNearestOutputToMatlab().
 
-2012-06-13  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-06-13  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/GerardusCommon.hpp (v0.3.2):
 
@@ -754,7 +754,7 @@
 	- Add pointer to the derived filter as a member variable, so that
 	then we can use it from any method.
 
-2012-06-02  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-06-02  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/mba_surface_interpolation.m (v0.2.0):
 	* matlab/PointsToolbox/scinrrd_surface_interpolation.m (v0.4.0):
@@ -777,7 +777,7 @@
 	instead of in the third-party library, so that it can be found by
 	the mex files in matlab.
 
-2012-05-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-05-29  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/MexBaseFilter.hpp (v0.7.1):
 
@@ -793,7 +793,7 @@
 	option filterWillDeleteTheBuffer=false when we graft the Matlab
 	buffer into the filter output.
 
-2012-05-28  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-05-28  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/add_filter_template.sh (v0.1.3):
 	* matlab/ItkToolbox/CMakeLists.txt (v0.4.6):
@@ -803,13 +803,13 @@
 
 	* Add directory matlab/ItkToolbox/MexFilter.
 
-2012-05-01  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-05-01  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/Resize3DImage.cxx (v0.2.0):
 
 	- Add "compress" input argument.
 
-2012-04-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-04-11  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ItkToolbox/MexMedianImageFilter.hpp (v0.1.0):
 	* Add matlab/ItkToolbox/MexMedianImageFilter.cpp (v0.1.0):
@@ -821,7 +821,7 @@
 	- Add itk::MedianImageFilter, with half-size of filter's box as
 	input arguments.
 
-2012-04-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-04-10  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/blockproc3.m (v0.2.0):
 
@@ -831,7 +831,7 @@
 	- Remove processing of nrrd.data structs, it's really meaningless
 	here.
 
-2012-04-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-04-07  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scinrrd_load.m (v0.2.8):
 
@@ -843,7 +843,7 @@
 
 	- Enable writing of 2D images.
 
-2012-03-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-03-30  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/CMakeLists.txt (v0.4.4):
 	* Add
@@ -861,7 +861,7 @@
 	- Fix bug. Rev and Date seach patterns in sed expression were too
 	specific.
 
-2012-03-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-03-29  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/ItkImFilter.cpp (v0.6.5):
 	* matlab/itk_imfilter.m (v0.4.6):
@@ -880,14 +880,14 @@
 	small ranges of sigma values, a linear scale covers the range
 	better than a logarithmic scale.
 
-2012-03-28  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-03-28  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/MexAnisotropicDiffusionVesselEnhancementImageFilter.cpp
 	(v0.1.3):
 
 	- I had forgotten to remove some debug messages.
 
-2012-03-27  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-03-27  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/ItkPSTransform.cpp (v0.3.1):
 
@@ -914,7 +914,7 @@
 
 	- Enable compilation with ITK v4.x.
 
-2012-03-26  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-03-26  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/test/test_itk_imfilter.m (v0.1.0):
 
@@ -949,7 +949,7 @@
 
 	- Add syntax of filter advess to help header.
 
-2012-03-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-03-23  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/MexTemplateFilter.cpp (v0.3.2):
 	* matlab/ItkToolbox/ItkImFilter.cpp (v0.6.3):
@@ -1007,7 +1007,7 @@
 
 	- Add SELECTFILTER macro to tidy up code.
 
-2012-03-22  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-03-22  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/CMakeLists.txt (v0.4.2):
 
@@ -1068,7 +1068,7 @@
 
 	- Add tests for missing types of output voxel: int8, int16, int32.
 
-2012-03-21  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-03-21  Ramon Casero  <rcasero@gmail.com>
 
 	* Add cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1:
 
@@ -1080,7 +1080,7 @@
 
 	http://hdl.handle.net/1926/558
 
-2012-03-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-03-20  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scinrrd_load.m (v0.2.6):
 
@@ -1195,7 +1195,7 @@
 	going to be much simpler to just redistribute the library in
 	Gerardus.
 
-2012-03-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-03-19  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/CMakeLists.txt:
 
@@ -1259,7 +1259,7 @@
 	menu.  In the latter, we use CMAKE_BUILD_TYPE to set the build as
 	Release by default.
 
-2012-03-16  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-03-16  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scinrrd_save.m (v0.4.0):
 
@@ -1269,7 +1269,7 @@
 	computer, so I couldn't test whether these new .mat format also
 	loads in Seg3D 1.x.
 
-2012-03-14  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-03-14  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/test/test_smdscale.m (v0.1.0):
 
@@ -1288,7 +1288,7 @@
 	functions that operate on Riemannian manifolds, instead of
 	Euclidean space.
 
-2012-03-08  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-03-08  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/bwmesh.m (v0.1.4):
 
@@ -1296,7 +1296,7 @@
 	of the voxel in the image, but the index of the node in the list
 	of nodes.
 
-2012-03-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-03-05  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/bwmesh.m (v0.1.3):
 
@@ -1304,7 +1304,7 @@
 	wrong (it corresponded to the old method, that used TriDelaunay
 	instead of delaunay).
 
-2012-02-28  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-02-28  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scinrrd_save.m (v0.3.2):
 
@@ -1329,13 +1329,13 @@
 
 	- Add "logical" (boolean) as input data type.
 
-2012-02-26  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-02-26  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/FiltersToolbox/blockproc3.m:
 
 	- BLOCKPROC3 Block processing for a 3D image.
 
-2012-02-24  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-02-24  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scinrrd_load.m (v0.2.4):
 
@@ -1343,7 +1343,7 @@
 	not being read correctly from .mha files. We had forgotten to
 	remove half the voxel size from the offset value.
 
-2012-02-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-02-23  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scinrrd_save.m (v0.3.1):
 
@@ -1361,7 +1361,7 @@
 	format with 12 decimal places (e.g. -2.197265685380e-07), which
 	solves that problem.
 
-2012-02-16  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-02-16  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/typicalpsf.m (v0.2.0):
 
@@ -1378,7 +1378,7 @@
 	- Don't scale intensity values. This was a very bad idea. A load
 	function should not invisibly change intensity values.
 
-2012-02-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-02-09  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/skeleton_label.m (v0.15.3):
 
@@ -1393,7 +1393,7 @@
 	- If data was read by microscope as 12-bit, scale intensities so
 	that they cover the whole 16-bit range.
 
-2012-01-28  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-01-28  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scinrrd_seg3d2matlab.m (v0.1.1):
 
@@ -1410,14 +1410,14 @@
 	- Add many more data types, to have a comprehensive list of
 	Matlab->MetaImage conversion list.
 
-2012-01-27  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-01-27  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scinrrd_load.m (v0.2.2):
 
 	- Fix bug. All intensity values where converted to single. Now
 	nrrd.data has the same type as the data in the file.
 
-2012-01-26  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-01-26  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scinrrd_load.m (v0.2.1):
 
@@ -1425,7 +1425,7 @@
 	pointer was not being returned to the right position before
 	reading the raw data.
 
-2012-01-21  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-01-21  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/typicalpsf.m (v0.1.1):
 
@@ -1436,7 +1436,7 @@
 
 	- Add loading of .lsm files.
 
-2012-01-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-01-19  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/dcm2metaimage.m (v0.1.1):
 	* matlab/FileFormatToolbox/im2metaimage.m (v0.1.1):
@@ -1469,7 +1469,7 @@
 	raw data. Now only the raw data is written. Also, unnecessary
 	input arguments have been removed.
 
-2012-01-13  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2012-01-13  Ramon Casero  <rcasero@gmail.com>
 
 	* release 0.6.1
 
@@ -1521,13 +1521,13 @@
 
 	as cquammen-Clarity-c73c97d.
 
-2011-12-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-12-11  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/RigidRegistration2D.cxx (v0.3.0):
 
 	- Use MattesMutualInformation instead of MeanSquares as the metric.
 
-2011-12-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-12-10  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/RigidRegistration2D.cxx (v0.2.0):
 
@@ -1539,7 +1539,7 @@
 	set depending on "invert" (black, if not selected; white, if
 	selected).
 
-2011-12-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-12-09  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/RigidRegistration2D.cxx (v0.1.1):
 
@@ -1552,7 +1552,7 @@
 	- Program to align one 2D image to another using a rigid
 	transformation (rotation and translation).
 
-2011-11-25  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-11-25  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/FiltersToolbox/Deconvolve.cpp (v0.1.0):
 
@@ -1581,7 +1581,7 @@
 
 	* Add lib directory to install third-party libraries.
 
-2011-11-24  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-11-24  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/third-party/cquammen-Clarity/CMakeLists.txt:
 
@@ -1611,7 +1611,7 @@
 	- Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that it
 	can be used by the master CMakeLists.txt.
 
-2011-11-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-11-23  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/FiltersToolbox/typicalpsf.m (v0.1.0):
 
@@ -1682,7 +1682,7 @@
 	* Merge all log files (ChangeLog matlab/ChangeLog java/ChangeLog
 	cpp/src/ChangeLog shell-script/ChangeLog) into gerardus/ChangeLog.
 
-2011-11-22  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-11-22  Ramon Casero  <rcasero@gmail.com>
 
 	* Rename cquammen-Clarity-v1.0.0-5-c9d0889 to
 	cquammen-Clarity. The name was too long.
@@ -1707,21 +1707,21 @@
 	acceleration on graphics processing units is currently available
 	on NVIDIA graphics cards."
 
-2011-11-01  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-11-01  Ramon Casero  <rcasero@gmail.com>
 
 	* PointsToolbox/gram2dsq.m (v0.1.1):
 
 	- Replace multiplication by vector of 1s by repmat(), that is
 	faster. Add citation to Dattorro 2005.
 
-2011-10-31  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-10-31  Ramon Casero  <rcasero@gmail.com>
 
 	* Add PointsToolbox/polardecomp.m (v0.2.0):
 
 	- Swap output arguments so that they follow the natural order of
 	the equation.
 
-2011-10-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-10-30  Ramon Casero  <rcasero@gmail.com>
 
 	* PointsToolbox/dmatrix2coords.m (v0.1.1):
 
@@ -1760,7 +1760,7 @@
 
 	- POLARDECOMP Polar decomposition of a square complex matrix.
 
-2011-10-16  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-10-16  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m (v0.15.1):
 
@@ -1777,7 +1777,7 @@
 	branches. This will be used to add another constrain to branches
 	that are merging.
 
-2011-10-13  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-10-13  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m (v0.15.0):
 
@@ -1806,7 +1806,7 @@
 	zeros, as it doesn't make sense that a branch is adjacent to
 	itself over an arbitrary bifurcation voxel of the many it can have.
 
-2011-10-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-10-04  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m (v0.8.6):
 
@@ -1815,20 +1815,20 @@
 	coplanar). Instead of error and exit, make triboundary empty, and
 	let the code keep running.
 
-2011-09-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-09-30  Ramon Casero  <rcasero@gmail.com>
 
 	* Add FiltersToolbox/imblend.m (v0.1.0):
 
 	- Blend two image stacks to increase the apparent dynamic range
 	and improve the signal to noise ratio.
 
-2011-09-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-09-29  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/scinrrd_tiff2nrrd.m (v0.2.2):
 
 	- Add support for RGB images in LSM files.
 
-2011-09-23  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-09-23  Ramon Casero  <rcasero@gmail.com>
 
 	* PointsToolbox/pts_mesh.m (v0.2.0):
 
@@ -1838,7 +1838,7 @@
 	11,824,529 voxels, in 14 min. Thanks to Kwok Chong from Mathworks
 	support, for suggesting how to avoid the memory leak.
 
-2011-09-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-09-20  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/scinrrd_tiff2nrrd.m (v0.2.1):
 
@@ -1846,14 +1846,14 @@
 	to assume that all frames in stack have the same resolution and
 	offset (only values from frame 1 are read).
 
-2011-09-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-09-19  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/scinrrd_tiff2nrrd.m (v0.2.0):
 
 	- Add functionality to read stack obtained from LSM files (the
 	struct is different, it has a field "lsm" instead of "info").
 
-2011-09-18  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-09-18  Ramon Casero  <rcasero@gmail.com>
 
 	* ThirdPartyToolbox/TiffreadToolbox/image_background.m:
 	* ThirdPartyToolbox/TiffreadToolbox/image_histogram.m:
@@ -1895,7 +1895,7 @@
 
 	- Create SCI NRRD struct from TIFF stack.
 
-2011-09-14  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-09-14  Ramon Casero  <rcasero@gmail.com>
 
 	* PointsToolbox/bwmesh.m (v0.1.2):
 
@@ -1912,7 +1912,7 @@
 	- Fix bug. Make sure that the list of branch voxels is a column
 	vector.
 
-2011-09-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-09-09  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_skeleton_prune.m:
 
@@ -1947,7 +1947,7 @@
 	but as Mikael Wallman was interested, I thought it'd be better to
 	have it as an independent function.
 
-2011-09-08  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-09-08  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/MexBaseFilter.hpp (v0.6.2):
 	* ItkToolbox/MexBaseFilter.cpp (v0.5.2):
@@ -1977,14 +1977,14 @@
 
 	- (v0.4.2) Correct help header of syntax 'dandist'.
 
-2011-09-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-09-07  Ramon Casero  <rcasero@gmail.com>
 
 	* Add FiltersToolbox/labmathmorph.m:
 
 	- (v0.1.0) Mathematical morphology operators on a labelled
 	segmentation, one label at a time.
 
-2011-09-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-09-06  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m:
 
@@ -1999,7 +1999,7 @@
 	CORRECT. A value of 0.0 means no correction, a value of 1.0 means
 	that the main branch expands as much as possible.
 
-2011-09-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-09-04  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
@@ -2023,7 +2023,7 @@
 	colinear, in which case it's not possible to compute a 3D
 	triangulation. In that case, we skip to the next branch.
 
-2011-09-02  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-09-02  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
@@ -2040,7 +2040,7 @@
 	but because their single voxel will never have degree < 2, they
 	were not being considered as leaves.
 
-2011-09-01  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-09-01  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
@@ -2055,7 +2055,7 @@
 	substantial for very thin cylinders. Thus, the measures can be
 	quite misleading.
 
-2011-08-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-30  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
@@ -2063,14 +2063,14 @@
 	turned image must be of only 1 voxel, which is the space available
 	at the margins of the image.
 
-2011-08-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-29  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/scinrrd_index2world.m:
 
 	- (v0.2.0) Add input argument CHOP so that we can deactivate the
 	conversion of points outside the image to NaN.
 
-2011-08-24  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-24  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
@@ -2133,7 +2133,7 @@
 	or so. Maybe we'll have to go back to computing the voxel degrees
 	with the sparse connection matrix.
 
-2011-08-22  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-22  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
@@ -2164,7 +2164,7 @@
 
 	- Crop an SCI NRRD image or segmentation volume.
 
-2011-08-21  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-21  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m:
 
@@ -2200,19 +2200,19 @@
 	Times to process the whole rat heart are now around 4 or 5 min,
 	instead of months.
 
-2011-08-17  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-17  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/bwregiongrow.cpp (v0.2.4):
 
 	- Fix bug. If TODO was empty, we got a segmentation fault.
 
-2011-08-12  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-12  Ramon Casero  <rcasero@gmail.com>
 
 	* release 0.6.0:
 
 	- Big improvement to itk_imfilter().
 
-2011-08-12  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-12  Ramon Casero  <rcasero@gmail.com>
 
 	- Big improvement to itk_imfilter(). Before, we were creating an
 	itk::Image for the input, and copying there the Matlab input
@@ -2278,7 +2278,7 @@
 	necessary. Now filters are only instantiated with those
 	input/output voxel types that they admit.
 
-2011-08-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-11  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/MexBaseFilter.hpp (v0.6.0):
 	* ItkToolbox/MexBaseFilter.cpp (v0.5.0):
@@ -2345,14 +2345,14 @@
 	methods. Otherwise, if they are not declared, the BaseFilter
 	version of the method is run, instead of the overloaded one.
 
-2011-06-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-06-11  Ramon Casero  <rcasero@gmail.com>
 
 	* release 0.5.0:
 
 	- Now itk_imfilter() supports passing parameters to filters. This
 	last version hasn't been tested with Windows yet.
 
-2011-08-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-10  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/MexBaseFilter.cpp (v0.4.1):
 
@@ -2412,7 +2412,7 @@
 
 	- Add binary erosion to help header.
 
-2011-08-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-09  Ramon Casero  <rcasero@gmail.com>
 
 	* add_itk_imfilter_template.sh (v0.2.1):
 
@@ -2524,7 +2524,7 @@
 
 	- Fix bug. In EXCLUDEFILTER(), wrong method name, and missing method.
 
-2011-08-08  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-08  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/MexBinaryThinningImageFilter3D.cpp (v0.1.3),
 	ItkToolbox/CMakeLists.txt (v0.4.0),
@@ -2542,7 +2542,7 @@
 	instead of using a short name that I made up. This way, it'll be
 	easier to semi-automate the process of adding new filters.
 
-2011-08-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-07  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/CMakeLists.txt:
 
@@ -2602,7 +2602,7 @@
 	- Pedantic fix. Use mxLogical instead of bool (although at least
 	for linux they are the same type).
 
-2011-08-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-06  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/itk_imfilter.m
 
@@ -2610,7 +2610,7 @@
 	MEX file doesn't exit, it gives the corresponding error instead of
 	"Too many output arguments".
 
-2011-08-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-05  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/ItkImFilter.cpp:
 
@@ -2667,13 +2667,13 @@
 	- Rename parseFilterToTemplate() as parseFilterTypeAndRun() to
 	better reflect what it does.
 
-2011-08-03  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-08-03  Ramon Casero  <rcasero@gmail.com>
 
 	 * ItkToolbox/itk_imfilter:
 
 	- (v0.3.1) Update help header.
 
-2011-07-31  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-31  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
@@ -2694,7 +2694,7 @@
 	- (v0.11.9) Fix bug. Old field names for angle values hadn't been
 	removed for branches that are loops.
 
-2011-07-30  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-30  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
@@ -2705,7 +2705,7 @@
 	- Make length of box include whole voxels, instead of just from
 	centre of first voxel to centre of last voxel.
 
-2011-07-29  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-29  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
@@ -2721,20 +2721,20 @@
 	large, then the cylindrical model is correct and we can say that
 	the branch is a vessel.
 
-2011-07-28  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-28  Ramon Casero  <rcasero@gmail.com>
 
 	* Add FileFormatToolbox/scinrrd_im2nrrd.m:
 
 	(v0.0.1) Create SCI NRRD struct from Matlab data.
 
-2011-07-24  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-24  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
 	- (v0.5.3) Fix bug. Output stats.islandlocked is given as a double
 	instead of a bool.
 
-2011-07-22  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-22  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m:
 
@@ -2753,7 +2753,7 @@
 	output consistent so that you get the same struct whether you
 	merge branches or not.
 
-2011-07-21  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-21  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m:
 
@@ -2765,7 +2765,7 @@
 
 	Merge some redundant loops.
 
-2011-07-20  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-20  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m:
 
@@ -2782,7 +2782,7 @@
 	cc.BranchNeighbours and cc.BranchLength, so replace their use in
 	this function.
 
-2011-07-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-19  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m:
 
@@ -2828,7 +2828,7 @@
 	- Added the CAST2MWSIZE macro to use the proper data type for
 	specific machines (specifically Microsoft Windows 64bits).
 
-2011-07-18  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-18  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m:
 
@@ -2837,7 +2837,7 @@
 	and if so, skip the branch. Otherwise, the branch will be
 	processed.
 
-2011-07-17  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-17  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m:
 
@@ -2851,7 +2851,7 @@
 	branch can only merge with 1 branch on each side, this guarantees
 	that there are no "T" shapes.
 
-2011-07-14  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-14  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m:
 
@@ -2884,7 +2884,7 @@
 	block to perform a static cast of the mwSize variables only when
 	compiling for Windows 64 bit.
 
-2011-07-13  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-13  Ramon Casero  <rcasero@gmail.com>
 
 	* FindMatlab.cmake:
 
@@ -2892,7 +2892,7 @@
 	that for Windows 64 bit, Matlab files live in a win64/ instead of
 	win32/ directory.
 
-2011-07-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-10  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m:
 
@@ -2912,14 +2912,14 @@
 	transform for the non-rigid warp. The B-spline seems to be better
 	in that it doesn't introduce any twisting in the vessel.
 
-2011-07-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-09  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/ItkPSTransform.cpp:
 
 	- (v0.2.2) Windows doesn't provide function round(x), so replace
 	by floor(x+0.5).
 
-2011-07-08  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-08  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_intersect_plane.m:
 
@@ -2949,7 +2949,7 @@
 	points. They need to be translated and scaled so that they fit
 	within a [0, 1] x [0, 1] x [0, 1] bounding box.
 
-2011-07-07  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-07  Ramon Casero  <rcasero@gmail.com>
 
 	* Add test/ps-bent-vessel-3d-3.mat, with the coordinates of the
 	voxels of a 3D bent vessel segmentation, its skeleton, and a
@@ -2976,7 +2976,7 @@
 	- (v0.3.2) mxGetPr should only be used for arrays of type double,
 	so replace it by mxGetData.
 
-2011-07-06  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-06  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/ItkPSTransform.cpp:
 
@@ -2986,7 +2986,7 @@
 	* Add test/nrrd-bent-vessel-3d* files with the segmentation and
 	skeleton of 2 bent vessels in 3D.
 
-2011-07-05  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-05  Ramon Casero  <rcasero@gmail.com>
 
 	* Add test/test_itk_pstransform.m:
 
@@ -3025,7 +3025,7 @@
 	- (v0.3.1) Remove constructor's code, as it's empty and can go in
 	the header.
 
-2011-07-04  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-07-04  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/CMakeLists.txt:
 
@@ -3054,13 +3054,13 @@
 
 	- (v0.3.8) Reorder input arguments in ArgumentParsers.hpp.
 
-2011-06-19  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-06-19  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/ItkKernelTransform.cpp:
 
 	- (v0.1.1) Fix bug. It was not checked that data had 3 columns.
 
-2011-06-17  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-06-17  Ramon Casero  <rcasero@gmail.com>
 
 	* PointsToolbox/pts_local_rigid.m:
 
@@ -3069,7 +3069,7 @@
 	rotation by a 2D rotation around the x-axis to limit a bit the
 	twisting, but the results are not great yet.
 
-2011-06-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-06-11  Ramon Casero  <rcasero@gmail.com>
 
 	* release 0.4.0
 
@@ -3078,7 +3078,7 @@
 	run under Windows XP 32-bit too. (Built with CMake 2.8 and Visual
 	Studio 10).
 
-2011-06-11  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-06-11  Ramon Casero  <rcasero@gmail.com>
 
 	- Now the MEX ITK functions itk_imfilter(),
 	itk_kernel_transform(), and the filter bwregiongrow() compile and
@@ -3146,7 +3146,7 @@
 	incompatible with Windows. Use / (division) and % (reminder)
 	instead.
 
-2011-06-10  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-06-10  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/CMakeLists.txt:
 
@@ -3182,7 +3182,7 @@
 
 	- Major rewrite of how the MEX libraries are found in Windows.
 
-2011-06-09  Ramon Casero  <ramon.casero@cs.ox.ac.uk>
+2011-06-09  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_intersect_plane.m:
 
@@ -3201,7 +3201,7 @@
 	doesn't work with my Windows XP and Visual Studio 10
 	install. (Note that the original file does work for Ubuntu Natty)
 
-2011-06-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-06-08  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
@@ -3214,7 +3214,7 @@
 	continuation of each other. The merging is controlled by new input
 	arguments alphamax, p.
 
-2011-06-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-06-06  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
@@ -3226,7 +3226,7 @@
 	- (v0.9.4) Get bifurcation point indices for all types of
 	branches, not only leaves.
 
-2011-06-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-06-03  Ramon Casero  <rcasero@gmail.com>
 
 	* Add subversion property "svn:eol-style native" to all text
 	files, so that people working with Windows will get the correct
@@ -3243,14 +3243,14 @@
 	and spline interpolation, which is more appropriate for gray scale
 	images.
 
-2011-06-01  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-06-01  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
 	- (v0.4.1) Fix bug. The segment cannot be straightened if the
 	skeleton doesn't have at least 3 voxels.
 
-2011-05-31  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-31  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_skeleton_prune.m:
 
@@ -3272,7 +3272,7 @@
 	- (v0.9.2) Fix bug. Wrong number of labels was used to compute the
 	data type necessary to contain all labels.
 
-2011-05-27  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-27  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_skeleton_prune.m:
 
@@ -3281,7 +3281,7 @@
 	- (v0.2.0) Add code to prune spurious branches that are roughly as
 	long as the local radius of the main branch they are attached to.
 
-2011-05-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-26  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_skeleton_prune.m:
 
@@ -3303,7 +3303,7 @@
 	points to their corresponding branches. Then we can loop to find
 	connected branches.
 
-2011-05-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-25  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m:
 
@@ -3316,7 +3316,7 @@
 	- (v0.2.0) Complete rewrite. Now we can use any plane to intersect
 	the image volume, from horizontal to vertical.
 
-2011-05-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-24  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
@@ -3325,13 +3325,13 @@
 	- (v0.3.3) For the case when the branch gets straightened, order
 	the eigenvalues so that the first one is along the skeleton.
 
-2011-05-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-23  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m:
 
 	- (v0.8.0) Add output argument cc.Degree.
 
-2011-05-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-20  Ramon Casero  <rcasero@gmail.com>
 
 	* release v0.4.0
 
@@ -3409,7 +3409,7 @@
 	for their help and advice that made this architecture change
 	possible.
 
-2011-05-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-19  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/ItkKernelTransform.cpp:
 
@@ -3496,7 +3496,7 @@
 	- This file is no longer needed. Now the filter exclusions are in
 	the new files that are specific to each filter.
 
-2011-05-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-18  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/ItkImFilter.cpp:
 
@@ -3538,7 +3538,7 @@
 	- Rename runTime* functions to parse*, as this describes better
 	what they do.
 
-2011-05-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-17  Ramon Casero  <rcasero@gmail.com>
 
 	* FilterFactoryExclusions.hpp:
 
@@ -3573,7 +3573,7 @@
 	- (v0.7.2) Fix bug. Remove small patch of voxels only of we are
 	labelling the image.
 
-2011-05-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-15  Ramon Casero  <rcasero@gmail.com>
 
 	* All *.m, *.cpp, *.hpp files:
 
@@ -3614,13 +3614,13 @@
 	- Make Maurer filter give the output in actual Euclidean
 	distances, not squared ones.
 
-2011-05-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-14  Ramon Casero  <rcasero@gmail.com>
 
  	* FiltersToolbox/skeleton_label.m:
 
 	- (v0.7.0) Add output field cc.BifurcationPixelIdx.
 
-2011-05-13  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-13  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/FilterFactoryExclusions.hpp:
 
@@ -3647,7 +3647,7 @@
 	code that prevents the compiler from trying to instantiate certain
 	input/output image types for certain filters.
 
-2011-05-12  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-12  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/ItkImFilter.cpp:
 
@@ -3667,7 +3667,7 @@
 	create an NrrdImage class to parse the NRRD fields and pass them
 	to runFilter().
 
-2011-05-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-11  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/scinrrd_load.m:
 
@@ -3675,7 +3675,7 @@
 	clear that nrrd.axis(1) corresponds to rows, not to the
 	x-coordinate.
 
-2011-05-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-10  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/ItkImFilter.cpp:
 
@@ -3686,7 +3686,7 @@
 	templated type. Now it should be very easy to add new filters that
 	produce an result with a different type than the input image.
 
-2011-05-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-09  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m:
 
@@ -3699,7 +3699,7 @@
 	- (v0.6.1) We no longer split up loops, because it doesn't really
 	make sense to try to parameterize a loop as a 1-D spline.
 
-2011-05-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-08  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m:
 
@@ -3709,7 +3709,7 @@
 	other part of the skeleton, there were no extreme points and this
 	gave an error when trying to index an empty array.
 
-2011-05-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-06  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m:
 
@@ -3736,7 +3736,7 @@
 	- Fix bug. If res was not provided, we were passing a NULL pointer
 	to run(), that gave a segfault.
 
-2011-05-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-04  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_seg2label_stats.m: v0.3.0
 
@@ -3750,14 +3750,14 @@
 	FiltersToolbox/scinrrd_seg2label_stats.m to avoid having different
 	functions that do similar things.
 
-2011-05-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-05-03  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_squeeze.m: v0.1.2
 
 	- Don't remove dimension from nrrd.axis if it's not a dummy
 	dimension.
 
-2011-04-29  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-29  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m: v0.4.0
 
@@ -3792,7 +3792,7 @@
 	would've probably taken over 35 min with the Dijkstra Matlab
 	method, and a lot more with the region grow implemented in Matlab).
 
-2011-04-28  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-28  Ramon Casero  <rcasero@gmail.com>
 
 	* Add FiltersToolbox/bwregiongrow.m:
 
@@ -3805,7 +3805,7 @@
 	part of the algorithm in C++ so that we can avoid a costly loop in
 	Matlab.
 
-2011-04-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-26  Ramon Casero  <rcasero@gmail.com>
 
 	* ItkToolbox/ItkImFilter.cpp:
 
@@ -3830,7 +3830,7 @@
 	- BWREGIONGROW  Region grow segmentation of binary image from
 	multiple seeds.
 
-2011-04-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-25  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m: v0.3.3
 
@@ -3850,7 +3850,7 @@
 	- Remove predecessors list, we don't need it, and it needs a lot
 	of memory.
 
-2011-04-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-23  Ramon Casero  <rcasero@gmail.com>
 
 	* Delete matlab/test/bent-vessel-2d.mat
 
@@ -3878,7 +3878,7 @@
 	before and after rotation, and the procrustes registration is
 	unnecessary within the loop.
 
-2011-04-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-22  Ramon Casero  <rcasero@gmail.com>
 
 	* release 0.3
 
@@ -3917,7 +3917,7 @@
 
 	- Build new function itk_imfilter().
 
-2011-04-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-21  Ramon Casero  <rcasero@gmail.com>
 
 	* Add some test data to matlab/test
 
@@ -3936,7 +3936,7 @@
 
 	- Add default for CHOP input argument.
 
-2011-04-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-20  Ramon Casero  <rcasero@gmail.com>
 
 	* Add FiltersToolbox/landlocked_stats.m: v0.1.0
 
@@ -3959,7 +3959,7 @@
 	file so that we can run it directly from Matlab. Also, we can
 	build the files using cmake, and we don't need mex.
 
-2011-04-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-19  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_plot.m: v0.2.0
 
@@ -3971,7 +3971,7 @@
 	- Add input argument CHOP so that we can deactivate the conversion
 	of points outside the image to NaN.
 
-2011-04-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-14  Ramon Casero  <rcasero@gmail.com>
 
 	* Add FiltersToolbox/scinrrd_seg2label_stats.m: v0.1.0
 
@@ -4010,7 +4010,7 @@
 	parameters between sets of points with unknown
 	correspondence (Procrustes is used).
 
-2011-04-13  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-13  Ramon Casero  <rcasero@gmail.com>
 
 	* PointsToolbox/pts_pca.m: v1.1.0
 
@@ -4030,7 +4030,7 @@
 	- ISCOLLINEAR Test to determine whether a set of points are
 	collinear.
 
-2011-04-12  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-12  Ramon Casero  <rcasero@gmail.com>
 
 	* Add PointsToolbox/dmatrix_complete: v0.1.0
 
@@ -4046,7 +4046,7 @@
 	- Plot vertices as disconnected dots, so that their connections
 	don't get confused with distance matrix connetions.
 
-2011-04-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-11  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m: v0.3.2
 
@@ -4066,7 +4066,7 @@
 	- Now voxels in each branch are sorted, so that we can walk from
 	one termination point to the other without "jumps".
 
-2011-04-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-10  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m: v0.2.2
 
@@ -4075,7 +4075,7 @@
 	have 2 termination points (leaf/bifurcation or
 	bifurcation/bifurcation) in every branch.
 
-2011-04-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-08  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/skeleton_label.m: v0.2.1
 
@@ -4103,7 +4103,7 @@
 	- GRAPH_NN Nearest neighbours from a subset of nodes in a graph to
 	another subset.
 
-2011-04-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-07  Ramon Casero  <rcasero@gmail.com>
 
 	* Add test/veins-tree-skeleton.mat, test/veins-tree-skeleton.mha:
 
@@ -4118,7 +4118,7 @@
 
 	- SKELETON_LABEL Give each branch of a skeleton a different label.
 
-2011-04-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-06  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/seg2dmat.m: v0.2.0
 
@@ -4142,7 +4142,7 @@
 	- SEG2DMAT Local neighbourhood distance matrix between
 	segmentation voxels.
 
-2011-04-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-05  Ramon Casero  <rcasero@gmail.com>
 
 	* Add FiltersToolbox/scinrrd_seg2vesselness.m: v0.1.0
 
@@ -4154,7 +4154,7 @@
 	- Add varargin to be able to pass extra arguments to the plot
 	function.
 
-2011-04-01  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-04-01  Ramon Casero  <rcasero@gmail.com>
 
 	* Add Vesselness3DImage.cxx: v0.1
 
@@ -4163,13 +4163,13 @@
 	like belonging to a long cilindrical structure, as opposed to,
 	e.g. a blob or a plate.
 
-2011-03-31  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-03-31  Ramon Casero  <rcasero@gmail.com>
 
 	* Add Skeletonize3DSegmentation.cxx:
 
 	- Program to reduce a segmentation to its skeleton.
 
-2011-03-30  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-03-30  Ramon Casero  <rcasero@gmail.com>
 
 	* Add src/third-party/itkBinaryThinningImageFilter3D
 
@@ -4187,12 +4187,12 @@
 
 	* Delete MbaSurfaceInterpolation.cxx: Test code no longer needed.
 
-2011-03-29  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-03-29  Ramon Casero  <rcasero@gmail.com>
 
 	* CMakeLists.txt: Add CMAKE_BUILD_TYPE variable so that the code
 	is optimized for speed.
 
-2011-03-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-03-22  Ramon Casero  <rcasero@gmail.com>
 
 	* CardiacToolbox/surface_interpolation.m: v0.1.2
 
@@ -4202,7 +4202,7 @@
 	support interpolation of X and the boundary values set by the
 	thin-plate spline.
 
-2011-03-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-03-21  Ramon Casero  <rcasero@gmail.com>
 
 	* CardiacToolbox/scinrrd_surface_interpolation.m:
 
@@ -4237,7 +4237,7 @@
 	of all the Matlab functions in this toolbox, and generate a README
 	file.
 
-2011-03-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-03-19  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/third-party/mba/CMakeLists.txt:
 
@@ -4273,7 +4273,7 @@
 	- MBA_SURFACE_INTERPOLATION Scattered data Multilevel B-spline
 	interpolation.
 
-2011-03-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-03-18  Ramon Casero  <rcasero@gmail.com>
 
 	* third-party/mba/include/UCButils.h,
 	third-party/mba/src/UCButils.cpp:
@@ -4300,7 +4300,7 @@
 
 	>> mex -v -largeArrayDims -outdir PointsToolbox/ -f ./engopts.sh PointsToolbox/mba_surface_interpolation.cpp
 
-2011-03-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-03-17  Ramon Casero  <rcasero@gmail.com>
 
 	* Rename third-party/mba/Makefile provided by original developers as
 	third-party/mba/Makefile.orginal so that it doesn't interfere with
@@ -4318,7 +4318,7 @@
 	Approximation library - version 1.1), Copyright (C) 2000-2005
 	SINTEF ICT, Applied Mathematics, Norway. GPL.
 
-2011-03-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-03-16  Ramon Casero  <rcasero@gmail.com>
 
 	* CardiacToolbox/scinrrd_valve_surface.m: v0.2
 
@@ -4349,7 +4349,7 @@
 
 	- Requirement of the isomap functions.
 
-2011-03-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-03-15  Ramon Casero  <rcasero@gmail.com>
 
 	* Add ThirdPartyToolbox/Isomap.m, ThirdPartyToolbox/IsomapII.m
 
@@ -4371,7 +4371,7 @@
 	rotating back, but this is incorrect because it does not give you
 	the same point.
 
-2011-03-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-03-10  Ramon Casero  <rcasero@gmail.com>
 
 	* PointsToolbox/dmatrix.m: v3.0
 
@@ -4384,7 +4384,7 @@
 
 	- PLOT_DMATRIX Plot the connections implied by a distance matrix.
 
-2011-02-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-02-24  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/scinrrd_save.m
 
@@ -4399,20 +4399,20 @@
 	if Matlab runs out of memory while trying to save the NRRD volume,
 	it gives the flag -v7.3 error.
 
-2011-02-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-02-23  Ramon Casero  <rcasero@gmail.com>
 
  	* FileFormatToolbox/scinrrd_save.m
 
 	- Force saving with flag -v7.3 to avoid warning message.
 
-2011-02-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-02-18  Ramon Casero  <rcasero@gmail.com>
 
 	* src/Resize3DImage.cxx
 
 	- Add input argument so that the user can give the Gaussian
 	standard deviation in voxel units.
 
-2011-02-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-02-17  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/Resize3DImage.cxx
 
@@ -4421,7 +4421,7 @@
 	it's possible to blur more or less. If the std=0, the Gaussian
 	filtering is skipped for that coordinate.
 
-2011-02-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-02-16  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/CMakeLists.txt
 
@@ -4429,7 +4429,7 @@
 	linked too. I have no idea why linking has been working in the
 	past without this.
 
-2011-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-02-15  Ramon Casero  <rcasero@gmail.com>
 
 	* PointsToolbox/pts_tps_map.m v6.4
 
@@ -4452,13 +4452,13 @@
 	- Add sigma as output argument so that we now how many voxels we
 	are using to low-pass filter the image.
 
-2011-02-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-02-10  Ramon Casero  <rcasero@gmail.com>
 
 	* README
 
 	- Add entry for img_tps_map
 
-2011-02-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-02-09  Ramon Casero  <rcasero@gmail.com>
 
 	* README
 
@@ -4469,7 +4469,7 @@
 	- IMG_TPS_MAP Warp an image using a thin-plate spline
 	transformation
 
-2011-02-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-02-03  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_estimate_bias_field.m
 
@@ -4483,7 +4483,7 @@
 	after reshaping the interpolated intensity vector, the voxels were
 	in the wrong place.
 
-2011-01-31  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-01-31  Ramon Casero  <rcasero@gmail.com>
 
 	* Add PointsToolbox/pts_tps_weights.m from svn://edison.comlab.ox.ac.uk/ramc/rcasero/matlab-toolbox/pts/trunk/pts_tps_weights.m
 
@@ -4511,7 +4511,7 @@
 	points and a region around them, and low-pass filter only the
 	voxels of interest.
 
-2011-01-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-01-25  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_estimate_bias_field.m
 
@@ -4522,7 +4522,7 @@
 
 	- FSPECIAL3  Create predefined 3-dimensional filters.
 
-2011-01-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-01-20  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_estimate_bias_field.m
 
@@ -4534,7 +4534,7 @@
 	then expand to the original size. By default, A = 1.0 and no
 	rescaling is used.
 
-2011-01-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2011-01-06  Ramon Casero  <rcasero@gmail.com>
 
 	* Add FiltersToolbox/scinrrd_estimate_bias_field.m
 
@@ -4547,7 +4547,7 @@
 	gives the coordinates of the first voxel's vertex, not the voxel's
 	centre. Now integer indices correspond to the voxels' centres.
 
-2010-12-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-12-17  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/scinrrd_index2world.m,
 	FileFormatToolbox/scinrrd_world2index.m
@@ -4555,7 +4555,7 @@
 	- Roll back last change, it was not a bug. Rewrite help header to
 	clarify the coordinate and index order.
 
-2010-12-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-12-14  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/scinrrd_index2world.m,
 	FileFormatToolbox/scinrrd_world2index.m
@@ -4565,7 +4565,7 @@
 	values. For example, the x-coordinate was being operated with the
 	dy spacing. Now this has been fixed.
 
-2010-10-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-10-07  Ramon Casero  <rcasero@gmail.com>
 
 	* src/Resize3DImage.cxx
 
@@ -4576,7 +4576,7 @@
 	figured out how to scale the sigma value of the low-pass filter to
 	get a similar result to the Resample tool in Seg3D.
 
-2010-07-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-07-15  Ramon Casero  <rcasero@gmail.com>
 
 	* Add src/Resize3DImage.cxx
 
@@ -4587,7 +4587,7 @@
 	MultiResolutionPyramidImageFilter, but before I'm commiting the
 	code in case I need to roll back.
 
-2010-07-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-07-05  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/scinrrd_load.m
 
@@ -4596,7 +4596,7 @@
 	- If ElementDatafile is LOCAL, then raw data is in the file, not
 	an external one.
 
-2010-07-01  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-07-01  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/scinrrd_save.m
 
@@ -4608,7 +4608,7 @@
 	- if we have two NormalMri volumes, combine them with a max()
 	function to remove banding artifacts, as suggested by Matt Robson
 
-2010-06-30  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-06-30  Ramon Casero  <rcasero@gmail.com>
 
 	* release 0.2.1
 
@@ -4623,7 +4623,7 @@
 	a lot of time wasted having to load .mha files in Seg3D and
 	exported as .mat.
 
-2010-06-28  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-06-28  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/WriteRawFile.m,
 	FileFormatToolbox/WriteMhaFile.m
@@ -4632,7 +4632,7 @@
 	along columns, but they were written along rows, so the image
 	volume was rotated 90º.
 
-2010-06-21  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-06-21  Ramon Casero  <rcasero@gmail.com>
 
 	* release 0.2
 
@@ -4642,7 +4642,7 @@
 	cardiac atlases: ventricular anatomy descriptors for a
 	standardized reference frame", STACOM MICCAI'10, Beijing, 2010.
 
-2010-06-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-06-16  Ramon Casero  <rcasero@gmail.com>
 
 	* CardiacToolbox/scinrrd_rv_crescent_tips.m
 
@@ -4651,13 +4651,13 @@
 	axis point. Now there is no need for the axis and the right
 	ventricle to have the same number of slices.
 
-2010-06-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-06-15  Ramon Casero  <rcasero@gmail.com>
 
 	* Add CardiacToolbox/scinrrd_valve_surface.m.
 
 	- Inter atrio-ventricular surface.
 
-2010-06-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-06-14  Ramon Casero  <rcasero@gmail.com>
 
 	* src/Rotate3DImage.cxx:
 
@@ -4668,13 +4668,13 @@
 	to 2x1. Anyway, I need to test the new code, and have no time now,
 	so I'm leaving the code commented out to work on it later.
 
-2010-06-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-06-09  Ramon Casero  <rcasero@gmail.com>
 
 	* CardiacToolbox/crest_envelope.m:
 
 	- Compute the envelope for the Right Ventricle's crest.
 
-2010-05-28  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-05-28  Ramon Casero  <rcasero@gmail.com>
 
 	* CardiacToolbox/process_misas_patient.m
 
@@ -4694,14 +4694,14 @@
 
 	- Fix bug. Exit gracefully when list of input files is empty.
 
-2010-05-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-05-25  Ramon Casero  <rcasero@gmail.com>
 
 	* Add CardiacToolbox/correct_rv_crescent_tips.m
 
 	- Correct the segmentation of the Right Ventricle's crescent tips
 	using the segmentation of the tricuspid and pulmonary annula.
 
-2010-05-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-05-19  Ramon Casero  <rcasero@gmail.com>
 
 	* CardiacToolbox/scinrrd_rv_crescent_tips.m
 
@@ -4709,14 +4709,14 @@
 	have no corresponding centroid. In that case the first and last
 	centroids in the LV axis are used.
 
-2010-05-12  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-05-12  Ramon Casero  <rcasero@gmail.com>
 
 	* Add PointsToolbox/coords_from_dist_gower.m
 
 	- Compute point coordinates from distances to a set of landmarks,
 	as described in Gower (1986).
 
-2010-05-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-05-09  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/WriteMhaFile.m
 
@@ -4731,13 +4731,13 @@
 	- Matrix of distances between vectors. Move from Comlab
 	repository, matlab-toolbox/misc/trunk.
 
-2010-04-30  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-04-30  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/dcm2metaimage.m:
 
 	- Fix bug with dir name when data is in the current directory.
 
-2010-04-29  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-04-29  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_gradients.m:
 
@@ -4745,7 +4745,7 @@
 	neighbourhood to compute the second order gradients, instead of
 	running function gradient() twice (which uses a 5x5 neighbourhood).
 
-2010-03-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-03-23  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/dijkstra.cpp:
 
@@ -4785,7 +4785,7 @@
 	- Add Matlab implementation of the function, to compare with the
 	MEX implementation.
 
-2010-03-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-03-16  Ramon Casero  <rcasero@gmail.com>
 
 	* Add FiltersToolbox/img_adjacency_distance.cpp,
 	FiltersToolbox/img_adjacency_distance.m:
@@ -4797,13 +4797,13 @@
 
 	- Extract internal arrays from sparse matrix.
 
-2010-03-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-03-10  Ramon Casero  <rcasero@gmail.com>
 
 	* Add FiltersToolbox/scinrrd_gradients.m:
 
 	- Compute 1st and 2nd order image gradients.
 
-2010-03-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-03-07  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_centroids.m:
 
@@ -4815,7 +4815,7 @@
 
 	- Compute centroid of every slice with segmented pixels.
 
-2010-03-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-03-06  Ramon Casero  <rcasero@gmail.com>
 
 	* PointsToolbox/extmat2rotmat.m, PointsToolbox/rotmat2extmat.m:
 
@@ -4830,7 +4830,7 @@
 	- SCINRRD_REGIONPROPS Measure properties of image regions on each
 	slice.
 
-2010-03-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-03-05  Ramon Casero  <rcasero@gmail.com>
 
 	* PointsToolbox/extmat2rotmat.m, PointsToolbox/rotmat2extmat.m:
 
@@ -4864,7 +4864,7 @@
 	To avoid this, we make sure that the "Z" vector is going up,
 	and then change the sign of "X", if necessary.
 
-2010-03-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-03-04  Ramon Casero  <rcasero@gmail.com>
 
 	* src/Rotate3DImage.cxx:
 
@@ -4904,7 +4904,7 @@
 
 	- SCINRRD_LOAD Load a NRRD struct saved to Matlab format.
 
-2010-03-02  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-03-02  Ramon Casero  <rcasero@gmail.com>
 
 	* src/Rotate3DImage.cxx:
 
@@ -4913,7 +4913,7 @@
 	bspline was giving bad results for binary masks (but works well
 	for grayscale images).
 
-2010-02-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-02-26  Ramon Casero  <rcasero@gmail.com>
 
 	* src/Rotate3DImage.cxx:
 
@@ -4925,7 +4925,7 @@
 
 	- Remove the bottom row of the extended matrix.
 
-2010-02-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-02-25  Ramon Casero  <rcasero@gmail.com>
 
 	* src/Rotate3DImage.cxx:
 
@@ -4942,7 +4942,7 @@
 	- ROTMAT2EXTMAT  Convert centroid and rotation matrix pair to
 	extended matrix form.
 
-2010-02-22  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-02-22  Ramon Casero  <rcasero@gmail.com>
 
 	* Add PointsToolbox/intersect_line_plane.m:
 
@@ -4952,7 +4952,7 @@
 
 	- SCINRRD_BOX Compute tight box around SCI NRRD segmentation.
 
-2010-02-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-02-20  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_optimal_intersecting_plane.m:
 
@@ -4975,7 +4975,7 @@
 	rotation matrix). This will constrain the infinite space of
 	possible rotations to the closest one to the one we had.
 
-2010-02-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-02-19  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/scinrrd_index2world.m,
 	FileFormatToolbox/scinrrd_world2index.m:
@@ -4993,13 +4993,13 @@
 
 	- Add input argument for the origin of coordinates.
 
-2010-02-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-02-18  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_optimal_intersecting_plane.m:
 
 	- Remove unnecessary function nesting.
 
-2010-02-17  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-02-17  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scinrrd_optimal_intersecting_plane.m:
 
@@ -5029,7 +5029,7 @@
 
 	- PLOTAXES Plot axes of 3D coordinate system.
 
-2010-02-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-02-15  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
 
@@ -5075,7 +5075,7 @@
 	scinrrd_vertical_rot3. Correct help header. Correct variables and
 	help header for consistency with the rest of scinnrd functions.
 
-2010-02-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-02-09  Ramon Casero  <rcasero@gmail.com>
 
 	* Rename FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m as
 	FiltersToolbox/scinrrd_optimal_intersecting_plane.m.
@@ -5095,7 +5095,7 @@
 	- Fix bug. Limits for x-coordinates were used for y-coordinates
 	and viceversa.
 
-2010-02-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-02-08  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
 
@@ -5104,7 +5104,7 @@
 	rad as input arguments, so that the initial vector is not hard
 	coded, and radius of smoothing operators.
 
-2010-02-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-02-07  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
 
@@ -5115,7 +5115,7 @@
 	trabeculations, or because the normal vector is not a good
 	parameter to optimise.
 
-2010-02-06  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-02-06  Ramon Casero  <rcasero@gmail.com>
 
 	* Add FiltersToolbox/scinrrd_intersect_plane.m:
 
@@ -5131,14 +5131,14 @@
 
 	- Generation of arrays for 3D SCI NRRD image volumes.
 
-2010-02-05  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-02-05  Ramon Casero  <rcasero@gmail.com>
 
 	* Add FiltersToolbox/scirunnrrd_optimal_intersecting_plane.m:
 
 	- SCIRUNNRRD_INTERSECT_PLANE  Optimise intersection plane for SCI
 	NRRD segmentation mask.
 
-2010-02-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-02-04  Ramon Casero  <rcasero@gmail.com>
 
 	* Add PointsToolbox/quaternion2matrix.m:
 
@@ -5149,19 +5149,19 @@
 
 	- POLYCENTER  Compute center of mass of polygon.
 
-2010-02-02  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-02-02  Ramon Casero  <rcasero@gmail.com>
 
 	* Add FiltersToolbox/scinrrd_vertical_rot3.m:
 
 	- Compute the 3D rotation matrix to make a point cloud vertical.
 
-2010-01-26  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-01-26  Ramon Casero  <rcasero@gmail.com>
 
 	* src/PadSegmentationMaskWithVoxels.cxx:
 
 	- Remove some redundant lines of code.
 
-2010-01-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2010-01-25  Ramon Casero  <rcasero@gmail.com>
 
 	* Add PointsToolbox/scirunnrrd_pca.m:
 
@@ -5188,7 +5188,7 @@
 	thesis at the Wolfson Medical Vision Laboratory, University of
 	Oxford (2007-06-09 15:27:07 +0100).
 
-2009-12-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-12-08  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/dcm2metaimage.m:
 
@@ -5197,7 +5197,7 @@
 	- Add input arguments crop, ext, file and rewrite the function so
 	that it does the same as im2metaimage().
 
-2009-12-07  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-12-07  Ramon Casero  <rcasero@gmail.com>
 
 	* Add FileFormatToolbox/sortdirbynum.m:
 
@@ -5210,7 +5210,7 @@
 	to contribute the image file listing, intead of using an internal
 	DIR().
 
-2009-11-25  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-11-25  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/dcm2mat.m:
 
@@ -5222,7 +5222,7 @@
 	order (I,J,N,F), where N is the slice index and F is the frame
 	index.
 
-2009-11-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-11-24  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/dcm2mat.m:
 
@@ -5231,7 +5231,7 @@
 
 	- If output filename is empty, call it 'im.mat'.
 
-2009-11-23  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-11-23  Ramon Casero  <rcasero@gmail.com>
 
 	* Add FileFormatToolbox/dcm2mat.m:
 
@@ -5242,7 +5242,7 @@
 
 	- Fix bug with wrong function call.
 
-2009-11-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-11-18  Ramon Casero  <rcasero@gmail.com>
 
 	* Add copyright and licence notices.
 
@@ -5253,7 +5253,7 @@
 	- Program to pad the sides of a 3D segmentation mask
 	(e.g. produced by Seg3D) with new voxels.
 
-2009-11-04  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-11-04  Ramon Casero  <rcasero@gmail.com>
 
 	* README:
 
@@ -5271,7 +5271,7 @@
 	volume indices for NRRD volumes created by SCI
 	applications (e.g. Seg3D).
 
-2009-09-11  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-09-11  Ramon Casero  <rcasero@gmail.com>
 
 	* Add PointsToolbox/PointsToolbox/cube_five_tessellation.m:
 
@@ -5279,14 +5279,14 @@
 	with perpendicular diagonals on opposite sides of the
 	cube (non-stackable).
 
-2009-09-10  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-09-10  Ramon Casero  <rcasero@gmail.com>
 
 	* Add PointsToolbox/PointsToolbox/cube_stackable_tessellation.m:
 
 	- CUBE_STACKABLE_TESSELLATION  Tessellation in tetrahedra of a
 	cube that can be stacked in a regular mesh.
 
-2009-09-09  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-09-09  Ramon Casero  <rcasero@gmail.com>
 
 	* Add PointsToolbox for functions that deal with points.
 
@@ -5294,7 +5294,7 @@
 	split existing functions accordingly. As more functions are added
 	to the project, we'll need to organize them anyway.
 
-2009-09-08  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-09-08  Ramon Casero  <rcasero@gmail.com>
 
 	* Add src/ExtractVoxelCoordinatesFromSegmentationMask.cxx ,
 	src/CMakeLists.txt:
@@ -5302,7 +5302,7 @@
 	- Program to extract the coordinates of voxels selected in a
 	segmentation mask.
 
-2009-08-24  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-08-24  Ramon Casero  <rcasero@gmail.com>
 
 	* Add LICENCE, ChangeLog, README.
 
@@ -5316,7 +5316,7 @@
 
 	- HamamatsuDecoder.java: Decoder for Hamamatsu photodiode array.
 	- ImageDecoderAdapter.java: General adapter class
-2009-07-20  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-07-20  Ramon Casero  <rcasero@gmail.com>
 
 	* Add README:
 
@@ -5326,7 +5326,7 @@
 
 	- Create an AVI video from a stack of images.
 
-2009-07-16  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-07-16  Ramon Casero  <rcasero@gmail.com>
 
 	* release 0.1
 
@@ -5351,7 +5351,7 @@
 	* Add LICENCE with text of the GPL v3, and corresponding copyright
 	notices to all files.
 
-2009-04-03  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-04-03  Ramon Casero  <rcasero@gmail.com>
 
 	* Add correct_light_blobs_in_microscope_mosaic.m:
 
@@ -5359,7 +5359,7 @@
 	created by the microscope's light in each tile of a mosaic,
 	e.g. for histology.
 
-2009-04-02  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-04-02  Ramon Casero  <rcasero@gmail.com>
 
 	* Add dcm2metadata.m:
 
@@ -5371,7 +5371,7 @@
 	- MATLAB2VOX_SEG3D Convert Matlab file with Seg3D segmentation to
 	vox format (for the Tarantula meshing application).
 
-2009-03-18  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-03-18  Ramon Casero  <rcasero@gmail.com>
 
 	* im2metadata.m:
 
@@ -5385,7 +5385,7 @@
 	- Write 'Offset' line to file, so that cropped data is correctly
 	placed.
 
-2009-01-19  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-01-19  Ramon Casero  <rcasero@gmail.com>
 
 	* WriteMhaFile.m, WriteMetaFile.m:
 
@@ -5397,7 +5397,7 @@
 	- IM2METADATA Read a batch of image files, collate them and save
 	as a single metadata volume (one .mha and one .raw file).
 
-2009-01-15  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-01-15  Ramon Casero  <rcasero@gmail.com>
 
 	* WriteMhaFile.m, WriteMetaFile.m: v0.2.
 
@@ -5408,7 +5408,7 @@
 	is not reported, and then Seg3D (and possibly other image
 	visualisation applications) will fail to open the file.
 
-2009-01-14  Ramon Casero  <ramon.casero@comlab.ox.ac.uk>
+2009-01-14  Ramon Casero  <rcasero@gmail.com>
 
 	* Add files provided by Martin Bishop to write metadata
 	files. These files were actually created originally by Vicente
