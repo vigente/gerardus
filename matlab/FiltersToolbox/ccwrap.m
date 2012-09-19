@@ -5,11 +5,15 @@ function varargout = ccwrap(f, varargin)
 % This is not the case with MEX functions (e.g. C++ code compiled to run as
 % a MEX function).
 %
-% Note, however, that if your C++ MEX code allocates memory without using
-% Matlab MEX functions (e.g. mxCreateDoubleMatrix, mxCreateNumericArray,
-% etc), interrupting a MEX function may cause a memory leak.
+% To overcome this limitation, this function can be used as a wrapper that
+% enables CTRL+C interruption of MEX functions.
 %
-% ccwrap() is a wrapper that enables CTRL+C interruption of MEX functions.
+% Note that this wrapper prevents memory leaks. Even if your C++ code
+% allocates memory using functions other than Matlab's
+% mxCreateDoubleMatrix, mxCreateNumericArray, etc, it will run your MEX
+% function on  a worker from the Parallel Toolbox. When the computations
+% finish (or CTRL+C is pressed), the worker is closed, and all memory is
+% released.
 %
 % VARARGOUT = ccwrap(@F, VARARGIN)
 %
@@ -33,7 +37,7 @@ function varargout = ccwrap(f, varargin)
 
 % Authors: Ramon Casero <rcasero@gmail.com>, Friedrich Hempel (MathWorks).
 % Copyright © 2012 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
