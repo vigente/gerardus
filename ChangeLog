@@ -1,5 +1,18 @@
 2012-09-19  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat_blockproc3.m: (v0.2.0)
+	* matlab/FiltersToolbox/blockproc3.m: (v0.3.0)
+
+	- Replace parfor by jobs/createTask. This way, we don't need to
+	create a cell array with all the image blocks, consuming a lot of
+	extra memory. Instead, we can just create all the jobs, put the
+	function in a task, and submit the jobs. Memory gets used only
+	when jobs leave the queue and are actually running.
+
+	- This approach also enables to interrupt execution of C++ MEX
+	functions in parallel mode without having to wrap them in
+	ccwrap().
+
 	* matlab/FiltersToolbox/ccwrap.m: (v0.1.1)
 
 	- Correct help header. This function doesn't create memory leaks
