@@ -74,7 +74,7 @@ function scimat2 = scimat_blockproc3(scimat, blksz, fun, border, useparallel)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -192,6 +192,9 @@ if (useparallel) % parallel processing
     
     % wait on all the jobs to finish, and extract the outputs
     for B = 1:numblocks
+        
+        % get r, c, s indices for current block
+        [I, J, K] = ind2sub([NR, NC, NS], B);
         
         % wait until job finishes
         wait(job{B});
