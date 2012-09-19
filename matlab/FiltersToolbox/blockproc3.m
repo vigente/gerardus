@@ -74,7 +74,7 @@ function im2 = blockproc3(im, blksz, fun, border, useparallel)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % $Rev$
 % $Date$
 % 
@@ -194,6 +194,9 @@ if (useparallel) % parallel processing
     
     % wait on all the jobs to finish, and extract the outputs
     for B = 1:numblocks
+        
+        % get r, c, s indices for current block
+        [I, J, K] = ind2sub([NR, NC, NS], B);
         
         % wait until job finishes
         wait(job{B});
