@@ -35,36 +35,46 @@ function scimat2 = scimat_blockproc3(scimat, blksz, fun, border, useparallel)
 % SCIMAT2 = scimat_blockproc3(..., PARALLEL)
 %
 %   PARALLEL is a boolean flag to activate parallel processing if the
-%   Parallel Computing Toolbox is available, and a worker pool has been
-%   opened. When PARALLEL=true, all workers will process blocks in
-%   parallel (default: PARALLEL=false).
+%   Parallel Computing Toolbox is available. When PARALLEL=true, all cores
+%   available locally will start processing the blocks in the image (note
+%   that the Parallel Computing Toolbox can only use up to 4 cores at the
+%   same time, so if your machine has e.g. 6 cores, 4 cores will be used
+%   and 2 cores will remain inactive). Default: PARALLEL=false.
 %
-%   Parallel processing works by first splitting the image into blocks and
-%   storing them in a cell array, then processing each block, and finally
-%   reassembling the cell array into the output image.
+%   Note that in parallel model, FUN gets wrapped in parallel jobs. Thus,
+%   execution can be interrupted by pressing CTRL+C even when FUN is a C++
+%   MEX file.
 %
-%   This will increase the amount of necessary memory. Speed improvements
-%   may not be as good as expected, as Matlab function can be already more
-%   or less optimised to make use of several processors.
+%   Parallel processing works by first splitting the image into blocks with
+%   borders, assigning processing of each block to a separate job, then
+%   processing each block, and finally trimming the borders and
+%   reassembling the results into the output image.
 %
-%   To use this option, first it's necessary to create a pool of workers in
-%   Matlab. You can find more information in Matlab's documentation (e.g.
-%   help matlabpool). A simple example:
+%   This will increase the amount of necessary memory, but this function is
+%   relatively efficient in the sense that only blocks being processed take
+%   up extra memory (blocks waiting in the job queue don't). 
+%
+%   The speed improvement may not be as good as expected (e.g. 4 processor
+%   will make the processing only 2x faster), as Matlab function can be
+%   already more or less optimised to make use of several processors.
+%
+%   To use this option, it is important to NOT have created a pool of
+%   workers in Matlab with "matlabpool open", as this would block all local
+%   resources, and not leave any cores free for processing the image
+%   blocks. A simple example:
 %
 %      % median filtering using a 19x19x19 voxel neighbourhood, processing
 %      % the image by blocks, using parallel computations
-%      matlabpool open
 %      sz = [19 19 19];
 %      fun = @(x) medfilt3(x, sz);
-%      im2 = blockproc3(im, [128 128 64], fun, (sz+1)/2, true);
-%      matlabpool close
+%      scimat2 = blockproc3(scimat, [128 128 64], fun, (sz+1)/2, true);
 %
 %
 % See also: blockproc, blockproc3.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -153,49 +163,54 @@ scimat2 = scimat;
 
 if (useparallel) % parallel processing
     
+    % build a cluster from the local profile
+    c = parcluster;
+    
     % number of blocks
     numblocks = NR * NC * NS;
     
-    % generate all input blocks (loops are in inverted order, so that
+    % process all input blocks (loops are in inverted order, so that
     % linear indices follow 1, 2, 3, 4...)
-    blocks = cell(1, numblocks);
-    for K = 1:NS
-        for J = 1:NC
-            for I = 1:NR
-                idx = sub2ind([NR, NC, NS], I, J, K);
-                blocks{idx} = scinrrd_crop(scimat, ...
-                    [br0(I) bc0(J) bs0(K)], ...
-                    [brx(I) bcx(J) bsx(K)] ...
-                    );
-            end
-        end
-    end
-    
-    % process all image blocks in parallel
-    parfor B = 1:numblocks
-
-        % process current image block
-        blocks{B} = feval(fun, blocks{B});
-
-    end
-    
+    job = cell(1, numblocks);
     for B = 1:numblocks
         
-        % block's array indices from linear indices
-        [I, J, K] = ind2sub([length(br0), length(bc0), length(bs0)], B);
-
+        % get r, c, s indices for current block
+        [I, J, K] = ind2sub([NR, NC, NS], B);
+        
+        % create a new job for this block
+        job{B} = createJob(c);
+        
+        % add processing of current block as a task
+        createTask(job{B}, fun, 1, {scinrrd_crop(scimat, ...
+            [br0(I) bc0(J) bs0(K)], ...
+            [brx(I) bcx(J) bsx(K)])});
+        
+        % run job
+        submit(job{B});
+            
+    end
+    
+    % wait on all the jobs to finish, and extract the outputs
+    for B = 1:numblocks
+        
+        % wait until job finishes
+        wait(job{B});
+        
+        % extract the output of this job
+        aux = fetchOutputs(job{B});
+        
         % assign result to output removing the borders
         scimat2.data(...
             r0(I):rx(I), ...
             c0(J):cx(J), ...
             s0(K):sx(K) ...
             ) ...
-            = blocks{B}.data(...
+            = aux{1}.data(...
             r0(I)-br0(I)+1:rx(I)-br0(I)+1, ...
             c0(J)-bc0(J)+1:cx(J)-bc0(J)+1, ...
             s0(K)-bs0(K)+1:sx(K)-bs0(K)+1 ...
             );
-        
+
     end
     
 else % single processor (we save memory by not creating a cell vector with all the blocks)
