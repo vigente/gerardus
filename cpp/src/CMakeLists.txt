@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2010-2011 University of Oxford
-# Version: 0.2.2
+# Version: 0.2.3
 # $Rev$
 # $Date$
 #
@@ -178,7 +178,6 @@ ADD_SUBDIRECTORY(third-party/boost)
 ADD_SUBDIRECTORY(third-party/mba)
 
 ADD_SUBDIRECTORY(third-party/CGAL-4.0.2)
-# ADD_SUBDIRECTORY(third-party/cquammen-Clarity)
 
 ################################################################
 ## installation of targets

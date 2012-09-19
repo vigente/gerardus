@@ -1,5 +1,14 @@
 2012-09-19  Ramon Casero  <rcasero@gmail.com>
 
+	* Delete matlab/FiltersToolbox/Deconvolve.cpp:
+	* Delete matlab/FiltersToolbox/deconvolve.m:
+	* Delete cpp/src/third-party/cquammen-Clarity:
+	* cpp/src/CMakeLists.txt: (v0.2.3)
+
+	- Remove the third party clarity library and the MEX interface we
+	build to run deconvolutions. We found it to be slightly buggy, and
+	Matlab's own deconvolution functions work very well and are fast.
+
 	* matlab/FiltersToolbox/scimat_blockproc3.m: (v0.2.0)
 	* matlab/FiltersToolbox/blockproc3.m: (v0.3.0)
 
