@@ -59,7 +59,9 @@ nargoutchk(0, 1);
 
 % if the image has all voxels == 1, then the smoothed local convex hull is
 % the image itself and we don't need to waste time doing other computations
-if (numel(scimat.data) == nnz(scimat.data))
+%
+% likewise, if the image has all voxels == 0, there's nothing to smooth
+if ((nnz(scimat.data) == 0) || (numel(scimat.data) == nnz(scimat.data)))
     return
 end
 
