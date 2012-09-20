@@ -1,3 +1,21 @@
+2012-09-20  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/blockproc3.m: (v0.4.0)
+	* matlab/FiltersToolbox/scimat_blockproc3.m: (v0.3.0)
+
+	- Replace input argument PARALLEL by NUMWORKERS. This way, instead
+	of simply saying whether we want to use parallel processing or
+	not, we can specify the maximum number of workers we allow the
+	function to use at the same time. This is very useful to avoid the
+	memory filling up too much in some cases, and also to spare a
+	couple of processors to continue working normally while heavy
+	computations are run.
+
+	- Add cleanup functions so that queued and running jobs are
+	cancelled if the user presses CTRL+C, and to make sure that we
+	reset the number of workers available in the cluster when we exit
+	the function.
+
 2012-09-19  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/scimat_blockproc3.m: (v0.2.1)
