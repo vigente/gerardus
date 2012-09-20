@@ -26,7 +26,7 @@ function scimat = scimat_lconvhull_smoothing(scimat, alpha)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % $Rev$
 % $Date$
 % 
@@ -56,6 +56,12 @@ function scimat = scimat_lconvhull_smoothing(scimat, alpha)
 % check arguments
 narginchk(2, 2);
 nargoutchk(0, 1);
+
+% if the image has all voxels == 1, then the smoothed local convex hull is
+% the image itself and we don't need to waste time doing other computations
+if (numel(scimat.data) == nnz(scimat.data))
+    return
+end
 
 % coordinates of segmented voxels
 [r, c, s] = ind2sub(size(scimat.data), find(scimat.data));
