@@ -4,7 +4,8 @@
 
 	- If the image has all voxels == 1, then the smoothed local convex
 	hull is the image itself and we don't need to waste time doing
-	other computations.
+	other computations. Likewise, if the image has all voxels == 0,
+	there's nothing to smooth
 
 	* matlab/FiltersToolbox/blockproc3.m: (v0.4.0)
 	* matlab/FiltersToolbox/scimat_blockproc3.m: (v0.3.0)
