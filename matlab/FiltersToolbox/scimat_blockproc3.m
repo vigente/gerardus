@@ -1,4 +1,4 @@
-function scimat2 = scimat_blockproc3(scimat, blksz, fun, border, useparallel)
+function scimat2 = scimat_blockproc3(scimat, blksz, fun, border, numworkers)
 % SCIMAT_BLOCKPROC3  Block processing for a 3D SCI MAT volume
 %
 % Sometimes images are too large to be processed in one block. Matlab
@@ -32,14 +32,13 @@ function scimat2 = scimat_blockproc3(scimat, blksz, fun, border, useparallel)
 %       fun = @(x) deconvblind(x, ones(20, 20, 10));
 %       im2 = blockproc3d(im, [256 256 128], fun, [30 30 10]);
 %
-% SCIMAT2 = scimat_blockproc3(..., PARALLEL)
+% SCIMAT2 = scimat_blockproc3(..., NUMWORKERS)
 %
-%   PARALLEL is a boolean flag to activate parallel processing if the
-%   Parallel Computing Toolbox is available. When PARALLEL=true, all cores
-%   available locally will start processing the blocks in the image (note
-%   that the Parallel Computing Toolbox can only use up to 4 cores at the
-%   same time, so if your machine has e.g. 6 cores, 4 cores will be used
-%   and 2 cores will remain inactive). Default: PARALLEL=false.
+%   NUMWORKERS is an integer to activate parallel processing. If the
+%   Parallel Computing Toolbox is available and NUMWORKERS>1, each image
+%   block will be processed as a parallel job, using up to NUMWORKERS cores
+%   at the same time. By default, NUMWORKERS=1, and parallel processing is
+%   disabled.
 %
 %   Note that in parallel model, FUN gets wrapped in parallel jobs. Thus,
 %   execution can be interrupted by pressing CTRL+C even when FUN is a C++
@@ -74,7 +73,7 @@ function scimat2 = scimat_blockproc3(scimat, blksz, fun, border, useparallel)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.1
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
@@ -112,8 +111,8 @@ end
 if (nargin < 4) || isempty(border)
     border = [0 0 0];
 end
-if (nargin < 5) || isempty(useparallel)
-    useparallel = false;
+if (nargin < 5) || isempty(numworkers)
+    numworkers = 1;
 end
 
 % for convenience, we need the size vector to have 3 components, even for a
@@ -161,17 +160,37 @@ NS = length(s0);
 scimat2 = scimat;
 
 
-if (useparallel) % parallel processing
+if (numworkers > 1) % parallel processing
     
     % build a cluster from the local profile
-    c = parcluster;
+    c = parcluster('local');
+    
+    if (c.NumWorkers < numworkers)
+        warning(['Number of workers selected by user is too large. Only ' ...
+            num2str(c.NumWorkers) ' cores available'])
+    else
+        % save number of maximum number of workers to undo the change after
+        % the function exits
+        numworkers0 = c.NumWorkers;
+        
+        % change profile's maximum number of workers to the number selected
+        % by the user
+        c.NumWorkers = numworkers;
+        
+        % when the function exits for whatever reason, reset the number of
+        % available workers
+        numworkersCleanupTrigger = onCleanup(@() resetNumworkers(numworkers0));
+    end
     
     % number of blocks
     numblocks = NR * NC * NS;
+
+    % init cell array to contain the job descriptors and job cleanup triggers
+    job = cell(1, numblocks);
+    jobCleanupTrigger = cell(1, numblocks);
     
     % process all input blocks (loops are in inverted order, so that
     % linear indices follow 1, 2, 3, 4...)
-    job = cell(1, numblocks);
     for B = 1:numblocks
         
         % get r, c, s indices for current block
@@ -180,6 +199,14 @@ if (useparallel) % parallel processing
         % create a new job for this block
         job{B} = createJob(c);
         
+        % link the job to cleanup, so that if the user interrupts with
+        % CTRL+C, the job is cancelled and doesn't keep consuming resources
+        %
+        % note that we need to create a vector of onCleanup objects,
+        % because onCleanup gets called when the object is destroyed. and
+        % this will happen if we overwrite the same variable
+        jobCleanupTrigger{B} = onCleanup(@() cleanup(job{B}));
+ 
         % add processing of current block as a task
         createTask(job{B}, fun, 1, {scinrrd_crop(scimat, ...
             [br0(I) bc0(J) bs0(K)], ...
@@ -215,6 +242,10 @@ if (useparallel) % parallel processing
             );
 
     end
+    
+    % reset local cluster to the number of workers it had before entering
+    % this function
+    c.NumWorkers = numworkers0;
     
 else % single processor (we save memory by not creating a cell vector with all the blocks)
 
@@ -261,4 +292,33 @@ else % single processor (we save memory by not creating a cell vector with all t
     end
 
 end
+end % function scimat_blockproc3()
 
+% cleanup(): function called when we exit, in charge of cancelling one of
+% the current jobs. This can be due to two reasons: 1) the task finished
+% successfully or 2) the user interrupted with CTRL+C
+function cleanup(job)
+
+switch job.State
+    case {'running', 'queued'}
+        % cancel job so that it doesn't keep taking up resources
+        job.cancel;
+    case 'finished'
+        % DEBUG:
+%         disp('my_cleanup called because job finished');
+end
+
+end % function cleanup()
+
+% resetNumworkers(): function called when we exit, in charge of leaving the
+% cluster profile with the same number of maximum workers it had when we
+% entered the function
+function resetNumworkers(numworkers0)
+
+    % get cluster from the local profile
+    c = parcluster('local');
+    
+    % reset maximum number of workers
+    c.NumWorkers = numworkers0;
+
+end
