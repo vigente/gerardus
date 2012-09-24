@@ -1,3 +1,11 @@
+2012-09-24  Ramon Casero  <rcasero@gmail.com>
+
+	* CMakeLists.txt: (v0.2.2)
+
+	- When the compiler version has to be forced, use environment
+	variables instead of the CMake compiler variables, that should be
+	set by project().
+
 2012-09-20  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (v0.3.1)
