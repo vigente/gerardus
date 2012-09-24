@@ -108,11 +108,15 @@ $ cmake -DBUILD_SHARED_LIBS=ON -DITK_USE_REVIEW=ON \
   * Note for Windows users: Similarly to the previous step, add to the `Path` environment variable the path to your Matlab `LIBMEX.DLL` and `LIBMX.DLL` libraries, e.g. "C:\Program Files\MATLAB\R2010b\bin\win32" (32 bit) or "C:\Program Files\MATLAB\R2010b\bin\win64" (64 bit)
  * [http://code.google.com/p/gerardus/ Gerardus]
   # Check out the Gerardus project code
-  * Note for Linux and Mac users: You can check out the latest version of the code from the command line doing
+  * Note for Linux and Mac users: If you are not going to commit any code back, you can check out the latest version of the code from the command line doing
 {{{
 $ svn co http://gerardus.googlecode.com/svn/trunk/ gerardus
 }}}
-  * Note for Windows and Mac users: If you are using a graphic interface like TortoiseSVN, choose "Checkout" from the menu options, and enter `http://gerardus.googlecode.com/svn/trunk/` as the repository's URL. Name the destination folder `gerardus`
+    If you are going to commit code, then you will need to use `https` instead of `http`
+{{{
+$ svn co https://gerardus.googlecode.com/svn/trunk/ gerardus
+}}}
+  * Note for Windows and Mac users: If you are using a graphic interface like TortoiseSVN, choose "Checkout" from the menu options, and enter `https://gerardus.googlecode.com/svn/trunk/` (commiters) or `http://gerardus.googlecode.com/svn/trunk/` (read only) as the repository's URL. Name the destination folder `gerardus`
 
 = Build and install =
 
