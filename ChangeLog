@@ -2,19 +2,19 @@
 
 	* matlab/FindMatlab.cmake: (v0.2.6)
 
-	- In Windows, figure out whether the architecture is 32 or 64 bit 
-	without having to resort to CMAKE_SIZEOF_VOID_P. This variable 
-	will only be set if	project() has been run before, and at least in 
+	- In Windows, figure out whether the architecture is 32 or 64 bit
+	without having to resort to CMAKE_SIZEOF_VOID_P. This variable
+	will only be set if project() has been run before, and at least in
 	Gerardus, FindMatlab.cmake runs _after_ project(GERARDUS).
 
-	- Add more version numbers for the Windows version. TODO: find a 
-	way to automate this. Having these versions hardcoded here is not 
+	- Add more version numbers for the Windows version. TODO: find a
+	way to automate this. Having these versions hardcoded here is not
 	very elegant.
 
 	* CMakeLists.txt: (v0.2.2)
 
-	- Hack to avoid CMake error messages when running FindMatlab.cmake 
-	in Windows because CMAKE_FIND_LIBRARY_PREFIXES, 
+	- Hack to avoid CMake error messages when running FindMatlab.cmake
+	in Windows because CMAKE_FIND_LIBRARY_PREFIXES,
 	CMAKE_FIND_LIBRARY_SUFFIXES are not set.
 
 	- When the compiler version has to be forced, use environment
