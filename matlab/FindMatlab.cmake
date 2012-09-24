@@ -17,7 +17,7 @@
 # (Note that the original file does work for Ubuntu Natty)
 #
 # Author: Ramon Casero <rcasero@gmail.com>, Tom Doel
-# Version: 0.2.5
+# Version: 0.2.6
 # $Rev$
 # $Date$
 #
@@ -40,7 +40,7 @@
 SET(MATLAB_FOUND 0)
 IF(WIN32)
   # Search for a version of Matlab available, starting from the most modern one to older versions
-  FOREACH(MATVER "7.11" "7.10" "7.9" "7.8" "7.7" "7.6" "7.5" "7.4")
+  FOREACH(MATVER "7.20" "7.19" "7.18" "7.17" "7.16" "7.15" "7.14" "7.13" "7.12" "7.11" "7.10" "7.9" "7.8" "7.7" "7.6" "7.5" "7.4")
     IF((NOT DEFINED MATLAB_ROOT) 
         OR ("${MATLAB_ROOT}" STREQUAL "")
         OR ("${MATLAB_ROOT}" STREQUAL "/registry"))
@@ -55,16 +55,15 @@ IF(WIN32)
   
   # Directory name depending on whether the Windows architecture is 32
   # bit or 64 bit
-  IF(CMAKE_SIZEOF_VOID_P MATCHES "4")
-    SET(WINDIR "win32")
-  ELSEIF(CMAKE_SIZEOF_VOID_P MATCHES "8")
-    SET(WINDIR "win64")
-  ELSE(CMAKE_SIZEOF_VOID_P MATCHES "4")
-    MESSAGE(FATAL_ERROR 
-      "CMAKE_SIZEOF_VOID_P (${CMAKE_SIZEOF_VOID_P}) doesn't indicate a valid platform")
-  ENDIF(CMAKE_SIZEOF_VOID_P MATCHES "4")
+  if(EXISTS "${MATLAB_ROOT}/extern/lib/win64/microsoft")
+	set(WINDIR "win64")
+  elseif(EXISTS "${MATLAB_ROOT}/extern/lib/win32/microsoft")
+	set(WINDIR "win32")
+  else(EXISTS "${MATLAB_ROOT}/extern/lib/win64/microsoft")
+	message(FATAL_ERROR "Could not find whether Matlab is 32 bit or 64 bit")
+  endif(EXISTS "${MATLAB_ROOT}/extern/lib/win64/microsoft")
 
-  # Folder where the MEX libraries are, depending of the Windows compiler
+  # Folder where the MEX libraries are, depending on the Windows compiler
   IF(${CMAKE_GENERATOR} MATCHES "Visual Studio 6")
     SET(MATLAB_LIBRARIES_DIR "${MATLAB_ROOT}/extern/lib/${WINDIR}/microsoft/msvc60")
   ELSEIF(${CMAKE_GENERATOR} MATCHES "Visual Studio 7")
