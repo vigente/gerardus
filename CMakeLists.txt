@@ -51,8 +51,19 @@ SET(CMAKE_MODULE_PATH
 # display type of build (e.g. Release)
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
+# hack to avoid error messages from CMake in Windows. The problem is that we must run 
+# project() after we have set up the compiler version, to avoid an infinite loop in cmake.
+# And we can only set up the compiler version once we know Matlab's version. Additionally,
+# FindMatlab.cmake requires some variables to be set (CMAKE_FIND_LIBRARY_PREFIXES, 
+# CMAKE_FIND_LIBRARY_SUFFIXES), which only happens after project(). Thus, we have a Catch22.
+# This hack is simply to set the offending variables to the values they would have in Windows
+if(WIN32)
+   set(CMAKE_FIND_LIBRARY_PREFIXES "")
+   set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib")
+endif(WIN32)
+
 # find Matlab
-find_package(Matlab)
+find_package(Matlab REQUIRED)
 if(MATLAB_FOUND)
   message(STATUS "Matlab " ${MATLAB_VERSION} ": " ${MATLAB_ROOT})
 endif(MATLAB_FOUND)
