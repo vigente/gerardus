@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.2.1
+# Version: 0.2.2
 # $Rev$
 # $Date$
 #
@@ -52,25 +52,29 @@ SET(CMAKE_MODULE_PATH
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 # find Matlab
-FIND_PACKAGE(Matlab)
-IF(MATLAB_FOUND)
-  MESSAGE(STATUS "Matlab " ${MATLAB_VERSION} ": " ${MATLAB_ROOT})
-ENDIF(MATLAB_FOUND)
+find_package(Matlab)
+if(MATLAB_FOUND)
+  message(STATUS "Matlab " ${MATLAB_VERSION} ": " ${MATLAB_ROOT})
+endif(MATLAB_FOUND)
 
 # some versions of Matlab or some libraries are not compatible with
 # more advanced gcc versions
 #
 # the compiler version has to be set up before project(), otherwise we
-# will get an infinite loop
-IF(NOT WIN32)
-  IF(BUILD_WITH_CUDA OR ${MATLAB_VERSION} MATCHES "R2012a")
-    SET(CMAKE_C_COMPILER gcc-4.4)
-    SET(CMAKE_CXX_COMPILER g++-4.4)
-  ENDIF(BUILD_WITH_CUDA OR ${MATLAB_VERSION} MATCHES "R2012a")
-ENDIF(NOT WIN32)
+# will get an infinite loop. We force the compiler version setting the
+# corresponding environmental variables (equivalent to running e.g.  
+# $ CC=gcc-4.4 CXX=g++-4.4 cmake ..  This is a better way than directly
+# setting MAKE_C_COMPILER, CMAKE_CXX_COMPILER. For example, if we set these
+# variables after project(), this creates an infinite loop.
+if(NOT WIN32)
+  if(BUILD_WITH_CUDA OR ${MATLAB_VERSION} MATCHES "R2012a")
+    set(ENV{CC} gcc-4.4)
+    set(ENV{CXX} g++-4.4)
+  endif(BUILD_WITH_CUDA OR ${MATLAB_VERSION} MATCHES "R2012a")
+endif(NOT WIN32)
 
 # project name
-PROJECT(GERARDUS)
+project(GERARDUS)
 
 # find ITK
 FIND_PACKAGE(ITK REQUIRED)
