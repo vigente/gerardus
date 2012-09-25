@@ -26,7 +26,7 @@ function scimat = scimat_lconvhull_smoothing(scimat, alpha)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.3.1
+% Version: 0.3.2
 % $Rev$
 % $Date$
 % 
@@ -69,6 +69,12 @@ end
 [r, c, s] = ind2sub(size(scimat.data), find(scimat.data));
 x = scinrrd_index2world([r c s], scimat.axis);
 clear r c s
+
+% if we don't have at least 4 unique points, the delaunay triangulation
+% will give an error
+if (size(x, 1) < 4)
+    return
+end
 
 % compute alpha shape
 [~, s] = alphavol(x, alpha);
