@@ -73,7 +73,7 @@ function scimat2 = scimat_blockproc3(scimat, blksz, fun, border, numworkers)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % $Rev$
 % $Date$
 % 
@@ -168,6 +168,7 @@ if (numworkers > 1) % parallel processing
     if (c.NumWorkers < numworkers)
         warning(['Number of workers selected by user is too large. Only ' ...
             num2str(c.NumWorkers) ' cores available'])
+        numworkers0 = c.NumWorkers;
     else
         % save number of maximum number of workers to undo the change after
         % the function exits
