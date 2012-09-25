@@ -1,3 +1,16 @@
+2012-09-25  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (v0.3.2)
+
+	- Fix bug. If there are not at least 4 voxels in the input
+	segmentation, then delaunay() will give an error. We should just
+	return, so the output image is the same as the input.
+
+	* matlab/FiltersToolbox/scimat_blockproc3.m: (v0.3.1)
+
+	- Fix bug. Variable was not being set in one of the cases in an if
+	block.
+
 2012-09-24  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FindMatlab.cmake: (v0.2.6)
