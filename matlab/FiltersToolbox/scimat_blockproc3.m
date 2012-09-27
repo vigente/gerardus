@@ -226,7 +226,7 @@ if (numworkers > 1) % parallel processing
         
         % wait until job finishes
         wait(job{B});
-        
+
         % extract the output of this job
         aux = fetchOutputs(job{B});
         
