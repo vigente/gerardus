@@ -1,3 +1,11 @@
+2012-09-27  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/PointsToolbox/intersect_gaussians.m: (v0.1.0)
+	* Add matlab/PointsToolbox/intersect_gaussians.png:
+	* Add matlab/test/test_intersect_gaussians.m:
+
+	- Intersection of two Gaussians (analytic solution).
+
 2012-09-25  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (v0.3.2)
