@@ -77,11 +77,31 @@ if (size(x, 1) < 4)
 end
 
 % compute alpha shape
-[~, s] = alphavol(x, alpha);
+try
+    [~, s] = alphavol(x, alpha);
+catch err
+    % "Error computing the Delaunay triangulation. The points may be
+    % coplanar or collinear"
+    %
+    % Just exit the function leaving the input segmentation untouched
+    if (strcmp(err.identifier,'MATLAB:delaunay:EmptyDelaunay3DErrId'))
+        return
+   else
+       % display any other errors as usual
+      rethrow(err);
+    end
+end
 
 % keep only the mesh surface
 tri = s.bnd;
 clear s
+
+% very small segmentations can produce degenerated surfaces. In that case,
+% there's nothing to smooth and we can just exit without modifying the
+% input segmentation
+if (size(tri, 1) < 4)
+    return
+end
 
 % % DEBUG: plot alpha shape's surface
 % close all
