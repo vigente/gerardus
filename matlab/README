@@ -376,6 +376,10 @@ graph_nn.m
 	 GRAPH_NN  Nearest neighbours from a subset of nodes in a graph to another
 	 subset
 	
+intersect_gaussians.m
+
+	 INTERSECT_GAUSSIANS  Intersection of two Gaussians (analytic solution)
+	
 intersect_line_plane.m
 
 	 INTERSECT_LINE_PLANE  Find intersection of a line with a plane
