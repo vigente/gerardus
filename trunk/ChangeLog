@@ -1,5 +1,17 @@
 2012-09-27  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (v)
+
+	- Fix bug. When the the voxels in the segmentation are collinear,
+	alphavol() will exit with an error because the delaunay()
+	triangulation throws an error too. What we do is put alphavol() in
+	a try, and if the error is collinearity, we can just leave the
+	segmentation untouched.
+
+	- Fix bug. Very small segmentations can produce degenerated
+	surfaces. In that case, there's nothing to smooth and we can just
+	exit without modifying the input segmentation.
+
 	* Add matlab/PointsToolbox/intersect_gaussians.m: (v0.1.0)
 	* Add matlab/PointsToolbox/intersect_gaussians.png:
 	* Add matlab/test/test_intersect_gaussians.m:
