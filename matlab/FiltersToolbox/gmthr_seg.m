@@ -118,7 +118,12 @@ im = (im <= thr);
 cc = bwconncomp(im);
 
 % keep only the largest component to remove background noise
+%
+% note: it's better to clear the whole image, and then add the largest
+% components, than trying to delete the smaller components. The latter
+% doesn't remove all the noise, for some reason.
 len = cellfun(@length, cc.PixelIdxList);
 [~, idx] = sort(len, 2, 'descend');
-idx = cc.PixelIdxList{idx(nobj+1:end)};
-im(idx) = 0;
+im = zeros(size(im), 'uint8');
+idx = cc.PixelIdxList{idx(1:nobj)};
+im(idx) = 1;
