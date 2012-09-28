@@ -43,7 +43,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.4
+  * Version: 0.2.5
   * $Rev$
   * $Date$
   *
@@ -87,78 +87,8 @@
 #include <vector>
 #include <stdlib.h>
 
-/*
- * sub2ind(): function that converts r, c, s indices to linear indices
- *            in a 3D array (same as Matlab's function sub2ind(),
- *            although in Matlab indices start at 1, and in C++, they
- *            start at 0)
- *
- */
-mwIndex sub2ind(mwSize R, mwSize C, mwSize S,
-		std::vector<mwIndex> rcs) {
-  // check for out of range index
-  if (
-      (rcs[0] < 0) || (rcs[0] >= R) 
-      || (rcs[1] < 0) || (rcs[1] >= C)
-      || (rcs[2] < 0) || (rcs[2] >= S)
-      ) {
-    mexErrMsgTxt("Out of range index");
-  }
-  if ((R*C*S == 0) || (R < 0) || (C < 0) || (S < 0)) {
-    mexErrMsgTxt("Size values cannot be 0 or negative");
-  }
-
-  // check that input vector has 3 elements
-  if (rcs.size() != 3) {
-    mexErrMsgTxt("Input vector must have 3 elements");
-  }
-
-  // convert r, c, s to linear index
-  mwIndex idx = rcs[0] + rcs[1] * R + rcs[2] * R * C;
-
-  // // DEBUG
-  // std::cout << "idx = " << idx
-  // 	    << std::endl;
-  
-  return idx;
-}
-
-/*
- * ind2sub(): function that converts linear indices in a 3D array to
- *            r, c, s indices (same as Matlab's function ind2sub(),
- *            although in Matlab indices start at 1, and in C++, they
- *            start at 0)
- *
- */
-std::vector<mwIndex> ind2sub(mwSize R, mwSize C, mwSize S,
-			     mwIndex idx) {
-  // check for out of range index
-  if (idx >= R*C*S || idx < 0) {
-    mexErrMsgTxt("Out of range index");
-  }
-  if (R*C*S == 0 || R < 0 || C < 0 || S < 0) {
-    mexErrMsgTxt("Size values cannot be 0 or negative");
-  }
-
-  // init output
-  std::vector<mwIndex> rcs(3);
-  
-  // convert linear index to r, c, s 
-  rcs[2] = idx / (R*C); // slice value (Note: integer division)
-  idx %= (R*C);
-
-  rcs[1] = idx / R; // column value (Note: integer division)
-
-  rcs[0] = idx % R; // row value
-
-  // // DEBUG
-  // std::cout << "rcs = " << rcs[0] << ", " 
-  // 	    << rcs[1] << ", "
-  // 	    << rcs[2]
-  // 	    << std::endl;
-  
-  return rcs;
-}
+/* Gerardus headers */
+#include "GerardusCommon.hpp"
 
 /*
  * getNeighbours(): function that gets a vector of indices that
@@ -195,6 +125,9 @@ std::vector<mwIndex> getNeighbours(mwSize R, mwSize C, mwSize S,
 
     for (mwIndex c = cmin; c <= rcs[1]+1; ++c) {
       for (mwIndex r = rmin; r <= rcs[0]+1; ++r) {
+	// exit if user pressed Ctrl+C
+	ctrlcCheckPoint(__FILE__, __LINE__);
+
 	// input index cannot be an index of itself
 	if ((r == rcs[0]) && (c == rcs[1])) {
 	  continue;
@@ -240,6 +173,9 @@ std::vector<mwIndex> getNeighbours(mwSize R, mwSize C, mwSize S,
 	  // std::cout << "getNeighbours(): Image bounds " 
 	  // 	    << R << ", " << C << ", " << S << std::endl;
 	  
+	  // exit if user pressed Ctrl+C
+	  ctrlcCheckPoint(__FILE__, __LINE__);
+
 	  // input index cannot be an index of itself
 	  if ((r == rcs[0]) && (c == rcs[1]) && (s == rcs[2])) {
 	    continue;
@@ -355,6 +291,9 @@ void run(mxArray* &im, const mxArray* _TODO,
   // initialize the boundary with the seeds
   for (mwIndex i = 0; i < Nim; ++i) {
 
+    // exit if user pressed Ctrl+C
+    ctrlcCheckPoint(__FILE__, __LINE__);
+
     // does this voxel need to be labelled?
     if (imp[i] == TODO) {
       Ntodo++;
@@ -375,8 +314,11 @@ void run(mxArray* &im, const mxArray* _TODO,
   // }
 
   // loop until all voxels have been labelled or until the maximum
-  // number of iterations
+  // number of iterations has been reached
   while (maxiter != 0) {
+
+    // exit if user pressed Ctrl+C
+    ctrlcCheckPoint(__FILE__, __LINE__);
 
     // decrease maxiter counter if we have to stop after a maximum
     // number of iterations
@@ -392,6 +334,9 @@ void run(mxArray* &im, const mxArray* _TODO,
     // start with an empty new boundary
     newBoundary.clear();
     for (mwIndex i = 0; i < addedToNewBoundary.size(); ++i) {
+      // exit if user pressed Ctrl+C
+      ctrlcCheckPoint(__FILE__, __LINE__);
+
       addedToNewBoundary[i] = false;
     }
 
@@ -418,6 +363,9 @@ void run(mxArray* &im, const mxArray* _TODO,
 
       // loop every neighbour
       for (mwIndex j = 0; j < neighbour.size(); ++j) {
+
+	// exit if user pressed Ctrl+C
+	ctrlcCheckPoint(__FILE__, __LINE__);
 
 	// ignore any neighbour that either belongs to the background
 	// or that is already labelled or that has already been added
@@ -482,6 +430,10 @@ void run(mxArray* &im, const mxArray* _TODO,
 
       // loop every neighbour
       for (mwIndex j = 0; j < neighbour.size(); ++j) {
+
+	// exit if user pressed Ctrl+C
+	ctrlcCheckPoint(__FILE__, __LINE__);
+
 	// if the neighbour belongs to the background or doesn't have
 	// a label, skip it
 	if ((imp[neighbour[j]] != 0) 

@@ -1,5 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
+# Version: 0.2.0
 # $Rev$
 # $Date$
 #
@@ -40,8 +41,9 @@ ENDIF(NOT WIN32)
 ################################################################
 
 ADD_MEX_FILE(bwregiongrow bwregiongrow.cpp)
+INCLUDE_DIRECTORIES(..)
 TARGET_LINK_LIBRARIES(bwregiongrow
-  ${ITK_LIBRARIES})
+  gerardusCommon)
 
 ################################################################
 ## deconvolve()

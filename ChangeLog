@@ -1,5 +1,26 @@
 2012-09-28  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/CMakeLists.txt: (v0.2.0)
+
+	- bwregiongrow doesn't need to link to the ITK libraries.
+
+	- bwregiongrow now links to gerardusCommon.
+
+	* matlab/FiltersToolbox/bwregiongrow.cpp: (v0.2.5)
+
+	- Move functions sub2ind() and ind2sub() to GerardusCommon. They
+	shouldn't have been here, as they clearly belong in the common
+	header file.
+
+	- Add CTRL+C checkpoints so that the function can be interrupted.
+
+	* matlab/GerardusCommon.hpp: (v0.6.1)
+	* matlab/GerardusCommon.cpp: (0.5.1)
+
+	- Move functions sub2ind() and ind2sub() from
+	bwregiongrow.cpp. They shouldn't have been in a particular file,
+	as they clearly belong in the common header file.
+
 	* Add matlab/FiltersToolbox/gmthr_seg.m:
 
 	- Segment an image estimating threshold as intersection of two
