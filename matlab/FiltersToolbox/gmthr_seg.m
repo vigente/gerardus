@@ -11,7 +11,7 @@ function im = gmthr_seg(im, nobj, nsubs)
 %   the darker object.
 %
 %   A Gaussian mixture model is fitted to the image intensities, and the
-%   intersection point between the Gaussian maxima is computed. The oject
+%   intersection point between the Gaussian maxima is computed. The object
 %   in the image is segmented using this intersection value as the
 %   segmentation threshold. Finally, all segmented objects are removed
 %   except for the largest one. This last step is useful to remove
