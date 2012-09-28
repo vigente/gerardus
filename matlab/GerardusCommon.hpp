@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.6.0
+  * Version: 0.6.1
   * $Rev$
   * $Date$
   *
@@ -161,6 +161,7 @@ void ctrlcCheckPoint(std::string sourceFile, int lineNumber) {
  * r, c, s: subindices to be converted
  *
  */
+mwIndex sub2ind(mwSize R, mwSize C, mwSize S, std::vector<mwIndex> rcs);
 mwIndex sub2ind(mwSize R, mwSize C, mwSize S, itk::Offset<3> rcs);
 mwIndex sub2ind(mwSize R, mwSize C, mwSize S, mwIndex r, mwIndex c, mwIndex s);
 
@@ -174,6 +175,7 @@ mwIndex sub2ind(mwSize R, mwSize C, mwSize S, mwIndex r, mwIndex c, mwIndex s);
  * rcs: subindices to be converted
  *
  */
+std::vector<mwIndex> ind2sub(mwSize R, mwSize C, mwSize S, mwIndex idx);
 itk::Offset<3> ind2sub_itkOffset(mwSize R, mwSize C, mwSize S, mwIndex idx);
 
 /*
