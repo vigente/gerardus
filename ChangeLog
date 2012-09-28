@@ -1,3 +1,10 @@
+2012-09-28  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/FiltersToolbox/gmthr_seg.m:
+
+	- Segment an image estimating threshold as intersection of two
+	Gaussians from Gaussian mixture model.
+
 2012-09-27  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (v)
