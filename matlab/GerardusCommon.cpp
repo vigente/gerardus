@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.5.0
+  * Version: 0.5.1
   * $Rev$
   * $Date$
   *
@@ -112,6 +112,39 @@ mwIndex sub2ind(mwSize R, mwSize C, mwSize S, mwIndex r, mwIndex c, mwIndex s) {
 }
 
 /*
+ * sub2ind(): overloaded
+ *
+ */
+mwIndex sub2ind(mwSize R, mwSize C, mwSize S,
+		std::vector<mwIndex> rcs) {
+  // check for out of range index
+  if (
+      (rcs[0] < 0) || (rcs[0] >= R) 
+      || (rcs[1] < 0) || (rcs[1] >= C)
+      || (rcs[2] < 0) || (rcs[2] >= S)
+      ) {
+    mexErrMsgTxt("Out of range index");
+  }
+  if ((R*C*S == 0) || (R < 0) || (C < 0) || (S < 0)) {
+    mexErrMsgTxt("Size values cannot be 0 or negative");
+  }
+
+  // check that input vector has 3 elements
+  if (rcs.size() != 3) {
+    mexErrMsgTxt("Input vector must have 3 elements");
+  }
+
+  // convert r, c, s to linear index
+  mwIndex idx = rcs[0] + rcs[1] * R + rcs[2] * R * C;
+
+  // // DEBUG
+  // std::cout << "idx = " << idx
+  // 	    << std::endl;
+  
+  return idx;
+}
+
+/*
  * ind2sub(): function that converts linear indices in a 3D array to
  *            r, c, s indices (same as Matlab's function ind2sub(),
  *            although in Matlab indices start at 1, and in C++, they
@@ -121,7 +154,7 @@ mwIndex sub2ind(mwSize R, mwSize C, mwSize S, mwIndex r, mwIndex c, mwIndex s) {
  * rcs: subindices to be converted
  *
  */
-itk::Offset<3> ind2sub(mwSize R, mwSize C, mwSize S, mwIndex idx) {
+itk::Offset<3> ind2sub_itkOffset(mwSize R, mwSize C, mwSize S, mwIndex idx) {
   // check for out of range index
   if (idx >= R*C*S || idx < 0) {
     mexErrMsgTxt("ind2sub: Out of range index");
@@ -132,6 +165,43 @@ itk::Offset<3> ind2sub(mwSize R, mwSize C, mwSize S, mwIndex idx) {
 
   // init output
   itk::Offset<3> rcs;
+  
+  // convert linear index to r, c, s 
+  rcs[2] = idx / (R*C); // slice value (Note: integer division)
+  idx %= (R*C);
+
+  rcs[1] = idx / R; // column value (Note: integer division)
+
+  rcs[0] = idx % R; // row value
+
+  // // DEBUG
+  // std::cout << "rcs = " << rcs[0] << ", " 
+  // 	    << rcs[1] << ", "
+  // 	    << rcs[2]
+  // 	    << std::endl;
+  
+  return rcs;
+}
+
+/*
+ * ind2sub(): function that converts linear indices in a 3D array to
+ *            r, c, s indices (same as Matlab's function ind2sub(),
+ *            although in Matlab indices start at 1, and in C++, they
+ *            start at 0)
+ *
+ */
+std::vector<mwIndex> ind2sub(mwSize R, mwSize C, mwSize S,
+			     mwIndex idx) {
+  // check for out of range index
+  if (idx >= R*C*S || idx < 0) {
+    mexErrMsgTxt("Out of range index");
+  }
+  if (R*C*S == 0 || R < 0 || C < 0 || S < 0) {
+    mexErrMsgTxt("Size values cannot be 0 or negative");
+  }
+
+  // init output
+  std::vector<mwIndex> rcs(3);
   
   // convert linear index to r, c, s 
   rcs[2] = idx / (R*C); // slice value (Note: integer division)
