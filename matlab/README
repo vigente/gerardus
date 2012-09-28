@@ -173,6 +173,11 @@ fspecial3.m
 
 	 FSPECIAL3  Create predefined 3-dimensional filters
 	
+gmthr_seg.m
+
+	 GMTHR_SEG  Segment an image estimating threshold as intersection of two
+	 Gaussians from Gaussian mixture model
+	
 im2imat.m
 
 	 IM2IMAT  Local neighbourhood mean intensity matrix between segmentation
