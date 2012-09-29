@@ -61,6 +61,11 @@ scinrrd_rv_crescent_tips.m
 	 SCINRRD_RV_CRESCENT_TIPS  Extract the tips of the crescent-shaped curve
 	 in all slices of the Right Ventricle
 	
+tissue2lvrv.m
+
+	 TISSUE2LVRV  Extract LV and RV cavities from tissue and atrioventricular
+	 surface segmentations
+	
 
 CgalToolbox
 -------------------------------------------------------------
