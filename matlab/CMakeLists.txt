@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.2.0
+# Version: 0.2.1
 # $Rev$
 # $Date$
 #
@@ -57,23 +57,6 @@ INCLUDE_DIRECTORIES(${MATLAB_INCLUDE_DIR})
 
 # Add macros to build MEX files
 INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/MatlabMakeMacros.cmake)
-
-# build a small static library with functions and variables that are
-# common to all of Gerardus MEX files
-add_library(gerardusCommon SHARED
-  GerardusCommon.cpp)
-include_directories(.)
-if(WIN32)
-  install(TARGETS
-    gerardusCommon
-    RUNTIME
-    DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
-else(WIN32)
-  install(TARGETS
-    gerardusCommon
-    LIBRARY
-    DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
-endif(WIN32)
 
 # build mex functions in the toolboxes
 ADD_SUBDIRECTORY(ItkToolbox)
