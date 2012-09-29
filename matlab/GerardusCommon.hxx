@@ -1,5 +1,5 @@
 /*
- * GerardusCommon.cpp
+ * GerardusCommon.hxx
  *
  * Miscellaneous functions of general use.
  */
@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.5.1
+  * Version: 0.5.2
   * $Rev$
   * $Date$
   *
@@ -36,8 +36,8 @@
   * <http://www.gnu.org/licenses/>.
   */
 
-#ifndef GERARDUSCOMMON_CPP
-#define GERARDUSCOMMON_CPP
+#ifndef GERARDUSCOMMON_HXX
+#define GERARDUSCOMMON_HXX
 
 /* mex headers */
 #include <mex.h>
@@ -49,7 +49,7 @@
 #include "itkOffset.h"
 
 /* Gerardus headers */
-#include "GerardusCommon.hpp"
+#include "GerardusCommon.h"
 
 /*
  * sub2ind(): function that converts r, c, s indices to linear indices
@@ -220,4 +220,4 @@ std::vector<mwIndex> ind2sub(mwSize R, mwSize C, mwSize S,
   return rcs;
 }
 
-#endif /* GERARDUSCOMMON_CPP */
+#endif /* GERARDUSCOMMON_HXX */

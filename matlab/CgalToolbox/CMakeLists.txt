@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.1.2
+# Version: 0.1.3
 # $Rev$
 # $Date$
 #
@@ -49,7 +49,6 @@ INCLUDE_DIRECTORIES(
   ..
   )
 TARGET_LINK_LIBRARIES(cgal_insurftri
-  gerardusCommon
   CGAL
   ${ITK_LIBRARIES})
 

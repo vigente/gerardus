@@ -1,3 +1,35 @@
+2012-09-29  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/GerardusCommon.h: (v0.6.2)
+	* matlab/GerardusCommon.hxx: (v0.5.2)
+	* matlab/CMakeLists.txt: (v0.2.1)
+	* matlab/CgalToolbox/CMakeLists.txt: (v0.1.3)
+	* matlab/MatlabExportFilter.h: (v0.1.1)
+	* matlab/FiltersToolbox/CMakeLists.txt: (v0.2.1)
+	* matlab/ItkToolbox/ItkPSTransform.cpp: (v0.3.2)
+	* matlab/FiltersToolbox/bwregiongrow.cpp: (v0.2.6)
+	* Rename matlab/GerardusCommon.hpp as matlab/GerardusCommon.h
+	* Rename matlab/GerardusCommon.cpp as matlab/GerardusCommon.hxx
+
+	- Now instead of building a library that MEX functions will link
+	to, we will directly include GerardusCommon.h. The reason is that
+	functions in GerardusCommon tend to be quite basic frequently
+	used, and it makes a substantial difference to speed if we don't
+	need to make calls to a separate library.
+
+	- Reimplement ctrlcCheckPoint() as a C++ macro to check for the
+	CTRL+C flag, and a call to function ctrlcErrMsgTxt() inside, to
+	throw the error. The reason is that if ctrlcCheckPoint() were a
+	function instead of a macro, this would introduce a function call
+	at every iteration of the loop, which is very expensive. But then
+	we don't want to put the whole error message part inside a macro,
+	it's bug-prone and bad programming practice. And once the CTRL+C
+	has been detected, whether the error message is generated a bit
+	faster or not is not important.
+
+	- Make some of the GerardusCommon functions inline. This improves
+	speed very little, between 2% or %4.
+
 2012-09-28  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/CMakeLists.txt: (v0.2.0)
