@@ -1,5 +1,5 @@
 /*
- * GerardusCommon.hpp
+ * GerardusCommon.h
  *
  * Miscellaneous functions of general use.
  */
@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.6.1
+  * Version: 0.6.2
   * $Rev$
   * $Date$
   *
@@ -36,8 +36,8 @@
   * <http://www.gnu.org/licenses/>.
   */
 
-#ifndef GERARDUSCOMMON_HPP
-#define GERARDUSCOMMON_HPP
+#ifndef GERARDUSCOMMON_H
+#define GERARDUSCOMMON_H
 
 /* mex headers */
 #include <mex.h>
@@ -66,11 +66,19 @@
 
 /*
  * ctrlcCheckPoint(): function to check whether the user has pressed
- *                    Ctrl+C, and if so, terminate execution returning
- *                    an error message with a hyperlink to the
- *                    offending function's help, and a hyperlink to
- *                    the line in the source code file this function
- *                    was called from
+ * Ctrl+C, and if so, terminate execution returning an error message
+ * with a hyperlink to the offending function's help, and a hyperlink
+ * to the line in the source code file this function was called from
+ *
+ * It is implemented as a C++ macro to check for the CTRL+C flag, and
+ * a call to function ctrlcErrMsgTxt() inside, to throw the error. The
+ * reason is that if ctrlcCheckPoint() were a function instead of a
+ * macro, this would introduce a function call at every iteration of
+ * the loop, which is very expensive. But then we don't want to put
+ * the whole error message part inside a macro, it's bug-prone and bad
+ * programming practice. And once the CTRL+C has been detected,
+ * whether the error message is generated a bit faster or not is not
+ * important.
  *
  * In practice, to use this function put a call like this e.g. inside
  * loops that may take for a very long time:
@@ -87,54 +95,57 @@
  *
  */
 inline
-void ctrlcCheckPoint(std::string sourceFile, int lineNumber) {
-  if (utIsInterruptPending()) {
-
-    // run from here the following code in the Matlab side:
-    //
-    // >> path = mfilename('fullpath')
-    //
-    // this provides the full path and function name of the function
-    // that called ctrlcCheckPoint()
-    int nlhs = 1; // number of output arguments we expect
-    mxArray *plhs[nlhs]; // to store the output argument
-    int nrhs = 1; // number of input arguments we are going to pass
-    mxArray *prhs[1]; // to store the input argument we are going to pass
-    prhs[0] = mxCreateString("fullpath"); // input argument to pass
-    if (mexCallMATLAB(nlhs, plhs, nrhs, prhs, "mfilename")) { // run mfilename('fullpath')
-      mexErrMsgTxt("ctrlcCheckPoint(): mfilename('fullpath') returned error");
-    }
-    if (plhs == NULL) {
-      mexErrMsgTxt("ctrlcCheckPoint(): mfilename('fullpath') returned NULL array of outputs");
-    }
-    if (plhs[0] == NULL) {
-      mexErrMsgTxt("ctrlcCheckPoint(): mfilename('fullpath') returned NULL output instead of valid path");
-    }
-
-    // get full path to current function, including function's name
-    // (without the file extension)
-    char *pathAndName = mxArrayToString(plhs[0]);
-    if (pathAndName == NULL) {
-      mexErrMsgTxt("ctrlcCheckPoint(): mfilename('fullpath') output cannot be converted to string");
-    }
-
-    // for some reason, using mexErrMsgTxt() to give this output
-    // doesn't work. Instead, we have to give the output to the
-    // standar error, and then call mexErrMsgTxt() to terminate
-    // execution of the program
-    std::cerr << "Operation terminated by user during " 
-	      << "<a href=\"matlab:helpUtils.errorDocCallback('"
-	      << mexFunctionName()
-	      << "', '" << pathAndName << ".m', " << lineNumber << ")\">"
-	      << mexFunctionName()
-	      << "</a> (<a href=\"matlab:opentoline('"
-	      << sourceFile
-	      << "'," << lineNumber << ",0)\">line " << lineNumber
-	      << "</a>)"
-	      << std::endl;
-    mexErrMsgTxt("");
+void ctrlcErrMsgTxt(std::string sourceFile, int lineNumber) {
+  
+  // run from here the following code in the Matlab side:
+  //
+  // >> path = mfilename('fullpath')
+  //
+  // this provides the full path and function name of the function
+  // that called ctrlcCheckPoint()
+  int nlhs = 1; // number of output arguments we expect
+  mxArray *plhs[nlhs]; // to store the output argument
+  int nrhs = 1; // number of input arguments we are going to pass
+  mxArray *prhs[1]; // to store the input argument we are going to pass
+  prhs[0] = mxCreateString("fullpath"); // input argument to pass
+  if (mexCallMATLAB(nlhs, plhs, nrhs, prhs, "mfilename")) { // run mfilename('fullpath')
+    mexErrMsgTxt("ctrlcCheckPoint(): mfilename('fullpath') returned error");
   }
+  if (plhs == NULL) {
+    mexErrMsgTxt("ctrlcCheckPoint(): mfilename('fullpath') returned NULL array of outputs");
+  }
+  if (plhs[0] == NULL) {
+    mexErrMsgTxt("ctrlcCheckPoint(): mfilename('fullpath') returned NULL output instead of valid path");
+  }
+  
+  // get full path to current function, including function's name
+  // (without the file extension)
+  char *pathAndName = mxArrayToString(plhs[0]);
+  if (pathAndName == NULL) {
+    mexErrMsgTxt("ctrlcCheckPoint(): mfilename('fullpath') output cannot be converted to string");
+  }
+  
+  // for some reason, using mexErrMsgTxt() to give this output
+  // doesn't work. Instead, we have to give the output to the
+  // standar error, and then call mexErrMsgTxt() to terminate
+  // execution of the program
+  std::cerr << "Operation terminated by user during "
+	    << "<a href=\"matlab:helpUtils.errorDocCallback('"
+	    << mexFunctionName()
+	    << "', '" << pathAndName << ".m', " << lineNumber << ")\">"
+	    << mexFunctionName()
+	    << "</a> (<a href=\"matlab:opentoline('"
+	    << sourceFile
+	    << "'," << lineNumber << ",0)\">line " << lineNumber
+	    << "</a>)"
+	    << std::endl;
+  mexErrMsgTxt("");
 }
+
+#define ctrlcCheckPoint(sourceFile, lineNumber)				\
+  if (utIsInterruptPending()) {						\
+    ctrlcErrMsgTxt(sourceFile, lineNumber);				\
+  }
 
 /* 
  * CAST2MWSIZE(): macro to cast to mwSize type. This definition is
@@ -161,8 +172,11 @@ void ctrlcCheckPoint(std::string sourceFile, int lineNumber) {
  * r, c, s: subindices to be converted
  *
  */
+inline
 mwIndex sub2ind(mwSize R, mwSize C, mwSize S, std::vector<mwIndex> rcs);
+inline
 mwIndex sub2ind(mwSize R, mwSize C, mwSize S, itk::Offset<3> rcs);
+inline
 mwIndex sub2ind(mwSize R, mwSize C, mwSize S, mwIndex r, mwIndex c, mwIndex s);
 
 /*
@@ -175,7 +189,9 @@ mwIndex sub2ind(mwSize R, mwSize C, mwSize S, mwIndex r, mwIndex c, mwIndex s);
  * rcs: subindices to be converted
  *
  */
+inline
 std::vector<mwIndex> ind2sub(mwSize R, mwSize C, mwSize S, mwIndex idx);
+inline
 itk::Offset<3> ind2sub_itkOffset(mwSize R, mwSize C, mwSize S, mwIndex idx);
 
 /*
@@ -281,4 +297,7 @@ std::string print_T() {
   return __PRETTY_FUNCTION__;
 }
 
-#endif /* GERARDUSCOMMON_HPP */
+#ifndef ITK_MANUAL_INSTANTIATION
+#include "GerardusCommon.hxx"
+#endif
+#endif /* GERARDUSCOMMON_H */
