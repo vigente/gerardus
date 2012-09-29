@@ -1,5 +1,10 @@
 2012-09-29  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/CardiacToolbox/tissue2lvrv.m: (v0.1.0)
+
+	- Extract LV and RV cavities from tissue and atrioventricular
+	surface segmentations.
+
 	* matlab/GerardusCommon.h: (v0.6.2)
 	* matlab/GerardusCommon.hxx: (v0.5.2)
 	* matlab/CMakeLists.txt: (v0.2.1)
