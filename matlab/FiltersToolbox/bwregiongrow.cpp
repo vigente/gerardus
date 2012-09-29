@@ -43,7 +43,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.2.5
+  * Version: 0.2.6
   * $Rev$
   * $Date$
   *
@@ -87,8 +87,8 @@
 #include <vector>
 #include <stdlib.h>
 
-/* Gerardus headers */
-#include "GerardusCommon.hpp"
+/* Gerardus common functions */
+#include "GerardusCommon.h"
 
 /*
  * getNeighbours(): function that gets a vector of indices that

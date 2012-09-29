@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -50,8 +50,8 @@
 /* ITK headers */
 #include "itkSmartPointer.h"
 
-/* Gerardus headers */
-#include "GerardusCommon.hpp"
+/* Gerardus common functions */
+#include "GerardusCommon.h"
 
 class MatlabExportFilter: public itk::Object {
 

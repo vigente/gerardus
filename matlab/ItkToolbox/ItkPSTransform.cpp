@@ -60,7 +60,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.3.1
+  * Version: 0.3.2
   * $Rev$
   * $Date$
   *
@@ -118,8 +118,8 @@
 #include "itkBSplineControlPointImageFunction.h"
 #endif
 
-/* Gerardus headers */
-#include "GerardusCommon.hpp"
+/* Gerardus common functions */
+#include "GerardusCommon.h"
 
 /* Functions */
 
