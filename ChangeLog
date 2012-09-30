@@ -1,5 +1,10 @@
 2012-09-30  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/FiltersToolbox/mm_opening.m: (v0.1.0)
+
+	- Mathematical Morphology operator: Opening (erosion+dilation)
+	with removal of small components.
+
 	* matlab/FiltersToolbox/gmthr_seg.m: (v0.4.0)
 
 	- Add output argument Q: Q is a quality measure of the
