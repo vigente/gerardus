@@ -1,5 +1,11 @@
 2012-09-30  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/gmthr_seg.m: (v0.3.0)
+
+	- Make THR be the first output argument. The user may want the
+	threshold value, but not need the segmentation itself. In that
+	case, we don't waste time and memory computing the segmentation.
+
 	* matlab/FiltersToolbox/gmthr_seg.m: (v0.2.0)
 
 	- Add ouptut argument THR with estimated threshold value.
