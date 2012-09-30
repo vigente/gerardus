@@ -1,4 +1,4 @@
-function [thr, im] = gmthr_seg(im, nobj, nsubs)
+function [thr, q, im] = gmthr_seg(im, nobj, nsubs)
 % GMTHR_SEG  Segment an image estimating threshold as intersection of two
 % Gaussians from Gaussian mixture model
 %
@@ -13,7 +13,20 @@ function [thr, im] = gmthr_seg(im, nobj, nsubs)
 %   between the Gaussian maxima is computed. The object in the image is
 %   segmented using this intersection value as the segmentation threshold.
 %
-% [THR, BW] = gmthr_seg(IM, NOBJ, NSUBS)
+%   If the object and the background are too similar compared to the number
+%   of samples in the image (i.e. the Gaussians intersect outside of the
+%   interval between the Gaussian maxima), then this method cannot provide
+%   a threshold to separate object and background. In that case, THR is
+%   returned as NaN. This is the case, for example, if the image only
+%   contains background, or only object voxels.
+%
+% [THR, Q, BW] = gmthr_seg(IM, NOBJ, NSUBS)
+%
+%   Q is a quality measure of the threshold. Q takes values in [0, 1].
+%   Values close to 0 mean that both Gaussians have a lot of overlap, so
+%   the threshold between object and background cannot be trusted very
+%   much. Values close to 1 mean that both Gaussians are well separated,
+%   and the threshold value can be trusted to provide a good segmentation.
 %
 %   BW is an output segmentation mask, where voxels == true correspond to
 %   the darker object.
@@ -31,7 +44,7 @@ function [thr, im] = gmthr_seg(im, nobj, nsubs)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.3.0
+% Version: 0.4.0
 % $Rev$
 % $Date$
 % 
@@ -91,15 +104,37 @@ vartis = obj.Sigma(idx);
 [mubak, idx] = max(obj.mu);
 varbak = obj.Sigma(idx);
 
+% % DEBUG: create Gaussian curves for display purposes
+% ftis = normpdf(xout, mutis, sqrt(vartis));
+% fbak = normpdf(xout, mubak, sqrt(varbak));
+
 % compute intersection points between two gaussians
 thr = intersect_gaussians(mutis, mubak, sqrt(vartis), sqrt(varbak));
 
 % keep the one that is between both mean values
 thr = thr(thr > mutis & thr < mubak);
 
-% % DEBUG: create Gaussian curves for display purposes
-% ftis = normpdf(xout, mutis, sqrt(vartis));
-% fbak = normpdf(xout, mubak, sqrt(varbak));
+% if there's no intersection point between the maxima, then returning a
+% threshold is meaningless, and instead we return NaN. This is the case,
+% e.g. if there's only background and no object
+if isempty(thr)
+    thr = nan;
+end
+
+% quality of the clustering measure. Integral under the tissue Gaussian
+% in [thr, Inf] and integral under the background Gaussian in [-Inf, thr]:
+% the sum represents the Gaussian overlap area. This overlap has a value in
+% [0, 1], with 0 for a lot of overlap, and 1 for no overlap. The quality
+% measure is then 1-overlap
+if (nargout < 2)
+    return
+end
+if (isnan(thr))
+    q = nan;
+else
+    q = 1 - normcdf(2*mutis-thr, mutis, sqrt(vartis))...
+        - normcdf(thr, mubak, sqrt(varbak));
+end
 
 % % DEBUG: plot histogram curves
 % hold off
@@ -113,7 +148,7 @@ thr = thr(thr > mutis & thr < mubak);
 
 % no need to waste time segmenting the image if the user doesn't ask for
 % the output segmentation
-if (nargout < 2)
+if (nargout < 3)
     return
 end
 
@@ -131,5 +166,7 @@ cc = bwconncomp(im);
 len = cellfun(@length, cc.PixelIdxList);
 [~, idx] = sort(len, 2, 'descend');
 im = zeros(size(im), 'uint8');
-idx = cc.PixelIdxList{idx(1:nobj)};
-im(idx) = 1;
+if ~isempty(idx)
+    idx = cc.PixelIdxList{idx(1:nobj)};
+    im(idx) = 1;
+end
