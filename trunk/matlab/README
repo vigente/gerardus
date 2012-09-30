@@ -206,6 +206,11 @@ labmathmorph.m
 	 LABMATHMORPH  Mathematical morphology operators on a labelled
 	 segmentation, one label at a time
 	
+mm_opening.m
+
+	 MM_OPENING Mathematical Morphology operator: Opening with removal of
+	 small components
+	
 scimat_blockproc3.m
 
 	 SCIMAT_BLOCKPROC3  Block processing for a 3D SCI MAT volume
