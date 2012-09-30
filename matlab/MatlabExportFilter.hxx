@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -82,7 +82,7 @@ MatlabExportFilter::GraftItkImageOntoMatlab(typename itk::DataObject::Pointer im
 					    unsigned int idx, std::string paramName) {
 
   if (size.size() != VectorDimension) {
-    mexErrMsgTxt(("Output image " + paramName 
+    mexErrMsgTxt(("MatlabExportFilter: Output image " + paramName 
 		  + ": wrong length for size vector").c_str());
   }
 
@@ -102,16 +102,21 @@ MatlabExportFilter::GraftItkImageOntoMatlab(typename itk::DataObject::Pointer im
     outputVoxelClassId = mxINT32_CLASS;
   } else if (TypeIsInt64<TPixel>::value) {
     outputVoxelClassId = mxINT64_CLASS;
-    // a signed long can be 32- or 64-bit depending on the
-    // architecture. 64-bit is the safest option
   } else if (TypeIsSignedLong<TPixel>::value) {
+    if (sizeof(signed long) == 4) {
+      outputVoxelClassId = mxINT32_CLASS;
+    } else if (sizeof(signed long) == 8) {
+      outputVoxelClassId = mxINT64_CLASS;
+    } else {
+      mexErrMsgTxt("MatlabExportFilter: signed long is neither 4 or 8 byte in this architecture");
+    }
     outputVoxelClassId = mxINT64_CLASS;
   } else if (TypeIsFloat<TPixel>::value) {
     outputVoxelClassId = mxSINGLE_CLASS;
   } else if (TypeIsDouble<TPixel>::value) {
     outputVoxelClassId = mxDOUBLE_CLASS;
   } else {
-    mexErrMsgTxt("Assertion fail: Unrecognised output data type");
+    mexErrMsgTxt("MatlabExportFilter: Assertion fail: Unrecognised output data type");
   }
 
   // dimensions for the output array
@@ -119,7 +124,7 @@ MatlabExportFilter::GraftItkImageOntoMatlab(typename itk::DataObject::Pointer im
   OutputImageType *pOutput = 
     dynamic_cast<OutputImageType *>(image.GetPointer());
   if (pOutput == NULL) {
-    mexErrMsgTxt("Cannot get pointer to filter output");
+    mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to filter output");
   }
 
   // if the output image is a vector image, extend the size vector
@@ -144,13 +149,13 @@ MatlabExportFilter::GraftItkImageOntoMatlab(typename itk::DataObject::Pointer im
  						      mxREAL);
   }
   if (this->args[idx] == NULL) {
-    mexErrMsgTxt("Cannot allocate memory for output matrix");
+    mexErrMsgTxt("MatlabExportFilter: Cannot allocate memory for output matrix");
   }
   
   // pointer to the Matlab output buffer
   TVector *imOutp =  (TVector *)mxGetData(this->args[idx]);
   if(imOutp == NULL) {
-    mexErrMsgTxt("Cannot get pointer to allocated memory for output matrix");
+    mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to allocated memory for output matrix");
   }
 
   // impersonate the data buffer in the filter with the Matlab output
