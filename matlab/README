@@ -208,8 +208,8 @@ labmathmorph.m
 	
 mm_opening.m
 
-	 MM_OPENING Mathematical Morphology operator: Opening with removal of
-	 small components
+	 MM_OPENING Mathematical Morphology operator: Opening (erosion+dilation)
+	 with removal of small components
 	
 scimat_blockproc3.m
 
