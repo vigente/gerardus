@@ -1,5 +1,9 @@
 2012-09-30  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/CardiacToolbox/trimatria.m: (v0.1.0)
+
+	- Remove the atria from a whole cardiac tissue segmentation.
+
 	* matlab/FiltersToolbox/gmthr_seg.m: (v0.3.0)
 
 	- Make THR be the first output argument. The user may want the
