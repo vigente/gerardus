@@ -1,14 +1,16 @@
-function im = gmthr_seg(im, nobj, nsubs)
+function [im, thr] = gmthr_seg(im, nobj, nsubs)
 % GMTHR_SEG  Segment an image estimating threshold as intersection of two
 % Gaussians from Gaussian mixture model
 %
-% BW = gmthr_seg(IM)
+% [BW, THR] = gmthr_seg(IM)
 %
 %   IM is an input n-dim image. This function assumes that IM contains a
 %   darker object over a brighter background.
 %
 %   BW is an output segmentation mask, where voxels == true correspond to
 %   the darker object.
+%
+%   THR is a scalar with the estimated threshold value.
 %
 %   A Gaussian mixture model is fitted to the image intensities, and the
 %   intersection point between the Gaussian maxima is computed. The object
@@ -31,7 +33,7 @@ function im = gmthr_seg(im, nobj, nsubs)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
