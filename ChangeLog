@@ -1,5 +1,9 @@
 2012-09-30  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/gmthr_seg.m: (v0.2.0)
+
+	- Add ouptut argument THR with estimated threshold value.
+
 	* matlab/MatlabExportFilter.hxx: (v0.1.1)
 
 	- Check for actual size of signed long type, which may be
