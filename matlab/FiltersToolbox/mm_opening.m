@@ -1,6 +1,6 @@
 function seg = mm_opening(seg, RAD, N)
-% MM_OPENING Mathematical Morphology operator: Opening with removal of
-% small components
+% MM_OPENING Mathematical Morphology operator: Opening (erosion+dilation)
+% with removal of small components
 %
 % SEG2 = mm_opening(SEG)
 %
