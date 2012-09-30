@@ -1,28 +1,26 @@
-function [im, thr] = gmthr_seg(im, nobj, nsubs)
+function [thr, im] = gmthr_seg(im, nobj, nsubs)
 % GMTHR_SEG  Segment an image estimating threshold as intersection of two
 % Gaussians from Gaussian mixture model
 %
-% [BW, THR] = gmthr_seg(IM)
+% THR = gmthr_seg(IM)
 %
 %   IM is an input n-dim image. This function assumes that IM contains a
 %   darker object over a brighter background.
 %
+%   THR is a scalar with the estimated threshold value between dark
+%   voxels (object) and lighter voxels (background). A Gaussian mixture
+%   model is fitted to the image intensities, and the intersection point
+%   between the Gaussian maxima is computed. The object in the image is
+%   segmented using this intersection value as the segmentation threshold.
+%
+% [THR, BW] = gmthr_seg(IM, NOBJ, NSUBS)
+%
 %   BW is an output segmentation mask, where voxels == true correspond to
 %   the darker object.
 %
-%   THR is a scalar with the estimated threshold value.
-%
-%   A Gaussian mixture model is fitted to the image intensities, and the
-%   intersection point between the Gaussian maxima is computed. The object
-%   in the image is segmented using this intersection value as the
-%   segmentation threshold. Finally, all segmented objects are removed
-%   except for the largest one. This last step is useful to remove
-%   segmentation noise.
-%
-% ... = gmthr_seg(..., NOBJ, NSUBS)
-%
 %   NOBJ is a scalar. Only the largest NOBJ are kept in the segmentation.
-%   By default, NOBJ = 1.
+%   This last step is useful to remove segmentation noise. By default,
+%   NOBJ=1.
 %
 %   NSUBS is a scalar. For large images, the variance estimate will be too
 %   small for the Gaussian mixture fitting function, which will return an
@@ -33,7 +31,7 @@ function [im, thr] = gmthr_seg(im, nobj, nsubs)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.2.0
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
@@ -112,6 +110,12 @@ thr = thr(thr > mutis & thr < mubak);
 % plot([thr, thr], [0 max([ftis(:); fbak(:)])], 'k')
 % legend('all', 'tissue', 'background')
 % xlabel('intensity')
+
+% no need to waste time segmenting the image if the user doesn't ask for
+% the output segmentation
+if (nargout < 2)
+    return
+end
 
 % threshold segmentation
 im = (im <= thr);
