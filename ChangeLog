@@ -1,5 +1,14 @@
 2012-09-30  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/gmthr_seg.m: (v0.4.0)
+
+	- Add output argument Q: Q is a quality measure of the
+	threshold. Q takes values in [0, 1]. Values close to 0 mean that
+	both Gaussians have a lot of overlap, so the threshold between
+	object and background cannot be trusted very much. Values close to
+	1 mean that both Gaussians are well separated, and the threshold
+	value can be trusted to provide a good segmentation.
+
 	* Add matlab/CardiacToolbox/trimatria.m: (v0.1.0)
 
 	- Remove the atria from a whole cardiac tissue segmentation.
