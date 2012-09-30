@@ -1,3 +1,14 @@
+2012-09-30  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/MatlabExportFilter.hxx: (v0.1.1)
+
+	- Check for actual size of signed long type, which may be
+	architecture dependent, instead of assuming worst case scenario of
+	8 bytes.
+
+	- Add the string "MatlabExportFilter: " to most of the error
+	messages, so that they are easier to track down.
+
 2012-09-29  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/CardiacToolbox/tissue2lvrv.m: (v0.1.0)
