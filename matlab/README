@@ -66,6 +66,10 @@ tissue2lvrv.m
 	 TISSUE2LVRV  Extract LV and RV cavities from tissue and atrioventricular
 	 surface segmentations
 	
+trimatria.m
+
+	 TRIMATRIA  Remove the atria from a whole cardiac tissue segmentation
+	
 
 CgalToolbox
 -------------------------------------------------------------
