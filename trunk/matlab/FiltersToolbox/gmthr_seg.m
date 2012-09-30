@@ -62,7 +62,7 @@ function [im, thr] = gmthr_seg(im, nobj, nsubs)
 
 % check arguments
 narginchk(1, 3);
-nargoutchk(0, 1);
+nargoutchk(0, 2);
 
 % defaults
 if (nargin < 2 || isempty(nobj))
