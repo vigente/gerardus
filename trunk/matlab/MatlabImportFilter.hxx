@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -45,6 +45,7 @@
 #include "itkImportImageFilter.h"
 
 /* Gerardus headers */
+#include "GerardusCommon.h"
 #include "MatlabImageHeader.h"
 #include "MatlabImportFilter.h"
 
@@ -204,10 +205,17 @@ ParamType MatlabImportFilter::GetScalarArgument(unsigned int idx,
   return value;
 }
 
-// function to get the an input argument that is a vector of scalars
-// from the array of input arguments
+// function to get an input argument as a vector of scalars. The
+// argument itself can be a row vector, or a 2D matrix. In the latter
+// case, the user has to select one of the rows of the matrix
+//
+// this function is designed to deal with all types that are
+// conceptually a vector, even if they are not a std::vector. Read the
+// help of the VectorWrapper class defined in GerardusCommon.h for
+// more details
 template <class ParamType, class ParamValueType>
 ParamType MatlabImportFilter::GetVectorArgument(unsigned int idx, 
+						mwIndex row,
 						std::string paramName,
 						ParamType def) {
 
@@ -216,41 +224,51 @@ ParamType MatlabImportFilter::GetVectorArgument(unsigned int idx,
   if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
     return def;
   }
-
+  
   // check for null pointer
   if (this->args[idx] == NULL) {
-    mexErrMsgTxt(("Parameter " + paramName + " provided, but NULL pointer.").c_str());
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + " provided, but NULL pointer.").c_str());
   }
 
-  // check that we have a row or column vector, numeric or boolean
-  if ((mxGetM(this->args[idx]) != 1) && (mxGetN(this->args[idx]) != 1)) {
-    mexErrMsgTxt(("Parameter " + paramName + " must be a vector.").c_str());
+  // check that we have a 2D matrix, numeric or boolean
+  if (mxGetNumberOfDimensions(this->args[idx]) > 2) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + " must be a 2D matrix.").c_str());
   }
   if (!mxIsNumeric(this->args[idx]) && !mxIsLogical(this->args[idx])) {
     mexErrMsgTxt(("Parameter " + paramName 
-		  + " must be a numeric or logical vector.").c_str());
+		  + " must be a numeric or logical matrix.").c_str());
   }
+
+  // matrix dimensions
+  mwSize nrows = mxGetM(this->args[idx]);
+  mwSize ncols = mxGetN(this->args[idx]);
 
   // vector to be returned
   ParamType param;
 
-  // input vector length
-  size_t len = std::max(mxGetM(this->args[idx]), mxGetN(this->args[idx]));
-  if (len != param.GetSizeDimension()) {
+  // check that the vector can have exactly the length of one row of
+  // the input matrix
+  VectorWrapper<ParamType, ParamValueType> paramWrap(param);
+  paramWrap.Resize(ncols);
+
+  // check that row index is within range
+  if (row < 0 || row >= nrows) {
     mexErrMsgTxt(("Parameter " + paramName 
-    		  + " has the wrong length.").c_str());
+		  + ": row index out of bounds.").c_str());
   }
 
   // input image type
   mxClassID inputVoxelClassId = mxGetClassID(this->args[idx]);
   
   // macro to make the code in the switch statement cleaner
-#define GETVALUE(Tx)					\
-  {							\
-    Tx *valuep = (Tx *)mxGetData(this->args[idx]);	\
-    for (size_t i = 0; i < len; ++i) {			\
-      param[i] = (ParamValueType)valuep[i];		\
-    }							\
+#define GETVALUE(Tx)						\
+  {								\
+    Tx *valuep = (Tx *)mxGetData(this->args[idx]);		\
+    for (size_t col = 0; col < ncols; ++col) {			\
+      param[col] = (ParamValueType)valuep[col * nrows + row];	\
+    }								\
   }
   
   // cast the class type provided by Matlab to the type requested by
@@ -300,96 +318,33 @@ ParamType MatlabImportFilter::GetVectorArgument(unsigned int idx,
   return param;
 }
 
-// function to get an input argument that is an image
-template <class TPixel, unsigned int VImageDimension>
-typename itk::Image<TPixel, VImageDimension>::Pointer
-MatlabImportFilter::GetImageArgument(unsigned int idx, std::string paramName) {
-  
-  // note that:
-  //
-  // 1) in ITK we have X,Y,Z indices, while in Matlab we have R,C,S
-  // (row, column, slice)
-  //
-  // 2) matrices in ITK are read by columns, while in Matlab
-  // they are read by rows 
-  //
-  // So imagine we have this (2, 3) matrix in Matlab
-  //
-  //   a b   |
-  //   c d   | y-axis (resolution 1.0)
-  //   e f   |
-  //   ---
-  //   x-axis (resolution 0.5)
-  //
-  //   size = [3 2 1]
-  //
-  // The C-style array is going to be (reading by rows)
-  //
-  //   im = [a c e b d f]
-  //
-  // ITK is going to read by colums, thinking that the size is
-  //
-  //   size = [sx sy sz] = [3 2 1]
-  //
-  //   a c e   |
-  //   b d f   | y-axis (resolution 0.5)
-  //   -----
-  //   x-axis (resolution 1.0)
-  //
-  // Note that the matrix has been transposed, but this is not a
-  // problem, because the resolution values have been "transposed"
-  // too
-  //
-  // Having the matrix transposed may make us feel a bit uneasy, but
-  // it has the advantage that Matlab and ITK can use the same C-style
-  // array, without having to rearrange its elements
+template <class ParamType, class ParamValueType>
+ParamType MatlabImportFilter::GetVectorArgument(unsigned int idx, 
+						std::string paramName,
+						ParamType def) {
 
-  // instantiate the filter that will act as an interface between the
-  // Matlab image array and the ITK filter
-  typedef itk::ImportImageFilter<TPixel, VImageDimension> ImportImageFilterType;
-  typename ImportImageFilterType::RegionType region;
-  typename ImportImageFilterType::SizeType size;
-  typename ImportImageFilterType::IndexType start;
-  typename ImportImageFilterType::SpacingType spacing;
-  typename ImportImageFilterType::OriginType origin;
-  typename ImportImageFilterType::Pointer importFilter = ImportImageFilterType::New();
-
-  // create a header for the image
-  MatlabImageHeader imageHeader(this->args[idx], paramName);
-
-  // convert image header parameters to a format that can be passed to
-  // the import filter
-  for (size_t i = 0; i < imageHeader.GetNumberOfDimensions(); ++i) {
-    start[i] = 0;
-    size[i] = imageHeader.size[i];
-    spacing[i] = imageHeader.spacing[i];
-    origin[i] = imageHeader.origin[i];
+  // if user didn't provide a value, or provided an empty array,
+  // return default
+  if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
+    return def;
   }
-  
-  // set image metainformation
-  region.SetIndex(start);
-  region.SetSize(size);
-  importFilter->SetRegion(region);
-  importFilter->SetSpacing(spacing);
-  importFilter->SetOrigin(origin);
 
-  // get pointer to input segmentation mask
-  const TPixel *im = (TPixel *)mxGetData(imageHeader.data);
+  // check for null pointer
+  if (this->args[idx] == NULL) {
+    mexErrMsgTxt(("Parameter " + paramName + " provided, but NULL pointer.").c_str());
+  }
 
-  // pass pointer to Matlab image to the import filter, and tell it to
-  // NOT attempt to delete the memory when it's destructor is
-  // called. This is important, because the input image still has to
-  // live in Matlab's memory after running the filter
-  const bool importFilterWillOwnTheBuffer = false;
-  importFilter->SetImportPointer(const_cast<TPixel *>(im),
-				 mxGetNumberOfElements(this->args[idx]),
-				 importFilterWillOwnTheBuffer);
+  // check that we have a row or column vector, numeric or boolean
+  if ((mxGetM(this->args[idx]) != 1) && (mxGetN(this->args[idx]) != 1)) {
+    mexErrMsgTxt(("Parameter " + paramName + " must be a vector.").c_str());
+  }
+  if (!mxIsNumeric(this->args[idx]) && !mxIsLogical(this->args[idx])) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + " must be a numeric or logical vector.").c_str());
+  }
 
-  // actually import the image
-  importFilter->Update();
-
-  // succesful exit
-  return importFilter->GetOutput();
+  // a row vector input is a particular case of a 2D matrix input
+  return MatlabImportFilter::GetVectorArgument<ParamType, ParamValueType>(idx, 0, paramName, def);
 
 }
 
@@ -510,6 +465,99 @@ MatlabImportFilter::GetStaticVector3Argument(unsigned int idx,
   // return row from input matrix
   return param;
   
+}
+
+// function to get an input argument that is an image
+template <class TPixel, unsigned int VImageDimension>
+typename itk::Image<TPixel, VImageDimension>::Pointer
+MatlabImportFilter::GetImageArgument(unsigned int idx, std::string paramName) {
+  
+  // note that:
+  //
+  // 1) in ITK we have X,Y,Z indices, while in Matlab we have R,C,S
+  // (row, column, slice)
+  //
+  // 2) matrices in ITK are read by columns, while in Matlab
+  // they are read by rows 
+  //
+  // So imagine we have this (2, 3) matrix in Matlab
+  //
+  //   a b   |
+  //   c d   | y-axis (resolution 1.0)
+  //   e f   |
+  //   ---
+  //   x-axis (resolution 0.5)
+  //
+  //   size = [3 2 1]
+  //
+  // The C-style array is going to be (reading by rows)
+  //
+  //   im = [a c e b d f]
+  //
+  // ITK is going to read by colums, thinking that the size is
+  //
+  //   size = [sx sy sz] = [3 2 1]
+  //
+  //   a c e   |
+  //   b d f   | y-axis (resolution 0.5)
+  //   -----
+  //   x-axis (resolution 1.0)
+  //
+  // Note that the matrix has been transposed, but this is not a
+  // problem, because the resolution values have been "transposed"
+  // too
+  //
+  // Having the matrix transposed may make us feel a bit uneasy, but
+  // it has the advantage that Matlab and ITK can use the same C-style
+  // array, without having to rearrange its elements
+
+  // instantiate the filter that will act as an interface between the
+  // Matlab image array and the ITK filter
+  typedef itk::ImportImageFilter<TPixel, VImageDimension> ImportImageFilterType;
+  typename ImportImageFilterType::RegionType region;
+  typename ImportImageFilterType::SizeType size;
+  typename ImportImageFilterType::IndexType start;
+  typename ImportImageFilterType::SpacingType spacing;
+  typename ImportImageFilterType::OriginType origin;
+  typename ImportImageFilterType::Pointer importFilter = ImportImageFilterType::New();
+
+  // create a header for the image
+  MatlabImageHeader imageHeader(this->args[idx], paramName);
+
+  // convert image header parameters to a format that can be passed to
+  // the import filter
+  for (size_t i = 0; i < imageHeader.GetNumberOfDimensions(); ++i) {
+    start[i] = 0;
+    size[i] = imageHeader.size[i];
+    spacing[i] = imageHeader.spacing[i];
+    origin[i] = imageHeader.origin[i];
+  }
+  
+  // set image metainformation
+  region.SetIndex(start);
+  region.SetSize(size);
+  importFilter->SetRegion(region);
+  importFilter->SetSpacing(spacing);
+  importFilter->SetOrigin(origin);
+
+  // get pointer to input segmentation mask
+  const TPixel *im = (TPixel *)mxGetData(imageHeader.data);
+
+  // pass pointer to Matlab image to the import filter, and tell it to
+  // NOT attempt to delete the memory when it's destructor is
+  // called. This is important, because the input image still has to
+  // live in Matlab's memory after running the filter
+  const bool importFilterWillOwnTheBuffer = false;
+  importFilter->SetImportPointer(const_cast<TPixel *>(im),
+				 mxGetNumberOfElements(this->args[idx]),
+				 importFilterWillOwnTheBuffer);
+
+  // actually import the image
+  importFilter->Update();
+
+  // succesful exit
+  return importFilter->GetOutput();
+
 }
 
 // function to read a matrix where each row is a static 3-vector

@@ -1,3 +1,44 @@
+2012-10-02  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/GerardusCommon.h: (v0.7.0)
+
+	- Add class VectorWrapper. There are classes in ITK, e.g.  that
+	are conceptually vectors, but don't have the same methods as
+	e.g. std::vector. For example, itk::Size<Dimension> has the static
+	method itk::Size<Dimension>::GetDimensionSize, while std::vector
+	has the method v.size().
+
+	This means that a function in Gerardus would need to be coded
+	twice, in both cases with the same code except for the
+	::GetDimensionSize (know at compilation time) or .size() (known at
+	run time).
+
+	To overcome this problem, this wrapper provides a common interface
+	to different vector classes, so that we can interact with all
+	these vector-like classes the same way. By default, we assume that
+	we have a std::vector. For other types, we specialise the
+	VectorWrapper class.
+
+	* matlab/MatlabImportFilter.h: (v0.3.1)
+	* matlab/MatlabImportFilter.hxx: (0.3.1)
+
+	- Now GetVectorArgument() can read an arbitrary row from a
+	matrix. Apart from returning std::vector, it can now also return
+	any vector-like type (e.g. itk::Size) that has a specialisation in
+	class VectorWrapper in GerardusCommon.h.
+
+
+2012-10-01  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/ItkImFilter.cpp:
+
+	- Remove the TPixelOut template. We don't need to have a TPixelOut
+	template in the FilterWrappers. It makes the code less readable,
+	because we are defining the pixel output type in the parser,
+	instead of inside the filter wrapper. Also, some filters will not
+	give an image of pixels, but an image of e.g. vectors at the
+	output, so this creates an unnecessary constraint.
+
 2012-09-30  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/FiltersToolbox/mm_opening.m: (v0.1.0)
