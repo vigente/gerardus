@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -139,16 +139,6 @@ public:
 				std::string paramName,
 				std::string def);
 
-  // function to get the an input argument that is a vector of scalars
-  // from the array of input arguments
-  //
-  // idx: parameter index
-  // def: value returned by default if argument is empty or not provided
-  template <class ParamType, class ParamValueType>
-  ParamType GetVectorArgument(unsigned int idx, 
-			      std::string paramName,
-			      ParamType def);
-
   // function to get the value of an input argument that is a numeric
   // scalar
   //
@@ -172,15 +162,22 @@ public:
 			      std::string paramName,
 			      ParamType def);
 
-  // function to get an input argument that is an image. This function
-  // returns an itk::ImportImageFilter, which can be used wherever an
-  // itk:Image is required, without having to duplicate the Matlab
-  // buffer
+  // function to get an input argument as a vector of scalars. The
+  // argument itself can be a row vector, or a 2D matrix. In the latter
+  // case, the user has to select one of the rows of the matrix
   //
-  // idx: parameter index
-  template <class TPixel, unsigned int VImageDimension>
-  typename itk::Image<TPixel, VImageDimension>::Pointer
-  GetImageArgument(unsigned int idx, std::string paramName);
+  // idx: parameter index within the list of Matlab input arguments
+  // row: row index in the input 2D matrix
+  // def: value returned by default if argument is empty or not provided
+  template <class ParamType, class ParamValueType>
+  ParamType GetVectorArgument(unsigned int idx, 
+			      mwIndex row,
+			      std::string paramName,
+			      ParamType def);
+  template <class ParamType, class ParamValueType>
+  ParamType GetVectorArgument(unsigned int idx, 
+			      std::string paramName,
+			      ParamType def);
 
   // function to read a static 3-vector (a vector with 3 elements that
   // can only be created using the constructor) from one row of a 2D
@@ -195,6 +192,16 @@ public:
 				       mwIndex row, 
 				       std::string paramName,
 				       ParamType def);
+
+  // function to get an input argument that is an image. This function
+  // returns an itk::ImportImageFilter, which can be used wherever an
+  // itk:Image is required, without having to duplicate the Matlab
+  // buffer
+  //
+  // idx: parameter index
+  template <class TPixel, unsigned int VImageDimension>
+  typename itk::Image<TPixel, VImageDimension>::Pointer
+  GetImageArgument(unsigned int idx, std::string paramName);
 
   // function to read a matrix where each row is a static 3-vector
   template <class ParamType>
