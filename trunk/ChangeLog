@@ -1,3 +1,12 @@
+2012-10-04  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/MatlabImportFilter.h: (v0.3.2)
+	* matlab/MatlabImportFilter.hxx: (v0.3.2)
+
+	- Rename GetVectorArgument() as GetRowVectorArgument(), to make
+	clear that this method extracts a row vector from a 2D matrix (or
+	from a single row vector as a special case).
+
 2012-10-02  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/GerardusCommon.h: (v0.7.0)
