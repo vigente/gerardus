@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.3.1
+  * Version: 0.3.2
   * $Rev$
   * $Date$
   *
@@ -170,15 +170,15 @@ public:
   // row: row index in the input 2D matrix
   // def: value returned by default if argument is empty or not provided
   template <class ParamType, class ParamValueType>
-  ParamType GetVectorArgument(unsigned int idx, 
-			      mwIndex row,
-			      std::string paramName,
-			      ParamType def);
+    ParamType GetRowVectorArgument(unsigned int idx, 
+				   mwIndex row,
+				   std::string paramName,
+				   ParamType def);
   template <class ParamType, class ParamValueType>
-  ParamType GetVectorArgument(unsigned int idx, 
-			      std::string paramName,
-			      ParamType def);
-
+    ParamType GetRowVectorArgument(unsigned int idx, 
+				   std::string paramName,
+				   ParamType def);
+  
   // function to read a static 3-vector (a vector with 3 elements that
   // can only be created using the constructor) from one row of a 2D
   // input matrix with 3 columns
