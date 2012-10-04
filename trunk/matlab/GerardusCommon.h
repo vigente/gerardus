@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.7.0
+  * Version: 0.8.0
   * $Rev$
   * $Date$
   *
@@ -46,7 +46,6 @@
 
 /* ITK headers */
 #include "itkOffset.h"
-#include "itkSize.h"
 
 /*
  * utIsInterruptPending(): "undocumented MATLAB API implemented in
@@ -285,127 +284,6 @@ struct TypeIsDouble
 template<>
 struct TypeIsDouble< double >
 { static const bool value = true; };
-
-template< class T >
-struct TypeIsItkSize
-{ static const bool value = false; };
-
-/* VectorWrapper: there are classes in ITK, e.g.  that are
- * conceptually vectors, but don't have the same methods as
- * e.g. std::vector. For example, itk::Size<Dimension> has the static
- * method itk::Size<Dimension>::GetDimensionSize, while std::vector
- * has the method v.size().
- *
- * This means that a function in Gerardus would need to be coded
- * twice, in both cases with the same code except for the
- * ::GetDimensionSize (know at compilation time) or .size() (known at
- * run time).
- *
- * To overcome this problem, this wrapper provides a common interface
- * to different vector classes, so that we can interact with all these
- * vector-like classes the same way. By default, we assume that we
- * have a std::vector. For other types, we specialise the
- * VectorWrapper class
- */
-
-// std::vector<type>
-template<class VectorType, class VectorValueType>
-  class VectorWrapper{
- private:
-  VectorType *v;
- public:
- VectorWrapper(VectorType &_v): v(&_v) {}
-  unsigned int Size() {return v->size();}
-  // a std::vector can accomodate any vector length, so this method always returns true
-  bool IsCompatibleWithSize(mwSize) {return true;}
-  void Resize(mwSize len) {v->resize(len);}
-};
-
-// itk::Size<Dimension>
-template<>
-struct VectorWrapper<itk::Size<1>::SizeType, itk::Size<1>::SizeValueType> {
- private:
-  itk::Size<1> *v;
- public:
- VectorWrapper(itk::Size<1> &_v): v(&_v) {}
-  unsigned int Size() {return 1;}
-  // can only accommodate vectors of length 1
-  bool IsCompatibleWithSize(mwSize len) {return (len==1);}
-  // itk::Size cannot be resized. If the new length is the same, we
-  // just ignore it. If we are trying to resize to a different length, give
-  // error message
-  void Resize(mwSize len) {
-    if (len != 1) 
-      mexErrMsgTxt("GerardusCommon: VectorWrapper: Fixed length vector cannot change size");}
-};
-
-template<>
-struct VectorWrapper<itk::Size<2>::SizeType, itk::Size<2>::SizeValueType> {
- private:
-  itk::Size<2> *v;
- public:
- VectorWrapper(itk::Size<2> &_v): v(&_v) {}
-  unsigned int Size() {return 2;}
-  // can only accommodate vectors of length 2
-  bool IsCompatibleWithSize(mwSize len) {return (len==2);}
-  // itk::Size cannot be resized. If the new length is the same, we
-  // just ignore it. If we are trying to resize to a different length, give
-  // error message
-  void Resize(mwSize len) {
-    if (len != 2) 
-      mexErrMsgTxt("GerardusCommon: VectorWrapper: Fixed length vector cannot change size");}
-};
-
-template<>
-struct VectorWrapper<itk::Size<3>::SizeType, itk::Size<3>::SizeValueType> {
- private:
-  itk::Size<3> *v;
- public:
- VectorWrapper(itk::Size<3> &_v): v(&_v) {}
-  unsigned int Size() {return 3;}
-  // can only accommodate vectors of length 3
-  bool IsCompatibleWithSize(mwSize len) {return (len==3);}
-  // itk::Size cannot be resized. If the new length is the same, we
-  // just ignore it. If we are trying to resize to a different length, give
-  // error message
-  void Resize(mwSize len) {
-    if (len != 3) 
-      mexErrMsgTxt("GerardusCommon: VectorWrapper: Fixed length vector cannot change size");}
-};
-
-template<>
-struct VectorWrapper<itk::Size<4>::SizeType, itk::Size<4>::SizeValueType> {
- private:
-  itk::Size<4> *v;
- public:
- VectorWrapper(itk::Size<4> &_v): v(&_v) {}
-  unsigned int Size() {return 4;}
-  // can only accommodate vectors of length 4
-  bool IsCompatibleWithSize(mwSize len) {return (len==4);}
-  // itk::Size cannot be resized. If the new length is the same, we
-  // just ignore it. If we are trying to resize to a different length, give
-  // error message
-  void Resize(mwSize len) {
-    if (len != 4) 
-      mexErrMsgTxt("GerardusCommon: VectorWrapper: Fixed length vector cannot change size");}
-};
-
-template<>
-struct VectorWrapper<itk::Size<5>::SizeType, itk::Size<5>::SizeValueType> {
- private:
-  itk::Size<5> *v;
- public:
- VectorWrapper(itk::Size<5> &_v): v(&_v) {}
-  unsigned int Size() {return 5;}
-  // can only accommodate vectors of length 5
-  bool IsCompatibleWithSize(mwSize len) {return (len==5);}
-  // itk::Size cannot be resized. If the new length is the same, we
-  // just ignore it. If we are trying to resize to a different length, give
-  // error message
-  void Resize(mwSize len) {
-    if (len != 5) 
-      mexErrMsgTxt("GerardusCommon: VectorWrapper: Fixed length vector cannot change size");}
-};
 
 /**
  * Debugging class to get a string with the type of a template, e.g.

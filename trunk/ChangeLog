@@ -1,5 +1,17 @@
 2012-10-04  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/VectorWrapper.h: (v0.1.0)
+	* matlab/GerardusCommon.h: (v0.8.0)
+
+	- Move VectorWrapper from matlab/GerardusCommon.h to a new file
+	matlab/VectorWrapper.h. GerardusCommon was not a good place,
+	because VectorWrapper is going to be including many libraries (for
+	the moment, CGAL and ITK) so that it can provide a common
+	interface for different vectors in them. This was causing that
+	virtually every Matlab MEX function had to depende and link to
+	CGAL and ITK. Putting the code in VectorWrapper.h, everything is
+	more modular.
+
 	* matlab/MatlabImportFilter.h: (v0.3.2)
 	* matlab/MatlabImportFilter.hxx: (v0.3.2)
 
