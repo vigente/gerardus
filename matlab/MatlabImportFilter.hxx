@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.3.1
+  * Version: 0.3.2
   * $Rev$
   * $Date$
   *
@@ -214,7 +214,7 @@ ParamType MatlabImportFilter::GetScalarArgument(unsigned int idx,
 // help of the VectorWrapper class defined in GerardusCommon.h for
 // more details
 template <class ParamType, class ParamValueType>
-ParamType MatlabImportFilter::GetVectorArgument(unsigned int idx, 
+ParamType MatlabImportFilter::GetRowVectorArgument(unsigned int idx, 
 						mwIndex row,
 						std::string paramName,
 						ParamType def) {
@@ -319,9 +319,9 @@ ParamType MatlabImportFilter::GetVectorArgument(unsigned int idx,
 }
 
 template <class ParamType, class ParamValueType>
-ParamType MatlabImportFilter::GetVectorArgument(unsigned int idx, 
-						std::string paramName,
-						ParamType def) {
+ParamType MatlabImportFilter::GetRowVectorArgument(unsigned int idx, 
+						   std::string paramName,
+						   ParamType def) {
 
   // if user didn't provide a value, or provided an empty array,
   // return default
@@ -334,17 +334,17 @@ ParamType MatlabImportFilter::GetVectorArgument(unsigned int idx,
     mexErrMsgTxt(("Parameter " + paramName + " provided, but NULL pointer.").c_str());
   }
 
-  // check that we have a row or column vector, numeric or boolean
-  if ((mxGetM(this->args[idx]) != 1) && (mxGetN(this->args[idx]) != 1)) {
-    mexErrMsgTxt(("Parameter " + paramName + " must be a vector.").c_str());
+  // check that we have a row vector, numeric or boolean
+  if (mxGetM(this->args[idx]) != 1) {
+    mexErrMsgTxt(("Parameter " + paramName + " must be a row vector.").c_str());
   }
   if (!mxIsNumeric(this->args[idx]) && !mxIsLogical(this->args[idx])) {
     mexErrMsgTxt(("Parameter " + paramName 
 		  + " must be a numeric or logical vector.").c_str());
   }
 
-  // a row vector input is a particular case of a 2D matrix input
-  return MatlabImportFilter::GetVectorArgument<ParamType, ParamValueType>(idx, 0, paramName, def);
+  // the syntax of this function without specifying a row is the same as specifying row 0
+  return MatlabImportFilter::GetRowVectorArgument<ParamType, ParamValueType>(idx, 0, paramName, def);
 
 }
 
