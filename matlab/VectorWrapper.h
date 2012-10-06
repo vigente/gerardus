@@ -1,8 +1,11 @@
-/* VectorWrapper: there are classes in ITK, e.g.  that are
- * conceptually vectors, but don't have the same methods as
- * e.g. std::vector. For example, itk::Size<Dimension> has the static
- * method itk::Size<Dimension>::GetDimensionSize, while std::vector
- * has the method v.size().
+/*
+ * VectorWrapper.h
+ *
+ * There are classes in ITK, e.g.  that are conceptually vectors, but
+ * don't have the same methods as e.g. std::vector. For example,
+ * itk::Size<Dimension> has the static method
+ * itk::Size<Dimension>::GetDimensionSize, while std::vector has the
+ * method v.size().
  *
  * This means that a function in Gerardus would need to be coded
  * twice, in both cases with the same code except for the
@@ -27,7 +30,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -65,113 +68,238 @@
 /* CGAL headers */
 #include <CGAL/Simple_cartesian.h>
 
-// std::vector<type>
-template<class VectorType, class VectorValueType>
+/* Boost headers */
+#include <boost/lexical_cast.hpp>
+
+/*
+ * By default, VectorWrapper assumes that we want to put Matlab's row data into an
+ * std::vector<type>
+ */
+template<class VectorValueType, class VectorType, class MatlabValueType>
   class VectorWrapper{
- private:
-  VectorType *v;
  public:
- VectorWrapper(VectorType &_v): v(&_v) {}
-  unsigned int Size() {return v->size();}
-  // a std::vector can accomodate any vector length, so this method always returns true
-  bool IsCompatibleWithSize(mwSize) {return true;}
-  void Resize(mwSize len) {v->resize(len);}
+  VectorWrapper() {}
+  VectorType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+    
+    // check the pointer is valid
+    if (pm == NULL) {
+      mexErrMsgTxt(("Parameter " + paramName 
+		    + ": pointer to Matlab input argument is NULL").c_str());
+    }
+    
+    // matrix dimensions
+    mwSize nrows = mxGetM(pm);
+    mwSize ncols = mxGetN(pm);
+    
+    // check that row index is within range
+    if (row < 0 || row >= nrows) {
+      mexErrMsgTxt(("Parameter " + paramName 
+		    + ": row index out of bounds").c_str());
+    }
+    
+    // init vector with NaN values
+    VectorType v(ncols, mxGetNaN());
+    
+    // get pointer to the data in the mxArray
+    MatlabValueType *valuep = (MatlabValueType *)mxGetData(pm);
+    
+    if (valuep == NULL) {
+      mexErrMsgTxt(("Parameter " + paramName 
+		    + ": pointer to content of Matlab input argument is NULL").c_str());
+    }
+    
+    // read the row from Matlab into the vector. Note that valuep is
+    // of type MatlabType, so we need to cast it to the VectorValueType
+    for (size_t col = 0; col < ncols; ++col) {
+      v[col] = (VectorValueType)valuep[col * nrows + row];
+    }
+    
+    // return output vector
+    return v;
+  }
 };
 
-// CGAL::Point_3<CGAL::Simple_cartesian<double> >
-template<class VectorValueType>
-class VectorWrapper<CGAL::Point_3<CGAL::Simple_cartesian<VectorValueType> >,
-  VectorValueType> {
- private:
-  CGAL::Point_3<CGAL::Simple_cartesian<VectorValueType> > *v;
- public:
+/*
+ * Partial specialisation if we want to put Matlab's row data into an
+ * itk::Size<Dimension>::SizeType vector-like class
+ */
+
+
+// ItkSizeCommonReadRowVector<Dimension>
+//
+// auxiliary function so that we don't need to rewrite this code in
+// every partial specialization
+template <class MatlabValueType, unsigned int Dimension>
+typename itk::Size<Dimension>::SizeType
+ItkSizeCommonReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+
+   // check that the pointer is valid
+  if (pm == NULL) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + ": pointer to Matlab input argument is NULL").c_str());
+  }
   
+  // matrix dimensions
+  mwSize nrows = mxGetM(pm);
+  mwSize ncols = mxGetN(pm);
+
+  // check that the row has the right number of elements
+  if (ncols != Dimension) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + " must have " 
+		  + boost::lexical_cast<std::string>(Dimension) + " columns").c_str());
+  }
+  
+  // check that row index is within range
+  if (row < 0 || row >= nrows) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + ": row index out of bounds").c_str());
+  }
+
+  // instantiate output vector
+  typename itk::Size<Dimension>::SizeType v;
+  
+  // get pointer to the data in the mxArray
+  MatlabValueType *valuep = (MatlabValueType *)mxGetData(pm);
+  
+  if (valuep == NULL) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + ": pointer to content of Matlab input argument is NULL").c_str());
+  }
+  
+  // read the row from Matlab into the vector
+  for (size_t col = 0; col < Dimension; ++col) {
+    v[col] = (MatlabValueType)valuep[col * nrows + row];
+  }
+
+  // return output vector
+  return v;
+  
+}
+
+template<class MatlabValueType>
+class VectorWrapper<itk::Size<1>::SizeValueType, itk::Size<1>::SizeType, MatlabValueType>{
+ public:
+  VectorWrapper() {}
+  itk::Size<1>::SizeType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+    return ItkSizeCommonReadRowVector<MatlabValueType, 1>(pm, row, paramName);
+  }
 };
 
-// itk::Size<Dimension>
-template<>
-class VectorWrapper<itk::Size<1>::SizeType, itk::Size<1>::SizeValueType> {
- private:
-  itk::Size<1> *v;
+template<class MatlabValueType>
+class VectorWrapper<itk::Size<2>::SizeValueType, itk::Size<2>::SizeType, MatlabValueType>{
  public:
- VectorWrapper(itk::Size<1> &_v): v(&_v) {}
-  unsigned int Size() {return 1;}
-  // can only accommodate vectors of length 1
-  bool IsCompatibleWithSize(mwSize len) {return (len==1);}
-  // itk::Size cannot be resized. If the new length is the same, we
-  // just ignore it. If we are trying to resize to a different length, give
-  // error message
-  void Resize(mwSize len) {
-    if (len != 1) 
-      mexErrMsgTxt("GerardusCommon: VectorWrapper: Fixed length vector cannot change size");}
+  VectorWrapper() {}
+  itk::Size<2>::SizeType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+    return ItkSizeCommonReadRowVector<MatlabValueType, 2>(pm, row, paramName);
+  }
 };
 
-template<>
-class VectorWrapper<itk::Size<2>::SizeType, itk::Size<2>::SizeValueType> {
- private:
-  itk::Size<2> *v;
+template<class MatlabValueType>
+class VectorWrapper<itk::Size<3>::SizeValueType, itk::Size<3>::SizeType, MatlabValueType>{
  public:
- VectorWrapper(itk::Size<2> &_v): v(&_v) {}
-  unsigned int Size() {return 2;}
-  // can only accommodate vectors of length 2
-  bool IsCompatibleWithSize(mwSize len) {return (len==2);}
-  // itk::Size cannot be resized. If the new length is the same, we
-  // just ignore it. If we are trying to resize to a different length, give
-  // error message
-  void Resize(mwSize len) {
-    if (len != 2) 
-      mexErrMsgTxt("GerardusCommon: VectorWrapper: Fixed length vector cannot change size");}
+  VectorWrapper() {}
+  itk::Size<3>::SizeType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+    return ItkSizeCommonReadRowVector<MatlabValueType, 3>(pm, row, paramName);
+  }
 };
 
-template<>
-class VectorWrapper<itk::Size<3>::SizeType, itk::Size<3>::SizeValueType> {
- private:
-  itk::Size<3> *v;
+template<class MatlabValueType>
+class VectorWrapper<itk::Size<4>::SizeValueType, itk::Size<4>::SizeType, MatlabValueType>{
  public:
- VectorWrapper(itk::Size<3> &_v): v(&_v) {}
-  unsigned int Size() {return 3;}
-  // can only accommodate vectors of length 3
-  bool IsCompatibleWithSize(mwSize len) {return (len==3);}
-  // itk::Size cannot be resized. If the new length is the same, we
-  // just ignore it. If we are trying to resize to a different length, give
-  // error message
-  void Resize(mwSize len) {
-    if (len != 3) 
-      mexErrMsgTxt("GerardusCommon: VectorWrapper: Fixed length vector cannot change size");}
+  VectorWrapper() {}
+  itk::Size<4>::SizeType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+    return ItkSizeCommonReadRowVector<MatlabValueType, 4>(pm, row, paramName);
+  }
 };
 
-template<>
-class VectorWrapper<itk::Size<4>::SizeType, itk::Size<4>::SizeValueType> {
- private:
-  itk::Size<4> *v;
+template<class MatlabValueType>
+class VectorWrapper<itk::Size<5>::SizeValueType, itk::Size<5>::SizeType, MatlabValueType>{
  public:
- VectorWrapper(itk::Size<4> &_v): v(&_v) {}
-  unsigned int Size() {return 4;}
-  // can only accommodate vectors of length 4
-  bool IsCompatibleWithSize(mwSize len) {return (len==4);}
-  // itk::Size cannot be resized. If the new length is the same, we
-  // just ignore it. If we are trying to resize to a different length, give
-  // error message
-  void Resize(mwSize len) {
-    if (len != 4) 
-      mexErrMsgTxt("GerardusCommon: VectorWrapper: Fixed length vector cannot change size");}
+  VectorWrapper() {}
+  itk::Size<5>::SizeType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+    return ItkSizeCommonReadRowVector<MatlabValueType, 5>(pm, row, paramName);
+  }
 };
 
-template<>
-class VectorWrapper<itk::Size<5>::SizeType, itk::Size<5>::SizeValueType> {
- private:
-  itk::Size<5> *v;
+/*
+ * Partial specialisation if we want to put Matlab's row data into an
+ * CGAL::Point_3<CGAL::Simple_cartesian<type> > vector-like class
+ */
+
+// CgalCommonReadStaticRowVector<VectorType>
+//
+// auxiliary function so that we don't need to rewrite this code in
+// every partial specialization
+template <class VectorValueType, class VectorType, class MatlabValueType>
+VectorType
+CgalCommonReadStaticRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+    
+    // check that the pointer is valid
+    if (pm == NULL) {
+      mexErrMsgTxt(("Parameter " + paramName 
+		    + ": pointer to Matlab input argument is NULL").c_str());
+    }
+    
+    // matrix dimensions
+    mwSize nrows = mxGetM(pm);
+    mwSize ncols = mxGetN(pm);
+    
+    // check that the row has the right number of elements
+    if (ncols != 3) {
+      mexErrMsgTxt(("Parameter " + paramName 
+		    + " must have 3 columns").c_str());
+    }
+    
+    // check that row index is within range
+    if (row < 0 || row >= nrows) {
+      mexErrMsgTxt(("Parameter " + paramName 
+		    + ": row index out of bounds").c_str());
+    }
+    
+    // get pointer to the data in the mxArray
+    MatlabValueType *valuep = (MatlabValueType *)mxGetData(pm);
+    
+    if (valuep == NULL) {
+      mexErrMsgTxt(("Parameter " + paramName 
+		    + ": pointer to content of Matlab input argument is NULL").c_str());
+    }
+    
+    // instantiate and read output vector. Both have to be done at the
+    // same time, because the only way to populate a CGAL::Point_3 is through
+    // its constructor
+    VectorType v( (double)valuep[row],
+		  (double)valuep[nrows + row],
+		  (double)valuep[2 * nrows + row]
+		  );
+    
+    // return output vector
+    return v;
+
+}
+
+// partial specialisation for CGAL::Point_3<CGAL::Simple_cartesian<double> >
+template<class MatlabValueType>
+class VectorWrapper<double, CGAL::Point_3<CGAL::Simple_cartesian<double> >, MatlabValueType>{
  public:
- VectorWrapper(itk::Size<5> &_v): v(&_v) {}
-  unsigned int Size() {return 5;}
-  // can only accommodate vectors of length 5
-  bool IsCompatibleWithSize(mwSize len) {return (len==5);}
-  // itk::Size cannot be resized. If the new length is the same, we
-  // just ignore it. If we are trying to resize to a different length, give
-  // error message
-  void Resize(mwSize len) {
-    if (len != 5) 
-      mexErrMsgTxt("GerardusCommon: VectorWrapper: Fixed length vector cannot change size");}
+  VectorWrapper() {}
+  CGAL::Point_3<CGAL::Simple_cartesian<double> >
+    ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+    return CgalCommonReadStaticRowVector<double, 
+      CGAL::Point_3<CGAL::Simple_cartesian<double> >, MatlabValueType>(pm, row, paramName);
+  }
+};
+
+// partial specialisation for CGAL::Direction_3<CGAL::Simple_cartesian<double> >
+template<class MatlabValueType>
+class VectorWrapper<double, CGAL::Direction_3<CGAL::Simple_cartesian<double> >, MatlabValueType>{
+ public:
+  VectorWrapper() {}
+  CGAL::Direction_3<CGAL::Simple_cartesian<double> >
+    ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+    return CgalCommonReadStaticRowVector<double, 
+      CGAL::Direction_3<CGAL::Simple_cartesian<double> >, MatlabValueType>(pm, row, paramName);
+  }
 };
 
 #endif /* VECTORWRAPPER_H */
