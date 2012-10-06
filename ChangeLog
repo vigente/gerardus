@@ -1,3 +1,58 @@
+2012-10-06  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp: (v0.2.2)
+
+	- VectorWrapper has changed completely, use the new syntax.
+
+	- MatlabImport has changed the methods to read a row vector, use
+	the new syntax.
+
+	* matlab/VectorWrapper.h: (v0.2.0)
+
+	- Full rewrite of the VectorWrapper, as it was not quite right. We
+	need 3 templates: VectorValueType for the type of each element in
+	the output vector, VectorType for the output vector itself, and
+	MatlabValueType for the type the data has in Matlab. This is
+	because the element type in the vector may be different from the
+	data type the user is passing from Matlab.
+
+	- Add auxiliary functions where we put the code to actually read
+	the Matlab data into a vector. The partial specialisation of
+	VectorWrapper calls this auxiliary function with the correct
+	templates. This means that we only need to write the reading code
+	once per type of vector, and then we only need to add a small
+	snippet for each new instance. For example, CGAL vectors are
+	different from ITK vectors. We have one auxiliary function for
+	each of them. Then we have a small snippet for CGAL::Point_3 and
+	another for CGAL::Direction_3, and both use the same auxiliary
+	function.
+
+	- Now we can deal with
+	CGAL::Point_3<CGAL::Simple_cartesian<double> > and
+	CGAL::Direction_3<CGAL::Simple_cartesian<double> > too.
+
+	* matlab/MatlabImportFilter.h: (v0.4.0)
+	* matlab/MatlabImportFilter.hxx: (v0.4.0)
+
+	- Consolidate GetRowVectorArgument(). We need two templates:
+	VectorValueType for the type of each element in the output vector,
+	VectorType for the output vector itself. We have swapped their
+	order from respect how we had them before.
+
+	- VectorWrapper has changed completely, use new syntax.
+
+	- Remove GetStaticVector3Argument(), because now we can use
+	GetRowVectorArgument() for vectors that are populated with their
+	constructor too (e.g. CGAL::Direction_3).
+
+	- Add GetMatrixAsVectorOfRowVectorsArgument(), which reads a
+	Matlab matrix as a std::vector of "vectors". Here "vectors" means
+	conceptual vectors, e.g. std::vector, itk::Size,
+	CGAL::Direction_3, etc.
+
+	- Remove GetVectorOfStaticVector3Argument(), because it would be a
+	particular case of GetMatrixAsVectorOfRowVectorsArgument().
+
 2012-10-04  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/VectorWrapper.h: (v0.1.0)
