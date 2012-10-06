@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.3.2
+  * Version: 0.4.0
   * $Rev$
   * $Date$
   *
@@ -169,30 +169,36 @@ public:
   // idx: parameter index within the list of Matlab input arguments
   // row: row index in the input 2D matrix
   // def: value returned by default if argument is empty or not provided
-  template <class ParamType, class ParamValueType>
-    ParamType GetRowVectorArgument(unsigned int idx, 
+  template <class VectorValueType, class VectorType>
+    VectorType GetRowVectorArgument(unsigned int idx, 
 				   mwIndex row,
 				   std::string paramName,
-				   ParamType def);
-  template <class ParamType, class ParamValueType>
-    ParamType GetRowVectorArgument(unsigned int idx, 
+				   VectorType def);
+  template <class VectorValueType, class VectorType>
+    VectorType GetRowVectorArgument(unsigned int idx, 
 				   std::string paramName,
-				   ParamType def);
-  
-  // function to read a static 3-vector (a vector with 3 elements that
-  // can only be created using the constructor) from one row of a 2D
-  // input matrix with 3 columns
-  //
-  // ParamType: a class of objects that are constructed like
-  //            x(-2, 0.3, 5), e.g. CGAL::Point_3< CGAL::Simple_cartesian<double> >
-  // idx: parameter index
-  // row: row index (C++ convention row = 0, 1, 2, ..., n-1)
-  template <class ParamType>
-    ParamType GetStaticVector3Argument(unsigned int idx, 
-				       mwIndex row, 
-				       std::string paramName,
-				       ParamType def);
+				   VectorType def);
 
+  // function to read a Matlab 2D matrix row by row. It returns the
+  // matrix as a vector of rows. Each row is read as a C++ "vector". By
+  // "vector" we mean a C++ class that is vector-like, e.g. std::vector,
+  // CGAL::Point_3 or ITK::Size.
+  //
+  // Read the help of the VectorWrapper class defined in VectorWrapper.h for
+  // a list of supported vector-like types.
+  //
+  // Note that you don't need to worry about the type of the scalars in
+  // Matlab. The type will be automatically detected and cast to the
+  // vector element type.
+  //
+  // VectorValueType is the type of each element in the "vector".
+  // VectorType      is the type of the "vector" itself
+  template <class VectorValueType, class VectorType>
+    std::vector<VectorType> 
+    GetMatrixAsVectorOfRowVectorsArgument(unsigned int idx, 
+					  std::string paramName,
+					  std::vector<VectorType> def);
+  
   // function to get an input argument that is an image. This function
   // returns an itk::ImportImageFilter, which can be used wherever an
   // itk:Image is required, without having to duplicate the Matlab
@@ -200,14 +206,8 @@ public:
   //
   // idx: parameter index
   template <class TPixel, unsigned int VImageDimension>
-  typename itk::Image<TPixel, VImageDimension>::Pointer
-  GetImageArgument(unsigned int idx, std::string paramName);
-
-  // function to read a matrix where each row is a static 3-vector
-  template <class ParamType>
-    std::vector<ParamType> GetVectorOfStaticVector3Argument(unsigned int idx, 
-							    std::string paramName,
-							    std::vector<ParamType> def);
+    typename itk::Image<TPixel, VImageDimension>::Pointer
+    GetImageArgument(unsigned int idx, std::string paramName);
 
 };
 
