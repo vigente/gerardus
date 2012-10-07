@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.4.0
+  * Version: 0.5.0
   * $Rev$
   * $Date$
   *
@@ -71,6 +71,51 @@ void MatlabImportFilter::CheckNumberOfArguments(unsigned int min, unsigned int m
   }
 }
 
+// function to get the size of a Matlab array. It simplifies having
+// to run mxGetNumberOfDimensions() and mxGetDimensions(), and then
+// casting the result into e.g. itk::Size to pass it to ITK
+template <class VectorValueType, class VectorType>
+VectorType MatlabImportFilter::GetArraySize(unsigned int idx, 
+					    std::string paramName,
+					    VectorType def){
+
+  // if user didn't provide a value, or provided an empty array, return the default
+  if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
+    return def;
+  }
+
+  // wrap VectorType output into a VectorWrapper, so that we don't
+  // need to write different code here for each different output
+  // vector
+  VectorWrapper<VectorValueType, VectorType, void> sizeWrap;
+  return sizeWrap.ReadSize(this->args[idx], paramName);
+
+}
+
+// function to get the half-size of a Matlab array. Some ITK filters
+// request the "half-size" (called radius) of a Matlab array,
+// instead of its size. By "half-size" we mean the length of the side to
+// the left or right of the central pixel. For example, an array
+// with size=[3, 7] has a half-size or radius=[1, 3]. I.e. 
+// size = 2 * halfsize + 1
+template <class VectorValueType, class VectorType>
+VectorType MatlabImportFilter::GetArrayHalfSize(unsigned int idx, 
+					    std::string paramName,
+					    VectorType def){
+
+  // if user didn't provide a value, or provided an empty array, return the default
+  if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
+    return def;
+  }
+
+  // wrap VectorType output into a VectorWrapper, so that we don't
+  // need to write different code here for each different output
+  // vector
+  VectorWrapper<VectorValueType, VectorType, void> sizeWrap;
+  return sizeWrap.ReadHalfSize(this->args[idx], paramName);
+
+}
+
 // function to get the value of input arguments that are strings
 std::string MatlabImportFilter::GetStringArgument(unsigned int idx,
 						       std::string paramName,
@@ -121,7 +166,7 @@ ParamType MatlabImportFilter::GetScalarArgument(unsigned int idx,
   // check for null pointer
   if (this->args[idx] == NULL) {
     mexErrMsgTxt(("Parameter " + paramName 
-		  + " provided, but NULL pointer.").c_str());
+		  + " provided, but pointer is NULL.").c_str());
   }
 
   // if user provided a parameter, check that it's a scalar, whether
@@ -234,7 +279,7 @@ VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx,
   // check for null pointer
   if (this->args[idx] == NULL) {
     mexErrMsgTxt(("Parameter " + paramName 
-		  + " provided, but NULL pointer").c_str());
+		  + " provided, but pointer is NULL").c_str());
   }
 
   // check that we have a 2D matrix, numeric or boolean
@@ -320,7 +365,7 @@ VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx,
     return def;
   }
 
-  // check that we have a numeric or boolean array
+  // check that we have a numeric or boolean row vector
   if (mxGetM(this->args[idx]) != 1) {
     mexErrMsgTxt(("Parameter " + paramName + " must be a row vector.").c_str());
   }
@@ -364,7 +409,7 @@ MatlabImportFilter::GetMatrixAsVectorOfRowVectorsArgument(unsigned int idx,
   // check for null pointer
   if (this->args[idx] == NULL) {
     mexErrMsgTxt(("Parameter " + paramName 
-		  + " provided, but NULL pointer").c_str());
+		  + " provided, but pointer is NULL").c_str());
   }
 
   // check that we have a 2D matrix, numeric or boolean
@@ -469,10 +514,98 @@ MatlabImportFilter::GetMatrixAsVectorOfRowVectorsArgument(unsigned int idx,
 
 }
 
+// function to read a Matlab array into a vector. This is the
+// equivalent to the linearising operator A(:) in Matlab
+template <class VectorValueType, class VectorType>
+VectorType
+MatlabImportFilter::GetArrayArgumentAsVector(unsigned int idx, 
+					     std::string paramName,
+					     VectorType def) {
+  
+  // if user didn't provide a value, or provided an empty array,
+  // return default
+  if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
+    return def;
+  }
+  
+  // check for null pointer
+  if (this->args[idx] == NULL) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + " provided, but pointer is NULL").c_str());
+  }
+
+  // check that we have a numerical or logical array
+  if (!mxIsNumeric(this->args[idx]) && !mxIsLogical(this->args[idx])) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + " must be a numeric or logical array.").c_str());
+  }
+
+  // input matrix type
+  mxClassID inputVoxelClassId = mxGetClassID(this->args[idx]);
+  
+  // cast the class type provided by Matlab to the type requested by
+  // the user
+  switch(inputVoxelClassId)  { 
+  case mxLOGICAL_CLASS:
+    {VectorWrapper<VectorValueType, VectorType, mxLogical> paramWrap;
+      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+    break;
+  case mxDOUBLE_CLASS:
+    {VectorWrapper<VectorValueType, VectorType, double> paramWrap;
+      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+    break;
+  case mxSINGLE_CLASS:
+    {VectorWrapper<VectorValueType, VectorType, float> paramWrap;
+      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+    break;
+  case mxINT8_CLASS:
+    {VectorWrapper<VectorValueType, VectorType, int8_T> paramWrap;
+      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+    break;
+  case mxUINT8_CLASS:
+    {VectorWrapper<VectorValueType, VectorType, uint8_T> paramWrap;
+      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+    break;
+  case mxINT16_CLASS:
+    {VectorWrapper<VectorValueType, VectorType, int16_T> paramWrap;
+      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+    break;
+  case mxUINT16_CLASS:
+    {VectorWrapper<VectorValueType, VectorType, uint16_T> paramWrap;
+      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+    break;
+  case mxINT32_CLASS:
+    {VectorWrapper<VectorValueType, VectorType, int32_T> paramWrap;
+      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+    break;
+    // case mxUINT32_CLASS:
+    //   break;
+  case mxINT64_CLASS:
+    {VectorWrapper<VectorValueType, VectorType, int64_T> paramWrap;
+      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+    break;
+    // case mxUINT64_CLASS:
+    //   break;
+  case mxUNKNOWN_CLASS:
+    mexErrMsgTxt(("Parameter " + paramName + " has unknown type.").c_str());
+    break;
+  default:
+    mexErrMsgTxt(("Parameter " + paramName + " has invalid type.").c_str());
+    break;
+  }
+
+  // we should never get here, but we need to provide a return, else
+  // the compiler will give a warning
+  mexErrMsgTxt("MatlabImportFilter::GetArrayArgumentAsVector: This function should have returned before getting here");
+  return def;
+
+}
+
 // function to get an input argument that is an image
 template <class TPixel, unsigned int VImageDimension>
 typename itk::Image<TPixel, VImageDimension>::Pointer
-MatlabImportFilter::GetImageArgument(unsigned int idx, std::string paramName) {
+MatlabImportFilter::GetImageArgument(unsigned int idx, 
+				     std::string paramName) {
   
   // note that:
   //
