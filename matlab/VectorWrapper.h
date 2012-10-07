@@ -86,9 +86,6 @@ template<class VectorValueType, class VectorType, class MatlabValueType>
   // read a whole array into a vector
   VectorType ReadArrayAsVector(const mxArray *pm, std::string paramName);
 
-  // read the argument dimensions into a vector
-  VectorType ReadSize(const mxArray *pm, std::string paramName);
-
 };
 
 /*
