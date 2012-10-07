@@ -4,7 +4,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.1
+% Version: 0.3.0
 % $Rev$
 % $Date$
 %
@@ -244,3 +244,42 @@ subplot(2, 1, 1)
 imagesc(im2(:, :, 4))
 subplot(2, 1, 2)
 imagesc(im3(:, :, 4))
+
+%% itk::MRFImageFilter (mrf)
+
+% load test data
+scimat = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+
+% plot image
+hold off
+subplot(2, 2, 1)
+imagesc(scimat.data(:,:,4))
+
+% initial segmentation
+[thr, q, obj, seg] = gmthr_seg(double(scimat.data), 2);
+
+% quality of the separation between classes (expected: q = 0.9020)
+q
+
+% plot segmented image using the Gaussian mixture model
+subplot(2, 2, 2)
+imagesc(seg(:,:,4))
+
+% compute neighbourhood weights with Euclidean distance
+[gr, gc, gs] = ndgrid(-3:3, -3:3, -2:2);
+weights = sqrt(gr.^2 + gc.^2 + gs.^2);
+
+% segment the image using the Markov Random Filter algorithm
+seg = itk_imfilter('mrf', scimat.data, obj.mu', weights);
+
+% plot segmented image using the Gaussian mixture model
+subplot(2, 2, 3)
+imagesc(seg(:,:,4))
+
+% repeat segmentation, now with significant smoothing
+seg = itk_imfilter('mrf', scimat.data, obj.mu', weights, 2);
+
+% plot segmented image using the Gaussian mixture model
+subplot(2, 2, 4)
+imagesc(seg(:,:,4))
+
