@@ -290,7 +290,7 @@ struct TypeIsDouble< double >
 { static const bool value = true; };
 
 /**
- * function to print the content "of any sequence that support input
+ * function to print the content "of any sequence that supports input
  * iterators, e.g. std::vector, std::deque, std::list, std::string and
  * even plain arrays". Adapted from "Functors with state - 3 (print
  * contents of vector using std::copy)". By Abhishek Padmanabh,
