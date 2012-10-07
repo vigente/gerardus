@@ -1,5 +1,22 @@
 2012-10-07  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/VectorWrapper.h: (v0.3.0)
+	* matlab/VectorWrapper.hxx: (v0.2.0)
+
+	- Add functions ItkSizeCommonReadSize() and
+	ItkSizeCommonReadHalfSize().
+
+	* matlab/MatlabImportFilter.h: (v0.5.0)
+	* matlab/MatlabImportFilter.hxx: (v0.5.0)
+
+	- Add functions GetArraySize() and GetArrayHalfSize(). They
+	simplify having to run mxGetNumberOfDimensions() and
+	mxGetDimensions(), and then casting the result into e.g. itk::Size
+	to pass it to ITK.
+
+	- Add function GetArrayArgumentAsVector(). This is the equivalent
+	to the linearising operator A(:) in Matlab.
+
 	* matlab/VectorWrapper.h: (v0.2.1)
 	* Add matlab/VectorWrapper.hxx: (v0.1.0)
 

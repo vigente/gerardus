@@ -30,7 +30,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.2.1
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -86,6 +86,10 @@ template<class VectorValueType, class VectorType, class MatlabValueType>
   // read a whole array into a vector
   VectorType ReadArrayAsVector(const mxArray *pm, std::string paramName);
 
+  // read the argument dimensions into a vector (size = 2 * halfsize + 1)
+  VectorType ReadSize(const mxArray *pm, std::string paramName);
+  VectorType ReadHalfSize(const mxArray *pm, std::string paramName);
+
 };
 
 /*
@@ -93,29 +97,37 @@ template<class VectorValueType, class VectorType, class MatlabValueType>
  * itk::Size<Dimension>::SizeType vector-like class
  */
 
-// ItkSizeCommonReadRowVector<Dimension>
-//
-// auxiliary function so that we don't need to rewrite this code in
+// auxiliary functions so that we don't need to rewrite this code in
 // every partial specialization
+
+// ItkSizeCommonReadRowVector<Dimension>
 template <class MatlabValueType, unsigned int Dimension>
 typename itk::Size<Dimension>::SizeType
 ItkSizeCommonReadRowVector(const mxArray *pm, mwIndex row, std::string paramName);
 
-template<class MatlabValueType>
-class VectorWrapper<itk::Size<1>::SizeValueType, itk::Size<1>::SizeType, MatlabValueType>{
- public:
-  VectorWrapper() {}
-  itk::Size<1>::SizeType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    return ItkSizeCommonReadRowVector<MatlabValueType, 1>(pm, row, paramName);
-  }
-};
+// ItkSizeCommonReadSize<Dimension>
+template <unsigned int Dimension>
+typename itk::Size<Dimension>::SizeType
+ItkSizeCommonReadSize(const mxArray *pm, std::string paramName);
 
+// ItkSizeCommonReadHalfSize<Dimension>
+template <unsigned int Dimension>
+typename itk::Size<Dimension>::SizeType
+ItkSizeCommonReadHalfSize(const mxArray *pm, std::string paramName);
+
+// partial specialisations
 template<class MatlabValueType>
 class VectorWrapper<itk::Size<2>::SizeValueType, itk::Size<2>::SizeType, MatlabValueType>{
  public:
   VectorWrapper() {}
   itk::Size<2>::SizeType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
     return ItkSizeCommonReadRowVector<MatlabValueType, 2>(pm, row, paramName);
+  }
+  itk::Size<2>::SizeType ReadSize(const mxArray *pm, std::string paramName) {
+    return ItkSizeCommonReadSize<2>(pm, paramName);
+  }
+  itk::Size<2>::SizeType ReadHalfSize(const mxArray *pm, std::string paramName) {
+    return ItkSizeCommonReadHalfSize<2>(pm, paramName);
   }
 };
 
@@ -126,6 +138,12 @@ class VectorWrapper<itk::Size<3>::SizeValueType, itk::Size<3>::SizeType, MatlabV
   itk::Size<3>::SizeType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
     return ItkSizeCommonReadRowVector<MatlabValueType, 3>(pm, row, paramName);
   }
+  itk::Size<3>::SizeType ReadSize(const mxArray *pm, std::string paramName) {
+    return ItkSizeCommonReadSize<3>(pm, paramName);
+  }
+  itk::Size<3>::SizeType ReadHalfSize(const mxArray *pm, std::string paramName) {
+    return ItkSizeCommonReadHalfSize<3>(pm, paramName);
+  }
 };
 
 template<class MatlabValueType>
@@ -135,14 +153,11 @@ class VectorWrapper<itk::Size<4>::SizeValueType, itk::Size<4>::SizeType, MatlabV
   itk::Size<4>::SizeType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
     return ItkSizeCommonReadRowVector<MatlabValueType, 4>(pm, row, paramName);
   }
-};
-
-template<class MatlabValueType>
-class VectorWrapper<itk::Size<5>::SizeValueType, itk::Size<5>::SizeType, MatlabValueType>{
- public:
-  VectorWrapper() {}
-  itk::Size<5>::SizeType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    return ItkSizeCommonReadRowVector<MatlabValueType, 5>(pm, row, paramName);
+  itk::Size<4>::SizeType ReadSize(const mxArray *pm, std::string paramName) {
+    return ItkSizeCommonReadSize<4>(pm, paramName);
+  }
+  itk::Size<4>::SizeType ReadHalfSize(const mxArray *pm, std::string paramName) {
+    return ItkSizeCommonReadHalfSize<4>(pm, paramName);
   }
 };
 
