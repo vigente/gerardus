@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.8.0
+  * Version: 0.9.0
   * $Rev$
   * $Date$
   *
@@ -43,6 +43,10 @@
 #include <mex.h>
 
 /* C++ headers */
+#include<iostream>
+#include<algorithm>
+#include<iterator>
+#include<string>
 
 /* ITK headers */
 #include "itkOffset.h"
@@ -284,6 +288,43 @@ struct TypeIsDouble
 template<>
 struct TypeIsDouble< double >
 { static const bool value = true; };
+
+/**
+ * function to print the content "of any sequence that support input
+ * iterators, e.g. std::vector, std::deque, std::list, std::string and
+ * even plain arrays". Adapted from "Functors with state - 3 (print
+ * contents of vector using std::copy)". By Abhishek Padmanabh,
+ * http://learningcppisfun.blogspot.co.uk/2007/02/functors-with-state-3-print-contents-of.html
+ *
+ * SeqType: type of the sequence
+ *
+ * ostr:           stream to print the sequence to, e.g. std::cout, std::cerr
+ * v:              sequence to print
+ * delimiter:      delimiter character to print between sequence elements, default " "
+ * endchar:        character to print right after last sequence element, default "" (nothing)
+ *
+ * Example: 
+ *
+ *   std::vector<double> v(5, 1.0);
+ *   printSeq<std::vector<double> >(std::cout, v, " ", "*");
+ *
+ *   Output:
+ *   1 1 1 1 1*
+ */
+template<typename SeqType>
+void printSeq(std::ostream& ostr, 
+	      SeqType v, 
+	      const std::string& delimiter = " ",
+	      const std::string& endchar = ""){
+  //print each element but the last followed by the delimiter
+  std::copy(v.begin(), v.end()-1, 
+	    std::ostream_iterator<typename SeqType::iterator::value_type>(ostr, 
+									  delimiter.c_str()));
+  //print last element followed by the end character
+  std::copy(v.end()-1, v.end(),
+	    std::ostream_iterator<typename SeqType::iterator::value_type>(ostr, 
+									  endchar.c_str()));
+}
 
 /**
  * Debugging class to get a string with the type of a template, e.g.
