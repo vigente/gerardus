@@ -30,7 +30,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.2.1
   * $Rev$
   * $Date$
   *
@@ -79,44 +79,16 @@ template<class VectorValueType, class VectorType, class MatlabValueType>
   class VectorWrapper{
  public:
   VectorWrapper() {}
-  VectorType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    
-    // check the pointer is valid
-    if (pm == NULL) {
-      mexErrMsgTxt(("Parameter " + paramName 
-		    + ": pointer to Matlab input argument is NULL").c_str());
-    }
-    
-    // matrix dimensions
-    mwSize nrows = mxGetM(pm);
-    mwSize ncols = mxGetN(pm);
-    
-    // check that row index is within range
-    if (row < 0 || row >= nrows) {
-      mexErrMsgTxt(("Parameter " + paramName 
-		    + ": row index out of bounds").c_str());
-    }
-    
-    // init vector with NaN values
-    VectorType v(ncols, mxGetNaN());
-    
-    // get pointer to the data in the mxArray
-    MatlabValueType *valuep = (MatlabValueType *)mxGetData(pm);
-    
-    if (valuep == NULL) {
-      mexErrMsgTxt(("Parameter " + paramName 
-		    + ": pointer to content of Matlab input argument is NULL").c_str());
-    }
-    
-    // read the row from Matlab into the vector. Note that valuep is
-    // of type MatlabType, so we need to cast it to the VectorValueType
-    for (size_t col = 0; col < ncols; ++col) {
-      v[col] = (VectorValueType)valuep[col * nrows + row];
-    }
-    
-    // return output vector
-    return v;
-  }
+
+  // read a row from a Matlab matrix
+  VectorType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName);
+
+  // read a whole array into a vector
+  VectorType ReadArrayAsVector(const mxArray *pm, std::string paramName);
+
+  // read the argument dimensions into a vector
+  VectorType ReadSize(const mxArray *pm, std::string paramName);
+
 };
 
 /*
@@ -124,58 +96,13 @@ template<class VectorValueType, class VectorType, class MatlabValueType>
  * itk::Size<Dimension>::SizeType vector-like class
  */
 
-
 // ItkSizeCommonReadRowVector<Dimension>
 //
 // auxiliary function so that we don't need to rewrite this code in
 // every partial specialization
 template <class MatlabValueType, unsigned int Dimension>
 typename itk::Size<Dimension>::SizeType
-ItkSizeCommonReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-
-   // check that the pointer is valid
-  if (pm == NULL) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + ": pointer to Matlab input argument is NULL").c_str());
-  }
-  
-  // matrix dimensions
-  mwSize nrows = mxGetM(pm);
-  mwSize ncols = mxGetN(pm);
-
-  // check that the row has the right number of elements
-  if (ncols != Dimension) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + " must have " 
-		  + boost::lexical_cast<std::string>(Dimension) + " columns").c_str());
-  }
-  
-  // check that row index is within range
-  if (row < 0 || row >= nrows) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + ": row index out of bounds").c_str());
-  }
-
-  // instantiate output vector
-  typename itk::Size<Dimension>::SizeType v;
-  
-  // get pointer to the data in the mxArray
-  MatlabValueType *valuep = (MatlabValueType *)mxGetData(pm);
-  
-  if (valuep == NULL) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + ": pointer to content of Matlab input argument is NULL").c_str());
-  }
-  
-  // read the row from Matlab into the vector
-  for (size_t col = 0; col < Dimension; ++col) {
-    v[col] = (MatlabValueType)valuep[col * nrows + row];
-  }
-
-  // return output vector
-  return v;
-  
-}
+ItkSizeCommonReadRowVector(const mxArray *pm, mwIndex row, std::string paramName);
 
 template<class MatlabValueType>
 class VectorWrapper<itk::Size<1>::SizeValueType, itk::Size<1>::SizeType, MatlabValueType>{
@@ -233,54 +160,12 @@ class VectorWrapper<itk::Size<5>::SizeValueType, itk::Size<5>::SizeType, MatlabV
 // every partial specialization
 template <class VectorValueType, class VectorType, class MatlabValueType>
 VectorType
-CgalCommonReadStaticRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    
-    // check that the pointer is valid
-    if (pm == NULL) {
-      mexErrMsgTxt(("Parameter " + paramName 
-		    + ": pointer to Matlab input argument is NULL").c_str());
-    }
-    
-    // matrix dimensions
-    mwSize nrows = mxGetM(pm);
-    mwSize ncols = mxGetN(pm);
-    
-    // check that the row has the right number of elements
-    if (ncols != 3) {
-      mexErrMsgTxt(("Parameter " + paramName 
-		    + " must have 3 columns").c_str());
-    }
-    
-    // check that row index is within range
-    if (row < 0 || row >= nrows) {
-      mexErrMsgTxt(("Parameter " + paramName 
-		    + ": row index out of bounds").c_str());
-    }
-    
-    // get pointer to the data in the mxArray
-    MatlabValueType *valuep = (MatlabValueType *)mxGetData(pm);
-    
-    if (valuep == NULL) {
-      mexErrMsgTxt(("Parameter " + paramName 
-		    + ": pointer to content of Matlab input argument is NULL").c_str());
-    }
-    
-    // instantiate and read output vector. Both have to be done at the
-    // same time, because the only way to populate a CGAL::Point_3 is through
-    // its constructor
-    VectorType v( (double)valuep[row],
-		  (double)valuep[nrows + row],
-		  (double)valuep[2 * nrows + row]
-		  );
-    
-    // return output vector
-    return v;
-
-}
+CgalCommonReadStaticRowVector(const mxArray *pm, mwIndex row, std::string paramName);
 
 // partial specialisation for CGAL::Point_3<CGAL::Simple_cartesian<double> >
 template<class MatlabValueType>
-class VectorWrapper<double, CGAL::Point_3<CGAL::Simple_cartesian<double> >, MatlabValueType>{
+class VectorWrapper<double, CGAL::Point_3<CGAL::Simple_cartesian<double> >, 
+  MatlabValueType>{
  public:
   VectorWrapper() {}
   CGAL::Point_3<CGAL::Simple_cartesian<double> >
@@ -292,7 +177,8 @@ class VectorWrapper<double, CGAL::Point_3<CGAL::Simple_cartesian<double> >, Matl
 
 // partial specialisation for CGAL::Direction_3<CGAL::Simple_cartesian<double> >
 template<class MatlabValueType>
-class VectorWrapper<double, CGAL::Direction_3<CGAL::Simple_cartesian<double> >, MatlabValueType>{
+class VectorWrapper<double, CGAL::Direction_3<CGAL::Simple_cartesian<double> >, 
+  MatlabValueType>{
  public:
   VectorWrapper() {}
   CGAL::Direction_3<CGAL::Simple_cartesian<double> >
@@ -301,5 +187,9 @@ class VectorWrapper<double, CGAL::Direction_3<CGAL::Simple_cartesian<double> >, 
       CGAL::Direction_3<CGAL::Simple_cartesian<double> >, MatlabValueType>(pm, row, paramName);
   }
 };
+
+#ifndef ITK_MANUAL_INSTANTIATION
+#include "VectorWrapper.hxx"
+#endif
 
 #endif /* VECTORWRAPPER_H */
