@@ -1,3 +1,10 @@
+2012-10-07  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/GerardusCommon.h: (v0.9.0)
+
+	- Add printSeq(), function to print the content of any sequence
+	that supports input iterators, e.g. std::vector.
+
 2012-10-06  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp: (v0.2.2)
