@@ -1,5 +1,12 @@
 2012-10-07  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/gmthr_seg.m: (v0.5.0)
+
+	- Add new output argument obj, with the result of the Gaussian
+	mixture model.
+
+	- Fix bug. Had the wrong maximum number of output arguments.
+
 	* matlab/VectorWrapper.h: (v0.3.0)
 	* matlab/VectorWrapper.hxx: (v0.2.0)
 
