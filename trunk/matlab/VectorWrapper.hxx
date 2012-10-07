@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -189,6 +189,87 @@ ItkSizeCommonReadRowVector(const mxArray *pm, mwIndex row, std::string paramName
   // return output vector
   return v;
   
+}
+
+// ItkSizeCommonReadSize<Dimension>
+//
+// auxiliary function so that we don't need to rewrite this code in
+// every partial specialization
+template <unsigned int Dimension>
+typename itk::Size<Dimension>::SizeType
+ItkSizeCommonReadSize(const mxArray *pm, std::string paramName) {
+
+  // check for null pointer
+  if (pm == NULL) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + " provided, but pointer is NULL").c_str());
+  }
+  
+  // get number of dimensions
+  mwSize ndim = mxGetNumberOfDimensions(pm);
+
+  if (ndim != Dimension) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + ": Cannot read parameter size. Output vector has wrong length.").c_str());
+  }
+  
+  // get dimensions array
+  const mwSize *dims = mxGetDimensions(pm);
+
+  // init output
+  typename itk::Size<Dimension>::SizeType size;
+
+  // copy dimensions to output vector
+  for (mwIndex i = 0; i < Dimension; ++i) {
+    size[i] = (typename itk::Size<Dimension>::SizeValueType)dims[i];
+  }
+
+  // return output
+  return size;
+
+}
+
+// ItkSizeCommonReadHalfSize<Dimension>
+//
+// auxiliary function so that we don't need to rewrite this code in
+// every partial specialization
+template <unsigned int Dimension>
+typename itk::Size<Dimension>::SizeType
+ItkSizeCommonReadHalfSize(const mxArray *pm, std::string paramName) {
+
+  // check for null pointer
+  if (pm == NULL) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + " provided, but pointer is NULL").c_str());
+  }
+  
+  // get number of dimensions
+  mwSize ndim = mxGetNumberOfDimensions(pm);
+
+  if (ndim != Dimension) {
+    mexErrMsgTxt(("Parameter " + paramName 
+		  + ": Cannot read parameter size. Output vector has wrong length.").c_str());
+  }
+  
+  // get dimensions array
+  const mwSize *dims = mxGetDimensions(pm);
+
+  // init output
+  typename itk::Size<Dimension>::SizeType halfsize;
+
+  // copy dimensions to output vector
+  for (mwIndex i = 0; i < Dimension; ++i) {
+    if (dims[i] % 2) {
+      halfsize[i] = (typename itk::Size<Dimension>::SizeValueType)((dims[i] - 1)/2);
+    } else {
+      mexErrMsgTxt(("Parameter " + paramName 
+		    + ": All values must be odd, in order to define a box around the central pixel").c_str());
+    }
+  }
+
+  // return output
+  return halfsize;
+
 }
 
 /*

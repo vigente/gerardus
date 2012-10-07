@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.4.0
+  * Version: 0.5.0
   * $Rev$
   * $Date$
   *
@@ -131,6 +131,25 @@ public:
   // certain limits
   void CheckNumberOfArguments(unsigned int min, unsigned int max);
 
+  // function to get the size of a Matlab array. It simplifies having
+  // to run mxGetNumberOfDimensions() and mxGetDimensions(), and then
+  // casting the result into e.g. itk::Size to pass it to ITK
+  template <class VectorValueType, class VectorType>
+    VectorType GetArraySize(unsigned int idx, 
+			    std::string paramName,
+			    VectorType def);
+
+  // function to get the half-size of a Matlab array. Some ITK filters
+  // request the "half-size" (called radius) of a Matlab array,
+  // instead of its size. By "half-size" we mean the length of the side to
+  // the left or right of the central pixel. For example, an array
+  // with size=[3, 7] has a half-size or radius=[1, 3]. I.e. 
+  // size = 2 * radius + 1
+  template <class VectorValueType, class VectorType>
+    VectorType GetArrayHalfSize(unsigned int idx, 
+				std::string paramName,
+				VectorType def);
+
   // function to get the value of input arguments that are strings
   //
   // idx: parameter index
@@ -199,6 +218,14 @@ public:
 					  std::string paramName,
 					  std::vector<VectorType> def);
   
+  // function to read a Matlab array into a vector. This is the
+  // equivalent to A(:) in Matlab
+  template <class VectorValueType, class VectorType>
+    VectorType
+    GetArrayArgumentAsVector(unsigned int idx, 
+			     std::string paramName,
+			     VectorType def);
+  
   // function to get an input argument that is an image. This function
   // returns an itk::ImportImageFilter, which can be used wherever an
   // itk:Image is required, without having to duplicate the Matlab
@@ -214,4 +241,5 @@ public:
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "MatlabImportFilter.hxx"
 #endif
+
 #endif /* MATLABIMPORTFILTER_H */
