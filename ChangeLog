@@ -1,5 +1,20 @@
 2012-10-07  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/ItkImFilter.cpp: (v1.1.0)
+	* matlab/ItkToolbox/itk_imfilter.m: (v0.6.0)
+	* matlab/test/test_itk_imfilter.m: (v0.3.0)
+
+	- Add Markov Random Field filter. This has been a challenging
+	filter, because it can take as an input an array of weights, which
+	have to be passed to the ITK filter as a vector (linearised
+	array), and another vector with the size of the array. This
+	prompted significant changes in MatlabImport and the creation of
+	VectorWrapper to present a common interface for different
+	vector-like classes.
+
+	- Remove references to processing 5D images, some of the filters
+	break if we try to instantiate them with that dimension.
+
 	* matlab/FiltersToolbox/gmthr_seg.m: (v0.5.0)
 
 	- Add new output argument obj, with the result of the Gaussian

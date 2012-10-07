@@ -1,16 +1,16 @@
 function im = itk_imfilter(varargin)
-% ITK_IMFILTER: Run ITK filter on a 2D, 3D, 4D or 5D image
+% ITK_IMFILTER: Run ITK filter on a 2D, 3D or 4D image
 %
 % This MEX function is a multiple-purpose wrapper to be able to run
 % all ITK filters that inherit from itk::ImageToImageFilter on a
-% Matlab 2D image or 3D, 4D or 5D image volume.
+% Matlab 2D image or 3D or 4D image volume.
 %
 % B = ITK_IMFILTER(TYPE, A, [FILTER PARAMETERS])
 %
 %   TYPE is a string with the filter we want to run. See below for a whole
 %   list of options.
 %
-%   A is a 2D matrix or 3D, 4D or 5D volume with the image or
+%   A is a 2D matrix, or 3D or 4D volume with the image or
 %   segmentation. Currently, A can be of any of the following
 %   Matlab classes:
 %
@@ -52,14 +52,22 @@ function im = itk_imfilter(varargin)
 %
 % B = ITK_IMFILTER('skel', A)
 %
-%   (itk::BinaryThinningImageFilter3D) Skeletonize a binary mask
+%   (itk::BinaryThinningImageFilter3D)
+%   Skeletonize a binary mask
+%
+%   A is a segmentation.
 %
 %   B has the same size and class as A
 %
+% -------------------------------------------------------------------------
+%
 % [B, V, W] = itk_imfilter('dandist', A).
 %
-%   (itk::DanielssonDistanceMapImageFilter) Compute unsigned distance map
-%   for a binary mask. Distance values are given in voxel coordinates.
+%   (itk::DanielssonDistanceMapImageFilter)
+%   Compute unsigned distance map for a binary mask. Distance values are
+%   given in voxel coordinates.
+%
+%   A is a segmentation.
 %
 %   B has the same size as A and type double. Each element in B
 %   contains an approximation to the Euclidean distance of that voxel
@@ -72,22 +80,30 @@ function im = itk_imfilter(varargin)
 %   3-vector W(:,i,j,k) is a vector pointing to the closest
 %   foreground voxel from A(i,j,k).
 %
+% -------------------------------------------------------------------------
+%
 % B = ITK_IMFILTER('maudist', A)
 %
-%   (itk::SignedMaurerDistanceMapImageFilter) Compute signed distance map
-%   for a binary mask. Distance values are given in real world coordinates,
-%   if the input image is given as a SCI MAT struct, or in voxel units, if
-%   the input image is a normal array. 
+%   (itk::SignedMaurerDistanceMapImageFilter)
+%   Compute signed distance map for a binary mask. Distance values are
+%   given in real world coordinates, if the input image is given as a SCI
+%   MAT struct, or in voxel units, if the input image is a normal array. 
 %
-%   The output type is always double.
+%   A is a segmentation.
+%
+%   B has the same size as A and type double.
+%
+% -------------------------------------------------------------------------
 %
 % B = ITK_IMFILTER('bwdilate', A, RADIUS, FOREGROUND)
 % B = ITK_IMFILTER('bwerode', A, RADIUS, FOREGROUND)
 %
-%   (itk::BinaryDilateImageFilter). Binary dilation. The structuring
-%   element is a ball.
-%   (itk::BinaryErodeImageFilter). Binary erosion. The structuring
-%   element is a ball.
+%   (itk::BinaryDilateImageFilter). 
+%   Binary dilation. The structuring element is a ball.
+%   (itk::BinaryErodeImageFilter).
+%   Binary erosion. The structuring element is a ball.
+%
+%   A is a segmentation.
 %
 %   RADIUS is a scalar with the radius of the ball in voxel units. If a
 %   non-integer number is provided, then floor(RADIUS) is used. By default,
@@ -98,6 +114,8 @@ function im = itk_imfilter(varargin)
 %   type, e.g. FOREGROUND=255 if the image is uint8. This is the default in
 %   ITK, so we respect it.
 %
+% -------------------------------------------------------------------------
+%
 % B = ITK_IMFILTER('advess', A, SIGMAMIN, SIGMAMAX, NUMSIGMASTEPS, NUMITERATIONS,
 %                  WSTRENGTH, SENSITIVITY, TIMESTEP, EPSILON)
 %
@@ -107,6 +125,8 @@ function im = itk_imfilter(varargin)
 %   Enquobahrie A., Ibanez L., Bullitt E., Aylward S. "Vessel
 %   Enhancing Diffusion Filter", Insight Journal,
 %   2007. http://hdl.handle.net/1926/558.
+%
+%   A is a grayscale image.
 %
 %   B has the same size and class as A.
 %
@@ -158,6 +178,8 @@ function im = itk_imfilter(varargin)
 %   EPSILON is a scalar. It's a small number to ensure the positive
 %   definiteness of the diffusion tensor. By default, EPSILON=0.01.
 %
+% -------------------------------------------------------------------------
+%
 % B = itk_imfilter('hesves', A, SIGMAMIN, SIGMAMAX, NUMSIGMASTEPS, ISSIGMASTEPLOG)
 %
 %   (itk::MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter)
@@ -168,15 +190,21 @@ function im = itk_imfilter(varargin)
 %   Enhancing Diffusion Filter", Insight Journal,
 %   2007. http://hdl.handle.net/1926/558.
 %
-%   B has the same size as A, but is always of type double.
+%   A is an image.
+%
+%   B has the same size as A and type double.
 %
 %   Input arguments are the same as the four first input arguments of
 %   filter "advess" above.
+%
+% -------------------------------------------------------------------------
 %
 % B = itk_imfilter('median', A, RADIUS)
 %
 %   (itk::MedianImageFilter)
 %   Median of a rectangular neighbourhood.
+%
+%   A is an image.
 %
 %   B has the same size and class as A.
 %
@@ -184,10 +212,55 @@ function im = itk_imfilter(varargin)
 %   box in each dimension. E.g. RADIUS=[2, 3, 4] means that the
 %   median is computed in a rectangular neighbourhood of [5, 7, 9]
 %   voxels.
+%
+% -------------------------------------------------------------------------
+%
+% B = itk_imfilter('mrf', A, MU)
+%
+%   (itk::MRFImageFilter)
+%   Markov Random Field segmentation.
+%
+%   This filter can be used to improve a previous segmentation. A Markov
+%   Random Field (MRF) filter imposes the constraint that neighbouring
+%   voxels are more likely to have the same label. For
+%   example, gmth_seg() can be used to obtain a previous rough 2-label
+%   segmentation of an object over a background, and then the MRF filter
+%   applied to the computed Gaussian-mixture model mean values to smooth
+%   the segmentation.
+%
+%   A is an image.
+%
+%   B is a segmentation with the same size as A and type uint8.
+%
+%   MU is a row vector with the mean intensity values (centroids) of each
+%   label. If MU has n elements, then B will have n different labels. 
+%
+% B = itk_imfilter(..., WEIGHTS, SMOOTH, NITER, TOL)
+%
+%   WEIGHTS is an array with the same dimension as A. This array defines
+%   the neighbourhood of each pixel, and the relative importance each
+%   neighbouring pixel contributes to the labelling of the central pixel.
+%   By default, WEIGHTS is an array of all 1.0 (except for the central
+%   element, that is 0.0) and size 3x3, 3x3x3 or 3x3x3x3, depending on the
+%   image dimension.
+%
+%   SMOOTH is a scalar that represents the tradeoff between fidelity to the
+%   observed image and the smoothness of the segmented image. Typical
+%   smoothing factors have values from 1 to 5. This factor will multiply
+%   the weights that define the influence of neighbours on the
+%   classification of a given pixel.  The higher the value, the more
+%   uniform will be the regions resulting from the classification
+%   refinement. By default, SMOOTH=1e-7 and almost no smoothing is applied.
+%
+%   NITER is a scalar with the number of iterations the filter will run. By
+%   default, NITER=100.
+%
+%   TOL is a scalar with the error tolerance that will be used as a
+%   criterion for convergence. By default, TOL=1e-7.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.5.1
+% Version: 0.6.0
 % $Rev$
 % $Date$
 %
