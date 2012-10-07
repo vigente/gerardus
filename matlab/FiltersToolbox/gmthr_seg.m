@@ -1,4 +1,4 @@
-function [thr, q, im] = gmthr_seg(im, nobj, nsubs)
+function [thr, q, obj, im] = gmthr_seg(im, nobj, nsubs)
 % GMTHR_SEG  Segment an image estimating threshold as intersection of two
 % Gaussians from Gaussian mixture model
 %
@@ -20,16 +20,7 @@ function [thr, q, im] = gmthr_seg(im, nobj, nsubs)
 %   returned as NaN. This is the case, for example, if the image only
 %   contains background, or only object voxels.
 %
-% [THR, Q, BW] = gmthr_seg(IM, NOBJ, NSUBS)
-%
-%   Q is a quality measure of the threshold. Q takes values in [0, 1].
-%   Values close to 0 mean that both Gaussians have a lot of overlap, so
-%   the threshold between object and background cannot be trusted very
-%   much. Values close to 1 mean that both Gaussians are well separated,
-%   and the threshold value can be trusted to provide a good segmentation.
-%
-%   BW is an output segmentation mask, where voxels == true correspond to
-%   the darker object.
+% [THR, Q, OBJ, BW] = gmthr_seg(IM, NOBJ, NSUBS)
 %
 %   NOBJ is a scalar. Only the largest NOBJ are kept in the segmentation.
 %   This last step is useful to remove segmentation noise. By default,
@@ -41,10 +32,23 @@ function [thr, q, im] = gmthr_seg(im, nobj, nsubs)
 %   image to estimate the Gaussian mixture model. NSUBS is the subsampling
 %   factor. E.g. NSUBS=100 will randomly sample numel(IM)/NSUBS voxels in
 %   the image. By default, NSUBS=1 and no subsampling is performed.
+%
+%   Q is a quality measure of the threshold. Q takes values in [0, 1].
+%   Values close to 0 mean that both Gaussians have a lot of overlap, so
+%   the threshold between object and background cannot be trusted very
+%   much. Values close to 1 mean that both Gaussians are well separated,
+%   and the threshold value can be trusted to provide a good segmentation.
+%
+%   OBJ is the Gaussian mixture object. See help('gmdistribution.fit') for
+%   details. The mean and variance of the Gaussians can be extracted as
+%   obj.mu and obj.Sigma, respectively.
+%
+%   BW is an output segmentation mask, where voxels == true correspond to
+%   the darker object.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.4.0
+% Version: 0.5.0
 % $Rev$
 % $Date$
 % 
@@ -73,7 +77,7 @@ function [thr, q, im] = gmthr_seg(im, nobj, nsubs)
 
 % check arguments
 narginchk(1, 3);
-nargoutchk(0, 2);
+nargoutchk(0, 4);
 
 % defaults
 if (nargin < 2 || isempty(nobj))
@@ -148,7 +152,7 @@ end
 
 % no need to waste time segmenting the image if the user doesn't ask for
 % the output segmentation
-if (nargout < 3)
+if (nargout < 4)
     return
 end
 
