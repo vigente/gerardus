@@ -48,7 +48,7 @@ function [thr, q, obj, im] = gmthr_seg(im, nobj, nsubs)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.5.0
+% Version: 0.5.1
 % $Rev$
 % $Date$
 % 
@@ -159,10 +159,16 @@ end
 % threshold segmentation
 im = (im <= thr);
 
+%% remove segmentation noise
+% we could use function bwrmsmallcomp() here, but we don't want having to
+% replicate the segmentation data too many times. That could create memory
+% problems for very large volumes. Instead, we have copied the code in
+% bwrmsmallcomp() directly here:
+
 % get connected components
 cc = bwconncomp(im);
 
-% keep only the largest component to remove background noise
+% keep only the largest components to remove background noise
 %
 % note: it's better to clear the whole image, and then add the largest
 % components, than trying to delete the smaller components. The latter
