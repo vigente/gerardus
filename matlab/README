@@ -169,6 +169,10 @@ bwregiongrow.m
 	 BWREGIONGROW  Fast region grow labelling of binary image from multiple
 	 seeds
 	
+bwrmsmallcomp.m
+
+	 BWRMSMALLCOMP  Remove small connected components from a segmentation
+	
 ccwrap.m
 
 	 CCWRAP  Wrapper that enables CTRL+C interruption of MEX files
@@ -321,7 +325,7 @@ ItkToolbox
 
 itk_imfilter.m
 
-	 ITK_IMFILTER: Run ITK filter on a 2D, 3D, 4D or 5D image
+	 ITK_IMFILTER: Run ITK filter on a 2D, 3D or 4D image
 	
 itk_pstransform.m
 
