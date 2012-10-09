@@ -1,5 +1,10 @@
 2012-10-09  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/gmthr_seg.m: (v0.5.1)
+
+	- minor. Add comment about why we have a copy of the code in
+	bwrmsmallcomp() here instead of using bwrmsmallcomp().
+
 	* Add matlab/FiltersToolbox/bwrmsmallcomp.m: (v0.1.0)
 
 	- BWRMSMALLCOMP Remove small connected components from a
