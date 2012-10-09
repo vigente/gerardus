@@ -17,7 +17,7 @@
 # (Note that the original file does work for Ubuntu Natty)
 #
 # Author: Ramon Casero <rcasero@gmail.com>, Tom Doel
-# Version: 0.2.6
+# Version: 0.2.7
 # $Rev$
 # $Date$
 #
@@ -116,7 +116,7 @@ ELSE(WIN32)
     # get path to the Matlab root directory
     EXECUTE_PROCESS(
       COMMAND which matlab
-      COMMAND xargs readlink
+      COMMAND xargs readlink -m
       COMMAND xargs dirname
       COMMAND xargs dirname
       COMMAND xargs echo -n
