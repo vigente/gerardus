@@ -1,3 +1,10 @@
+2012-10-09  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/FiltersToolbox/bwrmsmallcomp.m: (v0.1.0)
+
+	- BWRMSMALLCOMP Remove small connected components from a
+	segmentation.
+
 2012-10-07  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/ItkImFilter.cpp: (v1.1.0)
