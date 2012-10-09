@@ -265,9 +265,10 @@ q
 subplot(2, 2, 2)
 imagesc(seg(:,:,4))
 
-% compute neighbourhood weights with Euclidean distance
+% compute neighbourhood weights that decrease with Euclidean distance
 [gr, gc, gs] = ndgrid(-3:3, -3:3, -2:2);
-weights = sqrt(gr.^2 + gc.^2 + gs.^2);
+weights = 1./sqrt(gr.^2 + gc.^2 + gs.^2);
+weights(isinf(weights)) = 0.0;
 
 % segment the image using the Markov Random Filter algorithm
 seg = itk_imfilter('mrf', scimat.data, obj.mu', weights);
