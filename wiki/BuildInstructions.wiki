@@ -105,6 +105,11 @@ $ cmake -DBUILD_SHARED_LIBS=ON -DITK_USE_REVIEW=ON \
   * Note for Windows users: Click on "Start" -> "My computer" -> "View system information", and in the "Advanced" tab click on "Environment Variables". Select the System variable `Path`, and click "Edit". Add the path to the `ITKCOMMON.DLL` library, e.g. "C:\Program Files\ITK\bin"
  * [http://www.mathworks.com/products/matlab/ Matlab]
   # Matlab has its own installer for each operating system (Linux, Windows, MacOS X, etc)
+  * Note for Linux / MacOS X users: Ensure the matlab binary is in the system path. For example, you can add a symlink from a directory already in the path. Assuming your `matlab` binary is in `/opt/matlab/bin/`, then
+{{{
+$ cd /usr/local/sbin
+$ sudo link -s /opt/matlab/bin/matlab
+}}}
   * Note for Windows users: Similarly to the previous step, add to the `Path` environment variable the path to your Matlab `LIBMEX.DLL` and `LIBMX.DLL` libraries, e.g. "C:\Program Files\MATLAB\R2010b\bin\win32" (32 bit) or "C:\Program Files\MATLAB\R2010b\bin\win64" (64 bit)
  * [http://code.google.com/p/gerardus/ Gerardus]
   # Check out the Gerardus project code
