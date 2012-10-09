@@ -1,5 +1,10 @@
 2012-10-09  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FindMatlab.cmake: (v0.2.7)
+
+	- Fix bug found by Tasos. In linux, if matlab was not a link, the
+	Matlab directory could not be found.
+
 	* matlab/FiltersToolbox/gmthr_seg.m: (v0.5.1)
 
 	- minor. Add comment about why we have a copy of the code in
