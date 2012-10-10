@@ -1,6 +1,9 @@
 # Distributed under the Boost Software License, Version 1.0.
 # See http://www.boost.org/LICENSE_1_0.txt
 
+# changes made by Ramon Casero <rcasero@gmail.com> for project
+# Gerardus
+
 cmake_minimum_required(VERSION 2.8.8)
 project(BoostConfig)
 
@@ -14,10 +17,9 @@ include(Ryppl)
 #  doc/acknowledgements.qbk
 #  )
 
-
-# ryppl_export(
-#   DEPENDS
-#     BoostCore
-#   INCLUDE_DIRECTORIES
-#     include
-#   )
+ryppl_export(
+  DEPENDS
+    BoostCore
+  INCLUDE_DIRECTORIES
+    include
+  )

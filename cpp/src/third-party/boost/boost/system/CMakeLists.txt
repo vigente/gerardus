@@ -9,8 +9,8 @@ project(BoostSystem CXX)
 include(Ryppl)
 
 ryppl_find_and_use_package(BoostConfig)
-ryppl_find_and_use_package(BoostInteger) # cstdint.hpp
-ryppl_find_and_use_package(BoostUtility) # assert.hpp, noncopyable.hpp, enable_if.hpp, operators.hpp
+#ryppl_find_and_use_package(BoostInteger) # cstdint.hpp
+#ryppl_find_and_use_package(BoostUtility) # assert.hpp, noncopyable.hpp, enable_if.hpp, operators.hpp
 
 include_directories(include)
 
@@ -28,18 +28,13 @@ endif(NOT BUILD_SHARED_LIBS)
 #add_subdirectory(doc)
 
 
-# ryppl_export(
-#   TARGETS
-#     boost_system
-#   DEPENDS
-#     BoostConfig
+ryppl_export(
+  TARGETS
+    boost_system
+  DEPENDS
+    BoostConfig
 #     BoostInteger
 #     BoostUtility
-#   INCLUDE_DIRECTORIES
-#     include
-#   )
-
-# install compiled libraries
-install(TARGETS
-  boost_system
-  DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
+  INCLUDE_DIRECTORIES
+    include
+  )
