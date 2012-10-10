@@ -1,3 +1,33 @@
+2012-10-10  Ramon Casero  <rcasero@gmail.com>
+
+	* cpp/src/third-party/boost/ryppl/cmake/Modules/RypplExport.cmake:
+	* cpp/src/third-party/boost/boost/thread/CMakeLists.txt:
+	* cpp/src/third-party/boost/boost/date_time/CMakeLists.txt:
+	* cpp/src/third-party/boost/boost/filesystem/CMakeLists.txt:
+	* cpp/src/third-party/boost/boost/core/CMakeLists.txt:
+	* cpp/src/third-party/boost/boost/system/CMakeLists.txt:
+	* cpp/src/third-party/boost/boost/config/CMakeLists.txt:
+	* cpp/src/third-party/boost/boost/chrono/CMakeLists.txt:
+
+	- Fix bug spotted by Tasos Papastylianou. The linux install was
+	broken.
+
+	- The problem was that by using our own install(TARGET...) macros
+	in e.g. boost/chrono/CMakeLists.txt and commenting out the
+	ryppl_export() macros, the BoostChronoConfig.cmake file was not
+	being generated, and cmake gave an error when it couldn't find the
+	file. I hadn't noticed because I already had the
+	Boost*Config.cmake files in my gerardus tree.
+
+	- Now, instead, we use the ryppl_export(), but changing the
+	install directories to gerardus/lib and gerardus/include.
+
+	- We have commented out those dependencies that are not essential
+	for gerardus, to avoid having to compile a lot of code in boost.
+
+	- Note that we don't need to install the header files (we aleady
+	provide them in gerardus/include/boost) or .cmake files.
+
 2012-10-09  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FindMatlab.cmake: (v0.2.7)

@@ -19,20 +19,19 @@ configure_file(include/boost/version.hpp.in include/boost/version.hpp)
 
 #ryppl_add_test_subdirectory(test)
 
-
-# ryppl_export(
-#   DEPENDS
-#     BoostConfig
-#     BoostInteger
-#     BoostIterator
-#     BoostMPL
-#     BoostPreprocessor
-#     BoostSmartPtr
-#     BoostStaticAssert
-#     BoostTypeTraits
-#     BoostUtility
-#   INCLUDE_DIRECTORIES
-#     "${PROJECT_SOURCE_DIR}/include"
-#     "${PROJECT_BINARY_DIR}/include"
-#   VERSION "1.50"
-#   )
+ryppl_export(
+  DEPENDS
+    BoostConfig
+#    BoostInteger
+#    BoostIterator
+#    BoostMPL
+#    BoostPreprocessor
+#    BoostSmartPtr
+#    BoostStaticAssert
+#    BoostTypeTraits
+#    BoostUtility
+  INCLUDE_DIRECTORIES
+    "${PROJECT_SOURCE_DIR}/include"
+    "${PROJECT_BINARY_DIR}/include"
+  VERSION "1.50"
+  )
