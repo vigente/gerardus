@@ -1,3 +1,12 @@
+2012-10-11  Ramon Casero  <rcasero@gmail.com>
+
+	* release 0.8.0
+
+	- Quite a bit of code added since the last release. This release
+	works in a fresh linux install. This version intentionally doesn't
+	let the user build in Windows, because we don't have a way to
+	build GMP and MPFR for Windows yet.
+
 2012-10-10  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/third-party/boost/CMakeLists.txt:
