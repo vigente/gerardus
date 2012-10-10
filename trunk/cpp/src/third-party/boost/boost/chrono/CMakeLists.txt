@@ -10,7 +10,7 @@ include(Ryppl)
 
 ryppl_find_and_use_package(BoostConfig)
 ryppl_find_and_use_package(BoostSystem)
-ryppl_find_and_use_package(BoostRatio)
+#ryppl_find_and_use_package(BoostRatio)
 
 include_directories(include)
 
@@ -29,13 +29,13 @@ target_link_libraries(boost_chrono
   ${RT_LIBRARY}
   )
 
-# ryppl_export(
-#   TARGETS
-#     boost_chrono
-#   DEPENDS
+ryppl_export(
+  TARGETS
+    boost_chrono
+  DEPENDS
 #     BoostAccumulators
-#     BoostConfig
-#     BoostCore
+    BoostConfig
+    BoostCore
 #     BoostException
 #     BoostFormat
 #     BoostInteger
@@ -44,15 +44,10 @@ target_link_libraries(boost_chrono
 #     BoostMath
 #     BoostRatio
 #     BoostStaticAssert
-#     BoostSystem
+    BoostSystem
 #     BoostTypeTraits
 #     BoostTypeof
 #     BoostUtility
-#   INCLUDE_DIRECTORIES
-#     include
-#   )
-
-# install compiled libraries
-install(TARGETS
-  boost_chrono
-  DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
+  INCLUDE_DIRECTORIES
+    include
+  )

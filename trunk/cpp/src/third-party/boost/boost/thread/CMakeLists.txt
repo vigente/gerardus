@@ -54,16 +54,16 @@ else()
     )
 endif()
 
-# ryppl_export(
-#   TARGETS
-#     boost_thread
-#   DEPENDS
+ryppl_export(
+  TARGETS
+    boost_thread
+  DEPENDS
 #     BoostBind
-#     BoostChrono
-#     BoostConfig
+    BoostChrono
+    BoostConfig
 #     BoostContainer
-#     BoostCore
-#     BoostDateTime
+    BoostCore
+    BoostDateTime
 #     BoostException
 #     BoostFunction
 #     BoostFunctionalHash
@@ -74,14 +74,9 @@ endif()
 #     BoostOptional
 #     BoostSmartPtr
 #     BoostStaticAssert
-#     BoostSystem
+    BoostSystem
 #     BoostTypeTraits
 #     BoostUtility
-#   INCLUDE_DIRECTORIES
-#     include
-#   )
-
-# install compiled libraries
-install(TARGETS
-  boost_thread
-  DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
+  INCLUDE_DIRECTORIES
+    include
+  )

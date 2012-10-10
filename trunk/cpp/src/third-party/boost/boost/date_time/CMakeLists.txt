@@ -9,7 +9,7 @@ project(BoostDateTime)
 include(Ryppl)
 
 ryppl_find_and_use_package(BoostConfig)
-ryppl_find_and_use_package(BoostTokenizer)
+#ryppl_find_and_use_package(BoostTokenizer)
 
 include_directories(include)
 
@@ -23,14 +23,14 @@ add_library(boost_date_time
   src/gregorian/date_generators.cpp
   )
 
-# ryppl_export(
-#   TARGETS
-#     boost_date_time
-#   DEPENDS
+ryppl_export(
+  TARGETS
+    boost_date_time
+  DEPENDS
 #     BoostAlgorithm
-#     BoostConfig
+    BoostConfig
 #     BoostConversion
-#     BoostCore
+    BoostCore
 #     BoostException
 #     BoostIO
 #     BoostInteger
@@ -42,14 +42,9 @@ add_library(boost_date_time
 #     BoostUtility
 #   RECOMMENDS
 #     BoostSerialization
-#   INCLUDE_DIRECTORIES
-#     include
-#   )
-
-# install compiled libraries
-install(TARGETS
-  boost_date_time
-  DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
+  INCLUDE_DIRECTORIES
+    include
+  )
 
 return()
 
