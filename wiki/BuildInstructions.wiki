@@ -38,6 +38,7 @@ Matlab MEX functions (file names given following the linux 64 bit convention. In
  * Subversion client
  * C++ compiler
  * CMake
+ * m4
  * Insight Toolkit
  * Matlab
  * Gerardus
@@ -77,10 +78,16 @@ $ sudo apt-get update
   * Note for Windows users: Download and run the Win32 Installer from the [http://www.cmake.org/cmake/resources/software.html CMake downloads page]
   * Note for Mac users: Download and run the Mac OSX 64/32-bit Universal Installer from the [http://www.cmake.org/cmake/resources/software.html CMake downloads page]
   * Note for other users: See the [http://www.cmake.org/cmake/resources/software.html CMake resources page] for more options
- * [http://www.itk.org/itkindex.html Insight Toolkit] (Gerardus tested with version 3.20.1)
+ * [http://www.gnu.org/software/m4/ m4] (GNU M4 is an implementation of the traditional Unix macro processor)
+  # It's a small program, simply download and install it
+   * Note for Linux users: In Ubuntu, it can be easily installed doing
+{{{
+$ sudo apt-get install m4
+}}}
+ * [http://www.itk.org/itkindex.html Insight Toolkit] (Gerardus tested with version 4.2.0)
   # [http://www.itk.org/ITK/resources/software.html Download the Insight Toolkit (ITK)]
   # Build and install ITK using CMake (see the [http://www.itk.org/ItkSoftwareGuide.pdf ITK Software Guide] for details)
-  * Note for Mac users: [http://worldwidepenguin.com/2010/05/how-to-install-itk-on-a-mac-cmake-macports/ this site] has instructions for building ITK using the CMake application (although they forget to mention that you click "Generate" at the end)
+  * Note for MacOS X users: [http://worldwidepenguin.com/2010/05/how-to-install-itk-on-a-mac-cmake-macports/ this site] has instructions for building ITK using the CMake application (although they forget to mention that you click "Generate" at the end)
   * Note for everyone: You need to set the following variables in your CMake build of ITK
 {{{
 CMAKE_BUILD_TYPE   Release
