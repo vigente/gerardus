@@ -35,26 +35,21 @@ target_link_libraries(boost_filesystem
 #ryppl_add_test_subdirectory(test)
 
 
-# ryppl_export(
-#   TARGETS
-#     boost_filesystem
-#   DEPENDS
-#     BoostConfig
-#     BoostCore
+ryppl_export(
+  TARGETS
+    boost_filesystem
+  DEPENDS
+    BoostConfig
+    BoostCore
 #     BoostFunctionalHash
 #     BoostIO
 #     BoostInteger
 #     BoostIterator
 #     BoostSmartPtr
 #     BoostStaticAssert
-#     BoostSystem
+    BoostSystem
 #     BoostTypeTraits
 #     BoostUtility
-#   INCLUDE_DIRECTORIES
-#     include
-#   )
-
-# install compiled libraries
-install(TARGETS
-  boost_filesystem
-  DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
+  INCLUDE_DIRECTORIES
+    include
+  )

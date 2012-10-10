@@ -65,19 +65,20 @@ function(ryppl_export)
     )
   cmake_parse_arguments(EXPORT "" "VERSION" "${parameters}" ${ARGN})
 
-  if(EXPORT_VERSION)
-    set(_config_version_file
-      "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-      )
-    write_basic_package_version_file("${_config_version_file}"
-      VERSION ${EXPORT_VERSION}
-      COMPATIBILITY SameMajorVersion
-      )
-    install(FILES "${_config_version_file}"
-      DESTINATION .
-      COMPONENT   dev
-      )
-  endif(EXPORT_VERSION)
+  # gerardus: we don't need the config version file
+  # if(EXPORT_VERSION)
+  #   set(_config_version_file
+  #     "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+  #     )
+  #   write_basic_package_version_file("${_config_version_file}"
+  #     VERSION ${EXPORT_VERSION}
+  #     COMPATIBILITY SameMajorVersion
+  #     )
+  #   install(FILES "${_config_version_file}"
+  #     DESTINATION .
+  #     COMPONENT   dev
+  #     )
+  # endif(EXPORT_VERSION)
 
   # Set up variables to hold fragments of the
   # <packagename>Config.cmake file we're generating
@@ -108,12 +109,14 @@ function(ryppl_export)
     set(BUILD_INCLUDE_DIRS "")
 
     foreach(path ${EXPORT_INCLUDE_DIRECTORIES})
-      install(DIRECTORY "${path}/"
-        DESTINATION     "include"
-        COMPONENT       "dev"
-        CONFIGURATIONS  "Release"
-        REGEX "[.]in$" EXCLUDE
-        )
+      # gerardus: we don't need to install the header files, because
+      # they are already provided in gerardus/include/boost
+      # install(DIRECTORY "${path}/"
+      #   DESTINATION     "${GERARDUS_SOURCE_DIR}/include"
+      #   COMPONENT       "dev"
+      #   CONFIGURATIONS  "Release"
+      #   REGEX "[.]in$" EXCLUDE
+      #   )
       # incorporate INCLUDE_DIRECTORIES as absolute paths
       get_filename_component(path "${path}" ABSOLUTE)
       set(BUILD_INCLUDE_DIRS "${BUILD_INCLUDE_DIRS}\n  \"${path}/\"")
@@ -223,39 +226,40 @@ endif()"
   ryppl_configure_package_config_file("${_config_in}" "${_config_install}"
     INSTALL
     )
-  install(FILES    "${_config_install}"
-    DESTINATION    "."
-    CONFIGURATIONS "Release"
-    COMPONENT      "dev"
-    RENAME         "${PROJECT_NAME}Config.cmake"
-    )
+  # gerardus: we don't need to install the config files
+  # install(FILES    "${_config_install}"
+  #   DESTINATION    "."
+  #   CONFIGURATIONS "Release"
+  #   COMPONENT      "dev"
+  #   RENAME         "${PROJECT_NAME}Config.cmake"
+  #   )
 
   # TODO: [NAMELINK_ONLY|NAMELINK_SKIP]
   install(TARGETS ${libraries} ${executables}
     ARCHIVE
-      DESTINATION lib
+      DESTINATION ${GERARDUS_SOURCE_DIR}/lib
       COMPONENT   dev
       CONFIGURATIONS "Release"
     LIBRARY
-      DESTINATION lib
+      DESTINATION ${GERARDUS_SOURCE_DIR}/lib
       COMPONENT   bin
       CONFIGURATIONS "Release"
     RUNTIME
-      DESTINATION bin
+      DESTINATION ${GERARDUS_SOURCE_DIR}/programs
       COMPONENT   bin
       CONFIGURATIONS "Release"
     )
   install(TARGETS ${libraries}
     ARCHIVE
-      DESTINATION lib
+      DESTINATION ${GERARDUS_SOURCE_DIR}/lib
       COMPONENT   dbg
       CONFIGURATIONS "Debug"
     LIBRARY
-      DESTINATION lib
+      DESTINATION ${GERARDUS_SOURCE_DIR}/lib
       COMPONENT   dbg
       CONFIGURATIONS "Debug"
     RUNTIME
-      DESTINATION bin
+      DESTINATION ${GERARDUS_SOURCE_DIR}/programs
       COMPONENT   dbg
       CONFIGURATIONS "Debug"
     )
