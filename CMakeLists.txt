@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.2.2
+# Version: 0.2.3
 # $Rev$
 # $Date$
 #
@@ -114,22 +114,30 @@ SET(Boost_DEFINITIONS ""
   CACHE STRING "Definitions for Boost libraries")
 
 # Get Boost version number from its config.hpp file
+#
+# Note that we have copied all the Boost header files to
+# gerardus/include/boost. This may not be the most elegant way to
+# release software, but otherwise the boost header files wouldn't be
+# available to e.g. CGAL at configuration time (they would only be
+# available after make && make install), and we would have to go
+# through the trouble of building Boost as an external project
 set(BOOST_VERSION 0)
-file(READ "${Boost_INCLUDE_DIR}/boost/version.hpp" _boost_VERSION_HPP_CONTENTS)
+file(READ "${Boost_INCLUDE_DIR}/boost/version.hpp"
+  _boost_VERSION_HPP_CONTENTS)
 string(REGEX REPLACE ".*#define BOOST_VERSION ([0-9]+).*" "\\1" 
   Boost_VERSION "${_boost_VERSION_HPP_CONTENTS}")
 set(Boost_VERSION ${Boost_VERSION} CACHE INTERNAL 
-  "The version number for boost libraries")
+  "The version number for boost libraries released together with Gerardus")
 if(NOT "${Boost_VERSION}" STREQUAL "0")
   math(EXPR Boost_MAJOR_VERSION "${Boost_VERSION} / 100000")
   math(EXPR Boost_MINOR_VERSION "${Boost_VERSION} / 100 % 1000")
   math(EXPR Boost_SUBMINOR_VERSION "${Boost_VERSION} % 100")
 endif()
 
+message(STATUS "Boost version provided with Gerardus: '${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}'")
 #message(STATUS "Boost include:     ${Boost_INCLUDE_DIRS}")
-message(STATUS "Boost libraries:   ${Boost_LIBRARIES}")
+message(STATUS "Boost libraries built in Gerardus:   ${Boost_LIBRARIES}")
 #message(STATUS "Boost definitions: ${Boost_DEFINITIONS}")
-message(STATUS "Boost version: '${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}'")
 
 ## flags for all targets
 IF(WIN32)
