@@ -3,6 +3,34 @@
 
 <wiki:toc max_depth="2" />
 
+= Warning for Windows users =
+
+The latest version of Gerardus doesn't build in Windows. 
+
+The reason is that two of its third-party dependencies, the [http://gmplib.org/ GMP] and [http://www.mpfr.org/ MPFR] libraries, do not provide a way to build them on Windows.
+
+So until we sort that out, the Gerardus build system will throw the following error for Windows:
+
+{{{
+"CMake Error at cpp/src/CMakeLists.txt:110 (message):
+  GMP and MPFR build not implemented for Windows. "
+}}}
+
+As discussed in this thread, it shouldn't be difficult to [https://groups.google.com/d/msg/gerardus-users/cG380JkS7mo/tN82_FFfgYIJ make GMP and MPFR build on Windows].
+
+ "This is not so difficult. Gerardus would build on Windows if it weren't for the GMP and MPFR libraries. We don't even need them to be built with CMake, or built within Gerardus, for that matter. We could just provide the .lib files for 32 and 64 bit if somebody builds them.
+
+ There are a couple of websites with CMake files for those libraries, maybe older versions.
+
+ http://www.cs.nyu.edu/exact/core/gmp/
+
+ http://gladman.plushost.co.uk/oldsite/computing/gmp4win.php
+
+
+ The question is whether it's worth spending time on this. My personal incentive is very low, as I don't really use Windows. I'm willing to help an actual Windows user who wants to make it work, but I don't think it's a good use of time toiling in the off-chance that a hypothetical Windows user may want to give it a try one day ;)"
+
+
+
 = Introduction =
 
 Gerardus contains Matlab function that can be run directly without building any code. There are also C++ programs and C++ MEX files that need to be compiled and installed before they can be run. These instructions explain how to that.
