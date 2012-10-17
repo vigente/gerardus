@@ -46,7 +46,7 @@ function [im, LV, RV, BKG, TODO] = tissue2lvrv(im, surf, RAD, blksz, border, num
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -98,7 +98,7 @@ end
 % invert mask to obtain background (which includes the cavities)
 im = uint8(~im);
 
-% dilate the surface so that it's water-tight
+% dilate the atrio-ventricular surface so that it's water-tight
 surf = itk_imfilter('bwdilate', surf, RAD, 1);
     
 % remove atrio-ventricular surface from segmentation
@@ -129,19 +129,23 @@ TODO = 4;
 % initialise all segmented voxels as TODO
 im(im ~= 0) = TODO;
 
-% top part of the background
-idx = find(cellfun(@(x) any(x==1), cc.PixelIdxList));
-im(cc.PixelIdxList{idx}) = BKG;
-cc.PixelIdxList(idx) = [];
-cc.NumObjects = cc.NumObjects - 1;
+% create array with all zeros, except for the sides. We are going to use
+% the sides to find the background in the image
+im2(:) = 0;
+im2([1 size(im2, 1)], :, :) = 1;
+im2(:, [1 size(im2, 2)], :) = 1;
+im2(:, :, [1 size(im2, 3)]) = 1;
 
-% bottom part of the background
-idx = sub2ind(size(im), 1, 1, size(im, 3));
-idx = find(cellfun(@(x) any(x==idx), cc.PixelIdxList));
-im(cc.PixelIdxList{idx}) = BKG;
+% connected components that are touching the sides
+idx = cellfun(@(x) any(im2(x)), cc.PixelIdxList);
+
+% tag background components
+aux = cc.PixelIdxList{idx};
+im(aux) = BKG;
+
+% remove background components from the list
 cc.PixelIdxList(idx) = [];
-cc.NumObjects = cc.NumObjects - 1;
-    
+
 % the ventricles will be the next largest components
 cc.PixelIdxList(3:end) = [];
 cc.NumObjects = 2;
@@ -169,6 +173,7 @@ im(cc.PixelIdxList{~islv}) = RV;
 if (all(blksz == size(im)))
     im = bwregiongrow(im, uint8(TODO));
 else
+    clear aux im2 surf
     fun = @(x) bwregiongrow(x, uint8(TODO));
     im = blockproc3(im, blksz, fun, border, numworkers);
 end
