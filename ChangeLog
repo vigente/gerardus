@@ -1,3 +1,12 @@
+2012-10-17  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CardiacToolbox/tissue2lvrv.m: (v0.1.1)
+
+	- Instead of using only one voxel to find the bottom background
+	component, and one voxel for the top background component, we now
+	consider as background any connected component that touches any of
+	the sides of the image.
+
 2012-10-11  Ramon Casero  <rcasero@gmail.com>
 
 	* release 0.8.0
