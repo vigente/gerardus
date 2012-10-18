@@ -46,7 +46,7 @@ function [im, LV, RV, BKG, TODO] = tissue2lvrv(im, surf, RAD, blksz, border, num
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
@@ -140,7 +140,7 @@ im2(:, :, [1 size(im2, 3)]) = 1;
 idx = cellfun(@(x) any(im2(x)), cc.PixelIdxList);
 
 % tag background components
-aux = cc.PixelIdxList{idx};
+aux = cat(1, cc.PixelIdxList{idx});
 im(aux) = BKG;
 
 % remove background components from the list

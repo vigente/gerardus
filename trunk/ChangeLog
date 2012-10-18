@@ -1,3 +1,10 @@
+2012-10-19  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CardiacToolbox/tissue2lvrv.m: (v0.1.2)
+
+	- Fix bug. All background components except the largest one were
+	being ignored.
+
 2012-10-17  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/CardiacToolbox/tissue2lvrv.m: (v0.1.1)
