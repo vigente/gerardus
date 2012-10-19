@@ -21,7 +21,7 @@ function seg = mm_opening(seg, RAD, N)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -75,7 +75,7 @@ if (N < Inf)
     n = cellfun(@(x) length(x), cc.PixelIdxList);
     [~, idx] = sort(n, 'descend');
     seg(:) = 0;
-    seg(cc.PixelIdxList{idx(1:N)}) = 1;
+    seg(cat(1, cc.PixelIdxList{idx(1:N)})) = 1;
 end
 
 % erode the segmentation
