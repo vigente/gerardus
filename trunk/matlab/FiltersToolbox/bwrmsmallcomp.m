@@ -17,7 +17,7 @@ function bw = bwrmsmallcomp(bw, nobj)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -65,6 +65,6 @@ len = cellfun(@length, cc.PixelIdxList);
 [~, idx] = sort(len, 2, 'descend');
 bw = zeros(size(bw), 'uint8');
 if ~isempty(idx)
-    idx = cc.PixelIdxList{idx(1:nobj)};
+    idx = cat(1, cc.PixelIdxList{idx(1:nobj)});
     bw(idx) = 1;
 end
