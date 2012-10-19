@@ -1,5 +1,9 @@
 2012-10-19  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/gmthr_seg.m: (v0.5.2)
+
+	- Fix bug. All components except the first one were being ignored.
+
 	* matlab/FiltersToolbox/bwrmsmallcomp.m: (v0.1.1)
 
 	- Fix bug. All components except the first one were being ignored.
