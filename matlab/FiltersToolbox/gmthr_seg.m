@@ -48,7 +48,7 @@ function [thr, q, obj, im] = gmthr_seg(im, nobj, nsubs)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.5.1
+% Version: 0.5.2
 % $Rev$
 % $Date$
 % 
@@ -177,6 +177,6 @@ len = cellfun(@length, cc.PixelIdxList);
 [~, idx] = sort(len, 2, 'descend');
 im = zeros(size(im), 'uint8');
 if ~isempty(idx)
-    idx = cc.PixelIdxList{idx(1:nobj)};
+    idx = cat(1, cc.PixelIdxList{idx(1:nobj)});
     im(idx) = 1;
 end
