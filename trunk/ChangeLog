@@ -1,3 +1,14 @@
+2012-11-13  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (v0.3.3)
+
+	- Big speed up. We don't need to check the voxels that were
+	already in the segmentation, because those will be in the local
+	convex hull too. We now generate a list of background points that
+	we check. This is much faster than using the cgal_insurftri
+	"block"-mode, so maybe there's something we are doing wrong in
+	terms of memory allocation or iteration in the mex function.
+
 2012-10-19  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/mm_opening.m: (v0.1.1)
