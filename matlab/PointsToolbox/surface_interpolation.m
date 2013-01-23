@@ -1,4 +1,4 @@
-function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM, nlev)
+function [xi, em, gx, gy] = surface_interpolation(x, param, INTERP, res, KLIM, nlev)
 % SURFACE_INTERPOLATION  Interpolate a surface from a scattered set of points
 %
 % [XI, EM, GX, GY] = surface_interpolation(X)
@@ -17,18 +17,26 @@ function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM, n
 %
 % ... = surface_interpolation(X, PARAM, INTERP, RES, KLIM, NLEV)
 %
-%   PARAM is a string with the method used to parametrize the surface and
-%   X:
+%   PARAM is a struct with the method used to parametrise the surface and
+%   the set of points X. PARAM needs to have at least a field PARAM.type
+%   that describes the parameterisation method:
 %
 %     'xy' (default): No change, the X coordinates are kept the same.
+%
+%        No extra parameters.
 %
 %     'pca': X points are rotated according to their eigenvectors to make
 %     the dominant plane of the points X as horizontal as possible before
 %     interpolating.
 %
+%        No extra parameters.
+%
 %     'isomap': Use the Isomap method by [1] to "unfold" the curved surface
 %     defined by X before interpolating. (This option requires function
 %     IsomapII).
+%
+%        PARAM.size: Neighbourhood size (maximum number of closest
+%                    neighours allowed for each point)
 %
 %   INTERP is a string with the interpolation method:
 %
@@ -79,7 +87,7 @@ function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM, n
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.2.1
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
@@ -111,8 +119,8 @@ narginchk(2, 6);
 nargoutchk(0, 4);
 
 % defaults
-if (nargin < 2 || isempty(PARAM))
-    PARAM = 'xy';
+if (nargin < 2 || isempty(param))
+    param.type = 'xy';
 end
 if (nargin < 3 || isempty(INTERP))
     INTERP = 'tps';
@@ -136,7 +144,7 @@ end
 % this is analogous to computing the knot vector for a curve interpolation.
 % The idea is that (x,y)->z is not necessarily a function, due to the valve
 % folding over. However, we hope that (u,v)->(x,y,z) is a function
-switch PARAM
+switch param.type
     
     case 'xy'
         
@@ -163,7 +171,7 @@ switch PARAM
         options.display = 0;
         options.overlay = 0;
         options.verbose = 0;
-        em = IsomapII(d, 'k', round(size(x, 2)/3), options);
+        em = IsomapII(d, 'k', param.size, options);
         em = em.coords{1};
     
     otherwise
