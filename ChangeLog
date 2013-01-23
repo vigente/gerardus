@@ -1,3 +1,9 @@
+2013-01-23  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/surface_interpolation.m: (v0.2.1)
+
+	- Update syntax of argument checking code.
+
 2012-11-13  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (v0.3.3)
