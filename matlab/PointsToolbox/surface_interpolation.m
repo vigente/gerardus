@@ -79,7 +79,7 @@ function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM, n
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -107,8 +107,8 @@ function [xi, em, gx, gy] = surface_interpolation(x, PARAM, INTERP, res, KLIM, n
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 6, nargin, 'struct'));
-error(nargoutchk(0, 4, nargout, 'struct'));
+narginchk(2, 6);
+nargoutchk(0, 4);
 
 % defaults
 if (nargin < 2 || isempty(PARAM))
