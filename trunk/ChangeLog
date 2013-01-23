@@ -1,5 +1,11 @@
 2013-01-23  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/PointsToolbox/scinrrd_surface_interpolation.m: (v0.5.0)
+	* matlab/PointsToolbox/surface_interpolation.m: (v0.3.0)
+
+	- Input arguments PARAM is now a struct instead of a string, so
+	that we can pass parameters with it.
+
 	* matlab/PointsToolbox/surface_interpolation.m: (v0.2.1)
 
 	- Update syntax of argument checking code.

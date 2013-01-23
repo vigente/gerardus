@@ -1,4 +1,4 @@
-function nrrd = scinrrd_surface_interpolation(nrrd, x, PARAM, INTERP, KLIM, nlev)
+function nrrd = scinrrd_surface_interpolation(nrrd, x, param, INTERP, KLIM, nlev)
 % SCINRRD_SURFACE_INTERPOLATION  Interpolate a surface and create a
 % segmentation mask from a scattered set of points
 %
@@ -14,8 +14,8 @@ function nrrd = scinrrd_surface_interpolation(nrrd, x, PARAM, INTERP, KLIM, nlev
 %
 % NRRD = scinrrd_surface_interpolation(NRRD0, X, PARAM, INTERP, KLIM, NLEV)
 %
-%   PARAM is a string with the method used to parametrize the surface and
-%   X. For options, see help surface_interpolation.m.
+%   PARAM is a struct with the method used to parametrise the surface and
+%   the set of points X. For details, see help surface_interpolation.m.
 %
 %   INTERP is a string with the interpolation method. For options, see help
 %   surface_interpolation.m.
@@ -48,7 +48,7 @@ function nrrd = scinrrd_surface_interpolation(nrrd, x, PARAM, INTERP, KLIM, nlev
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.4.0
+% Version: 0.5.0
 % $Rev$
 % $Date$
 % 
@@ -76,32 +76,32 @@ function nrrd = scinrrd_surface_interpolation(nrrd, x, PARAM, INTERP, KLIM, nlev
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 6, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
+narginchk(2, 6);
+nargoutchk(0, 1);
 
 % defaults
-if (nargin < 3 || isempty(PARAM))
-    PARAM = 'xy';
+if (nargin < 3)
+    param = [];
 end
-if (nargin < 4 || isempty(INTERP))
-    INTERP = 'tps';
+if (nargin < 4)
+    INTERP = [];
 end
-if (nargin < 5 || isempty(KLIM))
-    KLIM = 1;
+if (nargin < 5)
+    KLIM = [];
 end
 if (nargin > 5 && ~isempty(nlev) ...
         && ~(strcmp(INTERP, 'mba') || strcmp(INTERP, 'mbae')))
-    warning('NLEV input argument ignored for this INTERP option')
+    warning('NLEV input argument will be ignored for this INTERP option')
 end
-if (nargin < 6 || isempty(nlev))
-    nlev = 7;
+if (nargin < 6)
+    nlev = [];
 end
 
 % get voxel size
 res = [nrrd.axis.spacing];
 
 %% compute interpolating surface
-y = surface_interpolation(x, PARAM, INTERP, res, KLIM, nlev);
+y = surface_interpolation(x, param, INTERP, res, KLIM, nlev);
 
 %% map interpolated surface points to voxels
 
