@@ -92,7 +92,7 @@
  *
  *   A is a segmentation.
  *
- *   B has the same size as A and type double.
+ *   B has the same size as A and type float.
  *
  * -------------------------------------------------------------------------
  *
@@ -264,7 +264,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011-2012 University of Oxford
-  * Version: 1.1.0
+  * Version: 1.1.1
   * $Rev$
   * $Date$
   *
@@ -688,7 +688,7 @@ public:
     matlabExport->CheckNumberOfArguments(0, 1);
     
     // instantiate the filter
-    typedef int TPixelOut;
+    typedef float TPixelOut;
     typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
     typedef typename itk::Image<TPixelOut, VImageDimension> OutImageType;
     typedef itk::SignedMaurerDistanceMapImageFilter<InImageType, OutImageType>
