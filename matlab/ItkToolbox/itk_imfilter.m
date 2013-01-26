@@ -91,7 +91,7 @@ function im = itk_imfilter(varargin)
 %
 %   A is a segmentation.
 %
-%   B has the same size as A and type double.
+%   B has the same size as A and type float.
 %
 % -------------------------------------------------------------------------
 %
@@ -260,7 +260,7 @@ function im = itk_imfilter(varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.6.0
+% Version: 0.6.1
 % $Rev$
 % $Date$
 %

@@ -1,3 +1,12 @@
+2013-01-26  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/ItkImFilter.cpp: (v1.1.1)
+	* matlab/ItkToolbox/itk_imfilter.m: (v0.6.1)
+
+	- Fix bug. Output of itk::SignedMaurerDistanceMapImageFilter
+	should be float, even if the input image is binary or int, because
+	the distances are Euclidean in real world coordinates.
+
 2013-01-23  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/scinrrd_surface_interpolation.m: (v0.5.0)
