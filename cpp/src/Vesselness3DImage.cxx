@@ -34,8 +34,8 @@
  
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
-  * Copyright © 2011 University of Oxford
-  * Version 0.1
+  * Copyright © 2011-2013 University of Oxford
+  * Version 0.1.1
   * $Rev$
   * $Date$
   *
@@ -87,7 +87,7 @@ namespace fs = boost::filesystem;
 #include "itkHessianRecursiveGaussianImageFilter.h"
 #include "itkSymmetricSecondRankTensor.h"
 #include "itkRescaleIntensityImageFilter.h"
-#include "itkMultiplyByConstantImageFilter.h"
+#include "itkMultiplyImageFilter.h"
 
 // entry point for the program
 int main(int argc, char** argv) {
@@ -206,7 +206,7 @@ int main(int argc, char** argv) {
     HessianFilterType;
   typedef itk::Hessian3DToVesselnessMeasureImageFilter<PixelType> 
     VesselnessMeasureFilterType;
-  typedef itk::MultiplyByConstantImageFilter<ImageType, TScalarType, ImageType> 
+  typedef itk::MultiplyImageFilter<ImageType, ImageType, ImageType> 
     MultiplyFilterType;
   
   MultiplyFilterType::Pointer
