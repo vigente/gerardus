@@ -1,3 +1,9 @@
+2013-01-28  Ramon Casero  <rcasero@gmail.com>
+
+	* release-0.8.1
+
+	- Last version that was compiled with ITK v4.2.
+
 2013-01-26  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/ItkImFilter.cpp: (v1.1.1)
