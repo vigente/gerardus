@@ -16,8 +16,9 @@
 =========================================================================*/
 /*=========================================================================
    Edits by Ramon Casero <rcasero@gmail.com> for project Gerardus
-   Version: 0.2.0
+   Version: 0.2.1
     * Add linear scales besides logarithmic scales
+    * Minor edits for compatibility with ITK 4.3
 =========================================================================*/
 #ifndef __itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter_h
 #define __itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter_h
@@ -89,7 +90,7 @@ public:
 
   /** Image dimension = 3. */
   itkStaticConstMacro(ImageDimension, unsigned int,
-                   ::itk::GetImageDimension<InputImageType>::ImageDimension);
+                   InputImageType::ImageDimension);
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);

@@ -14,6 +14,11 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
+/*=========================================================================
+   Edits by Ramon Casero <rcasero@gmail.com> for project Gerardus
+   Version: 0.1.0
+    * Minor edits for compatibility with ITK 4.3
+=========================================================================*/
 #ifndef __itkHessianSmoothed3DToVesselnessMeasureImageFilter_h
 #define __itkHessianSmoothed3DToVesselnessMeasureImageFilter_h
 
@@ -71,7 +76,7 @@ public:
   
   /** Image dimension = 3. */
   itkStaticConstMacro(ImageDimension, unsigned int,
-                    ::itk::GetImageDimension<InputImageType>::ImageDimension);
+                    InputImageType::ImageDimension);
 
   itkStaticConstMacro(InputPixelDimension, unsigned int,
                     InputPixelType::Dimension);

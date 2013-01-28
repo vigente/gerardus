@@ -14,6 +14,11 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
+/*=========================================================================
+   Edits by Ramon Casero <rcasero@gmail.com> for project Gerardus
+   Version: 0.1.0
+    * Minor edits for compatibility with ITK 4.3
+=========================================================================*/
 #ifndef __itkAnisotropicDiffusionVesselEnhancementFunction_h
 #define __itkAnisotropicDiffusionVesselEnhancementFunction_h
 
@@ -179,8 +184,8 @@ private:
 # include "Templates/itkAnisotropicDiffusionVesselEnhancementFunction+-.h"
 #endif
 
-#if ITK_TEMPLATE_TXX
+//#if ITK_MANUAL_INSTANTIATION
 # include "itkAnisotropicDiffusionVesselEnhancementFunction.txx"
-#endif
+//#endif
 
 #endif
