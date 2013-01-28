@@ -16,10 +16,11 @@
 =========================================================================*/
 /*=========================================================================
    Edits by Ramon Casero <rcasero@gmail.com> for project Gerardus
-         * add linear scales besides logarithmic scales
-   	 * adapt code to compile with ITK v4.x
-   	 * remove progress messages
-   Version: 0.3.0
+   Version: 0.3.1
+   * Minor edits for compatibility with ITK 4.3
+   * add linear scales besides logarithmic scales
+   * adapt code to compile with ITK v4.x
+   * remove progress messages
 =========================================================================*/
 #ifndef __itkAnisotropicDiffusionVesselEnhancementImageFilter_h
 #define __itkAnisotropicDiffusionVesselEnhancementImageFilter_h
@@ -291,8 +292,8 @@ private:
 
 }// end namespace itk
 
-#if ITK_TEMPLATE_TXX
+//#if ITK_MANUAL_INSTANTIATION
 # include "itkAnisotropicDiffusionVesselEnhancementImageFilter.txx"
-#endif
+//#endif
 
 #endif

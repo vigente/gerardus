@@ -1,5 +1,14 @@
 2013-01-28  Ramon Casero  <rcasero@gmail.com>
 
+	* cpp/src/Vesselness3DImage.cxx: (v0.1.1)
+	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter.h: (v0.2.1)
+	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkHessianSmoothed3DToVesselnessMeasureImageFilter.h: (v0.1.0)
+	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementFunction.h: (v0.1.0)
+	* cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/itkAnisotropicDiffusionVesselEnhancementImageFilter.h: (v0.3.1)
+
+	- Edits to make compatible with ITK 4.3, as some classes that had
+	been deprecated have now been removed from ITK.
+
 	* release-0.8.1
 
 	- Last version that was compiled with ITK v4.2.
