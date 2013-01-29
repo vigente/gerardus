@@ -1,3 +1,11 @@
+2013-01-29  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/ItkImFilter.cpp: (v1.2.0)
+	* matlab/ItkToolbox/itk_imfilter.m: (v0.6.2)
+
+	- Add filters ApproximateSignedDistanceMapImageFilter and
+	SignedDanielssonDistanceMapImageFilter.
+
 2013-01-28  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/Vesselness3DImage.cxx: (v0.1.1)
