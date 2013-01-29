@@ -63,14 +63,16 @@
  * -------------------------------------------------------------------------
  *
  * [B, V, W] = itk_imfilter('dandist', A).
+ * [B, V, W] = itk_imfilter('signdandist', A).
  *
  *   (itk::DanielssonDistanceMapImageFilter)
- *   Compute unsigned distance map for a binary mask. Distance values are
+ *   (itk::SignedDanielssonDistanceMapImageFilter)
+ *   Compute unsigned/signed distance map for a binary mask. Distance values are
  *   given in voxel coordinates.
  *
  *   A is a segmentation.
  *
- *   B has the same size as A and type double. Each element in B
+ *   B has the same size as A and type float. Each element in B
  *   contains an approximation to the Euclidean distance of that voxel
  *   to the closest foreground voxel, in index units.
  *
@@ -89,6 +91,24 @@
  *   Compute signed distance map for a binary mask. Distance values are
  *   given in real world coordinates, if the input image is given as a SCI
  *   MAT struct, or in voxel units, if the input image is a normal array. 
+ *
+ *   A is a segmentation.
+ *
+ *   B has the same size as A and type float.
+ *
+ * -------------------------------------------------------------------------
+ *
+ * B = ITK_IMFILTER('appsigndist', A)
+ *
+ *   (itk::ApproximateSignedDistanceMapImageFilter) 
+ *   Compute signed distance map for a binary mask. Distance values
+ *   are given in real world coordinates, if the input image is given
+ *   as a SCIMAT struct, or in voxel units, if the input image is a
+ *   plain array. The distances computed by this filter are Chamfer
+ *   distances, which are only an approximation to Euclidian
+ *   distances, and are not as exact approximations as those
+ *   calculated by the DanielssonDistanceMapImageFilter. On the other
+ *   hand, this filter is faster.
  *
  *   A is a segmentation.
  *
@@ -264,7 +284,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011-2012 University of Oxford
-  * Version: 1.1.1
+  * Version: 1.2.0
   * $Rev$
   * $Date$
   *
@@ -317,10 +337,12 @@
 #include "itkMinimumDecisionRule.h"
 
 /* ITK filter headers */
+#include "itkApproximateSignedDistanceMapImageFilter.h"
 #include "itkMedianImageFilter.h"
 #include "itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter.h"
 #include "itkAnisotropicDiffusionVesselEnhancementImageFilter.h"
 #include "itkBinaryThinningImageFilter3D.h"
+#include "itkSignedDanielssonDistanceMapImageFilter.h"
 #include "itkDanielssonDistanceMapImageFilter.h"
 #include "itkSignedMaurerDistanceMapImageFilter.h"
 #include "itkBinaryBallStructuringElement.h"
@@ -337,10 +359,12 @@
 // list of supported filters. It has to be an enum so that we can pass
 // it as a template constant parameter
 enum SupportedFilter {
+  nApproximateSignedDistanceMapImageFilter,
   nMedianImageFilter,
   nMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter,
   nAnisotropicDiffusionVesselEnhancementImageFilter,
   nBinaryThinningImageFilter3D,
+  nSignedDanielssonDistanceMapImageFilter,
   nDanielssonDistanceMapImageFilter,
   nSignedMaurerDistanceMapImageFilter,
   nBinaryDilateImageFilter,
@@ -367,6 +391,50 @@ public:
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
     mexErrMsgTxt("Unsupported filter type");
+  }
+};
+
+// ApproximateSignedDistanceMapImageFilter
+template <class TPixelIn, unsigned int VImageDimension>
+class FilterWrapper<TPixelIn, VImageDimension,
+		    nApproximateSignedDistanceMapImageFilter> {
+public:
+  
+  FilterWrapper(MatlabImportFilter::Pointer matlabImport,
+		MatlabExportFilter::Pointer matlabExport,
+		MatlabImageHeader &im) {
+    
+    // check number of input and output arguments
+    matlabImport->CheckNumberOfArguments(2, 2);
+    matlabExport->CheckNumberOfArguments(0, 1);
+    
+    // instantiate the filter
+    typedef float TPixelOut;
+    typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
+    typedef typename itk::Image<TPixelOut, VImageDimension> OutImageType;
+    typedef itk::ApproximateSignedDistanceMapImageFilter<InImageType, OutImageType>
+      FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+
+    // expect segmented object of 1s over background of 0s
+    filter->SetInsideValue(1);
+    filter->SetOutsideValue(0);
+    
+    // connect Matlab inputs to ITK filter
+    filter->SetInput(matlabImport->
+		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+
+    // connect ITK filter outputs to Matlab outputs
+
+    // distance map
+    if (matlabExport->GetNumberOfArguments() >= 1) {
+      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+	(filter->GetOutputs()[0], im.size, 0, "0");
+    }
+
+    // run filter
+    filter->Update();
+
   }
 };
 
@@ -618,6 +686,59 @@ public:
   FilterWrapper(MatlabImportFilter::Pointer, MatlabExportFilter::Pointer,
 		MatlabImageHeader &) {
     mexErrMsgTxt("BinaryThinningImageFilter3D only accepts 3D input images");
+  }
+};
+
+// SignedDanielssonDistanceMapImageFilter
+template <class TPixelIn, unsigned int VImageDimension>
+class FilterWrapper<TPixelIn, VImageDimension,
+		    nSignedDanielssonDistanceMapImageFilter> {
+public:
+  
+  FilterWrapper(MatlabImportFilter::Pointer matlabImport,
+		MatlabExportFilter::Pointer matlabExport,
+		MatlabImageHeader &im) {
+    
+    // check number of input and output arguments
+    matlabImport->CheckNumberOfArguments(2, 2);
+    matlabExport->CheckNumberOfArguments(0, 3);
+    
+    // instantiate the filter
+    typedef float TPixelOut;
+    typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
+    typedef typename itk::Image<TPixelOut, VImageDimension> OutImageType;
+    typedef itk::SignedDanielssonDistanceMapImageFilter<InImageType, OutImageType>
+      FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+    
+    // connect Matlab inputs to ITK filter
+    filter->SetInput(matlabImport->
+		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+
+    // connect ITK filter outputs to Matlab outputs
+
+    // distance map
+    if (matlabExport->GetNumberOfArguments() >= 1) {
+      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+	// (filter->GetOutputs()[0], im.size, 0, "0");
+	(filter->GetOutputs()[0], im.size, 0, "0");
+    }
+    // Voronoi map
+    if (matlabExport->GetNumberOfArguments() >= 2) {
+      matlabExport->GraftItkImageOntoMatlab<TPixelIn, VImageDimension>
+	(filter->GetOutputs()[1], im.size, 1, "1");
+    }
+    // vectors pointing to closest foreground voxel
+    if (matlabExport->GetNumberOfArguments() >= 3) {
+      matlabExport->GraftItkImageOntoMatlab<typename InImageType::OffsetType::OffsetValueType,
+					    VImageDimension,
+					    typename InImageType::OffsetType::OffsetType>
+	(filter->GetOutputs()[2], im.size, 2, "2");
+    }
+
+    // run filter
+    filter->Update();
+
   }
 };
 
@@ -1082,7 +1203,14 @@ void parseOutputImageTypeToTemplate(MatlabImportFilter::Pointer matlabImport,
   std::string filterName = matlabImport->GetStringArgument(0, "0", "");
 
   // select the output type corresponding to each filter
-  if (filterName == "median" 
+  if (filterName == "appsigndist" 
+  	     || filterName == "ApproximateSignedDistanceMapImageFilter") {
+
+    FilterWrapper<TPixelIn, VImageDimension, 
+		  nApproximateSignedDistanceMapImageFilter> 
+      filterWrapper(matlabImport, matlabExport, im);
+
+  } else if (filterName == "median" 
   	     || filterName == "MedianImageFilter") {
 
     FilterWrapper<TPixelIn, VImageDimension, 
@@ -1115,6 +1243,13 @@ void parseOutputImageTypeToTemplate(MatlabImportFilter::Pointer matlabImport,
 
     FilterWrapper<TPixelIn, VImageDimension, 
   		  nBinaryThinningImageFilter3D>
+      filterWrapper(matlabImport, matlabExport, im);
+
+  } else if (filterName == "signdandist" 
+  	     || filterName == "SignedDanielssonDistanceMapImageFilter") {
+
+    FilterWrapper<TPixelIn, VImageDimension, 
+  		  nSignedDanielssonDistanceMapImageFilter>
       filterWrapper(matlabImport, matlabExport, im);
 
   } else if (filterName == "dandist" 

@@ -62,14 +62,16 @@ function im = itk_imfilter(varargin)
 % -------------------------------------------------------------------------
 %
 % [B, V, W] = itk_imfilter('dandist', A).
+% [B, V, W] = itk_imfilter('signdandist', A).
 %
 %   (itk::DanielssonDistanceMapImageFilter)
-%   Compute unsigned distance map for a binary mask. Distance values are
+%   (itk::SignedDanielssonDistanceMapImageFilter)
+%   Compute unsigned/signed distance map for a binary mask. Distance values are
 %   given in voxel coordinates.
 %
 %   A is a segmentation.
 %
-%   B has the same size as A and type double. Each element in B
+%   B has the same size as A and type float. Each element in B
 %   contains an approximation to the Euclidean distance of that voxel
 %   to the closest foreground voxel, in index units.
 %
@@ -88,6 +90,24 @@ function im = itk_imfilter(varargin)
 %   Compute signed distance map for a binary mask. Distance values are
 %   given in real world coordinates, if the input image is given as a SCI
 %   MAT struct, or in voxel units, if the input image is a normal array. 
+%
+%   A is a segmentation.
+%
+%   B has the same size as A and type float.
+%
+% -------------------------------------------------------------------------
+%
+% B = ITK_IMFILTER('appsigndist', A)
+%
+%   (itk::ApproximateSignedDistanceMapImageFilter) 
+%   Compute signed distance map for a binary mask. Distance values
+%   are given in real world coordinates, if the input image is given
+%   as a SCIMAT struct, or in voxel units, if the input image is a
+%   plain array. The distances computed by this filter are Chamfer
+%   distances, which are only an approximation to Euclidian
+%   distances, and are not as exact approximations as those
+%   calculated by the DanielssonDistanceMapImageFilter. On the other
+%   hand, this filter is faster.
 %
 %   A is a segmentation.
 %
@@ -260,7 +280,7 @@ function im = itk_imfilter(varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.6.1
+% Version: 0.6.2
 % $Rev$
 % $Date$
 %
