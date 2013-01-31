@@ -1,5 +1,15 @@
 2013-01-31  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/PointsToolbox/surface_interpolation.m: (v0.4.0)
+	* matlab/PointsToolbox/scinrrd_surface_interpolation.m: (v0.6.0)
+
+	- Provide point coordinates X2 at the output. While the user
+	provides them at the input, with method mbae, this set is extended
+	with more points extrapolated from the domain boundary.
+
+	- In scinrrd_surface_interpolation(), provide also the
+	parameterisation EM of the points.
+
 	* matlab/PointsToolbox/bwmesh.m: (v0.1.5)
 
 	- Upgrade deprecated syntax for narginchk, nargoutchk.
