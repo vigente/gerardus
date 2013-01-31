@@ -1,3 +1,12 @@
+2013-01-31  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ThirdPartyToolbox/IsomapII.m: (v0.1.1)
+
+	- In mode 3, instead of passing the distance function as a string
+	that will be run with feval, we now pass a function handle, that
+	will be faster and is more elegant. It also allows to pass local
+	functions that are not in the global path.
+
 2013-01-29  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/ItkImFilter.cpp: (v1.2.0)

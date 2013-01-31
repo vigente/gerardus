@@ -1,4 +1,4 @@
-function [Y, R, E] = IsomapII(D, n_fcn, n_size, options); 
+function [Y, R, E] = IsomapII(D, n_fcn, n_size, options)
 % ISOMAPII   Computes Isomap embedding using an advanced version of
 %             the algorithm in Tenenbaum, de Silva, and Langford (2000), 
 %             which can take advantage of sparsity in the graph and 
@@ -77,8 +77,11 @@ function [Y, R, E] = IsomapII(D, n_fcn, n_size, options);
 %
 %    END COPYRIGHT NOTICE
 %
-% Modified by Ramon Casero <rcasero@gmail.com>, University of Oxford,  15
-% Mar 2011 to fix some syntax problems.
+% Modified by Ramon Casero <rcasero@gmail.com>, University of Oxford.
+%
+% Version: 0.1.1
+% $Rev$
+% $Date$
 %
 % This file is distributed as a derivative work of a third-party function
 % with project Gerardus.
@@ -98,10 +101,10 @@ elseif nargin < 4
      options = struct('dims',1:10,'overlay',1,'comp',1,'display',1,'dijkstra',1,'verbose',1); 
 end
 
-if ischar(D)
+if isa(D, 'function_handle')
      mode = 3; 
      d_func = D; 
-     N = length(feval(d_func,1)); 
+     N = length(d_func(1)); 
 elseif issparse(D) 
      mode = 2; 
      N = size(D,1); 
@@ -131,7 +134,7 @@ elseif strcmp(n_fcn, 'epsilon')
      elseif (mode==3)    %% estimate maximum equivalent K %% 
          tmp = zeros(10,N); 
          for i=1:10
-             tmp(i,:) = feval(d_func,ceil(N*rand)); 
+             tmp(i,:) = d_func(ceil(N*rand)); 
          end
          K = 2*max(sum(tmp'<epsilon));    % just to be safe
      end
@@ -240,7 +243,7 @@ elseif (mode == 3)
      counter = 0; 
      tic; 
      for i=1:N
-         d = feval(d_func,i); 
+         d = d_func(i); 
          if n_fcn == 'k'
              [c,b] = sort(d); 
              Di(counter+(1:(K+1))) = i; 
@@ -295,14 +298,14 @@ disp('Constructing low-dimensional embeddings (Classical MDS)...');
 disp('  Checking for outliers...'); 
 
 if ((mode == 1) && (use_dijk == 0))
-     [tmp, firsts] = min(D==INF);     %% first point each point connects to
+     [tmp, firsts] = min(D==INF);     % first point each point connects to
 else
-     [tmp, firsts] = min(D==inf);     %% first point each point connects to
+     [tmp, firsts] = min(D==inf);     % first point each point connects to
 end
-[comps, I, J] = unique(firsts);    %% first point in each connected component
-n_comps = length(comps);           %% number of connected components
+[comps, I, J] = unique(firsts);    % first point in each connected component
+n_comps = length(comps);           % number of connected components
 size_comps = sum((repmat(firsts,n_comps,1)==((1:n_comps)'*ones(1,N)))'); 
-                                   %% size of each connected component
+                                   % size of each connected component
 [tmp, comp_order] = sort(size_comps);  %% sort connected components by size
 comps = comps(comp_order(end:-1:1));    
 size_comps = size_comps(comp_order(end:-1:1)); 
@@ -310,17 +313,17 @@ if (comp>n_comps)
      comp=1;                              %% default: use largest component
 end
 Y.index = find(firsts==comps(comp)); %% list of points in relevant component
-Y.index = setdiff(Y.index,find(isinf(min(D)))); %% prune points that don't connect
-                                                %% to any landmarks
+Y.index = setdiff(Y.index,find(isinf(min(D)))); % prune points that don't connect
+                                                % to any landmarks
 N = length(Y.index); 
 [tmp, landmarks, land_ind] = intersect(landmarks,Y.index); 
-                                       %% list of landmarks in component
+                                       % list of landmarks in component
 nl = length(landmarks); 
 D = full(D(landmarks,Y.index))'; 
 disp(['    Number of connected components in graph: ' num2str(n_comps)]); 
 disp(['    Embedding component ' num2str(comp) ' with ' num2str(length(Y.index)) ' points.']); 
 
-dims = unique(min(dims,nl-1));    %% don't embed in more dimensions than landmarks-1
+dims = unique(min(dims,nl-1));    % don't embed in more dimensions than landmarks-1
 if (nl==N)
      opt.disp = 0; 
      [vec, val] = eigs(-.5*(D.^2 - sum(D.^2)'*ones(1,N)/N - ones(N,1)*sum(D.^2)/N + sum(sum(D.^2))/(N^2)), max(dims), 'LR', opt); 
