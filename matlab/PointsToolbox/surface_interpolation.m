@@ -1,7 +1,7 @@
-function [xi, em, gx, gy] = surface_interpolation(x, param, INTERP, res, KLIM, nlev)
+function [xi, em, x, gx, gy] = surface_interpolation(x, param, INTERP, res, KLIM, nlev)
 % SURFACE_INTERPOLATION  Interpolate a surface from a scattered set of points
 %
-% [XI, EM, GX, GY] = surface_interpolation(X)
+% [XI, EM, X2, GX, GY] = surface_interpolation(X)
 %
 %   X is a 3-row matrix. Each column has the coordinates of a point that
 %   belongs to the surface we want to interpolate.
@@ -12,6 +12,9 @@ function [xi, em, gx, gy] = surface_interpolation(x, param, INTERP, res, KLIM, n
 %   onto the interpolation domain. Note that the interpolation domain may
 %   change between methods, so don't expect results to be aligned if you do
 %   e.g. plot3(gx(:), gy(:), y(:, 3), 'o').
+%
+%   X2 is the input 3-row matrix X with possibly some points added from the
+%   extrapolated domain boundary (see method 'mbae').
 %
 %   GX, GY are the grid for the box that contains EM.
 %
@@ -87,7 +90,7 @@ function [xi, em, gx, gy] = surface_interpolation(x, param, INTERP, res, KLIM, n
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.3.0
+% Version: 0.4.0
 % $Rev$
 % $Date$
 % 
@@ -116,7 +119,7 @@ function [xi, em, gx, gy] = surface_interpolation(x, param, INTERP, res, KLIM, n
 
 % check arguments
 narginchk(2, 6);
-nargoutchk(0, 4);
+nargoutchk(0, 5);
 
 % defaults
 if (nargin < 2 || isempty(param))
