@@ -1,5 +1,9 @@
 2013-01-31  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/PointsToolbox/bwmesh.m: (v0.1.5)
+
+	- Upgrade deprecated syntax for narginchk, nargoutchk.
+
 	* matlab/ThirdPartyToolbox/IsomapII.m: (v0.1.1)
 
 	- In mode 3, instead of passing the distance function as a string
