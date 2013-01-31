@@ -1,4 +1,4 @@
-function nrrd = scinrrd_surface_interpolation(nrrd, x, param, INTERP, KLIM, nlev)
+function [nrrd, em, x] = scinrrd_surface_interpolation(nrrd, x, param, INTERP, KLIM, nlev)
 % SCINRRD_SURFACE_INTERPOLATION  Interpolate a surface and create a
 % segmentation mask from a scattered set of points
 %
@@ -12,7 +12,13 @@ function nrrd = scinrrd_surface_interpolation(nrrd, x, param, INTERP, KLIM, nlev
 %   NRRD is a SCI NRRD struct with a segmentation of the surface that
 %   interpolates the points in X.
 %
-% NRRD = scinrrd_surface_interpolation(NRRD0, X, PARAM, INTERP, KLIM, NLEV)
+% [NRRD, EM, X2] = scinrrd_surface_interpolation(NRRD0, X, PARAM, INTERP, KLIM, NLEV)
+%
+%   EM is a 2-row matrix. Each column has the parameterisation coordinates
+%   of the corresponding surface point X.
+%
+%   X2 is the input 3-row matrix X with possibly some points added from the
+%   extrapolated domain boundary (see method 'mbae').
 %
 %   PARAM is a struct with the method used to parametrise the surface and
 %   the set of points X. For details, see help surface_interpolation.m.
@@ -48,7 +54,7 @@ function nrrd = scinrrd_surface_interpolation(nrrd, x, param, INTERP, KLIM, nlev
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.5.0
+% Version: 0.6.0
 % $Rev$
 % $Date$
 % 
@@ -77,7 +83,7 @@ function nrrd = scinrrd_surface_interpolation(nrrd, x, param, INTERP, KLIM, nlev
 
 % check arguments
 narginchk(2, 6);
-nargoutchk(0, 1);
+nargoutchk(0, 3);
 
 % defaults
 if (nargin < 3)
@@ -101,7 +107,7 @@ end
 res = [nrrd.axis.spacing];
 
 %% compute interpolating surface
-y = surface_interpolation(x, param, INTERP, res, KLIM, nlev);
+[y, em] = surface_interpolation(x, param, INTERP, res, KLIM, nlev);
 
 %% map interpolated surface points to voxels
 
