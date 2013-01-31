@@ -49,7 +49,7 @@ function [tri, triboundary] = bwmesh(im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.4
+% Version: 0.1.5
 % $Rev$
 % $Date$
 %
@@ -79,8 +79,8 @@ function [tri, triboundary] = bwmesh(im, res)
 
 
 % check arguments
-error(nargchk(1, 2, nargin, 'struct'));
-error(nargoutchk(0, 2, nargout, 'struct'));
+narginchk(1, 2);
+nargoutchk(0, 2);
 
 % defaults
 if (nargin < 2 || isempty(res))
