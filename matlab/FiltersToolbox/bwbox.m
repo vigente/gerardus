@@ -1,5 +1,5 @@
 function idx = bwbox(bw, m)
-% BWBOX  Find tight box around segmentation
+% BWBOX  Find tight box around segmentation (and possibly add a margin)
 %
 % IDX = bwbox(BW)
 %
@@ -37,6 +37,8 @@ function idx = bwbox(bw, m)
 % 
 %      2     6
 %      1     5
+%
+% See also: regionprops(..., 'BoundingBox')
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
