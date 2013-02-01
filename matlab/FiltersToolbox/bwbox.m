@@ -18,9 +18,9 @@ function idx = bwbox(bw, m)
 % 
 %      0     0     0     0     0
 %      0     0     0     0     0
-%      0     0     0     0     0
-%      0     0     0     0     0
-%      0     0     0     0     0
+%      0     1     1     1     1
+%      0     1     1     1     1
+%      0     1     1     1     1
 %      0     0     0     0     0
 %      0     0     0     0     0
 %
@@ -42,7 +42,7 @@ function idx = bwbox(bw, m)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -78,32 +78,29 @@ if (nargin < 2 || isempty(m))
     m = 0;
 end
 
-% initialise output
-idx = zeros(ndims(bw), 2);
+% compute boundary
+stats = regionprops(bw, 'BoundingBox');
 
-for I = 1:ndims(bw)
+% first index of bounding box
+idx = stats.BoundingBox(1:ndims(bw)) + 0.5;
 
-    % project all voxels onto the I-th dimension, so that we can find the
-    % boundaries for this dimension
-    aux = bw;
-    for J = 1:ndims(bw)-1
-        aux = shiftdim(aux, 1);
-        aux = sum(aux, 1);
-    end
+% size of bounding box
+sz = stats.BoundingBox(ndims(bw)+1:end);
 
-    % boundaries for this dimension
-    aux = find(aux);
-    if length(aux) == 1
-        idx(I, :) = aux(1);
-    else
-        idx(I, :) = aux([1 end]);
-    end
-    
-    % extend the boundaries with a margin
-    idx(I, 1) = max(1, idx(I, 1)-m);
-    idx(I, 2) = min(size(bw, 1), idx(I, 2)+m);
-    
-    % shift image to the next dimension
-    bw = shiftdim(bw, 1);
-    
+% note that regionprops() output swaps the 1st and 2nd dimensions to
+% present x, y, z results, instead of row, col, slice
+if (ndims(bw) == 2)
+    idx = idx([2 1]);
+    sz = sz([2 1]);
+elseif (ndims(bw) > 2)
+    idx = idx([2 1 ndims(bw):end]);
+    sz = sz([2 1 ndims(bw):end]);
 end
+
+% format output
+idx = [idx; idx+sz-1]';
+
+% extend the boundaries with a margin
+idx(:, 1) = max(1, idx(:, 1)-m);
+idx(:, 2) = min(size(bw)', idx(:, 2)+m);
+
