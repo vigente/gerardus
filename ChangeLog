@@ -1,6 +1,11 @@
 2013-02-01  Ramon Casero  <rcasero@gmail.com>
 
-	* Add matlab/FiltersToolbox/bwbox.m:
+	* matlab/FiltersToolbox/bwbox.m: (v0.2.0)
+
+	- Reimplement using regionprops(, 'BoundingBox'), which is much
+	faster.
+
+	* Add matlab/FiltersToolbox/bwbox.m: (v0.1.0)
 
 	- BWBOX Find tight box around segmentation (and possibly add a margin).
 
