@@ -1,3 +1,9 @@
+2013-02-01  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/FiltersToolbox/bwbox.m:
+
+	- BWBOX Find tight box around segmentation.
+
 2013-01-31  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/surface_interpolation.m: (v0.4.0)
