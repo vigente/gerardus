@@ -31,7 +31,7 @@ function idx = bwbox(bw, m)
 %      3     5
 %      2     5
 %
-% >> bwbox(bw)
+% >> bwbox(bw, 1)
 % 
 % ans =
 % 
