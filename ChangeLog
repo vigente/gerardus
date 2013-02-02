@@ -1,3 +1,10 @@
+2013-02-02  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/FiltersToolbox/bwsplitwithsurf.m: (v0.1.0)
+
+	- BWSPLITWITHSURF Split a volume into connected components
+	separated by a surface.
+
 2013-02-01  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/bwbox.m: (v0.2.0)
