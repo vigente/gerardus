@@ -103,4 +103,3 @@ idx = [idx; idx+sz-1]';
 % extend the boundaries with a margin
 idx(:, 1) = max(1, idx(:, 1)-m);
 idx(:, 2) = min(size(bw)', idx(:, 2)+m);
-
