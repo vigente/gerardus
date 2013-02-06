@@ -1,4 +1,4 @@
-function w = pts_tps_weights( s, t )
+function w = pts_tps_weights(s, t)
 % PTS_TPS_WEIGHTS  Compute weights and affine parameters of thin-plate
 % spline warp for N-dimensional points
 %
@@ -11,11 +11,11 @@ function w = pts_tps_weights( s, t )
 %    For example, in 2D the equation to interpolate a point (x,y) given a
 %    configuration of 2D points {Pi} is
 %
-%       f(x,y,z) = a1 + ax*x + ay*y + sum( wi*U(|Pi - (x,y)|) )
+%       f(x,y,z) = a1 + ax*x + ay*y + sum(wi*U(|Pi - (x,y)|))
 %                                           i
 %
-%    W = [ w1_x, ..., wN_x, a1_x, ax_x, ay_x ;
-%          w1_y, ..., wN_y, a1_y, ax_y, ay_y ]'
+%    W = [w1_x, ..., wN_x, a1_x, ax_x, ay_x ;
+%          w1_y, ..., wN_y, a1_y, ax_y, ay_y]'
 %
 %    U(r) = r^2 log10(r)
 %
@@ -47,7 +47,7 @@ function w = pts_tps_weights( s, t )
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2006-2011 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % $Rev$
 % $Date$
 % 
@@ -75,24 +75,24 @@ function w = pts_tps_weights( s, t )
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 2, 2, nargin ) );
-error( nargoutchk( 0, 1, nargout ) );
+narginchk(2, 2) ;
+nargoutchk(0, 1) ;
 
 % point dimensionality
-D = size( s, 2 );
+D = size(s, 2);
 
 % get sizes
-P = size( s, 1 ); % P: number of points
-if ( P ~= size( t, 1 ) )
-    error( 'S and T must have the same number of points' )
+P = size(s, 1); % P: number of points
+if (P ~= size(t, 1))
+    error('S and T must have the same number of points')
 end
-N = size( s, 3 ); % N: number of point configurations
-if ( N ~= size( t, 3 ) )
-    error( 'There must be the same number of point configurations in S and T' )
+N = size(s, 3); % N: number of point configurations
+if (N ~= size(t, 3))
+    error('There must be the same number of point configurations in S and T')
 end
 
 % init output
-w = zeros( P+D+1, size( t, 2 ), N );
+w = zeros(P+D+1, size(t, 2), N);
 
 % loop pairs of S and T point configurations
 for I = 1:N % loop configurations
@@ -134,8 +134,8 @@ for I = 1:N % loop configurations
     %
     % etc.
 
-    aux = repmat( reshape( s( :, :, I ), [ P, 1, D ] ), ...
-        [ 1, P, 1 ] );
+    aux = repmat(reshape(s(:, :, I), [P, 1, D]), ...
+        [1, P, 1]);
     
     % ... and then substract the transpose of each matrix, square and sum
     %
@@ -144,22 +144,22 @@ for I = 1:N % loop configurations
     %
     % the permute means: turn rows into columns, and viceversa, but leave
     % the 3rd component of aux (dimension) alone
-    K = sum( ( aux - permute( aux, [ 2, 1, 3 ] ) ) .^ 2, 3 );
+    K = sum((aux - permute(aux, [2, 1, 3])) .^ 2, 3);
 
     % compute thin-plate energy function
     % U(r) = r^2 log10(r)
     % note: it's faster to compute the log10 this way than directly
-    warning( 'off', 'MATLAB:log:logOfZero' );
-    K = 0.5 * K .* log( K ) * ( 1/log(10) );
-    K( isnan( K ) ) = 0;
-    warning( 'on', 'MATLAB:log:logOfZero' );
+    warning('off', 'MATLAB:log:logOfZero');
+    K = 0.5 * K .* log(K) * (1/log(10));
+    K(isnan(K)) = 0;
+    warning('on', 'MATLAB:log:logOfZero');
 
     % compute system matrix
-    L = [ K           ones( P, 1 ) s( :, :, I ) ; ...
-        ones( 1, P )  zeros( 1, D+1 ) ; ...
-        s( :, :, I )' zeros( D, D+1 ) ];
+    L = [K           ones(P, 1) s(:, :, I) ; ...
+        ones(1, P)  zeros(1, D+1) ; ...
+        s(:, :, I)' zeros(D, D+1)];
 
     % compute solution weights and affine parameters
-    w( :, :, I ) = L \ [ t( :, :, I ) ; zeros( D+1, size( t, 2 ) ) ];
+    w(:, :, I) = L \ [t(:, :, I) ; zeros(D+1, size(t, 2))];
 
 end
