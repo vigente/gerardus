@@ -1,9 +1,15 @@
 2013-02-06  Ramon Casero  <rcasero@gmail.com>
 
-	* ../matlab/PointsToolbox/pts_tps_weights.m: (v0.4.1)
+	* matlab/PointsToolbox/pts_tps_map.m: (v0.7.0)
+	* matlab/PointsToolbox/pts_tps_weights.m: (v0.5.0)
 
 	- Update deprecated syntax for nargchk, nargoutchk. Remove
 	whitespaces before and after brackets.
+
+	- Fix big bug. Julia Schnabel noticed that the TPS coefficients
+	did not agree with those computed by Bookstein. The problem was
+	that we were using U(r)=r^2 log10(r) instead of the correct
+	U(r)=r^2 ln(r^2).
 
 2013-02-02  Ramon Casero  <rcasero@gmail.com>
 

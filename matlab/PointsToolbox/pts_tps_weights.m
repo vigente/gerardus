@@ -49,7 +49,7 @@ function w = pts_tps_weights(s, t)
 % Copyright © 2006-2013 University of Oxford
 % Version: 0.5.0
 % $Rev$
-% $Date$
+% $Date: 2013-02-06 23:49:35 +0000 (Wed, 06 Feb 2013)$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
