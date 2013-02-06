@@ -1,4 +1,4 @@
-function [y, w] = pts_tps_map( s, t, x, w, FAST, PROGRESS )
+function [y, w] = pts_tps_map(s, t, x, w, FAST, PROGRESS)
 % PTS_TPS_MAP  Interpolate/warp/map N-dimensional points using a thin-plate
 % spline transformation
 %
@@ -18,17 +18,9 @@ function [y, w] = pts_tps_map( s, t, x, w, FAST, PROGRESS )
 %
 %    Y is a (P,Dt,N)-volume with the interpolated points.
 %
-%    X can also be a struct with 3 volumes: X.in (P1,Ds,N), X.endo (P2,Ds,N),
-%    X.epi (P3,Ds,N). In this case, 3 warps are computed: With all points
-%    for X.in; with the first half of S and T points for X.endo; and with
-%    the second half of S and T points for X.epi.
-%
 %    W is a D2-column matrix where each column has the weight and affine
 %    weights vector computed with PTS_TSP_WEIGHTS (if W is empty or
 %    missing, then W is computed internally).
-%
-%    If X is a struct, then W has to be a similar struct with the weights
-%    for each of the warps.
 %
 % ... = PTS_TPS_MAP(S, T, X, W, FAST)
 %
@@ -50,8 +42,8 @@ function [y, w] = pts_tps_map( s, t, x, w, FAST, PROGRESS )
 % See also: pts_tps_weights.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2006-2011 University of Oxford
-% Version: 0.6.4
+% Copyright © 2006-2013 University of Oxford
+% Version: 0.7.0
 % $Rev$
 % $Date$
 % 
@@ -79,8 +71,8 @@ function [y, w] = pts_tps_map( s, t, x, w, FAST, PROGRESS )
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(3, 6, nargin));
-error(nargoutchk(0, 2, nargout));
+narginchk(3, 6);
+nargoutchk(0, 2);
 
 % defaults
 if (nargin < 5 || isempty(FAST))
@@ -99,47 +91,13 @@ end
 % compute weights if needed
 N = size(s, 3); % number of frames
 if (nargin < 4 || isempty(w))
-    if isstruct(x) % triple warp
-        
-        for I = 1:N
-            w(I).in = pts_tps_weights(s(:, :, I), t(:, :, I));
-            w(I).endo = pts_tps_weights(s(1:(P/2), :, I), ...
-                t(1:(P/2), :, I));
-            w(I).epi = pts_tps_weights(s((P/2+1):end, :, I), ...
-                t((P/2+1):end, :, I));
-        end
-        
-    else
-        w = pts_tps_weights(s, t);
-    end
+    w = pts_tps_weights(s, t);
 end
 
 % deal with empty point sets
 if isempty(x)
     y = [];
     return;
-end
-
-if isstruct(x) % triple warp
-    if any(~isfield(x, {'endo', 'epi', 'in'}))
-        error('Invalid fields for struct in X')
-    end
-    
-    % compute each warp separately
-    y(N) = struct( ...
-        'in', zeros(size(x(1).in)), ...
-        'endo', zeros(size(x(1).endo)), ...
-        'epi', zeros(size(x(1).epi)));
-    for I = 1:N
-        y(I).in = pts_tps_map(s(:, :, I), t(:, :, I), ...
-            x(I).in, w(I).in, FAST);
-        y(I).endo = pts_tps_map(s(1:(P/2), :, I), ...
-            t(1:(P/2), :, I), x(I).endo, w(I).endo, FAST);
-        y(I).epi = pts_tps_map(s((P/2+1):end, :, I), ...
-            t((P/2+1):end, :, I), x(I).epi, w(I).epi, FAST);
-    end
-    
-    return
 end
 
 % dimensionality of points
@@ -177,10 +135,9 @@ if FAST
         u = reshape(u, P, PP)';
 
         % thin-plate spline distance function
-        % U(r) = r^2 log10(r)
-        % note: it's faster to compute the log10 this way than directly
+        % U(r) = r^2 ln(r^2)
         warning('off', 'MATLAB:log:logOfZero');
-        u = 0.5 * u .* log(u) * (1/log(10));
+        u = u .* log(u);
         u(isnan(u)) = 0;
         warning('on', 'MATLAB:log:logOfZero');
 
@@ -203,12 +160,12 @@ else % loop throug each point; this is slower but less memory consuming
     for I = 1:N % loop frames
         for J = 1:PP
             % compute norm(Pi - (x,y)).^2
-            % U(r) = r^2 log10(r)
+            % U(r) = r^2 ln(r^2)
             % note: it's faster to compute the log10 this way than directly
             u = sum(...
                 (repmat(x(J, :, I), P, 1) - s(:, :, I)) .^ 2, 2)';
             warning('off', 'MATLAB:log:logOfZero');
-            u = 0.5 * u .* log(u) * (1/log(10));
+            u = u .* log(u);
             u(isnan(u)) = 0;
             warning('on', 'MATLAB:log:logOfZero');
 
