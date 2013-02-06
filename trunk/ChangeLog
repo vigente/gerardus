@@ -1,3 +1,10 @@
+2013-02-06  Ramon Casero  <rcasero@gmail.com>
+
+	* ../matlab/PointsToolbox/pts_tps_weights.m: (v0.4.1)
+
+	- Update deprecated syntax for nargchk, nargoutchk. Remove
+	whitespaces before and after brackets.
+
 2013-02-02  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/FiltersToolbox/bwsplitwithsurf.m: (v0.1.0)
