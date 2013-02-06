@@ -46,8 +46,8 @@ function w = pts_tps_weights(s, t)
 % Pattern Recognition, 26(2):375--376, 1993.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2006-2011 University of Oxford
-% Version: 0.4.1
+% Copyright © 2006-2013 University of Oxford
+% Version: 0.5.0
 % $Rev$
 % $Date$
 % 
@@ -147,10 +147,9 @@ for I = 1:N % loop configurations
     K = sum((aux - permute(aux, [2, 1, 3])) .^ 2, 3);
 
     % compute thin-plate energy function
-    % U(r) = r^2 log10(r)
-    % note: it's faster to compute the log10 this way than directly
+    % U(r) = r^2 ln(r^2)
     warning('off', 'MATLAB:log:logOfZero');
-    K = 0.5 * K .* log(K) * (1/log(10));
+    K = K .* log(K);
     K(isnan(K)) = 0;
     warning('on', 'MATLAB:log:logOfZero');
 
