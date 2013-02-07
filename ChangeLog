@@ -1,3 +1,19 @@
+2013-02-07  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/pts_tps_map.m: (v0.7.1)
+	* matlab/PointsToolbox/pts_tps_weights.m: (v0.5.1)
+
+	- Note that these functions use the same kernel as
+	itk_pstransform() with the
+	itk::ThinPlateR2LogRSplineKernelTransform.
+
+	* matlab/ItkToolbox/ItkPSTransform.cpp: (v0.3.3)
+	* matlab/ItkToolbox/itk_pstransform.m: (v0.1.1)
+
+	- Note that this function with
+	itk::ThinPlateR2LogRSplineKernelTransform is the same as our
+	pts_tps_map().
+
 2013-02-06  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/pts_tps_map.m: (v0.7.0)

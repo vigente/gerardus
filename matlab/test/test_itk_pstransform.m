@@ -4,7 +4,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 %
@@ -141,3 +141,56 @@ for TRANSF = {'elastic', 'elasticr', 'tps', 'tpsr2', 'volume', 'bspline'}
     pause
     
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Test 3:
+%% Compare ITK thin-plate spline implementation to our own
+
+% Note that we need to compare with the
+% itk::ThinPlateR2LogRSplineKernelTransform, which implements the same
+% kernel as Bookstein (1989), r^2 ln(r^2).
+%
+% On the other hand, itk::ThinPlateSplineKernelTransform implements Davis
+% et al. "A physics-based coordinate transformation for 3-D image
+% matching", TMI, 16(3):317-28, 1997, which uses the norm r as the kernel
+
+% source landmarks
+x = [...
+    .25 .25;...
+    .25 .75;...
+    .75 .25;...
+    .75 .75...
+    ];
+
+% target landmarks
+y = [...
+    .25+.1 .25+.1;...
+    .25-.2 .75+.1;...
+    .75-.1 .25-.15;...
+    .75+.15 .75+.2...
+    ];
+
+% grid points to be transformed
+[gu, gv] = meshgrid(linspace(0, 1, 11), linspace(0, 1, 11));
+xi = [gu(:) gv(:)];
+
+% apply ITK transform to grid
+yi1 = itk_pstransform('tpsr2', x, y, xi);
+
+% apply our own implementation
+yi2 = pts_tps_map(x, y, xi);
+
+% plot difference (there's full overlap)
+hold off
+plot(x(:, 1), x(:, 2), 'or')
+hold on
+plot(y(:, 1), y(:, 2), 'xg')
+for J = 1:size(x, 1)
+    plot([x(J, 1) y(J, 1)], [x(J, 2) y(J, 2)], 'r')
+end
+plot(xi(:, 1), xi(:, 2), '.')
+plot(yi1(:, 1), yi1(:, 2), '.k')
+plot(yi2(:, 1), yi2(:, 2), '.g')
+
+% compute difference between both implementations
+max(abs(yi1(:) - yi2(:)))
