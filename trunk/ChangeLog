@@ -11,6 +11,10 @@
 	that we were using U(r)=r^2 log10(r) instead of the correct
 	U(r)=r^2 ln(r^2).
 
+	- In pts_tps_map(), remove the option to enter X as a struct with
+	endocardium, epicardium fields, which is a relic from my thesis
+	and doesn't make sense in a general function.
+
 2013-02-02  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/FiltersToolbox/bwsplitwithsurf.m: (v0.1.0)
