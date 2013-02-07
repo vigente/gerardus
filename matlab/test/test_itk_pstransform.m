@@ -6,7 +6,7 @@
 % Copyright © 2011 University of Oxford
 % Version: 0.1.2
 % $Rev$
-% $Date$
+% $Date: 2013-02-07 01:06:10 +0000 (Thu, 07 Feb 2013)$
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

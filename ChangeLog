@@ -1,5 +1,10 @@
 2013-02-07  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/test/test_itk_pstransform.m: (v0.1.2)
+
+	- Add Test 3: Compare ITK thin-plate spline implementation to our
+	own.
+
 	* matlab/PointsToolbox/pts_tps_map.m: (v0.7.1)
 	* matlab/PointsToolbox/pts_tps_weights.m: (v0.5.1)
 
