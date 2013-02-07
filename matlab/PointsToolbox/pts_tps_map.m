@@ -45,7 +45,7 @@ function [y, w] = pts_tps_map(s, t, x, w, FAST, PROGRESS)
 % Copyright © 2006-2013 University of Oxford
 % Version: 0.7.0
 % $Rev$
-% $Date$
+% $Date: 2013-02-06 23:59:10 +0000 (Wed, 06 Feb 2013)$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
