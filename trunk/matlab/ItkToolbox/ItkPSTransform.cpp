@@ -14,7 +14,7 @@
  *   itk::BSplineScatteredDataPointSetToImageFilter
  *
  *
- * YI = ITK_PSTRANSFORM(TRANSFORM, X, Y, XI)
+ * YI = itk_pstransform(TRANSFORM, X, Y, XI)
  *
  *   X, Y are 2-column (2D) or 3-column (3D) matrices. Each row has
  *   the coordinates of a point. The warp is defined so that
@@ -29,11 +29,11 @@
  *   TRANSFORM is a string that allows to select the type of warp (no
  *   defaults):
  *
- * YI = ITK_PSTRANSFORM('elastic', X, Y, XI)
- * YI = ITK_PSTRANSFORM('elasticr', X, Y, XI)
- * YI = ITK_PSTRANSFORM('tps', X, Y, XI)
- * YI = ITK_PSTRANSFORM('tpsr2', X, Y, XI)
- * YI = ITK_PSTRANSFORM('volume', X, Y, XI)
+ * YI = itk_pstransform('elastic', X, Y, XI)
+ * YI = itk_pstransform('elasticr', X, Y, XI)
+ * YI = itk_pstransform('tps', X, Y, XI)
+ * YI = itk_pstransform('tpsr2', X, Y, XI)
+ * YI = itk_pstransform('volume', X, Y, XI)
  *
  *   'elastic':  itk::ElasticBodySplineKernelTransform
  *   'elasticr': itk::ElasticBodyReciprocalSplineKernelTransform
@@ -41,7 +41,11 @@
  *   'tpsr2':    itk::ThinPlateR2LogRSplineKernelTransform
  *   'volume':   itk::VolumeSplineKernelTransform
  *
- * YI = ITK_PSTRANSFORM('bspline', X, Y, XI, ORDER, LEVELS)
+ *   Note that 'tpsr2' produces the same result as our Matlab implementation
+ *   pts_tps_map(), as it implements the classic kernel proposed by
+ *   Bookstein, r^2 ln(r^2).
+ *
+ * YI = itk_pstransform('bspline', X, Y, XI, ORDER, LEVELS)
  *
  *   'bspline':  itk::BSplineScatteredDataPointSetToImageFilter
  *
@@ -55,12 +59,14 @@
  *   in the algorithm. A higher number of levels will make the spline
  *   more flexible and match the landmarks better. By default, LEVELS=5.
  *
+ * See also: pts_tps_map, pts_tps_weights.
+ *
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
-  * Copyright © 2011 University of Oxford
-  * Version: 0.3.2
+  * Copyright © 2011-2013 University of Oxford
+  * Version: 0.3.3
   * $Rev$
   * $Date$
   *

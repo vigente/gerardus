@@ -2,6 +2,9 @@ function [y, w] = pts_tps_map(s, t, x, w, FAST, PROGRESS)
 % PTS_TPS_MAP  Interpolate/warp/map N-dimensional points using a thin-plate
 % spline transformation
 %
+% Note: this function produces the same result as itk_pstransform() with
+% the itk::ThinPlateR2LogRSplineKernelTransform.
+%
 % [Y, W] = PTS_TPS_MAP(S, T, X, W)
 %
 %    S is a (P,Ds,N)-volume where each (:,:,i)-matrix has the coordinates
@@ -39,11 +42,11 @@ function [y, w] = pts_tps_map(s, t, x, w, FAST, PROGRESS)
 %    the time remaining to completion if you are using the slow method.
 %    
 %
-% See also: pts_tps_weights.
+% See also: pts_tps_weights, itk_pstransform.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2006-2013 University of Oxford
-% Version: 0.7.0
+% Version: 0.7.1
 % $Rev$
 % $Date: 2013-02-06 23:59:10 +0000 (Wed, 06 Feb 2013)$
 % 
