@@ -1,5 +1,10 @@
 2013-02-19  Ramon Casero  <rcasero@gmail.com>
 
+	* cpp/src/Resize3DImage.cxx: (v0.2.1)
+
+	- Fix bug. Output voxel type should be the same as the input voxel
+	type, which is assumed to be float.
+
 	* cpp/README:
 
 	- Add entries for resize3DImage and vesselness3DImage, that I had forgotten.
