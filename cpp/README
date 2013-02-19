@@ -13,6 +13,11 @@ padSegmentationMaskWithVoxels:
 	Program to pad the sides of a 3D segmentation mask
 	(e.g. produced by Seg3D) with new voxels.
 
+resize3DImage:
+
+	Program to resize a 3D image, using low-pass Gaussian
+	filtering to decimate it.
+
 rigidRegistration2D:
 
 	Program to align one 2D image to another using a rigid 
@@ -25,3 +30,8 @@ rotate3DImage:
 skeletonize3DSegmentation:
 
 	Program to reduce a segmentation to its skeleton.
+
+vesselness3DImage:
+
+	Program to compute the vesselness measure for each voxel of a
+	3D image.
