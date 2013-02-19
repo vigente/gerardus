@@ -9,6 +9,8 @@
  * 
  * This resizes the 3D image contained in image.mha to an output size
  * of 512 x 640 x 1024 voxels.
+ *
+ * The input image is assumed to have voxel type "float".
  * 
  * The results are saved to file image-resized.mha by default,
  * although it's possible to specify the output file name with
@@ -19,7 +21,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2010-2011 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.2.1
   * $Rev$
   * $Date$
   *
@@ -229,9 +231,7 @@ int main(int argc, char** argv)
                                   InputImageType,
                                   InputImageType >       GaussianFilterType;
 
-    typedef unsigned short                               UShortPixelType;
-    typedef itk::Image< UShortPixelType, 
-                        Dimension >                      OutputImageType;
+    typedef InputImageType                               OutputImageType;
     typedef OutputImageType::SizeType                    OutputSizeType;
 
     // image variables
