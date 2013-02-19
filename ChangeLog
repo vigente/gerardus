@@ -1,3 +1,9 @@
+2013-02-19  Ramon Casero  <rcasero@gmail.com>
+
+	* cpp/README:
+
+	- Add entries for resize3DImage and vesselness3DImage, that I had forgotten.
+
 2013-02-07  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/test/test_itk_pstransform.m: (v0.1.2)
