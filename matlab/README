@@ -164,6 +164,10 @@ blockproc3.m
 
 	 BLOCKPROC3  Block processing for a 3D image
 	
+bwbox.m
+
+	 BWBOX  Find tight box around segmentation (and possibly add a margin)
+	
 bwregiongrow.m
 
 	 BWREGIONGROW  Fast region grow labelling of binary image from multiple
@@ -172,6 +176,11 @@ bwregiongrow.m
 bwrmsmallcomp.m
 
 	 BWRMSMALLCOMP  Remove small connected components from a segmentation
+	
+bwsplitwithsurf.m
+
+	 BWSPLITWITHSURF  Split a volume into connected components separated by a
+	 surface
 	
 ccwrap.m
 
@@ -185,6 +194,11 @@ correct_light_blobs_in_microscope_mosaic.m
 fspecial3.m
 
 	 FSPECIAL3  Create predefined 3-dimensional filters
+	
+gmthr_seg2.m
+
+	 GMTHR_SEG  Segment an image estimating threshold as intersection of two
+	 Gaussians from Gaussian mixture model
 	
 gmthr_seg.m
 
@@ -529,6 +543,11 @@ alphavol.m
 dijkstra.m
 
 	 DIJKSTRA  Shortests path tree from sparse matrix graph
+	
+gplot3d.m
+
+	GPLOT3D Plot graph, as in "graph theory". This is a modification of
+	MATLAB's GPLOT function for vertices in 3D
 	
 gridfit.m
 
