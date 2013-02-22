@@ -1,3 +1,11 @@
+2013-02-21  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/PointsToolbox/scimat_dmatrix_thickslice.m: (v0.1.0)
+
+	- SCIMAT_DMATRIX_THICKSLICE Compute a distance/adjacency matrix
+	for a segmentation that consists of scattered points in slices
+	wide apart.
+
 2013-02-20  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ThirdPartyToolbox/gplot3d.m:

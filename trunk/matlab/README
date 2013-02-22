@@ -510,6 +510,11 @@ rotmat2extmat.m
 	 ROTMAT2EXTMAT  Convert centroid and rotation matrix pair to extended
 	 matrix form
 	
+scimat_dmatrix_thickslice.m
+
+	 SCIMAT_DMATRIX_THICKSLICE  Compute a distance/adjacency matrix for a
+	 segmentation that consists of scattered points in slices wide apart
+	
 scinrrd_pca.m
 
 	 SCINRRD_PCA Principal Principal Component Analysis of the selected
