@@ -20,10 +20,26 @@ function [d, points] = scimat_dmatrix_thickslice(scimat, K)
 %
 %   K is a scalar with the number of nearest neighbours that are
 %   considered. By default, K=3.
+%
+%   D is a matrix PxP, assuming there are P points in SCIMAT. D(i,j) is the
+%   Euclidean distance between points i and j only if they are connected.
+%   Otherwise, D(i,j)=0.
+%
+%   POINTS is a Px3 matrix with the real world (x, y, z)-coordinates of the
+%   segmented points.
+%
+% Example:
+%
+%    scimat = scinrrd_load('test/thick-slice-points.mat');
+%    [d, points] = scimat_dmatrix_thickslice(scimat, 2);
+%    gplot3d(d, points, 'o')
+%    hold on
+%    gplot3d(d, points)
+%    axis equal
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
