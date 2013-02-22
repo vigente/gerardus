@@ -1,3 +1,10 @@
+2013-02-22  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/surface_interpolation.m: (v0.4.1)
+
+	- Now the distance matrix can be passed to isomap parameterisation
+	explicitely. This allows the design of your own neighbourhoods.
+
 2013-02-21  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/PointsToolbox/scimat_dmatrix_thickslice.m: (v0.1.0)
