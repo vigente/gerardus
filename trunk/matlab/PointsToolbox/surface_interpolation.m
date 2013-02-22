@@ -41,6 +41,12 @@ function [xi, em, x, gx, gy] = surface_interpolation(x, param, INTERP, res, KLIM
 %        PARAM.size: Neighbourhood size (maximum number of closest
 %                    neighours allowed for each point)
 %
+%        PARAM.d:    Distance matrix between points. If this matrix is not
+%                    provided, it is computed internally as the Euclidean
+%                    matrix of distances between every pair of points.
+%                    Providing the matrix allows the user to define
+%                    specific neighbourhoods and topologies.
+%
 %   INTERP is a string with the interpolation method:
 %
 %      'tps' (default): Thin-plate spline. Global support.
@@ -90,7 +96,7 @@ function [xi, em, x, gx, gy] = surface_interpolation(x, param, INTERP, res, KLIM
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2011 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % $Rev$
 % $Date$
 % 
@@ -165,16 +171,19 @@ switch param.type
         em = em(1:2, :);
         
     case 'isomap'
-        
-        % compute distance matrix
-        d = dmatrix(x, x, 'euclidean');
+
+        % if distance matrix is not provided by the user
+        if (~isfield(param, 'd') && isempty(param.d))
+            % compute distance matrix
+            param.d = dmatrix(x, x, 'euclidean');
+        end
         
         % compute 2-d projection of the 3-d data
         options.dims = 2;
         options.display = 0;
         options.overlay = 0;
         options.verbose = 0;
-        em = IsomapII(d, 'k', param.size, options);
+        em = IsomapII(param.d, 'k', param.size, options);
         em = em.coords{1};
     
     otherwise
