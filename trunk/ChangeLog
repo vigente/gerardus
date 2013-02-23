@@ -1,4 +1,21 @@
+2013-02-23  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ThirdPartyToolbox/dijkstra.cpp: (v0.1.1)
+	* matlab/ThirdPartyToolbox/dijkstra.m: (v0.1.1)
+
+	- Minor, part of the help header was incomplete.
+
 2013-02-22  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/test/thick-slice-points.mat:
+
+	- SCIMAT volume with 15 slices, and a few points on the contours
+	of a local convex hull of a left ventricle, to illustrate the use
+	of scimat_dmatrix_thickslice().
+
+	* matlab/PointsToolbox/scimat_dmatrix_thickslice.m: (v0.1.1)
+
+	- Add missing documentation in the help header.
 
 	* matlab/PointsToolbox/surface_interpolation.m: (v0.4.1)
 
