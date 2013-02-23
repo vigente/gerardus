@@ -15,8 +15,8 @@ function [d, p] = dijkstra(g, s)
 %   entry in the sparse matrix is understood as a lack of edge (or edge
 %   weight = Inf).
 %
-%   S is a vector with a list of source nodes. A shortest path tree will be
-%   computed for 
+%   S is a vector with a list of source node indices. A shortest path tree
+%   will be computed for each one of the nodes in S.
 %
 %   D, P are matrices where each row corresponds to a source node in S. D
 %   is the shortest distance from each node to the source node.
@@ -31,6 +31,9 @@ function [d, p] = dijkstra(g, s)
 %   http://www.ahhf45.com/info/Data_Structures_and_Algorithms/resources/technical_artile/fibonacci_heap/fibonacci.htm
 
 % Author: Mark Steyvers, Stanford University, 19 Dec 2000.
+% Version: 0.1.1
+% $Rev$
+% $Date$
 %
 % Modified by Ramon Casero <rcasero@gmail.com>, University of Oxford,  23
 % Mar 2010 to also provide the predecessor list at the output.
@@ -40,11 +43,4 @@ function [d, p] = dijkstra(g, s)
 %
 % http://code.google.com/p/gerardus/
 
-% To compile dijkstra.cpp with mex from Matlab's GUI:
-%
-% 32 bit
-%   >> mex dijkstra.cpp
-%
-% 64 bit
-%   >> mex -largeArrayDims dijkstra.cpp
 error('Compiled MEX function has not been found')
