@@ -1,3 +1,24 @@
+2013-02-24  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/smdscale.m: (v0.2.0)
+
+	- Full reimplementation, almost from scratch.
+
+	- This function implements the MDS optimisation idea proposed by
+	Agarwal et al. (2010), but avoids using chords or approximating
+	the mean on the sphere by the Euclidean mean followed by
+	projection on the sphere (code not available, but explained in
+	personal communication). Many thanks to A. Agarwal for his
+	comments about his paper.
+
+	- A. Agarwal et al. (2010) "Universal Multi-Dimensional Scaling",
+	Proceedings of the 16th ACM SIGKDD International Conference on
+	Knowledge Discovery and Data Mining, 53:1149-1158.
+
+	* Delete matlab/ManifoldToolbox/gdmatrix.m.
+
+	- Incorporated as a local function in smdscale.
+
 2013-02-23  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ThirdPartyToolbox/dijkstra.cpp: (v0.1.1)
