@@ -3,7 +3,13 @@
 
 <wiki:toc max_depth="2" />
 
-= Warning for Windows users =
+= How difficult is to use Gerardus? =
+
+If you just need pure Matlab functions, it's as easy as downloading the code and adding everything in `gerardus/matlab` to your Matlab path.
+
+If you want to use also the Matlab MEX functions and C++ programs, then you need to also install ITK and run Gerardus' CMake build process (details below).
+
+== Warning for Windows users ==
 
 The latest version of Gerardus doesn't build in Windows. 
 
