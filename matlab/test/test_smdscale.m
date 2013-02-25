@@ -1,8 +1,8 @@
 % test_smdscale.m
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2012 University of Oxford
-% Version: 0.1.0
+% Copyright © 2012-2013 University of Oxford
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -30,79 +30,128 @@
 % along with this program.  If not, see
 % <http://www.gnu.org/licenses/>.
 
-% number of points
-N = 100;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% We have a sparse distance matrix that defines a local neighbourhood on a 
+%% scattered set of points
+%%
+%% We want to project it onto the sphere
 
-% elevation or latitude
-lat = (rand(1, N)-.5) * pi;
+% load discrete point set with an associated local neighbourhood
+load('test/test_smdscale_mesh.mat')
+xyz = points;
+clear points
 
-% longitude
-lon = rand(1, N) * pi * 2;
-
-% constrain all points to be on the surface of a sphere of radius 1
-r = ones(1, N);
-
-% convert angles from radians to degrees
-lat = lat / pi * 180;
-lon = lon / pi * 180;
-
-% compute true geodesic distance between each pair of points, in degrees of
-% arc
-d = gdmatrix(lat, lon);
-
-% convert latitude/longitude to Cartesian coordinates
-[x, y, z] = sph2cart(lon/180*pi, lat/180*pi, r);
-x = cat(1, x, y, z);
-clear y z
-
-% plot points
-close all
-plot3(x(1, :), x(2, :), x(3, :), 'x')
+% plot neighbourhood
+hold off
+subplot(1, 1, 1)
+gplot3d(d, xyz)
 axis equal
 
-% save ground truth coordinates for validation
-lat0 = lat;
-lon0 = lon;
-x0 = x;
+% initial guess for the sphere embedding
+[lat, lon, sphrad] = proj_on_sphere(xyz);
 
-% % add noise to the points
-% lat = lat + randn(size(lat)) * 100;
-% lon = lon + randn(size(lon)) * 100;
-% 
-% % convert to Cartesian coordinates
-% [x, y, z] = sph2cart(lon/180*pi, lat/180*pi, r);
-% x = cat(1, x, y, z);
-% clear y z
+% embbed the point set on the sphere using the initial guess
+tic
+opt.maxiter = 100;
+[lat, lon, err, stopCondition, dsph] = ...
+    smdscale(sparse(d), sphrad, lat, lon, opt);
+toc
 
-% compute MDS on the surface of the matrix
-opt.fronorm = 1e-3;
-% opt.frorel = .001;
-[lat, lon, err, stopCondition, x] = smdscale(d, [], opt);
+% compute the Euclidean coordinates of the projected points
+[xsph, ysph, zsph] = sph2cart(lon, lat, sphrad);
 
-% plot initialization of the algorithm
+% use a rigid Procrustes to find a rotation that aligns the sphere with the
+% LV points
+[~, xyzsph] = procrustes(xyz, [xsph; ysph; zsph]', 'Scaling', false);
+
+% plot the aligned points
 hold on
-plot3(x(1, :), x(2, :), x(3, :), 'r.')
-for I = 1:N
-    plot3([x(1, I) x0(1, I)], [x(2, I) x0(2, I)], [x(3, I) x0(3, I)], 'r')
-end
+gplot3d(d, xyzsph, 'r')
 axis equal
 
-% convert solution's latitude/longitude to Cartesian coordinates
-[x, y, z] = sph2cart(lon/180*pi, lat/180*pi, r);
-x = cat(1, x, y, z);
-clear y z
-
-% align points with procrustes
-[~, x] = procrustes(x0', x');
-x = x';
-
-% plot solution
-hold on
-plot3(x(1, :), x(2, :), x(3, :), 'bo')
-axis equal
-
-% plot error
-figure
+% plot the error functions
+hold off
 plot(err)
-xlabel('iteration')
+title('Neighbourhood distance error')
+xlabel('No. of optimisation steps (moving one point counts as 1 step)')
 ylabel('Frobenius norm of distance matrix error')
+
+% plot the normalised distance matrix error
+hold off
+idx = d>0;
+boxplot( abs(d(idx)-dsph(idx))./d(idx) )
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% In this case we have no good initial guess, so we use a random one
+
+% random distribution of points on the sphere
+N = length(d);
+lat = (rand(1, N)-.5) * pi;
+lon = rand(1, N) * pi * 2;
+[x, y, z] = sph2cart(lon, lat, sphrad);
+xyz = cat(1, x, y, z)';
+clear x y z
+
+% plot initial guess
+hold off
+subplot(1, 1, 1)
+gplot3d(d, xyz)
+axis equal
+
+% embbed the point set on the sphere using the random points. We use the
+% Dijkstra'd full distance matrix, because local optimisation reduces the
+% error but doesn't produce a visually good result
+tic
+opt.maxiter = 100;
+[lat, lon, err0, stopCondition, dsph] = ...
+    smdscale(dijkstra(sparse(d), 1:N), sphrad, lat, lon, opt);
+toc
+
+% convert sphere coordinates to Euclidean coordinates
+[x, y, z] = sph2cart(lon, lat, sphrad);
+xyz = cat(1, x, y, z)';
+clear x y z
+
+% plot result
+hold on
+gplot3d(d, xyz, 'r')
+axis equal
+
+% plot the error functions
+hold off
+plot(err0, '--')
+hold on
+plot(err)
+title('Neighbourhood distance error')
+xlabel('No. of optimisation steps (moving one point counts as 1 step)')
+ylabel('Frobenius norm of distance matrix error')
+legend('Random initialisation', 'Sphere projection intialisation')
+
+% now we run MDS again, but this time starting from the previous result,
+% and using the sparse distance matrix, to fine tune the result
+tic
+opt.maxiter = 100;
+[lat, lon, err0, stopCondition, dsph] = ...
+    smdscale(d, sphrad, lat, lon, opt);
+toc
+
+% convert sphere coordinates to Euclidean coordinates
+[x, y, z] = sph2cart(lon, lat, sphrad);
+xyz = cat(1, x, y, z)';
+clear x y z
+
+% plot result
+hold on
+gplot3d(d, xyz, 'r')
+axis equal
+
+% plot the error functions
+hold off
+plot(err0, '--')
+hold on
+plot(err)
+title('Neighbourhood distance error')
+xlabel('No. of optimisation steps (moving one point counts as 1 step)')
+ylabel('Frobenius norm of distance matrix error')
+legend('Random initialisation', 'Sphere projection intialisation')
+
