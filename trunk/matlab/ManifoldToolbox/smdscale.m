@@ -1,66 +1,68 @@
-function [lat, lon, sphrad, err, stopCondition, dsph, x] = smdscale(d, x, opt)
+function [lat, lon, err, stopCondition, dsph] = smdscale(d, sphrad, lat, lon, opt)
 % SMDSCALE  Multidimensional scaling on a sphere
 %
 % This function solves a Multidimensional Scaling problem by finding a way
-% to distribute a set of points on a sphere so that the matrix formed from
-% the geodesic distance between all pairs of points is as close as possible
-% (in the Frobenius norm sense) to an input distance matrix.
+% to distribute (embed) a set of points on a sphere so that the matrix
+% formed from the geodesic distance between connected pairs of points is as
+% close as possible (in the Frobenius norm sense) to an input distance
+% matrix.
 %
-% [LAT, LON, SPHRAD, ERR, STOP, DSPH, X] = smdscale(D)
+% [LAT, LON, ERR, STOP, DSPH] = smdscale(D, SPHRAD)
 %
-%   D is a square matrix where D(i,j) is the geodesic distance (e.g. in
-%   meters) between the i-th and j-th points. If D is full, then D is taken
-%   as provided by the user. If D is sparse, then this means that the user
-%   has provided distances only in local neighbourhoods of the matrix (i.e.
-%   we only know the distance of each point to a few of its neighbours). D
-%   is then pre-processed running the Dijkstra shortest-path algorithm to
-%   obtain a full matrix with a distance value for every D(i,j).
+%   D is a square matrix where D(i,j) is some distance (e.g. in meters)
+%   between the i-th and j-th points. Note that the points themselves are
+%   unknown, we only know the distances between them. Values of D(i,j)=0 or
+%   D(i,j)=Inf mean that points i, j are not connected. The algorithm only
+%   takes into account the neighbours of a point when it's optimised, so if
+%   a fully connected distance matrix is needed, run
 %
-%   LAT, LON are vectors with the latitude and longitude coordinates of the
-%   point configuration that is the solution to the problem in radians.
+%     D = dijkstra(sparse(D), 1:length(d));
 %
-%   SPHRAD is the radius of the sphere that contains the LAT, LON
-%   projection of the points. 
+%   SPHRAD is a scalar with the radius of the sphere. By default, SPHRAD=1.
+%   Note that the radius of the sphere is a critical parameter. E.g. a
+%   matrix D with small distance values cannot be proprely fitted to a
+%   large sphere (because then we would be trying to embed a spherical
+%   point configuration on a surface that is quite similar to a plane).
+%
+%   LAT, LON are the solution to the problem. They are vectors with the
+%   latitude and longitude coordinates (in radians) of a point
+%   configuration on the sphere. The arc length distance matrix between
+%   said points tries to approximate D as well as possible in the Frobenius
+%   norm sense (ignoring Inf values).
 %
 %   To compute the (x,y,z) Euclidean coordinates of the sphere points run
 %
-%     [x, y, z] = sph2cart(lon, lat, sphrad);
+%     [x, y, z] = sph2cart(LON, LAT, SPHRAD);
 %
-%   ERR is a struct with the error measure at each iteration of the
-%   optimisation algorithm.
+%   ERR is a vector with the error measure at each step of the optimisation
+%   algorithm (moving each point counts as a step). The error measure is
+%   computed as the Frobenius norm of the matrix (D-DSPH), ignoring
+%   infinite distances.
 %
-%     ERR.full is the Frobenius norm of the matrix (Dfull-DSPH)/2, where
-%     Dfull is the full matrix after running Dijkstra on input matrix D
-%     (If D was provided as a full matrix, then D==Dfull), and DSPH is
-%     explained below.. This error must be monotonically decreasing in each
-%     iteration of the algorithm.
-%
-%     ERR.sparse is the Frobenius norm of the matrix (D(idx)-DSPH(idx)),
-%     where idx are the elements in the input sparse matrix. This result is
-%     only returned if D was provided as a sparse matrix. This error is not
-%     necessarily monotonically decreasing, but it is expected that the
-%     general trend is that it decreases as the algorithm runs.
-%
-%   STOP is a string with the condition that made the algorithm stop.
+%   STOP is a cell-array with the condition/s that made the algorithm stop,
+%   in string form.
 %
 %   DSPH is the matrix of arc length distances between the points given
-%   by LAT, LON (units: meters).
+%   by LAT, LON, SPHRAD (units: meters).
 %
-%   X is a (3, P)-matrix where each column has the coordinates of one of
-%   the points that were used to initialize the algorithm. These points can
-%   be provided (see below), or else they will be randomly distributed on
-%   the sphere.
+% [...] = smdscale(D, SPHRAD, LAT0, LON0, OPT)
 %
-% [LAT, LON, ERR, X] = smdscale(D, X, OPT)
+%   LAT0, LON0 are the user's initial guess for the latitude and longitude
+%   of the point configuration. By default, a configuration of points
+%   randomly distributed over the sphere is used.
 %
-%   X is the (3, P)-matrix mentioned above. If it is provided, then X at
-%   the output is the same as X at the input.
+%   In some cases, what you want to do is embed a Euclidean or manifold
+%   point configuration onto a sphere, i.e. you have a matrix X with the
+%   Euclidean coordinates of the points. In this case, you can obtain a
+%   good initial guess by running
 %
-%   OPT is a struct with the stop conditions for the algorithm. For the
-%   moment, only two conditions are available:
+%     [LAT0, LON0, SPHRAD] = proj_on_sphere(X);
 %
-%     opt.fronorm: target value of the Frobenius norm of the full distance
-%                  matrix error, err.full (default 0.001).
+%   OPT is a struct with the stop conditions for the algorithm. The next
+%   conditions are available:
+%
+%     opt.fronorm: target value of the Frobenius norm of the distance
+%                  matrix error (default 0.001).
 %
 %     opt.frorel:  relative decrease of the Frobenius norm, e.g. 0.1. This
 %                  condition is only considered when the norm is
@@ -73,8 +75,10 @@ function [lat, lon, sphrad, err, stopCondition, dsph, x] = smdscale(d, x, opt)
 % This function implements the MDS optimisation idea proposed by Agarwal et
 % al. (2010), but avoids using chords or approximating the mean on the
 % sphere by the Euclidean mean followed by projection on the sphere (code
-% not available, but explained in personal communication). Many thanks to
-% A. Agarwal for his comments about his paper.
+% not available, but explained in personal communication). It also improves
+% on Agarwal et al in that it does not assume that D is a full matrix, and
+% thus can optimise local neighbourhoods of the point configuration. Many
+% thanks to A. Agarwal for his comments about his paper.
 %
 % A. Agarwal et al. (2010) "Universal Multi-Dimensional Scaling",
 % Proceedings of the 16th ACM SIGKDD International Conference on Knowledge
@@ -82,7 +86,7 @@ function [lat, lon, sphrad, err, stopCondition, dsph, x] = smdscale(d, x, opt)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.2.0
+% Version: 0.3.0
 % $Rev$
 % $Date$
 %
@@ -111,8 +115,8 @@ function [lat, lon, sphrad, err, stopCondition, dsph, x] = smdscale(d, x, opt)
 % <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(1, 3);
-nargoutchk(0, 7);
+narginchk(1, 5);
+nargoutchk(0, 5);
 
 % number of points
 N = size(d, 1);
@@ -120,77 +124,66 @@ if (size(d, 1) ~= N || size(d, 2) ~= N)
     error('D must be a square matrix')
 end
 
-% keep a backup of the input distance matrix
-dtarget = d;
-
-% compute full matrix of distances from the sparse ajacency/distance matrix
-SPARSE = issparse(d);
-if SPARSE
-    d = dijkstra(sparse(d), 1:N);
-end
-
 % defaults
-if (nargin < 2 || isempty(x))
+if (nargin < 2 || isempty(sphrad))
+    sphrad = 1;
+end
+if (nargin < 3 || isempty(lat))
     % random distribution of points on the sphere
     lat = (rand(1, N)-.5) * pi;
-    lon = rand(1, N) * pi * 2;
-    r = ones(1, N);
-    [x, y, z] = sph2cart(lon, lat, r);
-    x = cat(1, x, y, z);
-    clear y z
 end
-if (nargin < 3 || isempty(opt) || ~isfield(opt, 'fronorm'))
+if (nargin < 4 || isempty(lon))
+    % random distribution of points on the sphere
+    lon = rand(1, N) * pi * 2;
+end
+if (nargin < 5 || isempty(opt) || ~isfield(opt, 'fronorm'))
     opt.fronorm = .001;
 end
 
-% center points around zero
-x = x * (eye(N) - ones(N)/N);
+% check that the initial guess is a valid matrix
+if (length(lat) ~= N)
+    error('LAT must be a vector with length(D) elements')
+end
+if (length(lon) ~= N)
+    error('LON must be a vector with length(D) elements')
+end
 
-% project 3D Cartesian coordinates of the initial point configuration onto
-% the surface of a sphere lon, lat given in radians
-[lon, lat, r] = cart2sph(x(1, :), x(2, :), x(3, :));
-
-% we use the mean radius of the points in the configuration as the radius
-% of the sphere that best can contain their projections
-sphrad = mean(r);
+% make sure that lat and lon vectors are row vectors
+lat = lat(:)';
+lon = lon(:)';
 
 % matrix of arc length distances between the points in the sphere
 dsph = arclen_dmatrix(lat, lon, sphrad);
 
-% if the input distance matrix is sparse, it means that our actual target
-% distances that we are trying to match are only those in the sparse
-% matrix. However, note that the algorithm will monotonically minimise the
-% Frobenius norm of the full matrix error. This doesn't imply that the
-% minimisation of the Frobenius norm of the sparse matrix error will be
-% monotomic too
-if SPARSE
-    % sparse matrix elements. Because the distance matrix is symmetrical,
-    % we only need the upper triangular part of it
-    idx = (dtarget ~= 0) & triu(ones(N), 1);
+% when the optimisation algorithm re-positions a point, it only takes into
+% accound its distance to the points it's directly connected to. This
+% improves convergence to a better error. Here we compute the adjacency
+% matrix (we assume that d=0 or d->Inf means that two points are not
+% connected)
+idx = (d ~= 0) & ~isinf(d);
     
-    % Frobenius norm of the sparse error matrix (divided by 2). This error
-    % is not necessarily monotonically decreasing, although it is expected
-    % to decrease in most iterations
-    err.sparse = norm(dsph(idx) - dtarget(idx));
-end
-
-% Frobenius norm of the full error matrix (divided by 2). This error must
-% be monotonically decreasing
-err.full = norm(dsph - dtarget,'fro')/2;
+% Frobenius norm of the distance error matrix (Inf values are ignored)
+err = norm(dsph(idx) - d(idx));
 
 % convert distances in the distance matrix from geodesic distances (e.g. in
 % meters) to distances on the sphere given in radians. The reference sphere
 % has the radius just computed above. Note that despite km2rad() expecting
 % distances in km, as long as we give the distance and radius in the same
-% units, the result is the same
+% units (e.g. both in meters), the result is the same
 drad = km2rad(d, sphrad);
 
 % iterate points. Each point is rearranged to try to get as close as
-% possible to the target distance of every other point
+% possible to the target distance of the points it's connected to
 stopCondition = []; niter = 0;
 while isempty(stopCondition)
+
+    % an iteration consists in N steps. In each step, we re-adjust one
+    % point with respect to only its neighbourhood
     niter = niter + 1;
     for I = 1:N
+        
+        % neighbours of current point
+        neigh = idx(I, :);
         
         % compute azimuth of the great circles that conects our current
         % point to each other point. The azimuth is just a convenient way
@@ -206,30 +199,26 @@ while isempty(stopCondition)
         % taken clockwise from north. The North Pole has an azimuth of 0º
         % from every other point on the globe." -
         % http://www.mathworks.com/help/map/ref/azimuth.html)
-        az = azimuth(lat, lon, lat(I), lon(I), 'radians');
+        az = azimuth(lat(neigh), lon(neigh), lat(I), lon(I), 'radians');
         
         % move each point towards current point, along the great circle
         % that connects them
-        [lat2, lon2] = reckon(lat, lon, drad(I, :), az, 'radians');
-        
-        % remove the current point from the result (that won't have moved)
-        lat2(I) = [];
-        lon2(I) = [];
+        [lat2, lon2] = reckon(lat(neigh), lon(neigh), ...
+            drad(I, neigh), az, 'radians');
         
         % the current point's new position will be the mean of where each
-        % point wants to go. The mean has to be a special mean computed on
-        % the sphere
+        % neighbour tells it to go. The mean has to be a special mean
+        % computed on the sphere
         [lat(I), lon(I)] = meanm(lat2, lon2, 'radians');
         
         % update the matrix of arc length distances
-        dsph(I, :) = distance(lat(I), lon(I), lat, lon, [sphrad 0], 'radians');
-        dsph(:, I) = dsph(I, :)';
+        dsph(I, neigh) = distance(lat(I), lon(I), ...
+            lat(neigh), lon(neigh), [sphrad 0], 'radians');
+        dsph(neigh, I) = dsph(I, neigh)';
         
-        % compute Frobenius error at this iteration
-        if SPARSE
-            err.sparse(end+1) = norm(dsph(idx) - dtarget(idx));
-        end
-        err.full(end+1) = norm(dsph - dtarget,'fro')/2;
+        % compute Frobenius norm of the error at this iteration (Inf values
+        % are ignored)
+        err(end+1) = norm(dsph(idx) - d(idx));
         
     end
     
@@ -238,13 +227,13 @@ while isempty(stopCondition)
         stopCondition{end+1} = 'maxiter';
     end
     
-    if (isfield(opt, 'frorel') && length(err.full) > 1 ...
-            && err.full(end) < err.full(end-1) ...
-            && (err.full(end-1)-err.full(end))/err.full(end-1) < opt.frorel)
+    if (isfield(opt, 'frorel') && length(err) > 1 ...
+            && err(end) < err(end-1) ...
+            && (err(end-1)-err(end))/err(end-1) < opt.frorel)
         stopCondition{end+1} = 'frorel';
     end
     
-    if (err.full(end) <= opt.fronorm)
+    if (err(end) <= opt.fronorm)
         stopCondition{end+1} = 'fronorm';
     end
         
