@@ -1,3 +1,47 @@
+2013-02-25  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/test/test_smdscale.m: (v0.2.0)
+	* Add matlab/test/test_smdscale_mesh.mat
+
+	- Complete rewrite. Delete previous tests and add "We have a
+	sparse distance matrix that defines a local neighbourhood on a
+	scattered set of points. We want to project it onto the sphere"
+
+	- Add also example of when we have no initial guess, "In this case
+	we have no good initial guess, so we use a random one". We use a
+	random point configuration to start with, and the post-Disjkstra
+	distance matrix. Using the full matrix seems to work well to go
+	from a random configuration to a decently embedding. We then use
+	that as the initialisation for another run of MDS, this time using
+	the sparse distance matrix. This way, we reduce the error even
+	further, as the result gets fine tuned.
+
+	* matlab/ManifoldToolbox/smdscale.m: (v0.3.0)
+
+	- Another big rewrite.
+
+	- We no longer pass a point configuration as input. Now, if we
+	want to initialise, we have to pass latitude and longitude, apart
+	from the sphere radius. This makes sense given that the algorithm
+	works with lat and lon. The previous approach was an ugly hack.
+
+	- Dijkstra is no longer applied on the input distance matrix. It's
+	the user's responsibility to perform any kind of processing on the
+	distance matrix before passing it to this function.
+
+	- The function is simplified then, because now we only need to
+	take into account the neighbours when optimising a point (a full
+	matrix after applying Dijkstra will just be a particular case of
+	this where each point has as neighbours all the others).
+
+	- Thus, now there's only one err vector returned. This makes more
+	sense, as some testing suggests that it makes no sense using all
+	points in the configuration when the distance matrix is sparse.
+
+	* matlab/ManifoldToolbox/proj_on_sphere.m: (v0.1.0)
+
+	- Project a point configuration onto a sphere.
+
 2013-02-24  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/smdscale.m: (v0.2.0)
