@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 %
@@ -72,9 +72,9 @@ axis equal
 % plot the error functions
 hold off
 plot(err)
-title('Neighbourhood distance error')
+title('Distance matrix approximation error')
 xlabel('No. of optimisation steps (moving one point counts as 1 step)')
-ylabel('Frobenius norm of distance matrix error')
+ylabel('Frobenius norm')
 
 % plot the normalised distance matrix error
 hold off
@@ -122,7 +122,7 @@ hold off
 plot(err0, '--')
 hold on
 plot(err)
-title('Neighbourhood distance error')
+title('Distance matrix approximation error')
 xlabel('No. of optimisation steps (moving one point counts as 1 step)')
 ylabel('Frobenius norm of distance matrix error')
 legend('Random initialisation', 'Sphere projection intialisation')
@@ -141,7 +141,7 @@ xyz = cat(1, x, y, z)';
 clear x y z
 
 % plot result
-hold on
+hold off
 gplot3d(d, xyz, 'r')
 axis equal
 
@@ -150,8 +150,8 @@ hold off
 plot(err0, '--')
 hold on
 plot(err)
-title('Neighbourhood distance error')
+title('Distance matrix approximation error')
 xlabel('No. of optimisation steps (moving one point counts as 1 step)')
 ylabel('Frobenius norm of distance matrix error')
-legend('Random initialisation', 'Sphere projection intialisation')
+legend('First MDS initialisation', 'Sphere projection intialisation')
 
