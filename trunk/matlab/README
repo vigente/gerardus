@@ -581,6 +581,56 @@ L2_distance.m
 	 L2_DISTANCE - computes Euclidean distance matrix
 	
 
+ThirdPartyToolbox/sphsplineToolbox
+-------------------------------------------------------------
+
+sphsplinetc.m
+
+	 SPHSPLINETC Gridding using a spherical surface spline in tension
+	
+sphsplinet.m
+
+	 SPHSPLINET  Gridding using a spherical surface spline in tension
+	
+SSSTc.m
+
+	 SSSTc  Spherical Surface Spline in Tension (C mex version)
+	
+SSSTgradc.m
+
+	 SSSTgradc  Spherical Surface Spline in Tension gradient (C Mex version)
+	
+SSSTgrad.m
+
+	 SSSTgrad  Spherical Surface Spline in Tension gradient
+	
+SSST.m
+
+	 SSST  Spherical Surface Spline in Tension
+	
+WB08_Fig_1.m
+
+	 $Id: WB08_Fig_1.m,v 1.1.1.1 2008/05/09 21:34:52 myself Exp $
+	
+WB08_Fig_2.m
+
+	 $Id: WB08_Fig_2.m,v 1.1.1.1 2008/05/09 21:34:52 myself Exp $
+	
+WB08_Fig_3.m
+
+	 $Id: WB08_Fig_3.m,v 1.1.1.1 2008/05/09 21:34:52 myself Exp $
+	
+WB08_Fig_4.m
+
+	 $Id: WB08_Fig_4.m,v 1.1.1.1 2008/05/09 21:34:52 myself Exp $
+	
+WB08_Fig_5.m
+
+	 $Id: WB08_Fig_5.m,v 1.1.1.1 2008/05/09 21:34:52 myself Exp $
+	
+WB_lookup.m
+
+
 ThirdPartyToolbox/TiffreadToolbox
 -------------------------------------------------------------
 
