@@ -61,16 +61,16 @@ function [lat, lon, err, stopCondition, dsph] = smdscale(d, sphrad, lat, lon, op
 %   OPT is a struct with the stop conditions for the algorithm. The next
 %   conditions are available:
 %
+%     opt.maxiter: (default = 20) maximum number of iterations we allow the
+%                  optimisation algorithm. Each iteration consists of an
+%                  entire sweep of all points on the sphere.
+%
 %     opt.fronorm: target value of the Frobenius norm of the distance
-%                  matrix error (default 0.001).
+%                  matrix error.
 %
 %     opt.frorel:  relative decrease of the Frobenius norm, e.g. 0.1. This
 %                  condition is only considered when the norm is
 %                  decreasing, not if it increases.
-%
-%     opt.maxiter: maximum number of iterations we allow the optimisation
-%                  algorithm. Each iteration consists of an entire sweep of
-%                  all points on the sphere.
 %
 % This function implements the MDS optimisation idea proposed by Agarwal et
 % al. (2010), but avoids using chords or approximating the mean on the
@@ -86,7 +86,7 @@ function [lat, lon, err, stopCondition, dsph] = smdscale(d, sphrad, lat, lon, op
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % $Rev$
 % $Date$
 %
@@ -136,8 +136,8 @@ if (nargin < 4 || isempty(lon))
     % random distribution of points on the sphere
     lon = rand(1, N) * pi * 2;
 end
-if (nargin < 5 || isempty(opt) || ~isfield(opt, 'fronorm'))
-    opt.fronorm = .001;
+if (nargin < 5 || isempty(opt) || ~isfield(opt, 'maxiter'))
+    opt.maxiter = 20;
 end
 
 % check that the initial guess is a valid matrix
