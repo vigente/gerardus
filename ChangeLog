@@ -1,3 +1,15 @@
+2013-02-26  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ThirdPartyToolbox/sphsplineToolbox:
+
+	- SPHSPLINE Toolbox by Paul Wessel.
+
+	Wessel, P., and J. M. Becker, 2008, Gridding of spherical data
+	using a Green's function for splines in tension, Geophys. J. Int.,
+	174, 21-28, doi:10.1111/j.1365-246X.2008.03829.x.
+
+	http://www.soest.hawaii.edu/wessel/sphspline/
+
 2013-02-25  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/test/test_smdscale.m: (v0.2.0)
