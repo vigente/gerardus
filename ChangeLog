@@ -1,5 +1,9 @@
 2013-02-26  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/test/test_smdscale.m: (v0.2.1)
+
+	- Minor, changes to figure titles.
+
 	* Add matlab/ThirdPartyToolbox/sphsplineToolbox:
 
 	- SPHSPLINE Toolbox by Paul Wessel.
