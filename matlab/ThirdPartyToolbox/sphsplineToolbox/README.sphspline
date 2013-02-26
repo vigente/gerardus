@@ -1,0 +1,64 @@
+#	$Id: README.sphspline,v 1.3 2010/03/03 18:55:38 myself Exp $
+
+This is the README file for the sphspline mex supplement for calculating
+spherical surface splines in tension within Matlab or Octave.
+
+Paul Wessel, May 2008. Revised 2010 due to changes in GMT Makefiles.
+
+Based on theory described in:
+	Wessel, P. and J. M .Becker, 2008, "Interpolation using a
+	   generalized Green's function for a spherical surface spline
+	   in tension", Geophys. J. Int., 174, 21-28,
+	   doi:10.1111/j.1365-246X.2008.03829.x
+
+If you find any bugs or problems, please contact pwessel@hawaii.edu
+
+####### CODE #######################################################################
+There are several clean .m functions:
+
+SSST.m:		Compute spherical surface spline in tension (m version)
+		Computes the answer using code in the .m file
+SSSTgrad.m:	Compute gradient of a spherical surface spline in tension (m version)
+		Computes the answer using code in the .m file
+sphsplinet.m:	Gridding of spherical data using a SSS in tension (m version)
+
+
+Because the SSST can be slow to compute I also distribute some C functions that
+can be compiled into mex functions for Matlab or Octave.  You obviously need to
+have Matlab or Octave installed for this to work.  You also need GMT 4.5.2 or later
+properly installed and configured to use Matlab or Octave.  The makefile will
+take care of building the *.mex files if you type "make all".  If successful you
+can place them in the proper install directory (if you have permission) by using
+"make install".
+
+The C functions are:
+
+SSSTc.c:	Solves SSST in C. Dummy SSSTc.m gives the usage message.
+SSSTgradc.c:	Solves SSSTgrad in C.  Dummy SSSTgradc.m gives usage message
+WB_lookup.c:	Precalculates SSST for all angles.  WB_lookup.m gives usage message.
+
+For gridding we have these two functions:
+
+sphsplinet.m:	Sets up and solves spherical gridding using the .m versions of SSST
+sphsplinetc.m:	Sets up and solves spherical gridding using the .mex versions of SSSTc
+
+####### EXAMPLES ####################################################################
+
+The 5 illustrations in the Wessel and Becker (2008) paper were computed using the above
+functions (the results were saved to files) and plotted using GMT.  The files are:
+
+WB08_Fig_?.m:	Script that prepares Fig ? (1-5) by doing the calculations, saving the
+		results, and making a crude plot on Matlab/Octave.
+WB08_Fig_*.sh:	Shell scripts that reads data produced by the matlab scripts and creates
+		the illustration seen in the paper by using GMT.
+		
+####### DATA #######################################################################
+
+Three data sets were used to produce the illustrations:
+
+mag_obs_1990.d:		Table 2.07B in Parker (1994; see refs in our paper); used in Figs. 2-3
+mag_validate_1990.d:	Table 2.07C in Parker (1994); used in Fig. 3
+mars370.in:		370 occultation measurements of Mars' radius (Smith and Zuber, 1996);
+			used in Fig. 4.
+lun2.xyz:		10082 elevation measurements from the Moon (Smith et al., 1997); used
+			in Fig. 5.
