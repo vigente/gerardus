@@ -1,5 +1,33 @@
 2013-02-27  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/PointsToolbox/surface_interpolation.m: (0.5.0)
+
+	- Full change to the interface. Big rewrite of the function.
+
+	- Add parameterisation method 'sphisomap': Our extension to the
+	Isomap method so that points are parameterised on a sphere rather
+	than on a plane.
+
+	- Add interpolation method 'sphspline': Sphere spline
+	interpolation by Wessel et al.
+
+	- All points are passed as (:,3) and (:,2) matrices.
+
+	- Interpolated surface is returned as a (:,:,3) volume, where each
+	slice corresponds to the x, y and z-coordinates of each
+	interpolated point. Having the surface points on a grid allows to
+	then easily plot the surface using surf().
+
+	- res, KLIM, nlev are no longer input arguments. They are passed
+	inside the interp struct, given that different methods need
+	different parameters.
+
+	- interp is now a struct input argument. This way, we can tailor
+	input arguments to each different interpolation method.
+
+	- Rename input and output arguments so that they are easier to
+	understand.
+
 	* matlab/test/test_smdscale.m: (0.2.2)
 
 	- Minor, data file has changed its name.
