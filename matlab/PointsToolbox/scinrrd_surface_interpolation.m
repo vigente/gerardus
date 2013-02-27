@@ -1,4 +1,4 @@
-function [nrrd, em, x] = scinrrd_surface_interpolation(nrrd, x, param, INTERP, KLIM, nlev)
+function [nrrd, uv, x] = scinrrd_surface_interpolation(nrrd, x, param, interp)
 % SCINRRD_SURFACE_INTERPOLATION  Interpolate a surface and create a
 % segmentation mask from a scattered set of points
 %
@@ -6,55 +6,34 @@ function [nrrd, em, x] = scinrrd_surface_interpolation(nrrd, x, param, INTERP, K
 %
 %   NRRD0 is the SCI NRRD struct that contains the image.
 %
-%   X is a 3-row matrix. Each column has the coordinates of a point that
+%   X is a 3-column matrix. Each row has the coordinates of a point that
 %   belongs to the surface we want to interpolate.
 %
 %   NRRD is a SCI NRRD struct with a segmentation of the surface that
 %   interpolates the points in X.
 %
-% [NRRD, EM, X2] = scinrrd_surface_interpolation(NRRD0, X, PARAM, INTERP, KLIM, NLEV)
+% [NRRD, UV, X2] = scinrrd_surface_interpolation(NRRD0, X, PARAM, INTERP)
 %
-%   EM is a 2-row matrix. Each column has the parameterisation coordinates
-%   of the corresponding surface point X.
+%   UV is a 2-column matrix with the parameterisation of X, (U, V)->X. In
+%   planar parameterisations, UV has units of meters. In spherical
+%   parameterisations, UV=[LON, LAT], in units of radians.
 %
-%   X2 is the input 3-row matrix X with possibly some points added from the
-%   extrapolated domain boundary (see method 'mbae').
+%   X2: Some methods (e.g. 'mbae') add extra points to X before computing
+%   the interpolants. X2 contains the points actually used for
+%   interpolation.
 %
-%   PARAM is a struct with the method used to parametrise the surface and
-%   the set of points X. For details, see help surface_interpolation.m.
+%   PARAM is a struct that describes the method used to parametrise the
+%   surface and the set of points X, and its parameters. For details, see
+%   help surface_interpolation.m.
 %
-%   INTERP is a string with the interpolation method. For options, see help
-%   surface_interpolation.m.
+%   INTERP is a struct that describes the interpolation method, and its
+%   parameters. For options, see help surface_interpolation.m.
 %
-%   KLIM is a scalar factor for the extension of the interpolation domain.
-%   By default, KLIM=1 and the interpolation domain is a rectangle that
-%   tightly contains X. Sections of the interpolated surface that protude
-%   from the image volume are removed.
-%
-%   NLEV is the number of levels in the hierarchical construction of 'mba'
-%   and 'mbae'. For other INTERP options, it will be ignored. By default,
-%   NLEV = 7.
-%
-%
-%   Note on SCI NRRD: Software applications developed at the University of
-%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
-%   internally use NRRD volumes to store medical data.
-%
-%   When label volumes (segmentation masks) are saved to a Matlab file
-%   (.mat), they use a struct called "scirunnrrd" to store all the NRRD
-%   information:
-%
-%   >>  scirunnrrd
-%
-%   scirunnrrd = 
-%
-%          data: [4-D uint8]
-%          axis: [4x1 struct]
-%      property: []
+% See also: surface_interpolation.m.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010-2011 University of Oxford
-% Version: 0.6.0
+% Copyright © 2010-2013 University of Oxford
+% Version: 0.7.0
 % $Rev$
 % $Date$
 % 
@@ -82,7 +61,7 @@ function [nrrd, em, x] = scinrrd_surface_interpolation(nrrd, x, param, INTERP, K
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(2, 6);
+narginchk(2, 4);
 nargoutchk(0, 3);
 
 % defaults
@@ -90,29 +69,22 @@ if (nargin < 3)
     param = [];
 end
 if (nargin < 4)
-    INTERP = [];
-end
-if (nargin < 5)
-    KLIM = [];
-end
-if (nargin > 5 && ~isempty(nlev) ...
-        && ~(strcmp(INTERP, 'mba') || strcmp(INTERP, 'mbae')))
-    warning('NLEV input argument will be ignored for this INTERP option')
-end
-if (nargin < 6)
-    nlev = [];
+    interp = [];
 end
 
 % get voxel size
-res = [nrrd.axis.spacing];
+interp.res = [nrrd.axis.spacing];
 
 %% compute interpolating surface
-[y, em] = surface_interpolation(x, param, INTERP, res, KLIM, nlev);
+[y, uv] = surface_interpolation(x, param, interp);
 
 %% map interpolated surface points to voxels
 
+% dimensions of the volume with coordinates of surface points
+[R, C, S] = size(y);
+
 % convert real world coordinates to indices
-idx = round(scinrrd_world2index(y, nrrd.axis));
+idx = round(scinrrd_world2index(reshape(y, R*C, S), nrrd.axis));
 
 % remove points outside the volume
 badidx = isnan(sum(idx, 2));

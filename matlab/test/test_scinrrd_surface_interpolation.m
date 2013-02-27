@@ -5,7 +5,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -44,10 +44,12 @@ x = [...
     .75 .25 .5; ...
     .25 .75 .8; ...
     .75 .75 .2 ...
-    ]';
+    ];
 
 % interpolate surface
-nrrd = scinrrd_surface_interpolation(nrrd, x, 'xy', 'mbae', [], 5);
+param.type = 'xy';
+interp.type = 'mbae';
+nrrd = scinrrd_surface_interpolation(nrrd, x, param, interp);
 
 % plot isosurface of interpolated surface
 [gx, gy, gz] = scinrrd_ndgrid(nrrd);
