@@ -1,36 +1,55 @@
-function [xi, em, x, gx, gy] = surface_interpolation(x, param, INTERP, res, KLIM, nlev)
-% SURFACE_INTERPOLATION  Interpolate a surface from a scattered set of points
+function [xi, uv, x, ui, vi] = surface_interpolation(x, param, interp)
+% SURFACE_INTERPOLATION  Interpolate a surface from a scattered set of
+% points
 %
-% [XI, EM, X2, GX, GY] = surface_interpolation(X)
+%   This function takes a scattered data set X in 3D and finds a 2D
+%   parameterisation U, V (on a plane or sphere). It then computes three
+%   interpolants to map (U, V) -> X: X = F(U, V).
 %
-%   X is a 3-row matrix. Each column has the coordinates of a point that
+%   Finally, it creates a regular grid UI, VI and computes the
+%   corresponding interpolated XI, XI = F(UI, VI). This allow to visualise
+%   the surface resulting from interpolating the points in X.
+%
+% [XI, UV, X2, UI, VI] = surface_interpolation(X)
+%
+%   X is a 3-column matrix. Each row has the coordinates of a point that
 %   belongs to the surface we want to interpolate.
 %
-%   XI is a 3-row matrix with the coordinates of the interpolated points.
+%   XI is a (:,:,3)-volume with the interpolation result on a regular grid
+%   automatically created by this function. Each (i,j,:)-vector contains
+%   the (x,y,z) Euclidean coordinates of the interpolated point that
+%   corresponds to the parameterisation UI(i,j), VI(i,j). To plot the
+%   interpolated surface run
 %
-%   EM is a 2-row matrix with the coordinates of the X points projected
-%   onto the interpolation domain. Note that the interpolation domain may
-%   change between methods, so don't expect results to be aligned if you do
-%   e.g. plot3(gx(:), gy(:), y(:, 3), 'o').
+%     surf(xi(:, :, 1), xi(:, :, 2), xi(:, :, 3))
 %
-%   X2 is the input 3-row matrix X with possibly some points added from the
-%   extrapolated domain boundary (see method 'mbae').
+%   UV is a 2-column matrix with the parameterisation of X, (U, V)->X. In
+%   planar parameterisations, UV has units of meters. In spherical
+%   parameterisations, UV=[LON, LAT], in units of radians.
 %
-%   GX, GY are the grid for the box that contains EM.
+%   X2: Some methods (e.g. 'mbae') add extra points to X before computing
+%   the interpolants. X2 contains the points actually used for
+%   interpolation.
 %
-% ... = surface_interpolation(X, PARAM, INTERP, RES, KLIM, NLEV)
+%   UI, VI are the grid for the interpolated domain. UI, VI are rectangular
+%   matrices. Their size depends on the sampling rate of the domain
+%   (resolution) and the domain's size. In spherical parameterisations,
+%   UI=LON and VI=LAT, in units of radians.
 %
-%   PARAM is a struct with the method used to parametrise the surface and
-%   the set of points X. PARAM needs to have at least a field PARAM.type
-%   that describes the parameterisation method:
+% ... = surface_interpolation(X, PARAM, INTERP)
+%
+%   PARAM is a struct that describes the method used to parametrise the
+%   surface and the set of points X, and its parameters. PARAM needs to
+%   have at least a field PARAM.type that describes the parameterisation
+%   method:
 %
 %     'xy' (default): No change, the X coordinates are kept the same.
 %
 %        No extra parameters.
 %
-%     'pca': X points are rotated according to their eigenvectors to make
-%     the dominant plane of the points X as horizontal as possible before
-%     interpolating.
+%     'pca': The points in X are rotated according to their eigenvectors to
+%     make the dominant plane of the points X as horizontal as possible
+%     before interpolating.
 %
 %        No extra parameters.
 %
@@ -39,7 +58,11 @@ function [xi, em, x, gx, gy] = surface_interpolation(x, param, INTERP, res, KLIM
 %     IsomapII).
 %
 %        PARAM.size: Neighbourhood size (maximum number of closest
-%                    neighours allowed for each point)
+%                    neighours allowed for each point). By default,
+%                    PARAM.size=4. Small neighbourhoods allow to capture
+%                    higher curvature in the surface, but too small
+%                    neighbourhoods create several connected components and
+%                    will result in an error.
 %
 %        PARAM.d:    Distance matrix between points. If this matrix is not
 %                    provided, it is computed internally as the Euclidean
@@ -47,38 +70,78 @@ function [xi, em, x, gx, gy] = surface_interpolation(x, param, INTERP, res, KLIM
 %                    Providing the matrix allows the user to define
 %                    specific neighbourhoods and topologies.
 %
-%   INTERP is a string with the interpolation method:
+%     'sphisomap': Our extension to the Isomap method so that points are
+%     parameterised on a sphere rather than on a plane.
 %
-%      'tps' (default): Thin-plate spline. Global support.
+%        PARAM.dtype: Type of distance matrix to optimise: 
 %
-%      'tsi': Matlab's TriScatteredInterp() function. Local support,
-%      limited to the convex hull of the scattered points 2D projection on
-%      the interpolation domain.
+%                     'none': (default) Points are simply projected onto
+%                     the sphere along the radius to the centroid. No MDS
+%                     optimisation.
 %
-%      'gridfit': John D'Errico's gridfit() function [3] (note:
-%      approximation, rather than interpolation). Local support with
-%      extrapolation outside the convex hull.
+%                     'full': The full distance matrix is optimised, after
+%                     applying Dijkstra's algorithm to obtain shortest
+%                     distances between every pair of points.
 %
-%      'mba': Multilevel B-Spline Approximation Library by SINTEF ICT [4].
-%      Local support, limited to a rectangle that tighly contains the
-%      scattered points 2D projection on the interpolation domain.
+%                     'sparse': Optimisation is only run on the local
+%                     neighbourhoods defined by the distance matrix.
 %
-%      'mbae': Like the 'mba' method, but first a thin-plate spline is used 
-%      to extrapolate values on the interpolation domain boundary. Then MBA
-%      is used for the local support interpolation of X and the boundary
-%      values set by the thin-plate spline.
+%                     'full+sparse': First 'full', then 'sparse'.
 %
-%   RES is a 2-vector with the grid spacing in the x- and y-directions. By
-%   default, RES=[1 1].
+%        PARAM.*: Any other fields are passed to function
+%                 smdscale(...,OPT=PARAM). This allows to pass e.g.
+%                 stopping conditions to the spherical MDS algorithm. See
+%                 help smdscale for all options.
 %
-%   KLIM is a scalar factor for the extension of the interpolation domain.
-%   By default, KLIM=1 and the interpolation domain is a rectangle that
-%   tightly contains X. Sections of the interpolated surface that protude
-%   from the image volume are removed.
+%   INTERP is a struct that describes the interpolation method, and its
+%   parameters:
 %
-%   NLEV is the number of levels in the hierarchical construction of 'mba'
-%   and 'mbae'. For other INTERP options, it will be ignored.  By default,
-%   NLEV = 7.
+%     'tsi'  (default): Matlab's TriScatteredInterp() function. Compact
+%     support, limited to the convex hull of the scattered points 2D
+%     projection on the interpolation domain.
+%
+%        INTERP.res:  Resolution of the surface grid (default, [1 1]).
+%
+%        INTERP.klim: Scalar factor for the extension of the interpolation
+%                     domain beyond the tight box that contains UV 
+%                     (default 1).
+%
+%     'tps': Thin-plate spline. Global support.
+%
+%        See parameters above.
+%
+%     'gridfit': John D'Errico's gridfit() function [3] (note:
+%     approximation, rather than interpolation). Compact support with
+%     extrapolation outside the convex hull.
+%
+%        See parameters above.
+%
+%     'mba': Multilevel B-Spline Approximation Library by SINTEF ICT [4].
+%     Compact support, limited to a rectangle that tighly contains the
+%     scattered points 2D projection on the interpolation domain.
+%
+%        INTERP.res:  Resolution of the surface grid (default, [1 1]).
+%
+%        INTERP.klim: Scalar factor for the extension of the interpolation
+%                     domain beyond the tight box that contains UV 
+%                     (default 1).
+%
+%        INTERP.nlev: Number of levels in the hierarchical construction of
+%                     the B-spline (default 7).
+%
+%     'mbae': Like the 'mba' method, but first a thin-plate spline is used 
+%     to extrapolate values on the interpolation domain boundary. Then MBA
+%     is used for the local support interpolation of X and the boundary
+%     values set by the thin-plate spline.
+%
+%        See parameters above.
+%
+%     'sphspline': Sphere spline interpolation [5].
+%
+%        INTERP.res:  Resolution of the surface grid given as arc increment
+%                     (in radians) when sampling the sphere 
+%                     (default 2*pi/20).
+%
 %
 %
 % [1] J.B. Tenenbaum, V. de Silva and J.C. Langford, "A Global Geometric
@@ -93,10 +156,15 @@ function [xi, em, x, gx, gy] = surface_interpolation(x, param, INTERP, res, KLIM
 %
 % [4] MBA - Multilevel B-Spline Approximation Library
 % http://www.sintef.no/Projectweb/Geometry-Toolkits/MBA/
+%
+% [5] Wessel, P., and J. M. Becker, 2008, Gridding of spherical data using
+% a Green's function for splines in tension, Geophys. J. Int., 174, 21-28,
+% doi:10.1111/j.1365-246X.2008.03829.x
+% http://www.soest.hawaii.edu/wessel/sphspline/
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010-2011 University of Oxford
-% Version: 0.4.1
+% Copyright © 2010-2013 University of Oxford
+% Version: 0.5.0
 % $Rev$
 % $Date$
 % 
@@ -124,142 +192,309 @@ function [xi, em, x, gx, gy] = surface_interpolation(x, param, INTERP, res, KLIM
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(2, 6);
+narginchk(1, 3);
 nargoutchk(0, 5);
 
-% defaults
-if (nargin < 2 || isempty(param))
+if (size(x, 2) ~= 3)
+    error('X must be a 3-column matrix')
+end
+
+% general defaults
+if (nargin < 2 || isempty(param) || ~isfield(param, 'type') ...
+        || isempty(param.type))
     param.type = 'xy';
 end
-if (nargin < 3 || isempty(INTERP))
-    INTERP = 'tps';
-end
-if (nargin < 4 || isempty(res))
-    res = [1 1];
-end
-if (nargin < 5 || isempty(KLIM))
-    KLIM = 1;
-end
-if (nargin > 5 && ~isempty(nlev) ...
-        && ~(strcmp(INTERP, 'mba') || strcmp(INTERP, 'mbae')))
-    warning('NLEV input argument ignored for this INTERP option')
-end
-if (nargin < 6 || isempty(nlev))
-    nlev = 7;
+if (nargin < 3 || isempty(interp) || ~isfield(interp, 'type') ...
+        || isempty(interp.type))
+    interp.type = 'tsi';
 end
 
-%% map the 3D points (x,y,z) to a 2D domain (u,v)
+%% Parameterisation: map the 3D points (x,y,z) to a 2D domain (u,v)
 
-% this is analogous to computing the knot vector for a curve interpolation.
-% The idea is that (x,y)->z is not necessarily a function, due to the valve
-% folding over. However, we hope that (u,v)->(x,y,z) is a function
+% method-specific defaults
+switch param.type
+    
+    case {'xy', 'pca'}
+        
+        % nothing to do here
+        
+    case 'isomap'
+        
+        % if distance matrix is not provided by the user, it is computed
+        % internally as the full Euclidean distance matrix. Note that we
+        % can still define local neighbourdhoods with the size parameter
+        if (~isfield(param, 'd') || isempty(param.d))
+            
+            param.d = dmatrix(x', x', 'euclidean');
+            
+        end
+        
+        % size of the local neighbourhood (number of nearest neighbours
+        % each point is connected to)
+        if (~isfield(param, 'size') || isempty(param.size))
+            
+            param.size = 4;
+            
+        end
+        
+    case 'sphisomap'
+        
+        if (~isfield(param, 'maxiter') || isempty(param.maxiter))
+            
+            param.maxiter = 50;
+            
+        end
+        if (~isfield(param, 'dtype') || isempty(param.dtype))
+            
+            param.dtype = 'full';
+            
+        end
+        
+        
+    otherwise
+        
+        error('Parametrization method not implemented')
+        
+end
+
+% obtain a 2D parameterisation for the input 3D points
 switch param.type
     
     case 'xy'
         
         % (u,v) is simply (x,y)
-        em = x(1:2, :);
+        uv = x(:, 1:2);
         
     case 'pca'
         
         % rotate valve points to make the valve surface as horizontal as
         % possible
-        m = mean(x, 2);
-        em = x - m(:, ones(1, size(x, 2)));
-        eigv = pts_pca(em);
-        em = eigv' * em;
-        em = em(1:2, :);
+        m = mean(x, 1);
+        uv = x - m(ones(1, size(x, 1)), :);
+        eigv = pts_pca(uv');
+        uv = uv * eigv;
+        uv = uv(:, 1:2);
         
     case 'isomap'
 
-        % if distance matrix is not provided by the user
-        if (~isfield(param, 'd') && isempty(param.d))
-            % compute distance matrix
-            param.d = dmatrix(x, x, 'euclidean');
-        end
-        
         % compute 2-d projection of the 3-d data
         options.dims = 2;
         options.display = 0;
         options.overlay = 0;
         options.verbose = 0;
-        em = IsomapII(param.d, 'k', param.size, options);
-        em = em.coords{1};
-    
+        options.dijkstra = 1;
+        uv = IsomapII(param.d, 'k', param.size, options);
+        uv = uv.coords{1}';
+        if (size(uv, 1) ~= size(x, 1))
+            error('The neighbourhood size (param.size) is too small to connect all points')
+        end
+        
+    case 'sphisomap'
+        
+        % number of points to embed
+        N = size(x, 1);
+        
+        % initial guess for the sphere embedding by simply projecting each
+        % point along the radius to the centroid
+        [lat, lon, sphrad] = proj_on_sphere(x);
+        
+        if (strcmp(param.dtype, 'full') || strcmp(param.dtype, 'full+sparse'))
+            
+            % embbed the point set on the sphere using the initial guess, using
+            % a full distance matrix as the input to Multidimensional Scaling
+            % (MDS)
+            [lat, lon] = ...
+                smdscale(dijkstra(sparse(param.d), 1:N), ...
+                sphrad, lat, lon, param);
+            
+        end
+        
+        if (strcmp(param.dtype, 'sparse') || strcmp(param.dtype, 'full+sparse'))
+
+            % use the solution to the full distance matrix to initialise MDS on
+            % the sparse distance matrix
+            [lat, lon] = ...
+                smdscale(param.d, sphrad, lat, lon, param);
+            
+        end
+        
+        % create output with the parameterisation values for each point
+        % lon = em(1, :)
+        % lat = em(2, :)
+        uv = [lon lat];
+        
     otherwise
+        
         error('Parametrization method not implemented')
 end
 
-%% compute interpolation domain
+%% Interpolation: compute domain
 
-% find box that contains embedded coordinates
-emmin = min(em, [], 2);
-emmax = max(em, [], 2);
+% method-specific defaults
+switch interp.type
+    
+    case {'tps', 'tsi', 'gridfit'}
+        
+        if (~isfield(interp, 'res') || isempty(interp.res))
+            interp.res = [1 1];
+        end
+        if (~isfield(interp, 'klim') || isempty(interp.klim))
+            interp.klim = 1;
+        end
+        
+    case {'mba', 'mbae'}
+        
+        if (~isfield(interp, 'res') || isempty(interp.res))
+            interp.res = [1 1];
+        end
+        if (~isfield(interp, 'klim') || isempty(interp.klim))
+            interp.klim = 1;
+        end
+        if (~isfield(interp, 'nlev') || isempty(interp.nlev))
+            interp.nlev = 7;
+        end
+        
+    case 'sphspline'
+        
+        if (~isfield(interp, 'res') || isempty(interp.res))
+            interp.res = 2*pi/20; % arc increment (in radians) when sampling the sphere
+        end
+        
+    otherwise
+        
+        error('Interpolation method not implemented')
+end
 
-% box size and centroid
-delta = emmax - emmin;
-boxm = mean([emmax emmin], 2);
+switch interp.type
+    
+    case {'tps', 'tsi', 'gridfit', 'mba', 'mbae'}
+        
+        % find box that contains embedded coordinates
+        uvmin = min(uv, [], 1);
+        uvmax = max(uv, [], 1);
+        
+        % box size and centroid
+        delta = uvmax - uvmin;
+        boxm = mean([uvmax; uvmin], 1);
+        
+        % extend the box
+        uvmin = boxm - delta/2*interp.klim;
+        uvmax = boxm + delta/2*interp.klim;
+        
+        % generate grid for the embedding box
+        [vi, ui] = ndgrid(...
+            uvmin(2):interp.res(1):uvmax(2), ...
+            uvmin(1):interp.res(2):uvmax(1));
+        
+    case 'sphspline'
+        
+        % number of sampling points in each direction on the sphere to
+        % achieve radian increment requested by the user
+        Nsph = 2*pi / interp.res;
+        
+        % regular sampling of a sphere
+        [xisph, yisph, zisph] = sphere(Nsph);
+        
+        % convert sphere points to lat and lon coordinates (in radians)
+        % lon = ui
+        % lat = vi
+        [ui, vi] = cart2sph(xisph, yisph, zisph);
+        
+    otherwise
+        
+        error('Interpolation method not implemented')
+end
 
-% extend the box
-emmin = boxm - delta/2*KLIM;
-emmax = boxm + delta/2*KLIM;
-
-% generate grid for the embedding box
-[gy, gx] = ndgrid(emmin(2):res(1):emmax(2), emmin(1):res(2):emmax(1));
-
-
-%% compute interpolating surface
-
-% source and target points that will define the warp
-%s = em; % don't duplicate data in memory
-%t = x; % don't duplicate data in memory
+%% Interpolation: compute surface
 
 % interpolate
-switch INTERP
+switch interp.type
+    
     case 'tps' % thin-plate spline
-        xi = pts_tps_map(em', x', [gx(:) gy(:)]);
+        
+        xi = pts_tps_map(uv, x, [ui(:) vi(:)]);
+        xi = reshape(xi, [size(ui) 3]);
+
     case 'tsi' % Matlab's TriScatteredInterp
-        fx = TriScatteredInterp(em(1, :)', em(2, :)', x(1, :)', 'natural');
-        fy = TriScatteredInterp(em(1, :)', em(2, :)', x(2, :)', 'natural');
-        fz = TriScatteredInterp(em(1, :)', em(2, :)', x(3, :)', 'natural');
-        fx = fx(gx, gy);
-        fy = fy(gx, gy);
-        fz = fz(gx, gy);
-        xi = [fx(:) fy(:) fz(:)];
+        
+        fx = TriScatteredInterp(uv(:, 1), uv(:, 2), x(:, 1), 'natural');
+        fy = TriScatteredInterp(uv(:, 1), uv(:, 2), x(:, 2), 'natural');
+        fz = TriScatteredInterp(uv(:, 1), uv(:, 2), x(:, 3), 'natural');
+        fx = fx(ui, vi);
+        fy = fy(ui, vi);
+        fz = fz(ui, vi);
+        xi = cat(3, fx, fy, fz);
+        
     case 'gridfit'
-        fx = gridfit(em(1, :)', em(2, :)', x(1, :)', ...
-            emmin(1):res(2):emmax(1), emmin(2):res(1):emmax(2), ...
+        
+        fx = gridfit(uv(:, 1), uv(:, 2), x(:, 1), ...
+            uvmin(1):interp.res(2):uvmax(1), ...
+            uvmin(2):interp.res(1):uvmax(2), ...
             'tilesize', 150);
-        fy = gridfit(em(1, :)', em(2, :)', x(2, :)', ...
-            emmin(1):res(2):emmax(1), emmin(2):res(1):emmax(2), ...
+        fy = gridfit(uv(:, 1), uv(:, 2), x(:, 2), ...
+            uvmin(1):interp.res(2):uvmax(1), ...
+            uvmin(2):interp.res(1):uvmax(2), ...
             'tilesize', 150);
-        fz = gridfit(em(1, :)', em(2, :)', x(3, :)', ...
-            emmin(1):res(2):emmax(1), emmin(2):res(1):emmax(2), ...
+        fz = gridfit(uv(:, 1), uv(:, 2), x(:, 3), ...
+            uvmin(1):interp.res(2):uvmax(1), ...
+            uvmin(2):interp.res(1):uvmax(2), ...
             'tilesize', 150);
-        xi = [fx(:) fy(:) fz(:)];
+        xi = cat(3, fx, fy, fz);
+        
     case 'mba' % Multilevel B-Spline Approximation Library
-        xi = [...
-            mba_surface_interpolation(em(1, :)', em(2, :)', x(1, :)', gx(:), gy(:), nlev) ...
-            mba_surface_interpolation(em(1, :)', em(2, :)', x(2, :)', gx(:), gy(:), nlev) ...
-            mba_surface_interpolation(em(1, :)', em(2, :)', x(3, :)', gx(:), gy(:), nlev)];
+        
+        fx = mba_surface_interpolation(uv(:, 1), uv(:, 2), x(:, 1), ...
+            ui(:), vi(:), interp.nlev);
+        fy = mba_surface_interpolation(uv(:, 1), uv(:, 2), x(:, 2), ...
+            ui(:), vi(:), interp.nlev);
+        fz = mba_surface_interpolation(uv(:, 1), uv(:, 2), x(:, 3), ...
+            ui(:), vi(:), interp.nlev);
+        xi = cat(3, ...
+            reshape(fx, size(ui)), ...
+            reshape(fy, size(ui)), ...
+            reshape(fz, size(ui)));
+        
     case 'mbae' % MBA extrapolated using a TPS
+        
         % use TPS to interpolate the points, but we are only interested in
         % the edges and corners of the interpolation, where the TPS is
         % extrapolating linearly; also, we decimate the points in the edges
-        em2 = [gx(1, 1:end)' gy(1, 1:end)' ; ... % top edge
-            gx(2:end, end) gy(2:end, end) ; ... % right edge
-            gx(end, 1:end-1)' gy(end, 1:end-1)' ; ... % bottom edge
-            gx(2:end-1, 1) gy(2:end-1, 1) ; ... % left edge
-            ]';
-        xi = pts_tps_map(em', x', em2')';
-        x = [x xi(:, 1:10:end)];
+        uv2 = [ui(1, 1:end)' vi(1, 1:end)' ; ... % top edge
+            ui(2:end, end) vi(2:end, end) ; ... % right edge
+            ui(end, 1:end-1)' vi(end, 1:end-1)' ; ... % bottom edge
+            ui(2:end-1, 1) vi(2:end-1, 1) ; ... % left edge
+            ];
+        xi = pts_tps_map(uv, x, uv2);
+        x = [x; xi(1:10:end, :)]; % don't keep all points on the boundary
         % local support interpolation with boundary conditions provided by
         % the TPS
-        em = [em em2(:, 1:10:end)];
-        xi = [...
-            mba_surface_interpolation(em(1, :)', em(2, :)', x(1, :)', gx(:), gy(:), nlev) ...
-            mba_surface_interpolation(em(1, :)', em(2, :)', x(2, :)', gx(:), gy(:), nlev) ...
-            mba_surface_interpolation(em(1, :)', em(2, :)', x(3, :)', gx(:), gy(:), nlev)];
+        uv = [uv; uv2(1:10:end, :)];
+        
+        fx = mba_surface_interpolation(uv(:, 1), uv(:, 2), x(:, 1), ...
+            ui(:), vi(:), interp.nlev);
+        fy = mba_surface_interpolation(uv(:, 1), uv(:, 2), x(:, 2), ...
+            ui(:), vi(:), interp.nlev);
+        fz = mba_surface_interpolation(uv(:, 1), uv(:, 2), x(:, 3), ...
+            ui(:), vi(:), interp.nlev);
+        xi = cat(3, ...
+            reshape(fx, size(ui)), ...
+            reshape(fy, size(ui)), ...
+            reshape(fz, size(ui)));
+        
+    case 'sphspline'
+        
+        % constant to convert radians to degrees, because sphsplinet()
+        % expects degrees as the input unit
+        aux = 180/pi;
+        
+        % compute spherical interpolation
+        xi = cat(3, ...
+            sphsplinet(lon*aux, lat*aux, x(:, 1), ui*aux, vi*aux), ...
+            sphsplinet(lon*aux, lat*aux, x(:, 2), ui*aux, vi*aux), ...
+            sphsplinet(lon*aux, lat*aux, x(:, 3), ui*aux, vi*aux) ...
+            );
+        
     otherwise
+        
         error('Interpolation method not implemented')
 end
