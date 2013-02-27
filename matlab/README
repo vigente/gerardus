@@ -514,6 +514,11 @@ scimat_dmatrix_thickslice.m
 	 SCIMAT_DMATRIX_THICKSLICE  Compute a distance/adjacency matrix for a
 	 segmentation that consists of scattered points in slices wide apart
 	
+scimat_simlandmarks_thickslice.m
+
+	 SCIMAT_SIMLANDMARKS_THICKSLICE  Simulate a human placing landmarks on the
+	 boundary of a "thick slice" segmentation
+	
 scinrrd_pca.m
 
 	 SCINRRD_PCA Principal Principal Component Analysis of the selected
