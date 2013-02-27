@@ -530,7 +530,8 @@ sparse_breakdown.m
 	
 surface_interpolation.m
 
-	 SURFACE_INTERPOLATION  Interpolate a surface from a scattered set of points
+	 SURFACE_INTERPOLATION  Interpolate a surface from a scattered set of
+	 points
 	
 vec2rotmat.m
 
