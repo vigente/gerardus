@@ -1,5 +1,11 @@
 2013-02-27  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/PointsToolbox/scinrrd_surface_interpolation.m: (0.7.0)
+	* matlab/test/test_scinrrd_surface_interpolation.m: (0.1.1)
+
+	- Change of interface to match the change of interface in
+	surface_interpolation().
+
 	* Move data files from matlab/test to matlab/test/data.
 
 	* matlab/test/test_surface_interpolation.m: (v0.2.0)
