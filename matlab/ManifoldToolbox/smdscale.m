@@ -86,7 +86,7 @@ function [lat, lon, err, stopCondition, dsph] = smdscale(d, sphrad, lat, lon, op
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.3.1
+% Version: 0.3.2
 % $Rev$
 % $Date$
 %
@@ -233,11 +233,15 @@ while isempty(stopCondition)
         stopCondition{end+1} = 'frorel';
     end
     
-    if (err(end) <= opt.fronorm)
+    if (isfield(opt, 'fronorm') && err(end) <= opt.fronorm)
         stopCondition{end+1} = 'fronorm';
     end
         
 end
+
+% turn lat and lon into column vectors
+lat = lat(:);
+lon = lon(:);
 
 end
 

@@ -1,3 +1,9 @@
+2013-02-27  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/smdscale.m: (v0.3.2)
+
+	- Fix bug, 'fronorm' is no longer the default stopping criterion.
+
 2013-02-26  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/smdscale.m: (v0.3.1)
