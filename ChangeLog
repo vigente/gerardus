@@ -1,5 +1,18 @@
 2013-02-27  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/test/test_surface_interpolation.m: (v0.2.0)
+
+	- Interface of surface_interpolation() has changed.
+
+	- Add "PCA parameterisation for all interpolation methods on a
+	plane".
+
+	- Add "Isomap parameterisation for all interpolation methods on a
+	plane".
+
+	- Add "We have a scattered set of points and we want to compute an
+	interpolation surface topologically equivalent to a sphere"
+
 	* matlab/PointsToolbox/surface_interpolation.m: (0.5.0)
 
 	- Full change to the interface. Big rewrite of the function.
