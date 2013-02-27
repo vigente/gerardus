@@ -1,5 +1,9 @@
 2013-02-27  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/test/test_smdscale.m: (0.2.2)
+
+	- Minor, data file has changed its name.
+
 	* matlab/ManifoldToolbox/smdscale.m: (v0.3.2)
 
 	- Fix bug, 'fronorm' is no longer the default stopping criterion.
