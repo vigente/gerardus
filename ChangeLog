@@ -1,5 +1,10 @@
 2013-02-27  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/PointsToolbox/scimat_simlandmarks_thickslice.m: (0.1.0)
+
+	- SCIMAT_SIMLANDMARKS_THICKSLICE Simulate a human placing
+	landmarks on the boundary of a "thick slice" segmentation.
+
 	* matlab/PointsToolbox/scinrrd_surface_interpolation.m: (0.7.0)
 	* matlab/test/test_scinrrd_surface_interpolation.m: (0.1.1)
 
