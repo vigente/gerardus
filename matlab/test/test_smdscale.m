@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 %
@@ -37,9 +37,7 @@
 %% We want to project it onto the sphere
 
 % load discrete point set with an associated local neighbourhood
-load('test/test_smdscale_mesh.mat')
-xyz = points;
-clear points
+load('test/thick-slice-points-xyz-d.mat')
 
 % plot neighbourhood
 hold off
