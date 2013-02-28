@@ -1,3 +1,10 @@
+2013-02-28  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/surface_interpolation.m: (v0.5.1)
+
+	- Accept a tension interpolation parameter for spherical
+	splines. Tension works as a regulariser, smoothing the spline.
+
 2013-02-27  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/PointsToolbox/scimat_simlandmarks_thickslice.m: (0.1.0)
