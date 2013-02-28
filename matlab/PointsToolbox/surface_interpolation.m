@@ -142,6 +142,9 @@ function [xi, uv, x, ui, vi] = surface_interpolation(x, param, interp)
 %                     (in radians) when sampling the sphere 
 %                     (default 2*pi/20).
 %
+%        INTERP.tension: Tension applied to the sphere spline. More tension
+%                     makes the spline smoother (default 0). 
+%
 %
 %
 % [1] J.B. Tenenbaum, V. de Silva and J.C. Langford, "A Global Geometric
@@ -164,7 +167,7 @@ function [xi, uv, x, ui, vi] = surface_interpolation(x, param, interp)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2013 University of Oxford
-% Version: 0.5.0
+% Version: 0.5.1
 % $Rev$
 % $Date$
 % 
@@ -359,6 +362,9 @@ switch interp.type
         if (~isfield(interp, 'res') || isempty(interp.res))
             interp.res = 2*pi/20; % arc increment (in radians) when sampling the sphere
         end
+        if (~isfield(interp, 'tension') || isempty(interp.tension))
+            interp.tension = 0;
+        end
         
     otherwise
         
@@ -489,9 +495,9 @@ switch interp.type
         
         % compute spherical interpolation
         xi = cat(3, ...
-            sphsplinet(lon*aux, lat*aux, x(:, 1), ui*aux, vi*aux), ...
-            sphsplinet(lon*aux, lat*aux, x(:, 2), ui*aux, vi*aux), ...
-            sphsplinet(lon*aux, lat*aux, x(:, 3), ui*aux, vi*aux) ...
+            sphsplinet(lon*aux, lat*aux, x(:, 1), ui*aux, vi*aux, interp.tension), ...
+            sphsplinet(lon*aux, lat*aux, x(:, 2), ui*aux, vi*aux, interp.tension), ...
+            sphsplinet(lon*aux, lat*aux, x(:, 3), ui*aux, vi*aux, interp.tension) ...
             );
         
     otherwise
