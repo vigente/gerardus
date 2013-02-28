@@ -1,5 +1,11 @@
 2013-02-28  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/ManifoldToolbox/delaunay_sphere.m: (0.1.0)
+
+	- DELAUNAY_SPHERE Triangulation of a sphere or a surface
+	topologically equivalent to a sphere so that it can be used as a
+	mesh.
+
 	* Add matlab/PointsToolbox/thickslice_collate_sax_la.m: (0.1.0)
 
 	- THICKSLICE_COLLATE_SAX_LA Build a distance/adjacency matrix
