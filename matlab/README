@@ -350,6 +350,11 @@ itk_pstransform.m
 ManifoldToolbox
 -------------------------------------------------------------
 
+delaunay_sphere.m
+
+	 DELAUNAY_SPHERE  Triangulation of a sphere or a surface topologically
+	 equivalent to a sphere so that it can be used as a mesh
+	
 proj_on_sphere.m
 
 	 PROJ_ON_SPHERE  Project a point configuration onto a sphere
@@ -537,6 +542,11 @@ surface_interpolation.m
 
 	 SURFACE_INTERPOLATION  Interpolate a surface from a scattered set of
 	 points
+	
+thickslice_collate_sax_la.m
+
+	 THICKSLICE_COLLATE_SAX_LA  Build a distance/adjacency matrix collating
+	 points from a Long Axis plane to a set of Short Axis planes
 	
 vec2rotmat.m
 
