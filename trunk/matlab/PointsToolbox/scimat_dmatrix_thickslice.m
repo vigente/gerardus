@@ -36,6 +36,8 @@ function [d, points] = scimat_dmatrix_thickslice(scimat, K)
 %    hold on
 %    gplot3d(d, points)
 %    axis equal
+%
+% See also: thickslice_collate_sax_la
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
