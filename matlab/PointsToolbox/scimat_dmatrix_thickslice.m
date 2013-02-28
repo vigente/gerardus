@@ -149,6 +149,7 @@ end
 
 end
 
+% this function also in thickslice_collate_sax_la()
 function d = update_dmatrix(d, ds, idx1, idx2, K)
 
 if (size(ds, 1) ~= length(idx1) || size(ds, 2) ~= length(idx2))
