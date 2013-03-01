@@ -27,6 +27,8 @@ function [tri, x] = delaunay_sphere(N, xi)
 %   The surface can be plotted running
 %
 %     surf(xi(:, :, 1), xi(:, :, 2), xi(:, :, 3))
+%
+% See also: scimat_closed_surf_to_bw
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
