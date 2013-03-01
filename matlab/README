@@ -359,6 +359,11 @@ proj_on_sphere.m
 
 	 PROJ_ON_SPHERE  Project a point configuration onto a sphere
 	
+scimat_closed_surf_to_bw.m
+
+	 SCIMAT_CLOSED_SURF_TO_BW  Segment the inside of the triangulation of a
+	 closed surface
+	
 smdscale.m
 
 	 SMDSCALE  Multidimensional scaling on a sphere
