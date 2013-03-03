@@ -73,11 +73,21 @@ function [xi, uv, x, ui, vi] = surface_interpolation(x, param, interp)
 %     'sphisomap': Our extension to the Isomap method so that points are
 %     parameterised on a sphere rather than on a plane.
 %
+%        PARAM.init:  Initialisation of points on the sphere before running
+%                     spherical MDS:
+%
+%                     'sphproj': (default) Surface points are projected
+%                     onto the sphere along the radii to their centroid.
+%
+%                     'random': Uniformly random distribution of points on
+%                     the sphere. Counter-intuitively, this can work better
+%                     than sphproj, because it prevents MDS from getting
+%                     trapped in a local minimum.
+%
 %        PARAM.dtype: Type of distance matrix to optimise: 
 %
-%                     'none': (default) Points are simply projected onto
-%                     the sphere along the radius to the centroid. No MDS
-%                     optimisation.
+%                     'none': (default) No MDS optimisation. Point
+%                     initialisation will be the parameterisation output.
 %
 %                     'full': The full distance matrix is optimised, after
 %                     applying Dijkstra's algorithm to obtain shortest
@@ -88,10 +98,10 @@ function [xi, uv, x, ui, vi] = surface_interpolation(x, param, interp)
 %
 %                     'full+sparse': First 'full', then 'sparse'.
 %
-%        PARAM.*: Any other fields are passed to function
-%                 smdscale(...,OPT=PARAM). This allows to pass e.g.
-%                 stopping conditions to the spherical MDS algorithm. See
-%                 help smdscale for all options.
+%        PARAM.*:     Any other fields are passed to function
+%                     smdscale(...,OPT=PARAM). This allows to pass e.g.
+%                     stopping conditions to the spherical MDS algorithm.
+%                     See "help smdscale" for all options.
 %
 %   INTERP is a struct that describes the interpolation method, and its
 %   parameters:
@@ -167,7 +177,7 @@ function [xi, uv, x, ui, vi] = surface_interpolation(x, param, interp)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2013 University of Oxford
-% Version: 0.5.1
+% Version: 0.5.2
 % $Rev$
 % $Date$
 % 
@@ -252,6 +262,11 @@ switch param.type
             param.dtype = 'full';
             
         end
+        if (~isfield(param, 'init') || isempty(param.init))
+            
+            param.init = 'sphproj';
+            
+        end
         
         
     otherwise
@@ -297,22 +312,45 @@ switch param.type
         % number of points to embed
         N = size(x, 1);
         
-        % initial guess for the sphere embedding by simply projecting each
-        % point along the radius to the centroid
-        [lat, lon, sphrad] = proj_on_sphere(x);
+        % sMDS initialisation
+        switch param.init
+            case 'sphproj'
+                
+                % initial guess for the sphere embedding by simply projecting each
+                % point along the radius to the centroid
+                [lat, lon, sphrad] = proj_on_sphere(x);
+                
+            case 'random'
+                
+                % kludge: we use this to estimate the sphere's radius
+                [~, ~, sphrad] = proj_on_sphere(x);
+                
+                % this initialisation doesn't work well in all cases.
+                % Counter-intuitively, starting from a completely random
+                % distribution then yields good results
+                lat = (rand(N, 1) - .5) * pi;
+                lon = 2 * (rand(N, 1) - .5) * pi;
+                
+            otherwise
+                error('Not valid initialisation for spherical Isomap parameterisation')
+        end
         
-        if (strcmp(param.dtype, 'full') || strcmp(param.dtype, 'full+sparse'))
+        if (strcmp(param.dtype, 'full') ...
+                || strcmp(param.dtype, 'full+sparse'))
             
             % embbed the point set on the sphere using the initial guess, using
             % a full distance matrix as the input to Multidimensional Scaling
             % (MDS)
-            [lat, lon] = ...
+            tic
+            [lat, lon, err] = ...
                 smdscale(dijkstra(sparse(param.d), 1:N), ...
                 sphrad, lat, lon, param);
+            toc
             
         end
         
-        if (strcmp(param.dtype, 'sparse') || strcmp(param.dtype, 'full+sparse'))
+        if (strcmp(param.dtype, 'sparse') ...
+                || strcmp(param.dtype, 'full+sparse'))
 
             % use the solution to the full distance matrix to initialise MDS on
             % the sparse distance matrix
@@ -320,6 +358,18 @@ switch param.type
                 smdscale(param.d, sphrad, lat, lon, param);
             
         end
+        
+%         % DEBUG: plot paramatererisation
+%         [xsph, ysph, zsph] = sph2cart(lon, lat, sphrad);
+%         [~, xyzsph] = procrustes(x, [xsph ysph zsph], 'Scaling', false);
+%         tri = DelaunayTri(xyzsph);
+%         tri = freeBoundary(tri);
+%         trisurf(tri, x(:, 1), x(:, 2), x(:, 3));
+%         axis equal
+%         
+%         % DEBUG: plot cloud of points for parameterisation
+%         plot3(xsph, ysph, zsph, '.')
+%         axis equal
         
         % create output with the parameterisation values for each point
         % lon = em(1, :)
