@@ -1,3 +1,12 @@
+2013-03-03  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/surface_interpolation.m: (v0.5.2)
+
+	- Add PARAM.init so that we can choose the type of initialisation
+	for spherical MDS. Before, we only had the project on sphere along
+	radii option. Now, we can choose random initialisation, that
+	overcomes local minimum problems.
+
 2013-03-01  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ManifoldToolbox/scimat_closed_surf_to_bw.m: (v0.1.0)
