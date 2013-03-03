@@ -41,7 +41,7 @@ function [d, points] = scimat_dmatrix_thickslice(scimat, K)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
@@ -120,7 +120,7 @@ for I = 1:N
     
     % compute local neighbourhood for the slice and update the big distance
     % matrix with it
-    d = update_dmatrix(d, ds, idxs{I}, idxs{I}, K);
+    d = update_dmatrix(d, ds, idxs{I}, idxs{I}, min([K, Ns-1]));
     
 end
 
@@ -141,11 +141,11 @@ for I = 1:N-1
     
     % compute local neighbourhood for slice I to slice I+1 and update the
     % big distance matrix with it
-    d = update_dmatrix(d, ds, idxs{I}, idxs{I+1}, K);
+    d = update_dmatrix(d, ds, idxs{I}, idxs{I+1}, min([K, Ns1-1, Ns2-1]));
     
     % compute local neighbourhood for slice I+1 to slice I and update the
     % big distance matrix with it
-    d = update_dmatrix(d, ds', idxs{I+1}, idxs{I}, K);
+    d = update_dmatrix(d, ds', idxs{I+1}, idxs{I}, min([K, Ns1-1, Ns2-1]));
     
 end
 
