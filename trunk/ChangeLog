@@ -1,5 +1,10 @@
 2013-03-03  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/PointsToolbox/scimat_dmatrix_thickslice.m: (v0.1.2)
+
+	- Fix bug. Method failed when the slice had fewer voxels than the
+	number K of nearest neighbours we wanted.
+
 	* matlab/PointsToolbox/surface_interpolation.m: (v0.5.2)
 
 	- Add PARAM.init so that we can choose the type of initialisation
