@@ -940,109 +940,102 @@ FibHeapNode* Temp = NULL;
 
 //===========================================================================
 
-void mexFunction(
-		 int          nlhs,
+void mexFunction(int          nlhs,
 		 mxArray      *plhs[],
 		 int          nrhs,
-		 const mxArray *prhs[]
-		 )
-{
+		 const mxArray *prhs[]) {
+
   double    *sr,*D,*P,*SS,*Dsmall;
   double *Psmall;
   mwIndex       *irs,*jcs;
   mwSize  M,N,S,MS,NS,i,j;
-
+  
   HeapNode *A = NULL;
   FibHeap  *theHeap = NULL;
   
-  if (nrhs != 2)
-  {
-      mexErrMsgTxt( "Two input arguments required." );
+  if (nrhs != 2) {
+    mexErrMsgTxt("Two input arguments required.");
+  } else if (nlhs > 2) {
+    mexErrMsgTxt("Too many output arguments.");
   }
-      else if (nlhs > 2) 
-   {
-      mexErrMsgTxt( "Too many output arguments." );
-   }
-   
-   M = mxGetM( prhs[0] );
-   N = mxGetN( prhs[0] );
-   
-   if (M != N) mexErrMsgTxt( "Input matrix needs to be square." );
+  
+  // d
+  M = mxGetM(prhs[0]);
+  N = mxGetN(prhs[0]);
+  
+  if (M != N) mexErrMsgTxt("Input matrix needs to be square.");
+  
+  // list of source nodes
+  SS = mxGetPr(prhs[1]);
+  MS = mxGetM(prhs[1]);
+  NS = mxGetN(prhs[1]);
+  
+  if ((MS==0) || (NS==0) || ((MS>1) && (NS>1))) mexErrMsgTxt("Source nodes are specified in one dimensional matrix only");
+  if (NS>MS) MS=NS;
+  
+  // distance values output
+  plhs[0] = mxCreateDoubleMatrix(MS,M, mxREAL);
+  D = mxGetPr(plhs[0]);
+  
+  // predecessors output
+  plhs[1] = mxCreateDoubleMatrix(MS,M, mxREAL);
+  P = mxGetPr(plhs[1]);
+  
+  Dsmall = (double *) mxCalloc(M , sizeof(double));
+  Psmall = (double *) mxCalloc(M , sizeof(double));
+  
+  if (Dsmall == NULL || Psmall == NULL) {
+    mexErrMsgTxt("Memory allocation failed");
+  }
+  
+  if (mxIsSparse(prhs[ 0 ]) == 1) {
+    /* dealing with sparse array */
+    sr      = mxGetPr(prhs[0]);
+    irs     = mxGetIr(prhs[0]);
+    jcs     = mxGetJc(prhs[0]);
     
-   SS = mxGetPr(prhs[1]);
-   MS = mxGetM( prhs[1] );
-   NS = mxGetN( prhs[1] );
-     
-   if ((MS==0) || (NS==0) || ((MS>1) && (NS>1))) mexErrMsgTxt( "Source nodes are specified in one dimensional matrix only" );
-   if (NS>MS) MS=NS;
-
-   // distance values output
-   plhs[0] = mxCreateDoubleMatrix( MS,M, mxREAL);
-   D = mxGetPr(plhs[0]);
+    // Setup for the Fibonacci heap
     
-   // predecessors output
-   plhs[1] = mxCreateDoubleMatrix( MS,M, mxREAL);
-   P = mxGetPr(plhs[1]);
+    for (i=0; i<MS; i++) {
+      if ((theHeap = new FibHeap) == NULL || (A = new HeapNode[M+1]) == NULL) {
+	mexErrMsgTxt("Memory allocation failed-- ABORTING.\n");
+      }
+      
+      theHeap->ClearHeapOwnership();
+      
+      S = (long int) *(SS + i);
+      S--;
+      
+      if ((S < 0) || (S > M-1)) mexErrMsgTxt("Source node(s) out of bound");
+
+      /* -------------------------------------------------------------------------------------------------
+	 run the dijkstra code 
+	 ------------------------------------------------------------------------------------------------- */
+      
+      //         mexPrintf("Working on i=%d\n" , i);
+
+      dodijk_sparse(M,N,S,Psmall,Dsmall,sr,irs,jcs,A,theHeap);
+      
+      for (j=0; j<M; j++) {
+	// copy distance values and predecessor indices to output 
+	*(D + j*MS + i) = *(Dsmall + j);
+	*(P + j*MS + i) = *(Psmall + j) + 1;
+	//   P[j] = (double)(Psmall[j] + 1);
+	
+	// 	   mexPrintf("Distance i=%d to j=%d =%f, Parent=%d\n", S+1, j, 
+	// 		      *(Dsmall + j), Psmall[j]);
+      }
+      
+      /* -------------------------------------------------------------------------------------------------
+	 end of the dijkstra code 
+	 ------------------------------------------------------------------------------------------------- */
+      
+      delete theHeap;
+      delete[] A;
+    } 
+
     
-   Dsmall = (double *) mxCalloc( M , sizeof(double));
-   Psmall = (double *) mxCalloc(M , sizeof(double));
-
-   if (Dsmall == NULL || Psmall == NULL) {
-     mexErrMsgTxt("Memory allocation failed");
-   }
-
-   if (mxIsSparse( prhs[ 0 ] ) == 1)
-   {
-     /* dealing with sparse array */
-     sr      = mxGetPr(prhs[0]);
-     irs     = mxGetIr(prhs[0]);
-     jcs     = mxGetJc(prhs[0]);
-
-     // Setup for the Fibonacci heap
-
-     for (i=0; i<MS; i++)
-     {
-        if ((theHeap = new FibHeap) == NULL || (A = new HeapNode[M+1]) == NULL )
-        {
-	      mexErrMsgTxt( "Memory allocation failed-- ABORTING.\n" );
-        }
-
-        theHeap->ClearHeapOwnership();
-
-        S = (long int) *( SS + i );
-        S--;
-
-        if ((S < 0) || (S > M-1)) mexErrMsgTxt( "Source node(s) out of bound" );
-
-        /* -------------------------------------------------------------------------------------------------
-                                    run the dijkstra code 
-           ------------------------------------------------------------------------------------------------- */
-
-//         mexPrintf( "Working on i=%d\n" , i );
-
-        dodijk_sparse( M,N,S,Psmall,Dsmall,sr,irs,jcs,A,theHeap );
-
-        for (j=0; j<M; j++) 
-        {
-	  // copy distance values and predecessor indices to output 
-	  *( D + j*MS + i ) = *( Dsmall + j );
-	  *( P + j*MS + i ) = *( Psmall + j ) + 1;
-	  //   P[j] = (double)(Psmall[j] + 1);
-
-// 	   mexPrintf( "Distance i=%d to j=%d =%f, Parent=%d\n", S+1, j, 
-// 		      *( Dsmall + j ), Psmall[j] );
-        }
-
-        /* -------------------------------------------------------------------------------------------------
-                                    end of the dijkstra code 
-           ------------------------------------------------------------------------------------------------- */
-        
-        delete theHeap;
-        delete[] A;
-     } 
-
-     
-
-   } else mexErrMsgTxt( "Function not implemented for full arrays" );
+    
+  } else mexErrMsgTxt("Function not implemented for full arrays");
 
 }
