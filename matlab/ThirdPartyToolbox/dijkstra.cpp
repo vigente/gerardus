@@ -712,21 +712,21 @@ public:
       virtual int  operator ==(FibHeapNode& RHS);
       virtual int  operator <(FibHeapNode& RHS);
 
-      virtual void operator =(double NewKeyVal );
+      virtual void operator =(double NewKeyVal);
       virtual void Print();
 
       double GetKeyValue() { return N; };       /* !!!! */
       void SetKeyValue(double n) { N = n; };
 
       long int GetIndexValue() { return IndexV; };
-      void SetIndexValue( long int v) { IndexV = v; };
+      void SetIndexValue(long int v) { IndexV = v; };
 
 };
 
 void HeapNode::Print()
 {
      FibHeapNode::Print();
-     mexPrintf( "%f (%d)" , N , IndexV );
+     mexPrintf("%f (%d)" , N , IndexV);
 }
 
 void HeapNode::operator =(double NewKeyVal)
@@ -769,17 +769,16 @@ int A, B;
     return 1; 
 }
 
-void dodijk_sparse( 
-             long int M,
-             long int N,
-             long int S,
-	     double *P, // parents
-             double   *D, // distances
-             double   *sr,
-             mwSize      *irs,
-             mwSize      *jcs,
-             HeapNode *A,
-             FibHeap  *theHeap  )
+void dodijk_sparse(long int M,
+		   long int N,
+		   long int S,
+		   double *P, // parents
+		   double   *D, // distances
+		   double   *sr,
+		   mwSize      *irs,
+		   mwSize      *jcs,
+		   HeapNode *A,
+		   FibHeap  *theHeap)
 {
    int      finished;
    long int i,startind,endind,whichneighbor,ndone,closest;
@@ -794,10 +793,10 @@ void dodijk_sparse(
    /* initialize */
    for (i=0; i<M; i++) 
    {
-      if (i!=S) A[ i ] = (double) INF; else A[ i ] = (double) SMALL;
-      if (i!=S) D[ i ] = (double) INF; else D[ i ] = (double) SMALL;
-	  theHeap->Insert( &A[i] );
-      A[ i ].SetIndexValue( (long int) i );
+      if (i!=S) A[i] = (double) INF; else A[i] = (double) SMALL;
+      if (i!=S) D[i] = (double) INF; else D[i] = (double) SMALL;
+	  theHeap->Insert(&A[i]);
+      A[i].SetIndexValue((long int) i);
       P[i] = mxGetNaN();
    }
    
@@ -811,9 +810,9 @@ void dodijk_sparse(
    /*theHeap->Print();
    for (i=0; i<M; i++)
    {
-      closest = A[ i ].GetIndexValue();
-      closestD = A[ i ].GetKeyValue();
-      mexPrintf( "Index at i=%d =%d  value=%f\n" , i , closest , closestD );
+      closest = A[i].GetIndexValue();
+      closestD = A[i].GetKeyValue();
+      mexPrintf("Index at i=%d =%d  value=%f\n" , i , closest , closestD);
    }*/   
 
    /* loop over nonreached nodes */
@@ -821,19 +820,19 @@ void dodijk_sparse(
    ndone    = 0;
    while ((finished==0) && (ndone < M))
    {
-//      if ((ndone % 100) == 0) mexPrintf( "Done with node %d\n" , ndone );
+//      if ((ndone % 100) == 0) mexPrintf("Done with node %d\n" , ndone);
 
       Min = (HeapNode *) theHeap->ExtractMin();
       closest  = Min->GetIndexValue();
       closestD = Min->GetKeyValue();
 
-      if ((closest<0) || (closest>=M)) mexErrMsgTxt( "Minimum Index out of bound..." );
+      if ((closest<0) || (closest>=M)) mexErrMsgTxt("Minimum Index out of bound...");
 
       //theHeap->Print();
-//       mexPrintf( "EXTRACTED MINIMUM  NDone=%d S=%d closest=%d closestD=%f\n" , ndone , S , closest , closestD );//TT
-      //mexErrMsgTxt( "Exiting..." );
+//       mexPrintf("EXTRACTED MINIMUM  NDone=%d S=%d closest=%d closestD=%f\n" , ndone , S , closest , closestD);//TT
+      //mexErrMsgTxt("Exiting...");
 
-      D[ closest ] = closestD;
+      D[closest] = closestD;
 
       if (closestD == INF) finished=1; else
       {
@@ -841,29 +840,29 @@ void dodijk_sparse(
          ndone++;         
           
          /* relax all nodes adjacent to closest */
-         startind = jcs[ closest   ];
-         endind   = jcs[ closest+1 ] - 1;
+         startind = jcs[closest];
+         endind   = jcs[closest+1] - 1;
 
          if (startind!=endind+1)
          for (i=startind; i<=endind; i++)
          {
-            whichneighbor = irs[ i ];
-            arclength = sr[ i ];
-            olddist   = D[ whichneighbor ];
+            whichneighbor = irs[i];
+            arclength = sr[i];
+            olddist   = D[whichneighbor];
 
-//             mexPrintf( "INSPECT NEIGHBOR #%d  olddist=%f newdist=%f\n" , whichneighbor , olddist , closestD+arclength );//TT
+//             mexPrintf("INSPECT NEIGHBOR #%d  olddist=%f newdist=%f\n" , whichneighbor , olddist , closestD+arclength);//TT
 
-            if ( olddist > ( closestD + arclength ))
+            if (olddist > (closestD + arclength))
             {
-               D[ whichneighbor ] = closestD + arclength;
+               D[whichneighbor] = closestD + arclength;
 	       P[whichneighbor] = closest;
 
-	       Temp = A[ whichneighbor ];
-	       Temp.SetKeyValue( closestD + arclength );
-               theHeap->DecreaseKey( &A[ whichneighbor ], Temp );
+	       Temp = A[whichneighbor];
+	       Temp.SetKeyValue(closestD + arclength);
+               theHeap->DecreaseKey(&A[whichneighbor], Temp);
 
-//                mexPrintf( "UPDATING NODE #%d  olddist=%f newdist=%f newpred=%d\n", 
-// 			  whichneighbor, olddist, closestD+arclength, closest );//TT
+//                mexPrintf("UPDATING NODE #%d  olddist=%f newdist=%f newpred=%d\n", 
+// 			  whichneighbor, olddist, closestD+arclength, closest);//TT
 
             }
          }
@@ -897,15 +896,15 @@ FibHeapNode* Temp = NULL;
      Temp = Tree;
      do {
 	if (Temp->Left == NULL)
-	    mexPrintf( "(Left is NULL)" );
+	    mexPrintf("(Left is NULL)");
 	Temp->Print();
 	if (Temp->Parent != theParent)
-	    mexPrintf("(Parent is incorrect)" );
+	    mexPrintf("(Parent is incorrect)");
 	if (Temp->Right == NULL)
-	     mexPrintf( "(Right is NULL)" );
+	     mexPrintf("(Right is NULL)");
 	else if (Temp->Right->Left != Temp)
-	     mexPrintf( "(Error in left link left) ->" );
-	else mexPrintf( " <-> " );
+	     mexPrintf("(Error in left link left) ->");
+	else mexPrintf(" <-> ");
 
 	Temp = Temp->Right;
 
@@ -916,15 +915,15 @@ FibHeapNode* Temp = NULL;
 //                 break;
 //         }
      } while (Temp != NULL && Temp != Tree);
-     mexPrintf( "\n" );
+     mexPrintf("\n");
 
      Temp = Tree;
      do {
-	mexPrintf( "Children of " );
+	mexPrintf("Children of ");
 	Temp->Print();
-	mexPrintf( ": " );
+	mexPrintf(": ");
 	if (Temp->Child == NULL)
-	     mexPrintf( "NONE\n" );
+	     mexPrintf("NONE\n");
         else Print(Temp->Child, Temp);
 	Temp = Temp->Right;
      } while (Temp!=NULL && Temp != Tree);
@@ -933,7 +932,7 @@ FibHeapNode* Temp = NULL;
      {
      char ch;
 
-	 mexPrintf( "\n\n\n" );
+	 mexPrintf("\n\n\n");
 	 std::cin >> ch;
      }
 }
@@ -988,7 +987,7 @@ void mexFunction(int          nlhs,
     mexErrMsgTxt("Memory allocation failed");
   }
   
-  if (mxIsSparse(prhs[ 0 ]) == 1) {
+  if (mxIsSparse(prhs[0]) == 1) {
     /* dealing with sparse array */
     sr      = mxGetPr(prhs[0]);
     irs     = mxGetIr(prhs[0]);
