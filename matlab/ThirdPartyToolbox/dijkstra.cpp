@@ -31,12 +31,13 @@
  *   http://www.ahhf45.com/info/Data_Structures_and_Algorithms/resources/technical_artile/fibonacci_heap/fibonacci.htm
  *
  * Author: Mark Steyvers, Stanford University, 19 Dec 2000.
- * Version: 0.1.1
+ * Version: 0.2.0
  * $Rev$
  * $Date$
  *
  * Modified by Ramon Casero <rcasero@gmail.com>, University of Oxford,
  * 23 Mar 2010 to also provide the predecessor list at the output.
+ * 6  Feb 2013 to accept a list of targets. The algorithm will stop after hitting all targets
  *
  * This file is distributed as a derivative work of a third-party function
  * with project Gerardus.
@@ -48,6 +49,7 @@
 
 #include <math.h>
 #include "mex.h"
+#include <list>
 
 extern void _main();
 
@@ -769,6 +771,9 @@ int A, B;
     return 1; 
 }
 
+// Note: "target": we call by value because we want to make a local
+// copy of the list of targets that we can depopulate as we hit
+// targets
 void dodijk_sparse(long int M,
 		   long int N,
 		   long int S,
@@ -778,101 +783,125 @@ void dodijk_sparse(long int M,
 		   mwSize      *irs,
 		   mwSize      *jcs,
 		   HeapNode *A,
-		   FibHeap  *theHeap)
-{
-   int      finished;
-   long int i,startind,endind,whichneighbor,ndone,closest;
-   double   closestD,arclength; 
-   double   INF,SMALL,olddist;
-   HeapNode *Min;
-   HeapNode Temp;
+		   FibHeap  *theHeap,
+		   std::list<mwIndex> target) {
 
-   INF   = mxGetInf();
-   SMALL = mxGetEps();
+  bool     finished;
+  long int i,startind,endind,whichneighbor,ndone,closest;
+  double   closestD,arclength; 
+  double   INF,SMALL,olddist;
+  HeapNode *Min;
+  HeapNode Temp;
+  
+  INF   = mxGetInf();
+  SMALL = mxGetEps();
+  
+  /* initialize */
+  for (i=0; i<M; i++) {
+    if (i!=S) A[i] = (double) INF; else A[i] = (double) SMALL;
+    if (i!=S) D[i] = (double) INF; else D[i] = (double) SMALL;
+    theHeap->Insert(&A[i]);
+    A[i].SetIndexValue((long int) i);
+    P[i] = mxGetNaN();
+  }
+  
+  // Insert 0 then extract it. This will cause the
+  // Fibonacci heap to get balanced.
+  
+  theHeap->Insert(&Temp);
+  theHeap->ExtractMin();
+  
+  // theHeap->Print();
+  // for (i=0; i<M; i++)
+  // {
+  //    closest = A[i].GetIndexValue();
+  //    closestD = A[i].GetKeyValue();
+  //    mexPrintf("Index at i=%d =%d  value=%f\n" , i , closest , closestD);
+  // }
 
-   /* initialize */
-   for (i=0; i<M; i++) 
-   {
-      if (i!=S) A[i] = (double) INF; else A[i] = (double) SMALL;
-      if (i!=S) D[i] = (double) INF; else D[i] = (double) SMALL;
-	  theHeap->Insert(&A[i]);
-      A[i].SetIndexValue((long int) i);
-      P[i] = mxGetNaN();
-   }
-   
+  // has the user provided a list of targets, so that the algorithm
+  // will stop when all targets are hit?
+  bool withTargets = target.size() > 0;
 
-   // Insert 0 then extract it.  This will cause the
-   // Fibonacci heap to get balanced.
+  /* loop over nonreached nodes */
+  finished = false;
+  ndone    = 0;
+  while ((finished==false) && (ndone < M)) {
+    
+    // if ((ndone % 100) == 0) mexPrintf("Done with node %d\n" , ndone);
+    
+    Min = (HeapNode *) theHeap->ExtractMin();
+    closest  = Min->GetIndexValue();
+    closestD = Min->GetKeyValue();
+    
+    if ((closest<0) || (closest>=M)) mexErrMsgTxt("Minimum Index out of bounds...");
+    
+    // theHeap->Print();
+    // mexPrintf("EXTRACTED MINIMUM  NDone=%d S=%d closest=%d closestD=%f\n" , ndone , S , closest , closestD);//TT
+    // mexErrMsgTxt("Exiting...");
+     
+    D[closest] = closestD;
+    
+    // the rest of the graph is not reachable from here, or we have
+    // hit all the targets, we have finished
+    if (closestD == INF) { 
+      
+      finished = true; 
+      
+    } else {
 
-   theHeap->Insert(&Temp);
-   theHeap->ExtractMin();
+      /* add the closest to the determined list */
+      ndone++;
 
-   /*theHeap->Print();
-   for (i=0; i<M; i++)
-   {
-      closest = A[i].GetIndexValue();
-      closestD = A[i].GetKeyValue();
-      mexPrintf("Index at i=%d =%d  value=%f\n" , i , closest , closestD);
-   }*/   
+      // if the user provided a list the targets
+      if (withTargets) {
 
-   /* loop over nonreached nodes */
-   finished = 0;
-   ndone    = 0;
-   while ((finished==0) && (ndone < M))
-   {
-//      if ((ndone % 100) == 0) mexPrintf("Done with node %d\n" , ndone);
+	// drop this node from the list, if it's in it (note, the user
+	// provides nodes as 1,...,N, while C++ stores them as
+	// 0,...,N-1
+	target.remove(closest+1);
 
-      Min = (HeapNode *) theHeap->ExtractMin();
-      closest  = Min->GetIndexValue();
-      closestD = Min->GetKeyValue();
-
-      if ((closest<0) || (closest>=M)) mexErrMsgTxt("Minimum Index out of bound...");
-
-      //theHeap->Print();
-//       mexPrintf("EXTRACTED MINIMUM  NDone=%d S=%d closest=%d closestD=%f\n" , ndone , S , closest , closestD);//TT
-      //mexErrMsgTxt("Exiting...");
-
-      D[closest] = closestD;
-
-      if (closestD == INF) finished=1; else
-      {
-         /* add the closest to the determined list */
-         ndone++;         
-          
-         /* relax all nodes adjacent to closest */
-         startind = jcs[closest];
-         endind   = jcs[closest+1] - 1;
-
-         if (startind!=endind+1)
-         for (i=startind; i<=endind; i++)
-         {
-            whichneighbor = irs[i];
-            arclength = sr[i];
-            olddist   = D[whichneighbor];
-
-//             mexPrintf("INSPECT NEIGHBOR #%d  olddist=%f newdist=%f\n" , whichneighbor , olddist , closestD+arclength);//TT
-
-            if (olddist > (closestD + arclength))
-            {
-               D[whichneighbor] = closestD + arclength;
-	       P[whichneighbor] = closest;
-
-	       Temp = A[whichneighbor];
-	       Temp.SetKeyValue(closestD + arclength);
-               theHeap->DecreaseKey(&A[whichneighbor], Temp);
-
-//                mexPrintf("UPDATING NODE #%d  olddist=%f newdist=%f newpred=%d\n", 
-// 			  whichneighbor, olddist, closestD+arclength, closest);//TT
-
-            }
-         }
+	// if we have hit all the targets, this is the last iteration
+	if (target.size() == 0) {
+	  finished = true;
+	}
 
       }
       
-   }
-   // source node has no parent
-   P[S] = -1;
 
+      /* relax all nodes adjacent to closest */
+      startind = jcs[closest];
+      endind   = jcs[closest+1] - 1;
+      
+      if (startind!=endind+1)
+	for (i=startind; i<=endind; i++) {
+	  whichneighbor = irs[i];
+	  arclength = sr[i];
+	  olddist   = D[whichneighbor];
+	   
+	  // mexPrintf("INSPECT NEIGHBOR #%d  olddist=%f newdist=%f\n" , whichneighbor , olddist , closestD+arclength);//TT
+	  
+	  if (olddist > (closestD + arclength)) {
+	    D[whichneighbor] = closestD + arclength;
+	    P[whichneighbor] = closest;
+	     
+	    Temp = A[whichneighbor];
+	    Temp.SetKeyValue(closestD + arclength);
+	    theHeap->DecreaseKey(&A[whichneighbor], Temp);
+	    
+	    // mexPrintf("UPDATING NODE #%d  olddist=%f newdist=%f newpred=%d\n", 
+	    // 		  whichneighbor, olddist, closestD+arclength, closest);//TT
+	    
+	  } // if (olddist > (closestD + arclength))
+	} // for (i=startind; i<=endind; i++)
+      
+    } // if (closestD == INF)
+    
+  } // while ((finished==false) && (ndone < M))
+
+  // source node has no parent
+  P[S] = -1;
+  
 }
 
 
@@ -951,26 +980,35 @@ void mexFunction(int          nlhs,
   
   HeapNode *A = NULL;
   FibHeap  *theHeap = NULL;
-  
-  if (nrhs != 2) {
-    mexErrMsgTxt("Two input arguments required.");
+
+  // check input arguments
+  if ((nrhs < 2) || (nrhs > 3)) {
+    mexErrMsgTxt("Incorrect number of input arguments");
   } else if (nlhs > 2) {
-    mexErrMsgTxt("Too many output arguments.");
+    mexErrMsgTxt("Too many output arguments");
   }
-  
-  // d
+
+  if (!mxIsSparse(prhs[0])) {
+    mexErrMsgTxt("Function only implemented for sparse arrays");
+  } 
+
+  // input distance matrix dimensions
   M = mxGetM(prhs[0]);
   N = mxGetN(prhs[0]);
   
-  if (M != N) mexErrMsgTxt("Input matrix needs to be square.");
+  if (M != N) mexErrMsgTxt("Input matrix needs to be square");
   
   // list of source nodes
   SS = mxGetPr(prhs[1]);
   MS = mxGetM(prhs[1]);
   NS = mxGetN(prhs[1]);
   
-  if ((MS==0) || (NS==0) || ((MS>1) && (NS>1))) mexErrMsgTxt("Source nodes are specified in one dimensional matrix only");
-  if (NS>MS) MS=NS;
+  if ((MS==0) || (NS==0) || ((MS>1) && (NS>1))) {
+    mexErrMsgTxt("Source nodes are specified in one dimensional matrix only");
+  }
+  if (NS>MS) {
+    MS=NS;
+  }
   
   // distance values output
   plhs[0] = mxCreateDoubleMatrix(MS,M, mxREAL);
@@ -979,7 +1017,18 @@ void mexFunction(int          nlhs,
   // predecessors output
   plhs[1] = mxCreateDoubleMatrix(MS,M, mxREAL);
   P = mxGetPr(plhs[1]);
-  
+
+  // to simplify things, we expect the list of targets to be of type
+  // double, the default type in Matlab, and a row vector
+  if ((nrhs > 2) && !mxIsDouble(prhs[2])) {
+    mexErrMsgTxt("List of target nodes must be of type double");
+  }
+  if ((nrhs > 2) && mxGetM(prhs[2])!=1) {
+    mexErrMsgTxt("List of target nodes must be a row vector");
+  }
+
+  // temporal storage for the output of Dijkstra's algorithm applied
+  // to any one source node
   Dsmall = (double *) mxCalloc(M , sizeof(double));
   Psmall = (double *) mxCalloc(M , sizeof(double));
   
@@ -987,54 +1036,73 @@ void mexFunction(int          nlhs,
     mexErrMsgTxt("Memory allocation failed");
   }
   
-  if (mxIsSparse(prhs[0]) == 1) {
-    /* dealing with sparse array */
-    sr      = mxGetPr(prhs[0]);
-    irs     = mxGetIr(prhs[0]);
-    jcs     = mxGetJc(prhs[0]);
-    
-    // Setup for the Fibonacci heap
-    
-    for (i=0; i<MS; i++) {
-      if ((theHeap = new FibHeap) == NULL || (A = new HeapNode[M+1]) == NULL) {
-	mexErrMsgTxt("Memory allocation failed-- ABORTING.\n");
-      }
-      
-      theHeap->ClearHeapOwnership();
-      
-      S = (long int) *(SS + i);
-      S--;
-      
-      if ((S < 0) || (S > M-1)) mexErrMsgTxt("Source node(s) out of bound");
+  // dealing with sparse array
+  sr      = mxGetPr(prhs[0]);
+  irs     = mxGetIr(prhs[0]);
+  jcs     = mxGetJc(prhs[0]);
 
-      /* -------------------------------------------------------------------------------------------------
-	 run the dijkstra code 
-	 ------------------------------------------------------------------------------------------------- */
-      
-      //         mexPrintf("Working on i=%d\n" , i);
+  // list to keep the array of target nodes. A list is a good data
+  // structure for this, because it allows efficient removing of
+  // elements, so we know which targets are still missing
+  std::list<mwIndex> target;
+  
+  // pointer to the input array with the targets
+  double *ptarget = NULL;
+  if (nrhs > 2) {
+    ptarget = mxGetPr(prhs[2]);
+    if (ptarget == NULL) {
+      mexErrMsgTxt("Cannot get pointer to the input list of targets");
+    }
+  }
+  
+  // populate the list of targets with the array of targets, if one
+  // has been provided (note that even if the user doesn't pass an
+  // argument for the list of targets, Matlab is going to consider
+  // that an argument of size (1,1) with value 1 was passed. The only
+  // way to know wether the list was given is to check the number of
+  // input argument
+  if ((nrhs > 2) && (prhs[2] != NULL) && !mxIsEmpty(prhs[2])) {
+    target.assign(mxGetPr(prhs[2]), mxGetPr(prhs[2]) + mxGetN(prhs[2]));
+  }
 
-      dodijk_sparse(M,N,S,Psmall,Dsmall,sr,irs,jcs,A,theHeap);
-      
-      for (j=0; j<M; j++) {
-	// copy distance values and predecessor indices to output 
-	*(D + j*MS + i) = *(Dsmall + j);
-	*(P + j*MS + i) = *(Psmall + j) + 1;
-	//   P[j] = (double)(Psmall[j] + 1);
-	
-	// 	   mexPrintf("Distance i=%d to j=%d =%f, Parent=%d\n", S+1, j, 
-	// 		      *(Dsmall + j), Psmall[j]);
-      }
-      
-      /* -------------------------------------------------------------------------------------------------
-	 end of the dijkstra code 
-	 ------------------------------------------------------------------------------------------------- */
-      
-      delete theHeap;
-      delete[] A;
-    } 
+  // NB: at this point in the program, the list target is empty if the
+  // user didn't provide a list of targets, or has some elements if
+  // she did
 
+  // setup for the Fibonacci heap
+  for (i=0; i<MS; i++) {
+
+    if ((theHeap = new FibHeap) == NULL || (A = new HeapNode[M+1]) == NULL) {
+      mexErrMsgTxt("Memory allocation failed-- ABORTING.\n");
+    }
     
+    theHeap->ClearHeapOwnership();
     
-  } else mexErrMsgTxt("Function not implemented for full arrays");
+    S = (long int) *(SS + i);
+    S--;
+    
+    if ((S < 0) || (S > M-1)) mexErrMsgTxt("Source node out of bounds");
 
+    /* -------------------------------------------------------------------------------------------------
+       run the dijkstra code 
+       ------------------------------------------------------------------------------------------------- */
+    
+    dodijk_sparse(M,N,S,Psmall,Dsmall,sr,irs,jcs,A,theHeap,target);
+    
+    for (j=0; j<M; j++) {
+      // copy distance values and predecessor indices to output 
+      *(D + j*MS + i) = *(Dsmall + j);
+      *(P + j*MS + i) = *(Psmall + j) + 1;
+      //   P[j] = (double)(Psmall[j] + 1);
+      
+    }
+    
+    /* -------------------------------------------------------------------------------------------------
+       end of the dijkstra code 
+       ------------------------------------------------------------------------------------------------- */
+    
+    delete theHeap;
+    delete[] A;
+  } 
+    
 }

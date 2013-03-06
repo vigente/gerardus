@@ -1,3 +1,13 @@
+2013-03-06  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ThirdPartyToolbox/dijkstra.cpp: (0.2.0)
+	* Add matlab/test/test_dijkstra.m:
+
+	- Now the user can provide a list of targets. Once the algorithm
+	has found the shortest distances to all targets, it stops. This is
+	useful for large sparse matrices, where we are interested e.g. in
+	the path between two nodes.
+
 2013-03-03  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/scimat_dmatrix_thickslice.m: (v0.1.2)
