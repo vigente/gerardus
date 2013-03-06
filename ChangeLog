@@ -1,5 +1,10 @@
 2013-03-06  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/CMakeLists.txt: (0.2.2)
+
+	- Add build of MEX function im2imat(). It had been forgotten and
+	had to be built manually with mex.
+
 	* matlab/ThirdPartyToolbox/dijkstra.cpp: (0.2.0)
 	* Add matlab/test/test_dijkstra.m:
 	* matlab/ThirdPartyToolbox/dijkstra.m: (0.2.0)
