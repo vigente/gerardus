@@ -44,8 +44,9 @@ function [d, p] = dijkstra(g, s, t)
 
 % Original Author: Mark Steyvers, Stanford University, 19 Dec 2000.
 %
-% Modified by Ramon Casero <rcasero@gmail.com>, University of Oxford,  23
-% Mar 2010 to also provide the predecessor list at the output.
+% Modified by Ramon Casero <rcasero@gmail.com>, University of Oxford,  
+% 23 Mar 2010 to also provide the predecessor list at the output.
+%  6 Mar 2013 to accept a list of targets.
 %
 % This file is distributed as a derivative work of a third-party function
 % with project Gerardus.
