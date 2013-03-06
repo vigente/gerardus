@@ -117,9 +117,7 @@ void mexFunction(int nlhs, // number of expected outputs
 
   // create sparse matrix for the output
   // each voxel can be connected to up to 26 voxels (imagine a
-  // (3,3,3)-cube of voxels, with our voxel in the middle). But a 
-  // voxel will be seldom connected to so many voxels, so we are going
-  // to allocate memory only for half the space
+  // (3,3,3)-cube of voxels, with our voxel in the middle)
   plhs[0] = (mxArray *)mxCreateSparse(R*C*S, R*C*S, R*C*S*26, mxREAL);
   if (!plhs[0]) {mexErrMsgTxt("Not enough memory for output");}
 
