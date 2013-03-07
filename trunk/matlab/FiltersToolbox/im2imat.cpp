@@ -1,8 +1,8 @@
 /*
  * im2imat.cpp
  *
- * IM2IMAT  Local neighbourhood mean intensity matrix between segmentation
- * voxels
+ * IM2IMAT  Sparse distance matrix between 2D or 3D image voxels, weighted
+ * by voxel intensities
  *
  * A = IM2IMAT(IM)
  *
@@ -13,22 +13,21 @@
  *
  *   Voxels with an Inf intensity are skipped.
  *
+ * ... = IM2IMAT(..., RES) [This option only available in the MEX version]
+ *
+ *   RES is a row vector with the voxel size of [row, column, slice] (2D) or
+ *   [row, column, slice] (3D). By default, RES=[1.0 1.0 1.0].
+ *
+ *
  *   This function has a slow Matlab implementation (using loops), but a
- *   fast MEX version is provided too. To compile it in a 64 bit
- *   architecture, run
- *
- *   >> mex -largeArrayDims im2imat.cpp
- *
- *   To compile in a 32 bit architecture, use
- *
- *   >> mex im2imat.cpp
+ *   fast MEX version is provided with Gerardus too.
  *
  * See also: seg2dmat.
  */
 /*
  * Author: Ramon Casero <rcasero@gmail.com>
  * Copyright © 2010-2011 University of Oxford
- * Version: 0.1.1.
+ * Version: 0.2.0
  * $Rev$
  * $Date$
  * 
@@ -60,6 +59,8 @@
 #include "matrix.h"
 
 #include <iostream>
+#include <vector>
+#include <cmath>
 
 // entry point for the MEX file
 void mexFunction(int nlhs, // number of expected outputs
@@ -72,16 +73,16 @@ void mexFunction(int nlhs, // number of expected outputs
   // A = IMG_ADJACENCY_DISTANCE(IM)
 
   // variables
-  mwSize R, C, S; // number of rows, cols and slices of input image
+  mwSize R = 0, C = 0, S = 0; // number of rows, cols and slices of input image
   double *im; // pointer to the image volume
   double *out; // pointer to the output adjacency-distance sparse matrix
 
   // check arguments
-  if (nrhs != 1) {
-    mexErrMsgTxt("1 input argument required.");
+  if ((nrhs < 1) || (nrhs > 2)) {
+    mexErrMsgTxt("Wrong number of input arguments");
   }
   if (nlhs > 1) {
-    mexErrMsgTxt("Maximum of 1 output argument allowed.");
+    mexErrMsgTxt("Too many output arguments");
   }
 
   // get image size
@@ -99,8 +100,27 @@ void mexFunction(int nlhs, // number of expected outputs
     mexErrMsgTxt("Input argument has to be a 2D image or 3D image volume");
   }
 
-  if (R < 3 | C < 3 | S < 3) {
-    mexErrMsgTxt("Image volume size must be at least (3, 3, 3)");
+  // defaults: voxel size (dR, dC, dS)
+  std::vector<double> res; // voxel size
+  if (nrhs < 2 || mxIsEmpty(prhs[1])) {
+    res.push_back(1.0); // dR
+    res.push_back(1.0); // dC
+    res.push_back(1.0); // dS
+  } else {
+    if (!mxIsDouble(prhs[1]) || (mxGetM(prhs[1]) != 1) || (mxGetN(prhs[1]) != ndim)) {
+      mexErrMsgTxt("Voxel size must be a row vector of class double with 1 element per image dimension");
+    }
+    double *pres = mxGetPr(prhs[1]);
+    if (pres == NULL) {
+      mexErrMsgTxt("Cannot get pointer to voxel size vector");
+    }
+    res.push_back(pres[0]); // dR
+    res.push_back(pres[1]); // dC
+    if (ndim == 2) { // 2D image
+      res.push_back(1.0); // dS
+    } else {
+      res.push_back(pres[2]); // dS
+    }
   }
 
   // pointer to input image, for convenience
@@ -167,6 +187,7 @@ void mexFunction(int nlhs, // number of expected outputs
   mwSize idx = 0; // linear index for voxels
   mwSize nnidx = 0; // linear index for adjacent voxels
   mwSize RC = R*C; // aux variable
+  double ledge = 0.0; // length of edge linking two voxels
   for (mwSize s = 0; s < S; ++s) {
     for (mwSize c = 0; c < C; ++c) {
       for (mwSize r = 0; r < R; ++r) {
@@ -197,9 +218,17 @@ void mexFunction(int nlhs, // number of expected outputs
 	      // skip connected voxels that are Inf
 	      if (mxIsInf(im[nnidx])) {continue;}
 
+	      // length of edge linking two voxels
+	      ledge = abs(nnr - r) * res[0] * abs(nnr - r) * res[0];
+	      ledge += abs(nnc - c) * res[1] * abs(nnc - c) * res[1];
+	      ledge += abs(nns - s) * res[2] * abs(nns - s) * res[2];
+	      ledge = sqrt(ledge);
+
 	      // the edge weight between the current voxel and the
 	      // connected voxel is the mean between their node values
-	      pr[outidx] = (im[nnidx] + im[idx]) * 0.5;
+	      //
+	      // this weight multiplies the connection length
+	      pr[outidx] = (im[nnidx] + im[idx]) * 0.5 * ledge;
 
 	      // instead of computing jc directly, first we are going
 	      // to see just how many voxels are connected to the
