@@ -1,6 +1,6 @@
 function a = im2imat(im)
-% IM2IMAT  Local neighbourhood mean intensity matrix between segmentation
-% voxels
+% IM2IMAT  Sparse distance matrix between 2D or 3D image voxels, weighted
+% by voxel intensities
 %
 % A = IM2IMAT(IM)
 %
@@ -11,21 +11,19 @@ function a = im2imat(im)
 %
 %   Voxels with an Inf intensity are skipped.
 %
+% ... = IM2IMAT(..., RES) [This option only available in the MEX version]
+%
+%   RES is a row vector with the voxel size of [row, column, slice] (2D) or
+%   [row, column, slice] (3D). By default, RES=[1.0 1.0 1.0].
+%
 %   This function has a slow Matlab implementation (using loops), but a
-%   fast MEX version is provided too. To compile it in a 64 bit
-%   architecture, run
-%
-%   >> mex -largeArrayDims im2imat.cpp
-%
-%   To compile in a 32 bit architecture, use
-%
-%   >> mex im2imat.cpp
+%   fast MEX version is provided with Gerardus too.
 %
 % See also: seg2dmat.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010-2011 University of Oxford
-% Version: 0.1.1.
+% Copyright © 2010-2013 University of Oxford
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
