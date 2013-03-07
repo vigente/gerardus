@@ -207,8 +207,8 @@ gmthr_seg.m
 	
 im2imat.m
 
-	 IM2IMAT  Local neighbourhood mean intensity matrix between segmentation
-	 voxels
+	 IM2IMAT  Sparse distance matrix between 2D or 3D image voxels, weighted
+	 by voxel intensities
 	
 imblend.m
 
@@ -518,6 +518,11 @@ rotmat2extmat.m
 
 	 ROTMAT2EXTMAT  Convert centroid and rotation matrix pair to extended
 	 matrix form
+	
+scimat_dmatrix_livewire.m
+
+	 SCIMAT_DMATRIX_LIVEWIRE  Compute a distance/adjacency matrix for a
+	 segmentation that consists of scattered points 
 	
 scimat_dmatrix_thickslice.m
 
