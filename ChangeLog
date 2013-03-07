@@ -1,3 +1,23 @@
+2013-03-07  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/im2imat.cpp: (0.2.0)
+
+	- Add input argument with the voxel size in R, C, S. This makes
+	more sense, because now what we return is the distance between
+	voxels, weighted by the mean intensity of each pair of voxels.
+
+	- Remove minimum size limitation of (3,3,3). Now the image can be
+	as small as empty.
+
+	* matlab/FiltersToolbox/im2imat.m: (0.1.2)
+
+	- Update help header. The RES input argument added to the MEX
+	implementation has not been added here.
+
+	* matlab/FiltersToolbox/CMakeLists.txt: (0.2.3)
+
+	- Fix bug. Code to install im2imat was missing.
+
 2013-03-06  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/CMakeLists.txt: (0.2.2)
