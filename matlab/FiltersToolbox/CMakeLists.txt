@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2011 University of Oxford
-# Version: 0.2.1
+# Copyright © 2011-2013 University of Oxford
+# Version: 0.2.4
 # $Rev$
 # $Date$
 #
@@ -44,6 +44,13 @@ ADD_MEX_FILE(bwregiongrow bwregiongrow.cpp)
 INCLUDE_DIRECTORIES(..)
 
 ################################################################
+## im2dmatrix()
+################################################################
+
+ADD_MEX_FILE(im2dmatrix im2dmatrix.cpp)
+INCLUDE_DIRECTORIES(..)
+
+################################################################
 ## deconvolve()
 ## This function has been removed for three reasons:
 ## 1) the Clarity library requires the FFTW library, which is
@@ -67,12 +74,14 @@ INCLUDE_DIRECTORIES(..)
 IF(WIN32)
   INSTALL(TARGETS
     bwregiongrow
+    im2dmatrix
 #    deconvolve
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ELSE(WIN32)
   INSTALL(TARGETS
     bwregiongrow
+    im2dmatrix
 #    deconvolve
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})

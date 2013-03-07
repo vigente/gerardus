@@ -205,10 +205,10 @@ gmthr_seg.m
 	 GMTHR_SEG  Segment an image estimating threshold as intersection of two
 	 Gaussians from Gaussian mixture model
 	
-im2imat.m
+im2dmatrix.m
 
-	 IM2IMAT  Sparse distance matrix between 2D or 3D image voxels, weighted
-	 by voxel intensities
+	 IM2DMATRIX  Sparse distance matrix between 2D or 3D image voxels,
+	 weighted by voxel intensities
 	
 imblend.m
 
