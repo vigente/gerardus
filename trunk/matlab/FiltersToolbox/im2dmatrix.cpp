@@ -1,10 +1,10 @@
 /*
- * im2imat.cpp
+ * im2dmatrix.cpp
  *
- * IM2IMAT  Sparse distance matrix between 2D or 3D image voxels, weighted
+ * IM2DMATRIX  Sparse distance matrix between 2D or 3D image voxels, weighted
  * by voxel intensities
  *
- * A = IM2IMAT(IM)
+ * A = im2dmatrix(IM)
  *
  *   IM is an image volume with dimensions (R, C, S).
  *
@@ -13,7 +13,7 @@
  *
  *   Voxels with an Inf intensity are skipped.
  *
- * ... = IM2IMAT(..., RES) [This option only available in the MEX version]
+ * ... = im2dmatrix(..., RES) [This option only available in the MEX version]
  *
  *   RES is a row vector with the voxel size of [row, column, slice] (2D) or
  *   [row, column, slice] (3D). By default, RES=[1.0 1.0 1.0].
