@@ -1,5 +1,7 @@
 2013-03-07  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/test/test_im2dmatrix.m: (0.1.0)
+
 	* Rename im2imat.cpp as im2dmatrix.cpp.
 	* Rename im2imat.m as im2dmatrix.m.
 	* matlab/FiltersToolbox/CMakeLists.txt: (0.2.4)
