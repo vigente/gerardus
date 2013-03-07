@@ -1,5 +1,11 @@
 2013-03-07  Ramon Casero  <rcasero@gmail.com>
 
+	* Rename im2imat.cpp as im2dmatrix.cpp.
+	* Rename im2imat.m as im2dmatrix.m.
+	* matlab/FiltersToolbox/CMakeLists.txt: (0.2.4)
+
+	- Rename im2imat() to im2dmatrix().
+
 	* matlab/FiltersToolbox/im2imat.cpp: (0.2.0)
 
 	- Add input argument with the voxel size in R, C, S. This makes
