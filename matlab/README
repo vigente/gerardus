@@ -177,6 +177,11 @@ bwrmsmallcomp.m
 
 	 BWRMSMALLCOMP  Remove small connected components from a segmentation
 	
+bw_sb_interp.m
+
+	 BW_SB_INTERP Function that performs the shape-base interpolation
+	 following Herman et al. (1992) paper
+	
 bwsplitwithsurf.m
 
 	 BWSPLITWITHSURF  Split a volume into connected components separated by a
@@ -194,11 +199,6 @@ correct_light_blobs_in_microscope_mosaic.m
 fspecial3.m
 
 	 FSPECIAL3  Create predefined 3-dimensional filters
-	
-gmthr_seg2.m
-
-	 GMTHR_SEG  Segment an image estimating threshold as intersection of two
-	 Gaussians from Gaussian mixture model
 	
 gmthr_seg.m
 
@@ -518,11 +518,6 @@ rotmat2extmat.m
 
 	 ROTMAT2EXTMAT  Convert centroid and rotation matrix pair to extended
 	 matrix form
-	
-scimat_dmatrix_livewire.m
-
-	 SCIMAT_DMATRIX_LIVEWIRE  Compute a distance/adjacency matrix for a
-	 segmentation that consists of scattered points 
 	
 scimat_dmatrix_thickslice.m
 
