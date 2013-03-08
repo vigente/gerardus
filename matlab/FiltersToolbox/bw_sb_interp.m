@@ -1,12 +1,62 @@
-function thres_img=SB_intrp(data_SBintrp, inter_slice_no)
-%Function that performs the shape-base interpolation following Herman_2005
-%paper.
-%INPUT
-%data_SBintrp = the 3D image in form of a 3D matlab matrix
-%inter_slice_no= the number of slices to generate by interpolation between
-%each couple of original slices
-%OUTPUT
-%thres_img = 3D matlab matrix with the 
+function thres_img=bw_sb_interp(data_SBintrp, inter_slice_no)
+% BW_SB_INTERP Function that performs the shape-base interpolation
+% following Herman et al. (1992) paper
+%
+% THRES_IMG = bw_sb_interp(DATA_SBINTRP, INTER_SLICE_NO)
+%
+%   DATA_SBINTRP is the 3D binary image (or segmentation) that we want to
+%   interpolate. Typically, this will be a segmentation with poor
+%   resolution in the z-axis.
+%
+%   INTER_SLICE_NO is a scalar integer that provides the number of
+%   intermediate slices to be generated inbetween each pair of original xy
+%   slices of DATA_SBINTRP. By default, INTER_SLICE_NO=5.
+%
+%   THRES_IMG is the 3D binary image obtained from applying shape based
+%   interpolation Herman et al. (1992) to DATA_SBINTRP. THRES_IMG has the
+%   same number of rows and columns as DATA_SBINTRP, and more slices due to
+%   the interpolation.
+%
+% Herman et al. (1992) Shape-based interpolation. IEEE Computer Graphics &
+% Applications, 12(3):69--79.
+
+% Author: Valentina Carapella <vcarapella@gmail.com>
+% Copyright © 2013 University of Oxford
+% Version: 0.1.0
+% $Rev$
+% $Date$
+% 
+% University of Oxford means the Chancellor, Masters and Scholars of
+% the University of Oxford, having an administrative office at
+% Wellington Square, Oxford OX1 2JD, UK. 
+%
+% This file is part of Gerardus.
+%
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details. The offer of this
+% program under the terms of the License is subject to the License
+% being interpreted in accordance with English Law and subject to any
+% action against the University of Oxford being under the jurisdiction
+% of the English Courts.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+% check arguments
+narginchk(1, 2);
+nargoutchk(0, 1);
+
+% defaults
+if (nargin < 2) || isempty(inter_slice_no)
+    inter_slice_no = 5;
+end
 
 % First distance map
 
