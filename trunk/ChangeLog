@@ -1,3 +1,10 @@
+2013-03-08  Valentina Carapella <vcarapella@gmail.com>
+
+	* Add matlab/FiltersToolbox/bw_sb_interp.m: (0.0.0)
+
+	- My original code for shape-based interpolation of a binary 
+	segmentation as it was on my hard. 
+
 2013-03-07  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/test/test_im2dmatrix.m: (0.1.0)
