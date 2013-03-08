@@ -19,7 +19,7 @@ function a = im2dmatrix(im)
 %   This function has a slow Matlab implementation (using loops), but a
 %   fast MEX version is provided with Gerardus too.
 %
-% See also: seg2dmat.
+% See also: seg2dmat, graphpred2path.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2013 University of Oxford
