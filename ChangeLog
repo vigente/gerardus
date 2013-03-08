@@ -1,21 +1,28 @@
+2013-03-08  Ramon Casero  <rcasero@gmail.com>
+
+	* Add subversion properties to
+	matlab/FiltersToolbox/bw_sb_interp.m and
+	matlab/ThirdPartyToolbox/nifti.
+
 2013-03-08  Valentina Carapella <vcarapella@gmail.com>
 
-	* Add matlab/ThirdPartyToolbox/nifti: 
+	* Add matlab/ThirdPartyToolbox/nifti:
 
-	- Toolbox by Jimmy Shen to load, save, make, reslice, view (and edit) 
-	both NIfTI and ANALYZE data on any platform, downloaded today from
+	- Toolbox by Jimmy Shen to load, save, make, reslice, view (and
+	edit) both NIfTI and ANALYZE data on any platform, downloaded
+	today from
 
 	http://www.mathworks.co.uk/matlabcentral/fileexchange/8797
 
 	* Add matlab/FiltersToolbox/bw_sb_interp.m: (0.1.0)
 
-	- Add copyright notice, minimum and maximum input/output arguments and 
-	default values.
+	- Add copyright notice, minimum and maximum input/output arguments
+	and default values.
 
 	* Add matlab/FiltersToolbox/bw_sb_interp.m: (0.0.0)
 
-	- My original code for shape-based interpolation of a binary 
-	segmentation as it was on my hard. 
+	- My original code for shape-based interpolation of a binary
+	segmentation as it was on my hard.
 
 2013-03-07  Ramon Casero  <rcasero@gmail.com>
 
