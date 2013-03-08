@@ -1,5 +1,10 @@
 2013-03-08  Valentina Carapella <vcarapella@gmail.com>
 
+	* Add matlab/FiltersToolbox/bw_sb_interp.m: (0.1.0)
+
+	- Add copyright notice, minimum and maximum input/output arguments and 
+	default values.
+
 	* Add matlab/FiltersToolbox/bw_sb_interp.m: (0.0.0)
 
 	- My original code for shape-based interpolation of a binary 
