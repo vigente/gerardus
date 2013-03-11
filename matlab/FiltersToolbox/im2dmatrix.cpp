@@ -27,7 +27,7 @@
 /*
  * Author: Ramon Casero <rcasero@gmail.com>
  * Copyright © 2010-2011 University of Oxford
- * Version: 0.2.0
+ * Version: 0.2.1
  * $Rev$
  * $Date$
  * 
@@ -61,6 +61,8 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+
+#include "../GerardusCommon.h"
 
 // entry point for the MEX file
 void mexFunction(int nlhs, // number of expected outputs
@@ -191,6 +193,9 @@ void mexFunction(int nlhs, // number of expected outputs
   for (mwSize s = 0; s < S; ++s) {
     for (mwSize c = 0; c < C; ++c) {
       for (mwSize r = 0; r < R; ++r) {
+
+	// exit if user pressed Ctrl+C
+	ctrlcCheckPoint(__FILE__, __LINE__);
 	
 	// get linear index of voxel from multiple indices
 	idx = RC*s + R*c + r;
