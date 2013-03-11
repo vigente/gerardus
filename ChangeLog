@@ -1,3 +1,9 @@
+2013-03-11  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/im2dmatrix.cpp: (v0.2.1)
+
+	- Make MEX function interruptible with CTRL+C.
+
 2013-03-08  Ramon Casero  <rcasero@gmail.com>
 
 	* Add subversion properties to
