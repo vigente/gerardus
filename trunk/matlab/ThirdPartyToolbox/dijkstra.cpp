@@ -63,6 +63,8 @@
 #include "mex.h"
 #include <list>
 
+#include "../GerardusCommon.h"
+
 extern void _main();
 
 #include <stdlib.h>
@@ -839,6 +841,9 @@ void dodijk_sparse(long int M,
   finished = false;
   ndone    = 0;
   while ((finished==false) && (ndone < M)) {
+
+    // exit if user pressed Ctrl+C
+    ctrlcCheckPoint(__FILE__, __LINE__);
     
     // if ((ndone % 100) == 0) mexPrintf("Done with node %d\n" , ndone);
     

@@ -1,3 +1,13 @@
+2013-03-13  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/im2dmatrix.cpp: (0.2.2)
+
+	- Make it interruptible by Ctrl+C in Matlab.
+
+	* matlab/GerardusCommon.h: (0.9.1)
+
+	- Fix bug. Missing include header.
+
 2013-03-11  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/im2dmatrix.cpp: (v0.2.1)
