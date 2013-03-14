@@ -1,7 +1,7 @@
 /**
  * dijkstra.cpp
  *
- * [D, P] = DIJKSTRA(G, S)
+ * [D, P] = dijkstra(G, S)
  *
  *   This function computes the shortest distance tree(s) from one (or more)
  *   source node(s) in a graph.
@@ -23,7 +23,7 @@
  *
  *   P is the predecessor of each node in the shortest path tree.
  *
- * ... = DIJKSTRA(..., T)
+ * ... = dijkstra(..., T)
  *
  *   T is a row matrix with a list of targets. For each source node S(i),
  *   the algorithm will stop when it finds the shortest paths to all targets
@@ -35,25 +35,57 @@
  *   all target nodes, but you can only trust D, P values of nodes that are
  *   on paths between the source and target nodes.
  *
+ * [..., D2] = dijkstra(..., T, G2)
+ *
+ *   This syntax implements our Dijkstra with piggyback extension. The
+ *   motivation is being able to find shortest-paths according to the
+ *   intensities in a greyscale image, but also compute the actual length of
+ *   those paths without having to backtrack the list of predecessors with
+ *   graphpred2path(). In that case, G contains intensity-weighted
+ *   distances, and is the graph used for finding shortest-paths. G2
+ *   contains actual Euclidean distances.
+ *
+ *   G2 must be a sparse matrix of type double and same size as G.
+ *
+ *   D2 is an output matrix that "gets a piggyback" from the algorithm, in
+ *   the sense that it contains shortest-distances computed from G2 over the
+ *   paths computed from G.
+ *   
+ *
+ *
+ *   Note:
+ *
  *   Because this function is implemented as a MEX function in C++,
  *   takes a sparse matrix at the input, and uses a Fibonacci heap
- *   implementation [1], it is well suited for huge sparse graphs.
+ *   implementation [1], it is well suited for huge sparse graphs. According
+ *   to wikipedia [2], "The implementation based on a min-priority queue
+ *   implemented by a Fibonacci heap and running in O(|E|+|V|log|V|) is due
+ *   to (Fredman & Tarjan 1984). This is asymptotically the fastest known
+ *   single-source shortest-path algorithm for arbitrary directed graphs
+ *   with unbounded non-negative weights."
  *
- *   [1]
- *   http://www.ahhf45.com/info/Data_Structures_and_Algorithms/resources/technical_artile/fibonacci_heap/fibonacci.htm
+ * [1] http://www.ahhf45.com/info/Data_Structures_and_Algorithms/resources/technical_artile/fibonacci_heap/fibonacci.htm
  *
+ * [2] http://en.wikipedia.org/wiki/Dijkstra's_algorithm
+ *
+ * Fredman, Michael Lawrence; Tarjan, Robert E. (1984). "Fibonacci heaps and
+ * their uses in improved network optimization algorithms". 25th Annual
+ * Symposium on Foundations of Computer Science (IEEE): 338–346.
+ * doi:10.1109/SFCS.1984.715934
+
  * Original Author: Mark Steyvers, Stanford University, 19 Dec 2000.
  *
  * Modified by Ramon Casero <rcasero@gmail.com>, University of Oxford,  
- * 23 Mar 2010 to also provide the predecessor list at the output.
- *  6 Mar 2013 to accept a list of targets.
+ * 23 Mar 2010 Also provide the predecessor list at the output
+ *  6 Mar 2013 Accept a list of targets, to limit unnecessary computations
+ * 14 Mar 2013 Dijkstra with piggyback extension
  *
  * This file is distributed as a derivative work of a third-party function
  * with project Gerardus.
  *
  * http://code.google.com/p/gerardus/
  *
- * Version: 0.1.1
+ * Version: 0.3.0
  * $Rev$
  * $Date$
  *
@@ -717,32 +749,38 @@ FibHeapNode *z = y->Parent;
 
 class HeapNode : public FibHeapNode
 {
-      double   N;
-      long int IndexV;
+  double   N; // primary distance value
+  double   N2; // secondary distance value
+  long int IndexV;
 
 public:
 
-      HeapNode() : FibHeapNode() { N = 0; };   
-
-      virtual void operator =(FibHeapNode& RHS);
-      virtual int  operator ==(FibHeapNode& RHS);
-      virtual int  operator <(FibHeapNode& RHS);
-
-      virtual void operator =(double NewKeyVal);
-      virtual void Print();
-
-      double GetKeyValue() { return N; };       /* !!!! */
-      void SetKeyValue(double n) { N = n; };
-
-      long int GetIndexValue() { return IndexV; };
-      void SetIndexValue(long int v) { IndexV = v; };
-
+  HeapNode() : FibHeapNode() { N = 0; N2 = 0; };   
+  
+  virtual void operator =(FibHeapNode& RHS);
+  virtual int  operator ==(FibHeapNode& RHS);
+  virtual int  operator <(FibHeapNode& RHS);
+  
+  virtual void operator =(double NewKeyVal);
+  virtual void Print();
+  
+  // get/set for primary distance
+  double GetKeyValue() { return N; };       /* !!!! */
+  void SetKeyValue(double n) { N = n; };
+  
+  // get/set for secondary distance
+  double GetKey2Value() { return N2; };       /* !!!! */
+  void SetKey2Value(double n) { N2 = n; };
+  
+  long int GetIndexValue() { return IndexV; };
+  void SetIndexValue(long int v) { IndexV = v; };
+  
 };
 
 void HeapNode::Print()
 {
      FibHeapNode::Print();
-     mexPrintf("%f (%d)" , N , IndexV);
+     mexPrintf("%f, %f (%d)" , N , N2, IndexV);
 }
 
 void HeapNode::operator =(double NewKeyVal)
@@ -756,6 +794,7 @@ void HeapNode::operator =(FibHeapNode& RHS)
 {
      FHN_Assign(RHS);
      N = ((HeapNode&) RHS).N;
+     N2 = ((HeapNode&) RHS).N2;
 }
 
 int  HeapNode::operator ==(FibHeapNode& RHS)
@@ -788,32 +827,50 @@ int A, B;
 // Note: "target": we call by value because we want to make a local
 // copy of the list of targets that we can depopulate as we hit
 // targets
-void dodijk_sparse(long int M,
-		   long int N,
-		   long int S,
-		   double *P, // parents
-		   double   *D, // distances
-		   double   *sr,
-		   mwSize      *irs,
-		   mwSize      *jcs,
-		   HeapNode *A,
-		   FibHeap  *theHeap,
-		   std::list<mwIndex> target) {
+void dodijk_sparse(long int M,    // input: sparse distance matrix: # of rows
+		   long int N,    // input: sparse distance matrix: # of cols
+		   long int S,    // input: source node
+		   double   *P,   // output: predecessors vector
+		   double   *D,   // output: distances vector
+		   double   *sr,  // input: sparse distance matrix
+		   mwSize   *irs, // input: ...
+		   mwSize   *jcs, // input: ...
+		   HeapNode *A,   // heap variable
+		   FibHeap  *theHeap, // heap variable
+		   std::list<mwIndex> target, // input: list of target nodes
+		   double   *D2,  // output: secondary distances vector
+		   double   *sr2  // input: sparse secondary distance matrix
+		   ) {
 
   bool     finished;
-  long int i,startind,endind,whichneighbor,ndone,closest;
-  double   closestD,arclength; 
-  double   INF,SMALL,olddist;
+  long int i, startind, endind, whichneighbor, ndone, closest;
+  double   closestD, arclength;
+  double   closestD2 = 0.0, arclength2 = 0.0;
+  double   INF, SMALL, olddist;
+  double   olddist2;
   HeapNode *Min;
   HeapNode Temp;
   
   INF   = mxGetInf();
   SMALL = mxGetEps();
-  
-  /* initialize */
+
+  // check that we either don't have any variables for the secondary
+  // distance matrix, or we have all we need
+  if ((D2 == NULL) && (sr2 != NULL)) {
+    mexErrMsgTxt("D2 provided, but sr2 not provided");
+  }
+  if ((D2 != NULL) && (sr2 == NULL)) {
+    mexErrMsgTxt("D2 not provided, but sr2 provided");
+  }
+
+  // initialize
   for (i=0; i<M; i++) {
     if (i!=S) A[i] = (double) INF; else A[i] = (double) SMALL;
     if (i!=S) D[i] = (double) INF; else D[i] = (double) SMALL;
+    if (D2 != NULL) { // if there's a secondary input distance matrix
+      if (i!=S) A[i].SetKey2Value((double) INF); else A[i].SetKey2Value((double) SMALL);
+      if (i!=S) D2[i] = (double) INF; else D2[i] = (double) SMALL;
+    }
     theHeap->Insert(&A[i]);
     A[i].SetIndexValue((long int) i);
     P[i] = mxGetNaN();
@@ -826,18 +883,18 @@ void dodijk_sparse(long int M,
   theHeap->ExtractMin();
   
   // theHeap->Print();
-  // for (i=0; i<M; i++)
-  // {
-  //    closest = A[i].GetIndexValue();
-  //    closestD = A[i].GetKeyValue();
-  //    mexPrintf("Index at i=%d =%d  value=%f\n" , i , closest , closestD);
+  // for (i=0; i<M; i++) {
+  //   closest = A[i].GetIndexValue();
+  //   closestD = A[i].GetKeyValue();
+  //   closestD2 = A[i].GetKey2Value();
+  //   mexPrintf("Index at i=%d index=%d  value=%f value2=%f\n", i, closest, closestD, closestD2);
   // }
 
   // has the user provided a list of targets, so that the algorithm
   // will stop when all targets are hit?
   bool withTargets = target.size() > 0;
 
-  /* loop over nonreached nodes */
+  // loop over nonreached nodes
   finished = false;
   ndone    = 0;
   while ((finished==false) && (ndone < M)) {
@@ -850,14 +907,22 @@ void dodijk_sparse(long int M,
     Min = (HeapNode *) theHeap->ExtractMin();
     closest  = Min->GetIndexValue();
     closestD = Min->GetKeyValue();
+    if (D2 != NULL) { // if there's a secondary distance matrix input
+      closestD2 = Min->GetKey2Value();
+    }
     
-    if ((closest<0) || (closest>=M)) mexErrMsgTxt("Minimum Index out of bounds...");
+    if ((closest<0) || (closest>=M)) {
+      mexErrMsgTxt("Minimum Index out of bounds...");
+    }
     
     // theHeap->Print();
     // mexPrintf("EXTRACTED MINIMUM  NDone=%d S=%d closest=%d closestD=%f\n" , ndone , S , closest , closestD);//TT
     // mexErrMsgTxt("Exiting...");
      
     D[closest] = closestD;
+    if (D2 != NULL) { // if there's a secondary input distance matrix
+      D2[closest] = closestD2;
+    }
     
     // the rest of the graph is not reachable from here, or we have
     // hit all the targets, we have finished
@@ -895,15 +960,25 @@ void dodijk_sparse(long int M,
 	  whichneighbor = irs[i];
 	  arclength = sr[i];
 	  olddist   = D[whichneighbor];
+	  if (D2 != NULL) { // if there's a secondary distance matrix
+	    arclength2 = sr2[i];
+	    olddist2   = D2[whichneighbor];
+	  }
 	   
 	  // mexPrintf("INSPECT NEIGHBOR #%d  olddist=%f newdist=%f\n" , whichneighbor , olddist , closestD+arclength);//TT
 	  
 	  if (olddist > (closestD + arclength)) {
-	    D[whichneighbor] = closestD + arclength;
 	    P[whichneighbor] = closest;
+	    D[whichneighbor] = closestD + arclength;
+	    if (D2 != NULL) { // if there's a secondary distance matrix
+	      D2[whichneighbor] = closestD2 + arclength2;
+	    }
 	     
 	    Temp = A[whichneighbor];
 	    Temp.SetKeyValue(closestD + arclength);
+	    if (D2 != NULL) { // if there's a secondary distance matrix
+	      Temp.SetKey2Value(closestD2 + arclength2);
+	    }
 	    theHeap->DecreaseKey(&A[whichneighbor], Temp);
 	    
 	    // mexPrintf("UPDATING NODE #%d  olddist=%f newdist=%f newpred=%d\n", 
@@ -990,30 +1065,65 @@ void mexFunction(int          nlhs,
 		 int          nrhs,
 		 const mxArray *prhs[]) {
 
-  double    *sr,*D,*P,*SS,*Dsmall;
-  double *Psmall;
-  mwIndex       *irs,*jcs;
-  mwSize  M,N,S,MS,NS,i,j;
+  double    *sr;             // input: sparse distance matrix
+  mwIndex   *irs,*jcs;       // input: sparse distance matrix
+  mwSize    M,N;             // ...    dimensions
+  double    *SS;             // input: list of source nodes
+  mwSize    MS,NS;           // ...    dimensions
+  double    *ptarget = NULL; // input: (opt) list of target nodes
+  double    *sr2 = NULL;     // input: (opt) sparse secondary distance matrix
+
+  double    *D,*P;           // output: full distance matrix and predecessors matrix
+  double    *D2 = NULL;      // output: secondary full distance matrix
+
+  double    *Dsmall,*Psmall; // temporal storage for the output of Dijkstra's algorithm applied
+                             // to any one source node
+  double    *D2small = NULL; // ...
+  mwSize    S;               // next source node to compute Dijkstra's shortest distances from
+  mwSize    i,j;             // local variables
   
   HeapNode *A = NULL;
   FibHeap  *theHeap = NULL;
 
   // check input arguments
-  if ((nrhs < 2) || (nrhs > 3)) {
+  if ((nrhs < 2) || (nrhs > 4)) {
     mexErrMsgTxt("Incorrect number of input arguments");
-  } else if (nlhs > 2) {
+  } else if (nlhs > 3) {
     mexErrMsgTxt("Too many output arguments");
   }
 
+  // input: sparse distance matrix
   if (!mxIsSparse(prhs[0])) {
-    mexErrMsgTxt("Function only implemented for sparse arrays");
-  } 
+    mexErrMsgTxt("Input distance matrix must be a sparse matrix");
+  }
+  if (!mxIsDouble(prhs[0])) {
+    mexErrMsgTxt("Input distance matrix must be of type double");
+  }
+  // input: secondary sparse distance matrix
+  if (nrhs > 3) { // if input secondary sparse distance matrix
+    if (!mxIsSparse(prhs[3])) {
+      mexErrMsgTxt("Input secondary distance matrix must be a sparse matrix");
+    }
+    if (!mxIsDouble(prhs[3])) {
+      mexErrMsgTxt("Input secondary distance matrix must be of type double");
+    }
+  }
 
   // input distance matrix dimensions
   M = mxGetM(prhs[0]);
   N = mxGetN(prhs[0]);
   
-  if (M != N) mexErrMsgTxt("Input matrix needs to be square");
+  if (M != N) {
+    mexErrMsgTxt("Input distance matrix must be square");
+  }
+  if (nrhs > 3) { // if input secondary sparse distance matrix
+    if (M != mxGetM(prhs[3])) {
+      mexErrMsgTxt("Input secondary distance matrix must be the same size as the primary distance matrix");
+    }
+    if (N != mxGetN(prhs[3])) {
+      mexErrMsgTxt("Input secondary distance matrix must be the same size as the primary distance matrix");
+    }
+  }
   
   // list of source nodes
   SS = mxGetPr(prhs[1]);
@@ -1027,12 +1137,33 @@ void mexFunction(int          nlhs,
     MS=NS;
   }
   
-  // distance values output
-  plhs[0] = mxCreateDoubleMatrix(MS,M, mxREAL);
+  // allocate space for the output full distance matrix
+  plhs[0] = mxCreateDoubleMatrix(MS, M, mxREAL);
   D = mxGetPr(plhs[0]);
+  if (plhs[0] == NULL) {
+    mexErrMsgTxt("Memory allocation for D output failed");
+  }
+
+  if (nrhs > 3) { // if input secondary sparse distance matrix
+    // allocate space for the output secondary full distance matrix
+    plhs[2] = mxCreateDoubleMatrix(MS, M, mxREAL);
+    if (plhs[2] == NULL) {
+      mexErrMsgTxt("Memory allocation for D2 output failed");
+    }
+    D2 = mxGetPr(plhs[2]);
+  } else {
+    // return an empty matrix
+    plhs[2] = mxCreateDoubleMatrix(0, 0, mxREAL);
+    if (plhs[2] == NULL) {
+      mexErrMsgTxt("Memory allocation for D2 output failed");
+    }
+  }
   
   // predecessors output
-  plhs[1] = mxCreateDoubleMatrix(MS,M, mxREAL);
+  plhs[1] = mxCreateDoubleMatrix(MS, M, mxREAL);
+  if (plhs[1] == NULL) {
+    mexErrMsgTxt("Memory allocation for P output failed");
+  }
   P = mxGetPr(plhs[1]);
 
   // to simplify things, we expect the list of targets to be of type
@@ -1040,31 +1171,44 @@ void mexFunction(int          nlhs,
   if ((nrhs > 2) && !mxIsDouble(prhs[2])) {
     mexErrMsgTxt("List of target nodes must be of type double");
   }
-  if ((nrhs > 2) && mxGetM(prhs[2])!=1) {
+  if ((nrhs > 2) && (mxGetM(prhs[2]) != 1)) {
     mexErrMsgTxt("List of target nodes must be a row vector");
   }
 
   // temporal storage for the output of Dijkstra's algorithm applied
   // to any one source node
-  Dsmall = (double *) mxCalloc(M , sizeof(double));
-  Psmall = (double *) mxCalloc(M , sizeof(double));
-  
+  Dsmall = (double *)mxCalloc(M, sizeof(double));
+  Psmall = (double *)mxCalloc(M, sizeof(double));
   if (Dsmall == NULL || Psmall == NULL) {
-    mexErrMsgTxt("Memory allocation failed");
+    mexErrMsgTxt("Memory allocation for internal Dsmall and Psmall outputs failed");
+  }
+
+  if (nrhs > 3) { // if input secondary sparse distance matrix
+    D2small = (double *)mxCalloc(M, sizeof(double));
+    if (D2small == NULL) {
+      mexErrMsgTxt("Memory allocation for internal D2small failed");
+    }
   }
   
-  // dealing with sparse array
+  // get pointers to input sparse distance matrix
   sr      = mxGetPr(prhs[0]);
   irs     = mxGetIr(prhs[0]);
   jcs     = mxGetJc(prhs[0]);
-
+  if ((sr == NULL) || (irs == NULL) || (jcs == NULL)) {
+    mexErrMsgTxt("Cannot get pointer to input D");
+  }
+  if (nrhs > 3) {
+    sr2   = mxGetPr(prhs[3]);
+    if ((sr2 == NULL) || (mxGetIr(prhs[3]) == NULL) || (mxGetJc(prhs[3]) == NULL)) {
+      mexErrMsgTxt("Cannot get pointer to input D2");
+    }
+  }
   // list to keep the array of target nodes. A list is a good data
   // structure for this, because it allows efficient removing of
   // elements, so we know which targets are still missing
   std::list<mwIndex> target;
   
   // pointer to the input array with the targets
-  double *ptarget = NULL;
   if (nrhs > 2) {
     ptarget = mxGetPr(prhs[2]);
     if (ptarget == NULL) {
@@ -1074,10 +1218,10 @@ void mexFunction(int          nlhs,
   
   // populate the list of targets with the array of targets, if one
   // has been provided (note that even if the user doesn't pass an
-  // argument for the list of targets, Matlab is going to consider
-  // that an argument of size (1,1) with value 1 was passed. The only
-  // way to know wether the list was given is to check the number of
-  // input argument
+  // argument for the list of targets, Matlab may consider that an
+  // argument of size (1,1) with value 1 was passed. The only way to
+  // know wether the list was given is to check the number of input
+  // argument
   if ((nrhs > 2) && (prhs[2] != NULL) && !mxIsEmpty(prhs[2])) {
     target.assign(mxGetPr(prhs[2]), mxGetPr(prhs[2]) + mxGetN(prhs[2]));
   }
@@ -1088,13 +1232,14 @@ void mexFunction(int          nlhs,
 
   // setup for the Fibonacci heap
   for (i=0; i<MS; i++) {
-
+    
     if ((theHeap = new FibHeap) == NULL || (A = new HeapNode[M+1]) == NULL) {
-      mexErrMsgTxt("Memory allocation failed-- ABORTING.\n");
+      mexErrMsgTxt("Memory allocation of Fibonacci heap failed");
     }
     
     theHeap->ClearHeapOwnership();
     
+    // next source node to compute Dijkstra's shortest distances from
     S = (long int) *(SS + i);
     S--;
     
@@ -1104,14 +1249,20 @@ void mexFunction(int          nlhs,
        run the dijkstra code 
        ------------------------------------------------------------------------------------------------- */
     
-    dodijk_sparse(M,N,S,Psmall,Dsmall,sr,irs,jcs,A,theHeap,target);
+    dodijk_sparse(M, N, S, Psmall, Dsmall, sr, irs, jcs, A, theHeap, // basic Dijkstra arguments
+		  target, D2small, sr2);                             // extensions
     
     for (j=0; j<M; j++) {
       // copy distance values and predecessor indices to output 
       *(D + j*MS + i) = *(Dsmall + j);
       *(P + j*MS + i) = *(Psmall + j) + 1;
-      //   P[j] = (double)(Psmall[j] + 1);
-      
+    }
+
+    if ((nrhs > 3) && (nlhs > 2)) {
+      for (j=0; j<M; j++) {
+	// copy distance values and predecessor indices to output 
+	*(D2 + j*MS + i) = *(D2small + j);
+      }
     }
     
     /* -------------------------------------------------------------------------------------------------
