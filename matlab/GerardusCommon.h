@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.9.0
+  * Version: 0.9.1
   * $Rev$
   * $Date$
   *
@@ -43,10 +43,11 @@
 #include <mex.h>
 
 /* C++ headers */
-#include<iostream>
-#include<algorithm>
-#include<iterator>
-#include<string>
+#include <iostream>
+#include <algorithm>
+#include <iterator>
+#include <string>
+#include <vector>
 
 /* ITK headers */
 #include "itkOffset.h"
