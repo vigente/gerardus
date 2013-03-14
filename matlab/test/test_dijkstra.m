@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.1.0
+% Version: 0.3.0
 % $Rev$
 % $Date$
 %
@@ -29,6 +29,13 @@
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see
 % <http://www.gnu.org/licenses/>.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Basic Dijkstra
+
+% distance matrix to describe the graph in 
+% http://en.wikipedia.org/wiki/Dijkstra's_algorithm
+% (saved to matlab/test/Dijkstra_Animation_wikipedia.gif)
 
 d = [...
     %  1   2   3   4   5   6
@@ -65,6 +72,9 @@ d = [...
 %      3     3     0     3     6     3
 %      3     3     6     3     6     0
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Dijkstra with limited number of targets
+
 % query a source node, but we are only interested in the path to a single
 % target node
 [dd, p] = dijkstra(sparse(d), 1, 3)
@@ -76,3 +86,30 @@ d = [...
 % p =
 % 
 %      0     1     1     3   NaN     3
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Dijkstra with piggyback
+
+% secondary distance matrix. The algorithm will ignore this distances in
+% terms of searching for shortest-paths, but will create another distance
+% output adding the values in D2 while following the path given by D
+
+d2 = [...
+    %  1   2   3   4   5   6
+       0  10   7   0   0   6; ...
+      10   0   2  11   0   0; ...
+       7   2   0   9   0   9; ...
+       0  11   9   0  14   0; ...
+       0   0   0  14   0  15; ...
+       6   0   9   0  15   0];
+
+[dd, p, dd2] = dijkstra(sparse(d), 1:6, 1:6, sparse(d2))
+
+% dd2 =
+% 
+%     0.0000   10.0000    7.0000   16.0000   31.0000   16.0000
+%    10.0000    0.0000    2.0000   11.0000   26.0000   11.0000
+%     7.0000    2.0000    0.0000    9.0000   24.0000    9.0000
+%    16.0000   11.0000    9.0000    0.0000   14.0000   18.0000
+%    31.0000   25.0000   24.0000   14.0000    0.0000   15.0000
+%    16.0000   11.0000    9.0000   18.0000   15.0000    0.0000
