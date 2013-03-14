@@ -1,3 +1,9 @@
+2013-03-14  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/test/Dijkstra_Animation_wikipedia.gif:
+
+	- Image to illustrate the graph used in matlab/test/test_dijkstra.m.
+
 2013-03-13  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/im2dmatrix.cpp: (0.2.2)
