@@ -1,18 +1,30 @@
 2013-03-14  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ThirdPartyToolbox/dijkstra.m: (0.3.0)
+	* matlab/ThirdPartyToolbox/dijkstra.cpp: (0.3.0)
+	* matlab/test/test_dijkstra.m: (0.3.0)
+
+	- Add piggyback extension. The motivation is being able to find
+	shortest-paths according to the intensities in a greyscale image,
+	but also compute the actual length of those paths without having
+	to backtrack the list of predecessors with graphpred2path(). In
+	that case, G contains intensity-weighted distances, and is the
+	graph used for finding shortest-paths. G2 contains actual
+	Euclidean distances.
+
 	* Add matlab/test/Dijkstra_Animation_wikipedia.gif:
 
 	- Image to illustrate the graph used in matlab/test/test_dijkstra.m.
+
+	* matlab/GerardusCommon.h: (0.9.1)
+
+	- Fix bug. Missing include header.
 
 2013-03-13  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/im2dmatrix.cpp: (0.2.2)
 
 	- Make it interruptible by Ctrl+C in Matlab.
-
-	* matlab/GerardusCommon.h: (0.9.1)
-
-	- Fix bug. Missing include header.
 
 2013-03-11  Ramon Casero  <rcasero@gmail.com>
 
