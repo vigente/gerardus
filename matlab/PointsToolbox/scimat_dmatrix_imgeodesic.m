@@ -1,8 +1,9 @@
-function [d2, idx, p, d] = scimat_dmatrix_livewire(scimat, idx)
-% SCIMAT_DMATRIX_LIVEWIRE  Compute a distance/adjacency matrix for a set of
-% scattered points using the image intensity to approximate the geodesics
+function [d2, idx, p, d] = scimat_dmatrix_imgeodesic(scimat, idx)
+% SCIMAT_DMATRIX_IMGEODESIC  Compute a distance/adjacency matrix for a set
+% of scattered points using the image intensity to approximate the
+% geodesics
 %
-% D = scimat_dmatrix_livewire(SCIMAT, IDX)
+% D = scimat_dmatrix_imgeodesic(SCIMAT, IDX)
 %
 %   SCIMAT is SCI MAT struct that contains a grayscale image. The live wire
 %   will try to avoid bright (white) areas, and instead select darker
@@ -24,7 +25,7 @@ function [d2, idx, p, d] = scimat_dmatrix_livewire(scimat, idx)
 %   points i and j. This distance is purely geometric, not weighted by
 %   intensity values.
 %
-% [D, IDX2, P, DINT] = scimat_dmatrix_livewire(...)
+% [D, IDX2, P, DINT] = scimat_dmatrix_imgeodesic(...)
 %
 %   IDX2 is a vector with the linear indices that correspond to the
 %   multiple subscript indices in IDX.
