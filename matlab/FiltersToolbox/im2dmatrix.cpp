@@ -27,7 +27,7 @@
 /*
  * Author: Ramon Casero <rcasero@gmail.com>
  * Copyright © 2010-2011 University of Oxford
- * Version: 0.2.2
+ * Version: 0.2.3
  * $Rev$
  * $Date$
  * 
@@ -70,9 +70,6 @@ void mexFunction(int nlhs, // number of expected outputs
 		 int nrhs, // number of inputs
 		 const mxArray *prhs[] // array of pointers to inputs
 		 ) {
-  // Syntax:
-  //
-  // A = IMG_ADJACENCY_DISTANCE(IM)
 
   // variables
   mwSize R = 0, C = 0, S = 0; // number of rows, cols and slices of input image
@@ -137,16 +134,18 @@ void mexFunction(int nlhs, // number of expected outputs
     if (!mxIsInf(im[idx])) {nvox++;}
   }
 
-  // create sparse matrix for the output
-  // each voxel can be connected to up to 26 voxels (imagine a
-  // (3,3,3)-cube of voxels, with our voxel in the middle)
+  // create sparse matrix for the output each voxel can be connected
+  // to up to 26 voxels (imagine a (3,3,3)-cube of voxels, with our
+  // voxel in the middle), so we allocate memory for that worse case
+  // scenario
   plhs[0] = (mxArray *)mxCreateSparse(R*C*S, R*C*S, R*C*S*26, mxREAL);
   if (!plhs[0]) {mexErrMsgTxt("Not enough memory for output");}
 
   // pointer to the output matrix
   out = (double *)mxGetPr(plhs[0]);
 
-  // pointer to the values in the sparse matrix (mean voxel intensity)
+  // pointer to the values in the sparse matrix (distance weighted by
+  // mean voxel intensity)
   double *pr = mxGetPr(plhs[0]);
   if (!pr) {
     mexErrMsgTxt("Error loading vector pr from sparse matrix");
@@ -154,9 +153,10 @@ void mexFunction(int nlhs, // number of expected outputs
 
   // pointer to vector jc in the sparse matrix (cumsum of number of
   // voxels connected to current voxel). If the sparse matrix has n
-  // columns, then jc has n+1 elements. Each one tells how many matrix
-  // entries are nonzero so far. For example, if column 0 has 3
-  // nonzero entries and column 1 has 2, then jc=[0 3 5]
+  // columns, then jc has n+1 elements. jc[i]=X means that in columns
+  // 1 to i-1 there are a total of X non-zero elements. For example,
+  // if column 0 has 3 nonzero entries and column 1 has 2, then jc=[0
+  // 3 5]
   mwIndex *jc = mxGetJc(plhs[0]);
   if (!jc) {
     mexErrMsgTxt("Error loading vector jc from sparse matrix");
@@ -165,13 +165,27 @@ void mexFunction(int nlhs, // number of expected outputs
   // pointer to the connected voxel indices
   //
   // in this case, indices follow the C++ convention
+  //
+  // ir is a vector that says where the non-zero entries are. For
+  // example,
+  //
+  // s = 
+  //   0     0     0
+  //   1     0     2
+  //   0     1     0
+  //   0     0     0
+  //   1     0     1
+  //   0     0     1
+  //   0     0     0
+  //
+  // ir = [1 4, 2, 1 4 5]
   mwIndex *ir = mxGetIr(plhs[0]);
   if (!ir) {
     mexErrMsgTxt("Error loading vector ir from sparse matrix");
   }
 
   // init jc so that we can add 1 every time we find a node connection
-  for (mwSize idx = 0; idx <= R*C*S; ++idx) {
+  for (mwSize idx = 0; idx < R*C*S+1; ++idx) {
     jc[idx] = 0;
   }
   
@@ -186,7 +200,7 @@ void mexFunction(int nlhs, // number of expected outputs
   // jc[], for the 2nd node in the 3rd element, and so on
   mwSize outidx = 0; // index for ir, pr
   mwSize nedg = 0; // number of edges or connections between voxels
-  mwSize idx = 0; // linear index for voxels
+  mwSize idx = 0; // linear index for current voxel
   mwSize nnidx = 0; // linear index for adjacent voxels
   mwSize RC = R*C; // aux variable
   double ledge = 0.0; // length of edge linking two voxels
@@ -197,16 +211,19 @@ void mexFunction(int nlhs, // number of expected outputs
 	// exit if user pressed Ctrl+C
 	ctrlcCheckPoint(__FILE__, __LINE__);
 	
-	// get linear index of voxel from multiple indices
-	idx = RC*s + R*c + r;
+	std::cout << "idx = " << idx << std::endl;////////////////
 
 	// if current voxels is Inf, we don't include it in the
 	// graph, so just skip to next iteration
-	if (mxIsInf(im[idx])) {continue;}
+	if (mxIsInf(im[idx])) {++idx; continue;}
 
-	// examine 26 voxels surrounding the current voxel; if a
-	// neighbour voxel is nonzero, we say that it is connected to
-	// the current voxel, and has to be added to the sparse matrix
+	// init neighbour index
+	nnidx = 0;
+
+	// examine voxels surrounding the current voxel (up to 26
+	// voxels); if a neighbour voxel is noninfinite, we say that
+	// it is connected to the current voxel, and has to be added
+	// to the sparse matrix
 	for (mwSize nns = std::max((long int)0, (long int)s-1);
 	     nns <= std::min(S-1, s+1); ++nns) {
 	  for (mwSize nnc = std::max((long int)0, (long int)c-1);
@@ -216,18 +233,22 @@ void mexFunction(int nlhs, // number of expected outputs
 	      
 	      // don't connect current voxel to itself
 	      if (nns == s && nnc == c && nnr == r) {continue;}
-
-	      // get linear index of voxel from multiple indices
+	      
+	      // get linear index of neighbour voxel
 	      nnidx = RC*nns + R*nnc + nnr;
 
 	      // skip connected voxels that are Inf
 	      if (mxIsInf(im[nnidx])) {continue;}
 
-	      // length of edge linking two voxels
+	      std::cout << "\tnnidx = " << nnidx << std::endl;////////////////
+
+	      // length of edge linking two voxels (sqrt(dx^2 + dy^2 + dz^2))
 	      ledge = abs(nnr - r) * res[0] * abs(nnr - r) * res[0];
 	      ledge += abs(nnc - c) * res[1] * abs(nnc - c) * res[1];
 	      ledge += abs(nns - s) * res[2] * abs(nns - s) * res[2];
 	      ledge = sqrt(ledge);
+
+	      std::cout << "\t\tledge = " << ledge << std::endl;////////////////
 
 	      // the edge weight between the current voxel and the
 	      // connected voxel is the mean between their node values
@@ -235,25 +256,31 @@ void mexFunction(int nlhs, // number of expected outputs
 	      // this weight multiplies the connection length
 	      pr[outidx] = (im[nnidx] + im[idx]) * 0.5 * ledge;
 
-	      // instead of computing jc directly, first we are going
-	      // to see just how many voxels are connected to the
-	      // current voxel
-	      if (im[nnidx]) {
-		jc[idx+1] += 1; //idx+1 to correct the node id for Matlab
-	      }
+	      // instead of computing jc directly as the cumulative
+	      // sum, for the moment we are going to keep track only
+	      // of how many elements are in each column, i.e. how
+	      // many neighbours the current voxel has (and note that
+	      // jc[i+1] corresponds to column i)
+	      //
+	      // here we say that the voxel has another neighbour
+	      jc[idx+1] += 1;
 
-	      // record the voxel connection (C++ convention, not Matlab's)
+	      // row position of the neighbour (C++ convention)
 	      ir[outidx] = nnidx;
 
 	      // advance one position in ir, pr
-	      outidx++;
+	      ++outidx;
 
 	    }
 	  }
 	}
 	
-	// save value of the number of connections we have
+	// this counter keeps track of the total number of nonzero
+	// elements in the distance matrix
 	nedg = outidx;
+
+	// update current voxel index
+	++idx;
 
       }
     }
@@ -266,8 +293,6 @@ void mexFunction(int nlhs, // number of expected outputs
     jc[idx] += jc[idx-1];
   }
   
-
-
   // correct the number of non-zero entries in the sparse matrix
   mxSetNzmax(plhs[0], nedg);
   
