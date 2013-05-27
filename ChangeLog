@@ -1,5 +1,11 @@
 2013-05-27  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/PointsToolbox/scimat_dmatrix_thickslice.m: (0.1.0)
+
+	- SCIMAT_DMATRIX_LIVEWIRE Compute a distance/adjacency matrix for
+	a set of scattered points using the image intensity to approximate
+	the geodesics
+
 	* matlab/FiltersToolbox/im2dmatrix.cpp: (0.2.3)
 
 	- Fix bug. Neighbours were inconsistently taken into account, but
