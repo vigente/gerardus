@@ -1,6 +1,13 @@
 2013-05-27  Ramon Casero  <rcasero@gmail.com>
 
-	* Add matlab/PointsToolbox/scimat_dmatrix_thickslice.m: (0.1.0)
+	* Rename matlab/PointsToolbox/scimat_dmatrix_livewire.m as
+	matlab/PointsToolbox/scimat_dmatrix_imgeodesic.m:
+	* Add matlab/test/test_scimat_dmatrix_imgeodesic.m: (0.1.0)
+
+	- It's not really a livewire, and image-geodesic expresses better
+	what it does.
+
+	* Add matlab/PointsToolbox/scimat_dmatrix_livewire.m: (0.1.0)
 
 	- SCIMAT_DMATRIX_LIVEWIRE Compute a distance/adjacency matrix for
 	a set of scattered points using the image intensity to approximate
