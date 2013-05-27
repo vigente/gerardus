@@ -211,8 +211,6 @@ void mexFunction(int nlhs, // number of expected outputs
 	// exit if user pressed Ctrl+C
 	ctrlcCheckPoint(__FILE__, __LINE__);
 	
-	std::cout << "idx = " << idx << std::endl;////////////////
-
 	// if current voxels is Inf, we don't include it in the
 	// graph, so just skip to next iteration
 	if (mxIsInf(im[idx])) {++idx; continue;}
@@ -240,15 +238,11 @@ void mexFunction(int nlhs, // number of expected outputs
 	      // skip connected voxels that are Inf
 	      if (mxIsInf(im[nnidx])) {continue;}
 
-	      std::cout << "\tnnidx = " << nnidx << std::endl;////////////////
-
 	      // length of edge linking two voxels (sqrt(dx^2 + dy^2 + dz^2))
 	      ledge = abs(nnr - r) * res[0] * abs(nnr - r) * res[0];
 	      ledge += abs(nnc - c) * res[1] * abs(nnc - c) * res[1];
 	      ledge += abs(nns - s) * res[2] * abs(nns - s) * res[2];
 	      ledge = sqrt(ledge);
-
-	      std::cout << "\t\tledge = " << ledge << std::endl;////////////////
 
 	      // the edge weight between the current voxel and the
 	      // connected voxel is the mean between their node values
