@@ -1,3 +1,14 @@
+2013-05-27  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/im2dmatrix.cpp: (0.2.3)
+
+	- Fix bug. Neighbours were inconsistently taken into account, but
+	not recorded in jc if their intensity value is 0. Now all
+	neighbours are taken into account, and if their distance*mean
+	intensity==0, it's still considered a connection. Apparently,
+	sparse matrices in Matlab consider missing elements as an implicit
+	0, but an explicit 0 in a sparse matrix is not a nonzero element.
+
 2013-03-14  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ThirdPartyToolbox/dijkstra.m: (0.3.0)
