@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -95,7 +95,10 @@ public:
   void CheckNumberOfArguments(unsigned int min, unsigned int max);
 
   // function to allocate memory in Matlab and hijack it to be used as
-  // an ITK filter output
+  // an ITK filter output. This only works with those filters that
+  // create their own output. For other filters, you cannot graft the
+  // output; instead, use CopyItkImageOntoMatlab() after running the
+  // filter
   //
   // size is a vector with the dimensions of the output image in
   // Matlab. For example, for a 256x200x512 image, size = {256, 200, 512}
@@ -111,6 +114,28 @@ public:
 				 unsigned int idx, std::string paramName) {
     GraftItkImageOntoMatlab<TPixel, VectorDimension, TPixel>(image, size, 
 							     idx, paramName);
+  }
+
+  // function to allocate memory in Matlab and copy an ITK filter
+  // output to this buffer. In principle, it's better to use
+  // GraftItkImageOntoMatlab() than CopyItkImageToMatlab(), because
+  // then ITK and Matlab share the same memory buffer, but the former
+  // approach does not work with some filters
+  //
+  // size is a vector with the dimensions of the output image in
+  // Matlab. For example, for a 256x200x512 image, size = {256, 200, 512}
+  //
+  // size is the same for vector or scalar images. 
+  template <class TPixel, unsigned int VectorDimension, class TVector>
+    void CopyItkImageToMatlab(typename itk::DataObject::Pointer image, 
+			      std::vector<unsigned int> size,
+			      unsigned int idx, std::string paramName);
+  template <class TPixel, unsigned int VectorDimension>
+    void CopyItkImageToMatlab(typename itk::DataObject::Pointer image, 
+			      std::vector<unsigned int> size,
+			      unsigned int idx, std::string paramName) {
+    CopyItkImageToMatlab<TPixel, VectorDimension, TPixel>(image, size, 
+							  idx, paramName);
   }
 
 };
