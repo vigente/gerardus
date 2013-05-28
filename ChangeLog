@@ -1,5 +1,11 @@
 2013-05-28  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/ItkImFilter.cpp: (1.3.1)
+
+	- Fix bug. Maurer distance filter doesn't create the output in the
+	filter output, so we have to copy the result to the Matlab buffer
+	after the filter has run.
+
 	* matlab/ItkToolbox/ItkImFilter.cpp: (1.3.0)
 	* matlab/ItkToolbox/itk_imfilter.m: (0.7.2)
 	* matlab/test/test_itk_imfilter.m: (0.4.0)

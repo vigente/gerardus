@@ -310,7 +310,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011-2012 University of Oxford
-  * Version: 1.3.0
+  * Version: 1.3.1
   * $Rev$
   * $Date$
   *
@@ -910,16 +910,16 @@ public:
     filter->SetInput(matlabImport->
 		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
 
-    // connect ITK filter outputs to Matlab outputs
+    // run filter
+    filter->Update();
+
+    // copy ITK filter outputs to Matlab outputs
 
     // distance map
     if (matlabExport->GetNumberOfArguments() >= 1) {
-      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+      matlabExport->CopyItkImageToMatlab<TPixelOut, VImageDimension>
 	(filter->GetOutputs()[0], im.size, 0, "0");
     }
-
-    // run filter
-    filter->Update();
 
   }
 };
