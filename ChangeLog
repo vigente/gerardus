@@ -1,3 +1,22 @@
+2013-05-28  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/ItkImFilter.cpp: (1.3.0)
+	* matlab/ItkToolbox/itk_imfilter.m: (0.7.2)
+	* matlab/test/test_itk_imfilter.m: (0.4.0)
+
+	- Add filter VotingBinaryIterativeHoleFillingImageFilter, as
+	requested by Peter Thalmann.
+
+	* matlab/MatlabExportFilter.h: (0.2.0)
+	* matlab/MatlabExportFilter.hxx: (0.2.0)
+
+	- Add CopyItkImageToMatlab(): function to allocate memory in
+	Matlab and copy an ITK filter output to this buffer. In principle,
+	it's better to use GraftItkImageOntoMatlab() than
+	CopyItkImageToMatlab(), because then ITK and Matlab share the same
+	memory buffer, but the former approach does not work with some
+	filters.
+
 2013-05-27  Ramon Casero  <rcasero@gmail.com>
 
 	* Rename matlab/PointsToolbox/scimat_dmatrix_livewire.m as

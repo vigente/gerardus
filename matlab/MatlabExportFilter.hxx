@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -42,6 +42,7 @@
 #define MATLABEXPORTFILTER_HXX
 
 /* ITK headers */
+#include "itkImageRegionConstIterator.h"
 
 /* Gerardus headers */
 #include "MatlabExportFilter.h"
@@ -68,8 +69,11 @@ void MatlabExportFilter::CheckNumberOfArguments(unsigned int min, unsigned int m
   }
 }
 
-// function to allocate memory in Matlab and hijack it to be used as
-// an ITK filter output
+// function to allocate memory in Matlab and copy an ITK filter
+// output to this buffer. In principle, it's better to use
+// GraftItkImageOntoMatlab() than CopyItkImageToMatlab(), because
+// then ITK and Matlab share the same memory buffer, but the former
+// approach does not work with some filters
 //
 // size is a vector with the dimensions of the output image in
 // Matlab. For example, for a 256x200x512 image, size = {256, 200, 512}
@@ -153,8 +157,8 @@ MatlabExportFilter::GraftItkImageOntoMatlab(typename itk::DataObject::Pointer im
   }
   
   // pointer to the Matlab output buffer
-  TVector *imOutp =  (TVector *)mxGetData(this->args[idx]);
-  if(imOutp == NULL) {
+  TVector *buffer =  (TVector *)mxGetData(this->args[idx]);
+  if(buffer == NULL) {
     mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to allocated memory for output matrix");
   }
 
@@ -170,12 +174,123 @@ MatlabExportFilter::GraftItkImageOntoMatlab(typename itk::DataObject::Pointer im
     mexWarnMsgTxt("Memory leak, ITK output has size>0 before grafting it onto Matlab");
   }
   const bool filterWillDeleteTheBuffer = false;
-  pOutput->GetPixelContainer()->SetImportPointer(imOutp,
+  pOutput->GetPixelContainer()->SetImportPointer(buffer,
   						 mxGetNumberOfElements(this->args[idx]),
   						 filterWillDeleteTheBuffer);
   
   return;
 
 }
+
+
+// function to allocate memory in Matlab and copy an ITK filter
+// output to this buffer. In principle, it's better to use
+// GraftItkImageOntoMatlab() than CopyItkImageToMatlab(), because
+// then ITK and Matlab share the same memory buffer, but the former
+// approach does not work with some filters
+//
+// size is a vector with the dimensions of the output image in
+// Matlab. For example, for a 256x200x512 image, size = {256, 200, 512}
+//
+// size is the same for vector or scalar images. 
+template <class TPixel, unsigned int VectorDimension, class TVector>
+void
+MatlabExportFilter::CopyItkImageToMatlab(typename itk::DataObject::Pointer image,
+					 std::vector<unsigned int> size,
+					 unsigned int idx, std::string paramName) {
+
+  if (size.size() != VectorDimension) {
+    mexErrMsgTxt(("MatlabExportFilter: Output image " + paramName 
+		  + ": wrong length for size vector").c_str());
+  }
+
+  // convert output data type to output class ID
+  mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
+  if (TypeIsBool<TPixel>::value) {
+    outputVoxelClassId = mxLOGICAL_CLASS;
+  } else if (TypeIsUint8<TPixel>::value) {
+    outputVoxelClassId = mxUINT8_CLASS;
+  } else if (TypeIsInt8<TPixel>::value) {
+    outputVoxelClassId = mxINT8_CLASS;
+  } else if (TypeIsUint16<TPixel>::value) {
+    outputVoxelClassId = mxUINT16_CLASS;
+  } else if (TypeIsInt16<TPixel>::value) {
+    outputVoxelClassId = mxINT16_CLASS;
+  } else if (TypeIsInt32<TPixel>::value) {
+    outputVoxelClassId = mxINT32_CLASS;
+  } else if (TypeIsInt64<TPixel>::value) {
+    outputVoxelClassId = mxINT64_CLASS;
+  } else if (TypeIsSignedLong<TPixel>::value) {
+    if (sizeof(signed long) == 4) {
+      outputVoxelClassId = mxINT32_CLASS;
+    } else if (sizeof(signed long) == 8) {
+      outputVoxelClassId = mxINT64_CLASS;
+    } else {
+      mexErrMsgTxt("MatlabExportFilter: signed long is neither 4 or 8 byte in this architecture");
+    }
+    outputVoxelClassId = mxINT64_CLASS;
+  } else if (TypeIsFloat<TPixel>::value) {
+    outputVoxelClassId = mxSINGLE_CLASS;
+  } else if (TypeIsDouble<TPixel>::value) {
+    outputVoxelClassId = mxDOUBLE_CLASS;
+  } else {
+    mexErrMsgTxt("MatlabExportFilter: Assertion fail: Unrecognised output data type");
+  }
+
+  // dimensions for the output array
+  typedef typename itk::Image<TVector, VectorDimension> OutputImageType;
+  OutputImageType *pOutput = 
+    dynamic_cast<OutputImageType *>(image.GetPointer());
+  if (pOutput == NULL) {
+    mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to filter output");
+  }
+
+  // if the output image is a vector image, extend the size vector
+  if (!TypesAreEqual<TPixel, TVector>::value) {
+    size.insert(size.begin(), VectorDimension);
+  }
+
+  mwSize ndim = size.size();
+  mwSize dims[ndim];
+  bool isEmptyMatrix = false;
+  for (mwSize i = 0; i < ndim; ++i) {
+    dims[i] = size[i];
+    isEmptyMatrix |= (size[i] == 0);
+  }
+
+  // create output matrix for Matlab's result
+  if (isEmptyMatrix) {
+    this->args[idx] = mxCreateDoubleMatrix(0, 0, mxREAL);
+  } else {
+    this->args[idx] = (mxArray *)mxCreateNumericArray(ndim, dims,
+  						      outputVoxelClassId,
+ 						      mxREAL);
+  }
+  if (this->args[idx] == NULL) {
+    mexErrMsgTxt("MatlabExportFilter: Cannot allocate memory for output matrix");
+  }
+  
+  // pointer to the Matlab output buffer
+  TVector *buffer =  (TVector *)mxGetData(this->args[idx]);
+  if(buffer == NULL) {
+    mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to allocated memory for output matrix");
+  }
+
+  // copy ITK filter output to Matlab buffer
+  // pOutput->GetBufferPointer()
+  typedef typename itk::ImageRegionConstIterator<OutputImageType> IteratorType;
+  IteratorType it(pOutput, pOutput->GetLargestPossibleRegion());
+
+  it.GoToBegin();
+  while(!it.IsAtEnd()) {
+    *buffer = it.Get();
+    ++it;
+    ++buffer;
+  }
+
+  return;
+}
+
+
 
 #endif /* MATLABEXPORTFILTER_HXX */
