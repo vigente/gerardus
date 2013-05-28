@@ -277,10 +277,36 @@ function im = itk_imfilter(varargin)
 %
 %   TOL is a scalar with the error tolerance that will be used as a
 %   criterion for convergence. By default, TOL=1e-7.
+%
+% -------------------------------------------------------------------------
+%
+% B = itk_imfilter('voteholefill', A)
+%
+%   (itk::VotingBinaryIterativeHoleFillingImageFilter)
+%   Fills in holes and cavities by iteratively applying a voting operation.
+%
+%   A is a binary image.
+%
+%   B is a binary image of the same size and type as A.
+%
+% B = itk_imfilter(..., RADIUS, THR, BACKGROUND, FOREGROUND)
+%
+%   RADIUS is an array with the same dimension as A. RADIUS gives the
+%   radius of the box around the current voxel in each dimension. Each
+%   voxel within the box counts as a vote for whether the current
+%   background voxel should be flipped to foreground. By default RADIUS is
+%   1 in all dimensions, i.e. a box of side = 3.
+%
+%   THR is the majority threshold, i.e. the number of pixels over 50% that
+%   will decide whether a background pixel will become foreground or not.
+%
+%   BACKGROUND, FOREGROUND are the voxel values for background and
+%   foreground voxels, respectively. By default, BACKGROUND=0,
+%   FOREGROUND=1.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.6.2
+% Version: 0.7.2
 % $Rev$
 % $Date$
 %

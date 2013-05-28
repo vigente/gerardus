@@ -4,7 +4,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.3.0
+% Version: 0.4.0
 % $Rev$
 % $Date$
 %
@@ -284,3 +284,19 @@ seg = itk_imfilter('mrf', scimat.data, obj.mu', weights, 2);
 subplot(2, 2, 4)
 imagesc(seg(:,:,4))
 
+%% itk::VotingBinaryIterativeHoleFillingImageFilter (voteholefill)
+
+% create small toy image with a small hole
+im = zeros(15, 15, 'uint8');
+im(3:13, 3:13) = 255;
+im(7:8, 7) = 0;
+
+% plot input image
+hold off
+imagesc(im)
+
+% run filter to fill in holes
+im2 = itk_imfilter('voteholefill', im, [2 2], 2);
+
+% plot output image
+imagesc(im2)
