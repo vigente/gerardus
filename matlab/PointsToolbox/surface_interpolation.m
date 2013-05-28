@@ -39,9 +39,9 @@ function [xi, uv, x, ui, vi] = surface_interpolation(x, param, interp)
 % ... = surface_interpolation(X, PARAM, INTERP)
 %
 %   PARAM is a struct that describes the method used to parametrise the
-%   surface and the set of points X, and its parameters. PARAM needs to
-%   have at least a field PARAM.type that describes the parameterisation
-%   method:
+%   surface and the set of points X, and its parameters.
+%
+%   PARAM.type:
 %
 %     'xy' (default): No change, the X coordinates are kept the same.
 %
@@ -104,7 +104,9 @@ function [xi, uv, x, ui, vi] = surface_interpolation(x, param, interp)
 %                     See "help smdscale" for all options.
 %
 %   INTERP is a struct that describes the interpolation method, and its
-%   parameters:
+%   parameters.
+%
+%   INTERP.type:
 %
 %     'tsi'  (default): Matlab's TriScatteredInterp() function. Compact
 %     support, limited to the convex hull of the scattered points 2D
