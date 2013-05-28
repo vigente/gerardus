@@ -279,12 +279,38 @@
  *   TOL is a scalar with the error tolerance that will be used as a
  *   criterion for convergence. By default, TOL=1e-7.
  *
+ * -------------------------------------------------------------------------
+ *
+ * B = itk_imfilter('voteholefill', A)
+ *
+ *   (itk::VotingBinaryIterativeHoleFillingImageFilter)
+ *   Fills in holes and cavities by iteratively applying a voting operation.
+ *
+ *   A is a binary image.
+ *
+ *   B is a binary image of the same size and type as A.
+ *
+ * B = itk_imfilter(..., RADIUS, THR, BACKGROUND, FOREGROUND)
+ *
+ *   RADIUS is an array with the same dimension as A. RADIUS gives the
+ *   radius of the box around the current voxel in each dimension. Each
+ *   voxel within the box counts as a vote for whether the current
+ *   background voxel should be flipped to foreground. By default RADIUS is
+ *   1 in all dimensions, i.e. a box of side = 3.
+ *
+ *   THR is the majority threshold, i.e. the number of pixels over 50% that
+ *   will decide whether a background pixel will become foreground or not.
+ *
+ *   BACKGROUND, FOREGROUND are the voxel values for background and
+ *   foreground voxels, respectively. By default, BACKGROUND=0,
+ *   FOREGROUND=1.
+ *
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011-2012 University of Oxford
-  * Version: 1.2.0
+  * Version: 1.3.0
   * $Rev$
   * $Date$
   *
@@ -337,6 +363,7 @@
 #include "itkMinimumDecisionRule.h"
 
 /* ITK filter headers */
+#include "itkVotingBinaryIterativeHoleFillingImageFilter.h"
 #include "itkApproximateSignedDistanceMapImageFilter.h"
 #include "itkMedianImageFilter.h"
 #include "itkMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter.h"
@@ -359,6 +386,7 @@
 // list of supported filters. It has to be an enum so that we can pass
 // it as a template constant parameter
 enum SupportedFilter {
+  nVotingBinaryIterativeHoleFillingImageFilter,
   nApproximateSignedDistanceMapImageFilter,
   nMedianImageFilter,
   nMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter,
@@ -391,6 +419,61 @@ public:
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
     mexErrMsgTxt("Unsupported filter type");
+  }
+};
+
+// VotingBinaryIterativeHoleFillingImageFilter
+template <class TPixelIn, unsigned int VImageDimension>
+class FilterWrapper<TPixelIn, VImageDimension,
+		    nVotingBinaryIterativeHoleFillingImageFilter> {
+
+public:
+  
+  FilterWrapper(MatlabImportFilter::Pointer matlabImport,
+		MatlabExportFilter::Pointer matlabExport,
+		MatlabImageHeader &im) {
+    
+    // check number of input and output arguments
+    matlabImport->CheckNumberOfArguments(2, 5);
+    matlabExport->CheckNumberOfArguments(0, 1);
+
+    // instantiate the filter
+    typedef TPixelIn TPixelOut;
+    typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
+    typedef itk::VotingBinaryIterativeHoleFillingImageFilter<InImageType>
+      FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+
+    // connect Matlab inputs to ITK filter
+    filter->SetInput(matlabImport->
+		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+
+    // default parameters
+    typename InImageType::SizeType radiusDef;
+    radiusDef.Fill(1);
+
+    // filter parameters
+    filter->SetRadius(matlabImport->template
+		      GetRowVectorArgument<typename InImageType::SizeValueType,
+					   typename InImageType::SizeType>(2, "RADIUS", radiusDef));
+    filter->SetMaximumNumberOfIterations(matlabImport->template
+					 GetScalarArgument<unsigned int>(3, "MAXITER", 1));
+    filter->SetMajorityThreshold(matlabImport->template
+				 GetScalarArgument<unsigned int>(4, "THR", 2));
+    filter->SetBackgroundValue(matlabImport->template
+			       GetScalarArgument<TPixelIn>(5, "BACKGROUND", 0));
+    filter->SetForegroundValue(matlabImport->template
+			       GetScalarArgument<TPixelIn>(6, "FOREGROUND", 1));
+
+    // run filter
+    filter->Update();
+
+    // copy ITK filter outputs to Matlab outputs
+    if (matlabExport->GetNumberOfArguments() >= 1) {
+      matlabExport->CopyItkImageToMatlab<TPixelOut, VImageDimension>
+	(filter->GetOutputs()[0], im.size, 0, "0");
+    }
+
   }
 };
 
@@ -1214,7 +1297,7 @@ void parseOutputImageTypeToTemplate(MatlabImportFilter::Pointer matlabImport,
   	     || filterName == "MedianImageFilter") {
 
     FilterWrapper<TPixelIn, VImageDimension, 
-		  nMedianImageFilter> 
+  		  nMedianImageFilter> 
       filterWrapper(matlabImport, matlabExport, im);
 
   } else if (filterName == "advess" 
@@ -1278,6 +1361,13 @@ void parseOutputImageTypeToTemplate(MatlabImportFilter::Pointer matlabImport,
     
     FilterWrapper<TPixelIn, VImageDimension, 
   		  nMRFImageFilter> 
+      filterWrapper(matlabImport, matlabExport, im);
+    
+  } else if (filterName == "voteholefill" 
+      || filterName == "VotingBinaryIterativeHoleFillingImageFilter") {
+    
+    FilterWrapper<TPixelIn, VImageDimension, 
+  		  nVotingBinaryIterativeHoleFillingImageFilter> 
       filterWrapper(matlabImport, matlabExport, im);
     
   } else {
