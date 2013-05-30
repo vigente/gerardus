@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.6.0
+  * Version: 0.6.1
   * $Rev$
   * $Date$
   *
@@ -83,7 +83,7 @@ VectorType MatlabImportFilter::GetArraySize(unsigned int idx,
 
 }
 
-template <class VectorValueType, class VectorType, mwSize VectorSize>
+template <class VectorValueType, class VectorType, unsigned int VectorSize>
 VectorType MatlabImportFilter::GetArraySize(unsigned int idx, 
 					    std::string paramName,
 					    VectorType def){
@@ -116,7 +116,7 @@ VectorType MatlabImportFilter::GetArrayHalfSize(unsigned int idx,
 
 }
 
-template <class VectorValueType, class VectorType, mwSize VectorSize>
+template <class VectorValueType, class VectorType, unsigned int VectorSize>
 VectorType MatlabImportFilter::GetArrayHalfSize(unsigned int idx, 
 					    std::string paramName,
 					    VectorType def){
@@ -292,7 +292,7 @@ VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx,
 
 }
 
-template <class VectorValueType, class VectorType, mwSize VectorSize>
+template <class VectorValueType, class VectorType, unsigned int VectorSize>
 VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx, 
 						mwIndex row,
 						std::string paramName,
@@ -391,7 +391,7 @@ VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx,
 
 }
 
-template <class VectorValueType, class VectorType, mwSize VectorSize>
+template <class VectorValueType, class VectorType, unsigned int VectorSize>
 VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx, 
 						   std::string paramName,
 						   VectorType def) {
