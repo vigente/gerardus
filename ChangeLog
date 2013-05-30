@@ -1,5 +1,18 @@
 2013-05-30  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/VectorWrapper.h: (0.5.1)
+
+	- Fix bug. Make the ValueType template element of the partial
+	specialisation for itk::Size less specific. Otherwise, the
+	BoxFilterType::RadiusValueType from the Median filter in
+	ItkImFilter.cpp is not recognised by the partial specialisation.
+
+	* matlab/ItkToolbox/ItkImFilter.cpp: (1.4.1)
+
+	- Fix bug. Wrong variable name for default maximum error in Canny edge detector.
+
+	- Fix bug. I had forgotten to uncomment the rest of the filters.
+
 	* matlab/ItkToolbox/ItkImFilter.cpp: (1.4.0)
 	* matlab/ItkToolbox/itk_imfilter.m: (0.7.3)
 	* matlab/test/test_itk_imfilter.m: (0.4.1)
