@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.6.0
+  * Version: 0.6.1
   * $Rev$
   * $Date$
   *
@@ -139,7 +139,7 @@ public:
 			    std::string paramName,
 			    VectorType def);
 
-  template <class VectorValueType, class VectorType, mwSize VectorSize>
+  template <class VectorValueType, class VectorType, unsigned int VectorSize>
     VectorType GetArraySize(unsigned int idx, 
 			    std::string paramName,
 			    VectorType def);
@@ -155,7 +155,7 @@ public:
 				std::string paramName,
 				VectorType def);
 
-  template <class VectorValueType, class VectorType, mwSize VectorSize>
+  template <class VectorValueType, class VectorType, unsigned int VectorSize>
     VectorType GetArrayHalfSize(unsigned int idx, 
 				std::string paramName,
 				VectorType def);
@@ -198,12 +198,12 @@ public:
   // idx: parameter index within the list of Matlab input arguments
   // row: row index in the input 2D matrix
   // def: value returned by default if argument is empty or not provided
-  template <class VectorValueType, class VectorType, mwSize VectorSize>
+  template <class VectorValueType, class VectorType, unsigned int VectorSize>
     VectorType GetRowVectorArgument(unsigned int idx, 
 				   mwIndex row,
 				   std::string paramName,
 				   VectorType def);
-  template <class VectorValueType, class VectorType, mwSize VectorSize>
+  template <class VectorValueType, class VectorType, unsigned int VectorSize>
     VectorType GetRowVectorArgument(unsigned int idx, 
 				   std::string paramName,
 				   VectorType def);
