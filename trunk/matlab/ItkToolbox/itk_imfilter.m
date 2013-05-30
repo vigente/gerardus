@@ -303,10 +303,58 @@ function im = itk_imfilter(varargin)
 %   BACKGROUND, FOREGROUND are the voxel values for background and
 %   foreground voxels, respectively. By default, BACKGROUND=0,
 %   FOREGROUND=1.
+%
+% -------------------------------------------------------------------------
+%
+% [B, C] = itk_imfilter('canny', A)
+%
+%   (itk::CannyEdgeDetectionImageFilter)
+%   Canny edge detector.
+%
+%   A is a grayscale image with type single or double. Note that the filter
+%   seems to produce NaN values if the voxel size of A is small. Thus, if A
+%   is a SCI MAT volume, it is recommended to normalise the scaling values
+%   like this before running the filter:
+%
+%     inc = min([scimat.axis.spacing]);
+%     scimat.axis(1).spacing = scimat.axis(1).spacing / inc;
+%     scimat.axis(2).spacing = scimat.axis(2).spacing / inc;
+%     scimat.axis(3).spacing = scimat.axis(3).spacing / inc;
+%
+%   B is a binary image of the same type and size as A, where voxels = 1
+%   belong to an edge, and voxels = 0 to non-edges. This is the result of
+%   applying the thresholds to output C.
+%
+%   C is a grayscale image with the result of the Canny filter before
+%   applying the thresholds to B. This image is useful to get an idea of
+%   the correct values for the thresholds.
+%
+% [B, C] = itk_imfilter(..., VAR, UPPTHR, LOWTHR, MAXERR)
+%
+%   VAR is a vector with the variance in each dimension of the Gaussian
+%   filter that is used to smooth the image before running the Canny
+%   filter. By default, VAR(i)=0 for all i. This means no pre-smoothing of
+%   the image, and typically produces very noisy results.
+%
+%   UPPTHR is a scalar with the upper threshold used by the tracker. The
+%   lower the upper threshold, the more edge voxels. If UPPTHR is too low,
+%   the output will contain spurious and undesirable edge fragments. By
+%   default, UPPTHR is the largest intensity values that can be represented
+%   by the voxel type. This will usually produce an output B that is all
+%   zeros.
+%
+%   LOWTHR is a scalar with the lower threshold used by the tracker.
+%   Increasing this value reduces the number of edge voxels. Setting LOWTHR
+%   too high will cause noisy edges to break up. By default,
+%   LOWTHR=UPPTHR/2.
+%
+%   MAXERR is a vector with the maximum error in each dimension allowed for
+%   the discrete kernel approximation of the Gaussian smoother. By default,
+%   MAXERR(i)=0.01 for all i.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.7.2
+% Version: 0.7.3
 % $Rev$
 % $Date$
 %

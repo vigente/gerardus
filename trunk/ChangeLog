@@ -1,5 +1,20 @@
 2013-05-30  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/ItkImFilter.cpp: (1.4.0)
+	* matlab/ItkToolbox/itk_imfilter.m: (0.7.3)
+	* matlab/test/test_itk_imfilter.m: (0.4.1)
+
+	- Add CannyEdgeDetectionImageFilter.
+
+	* Add some image data files for tests:
+
+	test/data/008-mri-downsampled-4.mha
+	test/data/008-lvseg-thickslice-z.mha
+	test/data/008-lvhull-points.mha
+	test/data/008-lvhull-downsampled-4.mha
+	test/data/008-rvhull-points.mha
+	test/data/008-rvhull-downsampled-4.mha
+
 	* matlab/MatlabImportFilter.hxx: (0.6.1)
 	* matlab/MatlabImportFilter.h: (0.6.1)
 
