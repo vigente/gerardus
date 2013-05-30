@@ -30,7 +30,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.5.0
+  * Version: 0.5.1
   * $Rev$
   * $Date$
   *
@@ -143,8 +143,8 @@ ReadItkHalfSize(const mxArray *pm, mwIndex row, std::string paramName);
 
 
 // partial specialisation for itk::Size<VectorSize>
-template<class MatlabValueType, unsigned int VectorSize>
-  class VectorWrapper<typename itk::Size<VectorSize>::ValueType, typename itk::Size<VectorSize>, 
+template<class VectorValueType, class MatlabValueType, unsigned int VectorSize>
+  class VectorWrapper<VectorValueType, typename itk::Size<VectorSize>, 
   MatlabValueType, VectorSize>{
   
  public:
@@ -153,19 +153,19 @@ template<class MatlabValueType, unsigned int VectorSize>
 
   typename itk::Size<VectorSize>
     ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    return ReadItkRowVector<itk::Size<VectorSize>::ValueType, 
+    return ReadItkRowVector<VectorValueType, 
       typename itk::Size<VectorSize>, MatlabValueType>(pm, row, paramName);
   }
 
   typename itk::Size<VectorSize>
     ReadSize(const mxArray *pm, std::string paramName) {
-    return ReadItkSize<itk::Size<VectorSize>::ValueType, 
+    return ReadItkSize<VectorValueType, 
       typename itk::Size<VectorSize>, MatlabValueType>(pm, paramName);
   }
 
   typename itk::Size<VectorSize>
     ReadHalfSize(const mxArray *pm, std::string paramName) {
-    return ReadItkHalfSize<itk::Size<VectorSize>::ValueType, 
+    return ReadItkHalfSize<VectorValueType, 
       typename itk::Size<VectorSize>, MatlabValueType>(pm, paramName);
   }
 

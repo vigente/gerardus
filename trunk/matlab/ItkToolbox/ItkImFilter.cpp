@@ -358,7 +358,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011-2012 University of Oxford
-  * Version: 1.4.0
+  * Version: 1.4.1
   * $Rev$
   * $Date$
   *
@@ -533,7 +533,7 @@ public:
     filter->SetMaximumError(matlabImport->
 			    GetRowVectorArgument<typename FilterType::ArrayType::ValueType, 
 						 typename FilterType::ArrayType,
-						 VImageDimension>(5, "MAXERR", defVariance));
+						 VImageDimension>(5, "MAXERR", defMaximumError));
 
     // graft ITK filter outputs onto Matlab outputs
     if (matlabExport->GetNumberOfArguments() >= 1) {
@@ -1497,89 +1497,89 @@ void parseOutputImageTypeToTemplate(MatlabImportFilter::Pointer matlabImport,
 		  nCannyEdgeDetectionImageFilter> 
       filterWrapper(matlabImport, matlabExport, im);
 
-  // } else if (filterName == "appsigndist" 
-  // 	     || filterName == "ApproximateSignedDistanceMapImageFilter") {
+  } else if (filterName == "appsigndist" 
+  	     || filterName == "ApproximateSignedDistanceMapImageFilter") {
 
-  //   FilterWrapper<TPixelIn, VImageDimension, 
-  // 		  nApproximateSignedDistanceMapImageFilter> 
-  //     filterWrapper(matlabImport, matlabExport, im);
+    FilterWrapper<TPixelIn, VImageDimension, 
+  		  nApproximateSignedDistanceMapImageFilter> 
+      filterWrapper(matlabImport, matlabExport, im);
 
-  // } else if (filterName == "median" 
-  // 	     || filterName == "MedianImageFilter") {
+  } else if (filterName == "median" 
+  	     || filterName == "MedianImageFilter") {
 
-  //   FilterWrapper<TPixelIn, VImageDimension, 
-  // 		  nMedianImageFilter> 
-  //     filterWrapper(matlabImport, matlabExport, im);
+    FilterWrapper<TPixelIn, VImageDimension, 
+  		  nMedianImageFilter> 
+      filterWrapper(matlabImport, matlabExport, im);
 
-  // } else if (filterName == "advess" 
-  //     || filterName == "AnisotropicDiffusionVesselEnhancementImageFilter") {
+  } else if (filterName == "advess" 
+      || filterName == "AnisotropicDiffusionVesselEnhancementImageFilter") {
 
-  //   FilterWrapper<TPixelIn, VImageDimension, 
-  // 		  nAnisotropicDiffusionVesselEnhancementImageFilter> 
-  //     wrapper(matlabImport, matlabExport, im);
+    FilterWrapper<TPixelIn, VImageDimension, 
+  		  nAnisotropicDiffusionVesselEnhancementImageFilter> 
+      wrapper(matlabImport, matlabExport, im);
 
-  // } else if (filterName == "bwdilate" 
-  // 	     || filterName == "BinaryDilateImageFilter") {
+  } else if (filterName == "bwdilate" 
+  	     || filterName == "BinaryDilateImageFilter") {
 
-  //   FilterWrapper<TPixelIn, VImageDimension, 
-  // 		  nBinaryDilateImageFilter> 
-  //     filterWrapper(matlabImport, matlabExport, im);
+    FilterWrapper<TPixelIn, VImageDimension, 
+  		  nBinaryDilateImageFilter> 
+      filterWrapper(matlabImport, matlabExport, im);
 
-  // } else if (filterName == "bwerode" 
-  // 	     || filterName == "BinaryErodeImageFilter") {
+  } else if (filterName == "bwerode" 
+  	     || filterName == "BinaryErodeImageFilter") {
 
-  //   FilterWrapper<TPixelIn, VImageDimension, 
-  // 		  nBinaryErodeImageFilter> 
-  //     filterWrapper(matlabImport, matlabExport, im);
+    FilterWrapper<TPixelIn, VImageDimension, 
+  		  nBinaryErodeImageFilter> 
+      filterWrapper(matlabImport, matlabExport, im);
 
-  // } else if (filterName == "skel" 
-  // 	     || filterName == "BinaryThinningImageFilter3D") {
+  } else if (filterName == "skel" 
+  	     || filterName == "BinaryThinningImageFilter3D") {
 
-  //   FilterWrapper<TPixelIn, VImageDimension, 
-  // 		  nBinaryThinningImageFilter3D>
-  //     filterWrapper(matlabImport, matlabExport, im);
+    FilterWrapper<TPixelIn, VImageDimension, 
+  		  nBinaryThinningImageFilter3D>
+      filterWrapper(matlabImport, matlabExport, im);
 
-  // } else if (filterName == "signdandist" 
-  // 	     || filterName == "SignedDanielssonDistanceMapImageFilter") {
+  } else if (filterName == "signdandist" 
+  	     || filterName == "SignedDanielssonDistanceMapImageFilter") {
 
-  //   FilterWrapper<TPixelIn, VImageDimension, 
-  // 		  nSignedDanielssonDistanceMapImageFilter>
-  //     filterWrapper(matlabImport, matlabExport, im);
+    FilterWrapper<TPixelIn, VImageDimension, 
+  		  nSignedDanielssonDistanceMapImageFilter>
+      filterWrapper(matlabImport, matlabExport, im);
 
-  // } else if (filterName == "dandist" 
-  // 	     || filterName == "DanielssonDistanceMapImageFilter") {
+  } else if (filterName == "dandist" 
+  	     || filterName == "DanielssonDistanceMapImageFilter") {
 
-  //   FilterWrapper<TPixelIn, VImageDimension, 
-  // 		  nDanielssonDistanceMapImageFilter>
-  //     filterWrapper(matlabImport, matlabExport, im);
+    FilterWrapper<TPixelIn, VImageDimension, 
+  		  nDanielssonDistanceMapImageFilter>
+      filterWrapper(matlabImport, matlabExport, im);
 
-  // } else if (filterName == "hesves" 
-  // 	     || filterName == "MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter") {
+  } else if (filterName == "hesves" 
+  	     || filterName == "MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter") {
 
-  //   FilterWrapper<TPixelIn, VImageDimension, 
-  // 		  nMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter>
-  //     filterWrapper(matlabImport, matlabExport, im);
+    FilterWrapper<TPixelIn, VImageDimension, 
+  		  nMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter>
+      filterWrapper(matlabImport, matlabExport, im);
 
-  // } else if (filterName == "maudist" 
-  // 	     || filterName == "SignedMaurerDistanceMapImageFilter") {
+  } else if (filterName == "maudist" 
+  	     || filterName == "SignedMaurerDistanceMapImageFilter") {
 
-  //   FilterWrapper<TPixelIn, VImageDimension, 
-  // 		  nSignedMaurerDistanceMapImageFilter>
-  //     filterWrapper(matlabImport, matlabExport, im);
+    FilterWrapper<TPixelIn, VImageDimension, 
+  		  nSignedMaurerDistanceMapImageFilter>
+      filterWrapper(matlabImport, matlabExport, im);
 
   } else if (filterName == "mrf" 
       || filterName == "MRFImageFilter") {
     
-  //   FilterWrapper<TPixelIn, VImageDimension, 
-  // 		  nMRFImageFilter> 
-  //     filterWrapper(matlabImport, matlabExport, im);
+    FilterWrapper<TPixelIn, VImageDimension, 
+  		  nMRFImageFilter> 
+      filterWrapper(matlabImport, matlabExport, im);
     
-  // } else if (filterName == "voteholefill" 
-  //     || filterName == "VotingBinaryIterativeHoleFillingImageFilter") {
+  } else if (filterName == "voteholefill" 
+      || filterName == "VotingBinaryIterativeHoleFillingImageFilter") {
     
-  //   FilterWrapper<TPixelIn, VImageDimension, 
-  // 		  nVotingBinaryIterativeHoleFillingImageFilter> 
-  //     filterWrapper(matlabImport, matlabExport, im);
+    FilterWrapper<TPixelIn, VImageDimension, 
+  		  nVotingBinaryIterativeHoleFillingImageFilter> 
+      filterWrapper(matlabImport, matlabExport, im);
     
   } else {
     mexErrMsgTxt("Invalid filter type");    
