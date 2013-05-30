@@ -30,7 +30,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.4.0
+  * Version: 0.5.0
   * $Rev$
   * $Date$
   *
@@ -72,13 +72,33 @@
 #include <boost/lexical_cast.hpp>
 
 /*
- * By default, VectorWrapper assumes that we want to put Matlab's row data into an
- * std::vector<type>
+ * This is the default definition of the VectorWrapper class. The
+ * corresponding methods read Matlab into a std::vector.
+ *
+ * To read Matlab data into another type of vector,
+ * e.g. itk::SizeType, CGAL::Point_3, etc, we overload the
+ * VectorWrapper class using partial template specialization in the
+ * sections below.
+ *
+ * VectorValueType: type of each element in the vector returned to the user
+ * VectorType:      type of the vector itself
+ * VectorSize:      number of elements in the vector (ignored in the default 
+ *                  implementation of the class, but required for some of 
+ *                  the partial specialisations)
+ * MatlabValueType: type of each element in the Matlab input buffer
+ *
+ * The reason why we need to have all VectorValueType, VectorType and
+ * VectorSize as templates is because of the great variety of vector
+ * types. Some are dynamic, e.g. std::vector, and some need their
+ * length at compilation time, e.g. itk::Size<VectorSize>. In some
+ * cases, to avoid code duplication, we need the VectorValueType so
+ * that we can do a partial specialisation like
+ * itk::FixedArray<VectorValueType, VectorSize>.
  */
-template<class VectorValueType, class VectorType, class MatlabValueType, mwSize VectorSize = 0>
+template<class VectorValueType, class VectorType, class MatlabValueType, unsigned int VectorSize = 0>
   class VectorWrapper;
 
-template<class VectorValueType, class VectorType, class MatlabValueType, mwSize VectorSize>
+template<class VectorValueType, class VectorType, class MatlabValueType, unsigned int VectorSize>
   class VectorWrapper{
 
  public:
@@ -99,44 +119,105 @@ template<class VectorValueType, class VectorType, class MatlabValueType, mwSize 
 
 /*
  * Partial specialisation if we want to put Matlab's row data into an
- * itk::Size<Dimension>::SizeType vector-like class
+ * itk::Size<VectorSize> or
+ * itk::FixedArray<VectorSize>
+ * vector-like class
  */
 
-template<class MatlabValueType, mwSize VectorSize>
-  class VectorWrapper<typename itk::Size<VectorSize>::SizeValueType,
-  typename itk::Size<VectorSize>::SizeType, MatlabValueType, VectorSize>{
+// ReadItkRowVector
+//
+// auxiliary functions so that we don't need to rewrite code that is
+// the same for all fixed ITK vector-like types, despite the
+// particular partial specialisation
+template <class VectorValueType, class VectorType, class MatlabValueType>
+VectorType
+ReadItkRowVector(const mxArray *pm, mwIndex row, std::string paramName);
+
+template <class VectorValueType, class VectorType, class MatlabValueType>
+VectorType
+ReadItkSize(const mxArray *pm, mwIndex row, std::string paramName);
+
+template <class VectorValueType, class VectorType, class MatlabValueType>
+VectorType
+ReadItkHalfSize(const mxArray *pm, mwIndex row, std::string paramName);
+
+
+// partial specialisation for itk::Size<VectorSize>
+template<class MatlabValueType, unsigned int VectorSize>
+  class VectorWrapper<typename itk::Size<VectorSize>::ValueType, typename itk::Size<VectorSize>, 
+  MatlabValueType, VectorSize>{
+  
+ public:
+
+  VectorWrapper() {}
+
+  typename itk::Size<VectorSize>
+    ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+    return ReadItkRowVector<itk::Size<VectorSize>::ValueType, 
+      typename itk::Size<VectorSize>, MatlabValueType>(pm, row, paramName);
+  }
+
+  typename itk::Size<VectorSize>
+    ReadSize(const mxArray *pm, std::string paramName) {
+    return ReadItkSize<itk::Size<VectorSize>::ValueType, 
+      typename itk::Size<VectorSize>, MatlabValueType>(pm, paramName);
+  }
+
+  typename itk::Size<VectorSize>
+    ReadHalfSize(const mxArray *pm, std::string paramName) {
+    return ReadItkHalfSize<itk::Size<VectorSize>::ValueType, 
+      typename itk::Size<VectorSize>, MatlabValueType>(pm, paramName);
+  }
+
+};
+
+// partial specialisation for itk::FixedArray<VectorValueType, VectorSize>
+template<class VectorValueType, class MatlabValueType, unsigned int VectorSize>
+  class VectorWrapper<VectorValueType, typename itk::FixedArray<VectorValueType, VectorSize>,
+  MatlabValueType, VectorSize>{
 
  public:
 
   VectorWrapper() {}
 
-  typename itk::Size<VectorSize>::SizeType
-    ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName);
+  typename itk::FixedArray<VectorValueType, VectorSize>
+    ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+    return ReadItkRowVector<VectorValueType,
+      typename itk::FixedArray<VectorValueType, VectorSize>, MatlabValueType>(pm, row, paramName);
+  }
 
-  typename itk::Size<VectorSize>::SizeType
-    ReadSize(const mxArray *pm, std::string paramName);
+  typename itk::FixedArray<VectorValueType, VectorSize>
+    ReadSize(const mxArray *pm, std::string paramName) {
+    return ReadItkSize<VectorValueType,
+      typename itk::FixedArray<VectorValueType, VectorSize>, MatlabValueType>(pm, paramName);
+  }
 
-  typename itk::Size<VectorSize>::SizeType
-    ReadHalfSize(const mxArray *pm, std::string paramName);
+  typename itk::FixedArray<VectorValueType, VectorSize>
+    ReadHalfSize(const mxArray *pm, std::string paramName) {
+    return ReadItkHalfSize<VectorValueType,
+      typename itk::FixedArray<VectorValueType, VectorSize>, MatlabValueType>(pm, paramName);
+  }
+
 };
 
+
 /*
- * Partial specialisation if we want to put Matlab's row data into an
- * CGAL::Point_3<CGAL::Simple_cartesian<type> > vector-like class
+ * Partial specialisation if we want to put Matlab's row data into a
+ * CGAL::Point_3<CGAL::Simple_cartesian<type> > or
+ * CGAL::Direction_3<CGAL::Simple_cartesian<double> >
+ * vector-like class
  */
 
 // ReadCgalRowVector
 //
 // auxiliary function so that we don't need to rewrite this code in
-// every partial specialization. The reason why we cannot do like with
-// itk::Size<Dimension> is that CGAL::Point_3 and CGAL::Direction_3
-// are different types
+// every partial specialization
 template <class VectorValueType, class VectorType, class MatlabValueType>
 VectorType
 ReadCgalRowVector(const mxArray *pm, mwIndex row, std::string paramName);
 
 // partial specialisation for CGAL::Point_3<CGAL::Simple_cartesian<double> >
-template<class MatlabValueType, mwSize VectorSize>
+template<class MatlabValueType, unsigned int VectorSize>
 class VectorWrapper<double, typename CGAL::Point_3<CGAL::Simple_cartesian<double> >, 
   MatlabValueType, VectorSize>{
 
@@ -153,7 +234,7 @@ class VectorWrapper<double, typename CGAL::Point_3<CGAL::Simple_cartesian<double
 };
 
 // partial specialisation for CGAL::Direction_3<CGAL::Simple_cartesian<double> >
-template<class MatlabValueType, mwSize VectorSize>
+template<class MatlabValueType, unsigned int VectorSize>
 class VectorWrapper<double, typename CGAL::Direction_3<CGAL::Simple_cartesian<double> >, 
   MatlabValueType, VectorSize>{
 

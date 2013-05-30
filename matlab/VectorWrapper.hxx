@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.4.0
   * $Rev$
   * $Date$
   *
@@ -53,14 +53,32 @@
 #include "VectorWrapper.h"
 
 /*
- * By default, VectorWrapper assumes that we want to put Matlab's row data into an
- * std::vector<type>
+ * This is the default definition of the VectorWrapper class. The
+ * corresponding methods read Matlab into a std::vector.
  *
- * VectorSize: this template is ignored
+ * To read Matlab data into another type of vector,
+ * e.g. itk::SizeType, CGAL::Point_3, etc, we overload the
+ * VectorWrapper class using partial template specialization in the
+ * sections below.
+ *
+ * VectorValueType: type of each element in the vector returned to the user
+ * VectorType:      type of the vector itself
+ * VectorSize:      number of elements in the vector (ignored in the default 
+ *                  implementation of the class, but required for some of 
+ *                  the partial specialisations)
+ * MatlabValueType: type of each element in the Matlab input buffer
+ *
+ * The reason why we need to have all VectorValueType, VectorType and
+ * VectorSize as templates is because of the great variety of vector
+ * types. Some are dynamic, e.g. std::vector, and some need their
+ * length at compilation time, e.g. itk::Size<VectorSize>. In some
+ * cases, to avoid code duplication, we need the VectorValueType so
+ * that we can do a partial specialisation like
+ * itk::FixedArray<VectorValueType, VectorSize>.
  */
 
 // read a row from a Matlab matrix
-template<class VectorValueType, class VectorType, class MatlabValueType, mwSize VectorSize>
+template<class VectorValueType, class VectorType, class MatlabValueType, unsigned int VectorSize>
 VectorType VectorWrapper<VectorValueType, VectorType, MatlabValueType, VectorSize>::ReadRowVector
   (const mxArray *pm, mwIndex row, std::string paramName) {
 
@@ -103,7 +121,7 @@ VectorType VectorWrapper<VectorValueType, VectorType, MatlabValueType, VectorSiz
 };
 
 // read a whole array into a vector
-template<class VectorValueType, class VectorType, class MatlabValueType, mwSize VectorSize>
+template<class VectorValueType, class VectorType, class MatlabValueType, unsigned int VectorSize>
 VectorType VectorWrapper<VectorValueType, VectorType, MatlabValueType, VectorSize>::ReadArrayAsVector
   (const mxArray *pm, std::string paramName) {
   
@@ -133,21 +151,16 @@ VectorType VectorWrapper<VectorValueType, VectorType, MatlabValueType, VectorSiz
     
 };
 
-
-
 /*
  * Partial specialisation if we want to put Matlab's row data into an
- * itk::Size<Dimension>::SizeType vector-like class
+ * itk::Size<VectorSize> or
+ * itk::FixedArray<VectorSize>
+ * vector-like class
  */
 
-// ReadRowVector
-//
-// partial specialization
-template<class MatlabValueType, mwSize VectorSize>
-typename itk::Size<VectorSize>::SizeType
-VectorWrapper<typename itk::Size<VectorSize>::SizeValueType, 
-	      typename itk::Size<VectorSize>::SizeType, MatlabValueType, VectorSize>
-::ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+// ReadItkRowVector
+template<class VectorValueType, class VectorType, class MatlabValueType>
+VectorType ReadItkRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
 
   // check that the pointer is valid
   if (pm == NULL) {
@@ -158,6 +171,9 @@ VectorWrapper<typename itk::Size<VectorSize>::SizeValueType,
   // matrix dimensions
   mwSize nrows = mxGetM(pm);
   mwSize ncols = mxGetN(pm);
+
+  // number of elements in the output vector
+  unsigned int VectorSize = VectorType::Dimension;
 
   // check that the row has the right number of elements
   if (ncols != VectorSize) {
@@ -173,7 +189,7 @@ VectorWrapper<typename itk::Size<VectorSize>::SizeValueType,
   }
 
   // instantiate output vector
-  typename itk::Size<VectorSize>::SizeType v;
+  VectorType v;
   
   // get pointer to the data in the mxArray
   MatlabValueType *valuep = (MatlabValueType *)mxGetData(pm);
@@ -193,14 +209,9 @@ VectorWrapper<typename itk::Size<VectorSize>::SizeValueType,
   
 }
 
-// ReadSize
-//
-// partial specialization
-template<class MatlabValueType, mwSize VectorSize>
-typename itk::Size<VectorSize>::SizeType
-VectorWrapper<typename itk::Size<VectorSize>::SizeValueType, 
-	      typename itk::Size<VectorSize>::SizeType, MatlabValueType, VectorSize>
-::ReadSize(const mxArray *pm, std::string paramName) {
+// ReadItkSize
+template<class VectorValueType, class VectorType, class MatlabValueType>
+VectorType ReadItkSize(const mxArray *pm, std::string paramName) {
 
   // check for null pointer
   if (pm == NULL) {
@@ -211,6 +222,10 @@ VectorWrapper<typename itk::Size<VectorSize>::SizeValueType,
   // get number of dimensions
   mwSize ndim = mxGetNumberOfDimensions(pm);
 
+  // number of elements in the output vector
+  unsigned int VectorSize = VectorType::Dimension;
+
+  // check that the row has the right number of elements
   if (ndim != VectorSize) {
     mexErrMsgTxt(("Parameter " + paramName 
 		  + ": Cannot read parameter size. Output vector has wrong length.").c_str());
@@ -220,11 +235,11 @@ VectorWrapper<typename itk::Size<VectorSize>::SizeValueType,
   const mwSize *dims = mxGetDimensions(pm);
 
   // init output
-  typename itk::Size<VectorSize>::SizeType size;
+  VectorType size;
 
   // copy dimensions to output vector
   for (mwIndex i = 0; i < VectorSize; ++i) {
-    size[i] = (typename itk::Size<VectorSize>::SizeValueType)dims[i];
+    size[i] = (VectorValueType)dims[i];
   }
 
   // return output
@@ -232,14 +247,9 @@ VectorWrapper<typename itk::Size<VectorSize>::SizeValueType,
 
 }
 
-// ReadHalfSize
-//
-// partial specialization
-template<class MatlabValueType, mwSize VectorSize>
-typename itk::Size<VectorSize>::SizeType
-VectorWrapper<typename itk::Size<VectorSize>::SizeValueType, 
-	      typename itk::Size<VectorSize>::SizeType, MatlabValueType, VectorSize>
-::ReadHalfSize(const mxArray *pm, std::string paramName) {
+// ReadItkHalfSize
+template<class VectorValueType, class VectorType, class MatlabValueType>
+VectorType ReadItkHalfSize(const mxArray *pm, std::string paramName) {
 
   // check for null pointer
   if (pm == NULL) {
@@ -250,6 +260,10 @@ VectorWrapper<typename itk::Size<VectorSize>::SizeValueType,
   // get number of dimensions
   mwSize ndim = mxGetNumberOfDimensions(pm);
 
+  // number of elements in the output vector
+  unsigned int VectorSize = VectorType::Dimension;
+
+  // check that the row has the right number of elements
   if (ndim != VectorSize) {
     mexErrMsgTxt(("Parameter " + paramName 
 		  + ": Cannot read parameter size. Output vector has wrong length.").c_str());
@@ -259,12 +273,12 @@ VectorWrapper<typename itk::Size<VectorSize>::SizeValueType,
   const mwSize *dims = mxGetDimensions(pm);
 
   // init output
-  typename itk::Size<VectorSize>::SizeType halfsize;
+  VectorType halfsize;
 
   // copy dimensions to output vector
   for (mwIndex i = 0; i < VectorSize; ++i) {
     if (dims[i] % 2) {
-      halfsize[i] = (typename itk::Size<VectorSize>::SizeValueType)((dims[i] - 1)/2);
+      halfsize[i] = (VectorValueType)((dims[i] - 1)/2);
     } else {
       mexErrMsgTxt(("Parameter " + paramName 
 		    + ": All values must be odd, in order to define a box around the central pixel").c_str());
