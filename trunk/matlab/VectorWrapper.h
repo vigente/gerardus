@@ -30,7 +30,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.4.0
   * $Rev$
   * $Date$
   *
@@ -75,9 +75,14 @@
  * By default, VectorWrapper assumes that we want to put Matlab's row data into an
  * std::vector<type>
  */
-template<class VectorValueType, class VectorType, class MatlabValueType>
+template<class VectorValueType, class VectorType, class MatlabValueType, mwSize VectorSize = 0>
+  class VectorWrapper;
+
+template<class VectorValueType, class VectorType, class MatlabValueType, mwSize VectorSize>
   class VectorWrapper{
+
  public:
+
   VectorWrapper() {}
 
   // read a row from a Matlab matrix
@@ -97,68 +102,22 @@ template<class VectorValueType, class VectorType, class MatlabValueType>
  * itk::Size<Dimension>::SizeType vector-like class
  */
 
-// auxiliary functions so that we don't need to rewrite this code in
-// every partial specialization
+template<class MatlabValueType, mwSize VectorSize>
+  class VectorWrapper<typename itk::Size<VectorSize>::SizeValueType,
+  typename itk::Size<VectorSize>::SizeType, MatlabValueType, VectorSize>{
 
-// ItkSizeCommonReadRowVector<Dimension>
-template <class MatlabValueType, unsigned int Dimension>
-typename itk::Size<Dimension>::SizeType
-ItkSizeCommonReadRowVector(const mxArray *pm, mwIndex row, std::string paramName);
-
-// ItkSizeCommonReadSize<Dimension>
-template <unsigned int Dimension>
-typename itk::Size<Dimension>::SizeType
-ItkSizeCommonReadSize(const mxArray *pm, std::string paramName);
-
-// ItkSizeCommonReadHalfSize<Dimension>
-template <unsigned int Dimension>
-typename itk::Size<Dimension>::SizeType
-ItkSizeCommonReadHalfSize(const mxArray *pm, std::string paramName);
-
-// partial specialisations
-template<class MatlabValueType>
-class VectorWrapper<itk::Size<2>::SizeValueType, itk::Size<2>::SizeType, MatlabValueType>{
  public:
-  VectorWrapper() {}
-  itk::Size<2>::SizeType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    return ItkSizeCommonReadRowVector<MatlabValueType, 2>(pm, row, paramName);
-  }
-  itk::Size<2>::SizeType ReadSize(const mxArray *pm, std::string paramName) {
-    return ItkSizeCommonReadSize<2>(pm, paramName);
-  }
-  itk::Size<2>::SizeType ReadHalfSize(const mxArray *pm, std::string paramName) {
-    return ItkSizeCommonReadHalfSize<2>(pm, paramName);
-  }
-};
 
-template<class MatlabValueType>
-class VectorWrapper<itk::Size<3>::SizeValueType, itk::Size<3>::SizeType, MatlabValueType>{
- public:
   VectorWrapper() {}
-  itk::Size<3>::SizeType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    return ItkSizeCommonReadRowVector<MatlabValueType, 3>(pm, row, paramName);
-  }
-  itk::Size<3>::SizeType ReadSize(const mxArray *pm, std::string paramName) {
-    return ItkSizeCommonReadSize<3>(pm, paramName);
-  }
-  itk::Size<3>::SizeType ReadHalfSize(const mxArray *pm, std::string paramName) {
-    return ItkSizeCommonReadHalfSize<3>(pm, paramName);
-  }
-};
 
-template<class MatlabValueType>
-class VectorWrapper<itk::Size<4>::SizeValueType, itk::Size<4>::SizeType, MatlabValueType>{
- public:
-  VectorWrapper() {}
-  itk::Size<4>::SizeType ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    return ItkSizeCommonReadRowVector<MatlabValueType, 4>(pm, row, paramName);
-  }
-  itk::Size<4>::SizeType ReadSize(const mxArray *pm, std::string paramName) {
-    return ItkSizeCommonReadSize<4>(pm, paramName);
-  }
-  itk::Size<4>::SizeType ReadHalfSize(const mxArray *pm, std::string paramName) {
-    return ItkSizeCommonReadHalfSize<4>(pm, paramName);
-  }
+  typename itk::Size<VectorSize>::SizeType
+    ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName);
+
+  typename itk::Size<VectorSize>::SizeType
+    ReadSize(const mxArray *pm, std::string paramName);
+
+  typename itk::Size<VectorSize>::SizeType
+    ReadHalfSize(const mxArray *pm, std::string paramName);
 };
 
 /*
@@ -166,37 +125,47 @@ class VectorWrapper<itk::Size<4>::SizeValueType, itk::Size<4>::SizeType, MatlabV
  * CGAL::Point_3<CGAL::Simple_cartesian<type> > vector-like class
  */
 
-// CgalCommonReadStaticRowVector<VectorType>
+// ReadCgalRowVector
 //
 // auxiliary function so that we don't need to rewrite this code in
-// every partial specialization
+// every partial specialization. The reason why we cannot do like with
+// itk::Size<Dimension> is that CGAL::Point_3 and CGAL::Direction_3
+// are different types
 template <class VectorValueType, class VectorType, class MatlabValueType>
 VectorType
-CgalCommonReadStaticRowVector(const mxArray *pm, mwIndex row, std::string paramName);
+ReadCgalRowVector(const mxArray *pm, mwIndex row, std::string paramName);
 
 // partial specialisation for CGAL::Point_3<CGAL::Simple_cartesian<double> >
-template<class MatlabValueType>
-class VectorWrapper<double, CGAL::Point_3<CGAL::Simple_cartesian<double> >, 
-  MatlabValueType>{
+template<class MatlabValueType, mwSize VectorSize>
+class VectorWrapper<double, typename CGAL::Point_3<CGAL::Simple_cartesian<double> >, 
+  MatlabValueType, VectorSize>{
+
  public:
+
   VectorWrapper() {}
-  CGAL::Point_3<CGAL::Simple_cartesian<double> >
+
+  typename CGAL::Point_3<CGAL::Simple_cartesian<double> >
     ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    return CgalCommonReadStaticRowVector<double, 
-      CGAL::Point_3<CGAL::Simple_cartesian<double> >, MatlabValueType>(pm, row, paramName);
+    return ReadCgalRowVector<double, 
+      typename CGAL::Point_3<CGAL::Simple_cartesian<double> >,
+      MatlabValueType>(pm, row, paramName);
   }
 };
 
 // partial specialisation for CGAL::Direction_3<CGAL::Simple_cartesian<double> >
-template<class MatlabValueType>
-class VectorWrapper<double, CGAL::Direction_3<CGAL::Simple_cartesian<double> >, 
-  MatlabValueType>{
+template<class MatlabValueType, mwSize VectorSize>
+class VectorWrapper<double, typename CGAL::Direction_3<CGAL::Simple_cartesian<double> >, 
+  MatlabValueType, VectorSize>{
+
  public:
+
   VectorWrapper() {}
-  CGAL::Direction_3<CGAL::Simple_cartesian<double> >
+
+  typename CGAL::Direction_3<CGAL::Simple_cartesian<double> >
     ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    return CgalCommonReadStaticRowVector<double, 
-      CGAL::Direction_3<CGAL::Simple_cartesian<double> >, MatlabValueType>(pm, row, paramName);
+    return ReadCgalRowVector<double, 
+      typename CGAL::Direction_3<CGAL::Simple_cartesian<double> >,
+      MatlabValueType>(pm, row, paramName);
   }
 };
 

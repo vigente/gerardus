@@ -1,3 +1,29 @@
+2013-05-30  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/MatlabImportFilter.h: (0.6.0)
+	* matlab/MatlabImportFilter.hxx: (0.6.0)
+	* matlab/VectorWrapper.hxx: (0.3.0)
+	* matlab/VectorWrapper.h: (0.4.0)
+	* matlab/ItkToolbox/ItkImFilter.cpp: (1.4.0)
+
+	- Refactor the code so that VectorWrapper has a new template
+	element, VectorSize. This is useful in the case of vectors that
+	define their lengths at compilation time with a template,
+	e.g. itk::Size<VectorSize>, because then methods like
+	ReadRowVector() can be templated without having to instantiate
+	them manually for VectorSize 2, 3 and 4.
+
+	- This also allowed us to remove the auxiliary functions
+	ItkSizeCommonReadRowVector, ItkSizeCommonReadSize and
+	ItkSizeCommonReadHalfSize, because now we can just use partial
+	specialisation and just overload ReadRowVector() directly.
+
+	- A bit of rewriting of CgalCommonReadStaticRowVector, but mostly
+	a renaming as ReadCgalRowVector. In this case we do need an
+	auxiliary function, because CGAL::Point_3 and CGAL::Direction_3
+	are different types, so the trick of templating
+	itk::Size<VectorSize> doesn't apply.
+
 2013-05-28  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/ItkImFilter.cpp: (1.3.1)

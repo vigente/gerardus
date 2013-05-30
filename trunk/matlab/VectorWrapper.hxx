@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -55,11 +55,13 @@
 /*
  * By default, VectorWrapper assumes that we want to put Matlab's row data into an
  * std::vector<type>
+ *
+ * VectorSize: this template is ignored
  */
 
 // read a row from a Matlab matrix
-template<class VectorValueType, class VectorType, class MatlabValueType>
-  VectorType VectorWrapper<VectorValueType, VectorType, MatlabValueType>::ReadRowVector
+template<class VectorValueType, class VectorType, class MatlabValueType, mwSize VectorSize>
+VectorType VectorWrapper<VectorValueType, VectorType, MatlabValueType, VectorSize>::ReadRowVector
   (const mxArray *pm, mwIndex row, std::string paramName) {
 
   // check that the pointer is valid
@@ -101,8 +103,8 @@ template<class VectorValueType, class VectorType, class MatlabValueType>
 };
 
 // read a whole array into a vector
-template<class VectorValueType, class VectorType, class MatlabValueType>
-  VectorType VectorWrapper<VectorValueType, VectorType, MatlabValueType>::ReadArrayAsVector
+template<class VectorValueType, class VectorType, class MatlabValueType, mwSize VectorSize>
+VectorType VectorWrapper<VectorValueType, VectorType, MatlabValueType, VectorSize>::ReadArrayAsVector
   (const mxArray *pm, std::string paramName) {
   
   // check that the pointer is valid
@@ -138,16 +140,16 @@ template<class VectorValueType, class VectorType, class MatlabValueType>
  * itk::Size<Dimension>::SizeType vector-like class
  */
 
-
-// ItkSizeCommonReadRowVector<Dimension>
+// ReadRowVector
 //
-// auxiliary function so that we don't need to rewrite this code in
-// every partial specialization
-template <class MatlabValueType, unsigned int Dimension>
-typename itk::Size<Dimension>::SizeType
-ItkSizeCommonReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+// partial specialization
+template<class MatlabValueType, mwSize VectorSize>
+typename itk::Size<VectorSize>::SizeType
+VectorWrapper<typename itk::Size<VectorSize>::SizeValueType, 
+	      typename itk::Size<VectorSize>::SizeType, MatlabValueType, VectorSize>
+::ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
 
-   // check that the pointer is valid
+  // check that the pointer is valid
   if (pm == NULL) {
     mexErrMsgTxt(("Parameter " + paramName 
 		  + ": pointer to Matlab input argument is NULL").c_str());
@@ -158,10 +160,10 @@ ItkSizeCommonReadRowVector(const mxArray *pm, mwIndex row, std::string paramName
   mwSize ncols = mxGetN(pm);
 
   // check that the row has the right number of elements
-  if (ncols != Dimension) {
+  if (ncols != VectorSize) {
     mexErrMsgTxt(("Parameter " + paramName 
 		  + " must have " 
-		  + boost::lexical_cast<std::string>(Dimension) + " columns").c_str());
+		  + boost::lexical_cast<std::string>(VectorSize) + " columns").c_str());
   }
   
   // check that row index is within range
@@ -171,7 +173,7 @@ ItkSizeCommonReadRowVector(const mxArray *pm, mwIndex row, std::string paramName
   }
 
   // instantiate output vector
-  typename itk::Size<Dimension>::SizeType v;
+  typename itk::Size<VectorSize>::SizeType v;
   
   // get pointer to the data in the mxArray
   MatlabValueType *valuep = (MatlabValueType *)mxGetData(pm);
@@ -182,7 +184,7 @@ ItkSizeCommonReadRowVector(const mxArray *pm, mwIndex row, std::string paramName
   }
   
   // read the row from Matlab into the vector
-  for (size_t col = 0; col < Dimension; ++col) {
+  for (size_t col = 0; col < VectorSize; ++col) {
     v[col] = (MatlabValueType)valuep[col * nrows + row];
   }
 
@@ -191,13 +193,14 @@ ItkSizeCommonReadRowVector(const mxArray *pm, mwIndex row, std::string paramName
   
 }
 
-// ItkSizeCommonReadSize<Dimension>
+// ReadSize
 //
-// auxiliary function so that we don't need to rewrite this code in
-// every partial specialization
-template <unsigned int Dimension>
-typename itk::Size<Dimension>::SizeType
-ItkSizeCommonReadSize(const mxArray *pm, std::string paramName) {
+// partial specialization
+template<class MatlabValueType, mwSize VectorSize>
+typename itk::Size<VectorSize>::SizeType
+VectorWrapper<typename itk::Size<VectorSize>::SizeValueType, 
+	      typename itk::Size<VectorSize>::SizeType, MatlabValueType, VectorSize>
+::ReadSize(const mxArray *pm, std::string paramName) {
 
   // check for null pointer
   if (pm == NULL) {
@@ -208,7 +211,7 @@ ItkSizeCommonReadSize(const mxArray *pm, std::string paramName) {
   // get number of dimensions
   mwSize ndim = mxGetNumberOfDimensions(pm);
 
-  if (ndim != Dimension) {
+  if (ndim != VectorSize) {
     mexErrMsgTxt(("Parameter " + paramName 
 		  + ": Cannot read parameter size. Output vector has wrong length.").c_str());
   }
@@ -217,11 +220,11 @@ ItkSizeCommonReadSize(const mxArray *pm, std::string paramName) {
   const mwSize *dims = mxGetDimensions(pm);
 
   // init output
-  typename itk::Size<Dimension>::SizeType size;
+  typename itk::Size<VectorSize>::SizeType size;
 
   // copy dimensions to output vector
-  for (mwIndex i = 0; i < Dimension; ++i) {
-    size[i] = (typename itk::Size<Dimension>::SizeValueType)dims[i];
+  for (mwIndex i = 0; i < VectorSize; ++i) {
+    size[i] = (typename itk::Size<VectorSize>::SizeValueType)dims[i];
   }
 
   // return output
@@ -229,13 +232,14 @@ ItkSizeCommonReadSize(const mxArray *pm, std::string paramName) {
 
 }
 
-// ItkSizeCommonReadHalfSize<Dimension>
+// ReadHalfSize
 //
-// auxiliary function so that we don't need to rewrite this code in
-// every partial specialization
-template <unsigned int Dimension>
-typename itk::Size<Dimension>::SizeType
-ItkSizeCommonReadHalfSize(const mxArray *pm, std::string paramName) {
+// partial specialization
+template<class MatlabValueType, mwSize VectorSize>
+typename itk::Size<VectorSize>::SizeType
+VectorWrapper<typename itk::Size<VectorSize>::SizeValueType, 
+	      typename itk::Size<VectorSize>::SizeType, MatlabValueType, VectorSize>
+::ReadHalfSize(const mxArray *pm, std::string paramName) {
 
   // check for null pointer
   if (pm == NULL) {
@@ -246,7 +250,7 @@ ItkSizeCommonReadHalfSize(const mxArray *pm, std::string paramName) {
   // get number of dimensions
   mwSize ndim = mxGetNumberOfDimensions(pm);
 
-  if (ndim != Dimension) {
+  if (ndim != VectorSize) {
     mexErrMsgTxt(("Parameter " + paramName 
 		  + ": Cannot read parameter size. Output vector has wrong length.").c_str());
   }
@@ -255,12 +259,12 @@ ItkSizeCommonReadHalfSize(const mxArray *pm, std::string paramName) {
   const mwSize *dims = mxGetDimensions(pm);
 
   // init output
-  typename itk::Size<Dimension>::SizeType halfsize;
+  typename itk::Size<VectorSize>::SizeType halfsize;
 
   // copy dimensions to output vector
-  for (mwIndex i = 0; i < Dimension; ++i) {
+  for (mwIndex i = 0; i < VectorSize; ++i) {
     if (dims[i] % 2) {
-      halfsize[i] = (typename itk::Size<Dimension>::SizeValueType)((dims[i] - 1)/2);
+      halfsize[i] = (typename itk::Size<VectorSize>::SizeValueType)((dims[i] - 1)/2);
     } else {
       mexErrMsgTxt(("Parameter " + paramName 
 		    + ": All values must be odd, in order to define a box around the central pixel").c_str());
@@ -273,17 +277,18 @@ ItkSizeCommonReadHalfSize(const mxArray *pm, std::string paramName) {
 }
 
 /*
- * Partial specialisation if we want to put Matlab's row data into an
- * CGAL::Point_3<CGAL::Simple_cartesian<type> > vector-like class
+ * Partial specialisation if we want to put Matlab's row data into a
+ * CGAL::Point_3<CGAL::Simple_cartesian<type> >
+ * CGAL::Direction_3<CGAL::Simple_cartesian<type> > 
+ * vector-like class
  */
 
-// CgalCommonReadStaticRowVector<VectorType>
+// ReadCgalRowVector
 //
 // auxiliary function so that we don't need to rewrite this code in
 // every partial specialization
-template <class VectorValueType, class VectorType, class MatlabValueType>
-VectorType
-CgalCommonReadStaticRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+template<class VectorValueType, class VectorType, class MatlabValueType>
+VectorType ReadCgalRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
     
     // check that the pointer is valid
     if (pm == NULL) {
@@ -318,9 +323,9 @@ CgalCommonReadStaticRowVector(const mxArray *pm, mwIndex row, std::string paramN
     // instantiate and read output vector. Both have to be done at the
     // same time, because the only way to populate a CGAL::Point_3 is through
     // its constructor
-    VectorType v( (double)valuep[row],
-		  (double)valuep[nrows + row],
-		  (double)valuep[2 * nrows + row]
+    VectorType v( (VectorValueType)valuep[row],
+		  (VectorValueType)valuep[nrows + row],
+		  (VectorValueType)valuep[2 * nrows + row]
 		  );
     
     // return output vector

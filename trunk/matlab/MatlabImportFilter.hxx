@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.5.0
+  * Version: 0.6.0
   * $Rev$
   * $Date$
   *
@@ -79,6 +79,15 @@ VectorType MatlabImportFilter::GetArraySize(unsigned int idx,
 					    std::string paramName,
 					    VectorType def){
 
+  return MatlabImportFilter::GetArraySize<VectorValueType, VectorType, 0>(idx, paramName, def);
+
+}
+
+template <class VectorValueType, class VectorType, mwSize VectorSize>
+VectorType MatlabImportFilter::GetArraySize(unsigned int idx, 
+					    std::string paramName,
+					    VectorType def){
+
   // if user didn't provide a value, or provided an empty array, return the default
   if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
     return def;
@@ -87,7 +96,7 @@ VectorType MatlabImportFilter::GetArraySize(unsigned int idx,
   // wrap VectorType output into a VectorWrapper, so that we don't
   // need to write different code here for each different output
   // vector
-  VectorWrapper<VectorValueType, VectorType, void> sizeWrap;
+  VectorWrapper<VectorValueType, VectorType, void, VectorSize> sizeWrap;
   return sizeWrap.ReadSize(this->args[idx], paramName);
 
 }
@@ -103,6 +112,15 @@ VectorType MatlabImportFilter::GetArrayHalfSize(unsigned int idx,
 					    std::string paramName,
 					    VectorType def){
 
+  return MatlabImportFilter::GetArrayHalfSize<VectorValueType, VectorType, 0>(idx, paramName, def);
+
+}
+
+template <class VectorValueType, class VectorType, mwSize VectorSize>
+VectorType MatlabImportFilter::GetArrayHalfSize(unsigned int idx, 
+					    std::string paramName,
+					    VectorType def){
+
   // if user didn't provide a value, or provided an empty array, return the default
   if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
     return def;
@@ -111,7 +129,7 @@ VectorType MatlabImportFilter::GetArrayHalfSize(unsigned int idx,
   // wrap VectorType output into a VectorWrapper, so that we don't
   // need to write different code here for each different output
   // vector
-  VectorWrapper<VectorValueType, VectorType, void> sizeWrap;
+  VectorWrapper<VectorValueType, VectorType, void, VectorSize> sizeWrap;
   return sizeWrap.ReadHalfSize(this->args[idx], paramName);
 
 }
@@ -270,6 +288,16 @@ VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx,
 						std::string paramName,
 						VectorType def) {
 
+  return MatlabImportFilter::GetRowVectorArgument<VectorValueType, VectorType, 0>(idx, row, paramName, def);
+
+}
+
+template <class VectorValueType, class VectorType, mwSize VectorSize>
+VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx, 
+						mwIndex row,
+						std::string paramName,
+						VectorType def) {
+
   // if user didn't provide a value, or provided an empty array,
   // return default
   if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
@@ -299,41 +327,41 @@ VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx,
   // the user
   switch(inputVoxelClassId)  { 
   case mxLOGICAL_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, mxLogical> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, mxLogical, VectorSize> paramWrap;
       return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
     break;
   case mxDOUBLE_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, double> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, double, VectorSize> paramWrap;
       return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
     break;
   case mxSINGLE_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, float> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, float, VectorSize> paramWrap;
       return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
     break;
   case mxINT8_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, int8_T> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, int8_T, VectorSize> paramWrap;
       return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
     break;
   case mxUINT8_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, uint8_T> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, uint8_T, VectorSize> paramWrap;
       return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
     break;
   case mxINT16_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, int16_T> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, int16_T, VectorSize> paramWrap;
       return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
     break;
   case mxUINT16_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, uint16_T> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, uint16_T, VectorSize> paramWrap;
       return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
     break;
   case mxINT32_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, int32_T> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, int32_T, VectorSize> paramWrap;
       return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
     break;
     // case mxUINT32_CLASS:
     //   break;
   case mxINT64_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, int64_T> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, int64_T, VectorSize> paramWrap;
       return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
     break;
     // case mxUINT64_CLASS:
@@ -356,6 +384,15 @@ VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx,
 // particular case in which the input matrix must be a row vector
 template <class VectorValueType, class VectorType>
 VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx, 
+						std::string paramName,
+						VectorType def) {
+
+  return MatlabImportFilter::GetRowVectorArgument<VectorValueType, VectorType, 0>(idx, paramName, def);
+
+}
+
+template <class VectorValueType, class VectorType, mwSize VectorSize>
+VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx, 
 						   std::string paramName,
 						   VectorType def) {
 
@@ -376,7 +413,7 @@ VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx,
 
   // the syntax of this function without specifying a row is the same as specifying row 0
   return MatlabImportFilter::GetRowVectorArgument<VectorValueType, 
-						  VectorType>(idx, 0, paramName, def);
+						  VectorType, VectorSize>(idx, 0, paramName, def);
 
 }
 
