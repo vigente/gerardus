@@ -300,3 +300,44 @@ im2 = itk_imfilter('voteholefill', im, [2 2], 2);
 
 % plot output image
 imagesc(im2)
+
+%% itk::CannyEdgeDetectionImageFilter
+
+% load rat heart MRI
+scimat = scinrrd_load('data/008-mri-downsampled-4.mha');
+
+% normalise the spacing, otherwise the filter produces NaN voxels
+inc = min([scimat.axis.spacing]);
+scimat.axis(1).spacing = scimat.axis(1).spacing / inc;
+scimat.axis(2).spacing = scimat.axis(2).spacing / inc;
+scimat.axis(3).spacing = scimat.axis(3).spacing / inc;
+
+% plot one of the intermediate slices
+subplot(2, 2, 1)
+hold off
+imagesc(scimat.data(:, :, 112));
+colormap(gray)
+
+% filter parameters
+
+% standard deviation of the Gaussian filtering is roughly 5 times the
+% the voxel size in each dimension
+sigma = [scimat.axis.spacing] * 2;
+
+% upper threshold
+uppthr = 450;
+
+% lower threshold
+lowthr = uppthr/2;
+
+% maximum error
+maxerr = 0.01*ones(1, 3);
+
+% run Canny edge filter
+[im, im2] = itk_imfilter('canny', scimat, sigma.^2, uppthr, lowthr, maxerr);
+
+% plot edge detection result
+subplot(2, 2, 2)
+imagesc(im2(:, :, 112))
+subplot(2, 2, 3)
+imagesc(im(:, :, 112))

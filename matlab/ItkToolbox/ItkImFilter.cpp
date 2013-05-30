@@ -305,6 +305,54 @@
  *   foreground voxels, respectively. By default, BACKGROUND=0,
  *   FOREGROUND=1.
  *
+ * -------------------------------------------------------------------------
+ *
+ * [B, C] = itk_imfilter('canny', A)
+ *
+ *   (itk::CannyEdgeDetectionImageFilter)
+ *   Canny edge detector.
+ *
+ *   A is a grayscale image with type single or double. Note that the filter
+ *   seems to produce NaN values if the voxel size of A is small. Thus, if A
+ *   is a SCI MAT volume, it is recommended to normalise the scaling values
+ *   like this before running the filter:
+ *
+ *     inc = min([scimat.axis.spacing]);
+ *     scimat.axis(1).spacing = scimat.axis(1).spacing / inc;
+ *     scimat.axis(2).spacing = scimat.axis(2).spacing / inc;
+ *     scimat.axis(3).spacing = scimat.axis(3).spacing / inc;
+ *
+ *   B is a binary image of the same type and size as A, where voxels = 1
+ *   belong to an edge, and voxels = 0 to non-edges. This is the result of
+ *   applying the thresholds to output C.
+ *
+ *   C is a grayscale image with the result of the Canny filter before
+ *   applying the thresholds to B. This image is useful to get an idea of
+ *   the correct values for the thresholds.
+ *
+ * [B, C] = itk_imfilter(..., VAR, UPPTHR, LOWTHR, MAXERR)
+ *
+ *   VAR is a vector with the variance in each dimension of the Gaussian
+ *   filter that is used to smooth the image before running the Canny
+ *   filter. By default, VAR(i)=0 for all i. This means no pre-smoothing of
+ *   the image, and typically produces very noisy results.
+ *
+ *   UPPTHR is a scalar with the upper threshold used by the tracker. The
+ *   lower the upper threshold, the more edge voxels. If UPPTHR is too low,
+ *   the output will contain spurious and undesirable edge fragments. By
+ *   default, UPPTHR is the largest intensity values that can be represented
+ *   by the voxel type. This will usually produce an output B that is all
+ *   zeros.
+ *
+ *   LOWTHR is a scalar with the lower threshold used by the tracker.
+ *   Increasing this value reduces the number of edge voxels. Setting LOWTHR
+ *   too high will cause noisy edges to break up. By default,
+ *   LOWTHR=UPPTHR/2.
+ *
+ *   MAXERR is a vector with the maximum error in each dimension allowed for
+ *   the discrete kernel approximation of the Gaussian smoother. By default,
+ *   MAXERR(i)=0.01 for all i.
+ *
  */
 
  /*
@@ -363,6 +411,7 @@
 #include "itkMinimumDecisionRule.h"
 
 /* ITK filter headers */
+#include "itkCannyEdgeDetectionImageFilter.h"
 #include "itkVotingBinaryIterativeHoleFillingImageFilter.h"
 #include "itkApproximateSignedDistanceMapImageFilter.h"
 #include "itkMedianImageFilter.h"
@@ -386,6 +435,7 @@
 // list of supported filters. It has to be an enum so that we can pass
 // it as a template constant parameter
 enum SupportedFilter {
+  nCannyEdgeDetectionImageFilter,
   nVotingBinaryIterativeHoleFillingImageFilter,
   nApproximateSignedDistanceMapImageFilter,
   nMedianImageFilter,
@@ -419,6 +469,157 @@ public:
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
     mexErrMsgTxt("Unsupported filter type");
+  }
+};
+
+// CannyEdgeDetectionImageFilter
+template <class TPixelIn, unsigned int VImageDimension>
+class FilterWrapper<TPixelIn, VImageDimension, 
+		    nCannyEdgeDetectionImageFilter> {
+public:
+  
+  FilterWrapper(MatlabImportFilter::Pointer matlabImport,
+		MatlabExportFilter::Pointer matlabExport,
+		MatlabImageHeader &im) {
+    
+    // check number of input and output arguments
+    matlabImport->CheckNumberOfArguments(2, 6);
+    matlabExport->CheckNumberOfArguments(0, 2);
+    
+    // instantiate the filter
+    typedef TPixelIn TPixelOut;
+    typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
+    typedef InImageType OutImageType;
+    typedef itk::CannyEdgeDetectionImageFilter<InImageType, OutImageType>
+      FilterType;
+    typename FilterType::Pointer filter = FilterType::New();
+    
+    // connect Matlab inputs to ITK filter
+    filter->SetInput(matlabImport->
+		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+    
+    // The variance for the discrete Gaussian kernel. Sets the
+    // variance independently for each dimension. The default is 0.0
+    // in each dimension (ITK)
+    typename FilterType::ArrayType defVariance;
+    defVariance.Fill(0.0);
+    filter->SetVariance(matlabImport->
+    			GetRowVectorArgument<typename FilterType::ArrayType::ValueType, 
+    					     typename FilterType::ArrayType,
+    					     VImageDimension>(2, "VAR", defVariance));
+
+    // Usually, the upper tracking threshold can be set quite high,
+    // and the lower threshold quite low for good results. Setting the
+    // lower threshold too high will cause noisy edges to break
+    // up. Setting the upper threshold too low increases the number of
+    // spurious and undesirable edge fragments appearing in the
+    // output.
+    // http://homepages.inf.ed.ac.uk/rbf/HIPR2/canny.htm
+    filter->SetUpperThreshold(matlabImport->template
+			      GetScalarArgument<TPixelIn>(3, "UPPTHR", std::numeric_limits<TPixelIn>::max()));
+
+    // Threshold is the lowest allowed value in the output image. Its
+    // data type is the same as the data type of the output image. Any
+    // values below the Threshold level will be replaced with the
+    // OutsideValue parameter value, whose default is zero.
+    filter->SetLowerThreshold(matlabImport->template
+			      GetScalarArgument<TPixelIn>(4, "LOWTHR", filter->GetUpperThreshold() / 2.0));
+
+    // The algorithm will size the discrete kernel so that the error
+    // resulting from truncation of the kernel is no greater than
+    // MaximumError. The default is 0.01 in each dimension.
+    typename FilterType::ArrayType defMaximumError;
+    defMaximumError.Fill(0.01);
+    filter->SetMaximumError(matlabImport->
+			    GetRowVectorArgument<typename FilterType::ArrayType::ValueType, 
+						 typename FilterType::ArrayType,
+						 VImageDimension>(5, "MAXERR", defVariance));
+
+    // graft ITK filter outputs onto Matlab outputs
+    if (matlabExport->GetNumberOfArguments() >= 1) {
+      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+    	(filter->GetOutputs()[0], im.size, 0, "0");
+    }
+
+    // run filter
+    filter->Update();
+
+    // copy ITK filter outputs to Matlab outputs
+    if (matlabExport->GetNumberOfArguments() >= 2) {
+      matlabExport->CopyItkImageToMatlab<TPixelOut, VImageDimension>
+    	(filter->GetNonMaximumSuppressionImage(), im.size, 1, "1");
+    }
+
+  }
+};
+
+template <unsigned int VImageDimension>
+class FilterWrapper<mxLogical, VImageDimension,
+		    nCannyEdgeDetectionImageFilter> {
+public:
+  FilterWrapper(MatlabImportFilter::Pointer, MatlabExportFilter::Pointer,
+		MatlabImageHeader &) {
+    mexErrMsgTxt("CannyEdgeDetectionImageFilter only accepts input images with floating type (double or single)");
+  }
+};
+
+template <unsigned int VImageDimension>
+class FilterWrapper<int8_T, VImageDimension,
+		    nCannyEdgeDetectionImageFilter> {
+public:
+  FilterWrapper(MatlabImportFilter::Pointer, MatlabExportFilter::Pointer,
+		MatlabImageHeader &) {
+    mexErrMsgTxt("CannyEdgeDetectionImageFilter only accepts input images with floating type (double or single)");
+  }
+};
+
+template <unsigned int VImageDimension>
+class FilterWrapper<uint8_T, VImageDimension,
+		    nCannyEdgeDetectionImageFilter> {
+public:
+  FilterWrapper(MatlabImportFilter::Pointer, MatlabExportFilter::Pointer,
+		MatlabImageHeader &) {
+    mexErrMsgTxt("CannyEdgeDetectionImageFilter only accepts input images with floating type (double or single)");
+  }
+};
+
+template <unsigned int VImageDimension>
+class FilterWrapper<int16_T, VImageDimension,
+		    nCannyEdgeDetectionImageFilter> {
+public:
+  FilterWrapper(MatlabImportFilter::Pointer, MatlabExportFilter::Pointer,
+		MatlabImageHeader &) {
+    mexErrMsgTxt("CannyEdgeDetectionImageFilter only accepts input images with floating type (double or single)");
+  }
+};
+
+template <unsigned int VImageDimension>
+class FilterWrapper<uint16_T, VImageDimension,
+		    nCannyEdgeDetectionImageFilter> {
+public:
+  FilterWrapper(MatlabImportFilter::Pointer, MatlabExportFilter::Pointer,
+		MatlabImageHeader &) {
+    mexErrMsgTxt("CannyEdgeDetectionImageFilter only accepts input images with floating type (double or single)");
+  }
+};
+
+template <unsigned int VImageDimension>
+class FilterWrapper<int32_T, VImageDimension,
+		    nCannyEdgeDetectionImageFilter> {
+public:
+  FilterWrapper(MatlabImportFilter::Pointer, MatlabExportFilter::Pointer,
+		MatlabImageHeader &) {
+    mexErrMsgTxt("CannyEdgeDetectionImageFilter only accepts input images with floating type (double or single)");
+  }
+};
+
+template <unsigned int VImageDimension>
+class FilterWrapper<int64_T, VImageDimension,
+		    nCannyEdgeDetectionImageFilter> {
+public:
+  FilterWrapper(MatlabImportFilter::Pointer, MatlabExportFilter::Pointer,
+		MatlabImageHeader &) {
+    mexErrMsgTxt("CannyEdgeDetectionImageFilter only accepts input images with floating type (double or single)");
   }
 };
 
@@ -1289,89 +1490,96 @@ void parseOutputImageTypeToTemplate(MatlabImportFilter::Pointer matlabImport,
   std::string filterName = matlabImport->GetStringArgument(0, "0", "");
 
   // select the output type corresponding to each filter
-  if (filterName == "appsigndist" 
-  	     || filterName == "ApproximateSignedDistanceMapImageFilter") {
+  if (filterName == "canny" 
+  	     || filterName == "CannyEdgeDetectionImageFilter") {
 
     FilterWrapper<TPixelIn, VImageDimension, 
-  		  nApproximateSignedDistanceMapImageFilter> 
+		  nCannyEdgeDetectionImageFilter> 
       filterWrapper(matlabImport, matlabExport, im);
 
-  } else if (filterName == "median" 
-  	     || filterName == "MedianImageFilter") {
+  // } else if (filterName == "appsigndist" 
+  // 	     || filterName == "ApproximateSignedDistanceMapImageFilter") {
 
-    FilterWrapper<TPixelIn, VImageDimension, 
-  		  nMedianImageFilter> 
-      filterWrapper(matlabImport, matlabExport, im);
+  //   FilterWrapper<TPixelIn, VImageDimension, 
+  // 		  nApproximateSignedDistanceMapImageFilter> 
+  //     filterWrapper(matlabImport, matlabExport, im);
 
-  } else if (filterName == "advess" 
-      || filterName == "AnisotropicDiffusionVesselEnhancementImageFilter") {
+  // } else if (filterName == "median" 
+  // 	     || filterName == "MedianImageFilter") {
 
-    FilterWrapper<TPixelIn, VImageDimension, 
-  		  nAnisotropicDiffusionVesselEnhancementImageFilter> 
-      wrapper(matlabImport, matlabExport, im);
+  //   FilterWrapper<TPixelIn, VImageDimension, 
+  // 		  nMedianImageFilter> 
+  //     filterWrapper(matlabImport, matlabExport, im);
 
-  } else if (filterName == "bwdilate" 
-  	     || filterName == "BinaryDilateImageFilter") {
+  // } else if (filterName == "advess" 
+  //     || filterName == "AnisotropicDiffusionVesselEnhancementImageFilter") {
 
-    FilterWrapper<TPixelIn, VImageDimension, 
-  		  nBinaryDilateImageFilter> 
-      filterWrapper(matlabImport, matlabExport, im);
+  //   FilterWrapper<TPixelIn, VImageDimension, 
+  // 		  nAnisotropicDiffusionVesselEnhancementImageFilter> 
+  //     wrapper(matlabImport, matlabExport, im);
 
-  } else if (filterName == "bwerode" 
-  	     || filterName == "BinaryErodeImageFilter") {
+  // } else if (filterName == "bwdilate" 
+  // 	     || filterName == "BinaryDilateImageFilter") {
 
-    FilterWrapper<TPixelIn, VImageDimension, 
-  		  nBinaryErodeImageFilter> 
-      filterWrapper(matlabImport, matlabExport, im);
+  //   FilterWrapper<TPixelIn, VImageDimension, 
+  // 		  nBinaryDilateImageFilter> 
+  //     filterWrapper(matlabImport, matlabExport, im);
 
-  } else if (filterName == "skel" 
-  	     || filterName == "BinaryThinningImageFilter3D") {
+  // } else if (filterName == "bwerode" 
+  // 	     || filterName == "BinaryErodeImageFilter") {
 
-    FilterWrapper<TPixelIn, VImageDimension, 
-  		  nBinaryThinningImageFilter3D>
-      filterWrapper(matlabImport, matlabExport, im);
+  //   FilterWrapper<TPixelIn, VImageDimension, 
+  // 		  nBinaryErodeImageFilter> 
+  //     filterWrapper(matlabImport, matlabExport, im);
 
-  } else if (filterName == "signdandist" 
-  	     || filterName == "SignedDanielssonDistanceMapImageFilter") {
+  // } else if (filterName == "skel" 
+  // 	     || filterName == "BinaryThinningImageFilter3D") {
 
-    FilterWrapper<TPixelIn, VImageDimension, 
-  		  nSignedDanielssonDistanceMapImageFilter>
-      filterWrapper(matlabImport, matlabExport, im);
+  //   FilterWrapper<TPixelIn, VImageDimension, 
+  // 		  nBinaryThinningImageFilter3D>
+  //     filterWrapper(matlabImport, matlabExport, im);
 
-  } else if (filterName == "dandist" 
-  	     || filterName == "DanielssonDistanceMapImageFilter") {
+  // } else if (filterName == "signdandist" 
+  // 	     || filterName == "SignedDanielssonDistanceMapImageFilter") {
 
-    FilterWrapper<TPixelIn, VImageDimension, 
-  		  nDanielssonDistanceMapImageFilter>
-      filterWrapper(matlabImport, matlabExport, im);
+  //   FilterWrapper<TPixelIn, VImageDimension, 
+  // 		  nSignedDanielssonDistanceMapImageFilter>
+  //     filterWrapper(matlabImport, matlabExport, im);
 
-  } else if (filterName == "hesves" 
-  	     || filterName == "MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter") {
+  // } else if (filterName == "dandist" 
+  // 	     || filterName == "DanielssonDistanceMapImageFilter") {
 
-    FilterWrapper<TPixelIn, VImageDimension, 
-  		  nMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter>
-      filterWrapper(matlabImport, matlabExport, im);
+  //   FilterWrapper<TPixelIn, VImageDimension, 
+  // 		  nDanielssonDistanceMapImageFilter>
+  //     filterWrapper(matlabImport, matlabExport, im);
 
-  } else if (filterName == "maudist" 
-  	     || filterName == "SignedMaurerDistanceMapImageFilter") {
+  // } else if (filterName == "hesves" 
+  // 	     || filterName == "MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter") {
 
-    FilterWrapper<TPixelIn, VImageDimension, 
-  		  nSignedMaurerDistanceMapImageFilter>
-      filterWrapper(matlabImport, matlabExport, im);
+  //   FilterWrapper<TPixelIn, VImageDimension, 
+  // 		  nMultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter>
+  //     filterWrapper(matlabImport, matlabExport, im);
+
+  // } else if (filterName == "maudist" 
+  // 	     || filterName == "SignedMaurerDistanceMapImageFilter") {
+
+  //   FilterWrapper<TPixelIn, VImageDimension, 
+  // 		  nSignedMaurerDistanceMapImageFilter>
+  //     filterWrapper(matlabImport, matlabExport, im);
 
   } else if (filterName == "mrf" 
       || filterName == "MRFImageFilter") {
     
-    FilterWrapper<TPixelIn, VImageDimension, 
-  		  nMRFImageFilter> 
-      filterWrapper(matlabImport, matlabExport, im);
+  //   FilterWrapper<TPixelIn, VImageDimension, 
+  // 		  nMRFImageFilter> 
+  //     filterWrapper(matlabImport, matlabExport, im);
     
-  } else if (filterName == "voteholefill" 
-      || filterName == "VotingBinaryIterativeHoleFillingImageFilter") {
+  // } else if (filterName == "voteholefill" 
+  //     || filterName == "VotingBinaryIterativeHoleFillingImageFilter") {
     
-    FilterWrapper<TPixelIn, VImageDimension, 
-  		  nVotingBinaryIterativeHoleFillingImageFilter> 
-      filterWrapper(matlabImport, matlabExport, im);
+  //   FilterWrapper<TPixelIn, VImageDimension, 
+  // 		  nVotingBinaryIterativeHoleFillingImageFilter> 
+  //     filterWrapper(matlabImport, matlabExport, im);
     
   } else {
     mexErrMsgTxt("Invalid filter type");    
