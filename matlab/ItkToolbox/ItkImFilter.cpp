@@ -310,7 +310,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011-2012 University of Oxford
-  * Version: 1.3.1
+  * Version: 1.4.0
   * $Rev$
   * $Date$
   *
@@ -455,7 +455,8 @@ public:
     // filter parameters
     filter->SetRadius(matlabImport->template
 		      GetRowVectorArgument<typename InImageType::SizeValueType,
-					   typename InImageType::SizeType>(2, "RADIUS", radiusDef));
+					   typename InImageType::SizeType, 
+					   VImageDimension>(2, "RADIUS", radiusDef));
     filter->SetMaximumNumberOfIterations(matlabImport->template
 					 GetScalarArgument<unsigned int>(3, "MAXITER", 1));
     filter->SetMajorityThreshold(matlabImport->template
@@ -555,10 +556,11 @@ public:
     radius.Fill(0);
     filter->SetRadius(matlabImport->
 		      GetRowVectorArgument<typename BoxFilterType::RadiusValueType, 
-					   typename BoxFilterType::RadiusType>
+					   typename BoxFilterType::RadiusType,
+					   VImageDimension>
 		      (2, "RADIUS", radius));
     
-    // connect ITK filter outputs to Matlab outputs
+    // graft ITK filter outputs onto Matlab outputs
     if (matlabExport->GetNumberOfArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
 	(filter->GetOutputs()[0], im.size, 0, "0");
@@ -1137,7 +1139,8 @@ public:
     // 2 * halfsize + 1)
     neighHalfSize = matlabImport->template
       GetArrayHalfSize<typename InImageType::SizeValueType, 
-		       typename InImageType::SizeType>(3, "WEIGHT", neighHalfSize);
+		       typename InImageType::SizeType,
+		       VImageDimension>(3, "WEIGHT", neighHalfSize);
 
     double smoothingFactor = matlabImport->template
       GetScalarArgument<double>(4, "SMOOTH", 1e-7);
@@ -1290,7 +1293,7 @@ void parseOutputImageTypeToTemplate(MatlabImportFilter::Pointer matlabImport,
   	     || filterName == "ApproximateSignedDistanceMapImageFilter") {
 
     FilterWrapper<TPixelIn, VImageDimension, 
-		  nApproximateSignedDistanceMapImageFilter> 
+  		  nApproximateSignedDistanceMapImageFilter> 
       filterWrapper(matlabImport, matlabExport, im);
 
   } else if (filterName == "median" 
