@@ -1,5 +1,31 @@
 2013-05-30  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/MatlabImportFilter.hxx: (0.6.1)
+	* matlab/MatlabImportFilter.h: (0.6.1)
+
+	- Fix bug. The VectorSize template has to be an "unsigned int",
+	because that's the type of the Dimension variable in ITK vectors,
+	e.g. itk::Size. Otherwise, when we were passing VectorSize as an
+	"unsigned int", but the template definition was mwSize = "long
+	unsigned int", it was not recognised as the same template element,
+	and partial specialisation failed.
+
+	* matlab/VectorWrapper.h: (0.5.0)
+	* matlab/VectorWrapper.hxx: (0.4.0)
+
+	- Taking a bit of a partial step back from the last commit, we do
+	need auxiliary functions to run ReadItkRowVector(). We cannot use
+	ReadItkRowVector with a partial specialisation for e.g. itk::Size,
+	because then for itk::FixedArray we would need to repeat the code
+	in the partial specialisation again.
+
+	- Fix bug. The VectorSize template has to be an "unsigned int",
+	because that's the type of the Dimension variable in ITK vectors,
+	e.g. itk::Size. Otherwise, when we were passing VectorSize as an
+	"unsigned int", but the template definition was mwSize = "long
+	unsigned int", it was not recognised as the same template element,
+	and partial specialisation failed.
+
 	* matlab/test/test_itk_imfilter.m: (0.4.1)
 
 	- "itk::VotingBinaryIterativeHoleFillingImageFilter": Fix typo. By
