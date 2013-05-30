@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.5.0
+  * Version: 0.6.0
   * $Rev$
   * $Date$
   *
@@ -139,6 +139,11 @@ public:
 			    std::string paramName,
 			    VectorType def);
 
+  template <class VectorValueType, class VectorType, mwSize VectorSize>
+    VectorType GetArraySize(unsigned int idx, 
+			    std::string paramName,
+			    VectorType def);
+
   // function to get the half-size of a Matlab array. Some ITK filters
   // request the "half-size" (called radius) of a Matlab array,
   // instead of its size. By "half-size" we mean the length of the side to
@@ -146,6 +151,11 @@ public:
   // with size=[3, 7] has a half-size or radius=[1, 3]. I.e. 
   // size = 2 * radius + 1
   template <class VectorValueType, class VectorType>
+    VectorType GetArrayHalfSize(unsigned int idx, 
+				std::string paramName,
+				VectorType def);
+
+  template <class VectorValueType, class VectorType, mwSize VectorSize>
     VectorType GetArrayHalfSize(unsigned int idx, 
 				std::string paramName,
 				VectorType def);
@@ -188,6 +198,16 @@ public:
   // idx: parameter index within the list of Matlab input arguments
   // row: row index in the input 2D matrix
   // def: value returned by default if argument is empty or not provided
+  template <class VectorValueType, class VectorType, mwSize VectorSize>
+    VectorType GetRowVectorArgument(unsigned int idx, 
+				   mwIndex row,
+				   std::string paramName,
+				   VectorType def);
+  template <class VectorValueType, class VectorType, mwSize VectorSize>
+    VectorType GetRowVectorArgument(unsigned int idx, 
+				   std::string paramName,
+				   VectorType def);
+
   template <class VectorValueType, class VectorType>
     VectorType GetRowVectorArgument(unsigned int idx, 
 				   mwIndex row,
