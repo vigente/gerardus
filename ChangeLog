@@ -1,5 +1,10 @@
 2013-05-30  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/test/test_itk_imfilter.m: (0.4.1)
+
+	- "itk::VotingBinaryIterativeHoleFillingImageFilter": Fix typo. By
+	default, foreground voxels = 1, not 255.
+
 	* matlab/MatlabImportFilter.h: (0.6.0)
 	* matlab/MatlabImportFilter.hxx: (0.6.0)
 	* matlab/VectorWrapper.hxx: (0.3.0)

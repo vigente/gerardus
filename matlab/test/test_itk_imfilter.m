@@ -4,7 +4,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % $Rev$
 % $Date$
 %
@@ -288,7 +288,7 @@ imagesc(seg(:,:,4))
 
 % create small toy image with a small hole
 im = zeros(15, 15, 'uint8');
-im(3:13, 3:13) = 255;
+im(3:13, 3:13) = 1;
 im(7:8, 7) = 0;
 
 % plot input image
