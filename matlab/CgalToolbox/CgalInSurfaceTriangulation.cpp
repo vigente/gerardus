@@ -207,7 +207,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 								  Direction>(3, "DIR", direction);
 
   // distance tolerance value
-  double tol = matlabImport->GetScalarArgument<double>(4, "TRI", 1e-15);
+  double tol = matlabImport->GetScalarArgument<double>(4, "TOL", 1e-15);
 
   // point coordinates with NaN values in case there's a problem reading them
   Point def(mxGetNaN(), mxGetNaN(), mxGetNaN());
