@@ -35,6 +35,67 @@ $ svn diff > file.patch
   * In Windows, right-click on the "`gerardus`" folder and select "Diff" from the TortoiseSVN menu. Save the result as e.g. `file.patch`
  # Email `file.patch` to the mailing list with an explanation of what you have done
 
+= Notes about reading vectors from Matlab into different types of C++ vector-like objects =
+
+(This section was spawned from this [https://groups.google.com/d/msg/gerardus-users/pLH0iR0H74o/rNC2Qr20_iMJ email sent to the gerardus-user mailing list])
+
+Our `MatlabImportFilter` can read vectors as input parameters directly from Matlab, and pass them to ITK without intermediate steps. For example, in the `itk::VotingBinaryIterativeHoleFillingImageFilter`
+
+[https://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/ItkImFilter.cpp?r=1113#506]
+
+{{{
+// The variance for the discrete Gaussian kernel. Sets the
+// variance independently for each dimension. The default is 0.0
+// in each dimension (ITK)
+typename FilterType::ArrayType defVariance;
+defVariance.Fill(0.0);
+filter->SetVariance(matlabImport->
+                     GetRowVectorArgument<typename FilterType::ArrayType::ValueType, 
+                                             typename FilterType::ArrayType,
+                                             VImageDimension>(2, "VAR", defVariance));
+}}}
+
+The method `GetRowVectorArgument()` is declared here
+
+[https://code.google.com/p/gerardus/source/browse/trunk/matlab/MatlabImportFilter.h?r=1113#194]
+
+Because we may want to read Matlab vectors into very different classes, e.g. `itk::Size<Dimension>` vs. `CGAL::Direction_3<CGAL::Simple_cartesian<double> >`, the definition of this method relies heaviy on the idea of a vector wrapper,
+
+[https://code.google.com/p/gerardus/source/browse/trunk/matlab/MatlabImportFilter.hxx?r=1113#326]
+
+{{{
+VectorWrapper<VectorValueType, VectorType, mxLogical, VectorSize> paramWrap;
+}}}
+
+That is, we have a class `VectorWrapper` that provides a common interface from Matlab to different sorts of vectors. For the moment, by default we assume that the output vector is
+
+https://code.google.com/p/gerardus/source/browse/trunk/matlab/VectorWrapper.h?r=1113#75
+
+{{{
+std::vector
+}}}
+
+but we have partial specialisations to deal with
+
+https://code.google.com/p/gerardus/source/browse/trunk/matlab/VectorWrapper.h?r=1113#121
+
+{{{
+itk::Size<Dimension>
+itk::FixedArray<ValueType, Dimension>
+}}}
+
+https://code.google.com/p/gerardus/source/browse/trunk/matlab/VectorWrapper.h?r=1113#205
+
+{{{
+CGAL::Point_3<CGAL::Simple_cartesian<ValueType> >
+CGAL::Direction_3<CGAL::Simple_cartesian<ValueType> >
+}}}
+
+For ITK this already covers quite a bit of possibilities, because many types get reduced to the two above. For example, the `itk::BoxFilterType<...,...>::RadiusType` used in the Median filter is actually an `itk::FixedArray<double, Dimension>`.
+
+https://code.google.com/p/gerardus/source/browse/trunk/matlab/ItkToolbox/ItkImFilter.cpp?r=1113#752
+
+
 = Matlab code guidelines =
 
  * All Matlab (.m) and MEX (.cpp, .hpp) functions live in directory [http://code.google.com/p/gerardus/source/browse/#svn%2Ftrunk%2Fmatlab `gerardus\matlab`], under 6 toolbox directories:
