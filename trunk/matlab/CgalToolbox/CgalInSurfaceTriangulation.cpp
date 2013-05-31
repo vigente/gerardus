@@ -182,7 +182,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
   matlabImport->SetMatlabArgumentsPointer(nrhs, prhs);
 
-  // check that we have at least a filter name and input image
+  // check that we have at least tri, x and xi
   matlabImport->CheckNumberOfArguments(3, 5);
 
   // interface to deal with outputs to Matlab
