@@ -1,5 +1,10 @@
 2013-05-31  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/ManifoldToolbox/dmatrix_mesh.m: (0.1.0)
+
+	- DMATRIX_MESH Sparse distance and shortest-path distance matrices
+	between the nodes of a mesh.
+
 	* Delete matlab/PointsToolbox/dmatrix_complete.m:
 
 	- One liner function that simply adds an unnecessary layer to dijkstra().
