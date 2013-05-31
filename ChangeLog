@@ -1,3 +1,13 @@
+2013-05-31  Ramon Casero  <rcasero@gmail.com>
+
+	* Delete matlab/PointsToolbox/dmatrix_complete.m:
+
+	- One liner function that simply adds an unnecessary layer to dijkstra().
+
+	* matlab/PointsToolbox/dmatrix.m: (0.3.1)
+
+	- Update deprecated syntax to check input and output arguments.
+
 2013-05-30  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/VectorWrapper.h: (0.5.1)
