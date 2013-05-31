@@ -20,7 +20,7 @@ function d = dmatrix(x, y, METHOD)
 
 % Author: Ramon Casero <rcasero@gmail.com>.
 % Copyright © 2011 University of Oxford
-% v0.3.0
+% v0.3.1
 % $Rev$
 % $Date$
 % 
@@ -48,8 +48,8 @@ function d = dmatrix(x, y, METHOD)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 3, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
+narginchk(1, 3);
+nargoutchk(0, 1);
 
 % defaults
 if (nargin < 3 || isempty(METHOD))
