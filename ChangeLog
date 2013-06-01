@@ -1,4 +1,16 @@
+2013-06-01  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ManifoldToolbox/closest_trifacet.m: (0.1.0)
+	* Add matlab/test/test_closest_trifacet.m: (0.1.0)
+
+	- CLOSEST_TRIFACET Closest triangular facet of a mesh to a point
+	in 3D.
+
 2013-05-31  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.0)
+
+	- Add target to build cgal_closestfacet().
 
 	* Add matlab/ManifoldToolbox/dmatrix_mesh.m: (0.1.0)
 
