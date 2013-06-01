@@ -1,5 +1,11 @@
 2013-06-01  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/closest_trifacet.m: (0.2.0)
+	* matlab/test/test_closest_trifacet.m: (0.2.0)
+
+	- Add output argument. Now distance from point to mesh is also
+	provided.
+
 	* matlab/ThirdPartyToolbox/pointTriangleDistance.m: (0.1.0)
 
 	- Minor reformatting of the help header and add some Gerardus
