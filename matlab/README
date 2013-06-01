@@ -350,6 +350,10 @@ itk_pstransform.m
 ManifoldToolbox
 -------------------------------------------------------------
 
+closest_trifacet.m
+
+	 CLOSEST_TRIFACET  Closest triangular facet of a mesh to a point in 3D
+	
 delaunay_sphere.m
 
 	 DELAUNAY_SPHERE  Triangulation of a sphere or a surface topologically
@@ -601,6 +605,11 @@ Isomap.m
 L2_distance.m
 
 	 L2_DISTANCE - computes Euclidean distance matrix
+	
+pointTriangleDistance.m
+
+	 POINTTRIANGLEDISTANCE  Calculate distance between a point and a triangle
+	 in 3D
 	
 
 ThirdPartyToolbox/sphsplineToolbox
