@@ -1,5 +1,10 @@
 2013-06-01  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ThirdPartyToolbox/pointTriangleDistance.m: (0.1.0)
+
+	- Minor reformatting of the help header and add some Gerardus
+	properties and headers.
+
 	* Add matlab/ThirdPartyToolbox/pointTriangleDistance.m:
 	* Add matlab/ThirdPartyToolbox/pointTriangleDistance-license.txt:
 
