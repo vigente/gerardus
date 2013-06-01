@@ -1,5 +1,7 @@
 function [dist,PP0] = pointTriangleDistance(TRI,P)
-% calculate distance between a point and a triangle in 3D
+% POINTTRIANGLEDISTANCE  Calculate distance between a point and a triangle
+% in 3D
+%
 % SYNTAX
 %   dist = pointTriangleDistance(TRI,P)
 %   [dist,PP0] = pointTriangleDistance(TRI,P)
@@ -12,13 +14,19 @@ function [dist,PP0] = pointTriangleDistance(TRI,P)
 %   to the triangle TRI.
 %   [dist,PP0] = pointTriangleDistance(TRI,P) additionally returns the
 %   closest point PP0 to P on the triangle TRI.
-%
+
 % Author: Gwendolyn Fischer
 % Release: 1.0
 % Release date: 09/02/02
 % Release: 1.1 Fixed Bug because of normalization
 % Release: 1.2 Fixed Bug because of typo in region 5 20101013
 % Release: 1.3 Fixed Bug because of typo in region 2 20101014
+
+% Minor modifications by Ramon Casero <rcasero@gmail.com> for the Gerardus
+% Project.
+% Version: 0.1.0
+% $Rev$
+% $Date$
 
 % Possible extention could be a version tailored not to return the distance
 % and additionally the closest point, but instead return only the closest
