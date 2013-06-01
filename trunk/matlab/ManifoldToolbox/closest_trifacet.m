@@ -1,7 +1,7 @@
-function idx = closest_trifacet(tri, x, xi)
+function [idx, d] = closest_trifacet(tri, x, xi)
 % CLOSEST_TRIFACET  Closest triangular facet of a mesh to a point in 3D
 %
-% IDX = closest_trifacet(TRI, X, XI)
+% [IDX, D] = closest_trifacet(TRI, X, XI)
 %
 %   TRI is a 3-column matrix. Each row contains the 3 nodes that form one
 %   triangular facet in the mesh.
@@ -17,6 +17,9 @@ function idx = closest_trifacet(tri, x, xi)
 %   of the closest facet to XI(:,i). For instance, to obtain the nodes of
 %   the facet closest to XI(i,:), run TRI(IDX(i), :).
 %
+%   D is a vector with the same length as IDX. D(i) is the distance of
+%   point XI(i,:) to the mesh, or equivalently, to the closest facet.
+%
 % Depends on pointTriangleDistance() by Gwendolyn Fischer.
 %
 % Warning: closest_trifacet()'s implementation is inefficient . It loops
@@ -30,7 +33,7 @@ function idx = closest_trifacet(tri, x, xi)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -60,13 +63,14 @@ function idx = closest_trifacet(tri, x, xi)
 
 % check arguments
 narginchk(3, 3);
-nargoutchk(0, 1);
+nargoutchk(0, 2);
 
-% initialise output
+% initialise outputs
 idx = nan(size(xi, 1), 1);
+d = nan(size(xi, 1), 1);
 
 % initialise distance vector from a point to each triangle
-d = zeros(size(tri, 1), 1);
+d0 = zeros(size(tri, 1), 1);
 
 % loop points to test
 for I = 1:size(xi, 1)
@@ -75,11 +79,11 @@ for I = 1:size(xi, 1)
     for J = 1:size(tri, 1)
         
         % distance between point and triangle
-        d(J) = pointTriangleDistance(x(tri(J, :), :), xi(I, :));
+        d0(J) = pointTriangleDistance(x(tri(J, :), :), xi(I, :));
         
     end
     
     % minimum distance gives the closest triangle to the point
-    [~, idx(I)] = min(d);
+    [d(I), idx(I)] = min(d0);
     
 end

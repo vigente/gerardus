@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -62,7 +62,7 @@ hold on
 plot3(xi(:, 1), xi(:, 2), xi(:, 3), 'r*')
 
 % find closest facet and distance to a point
-f = closest_trifacet(as.bnd, x, xi);
+[f, d] = closest_trifacet(as.bnd, x, xi);
 
 % plot results
 for I = 1:size(xi, 1)
