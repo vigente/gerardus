@@ -1,5 +1,13 @@
 2013-06-01  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/ThirdPartyToolbox/pointTriangleDistance.m:
+	* Add matlab/ThirdPartyToolbox/pointTriangleDistance-license.txt:
+
+	- Calculate distance between a point and a triangle in 3D. By
+	Gwendolyn Fischer. Downloaded from
+
+	http://www.mathworks.co.uk/matlabcentral/fileexchange/22857-distance-between-a-point-and-a-triangle-in-3d
+
 	* Add matlab/ManifoldToolbox/closest_trifacet.m: (0.1.0)
 	* Add matlab/test/test_closest_trifacet.m: (0.1.0)
 
