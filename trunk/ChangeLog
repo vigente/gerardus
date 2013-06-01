@@ -1,5 +1,10 @@
 2013-06-01  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/ManifoldToolbox/test_addpoint2tri.m: (0.1.0)
+	* Add matlab/test/test_test_addpoint2tri.m: (0.1.0)
+
+	- ADDPOINT2TRI Add one or more nodes to a triangular mesh.
+
 	* matlab/ManifoldToolbox/closest_trifacet.m: (0.2.0)
 	* matlab/test/test_closest_trifacet.m: (0.2.0)
 
