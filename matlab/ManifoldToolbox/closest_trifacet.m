@@ -22,18 +22,12 @@ function [idx, d] = closest_trifacet(tri, x, xi)
 %
 % Depends on pointTriangleDistance() by Gwendolyn Fischer.
 %
-% Warning: closest_trifacet()'s implementation is inefficient . It loops
-% through all facets for every point in XI. We tried a C++ MEX
-% implementation using CGAL::AABB trees, but were unable to extract the
-% facet's index from the CGAL result. For future reference, CGAL's brief
-% documentation on the topic can be found in their manual, "64.3.3   Tree
-% of Polyhedron Triangle Facets for Distance Queries"
-%
-% http://www.cgal.org/Manual/latest/doc_html/cgal_manual/AABB_tree/Chapter_main.html#Subsection_64.3.3
+% See also: cgal_closest_trifacet (an efficient C++ MEX function based on
+% CGAL)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 %
@@ -64,6 +58,10 @@ function [idx, d] = closest_trifacet(tri, x, xi)
 % check arguments
 narginchk(3, 3);
 nargoutchk(0, 2);
+
+if (size(x, 2) ~= size(xi, 2) || size(x, 2) ~= 3)
+    error('X and XI must have 3 columns')
+end
 
 % initialise outputs
 idx = nan(size(xi, 1), 1);
