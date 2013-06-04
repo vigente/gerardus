@@ -74,6 +74,10 @@ trimatria.m
 CgalToolbox
 -------------------------------------------------------------
 
+cgal_closest_trifacet.m
+
+	 CGAL_CLOSEST_TRIFACET  Closest triangular facet of a mesh to a point in 3D
+	
 cgal_insurftri.m
 
 	 CGAL_INSURFACETRIANGULATION  Find whether a point is inside or outside a
