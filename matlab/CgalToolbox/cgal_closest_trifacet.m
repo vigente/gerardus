@@ -1,8 +1,34 @@
-% test__closest_trifacet.m
+function [idx, d, p] = cgal_closest_trifacet(tri, x, xi)
+% CGAL_CLOSEST_TRIFACET  Closest triangular facet of a mesh to a point in 3D
+%
+% [IDX, D, P] = cgal_closest_trifacet(TRI, X, XI)
+%
+%   TRI is a 3-column matrix. Each row contains the 3 nodes that form one
+%   triangular facet in the mesh.
+%
+%   X is a 3-column matrix. X(i, :) contains the xyz-coordinates of the
+%   i-th node in the mesh.
+%
+%   XI is a 3-column matrix. XI(i, :) are the xyz-coordinates of a test
+%   point. This function finds the facet TRI(j,:) that is closest to
+%   XI(i,:).
+%
+%   IDX is a vector with one element per point in XI. IDX(i) is the index
+%   of the closest facet to XI(:,i). For instance, to obtain the nodes of
+%   the facet closest to XI(i,:), run TRI(IDX(i), :).
+%
+%   D is a vector with the same length as IDX. D(i) is the distance of
+%   point XI(i,:) to the mesh, or equivalently, to the closest facet.
+%
+%   P is a 3-column matrix. P(i,:) are the xyz-coordinates of the closest
+%   point in the mesh to XI(i,:).
+%
+% See also: closest_trifacet (an inefficient Matlab implementation that
+% mirrors this function)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.2.1
+% Version: 0.1.0
 % $Rev$
 % $Date$
 %
@@ -30,55 +56,4 @@
 % along with this program.  If not, see
 % <http://www.gnu.org/licenses/>.
 
-% create a surface mesh that is a tetrahedron
-x = [
-    0 0 0
-    1 0 0
-    0 1 0
-    0 0 1
-    ];
-
-% plot points
-subplot(1, 1, 1)
-hold off
-plot3(x(:, 1), x(:, 2), x(:, 3), '.')
-axis equal
-
-% apply alphashape
-[vol, as] = alphavol(x, 1.3);
-
-% plot surface
-hold off
-trisurf(as.bnd, x(:, 1), x(:, 2), x(:, 3), 'FaceColor', 'blue', 'FaceAlpha', .5)
-
-xi = [
-    .6 .6 .6
-    .25 .25 .35
-    .10 .40 .09
-    -.25 .5 .25
-    ];
-
-% plot points
-hold on
-plot3(xi(:, 1), xi(:, 2), xi(:, 3), 'r*')
-
-% find closest facet and distance to a point
-[f, d] = closest_trifacet(as.bnd, x, xi);
-
-% plot results
-for I = 1:size(xi, 1)
-
-    % plot tetrahedron
-    hold off
-    trisurf(as.bnd, x(:, 1), x(:, 2), x(:, 3), 'FaceColor', 'blue', 'FaceAlpha', .5)
-
-    % plot point
-    hold on
-    plot3(xi(I, 1), xi(I, 2), xi(I, 3), 'r*')
-    
-    % plot closest facet
-    trisurf(as.bnd(f(I), :), x(:, 1), x(:, 2), x(:, 3), 'FaceColor', 'red', 'FaceAlpha', .5)
-    
-    pause
-    
-end
+error('MEX file not found')
