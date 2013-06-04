@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.1.3
+# Version: 0.2.0
 # $Rev$
 # $Date$
 #
@@ -53,17 +53,36 @@ TARGET_LINK_LIBRARIES(cgal_insurftri
   ${ITK_LIBRARIES})
 
 ################################################################
+## cgal_closest_trifacet()
+################################################################
+
+ADD_MEX_FILE(cgal_closest_trifacet
+  CgalClosestTriFacet.cpp
+  )
+
+INCLUDE_DIRECTORIES(
+  ${GERARDUS_SOURCE_DIR}/include
+  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.0.2/include
+  ..
+  )
+TARGET_LINK_LIBRARIES(cgal_closest_trifacet
+  CGAL
+  ${ITK_LIBRARIES})
+
+################################################################
 ## installation of targets
 ################################################################
 
 IF(WIN32)
   INSTALL(TARGETS
     cgal_insurftri
+    cgal_closest_trifacet
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ELSE(WIN32)
   INSTALL(TARGETS
     cgal_insurftri
+    cgal_closest_trifacet
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ENDIF(WIN32)

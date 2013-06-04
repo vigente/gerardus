@@ -1,8 +1,8 @@
-% test__closest_trifacet.m
+% test_cgal_closest_trifacet.m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.2.1
+% Version: 0.1.0
 % $Rev$
 % $Date$
 %
@@ -62,23 +62,6 @@ xi = [
 hold on
 plot3(xi(:, 1), xi(:, 2), xi(:, 3), 'r*')
 
+
 % find closest facet and distance to a point
-[f, d] = closest_trifacet(as.bnd, x, xi);
-
-% plot results
-for I = 1:size(xi, 1)
-
-    % plot tetrahedron
-    hold off
-    trisurf(as.bnd, x(:, 1), x(:, 2), x(:, 3), 'FaceColor', 'blue', 'FaceAlpha', .5)
-
-    % plot point
-    hold on
-    plot3(xi(I, 1), xi(I, 2), xi(I, 3), 'r*')
-    
-    % plot closest facet
-    trisurf(as.bnd(f(I), :), x(:, 1), x(:, 2), x(:, 3), 'FaceColor', 'red', 'FaceAlpha', .5)
-    
-    pause
-    
-end
+[f, d, p] = cgal_closest_trifacet(as.bnd, x, xi);
