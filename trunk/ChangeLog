@@ -1,5 +1,10 @@
 2013-06-05  Ramon Casero  <rcasero@gmail.com>
 
+	* Add cpp/src/third-party/CGAL-4.2:
+
+	- Code downloaded from
+	https://gforge.inria.fr/frs/?group_id=52&release_id=8001#cgal-_4.2-title-content.
+
 	* release-0.8.2
 
 	- Tag a version of the current project before making
