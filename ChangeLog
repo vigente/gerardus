@@ -1,5 +1,10 @@
 2013-06-05  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/test/test_cgal_closest_trifacet.m: (0.2.1)
+
+	- Fix bug. We were calling the Matlab implementation in the Right
+	Ventricle test, instead of the MEX implementation.
+
 	* cpp/src/third-party/boost-1.50.0/CMakeLists.txt:
 
 	- Fix bug. The variable saying this is the first or second pass
