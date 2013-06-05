@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2010-2011 University of Oxford
-# Version: 0.2.3
+# Version: 0.2.4
 # $Rev$
 # $Date$
 #
@@ -50,6 +50,7 @@ INCLUDE_DIRECTORIES("${GERARDUS_SOURCE_DIR}/cpp/src/third-party/tclap-1.2.1/incl
 # add Boost libraries to the include and linking paths
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+
 
 # extractVoxelCoordinatesFromSegmentationMask
 ADD_EXECUTABLE(extractVoxelCoordinatesFromSegmentationMask
@@ -101,15 +102,21 @@ TARGET_LINK_LIBRARIES(rigidRegistration2D
   boost_system boost_filesystem
   ${ITK_LIBRARIES})
 
-# subprojects that are not built using CMake
-set(GMP_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/gmp-5.0.5)
-set(MPFR_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/mpfr-3.1.1)
-
 if(WIN32 AND NOT CYGWIN)
 
-  message(FATAL_ERROR "GMP and MPFR build not implemented for Windows")
+  # for Windows builds, we use the pre-compiled 64-bit libraries
+  # provided by the CGAL Windows installer, that we distribute with
+  # Gerardus
+  set(GMP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/CGAL-4.2/auxiliary/gmp/include)
+  set(MPFR_INCLUDE_DIR ${GMP_INCLUDE_DIR})
+  set(GMP_LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/CGAL-4.2/auxiliary/gmp/lib)
+  set(MPFR_LIBRARY_DIR ${GMP_LIBRARY_DIR})
 
 else(WIN32 AND NOT CYGWIN)
+
+  # for Unix-like builds, we have to build the GMP and MPFR libraries from the source code
+  set(GMP_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/gmp-5.1.2)
+  set(MPFR_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/mpfr-3.1.2)
 
   include(ExternalProject)
 
@@ -159,6 +166,8 @@ else(WIN32 AND NOT CYGWIN)
     LOG_TEST 1
     LOG_INSTALL 1
     )
+  add_library(mpfr STATIC IMPORTED GLOBAL)
+  set_property(TARGET mpfr PROPERTY IMPORTED_LOCATION ${MPFR_SOURCE_DIR}/output/lib)
   set(MPFR_FOUND TRUE 
     CACHE BOOL "MPFR library is part of Gerardus, so this is always true")
   set(MPFR_INCLUDE_DIR ${MPFR_SOURCE_DIR}/src
@@ -172,12 +181,18 @@ else(WIN32 AND NOT CYGWIN)
 
 endif(WIN32 AND NOT CYGWIN)
 
+# we need to make sure that the boost libraries are going to be built
+# as dynamic libraries. Without the following directive, they get
+# built as static, and then CGAL gives an error when it tries to build
+# a dynamic library with them
+set(BUILD_SHARED_LIBS ON)
+
 # call the subprojects
-ADD_SUBDIRECTORY(third-party/boost)
+ADD_SUBDIRECTORY(third-party/boost-1.50.0)
 
 ADD_SUBDIRECTORY(third-party/mba)
 
-ADD_SUBDIRECTORY(third-party/CGAL-4.0.2)
+ADD_SUBDIRECTORY(third-party/CGAL-4.2)
 
 ################################################################
 ## installation of targets
