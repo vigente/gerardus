@@ -1,5 +1,10 @@
 2013-06-05  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/proj_on_sphere.m: (0.1.1)
+
+	- Replace the mean of the spherical radii by the median, that is
+	more robust.
+
 	* matlab/test/test_closest_trifacet.m: (0.3.0)
 	* matlab/test/test_cgal_closest_trifacet.m: (0.2.0)
 
