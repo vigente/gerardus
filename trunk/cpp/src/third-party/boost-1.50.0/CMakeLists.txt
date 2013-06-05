@@ -122,9 +122,9 @@ add_subdirectory(boost/thread)
 #add_subdirectory(boost/xpressive)
 
 if(RYPPL_INITIAL_PASS)
+  set(RYPPL_INITIAL_PASS FALSE CACHE BOOL "" FORCE)
   # report an error in order to inhibit the generation step (save time).
-  message(SEND_ERROR
+  message(FATAL_ERROR
     "Initial pass successfully completed, now run again!"
     )
-  set(RYPPL_INITIAL_PASS FALSE CACHE BOOL "" FORCE)
 endif(RYPPL_INITIAL_PASS)
