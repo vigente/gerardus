@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.2.0
+# Version: 0.2.1
 # $Rev$
 # $Date$
 #
@@ -45,7 +45,7 @@ ADD_MEX_FILE(cgal_insurftri
 
 INCLUDE_DIRECTORIES(
   ${GERARDUS_SOURCE_DIR}/include
-  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.0.2/include
+  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/include
   ..
   )
 TARGET_LINK_LIBRARIES(cgal_insurftri
@@ -62,7 +62,7 @@ ADD_MEX_FILE(cgal_closest_trifacet
 
 INCLUDE_DIRECTORIES(
   ${GERARDUS_SOURCE_DIR}/include
-  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.0.2/include
+  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/include
   ..
   )
 TARGET_LINK_LIBRARIES(cgal_closest_trifacet
