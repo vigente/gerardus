@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2010-2011 University of Oxford
-# Version: 0.2.4
+# Version: 0.2.5
 # $Rev$
 # $Date$
 #
@@ -193,6 +193,17 @@ ADD_SUBDIRECTORY(third-party/boost-1.50.0)
 ADD_SUBDIRECTORY(third-party/mba)
 
 ADD_SUBDIRECTORY(third-party/CGAL-4.2)
+
+# after CGAL builds, we need to copy the header file compiler_config.h
+# it generates to the CGAL include directory, so that it's available
+# for the other sub-projects that use CGAL (e.g. itk_imfilter)
+add_custom_command(
+  OUTPUT ${CGAL_SOURCE_DIR}/include/CGAL/compiler_config.h
+  COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/../../include/CGAL/compiler_config.h" "${CGAL_SOURCE_DIR}/include/CGAL/"
+  MAIN_DEPENDENCY ${CMAKE_CURRENT_BINARY_DIR/../../include/CGAL/compiler_config.h}
+  DEPENDS CGAL
+  )
+add_custom_target(copy_compiler_config.h DEPENDS "${CGAL_SOURCE_DIR}/include/CGAL/compiler_config.h")
 
 ################################################################
 ## installation of targets
