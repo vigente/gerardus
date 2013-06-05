@@ -1,5 +1,11 @@
 2013-06-05  Ramon Casero  <rcasero@gmail.com>
 
+	* Add cpp/src/third-party/CGAL-4.2/auxiliary/*:
+
+	- GMP and MPFR headers for Windows 64 bit. I got this by
+	installing CGAL 4.2 for Windows 64 bit, and then copying over the
+	auxiliary directory.
+
 	* Add cpp/src/third-party/CGAL-4.2:
 
 	- Code downloaded from
