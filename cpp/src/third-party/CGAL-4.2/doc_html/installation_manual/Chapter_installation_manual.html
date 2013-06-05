@@ -1,0 +1,2870 @@
+
+    <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en-US"> <head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="generator" content="CGAL latex_to_html converter">
+<!-- by cc_extract_html, $Id$ -->
+<!-- LaTeX source file: './installation_manual.tex' -->
+<link rel="canonical" href="http://www.cgal.org/Manual/latest/doc_html/cgal_manual/Chapter_installation_manual.html">
+<link href="latex_to_html.css" rel="STYLESHEET">
+<title>Installation Manual</title>
+</head>
+<body bgcolor="white">
+
+<div class="NavTop">
+  
+  <strong>Navigation:</strong>
+<a href="Chapter_installation_manual.html">Up</a>&nbsp;&nbsp;
+  <a href="contents.html">Table of Contents</A>&nbsp;&nbsp;
+  <a href="packages.html">Package Overview</a>&nbsp;&nbsp;
+  <a href="biblio.html">Bibliography</a>&nbsp;&nbsp;
+  <a href="manual_index.html">Index</a>&nbsp;&nbsp;
+  <a href="title.html">Title</a>
+  </div>
+<a name="Chapter_1"></a>
+  
+    
+
+  <h1>Chapter 1<BR>Installation Manual</h1>
+
+  
+
+  
+<h2>Authors</h2>
+<P>
+
+Eric Berberich<BR>
+
+Joachim Reichel<BR>
+
+Fernando Cacciola
+<P>
+
+<a name="Section_1"></a>
+        
+<h2>1&nbsp;&nbsp;&nbsp;Introduction</h2>
+<P>
+
+This document describes how to install <span class="textsc">Cgal</span> on Windows, Unix-like systems, and MacOS X.
+<P>
+
+Ideally, setting up <span class="textsc">Cgal</span> amounts to:
+<P>
+
+<PRE>
+  cd  <TT>CGAL-x.y</TT>                                # go to <span class="textsc">Cgal</span> directory
+  cmake .                                     # configure <span class="textsc">Cgal</span>
+  make                                        # build the <span class="textsc">Cgal</span> libraries
+</PRE>
+<P>
+
+Compiling an example shipped with <span class="textsc">Cgal</span> is similar simple:
+<P>
+
+<PRE>
+  cd examples/Straight_skeleton_2             # go to an example directory
+  cmake -DCGAL_DIR=$HOME/<TT>CGAL-x.y</TT> .           # configure the examples
+  make                                        # build the examples 
+</PRE>
+<P>
+
+Compiling an own non-shipped program is also close:
+<P>
+
+<PRE>
+cd /path/to/program 
+cgal_create_CMakeLists -s executable 
+cmake -DCGAL_DIR=$HOME/<TT>CGAL-x.y</TT> . 
+make
+</PRE>
+<P>
+
+where the second line creates a <TT>CMakeLists.txt</TT> file (check
+its options in Section&nbsp;<A HREF="Chapter_installation_manual.html#sec:create_cgal_CMakeLists">15.1.1</A> for various details).
+<P>
+
+In a less ideal world, you probably have to install CMake, a makefile
+generator, and third party libraries. That is what this manual is about.
+<P>
+
+<a name="Section_2"></a>
+        
+<A NAME="sec:prerequisites"></A><h2>2&nbsp;&nbsp;&nbsp;Prerequisites</h2>
+<P>
+
+Installing <span class="textsc">Cgal</span> requires a few components to be installed ahead: a
+supported compiler (see Section&nbsp;<A HREF="Chapter_installation_manual.html#sec:compilers">5</A>, CMake, <span class="textsc">Boost</span>, and at least <span class="textsc">Gmp</span>, and <span class="textsc">Mpfr</span>; see 
+Section&nbsp;<A HREF="Chapter_installation_manual.html#sec:essential3rdpartysoftware">8</A> for more details on
+essential third party software.
+<P>
+
+<a name="Section_3"></a>
+        
+<A NAME="sec:shippedcgal"></A><h2>3&nbsp;&nbsp;&nbsp;OS-shipped <span class="textsc">Cgal</span> </h2>
+<P>
+
+Some operating systems with package managers offer <span class="textsc">Cgal</span> and its
+essential third party software through the manager, 
+for instance, Mac OS X, or some Linux distribution (e.g.&nbsp;Debian).
+<P>
+
+<A NAME="ssec:cgalmacosx"></A><a name="Subsection_3.1"></a>
+<h3>3.1&nbsp;&nbsp;&nbsp;<span class="textsc">Cgal</span> on MAC OS X</h3>
+<P>
+
+For instance, use macports in the following way:
+<P>
+
+<PRE>
+ sudo port install cgal
+</PRE>
+<P>
+
+or if Qt4 demos are desired
+<P>
+
+<PRE>
+ sudo port install cgal +qt4 +universal +demos
+</PRE>
+<P>
+
+The setup is similar for <span class="textsc">homebrew</span> (<A HREF="http://mxcl.github.com/homebrew/"><TT>http://mxcl.github.com/homebrew/</TT></A>).
+<P>
+
+<A NAME="ssec:cgaldebian"></A><a name="Subsection_3.2"></a>
+<h3>3.2&nbsp;&nbsp;&nbsp;<span class="textsc">Cgal</span> on Linux</h3>
+<P>
+
+For instance in debian/Ubuntu, use apt-get in the following way:
+<P>
+
+<PRE>
+ sudo apt-get install libcgal-dev
+</PRE>
+<P>
+
+To get the demos use
+<P>
+
+<PRE>
+ sudo apt-get install libcgal-demo
+</PRE>
+<P>
+
+Check the <span class="textsc">Cgal</span>-FAQ for source repository of newest releases.
+<P>
+
+On other distributions, please consult your package manager documentation.
+<P>
+
+<a name="Section_4"></a>
+        
+<A NAME="sec:gettingcgal"></A><h2>4&nbsp;&nbsp;&nbsp;Downloading <span class="textsc">Cgal</span></h2>
+<P>
+
+You can obtain the <span class="textsc">Cgal</span> library from <A HREF="http://www.cgal.org/download.html"><TT>http://www.cgal.org/download.html</TT></A> and
+install it yourself.
+<P>
+
+After you have downloaded the file <TT>CGAL-x.y.tar.gz</TT> containing the
+<span class="textsc">Cgal</span> sources, you have to unpack it. Under a Unix-like shell, use the
+command:
+<P>
+
+<PRE>
+      tar xzf <TT>CGAL-x.y</TT>.tar.gz
+</PRE>
+<P>
+
+When you are on Windows you may download and run <TT>CGAL-x.y-Setup.exe</TT>. It
+is a self extracting executable that installs the <span class="textsc">Cgal</span> source, and that allows
+you to select and download some precompiled third party libraries.
+<P>
+
+In both cases the directory <TT>CGAL-x.y</TT> will be created. This directory
+contains the following subdirectories:
+<P>
+
+<CENTER>
+  
+  
+  
+  <TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>directory</B>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>contents</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>auxiliary</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+precompiled <span class="textsc">Gmp</span>and <span class="textsc">Mpfr</span> for Windows
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>cmake/modules</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+modules for finding and using libraries
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>config</TT>        
+    <TD class="math" ALIGN=LEFT NOWRAP>
+configuration files for install script
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>demo</TT>          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+demo programs (most of them need <span class="textsc">Qt</span>, geomview or other third-party products)
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>doc_html</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+documentation (HTML)
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>examples</TT>      
+    <TD class="math" ALIGN=LEFT NOWRAP>
+example programs
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>include</TT>       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+header files
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>scripts</TT>       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+some useful scripts (e.g.&nbsp;for creating CMakeLists.txt files)
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>src</TT>           
+    <TD class="math" ALIGN=LEFT NOWRAP>
+source files
+</TABLE>
+
+</CENTER>
+<P>
+
+The directories <TT>include/CGAL/CORE</TT> and <TT>src/CGAL_Core</TT> contain a
+distribution of the <span class="textsc">Core</span> library<A HREF="#Footnote_1"><SUP>1</SUP></A> version&nbsp;1.7 for
+dealing with algebraic numbers. <span class="textsc">Core</span> is not part of <span class="textsc">Cgal</span> and has its
+own license.
+<P>
+
+The directory <TT>include/CGAL/OpenNL</TT> contains a distribution of the 
+Open Numerical Library which provides solvers for sparse linear systems,
+especially designed for the Computer Graphics community. <span class="textsc">OpenNL</span> is not part
+of <span class="textsc">Cgal</span> and has its own license.
+<P>
+
+The only documentation shipped with <span class="textsc">Cgal</span> sources is the present
+installation manual. The <span class="textsc">Cgal</span> manual must be downloaded separately from
+<A HREF="http://www.cgal.org/download.html"><TT>http://www.cgal.org/download.html</TT></A>.
+<P>
+
+<a name="Section_5"></a>
+        
+<A NAME="sec:compilers"></A><h2>5&nbsp;&nbsp;&nbsp;Supported Compilers</h2>
+<P>
+
+In order to build the <span class="textsc">Cgal</span> libraries, you need a C<TT>++</TT> compiler.  
+<span class="textsc">Cgal</span>&nbsp;x.y is supported for the following compilers/operating systems:
+<P>
+
+<CENTER>
+  
+  
+  
+  <TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>compiler</B>        
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>operating system</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<span class="textsc">Gnu</span>&nbsp;<TT>g++</TT>&nbsp;3.4 or later<A HREF="#Footnote_1"><SUP>1</SUP></A>
+    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Linux / MacOS X
+      
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<span class="textsc">MS</span>&nbsp;Windows 95/98/2000/XP/NT4
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<span class="textsc">Intel</span>&nbsp;<TT>C++</TT>&nbsp;11.0 or later<A HREF="#Footnote_2"><SUP>2</SUP></A> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Linux 
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<span class="textsc">MS</span>&nbsp;Visual&nbsp;<TT>C++</TT>&nbsp;9.0, 10.0 (<span class="textsc">Visual Studio 2008 and 2010</span>)<A HREF="#Footnote_3"><SUP>3</SUP></A>
+    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<span class="textsc">MS</span>&nbsp;Windows 95/98/2000/XP/NT4/Vista/7
+</TABLE>
+
+</CENTER>
+<P>
+
+<a name="Section_6"></a>
+        
+<A NAME="sec:configwithcmake"></A><h2>6&nbsp;&nbsp;&nbsp;Configuring <span class="textsc">Cgal</span> with CMake</h2>
+<P>
+
+In order to configure, build, and install the <span class="textsc">Cgal</span> libraries, examples and
+demos, you need CMake, a cross-platform ``makefile generator''.
+If CMake is not installed already you can obtain it from <A HREF="http://www.cmake.org/"><TT>http://www.cmake.org/</TT></A>.
+CMake version&nbsp;2.6.2 or higher is required. On Windows, CMake 
+version&nbsp;2.8.6 or higher is required, for a proper support of DLL's
+generation.
+This manual explains only those features of
+CMake which are needed in order to build <span class="textsc">Cgal</span>. Please refer to the 
+CMake documentation at <A HREF="http://www.cmake.org/"><TT>http://www.cmake.org/</TT></A> for further details.
+<P>
+
+Before building <span class="textsc">Cgal</span> you have to choose the compiler/linker, 
+set compiler and linker flags, specify which
+third-party libraries you want to use and where they can be found, and 
+which <span class="textsc">Cgal</span> libraries you want to build. Gathering
+all this information is called <I>configuration</I>. 
+The end of the process is marked by the generation of a makefile or a
+Visual C<TT>++</TT> solution and project file that you can use to build <span class="textsc">Cgal</span>.
+<P>
+
+<a name="Subsection_6.1"></a>
+<h3>6.1&nbsp;&nbsp;&nbsp;Configuring <span class="textsc">Cgal</span> with the CMake <span class="textsc">Gui</span></h3>
+<P>
+
+The simplest way to start the configuration is to run the graphical
+user interface of CMake. We recommend to use <TT>cmake-gui</TT>. It
+is available on many platforms as of CMake version&nbsp;2.6. You must pass as 
+argument the root directory of <span class="textsc">Cgal</span>. For example:
+<P>
+
+<PRE>
+  cd  <TT>CGAL-x.y</TT>
+  cmake-gui . # Notice the dot to indicate the current directory.
+</PRE>
+<P>
+
+After <TT>cmake-gui</TT> opens, press 'Configure'. 
+A dialog will pop up and you will have to choose what shall gets generated.
+After you have made your choice and pressed 'Finish', you will see
+the output of configuration tests in the lower portion of the application. 
+When these tests are done, you will see many
+red entries in the upper portion of the application. Just ignore them and press 'Configure'. 
+By now CMake should have found many libraries and have initialized variables. 
+If you still find red entries, you have to provide the necessary information. 
+This typically happens if you have installed software at non-standard locations.
+Providing information and pressing 'Configure' goes on until 
+all entries are grayed. You are now ready to press 'Generate'. Once this is
+done, you can quit <TT>cmake-gui</TT>.
+<P>
+
+<a name="Subsection_6.2"></a>
+<h3>6.2&nbsp;&nbsp;&nbsp;Configuring <span class="textsc">Cgal</span> with the cmake command-line tool</h3>
+<P>
+
+Alternatively, you can run the command-line tool called
+<TT>cmake</TT>. You pass as argument the root directory of
+<span class="textsc">Cgal</span>. For example:
+<P>
+
+<PRE>
+  cd  <TT>CGAL-x.y</TT>
+  cmake . # Notice the dot to indicate the current directory.
+</PRE>
+<P>
+
+The very first thing CMake does is to detect the compiler to use.  This
+detection is performed by a special CMake module called a
+<I>generator</I>. 
+A CMake generator understands the build requirements for a
+particular compiler/linker and generates the necessary files for that. For
+example, the <I>UNIX Makefiles</I> generator understands the GNU chain
+of tools (g<TT>++</TT>, ld etc.) and produces makefiles, which can be used to build a
+target by a simple call to <TT>make</TT>.  Likewise, the <I>Visual Studio
+  2010</I> generator produces solution and project files and can be manually
+launched in the VS IDE to build the target.
+<P>
+
+Each platform has a default generator, so you only need to select one when
+the default is not what you want.  For example, under Windows, it is
+possible to generate <I>NMakefiles</I> instead of Visual Studio project
+files in order to build the library with <TT>nmake</TT>.  Running
+<TT>cmake</TT> with no parameters in a command-line prints the list of
+available generators supported by your platform and CMake version. If the
+generator you need is not listed there, you can try a newer 
+CMake version, as generators are hardcoded into CMake, and additional
+generators are added with each release.
+<P>
+
+Since the choice of the generator determines the type of build files to generate, in some cases
+you choose a particular generator as a mean to choose a specific compiler (because they use different 
+build files). For example, the following generates solution files for
+use in Visual C<TT>++</TT> 11.0 on a 64bit machine:
+<P>
+
+<PRE>
+  cd <TT>CGAL-x.y</TT>
+  cmake -G&quot;Visual Studio 11 Win64&quot; . 
+</PRE>
+<P>
+
+In other cases, however, the generator doesn't directly identify a
+specific compiler but a chain of tools.
+For example, the <TT>UNIX Makefiles</TT> generator produces <TT>makefiles</TT> that call some auto-detected
+command-line compiler, like g<TT>++</TT>. If you need the makefiles to use a different compiler, you need to
+specify the desired compiler in the call to CMake, as in this example:
+<P>
+
+<PRE>
+  cd <TT>CGAL-x.y</TT>
+  cmake -DCMAKE_CXX_COMPILER:FILEPATH=g++-4.7 . 
+</PRE>
+<P>
+
+CMake maintains configuration parameters in so-called <I>cmake variables</I>, like the <TT>CMAKE_CXX_COMPILER</TT>
+in the example above. These variables <I>are not environment variables</I> but <I>CMake variables</I>. Some of the CMake 
+variables represent user choices, such as <TT>WITH_examples</TT> or <TT>CMAKE_BUILD_TYPE=Release</TT>, while others
+indicate the details of a third-party library, such as <TT>Boost_INCLUDE_DIR</TT> or the compiler flags to use,
+such as <TT>CMAKE_CXX_FLAGS</TT>.
+<P>
+
+The command line tool <TT>cmake</TT> accepts CMake variables as arguments of the form <TT>-D&lt;VAR&gt;:&lt;TYPE&gt;=&lt;VALUE&gt;</TT>, as
+in the example above, but this is only useful if you already know which variables need to be explicitly defined.
+<P>
+
+<div class="AdvancedBlock">
+
+CMake keeps the variables that a user can manipulate in a so-called <I>CMake cache</I>, a simple text file 
+named <TT>CMakeCache.txt</TT>, whose entries are of the form VARIABLE:TYPE=VALUE. Advanced users can manually edit this 
+file, instead of going through the interactive configuration session.
+
+    </div>
+<P>
+
+The configuration process not only determines the location of the required dependencies, it also dynamically generates a
+<TT>compiler_config.h</TT> file, which encodes the properties of your system and a special file named 
+<TT>CGALConfig.cmake</TT>, which is used to build programs using <span class="textsc">Cgal</span>. The
+purpose of this file is explained below.
+<P>
+
+<a name="Section_7"></a>
+        
+<A NAME="sec:libraries"></A><h2>7&nbsp;&nbsp;&nbsp;<span class="textsc">Cgal</span> Libraries</h2>
+<P>
+
+<span class="textsc">Cgal</span> is split into five libraries. During configuration, you can select the libraries that 
+you would like to build by setting a CMake variable of the form <TT>WITH_&lt;library&gt;</TT>. By default all 
+are switched <TT>ON</TT>. All activated libraries are build after
+configuration; see&nbsp;<A HREF="Chapter_installation_manual.html#sec:building">11</A>
+<P>
+
+We next list the libraries and essential 3rd party software
+(see&nbsp;<A HREF="Chapter_installation_manual.html#sec:essential3rdpartysoftware">8</A>) for each library:
+<P>
+
+<CENTER>
+  
+  
+  
+  <TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>library</B>       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>CMake variable</B>    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>functionality</B>                                     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>dependencies</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL</TT>          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<I>none</I>                   
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Main library                                               
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<span class="textsc">Gmp</span>, <span class="textsc">Mpfr</span>, <span class="textsc">Boost</span> (headers)
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+
+    <TD class="math" ALIGN=LEFT NOWRAP>
+
+    <TD class="math" ALIGN=LEFT NOWRAP>
+
+    <TD class="math" ALIGN=LEFT NOWRAP>
+and Boost.Thread (library)
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_Core</TT>    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>WITH_CGAL_Core</TT>    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+The CORE library for algebraic numbers.<A HREF="#Footnote_15"><SUP>15</SUP></A>   
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<span class="textsc">Gmp</span> and <span class="textsc">Mpfr</span>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_ImageIO</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>WITH_CGAL_ImageIO</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Utilities to read and write image files                    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<span class="textsc">OpenGL</span>, <span class="textsc">zlib</span>, <span class="textsc">Vtk</span>(optional)
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_Qt3</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>WITH_CGAL_Qt3</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<I>CGAL::Qt_widget</I> used by <span class="textsc">Qt</span>3-based demos              
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<span class="textsc">Qt</span>3 and <span class="textsc">OpenGL</span>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_Qt4</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>WITH_CGAL_Qt4</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<I>QGraphicsView</I> support for <span class="textsc">Qt</span>4-based demos            
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<span class="textsc">Qt</span>4 and <span class="textsc">OpenGL</span>
+</TABLE>
+
+</CENTER>
+<P>
+
+<a name="Subsection_7.1"></a>
+<h3>7.1&nbsp;&nbsp;&nbsp;Debug vs. Release</h3>
+<P>
+
+The CMake variable <TT>CMAKE_BUILD_TYPE</TT> indicates how to build
+the libraries. It accepts the values <TT>Release</TT> or
+<TT>Debug</TT>. The default is <TT>Release</TT> and should be kept, unless you want to debug
+your program.
+<P>
+
+This is not an issue for solution/project files, as there the user selects the build type from within the IDE.
+<P>
+
+<a name="Subsection_7.2"></a>
+<h3>7.2&nbsp;&nbsp;&nbsp;Static vs. Shared Libraries</h3>
+<P>
+
+Shared libraries, also called <I>dynamic-link libraries</I>, are built by default
+(<TT>.dll</TT> on Windows, <TT>.so</TT> on Linux, <TT>.dylib</TT> on MacOS).  You
+can choose to produce static libraries instead by setting the CMake
+variable <TT>BUILD_SHARED_LIBS</TT> to <TT>FALSE</TT>.  If you use
+<TT>cmake-gui</TT>, a tick box for that variable is available to set it.
+<P>
+
+These setting affect the variants of third-party libraries (see next
+section) selected whenever the choice is available.
+<P>
+
+<a name="Section_8"></a>
+        
+<A NAME="sec:essential3rdpartysoftware"></A><h2>8&nbsp;&nbsp;&nbsp;Essential Third Party Libraries</h2>
+<P>
+
+The focus of <span class="textsc">Cgal</span> is on geometry, and we rely on other
+highly specialized libraries and software for non-geometric issues,
+for instance, for numeric solvers, or visualization. We first list software
+that is essential to build (all) libraries of <span class="textsc">Cgal</span>, that is, 
+this software must be found during the configuration of <span class="textsc">Cgal</span> for an
+actived library of <span class="textsc">Cgal</span> (i.e.&nbsp;<TT>WITH_&lt;library&gt;=ON</TT>);
+see <A HREF="Chapter_installation_manual.html#sec:3partysoftwareconfig">16.4</A> to specify the location of 3rd
+party software.
+<P>
+
+The libraries <span class="textsc">STL</span> (shipped with any compiler) and <span class="textsc">Boost</span> are essential to all components (i.e.&nbsp;libCGAL,
+libCGAL_Core,  libCGAL_ImageIO, libCGAL_Qt3 and libCGAL_Qt4).
+<P>
+
+<A NAME="thirdparty:stl"></A><a name="Subsection_8.1"></a>
+<h3>8.1&nbsp;&nbsp;&nbsp;Standard Template Library (<span class="textsc">STL</span>) </h3>
+<P>
+
+<span class="textsc">Cgal</span> heavily uses the <span class="textsc">STL</span>, and in particular adopted
+many of its design ideas.  You can find online
+documentation for the <span class="textsc">STL</span> at various web sites, for instance, 
+<A HREF="http://www.sgi.com/tech/stl/"><TT>http://www.sgi.com/tech/stl/</TT></A>, <A HREF="http://www.cplusplus.com/reference/"><TT>http://www.cplusplus.com/reference/</TT></A>,
+or <A HREF="http://msdn.microsoft.com/en-us/library/1fe2x6kt(VS.100).aspx"><TT>http://msdn.microsoft.com/en-us/library/1fe2x6kt(VS.100).aspx</TT></A>.
+<P>
+
+The <span class="textsc">STL</span> comes with the compiler, so there is nothing to install.
+<P>
+
+<A NAME="thirdparty:Boost"></A><a name="Subsection_8.2"></a>
+<h3>8.2&nbsp;&nbsp;&nbsp;<span class="textsc">Boost</span></h3>
+<P>
+
+The <span class="textsc">Boost</span> libraries are a set of portable C++ source libraries. Most of
+<span class="textsc">Boost</span> libraries are header-only, but a few of them need to be compiled or
+installed as binaries.
+<P>
+
+<span class="textsc">Cgal</span> requires the <span class="textsc">Boost</span> libraries. In particular the header files
+and the threading library (<TT>Boost.Thread</TT> and
+<TT>Boost.System</TT> binaries). Version 1.39 (or higher) are needed.
+<P>
+
+On Windows, as auto-linking is used, you also need the binaries of
+<TT>Boost.Serialization</TT> and <TT>Boost.DateTime</TT>, but the
+dependency is artificial and used only at link-time: the CGAL libraries do
+not depend on the DLL's of those two libraries.
+<P>
+
+In <span class="textsc">Cgal</span> some demos and examples depend on <TT>Boost.Program_options</TT>.
+<P>
+
+In case the <span class="textsc">Boost</span> libraries are not installed on your system already, you
+can obtain them from <A HREF="http://www.boost.org/"><TT>http://www.boost.org/</TT></A>. For Windows you can download an
+installer from <A HREF="http://www.boostpro.com/download/"><TT>http://www.boostpro.com/download/</TT></A>.
+Since <TT>Boost.Thread</TT> is required, make sure to either install the precompiled 
+libraries for your compiler or build <TT>libboost-thread</TT> and <TT>libboost-system</TT>.
+<P>
+
+As on Windows there is no canonical directory for where to find <span class="textsc">Boost</span>, we recommend that you define the environment variable <I>BOOST_ROOT</I> and set it 
+to where you have installed <span class="textsc">Boost</span>, e.g., <A HREF="C:\boost\boost_1_41_0"><TT>C:\boost\boost_1_41_0</TT></A>.
+<P>
+
+<A NAME="thirdparty:MPFR"></A><a name="Subsection_8.3"></a>
+<h3>8.3&nbsp;&nbsp;&nbsp;<span class="textsc">Gmp</span> and <span class="textsc">Mpfr</span> <A NAME="thirdparty:GMP"></A> </h3>
+<P>
+
+The components libCGAL, libCGAL_Core, libCGAL_Qt3 and libCGAL_Qt4 require 
+<span class="textsc">Gmp</span> and <span class="textsc">Mpfr</span> which are libraries for multi precision integers and rational numbers,
+and for multi precision floating point numbers.
+<P>
+
+<span class="textsc">Cgal</span> combines floating point arithmetic with exact arithmetic,
+in order to be efficient and reliable. <span class="textsc">Cgal</span> has a built-in 
+number type for that, but <span class="textsc">Gmp</span> and <span class="textsc">Mpfr</span> provide a faster
+solution, and we recommend to use them.
+<P>
+
+Having <span class="textsc">Gmp</span> version 4.2 or higher and <span class="textsc">Mpfr</span> version 2.2.1 or higher
+installed is recommended. These libraries can be obtained from
+<A HREF="http://gmplib.org/"><TT>http://gmplib.org/</TT></A> and <A HREF="http://www.mpfr.org/"><TT>http://www.mpfr.org/</TT></A>, respectively.
+<P>
+
+As Visual C<TT>++</TT> is not properly
+supported by the <span class="textsc">Gmp</span> and <span class="textsc">Mpfr</span> projects, we provide precompiled versions
+of <span class="textsc">Gmp</span> and <span class="textsc">Mpfr</span>, which can be downloaded with the installer
+<TT>CGAL-x.y-Setup.exe</TT>.
+<P>
+
+<A NAME="thirdparty:zlib"></A><a name="Subsection_8.4"></a>
+<h3>8.4&nbsp;&nbsp;&nbsp;<span class="textsc">zlib</span></h3>
+<P>
+
+<span class="textsc">zlib</span> is a data compression library, and is essential for the component libCGAL_ImageIO.
+<P>
+
+In <span class="textsc">Cgal</span> this library is used in the examples of the Surface Mesh Generation package.
+<P>
+
+If it is not already on your system,
+for instance, on Windows, you can download it from  <A HREF="http://www.zlib.net/"><TT>http://www.zlib.net/</TT></A>.
+<P>
+
+<A NAME="thirdparty:OpenGL"></A><a name="Subsection_8.5"></a>
+<h3>8.5&nbsp;&nbsp;&nbsp;<span class="textsc">OpenGL</span></h3>
+<P>
+
+<span class="textsc">OpenGL</span> (Open Graphics Library) provides an API for applications that
+produce 2D and 3D computer graphics.
+<P>
+
+In <span class="textsc">Cgal</span> the library is essential for the components libCGAL_Qt3 and
+libCGAL_Qt4, as well as libCGAL_ImageIO and for various demos.
+<P>
+
+Typically, <span class="textsc">OpenGL</span> is preinstalled on systems; if not, it can be
+downloaded from <A HREF="http://www.opengl.org/"><TT>http://www.opengl.org/</TT></A>.
+<P>
+
+<A NAME="thirdparty:Qt"></A><a name="Subsection_8.6"></a>
+<h3>8.6&nbsp;&nbsp;&nbsp;<span class="textsc">Qt</span>3 and <span class="textsc">Qt</span>4<A NAME="thirdparty:Qt3"></A><A NAME="thirdparty:Qt4"></A></h3>
+<P>
+
+Qt is a cross-platform application and UI framework.
+<P>
+
+The component libCGAL_Qt3 requires <span class="textsc">Qt</span>3 installed on your system, while
+the component libCGAL_Qt4 requires <span class="textsc">Qt</span>4 installed on your system. 
+In case <span class="textsc">Qt</span> is not yet installed on your system, you can download 
+it from <A HREF="http://qt-project.org/"><TT>http://qt-project.org/</TT></A>.
+<P>
+
+Older demos of <span class="textsc">Cgal</span>use libCGAL_Qt3 and <span class="textsc">Qt</span>3, while newer and newly
+developed demos require libCGAL_Qt4 and <span class="textsc">Qt</span>4.
+<P>
+
+Having <span class="textsc">Qt</span>4 version 4.3.0 or higher is recommended.
+<P>
+
+<a name="Section_9"></a>
+        
+<h2>9&nbsp;&nbsp;&nbsp;<span class="textsc">Cgal</span> Examples and Demos</h2>
+<P>
+
+<span class="textsc">Cgal</span> is distributed with a large collection of examples and demos. By default, these are <B>not</B> configured along with
+the <span class="textsc">Cgal</span> libraries, unless you set the variables <TT>WITH_examples=ON</TT> and/or <TT>WITH_demos=ON</TT>.
+<P>
+
+Nevertheless, even when configured with <span class="textsc">Cgal</span>, they are not automatically built along with the libraries.
+You must build the <TT>examples</TT> or <TT>demos</TT> targets (or IDE projects) explicitly.
+<P>
+
+If you do not plan to compile any demos, you might skip some of the essential libraries (as <span class="textsc">Qt</span> or
+<span class="textsc">OpenGL</span>), as the corresponding <span class="textsc">Cgal</span>-libraries are not linked. But for
+your own demos you might need these <span class="textsc">Cgal</span>-libraries.
+<P>
+
+<a name="Section_10"></a>
+        
+<A NAME="sec:optional3rdpartysoftware"></A><h2>10&nbsp;&nbsp;&nbsp;Optional Third Party Libraries</h2>
+<P>
+
+Optional 3rd party software can be used by <span class="textsc">Cgal</span> for various reasons:
+Usually certain optional libraries are required to build examples and
+demos shipped with <span class="textsc">Cgal</span> or to build your own project using <span class="textsc">Cgal</span>. 
+Another reason is to speed up basic tasks. 
+In order to support these goals, all optional libraries can be <I>prepared to be
+used with </I><span class="textsc">Cgal</span><I></I> while configuring <span class="textsc">Cgal</span>, just in the same way as
+essential libraries are configured. Whenever building an example or a
+demo (or your own executable), these <I>preconfigured</I> libraries
+are available when using <span class="textsc">Cgal</span>.
+<P>
+
+<A NAME="thirdparty:Leda"></A><a name="Subsection_10.1"></a>
+<h3>10.1&nbsp;&nbsp;&nbsp;<span class="textsc">Leda</span> </h3>
+<P>
+
+<span class="textsc">Leda</span> is a library of efficient data structures and
+algorithms. Like <span class="textsc">Core</span>, <span class="textsc">Leda</span> offers a real number data type.
+<P>
+
+In <span class="textsc">Cgal</span> this library is optional, and its number types can 
+be used as an alternative to <span class="textsc">Gmp</span>, <span class="textsc">Mpfr</span>, and <span class="textsc">Core</span>.
+<P>
+
+Free and commercial editions of <span class="textsc">Leda</span> are available from <A HREF="http://www.algorithmic-solutions.com/leda/index.html"><TT>http://www.algorithmic-solutions.com/leda/index.html</TT></A>.
+<P>
+
+<A NAME="thirdparty:MPFI"></A><a name="Subsection_10.2"></a>
+<h3>10.2&nbsp;&nbsp;&nbsp;<span class="textsc">Mpfi</span> </h3>
+<P>
+
+<span class="textsc">Mpfi</span> provides arbitrary precision interval arithmetic with intervals
+represented using <span class="textsc">Mpfr</span> reliable floating-point numbers. It is based on
+the libraries <span class="textsc">Gmp</span> and <span class="textsc">Mpfr</span>. In the setting of <span class="textsc">Cgal</span>, this library is
+optional: it is used by some models of the
+Algebraic Kernel.
+<P>
+
+<span class="textsc">Mpfi</span> can be downloaded from <A HREF="http://mpfi.gforge.inria.fr/"><TT>http://mpfi.gforge.inria.fr/</TT></A>. Version 1.4 or higher is
+recommended.
+<P>
+
+<A NAME="thirdparty:RS3"></A><a name="Subsection_10.3"></a>
+<h3>10.3&nbsp;&nbsp;&nbsp;Rs and Rs3<A NAME="thirdparty:RS"></A></h3>
+<P>
+
+Rs (Real Solutions) is devoted to the study of the real roots of
+polynomial systems with a finite number of complex roots (including
+univariate polynomials). In <span class="textsc">Cgal</span>, Rs is used by one model of the
+Algebraic Kernel.
+<P>
+
+Rs is freely distributable for non-commercial use. You can download it
+from <A HREF="http://vegas.loria.fr/rs/"><TT>http://vegas.loria.fr/rs/</TT></A>. Actually, the Rs package also includes Rs3, the
+successor of Rs, which is used in conjunction with it.
+<P>
+
+The libraries Rs and Rs3 need <span class="textsc">Mpfi</span>, which can be downloaded from
+<A HREF="http://mpfi.gforge.inria.fr/"><TT>http://mpfi.gforge.inria.fr/</TT></A>.
+<P>
+
+<A NAME="thirdparty:NTL"></A><a name="Subsection_10.4"></a>
+<h3>10.4&nbsp;&nbsp;&nbsp;<span class="textsc">Ntl</span></h3>
+<P>
+
+<span class="textsc">Ntl</span> provides data structures and algorithms for signed, arbitrary
+length integers, and for vectors, matrices, and polynomials over the 
+integers and over finite fields. The optional library <span class="textsc">Ntl</span> is used by
+<span class="textsc">Cgal</span> to speed up operations of the Polynomial package, such as GCDs.
+It is recommended to install <span class="textsc">Ntl</span> with support from <span class="textsc">Gmp</span>.
+<P>
+
+<span class="textsc">Ntl</span> can be downloaded from <A HREF="http://www.shoup.net/ntl/"><TT>http://www.shoup.net/ntl/</TT></A>. Version 5.1 or higher is recommended.
+<P>
+
+<A NAME="thirdparty:Eigen"></A><a name="Subsection_10.5"></a>
+<h3>10.5&nbsp;&nbsp;&nbsp;<span class="textsc">Eigen</span></h3>
+
+<span class="textsc">Eigen</span> is a <TT>C++</TT> template library for linear algebra. <span class="textsc">Eigen</span> supports all
+ matrix sizes, various matrix decomposition methods and sparse linear solvers.
+<P>
+
+In <span class="textsc">Cgal</span>, <span class="textsc">Eigen</span> provides sparse linear solvers in the Surface Reconstruction from Point Sets
+ and the Planar Parameterization of Triangulated Surface Meshes packages.
+<P>
+
+In addition, <span class="textsc">Eigen</span> also provides singular value decomposition for the Estimation of Local Differential Properties
+ and the Approximation of Ridges and Umbilics packages.
+<P>
+
+The <span class="textsc">Eigen</span> web site is <A HREF="http://eigen.tuxfamily.org"><TT>http://eigen.tuxfamily.org</TT></A>.
+<P>
+
+<A NAME="thirdparty:libQGLViewer"></A><a name="Subsection_10.6"></a>
+<h3>10.6&nbsp;&nbsp;&nbsp;libQGLViewer </h3>
+<P>
+
+libQGLViewer is a 3D widget based on <span class="textsc">Qt</span>&nbsp;4's <I>QGLWidget</I>.
+<P>
+
+In <span class="textsc">Cgal</span> some 3D demos are based on libQGLViewer.
+<P>
+
+It can be downloaded from <A HREF="http://www.libqglviewer.com/"><TT>http://www.libqglviewer.com/</TT></A>.
+<P>
+
+<A NAME="thirdparty:Coin3D"></A><a name="Subsection_10.7"></a>
+<h3>10.7&nbsp;&nbsp;&nbsp;<span class="textsc">Coin3D</span></h3>
+<P>
+
+<span class="textsc">Coin3D</span> is an implementation of Open Inventor.
+<P>
+
+In <span class="textsc">Cgal</span>, <span class="textsc">Coin3D</span> is used in the demo
+of the Kinetic Data Structures package.
+<P>
+
+You can download it from <A HREF="http://www.coin3d.org/"><TT>http://www.coin3d.org/</TT></A>.
+<P>
+
+<A NAME="thirdparty:ESBTL"></A><a name="Subsection_10.8"></a>
+<h3>10.8&nbsp;&nbsp;&nbsp;<span class="textsc">Estbl</span></h3>
+<P>
+
+The <span class="textsc">Estbl</span> (Easy Structural Biology Template Library) is a library that allows 
+the handling of <span class="textsc">Pdb</span> data.
+<P>
+
+In <span class="textsc">Cgal</span> the  <span class="textsc">Estbl</span> is used in an example of the 
+3D Skin Surface Meshing package.
+<P>
+
+It can be downloaded from <A HREF="http://esbtl.sourceforge.net/"><TT>http://esbtl.sourceforge.net/</TT></A>.
+<P>
+
+<a name="Section_11"></a>
+        
+<A NAME="sec:building"></A><h2>11&nbsp;&nbsp;&nbsp;Building <span class="textsc">Cgal</span></h2>
+<P>
+
+The results of a successful configuration are build files that control the build step.
+The nature of the build files depends on the generator used during configuration, but in all cases they 
+contain several <I>targets</I>, one per library, and a default global target corresponding 
+to all the libraries.
+<P>
+
+For example, in a <span class="textsc">Unix</span>-like environment the default generator produces
+makefiles. You can use the <TT>make</TT> command-line tool for the
+succeeding build step as follows:
+<P>
+
+<PRE>
+
+cd <TT>CGAL-x.y</TT>
+
+# build all the selected libraries at once
+
+make 
+
+</PRE>
+<P>
+
+The resulting libraries are placed in the subdirectory <TT>lib</TT> under <TT>&lt;CMAKE_BINARY_DIR&gt;</TT>
+(which is <TT>CGAL-x.y</TT> in case you run an in-source-configuration).
+<P>
+
+With generators other than <TT>UNIX Makefiles</TT> the resulting build files
+are solution and project files which
+should be launched in an <span class="textsc">Ide</span>, such as Visual Studio or KDevelop3. They will contain the targets described
+above, which you can manually build as with any other solution/project within your <span class="textsc">Ide</span>.
+<P>
+
+Alternatively, you can build it with the command line version of the
+<span class="textsc">Visual Studio Ide</span>:
+<P>
+
+<PRE>
+
+    devenv CGAL.sln /Build Debug
+
+</PRE>
+<P>
+
+The &quot;Debug&quot; argument is needed because CMake creates solution files for
+all four configurations, and you need to explicitly choose one when building
+(the other choices are Release, RelWithDebInfo and MinSizeRel).
+<P>
+
+<div class="AdvancedBlock">
+
+The build files produced by CMake are autoconfigured. That is, if you change any 
+of the dependencies, the build step automatically goes all the way back to
+the configuration step. This way, once the target has been configured the
+very first time by
+invoking cmake, you don't necessarily need to invoke <TT>cmake</TT> again. Rebuilding will call
+itself <TT>cmake</TT> and re-generate the build file whenever needed. Keep this in mind if you
+configure <span class="textsc">Cgal</span> for the Visual Studio IDE since a build could then change the solution/project 
+file in-place and VS will prompt you to reload it.
+
+    </div>
+<P>
+
+If you have turned on the configuration of examples
+(<TT>-DWITH_examples=ON</TT>) and/or demos (<TT>-DWITH_demos=ON</TT>), there will be additional
+targets named <TT>examples</TT> and <TT>demos</TT>, plus one target for
+each example and each demo in the build files.
+None of these targets are included by default, so you need to build them explicitly
+<I>after</I> the <span class="textsc">Cgal</span> libraries have been successfully built.
+The targets <TT>examples</TT> and <TT>demos</TT> include themselves all the targets
+for examples and demos respectively.
+<P>
+
+<PRE>
+
+# build all examples at once
+make examples 
+
+# build all demos at once
+make demos
+
+# build only the Straight Skeleton demo
+make Straight_skeleton_2_demo
+
+</PRE>
+<P>
+
+<div class="AdvancedBlock">
+
+When using <TT>UNIX Makefiles</TT> you can find out the exact name of the example or demo target
+of a particular package by typing <TT>make help | grep &lt;package&gt;</TT>.
+
+    </div>
+<P>
+
+<a name="Section_12"></a>
+        
+<A NAME="sec:installing"></A><h2>12&nbsp;&nbsp;&nbsp;Installing <span class="textsc">Cgal</span></h2>
+<P>
+
+
+On many platforms, library pieces such as headers, docs and binaries
+are expected to be placed in specific locations. A&nbsp;typical example
+being <TT>/usr/include</TT> and <TT>/usr/lib</TT> on <span class="textsc">Unix</span>-like
+operating systems or <TT>C:/Program Files/</TT> on Windows. The process
+of placing or copying the library elements into its standard location
+is sometimes referred to as <I>Installation</I> and it is a
+postprocessing step after the build step.
+
+
+<P>
+
+CMake carries out the installation by producing a build target named <I>install</I>. 
+The following example shows a typical session from configuration to
+installation in a <span class="textsc">Unix</span>-like environment:
+<P>
+
+<PRE>
+
+cd <TT>CGAL-x.y</TT>
+
+cmake .      # configure
+make         # compile
+make install # install
+
+</PRE>
+<P>
+
+If you use a generator that produces IDE files (for Visual Studio for instance) there will be an optional
+<TT>INSTALL</TT> project, which  you will be able to <I>``build''</I> to execute the installation step.
+<P>
+
+<div class="AdvancedBlock">
+<P>
+
+The files are copied into a directory tree relative to the <I>installation directory</I> determined by the 
+CMake variable <TT>CMAKE_INSTALL_PREFIX</TT>. This variable defaults to <TT>/usr/local</TT> under <span class="textsc">Unix</span>-like operating systems
+and <A HREF="C:\ProgramFiles"><TT>C:\Program Files</TT></A> under Windows. If you want to install to a different location, you must override that CMake
+variable explicitly <I>at the configuration time</I> and not when executing the install step.
+<P>
+
+</div>
+<P>
+
+The file <TT>CGALConfig.cmake</TT> is installed by default in
+<TT>$CMAKE_INSTALLED_PREFIX/lib/CGAL-x.y</TT>.
+<P>
+
+<a name="Section_13"></a>
+        
+<h2>13&nbsp;&nbsp;&nbsp;Example Configuration</h2>
+<P>
+
+Below is an example output on a linux machine with g++4.4 installed, using CMake 2.8.5,
+and the following command-line call to <TT>cmake</TT>:
+<P>
+
+<PRE>
+cmake -DWITH_examples=OFF -DWITH_demos=OFF -DCMAKE_BUILD_TYPE=Release 
+  /path/to/unpacked/CGAL-tarball/
+</PRE>
+<P>
+
+<PRE>
+-- The CXX compiler identification is GNU
+-- The C compiler identification is GNU
+-- Check for working CXX compiler: /usr/bin/g++-4.4
+-- Check for working CXX compiler: /usr/bin/g++-4.4 -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working C compiler: /usr/bin/gcc-4.4
+-- Check for working C compiler: /usr/bin/gcc-4.4 -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+== Setting paths ==
+== Build CGAL from release: CGAL-4.1 ==
+-- Packagenames: CGAL-4.1
+== Setting paths (DONE) ==
+
+== Generate version files ==
+-- CGAL_MAJOR_VERSION=4
+-- CGAL_MINOR_VERSION=1
+-- CGAL_BUGFIX_VERSION=0
+-- CGAL_SONAME_VERSION=10
+-- CGAL_SOVERSION     =10.0.0
+-- CGAL_REFERENCE_CACHE_DIR=
+-- Building shared libraries
+-- Targetting Unix Makefiles
+-- Using /usr/bin/g++-4.4 compiler.
+-- USING CMake version: 2.8.5
+-- System: Linux
+-- USING GCC_VERSION = '4.4.5'
+-- Using gcc version 4 or later. Adding -frounding-math
+== Generate version files (DONE) ==
+
+== Detect external libraries ==
+-- Build type: Release
+-- USING CXXFLAGS = ' -frounding-math -O3 -DNDEBUG'
+-- USING LDFLAGS = '  '
+-- External libraries supported: GMP;GMPXX;MPFR;zlib;OpenGL;LEDA;MPFI;RS;RS3;OpenNL;TAUCS;EIGEN3;BLAS;LAPACK;QGLViewer;ESBTL;NTL
+-- Preconfiguring library: GMP ...
+-- GMP has been preconfigured:
+--   CGAL_UseGMP-file: 
+--   GMP include:      /usr/include/
+--   GMP libraries:    /usr/lib/libgmp.so
+--   GMP definitions:  
+-- USING GMP_VERSION = '4.3.2'
+-- Preconfiguring library: GMPXX ...
+-- GMPXX has been preconfigured:
+--   CGAL_UseGMPXX-file: 
+--   GMPXX include:      /usr/include
+--   GMPXX libraries:    /usr/lib/libgmpxx.so
+--   GMPXX definitions:  
+-- Preconfiguring library: MPFR ...
+-- MPFR has been preconfigured:
+--   CGAL_UseMPFR-file: 
+--   MPFR include:      /usr/include/
+--   MPFR libraries:    /usr/lib/libmpfr.so
+--   MPFR definitions:  
+-- USING MPFR_VERSION = '3.0.0'
+-- Boost version: 1.39.0
+-- Found the following Boost libraries:
+--   thread
+-- Boost include:     /usr/include/boost_1_39_0/include/boost-1_39
+-- Boost libraries:   /usr/lib/libboost_thread-mt.so;pthread
+-- Boost definitions: 
+-- USING BOOST_VERSION = '1.39.0'
+== Detect external libraries (DONE) ==
+
+== Write compiler_config.h ==
+-- Performing Test CGAL_CFG_ARRAY_MEMBER_INITIALIZATION_BUG - Success
+-- Performing Test CGAL_CFG_DENORMALS_COMPILE_BUG - Success
+-- Performing Test CGAL_CFG_FPU_ROUNDING_MODE_UNWINDING_VC_BUG - Success
+-- Performing Test CGAL_CFG_IEEE_754_BUG - Success
+-- Performing Test CGAL_CFG_ISTREAM_INT_BUG - Success
+-- Performing Test CGAL_CFG_LONGNAME_BUG - Success
+-- Performing Test CGAL_CFG_MATCHING_BUG_5 - Success
+-- Performing Test CGAL_CFG_MATCHING_BUG_6 - Success
+-- Performing Test CGAL_CFG_NESTED_CLASS_FRIEND_DECLARATION_BUG - Success
+-- Performing Test CGAL_CFG_NO_CPP0X_ARRAY - Failed
+-- Performing Test CGAL_CFG_NO_CPP0X_AUTO - Failed
+-- Performing Test CGAL_CFG_NO_CPP0X_COPY_N - Failed
+-- Performing Test CGAL_CFG_NO_CPP0X_DECLTYPE - Failed
+-- Performing Test CGAL_CFG_NO_CPP0X_DEFAULT_TEMPLATE_ARGUMENTS_FOR_FUNCTION_TEMPLATES - Failed
+-- Performing Test CGAL_CFG_NO_CPP0X_DELEGATING_CONSTRUCTORS - Failed
+-- Performing Test CGAL_CFG_NO_CPP0X_DELETED_AND_DEFAULT_FUNCTIONS - Success
+-- Performing Test CGAL_CFG_NO_CPP0X_INITIALIZER_LISTS - Failed
+-- Performing Test CGAL_CFG_NO_CPP0X_ISFINITE - Success
+-- Performing Test CGAL_CFG_NO_CPP0X_LAMBDAS - Failed
+-- Performing Test CGAL_CFG_NO_CPP0X_LONG_LONG - Success
+-- Performing Test CGAL_CFG_NO_CPP0X_NEXT_PREV - Failed
+-- Performing Test CGAL_CFG_NO_CPP0X_RVALUE_REFERENCE - Failed
+-- Performing Test CGAL_CFG_NO_CPP0X_STATIC_ASSERT - Failed
+-- Performing Test CGAL_CFG_NO_CPP0X_TUPLE - Failed
+-- Performing Test CGAL_CFG_NO_CPP0X_VARIADIC_TEMPLATES - Failed
+-- Performing Test CGAL_CFG_NO_LIMITS - Success
+-- Performing Test CGAL_CFG_NO_LOGICAL_OPERATORS_ALTERNATIVES - Success
+-- Performing Test CGAL_CFG_NO_MESSAGE_PRAGMA_BUG - Success
+-- Performing Test CGAL_CFG_NO_NEXTAFTER - Success
+-- Performing Test CGAL_CFG_NO_STATEMENT_EXPRESSIONS - Success
+-- Performing Test CGAL_CFG_NO_STL - Success
+-- Performing Test CGAL_CFG_NO_TR1_ARRAY - Success
+-- Performing Test CGAL_CFG_NO_TR1_TUPLE - Success
+-- Performing Test CGAL_CFG_NO_WARNING_CPP_DIRECTIVE_BUG - Success
+-- Performing Test CGAL_CFG_NUMERIC_LIMITS_BUG - Success
+-- Performing Test CGAL_CFG_OUTOFLINE_MEMBER_DEFINITION_BUG - Success
+-- Performing Test CGAL_CFG_TEMPLATE_IN_DEFAULT_PARAMETER_BUG - Success
+-- Performing Test CGAL_CFG_TYPENAME_BEFORE_DEFAULT_ARGUMENT_BUG - Success
+-- Performing Test CGAL_CFG_USING_BASE_MEMBER_BUG_2 - Success
+== Write compiler_config.h (DONE) ==
+
+== Generating build files ==
+-- Configure libCGAL
+-- GMP include:     /usr/include/
+-- GMP definitions: 
+-- GMP libraries:   /usr/lib/libgmp.so
+-- Configured GMP in standard way
+-- MPFR include:     /usr/include/
+-- MPFR definitions: 
+-- MPFR libraries:   /usr/lib/libmpfr.so
+-- Configured MPFR in standard way
+-- libCGAL is configured
+-- Sources for CGAL component library 'Core' detected
+-- Configure libCGALCore
+-- GMP include:     /usr/include/
+-- GMP definitions: 
+-- GMP libraries:   /usr/lib/libgmp.so
+-- Configured GMP in standard way
+-- MPFR include:     /usr/include/
+-- MPFR definitions: 
+-- MPFR libraries:   /usr/lib/libmpfr.so
+-- Configured MPFR in standard way
+-- libCGALCore is configured
+-- Sources for CGAL component library 'Qt3' detected
+-- Sources for CGAL component library 'Qt4' detected
+-- Configure libCGALQt4
+-- Looking for Q_WS_X11
+-- Looking for Q_WS_X11 - found
+-- Looking for Q_WS_WIN
+-- Looking for Q_WS_WIN - not found.
+-- Looking for Q_WS_QWS
+-- Looking for Q_WS_QWS - not found.
+-- Looking for Q_WS_MAC
+-- Looking for Q_WS_MAC - not found.
+-- Looking for XOpenDisplay in /usr/lib/libX11.so;/usr/lib/libXext.so
+-- Looking for XOpenDisplay in /usr/lib/libX11.so;/usr/lib/libXext.so - found
+-- Looking for gethostbyname
+-- Looking for gethostbyname - found
+-- Looking for connect
+-- Looking for connect - found
+-- Looking for remove
+-- Looking for remove - found
+-- Looking for shmat
+-- Looking for shmat - found
+-- Looking for IceConnectionNumber in ICE
+-- Looking for IceConnectionNumber in ICE - found
+-- Found X11: /usr/lib/libX11.so
+-- USING QT4_VERSION = '4.6.3'
+-- OpenGL include:     /usr/include
+-- OpenGL libraries:   /usr/lib/libGLU.so;/usr/lib/libGL.so;/usr/lib/libSM.so;/usr/lib/libICE.so;/usr/lib/libX11.so;/usr/lib/libXext.so
+-- OpenGL definitions: 
+-- Qt4 include:        /usr/include/qt4
+-- Qt4 libraries:      /usr/lib/libQtOpenGL.so;/usr/lib/libQtGui.so;/usr/lib/libQtCore.so
+-- Qt4 definitions:    
+-- moc executable:     /usr/bin/moc-qt4
+-- uic executable:     /usr/bin/uic-qt4
+-- GMP include:     /usr/include/
+-- GMP definitions: 
+-- GMP libraries:   /usr/lib/libgmp.so
+-- Configured GMP in standard way
+-- MPFR include:     /usr/include/
+-- MPFR definitions: 
+-- MPFR libraries:   /usr/lib/libmpfr.so
+-- Configured MPFR in standard way
+-- libCGALQt4 is configured
+-- Sources for CGAL component library 'ImageIO' detected
+-- Configure libCGALImageIO
+-- Found OpenGL: /usr/lib/libGL.so 
+-- Found ZLIB: /usr/lib/libz.so (found version &quot;1.2.3.4&quot;)
+-- OpenGL include:     /usr/include
+-- OpenGL libraries:   /usr/lib/libGLU.so;/usr/lib/libGL.so;/usr/lib/libSM.so;/usr/lib/libICE.so;/usr/lib/libX11.so;/usr/lib/libXext.so
+-- USING ZLIB_VERSION = '1.2.3.4'
+-- libCGALImageIO is configured
+-- Sources for CGAL component libraries 'CGAL;Core;ImageIO;Qt3;Qt4' detected
+== Generating build files (DONE) ==
+
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/user/CGAL/4.1/
+
+</PRE>
+<P>
+
+<a name="Section_14"></a>
+        
+<h2>14&nbsp;&nbsp;&nbsp;Multiple Variants of makefiles (out-of-source build)</h2>
+
+<A NAME="sec:cmake-out-of-source"></A>
+<P>
+
+While you can choose between release or debug builds, and shared or static libraries,
+it is not possible to generate different variants during a single configuration. You need to run CMake in a 
+different directory for each variant you are interested in, each with its own selection of configuration parameters.
+<P>
+
+CMake stores the resulting makefiles and project files, along with several temporary and auxiliary files such
+as the variables cache, in the directory where it is executed, called <TT>CMAKE_BINARY_DIR</TT>, but it
+takes the source files and configuration scripts from
+<TT>CMAKE_SOURCE_DIR</TT>.
+<P>
+
+The binary and source directories do not need to be the same. Thus, you can configure multiple variants by creating a
+distinct directory for each configuration and by running CMake from there. This is known in CMake terminology
+as  <I>out-of-source configuration</I>, as opposite to an <I>in-source
+  configuration</I>, as showed in the previous sections.
+<P>
+
+You can, for example, generate subdirectories <TT>CGAL-x.y</TT><TT>/cmake/platforms/debug</TT> and 
+<TT>CGAL-x.y</TT><TT>/cmake/platforms/release</TT> for two configurations, respectively:
+<P>
+
+<PRE>
+mkdir <TT>CGAL-x.y</TT>/cmake/platforms/debug
+cd <TT>CGAL-x.y</TT>/cmake/platforms/debug
+cmake -DCMAKE_BUILD_TYPE=Debug ../../..
+
+mkdir <TT>CGAL-x.y</TT>/cmake/platforms/release
+cd <TT>CGAL-x.y</TT>/cmake/platforms/release
+cmake -DCMAKE_BUILD_TYPE=Release ../../..
+</PRE>
+<P>
+
+<a name="Section_15"></a>
+        
+<h2>15&nbsp;&nbsp;&nbsp;Configuring and Building Programs Using <span class="textsc">Cgal</span></h2>
+<P>
+
+Ideally, configuring and compiling a demo/example/program amounts to
+<P>
+
+<PRE>
+
+cd <TT>CGAL-x.y</TT>/examples/Straight_skeleton_2
+cmake -DCGAL_DIR=$HOME/<TT>CGAL-x.y</TT> . 
+make
+
+</PRE>
+<P>
+
+In this ideal world, as for all shipped examples and demos of <span class="textsc">Cgal</span>, the
+required <TT>CMakeLists.txt</TT> is already provided.
+<P>
+
+CMake can also be used to configure and build user programs via such
+CMake-scripts. In this less ideal world, one has to provide the
+<TT>CMakeLists.txt</TT> script either manually, or with the help of a
+shell-script that is introduced below.
+<P>
+
+For a user program <TT>executable.cpp</TT>, the ideal world looks like this:
+<P>
+
+<PRE>
+cd /path/to/program 
+cgal_create_CMakeLists -s executable
+cmake -DCGAL_DIR=$HOME/<TT>CGAL-x.y</TT> . 
+make
+</PRE>
+<P>
+
+In both examples we specify the <TT>CGAL_DIR</TT>:
+During configuration of the <span class="textsc">Cgal</span> libraries a file named <TT>CGALConfig.cmake</TT> is generated in <span class="textsc">Cgal</span>'s root directory (in contrast
+to <span class="textsc">Cgal</span>'s source directory that has been used for installation). This file
+contains the definitions of several CMake variable that summarize the
+configuration of <span class="textsc">Cgal</span>. In order to configure a program, you need
+to indicate the location of that config file in the CMake variable
+<TT>CGAL_DIR</TT> (as indicated in the example above). 
+<TT>CGAL_DIR</TT> can also be an environment variable. Setting
+<TT>CGAL_DIR</TT> makes particular sense if having multiple
+out-of-source builds of <span class="textsc">Cgal</span> as in Section&nbsp;<A HREF="Chapter_installation_manual.html#sec:cmake-out-of-source">14</A>.
+<P>
+
+If you have installed CGAL, <TT>CGAL_DIR</TT> must afterwards be set to
+<TT>$CMAKE_INSTALLED_PREFIX/lib/CGAL</TT>. Note that <span class="textsc">Cgal</span> is
+recommended to be installed in release mode when using it to build programs.
+<P>
+
+<a name="Subsection_15.1"></a>
+<h3>15.1&nbsp;&nbsp;&nbsp;Creating a cmake script for a program using <span class="textsc">Cgal</span></h3>
+<P>
+
+For compiling a non-shipped program, it is
+recommended, to also rely on a CMake-supported configuration using a
+<TT>CMakeLists.txt</TT> used for configuration.
+<P>
+
+Use the following Bourne-shell script for programs that are relatively
+simple to configure:
+<P>
+
+<h4><TT>cgal_create_CMakeLists<A NAME="sec:create_cgal_CMakeLists"></A></TT></h4>
+<P>
+
+The Bourne-shell script <TT>cgal_create_CMakeLists.txt</TT> resides in the
+<TT>CGAL-x.y/scripts</TT> directory. It can be used to create
+<TT>CMakeLists.txt</TT> files for compiling <span class="textsc">Cgal</span> applications. Executing
+<TT>cgal_create_CMakeLists.txt</TT> in an application directory creates a
+<TT>CMakeLists.txt</TT> containing rules to build the contained
+application(s). Three command line options determine details of the
+configuration.
+<P>
+
+<DL>
+<DT><B><TT>-s source</TT></B><DD> If this parameter is given the script will
+  create <B>a single executable</B> for 'source' linked with
+  compilations of all other source files (<TT>*.cpp</TT>). This
+  behaviour is usually needed for (graphical) demos.<BR>
+
+If the parameter is not given, the script creates <B>one executable for each given
+  source file</B>.
+<P>
+
+<DT><B><TT>-c com1:com2:...</TT></B><DD> Lists components (``com1'',
+  ``com2'') of <span class="textsc">Cgal</span> to which the executable(s) should be linked. Valid components are <span class="textsc">Cgal</span>'s
+  libraries (i.e.&nbsp;``Core'', ``ImageIO'', ``Qt3'' and ``Qt4''; note
+  that it only make sense to either pick ``Qt3'' or ``Qt4'') and all
+  preconfigured 3rd party software, such as ``MPFI'' or ``RS3''
+  ). An example is <TT>-c Core:GMP:RS3:MPFI</TT>
+<P>
+
+<DT><B><TT>-b boost1:boost2:...</TT></B><DD> Lists components (``boost1'',
+  ``boost2'') of <span class="textsc">Boost</span> to which the executable(s) should be
+  linked. Valid options are, for instance, ``filesystem'' or ``program_options''.
+<P>
+
+</DL>
+<P>
+
+This options should suffice to create <TT>CMakeLists.txt</TT> script
+for most directories containing programs. However, in some special
+cases, it might still be required to create the script manually, for
+instance, if some source files/executables need a different linking than
+other source files.
+<P>
+
+<div class="DeprecatedBlock">
+
+  
+
+
+<h4><TT>cgal_create_cmake_script<A NAME="sec:create_cgal_cmake_script"></A></TT></h4>
+<P>
+
+For backward-compatibility we still provide the 
+Bourne-shell script <TT>cgal_create_cmake_script</TT> that 
+is contained in the
+<TT>CGAL-x.y/scripts</TT> directory. It can be used to create
+<TT>CMakeLists.txt</TT> files for compiling <span class="textsc">Cgal</span> applications. Executing
+<TT>cgal_create_cmake_script</TT> in an application directory creates a
+<TT>CMakeLists.txt</TT> containing rules for every <TT>*.cpp</TT> file
+there. The script is deprecated, as it only works for applications 
+with a single course file that only need libCGAL and libCGAL_Core.
+
+    </div>
+<P>
+
+Such a shell-script simply creates a CMake script. Processing it
+with CMake, searches for <span class="textsc">Cgal</span> using <TT>find_package</TT>. If found,
+the variable <TT>CGAL_USE_FILE</TT> is set to a compilation environment CMake file. Including
+this file within a CMake script sets up include paths and libraries to
+link with <span class="textsc">Cgal</span> and essential third party libraries. Beyond,
+<TT>find_package</TT> can demand for <TT>COMPONENTS</TT> of <span class="textsc">Cgal</span>,
+that is, all <span class="textsc">Cgal</span> libraries libCGAL_Core (``Core''),
+libCGAL_ImageIO (``ImageIO'') , libCGAL_Qt3 (``Qt3'') and libCGAL_Qt4
+(``Qt4'') or optional 3rd party software such as ``MPFI'' or ``RS3''.
+A user is free to create the <TT>CMakeLists.txt</TT>
+without calling the script (manual creation).
+<P>
+
+<a name="Subsection_15.2"></a>
+<h3>15.2&nbsp;&nbsp;&nbsp;Custom flags in the programs using <span class="textsc">Cgal</span></h3>
+<P>
+
+Normally, programs linked with <span class="textsc">Cgal</span> must be compiled with the same flags
+used by the compilation of <span class="textsc">Cgal</span> libraries. For this reason, the <I>very first</I> time
+a program is configured, all the flags given by the CMake variables <TT>CMAKE_*_FLAGS</TT>
+are <I>locked</I> in the sense that the values recorded in <TT>CGALConfig.cmake</TT> 
+are used to override any values given by CMake itself or yourself.
+<P>
+
+This does not apply to the additional flags that can be given via <TT>CGAL_*_FLAGS</TT>.
+<P>
+
+Such <I>inherited</I> values are then recorded in the current CMake cache for the program.
+The flags are then <I>unlocked</I> in the sense that at any subsequent configuration you can
+provide your own flags and this time they will not be overridden.
+<P>
+
+When using the interactive <TT>cmake-gui</TT> the first press on <TT>Configure</TT> unlocks
+the flags, so that you can edit them as needed.
+<P>
+
+<div class="AdvancedBlock">
+
+The locking of flags is controlled by the variable <TT>CGAL_DONT_OVERRIDE_CMAKE_FLAGS</TT>
+which starts out FALSE and is toggled right after the flags have been loaded from
+<TT>CGALConfig.cmake</TT>.
+<P>
+
+If you use the command line tool you can specify flags <I>directly</I> by setting the
+controlling variable right up front:
+<P>
+
+<PRE>
+
+cd <TT>CGAL-x.y</TT>
+
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-g .
+
+cd <TT>CGAL-x.y</TT>/examples/Straight_skeleton_2
+
+cmake -DCGAL_DIR=<TT>CGAL-x.y</TT> -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS=-O2 -DCGAL_DONT_OVERRIDE_CMAKE_FLAGS=TRUE . 
+
+</PRE>
+
+
+    </div>
+<P>
+
+<a name="Section_16"></a>
+        
+<h2>16&nbsp;&nbsp;&nbsp;Summary of <span class="textsc">Cgal</span>'s Configuration Variables</h2>
+<P>
+
+Most configuration variables are not environment variables but <I>CMake variables</I>. They are given in the command line to CMake via the <TT>-D</TT> option, 
+or passed from the interactive interface of <TT>cmake-gui</TT>. Unless
+indicated differently, all the variables summarized below are CMake variables.
+<P>
+
+<a name="Subsection_16.1"></a>
+<h3>16.1&nbsp;&nbsp;&nbsp;Component selection</h3>
+<P>
+
+The following boolean variables indicate which <span class="textsc">Cgal</span> components to configure and build. Their values can be ON or OFF.
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>            
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Default value</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>WITH_examples</TT>      
+    <TD class="math" ALIGN=LEFT NOWRAP>
+OFF
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>WITH_demos</TT>         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+OFF
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>WITH_CGAL_Core</TT>    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+ON
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>WITH_CGAL_Qt3</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+ON
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>WITH_CGAL_Qt4</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+ON
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>WITH_CGAL_ImageIO</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+ON
+</TABLE>
+<P>
+
+<a name="Subsection_16.2"></a>
+<h3>16.2&nbsp;&nbsp;&nbsp;Compiler and Linker Flags</h3>
+<P>
+
+The following variables specify compiler and linker flags. Each variable holds a 
+space-separated list of command-line switches for the compiler and linker and 
+their default values are automatically defined by CMake based on the target platform.
+<P>
+
+Have in mind that these variables specify a list of flags, not just one
+single flag. If you provide your own definition for a variable, you will <I>entirely</I> override
+the list of flags chosen by CMake for that particular variable.
+<P>
+
+The variables that correspond to both debug and release builds are always
+used in conjunction with those for the specific build type.
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Program</B>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Both Debug and Release</B>       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Release only</B>                          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Debug Only</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+C++ Compiler         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CMAKE_CXX_FLAGS</TT>            
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CMAKE_CXX_FLAGS_RELEASE</TT>            
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CMAKE_CXX_FLAGS_DEBUG</TT>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Linker (shared libs) 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CMAKE_SHARED_LINKER_FLAGS</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CMAKE_SHARED_LINKER_FLAGS_RELEASE</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CMAKE_SHARED_LINKER_FLAGS_DEBUG</TT>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Linker (static libs) 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CMAKE_MODULE_LINKER_FLAGS</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CMAKE_MODULE_LINKER_FLAGS_RELEASE</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CMAKE_MODULE_LINKER_FLAGS_DEBUG</TT>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Linker (programs)    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CMAKE_EXE_LINKER_FLAGS</TT>    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CMAKE_EXE_LINKER_FLAGS_RELEASE</TT>    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CMAKE_EXE_LINKER_FLAGS_DEBUG</TT>
+</TABLE>
+
+
+
+
+  
+
+
+<h4>Additional Compiler and Linker Flags</h4>
+<P>
+
+The following variables can be used to <I>add</I> flags without overriding the ones
+defined by cmake.
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Program</B>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Both Debug and Release</B>      
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Release only</B>                         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Debug Only</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+C++ Compiler         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_CXX_FLAGS</TT>            
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_CXX_FLAGS_RELEASE</TT>            
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_CXX_FLAGS_DEBUG</TT>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Linker (shared libs) 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_SHARED_LINKER_FLAGS</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_SHARED_LINKER_FLAGS_RELEASE</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_SHARED_LINKER_FLAGS_DEBUG</TT>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Linker (static libs) 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_MODULE_LINKER_FLAGS</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_MODULE_LINKER_FLAGS_RELEASE</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_MODULE_LINKER_FLAGS_DEBUG</TT>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Linker (programs)    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_EXE_LINKER_FLAGS</TT>    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_EXE_LINKER_FLAGS_RELEASE</TT>    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_EXE_LINKER_FLAGS_DEBUG</TT>
+</TABLE>
+<P>
+
+<a name="Subsection_16.3"></a>
+<h3>16.3&nbsp;&nbsp;&nbsp;Miscellaneous Variables</h3>
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>             
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Description</B>                                                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Type</B> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Default value</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CMAKE_BUILD_TYPE</TT>   
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Indicates type of build. Possible values are 'Debug' or 'Release'     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Release
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CMAKE_CXX_COMPILER</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full-path to the executable corresponding to the C++ compiler to use. 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+platform-dependent
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CXX</TT>                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                                                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment   
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem
+</TABLE>
+<P>
+
+<h4>Variables used only when building programs (such as demos or examples)</h4>
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Description</B>                                          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Type</B>               
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Default value</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>CGAL_DIR</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full-path to the binary directory where <span class="textsc">Cgal</span> was configured 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Either CMake or Environment 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<I>none</I>
+</TABLE>
+<P>
+
+<a name="Subsection_16.4"></a>
+<h3>16.4&nbsp;&nbsp;&nbsp;Variables providing information about 3rd-party libraries</h3>
+<A NAME="sec:3partysoftwareconfig"></A>
+<P>
+
+The following variables provide information about the availability and
+location of the 3rd party libraries used by <span class="textsc">Cgal</span>. CMake automatically
+searches for dependencies so you need to specify these variables if 
+CMake was unable to locate something. This is indicated by a value ending in
+<TT>NOTFOUND</TT>.
+<P>
+
+Since 3rd-party libraries are system wide, many of the CMake variables listed below can alternatively
+be given as similarly-named environment variables instead. Keep in mind that you must provide one or the
+other but never both.
+<P>
+
+<h4><span class="textsc">Boost</span> libraries</h4>
+<P>
+
+In most cases, if <span class="textsc">Boost</span> is not automatically found, setting the <TT>BOOST_ROOT</TT> 
+variable is enough. If it is not, you can specify the header and library
+directories individually. You can also provide the full pathname to a specific compiled library
+if it cannot be found in the library directory or its name is non-standard.
+<P>
+
+By default, when <span class="textsc">Boost</span> binary libraries are needed, the shared versions
+are used if present. You can set the variable
+<TT>CGAL_Boost_USE_STATIC_LIBS</TT> to <TT>ON</TT> if you want to link
+with static versions explicitly.
+<P>
+
+On Windows, if you link with <span class="textsc">Boost</span> shared libraries, you must ensure that
+the <TT>.dll</TT> files are found by the dynamic linker, at run time. 
+For example, you can add the path to the <span class="textsc">Boost</span> <TT>.dll</TT> to the
+<TT>PATH</TT> environment variable.
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>                             
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Description</B>                                                 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Type</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>BOOST_ROOT</TT><A HREF="#Footnote_16"><SUP>16</SUP></A>         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Root directory of your <span class="textsc">Boost</span> installation                            
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Either CMake or Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>Boost_INCLUDE_DIR</TT>                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the <TT>boost/version.hpp</TT> file             
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>BOOST_INCLUDEDIR</TT>                    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                                                 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>Boost_LIBRARY_DIRS</TT>                 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the compiled <span class="textsc">Boost</span> libraries                    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>BOOST_LIBRARYDIR</TT>                    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                                                 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>Boost_<I>(xyz)</I>_LIBRARY_RELEASE</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname to a release build of the compiled 'xyz' <span class="textsc">Boost</span> library 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>Boost_<I>(xyz)</I>_LIBRARY_DEBUG</TT>   
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname to a debug build of the compiled 'xyz' <span class="textsc">Boost</span> library   
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+</TABLE>
+<P>
+
+<h4><span class="textsc">Gmp</span> and <span class="textsc">Mpfr</span> libraries</h4>
+<P>
+
+Under Windows, auto-linking is used, so only the <I>directory</I> 
+containing the libraries is needed and you would specify <TT>GMP|MPFR_LIBRARY_DIR</TT> rather than
+<TT>GMP|MPFR_LIBRARIES</TT>. On the other hand, under Linux the actual library filename is needed.
+Thus you would specify <TT>GMP|MPFR_LIBRARIES</TT>. In no case you need to specify both.
+<P>
+
+<span class="textsc">Cgal</span> uses both <span class="textsc">Gmp</span> and <span class="textsc">Mpfr</span>  so both need to be supported. If either of them is unavailable the 
+usage of <span class="textsc">Gmp</span> and of <span class="textsc">Mpfr</span> will be disabled.
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>             
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Description</B>                                
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Type</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>WITH_GMP</TT>            
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Indicates whether to search and use <span class="textsc">Gmp</span><span class="textsc">Mpfr</span> or not 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>GMP_DIR</TT>             
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory of <span class="textsc">Gmp</span> default installation          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>GMP_INCLUDE_DIR</TT>    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the <TT>gmp.h</TT> file        
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>GMP_INC_DIR</TT>        
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                                
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>GMP_LIBRARIES_DIR</TT>  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the compiled <span class="textsc">Gmp</span> library       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>GMP_LIB_DIR</TT>        
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                                
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>GMP_LIBRARIES</TT>       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname of the compiled <span class="textsc">Gmp</span> library           
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>MPFR_INCLUDE_DIR</TT>   
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the <TT>mpfr.h</TT> file       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>MPFR_INC_DIR</TT>       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                                
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>MPFR_LIBRARIES_DIR</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the compiled <span class="textsc">Mpfr</span> library      
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>MPFR_LIB_DIR</TT>       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                                
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>MPFR_LIBRARIES</TT>      
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname of the compiled <span class="textsc">Mpfr</span> library          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+</TABLE>
+<P>
+
+Under Linux, the <span class="textsc">Gmpxx</span> is also searched for, and you may specify the following variables:
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>             
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Description</B>                           
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Type</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>GMPXX_DIR</TT>           
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory of <span class="textsc">Gmpxx</span> default installation 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>GMPXX_INCLUDE_DIR</TT>  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the <TT>gmpxx.h</TT> file 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>GMPXX_LIBRARIES</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname of the compiled <span class="textsc">Gmpxx</span> library    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+</TABLE>
+<P>
+
+<h4><span class="textsc">Qt</span>3 library</h4>
+<P>
+
+In most cases, if <span class="textsc">Qt</span>3 is not automatically found, setting the <TT>QTDIR</TT> 
+environment variable is sufficient. If it is not, you can specify the directory containing 
+the header files and the full pathnames of the <span class="textsc">Qt</span>3 libraries.
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>                       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Description</B>                                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Type</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QTDIR</TT>                          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Root directory of the <span class="textsc">Qt</span>3 library                     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QT3_INCLUDE_DIR</TT>              
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the <TT>qt.h</TT> file           
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QT3_QT_LIBRARY</TT>               
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname to the qt library of <span class="textsc">Qt</span>3                
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QT3_QTMAIN_LIBRARY</TT>           
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname to the qtmain library of <span class="textsc">Qt</span>3            
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QT3_QASSISTANTCLIENT_LIBRARY</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname to the qassistantclient library of <span class="textsc">Qt</span>3  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QT3_MOC_EXECUTABLE</TT>           
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname to the moc executable of <span class="textsc">Qt</span>3             
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QT3_UIC_EXECUTABLE</TT>           
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname to the uic executable of <span class="textsc">Qt</span>3            
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+</TABLE>
+<P>
+
+<h4><span class="textsc">Qt</span>4 library</h4>
+<P>
+
+The CMake scripts that search for <span class="textsc">Qt</span>4 can use the introspection feature
+of the tool <TT>qmake</TT> included in <span class="textsc">Qt</span>4 distributions. If <span class="textsc">Qt</span>4 is not
+automatically found, it is sufficient to set the <TT>PATH</TT>
+environment variable, so that <span class="textsc">Qt</span>4 <TT>qmake</TT> tool is in the path, and
+before <span class="textsc">Qt</span>3 <TT>qmake</TT> if that one exists. One can alternatively set the
+CMake variable <TT>QT_QMAKE_EXECUTABLE</TT>. The following variables
+should be then assigned automatically by CMake.
+
+
+
+
+  <TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>                 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Description</B>                                             
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Type</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QT_INCLUDE_DIR</TT>         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the <TT>QtCore/qglobal.h</TT> file          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QT_LIBRARY_DIR</TT>         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the compiled <span class="textsc">Qt</span>4 libraries                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QT_<I>(xyz)</I>_LIBRARY</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname to the compiled 'xyz' <span class="textsc">Qt</span>4 library<A HREF="#Footnote_17"><SUP>17</SUP></A> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QT_QMAKE_EXECUTABLE</TT>    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname to the qmake executable of <span class="textsc">Qt</span>4                     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QT_MOC_EXECUTABLE</TT>      
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname to the moc executable of <span class="textsc">Qt</span>4                       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QT_UIC_EXECUTABLE</TT>      
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname to the uic executable of <span class="textsc">Qt</span>4                       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+</TABLE>
+<P>
+
+<h4><span class="textsc">Leda</span> library</h4>
+<P>
+
+When the <span class="textsc">Leda</span> libraries are not automatically found, yet they are installed on the system
+with base names 'leda' and 'ledaD' (for the release and debug versions resp.), it might 
+be sufficient to just indicate the library directory via the <TT>LEDA_LIBRARY_DIRS</TT> variable.
+If that doesn't work because, for example, the names are different, you can provide the full pathnames of each variant
+via <TT>LEDA_LIBRARY_RELEASE</TT> and <TT>LEDA_LIBRARY_DEBUG</TT>.
+<P>
+
+The variables specifying definitions and flags can be left undefined if they are not needed by <span class="textsc">Leda</span>.
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>               
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Description</B>                                       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Type</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>WITH_LEDA</TT>             
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Indicates whether to search and use <span class="textsc">Leda</span> or not            
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>LEDA_DIR</TT>              
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory of <span class="textsc">Leda</span> default installation          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>LEDA_INCLUDE_DIR</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the file <TT>LEDA/system/basic.h</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>LEDA_LIBRARIES</TT>        
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the compiled <span class="textsc">Leda</span> libraries           
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>LEDA_INC_DIR</TT>         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the file <TT>LEDA/system/basic.h</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>LEDA_LIB_DIR</TT>         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the compiled <span class="textsc">Leda</span> libraries           
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>LEDA_LIBRARY_RELEASE</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname to a release build of the <span class="textsc">Leda</span> library       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Either CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>LEDA_LIBRARY_DEBUG</TT>   
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname to a debug build of the <span class="textsc">Leda</span> library         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Either CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>LEDA_DEFINITIONS</TT>      
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Preprocessor definitions                                   
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Either CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>LEDA_CXX_FLAGS</TT>       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Compiler flags                                             
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Either CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>LEDA_LINKER_FLAGS</TT>    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Linker flags                                               
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Either CMake
+</TABLE>
+<P>
+
+<h4><span class="textsc">Mpfi</span> library</h4>
+<P>
+
+<span class="textsc">Cgal</span> provides a number type based on this library, but the <span class="textsc">Cgal</span> library
+itself does not depend on <span class="textsc">Mpfi</span>. This means that this library must be
+configured when compiling an application that uses the above number type.
+<P>
+
+When <span class="textsc">Mpfi</span> files are not on the standard path, the locations of the headers
+and library files must be specified by using environment variables.
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>             
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Description</B>                                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Type</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>MPFI_DIR</TT>            
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory of <span class="textsc">Mpfi</span> default installation          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>MPFI_INCLUDE_DIR</TT>   
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the <TT>mpfi.h</TT> file         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>MPFI_INC_DIR</TT>       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>MPFI_LIBRARIES_DIR</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the compiled <span class="textsc">Mpfi</span> library        
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>MPFI_LIB_DIR</TT>       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>MPFI_LIBRARIES</TT>      
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname of the compiled <span class="textsc">Mpfi</span> library            
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+</TABLE>
+<P>
+
+<h4>Rs and Rs3 library</h4>
+<P>
+
+As said before, only the <span class="textsc">Cgal</span> univariate algebraic kernel depends on the
+library Rs. As the algebraic kernel is not compiled as a part of the <span class="textsc">Cgal</span>
+library, this library is not detected nor configured at installation time.
+<P>
+
+CMake will try to find Rs in the standard header and library
+directories. When it is not automatically detected, the locations of the
+headers and library files must be specified using environment variables.
+<P>
+
+Rs needs <span class="textsc">Gmp</span>&nbsp;4.2 or later and <span class="textsc">Mpfi</span>&nbsp;1.3.4 or later. The variables
+related to the latter library may also need to be defined.
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>             
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Description</B>                                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Type</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>RS_DIR</TT>              
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory of Rs default installation          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>RS_INCLUDE_DIR</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the <TT>rs_exports.h</TT> file  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>RS_INC_DIR</TT>         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>RS_LIBRARIES_DIR</TT>   
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the compiled Rs library          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>RS_LIB_DIR</TT>         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>RS_LIBRARIES</TT>        
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname of the compiled Rs library              
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+</TABLE>
+<P>
+
+Similar variables exist for Rs3.
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>              
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Description</B>                                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Type</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>RS3_DIR</TT>              
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory of Rs3 default installation                
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>RS3_INCLUDE_DIR</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the <TT>rs3_fncts.h</TT> file   
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>RS3_INC_DIR</TT>         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>RS3_LIBRARIES_DIR</TT>   
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the compiled Rs3 library       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>RS3_LIB_DIR</TT>         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>RS3_LIBRARIES</TT>        
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname of the compiled Rs3 library           
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+</TABLE>
+<P>
+
+<h4><span class="textsc">Ntl</span> library</h4>
+<P>
+
+Some polynomial computations in <span class="textsc">Cgal</span>'s algebraic kernel 
+are speed up when <span class="textsc">Ntl</span> is available. 
+As the algebraic kernel is not compiled as a part of the <span class="textsc">Cgal</span>
+library, this library is not detected nor configured at installation time.
+<P>
+
+CMake will try to find <span class="textsc">Ntl</span> in the standard header and library
+directories. When it is not automatically detected, the locations of the
+headers and library files must be specified using environment variables.
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>             
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Description</B>                                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Type</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>NTL_DIR</TT>              
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory of <span class="textsc">Ntl</span> default installation          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>NTL_INCLUDE_DIR</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the <TT>NTL/ZZX.h</TT> file  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>NTL_INC_DIR</TT>         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>NTL_LIBRARIES_DIR</TT>   
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the compiled <span class="textsc">Ntl</span> library          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>NTL_LIB_DIR</TT>         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                                  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>NTL_LIBRARIES</TT>        
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname of the compiled <span class="textsc">Ntl</span> library              
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+</TABLE>
+<P>
+
+<h4><span class="textsc">Eigen</span> library</h4>
+<P>
+
+<span class="textsc">Eigen</span> is a header-only template library.
+Only the  <I>directory</I> containing the header files of <span class="textsc">Eigen</span> 3.1 (or greater) is needed.
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>              
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Description</B>                            
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Type</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>EIGEN3_DIR</TT>             
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory of <span class="textsc">Eigen</span> default installation          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>EIGEN3_INCLUDE_DIR</TT>  
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the file <TT>signature_of_eigen3_matrix_library</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>EIGEN3_INC_DIR</TT>      
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Idem                                            
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+</TABLE>
+<P>
+
+<h4>QGLViewer library</h4>
+<P>
+
+Some demos require the GLViewer library.
+<P>
+
+In most cases, if QGLViewer is not automatically found, setting the <TT>QGLVIEWERROOT</TT> 
+environment variable is sufficient. If it is not, you can specify the directory containing 
+the header files and the full pathnames of the release and debug libraries
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>                    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Description</B>                                         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Type</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QGLVIEWERROOT</TT>               
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Root directory of the QGLViewer library                       
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QGLVIEWER_INCLUDE_DIR</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the <TT>QGLViewer/qglviewer.h</TT> file 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QGLVIEWER_LIBRARY_RELEASE</TT> 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname to a release build of the QGLViewer library    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>QGLVIEWER_LIBRARY_DEBUG</TT>   
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Full pathname to a debug build of the QGLViewer library      
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+</TABLE>
+<P>
+
+<h4>ESBTL library</h4>
+<P>
+
+One skin surface example requires the ESBTL library in order to read <span class="textsc">Pdb</span> files.
+<P>
+
+If ESBTL is not automatically found, setting the <TT>ESBTL_INC_DIR</TT> 
+environment variable is sufficient.
+<P>
+
+<TABLE CELLSPACING=5  BORDER=2>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Variable</B>                    
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Description</B>                                         
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<B>Type</B>
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>ESBTL_DIR</TT>             
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory of <span class="textsc">Estbl</span> default installation          
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>ESBTL_INC_DIR</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the <TT>ESBTL/default.h</TT> file 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Environment
+  <TR>
+    <TD class="math" ALIGN=LEFT NOWRAP>
+<TT>ESBTL_INCLUDE_DIR</TT>     
+    <TD class="math" ALIGN=LEFT NOWRAP>
+Directory containing the <TT>ESBTL/default.h</TT> file 
+    <TD class="math" ALIGN=LEFT NOWRAP>
+CMake
+</TABLE>
+<P>
+
+<a name="Section_17"></a>
+        
+<h2>17&nbsp;&nbsp;&nbsp;Compiler Workarounds</h2>
+<P>
+
+A number of boolean flags are used to workaround compiler bugs and
+limitations. They all start with the prefix <TT>CGAL_CFG</TT>. These
+flags are used to work around compiler bugs and limitations. For
+example, the flag <TT>CGAL_CFG_NO_CPP0X_LONG_LONG</TT> denotes
+that the compiler does not know the type <TT>long long</TT>.
+<P>
+
+For each installation a file <TT>&lt;CGAL/compiler_config.h&gt;</TT>
+ is defined, with the correct
+settings of all flags. This file is generated automatically by CMake,
+and it is located in the <TT>include</TT> directory of where you run
+CMake. For an in-source configuration this means
+<TT>CGAL-x.y/include</TT>.
+<P>
+
+The test programs used to generate the <TT>compiler_config.h</TT>
+file can be found in <TT>config/testfiles</TT>.
+ Both
+<TT>compiler_config.h</TT> and the test programs contain a short
+description of the problem. In case of trouble with one of the
+<TT>CGAL_CFG</TT> flags, it is a good idea to take a look at it.
+<P>
+
+The file <TT>CGAL/compiler_config.h</TT> is included from
+<TT>&lt;CGAL/config.h&gt;</TT>.
+which is included by all <span class="textsc">Cgal</span> header files.
+<P>
+
+<a name="Section_18"></a>
+        
+<A NAME="sec:compiler-optimisations"></A><h2>18&nbsp;&nbsp;&nbsp;Compiler Optimizations</h2>
+<P>
+
+By default CMake generates makefiles for Release mode, with 
+optimization flags switched on, and vcproj files for Release
+and Debug modes.
+<P>
+
+<a name="Section_19"></a>
+        
+<h2>19&nbsp;&nbsp;&nbsp;Configuring and Building Programs Using <span class="textsc">Cgal</span></h2>
+<P>
+
+Ideally, configuring and compiling a demo/example/program amounts to
+<P>
+
+<PRE>
+
+cd <TT>CGAL-x.y</TT>/examples/Straight_skeleton_2
+cmake -DCGAL_DIR=$HOME/<TT>CGAL-x.y</TT> . 
+make
+
+</PRE>
+<P>
+
+In this ideal world, as for all shipped examples and demos of <span class="textsc">Cgal</span>, the
+required <TT>CMakeLists.txt</TT> is already provided.
+<P>
+
+CMake can also be used to configure and build user programs via such
+CMake-scripts. In this less ideal world, one has to provide the
+<TT>CMakeLists.txt</TT> script either manually, or with the help of a
+shell-script that is introduced below.
+<P>
+
+For a user program <TT>executable.cpp</TT>, the ideal world looks like this:
+<P>
+
+<PRE>
+cd /path/to/program 
+cgal_create_CMakeLists -s executable
+cmake -DCGAL_DIR=$HOME/<TT>CGAL-x.y</TT> . 
+make
+</PRE>
+<P>
+
+In both examples we specify the <TT>CGAL_DIR</TT>:
+During configuration of the <span class="textsc">Cgal</span> libraries a file named <TT>CGALConfig.cmake</TT> is generated in <span class="textsc">Cgal</span>'s root directory (in contrast
+to <span class="textsc">Cgal</span>'s source directory that has been used for installation). This file
+contains the definitions of several CMake variable that summarize the
+configuration of <span class="textsc">Cgal</span>. In order to configure a program, you need
+to indicate the location of that config file in the CMake variable
+<TT>CGAL_DIR</TT> (as indicated in the example above). 
+<TT>CGAL_DIR</TT> can also be an environment variable. Setting
+<TT>CGAL_DIR</TT> makes particular sense if having multiple
+out-of-source builds of <span class="textsc">Cgal</span> as in Section&nbsp;<A HREF="Chapter_installation_manual.html#sec:cmake-out-of-source">14</A>.
+<P>
+
+If you have installed CGAL, <TT>CGAL_DIR</TT> must afterwards be set to
+<TT>$CMAKE_INSTALLED_PREFIX/lib/CGAL</TT>. Note that <span class="textsc">Cgal</span> is
+recommended to be installed in release mode when using it to build programs.
+<P>
+
+<a name="Subsection_19.1"></a>
+<h3>19.1&nbsp;&nbsp;&nbsp;Creating a cmake script for a program using <span class="textsc">Cgal</span></h3>
+<P>
+
+For compiling a non-shipped program, it is
+recommended, to also rely on a CMake-supported configuration using a
+<TT>CMakeLists.txt</TT> used for configuration.
+<P>
+
+Use the following Bourne-shell script for programs that are relatively
+simple to configure:
+<P>
+
+<h4><TT>cgal_create_CMakeLists<A NAME="sec:create_cgal_CMakeLists"></A></TT></h4>
+<P>
+
+The Bourne-shell script <TT>cgal_create_CMakeLists.txt</TT> resides in the
+<TT>CGAL-x.y/scripts</TT> directory. It can be used to create
+<TT>CMakeLists.txt</TT> files for compiling <span class="textsc">Cgal</span> applications. Executing
+<TT>cgal_create_CMakeLists.txt</TT> in an application directory creates a
+<TT>CMakeLists.txt</TT> containing rules to build the contained
+application(s). Three command line options determine details of the
+configuration.
+<P>
+
+<DL>
+<DT><B><TT>-s source</TT></B><DD> If this parameter is given the script will
+  create <B>a single executable</B> for 'source' linked with
+  compilations of all other source files (<TT>*.cpp</TT>). This
+  behaviour is usually needed for (graphical) demos.<BR>
+
+If the parameter is not given, the script creates <B>one executable for each given
+  source file</B>.
+<P>
+
+<DT><B><TT>-c com1:com2:...</TT></B><DD> Lists components (``com1'',
+  ``com2'') of <span class="textsc">Cgal</span> to which the executable(s) should be linked. Valid components are <span class="textsc">Cgal</span>'s
+  libraries (i.e.&nbsp;``Core'', ``ImageIO'', ``Qt3'' and ``Qt4''; note
+  that it only make sense to either pick ``Qt3'' or ``Qt4'') and all
+  preconfigured 3rd party software, such as ``MPFI'' or ``RS3''
+  ). An example is <TT>-c Core:GMP:RS3:MPFI</TT>
+<P>
+
+<DT><B><TT>-b boost1:boost2:...</TT></B><DD> Lists components (``boost1'',
+  ``boost2'') of <span class="textsc">Boost</span> to which the executable(s) should be
+  linked. Valid options are, for instance, ``filesystem'' or ``program_options''.
+<P>
+
+</DL>
+<P>
+
+This options should suffice to create <TT>CMakeLists.txt</TT> script
+for most directories containing programs. However, in some special
+cases, it might still be required to create the script manually, for
+instance, if some source files/executables need a different linking than
+other source files.
+<P>
+
+<div class="DeprecatedBlock">
+
+  
+
+
+<h4><TT>cgal_create_cmake_script<A NAME="sec:create_cgal_cmake_script"></A></TT></h4>
+<P>
+
+For backward-compatibility we still provide the 
+Bourne-shell script <TT>cgal_create_cmake_script</TT> that 
+is contained in the
+<TT>CGAL-x.y/scripts</TT> directory. It can be used to create
+<TT>CMakeLists.txt</TT> files for compiling <span class="textsc">Cgal</span> applications. Executing
+<TT>cgal_create_cmake_script</TT> in an application directory creates a
+<TT>CMakeLists.txt</TT> containing rules for every <TT>*.cpp</TT> file
+there. The script is deprecated, as it only works for applications 
+with a single course file that only need libCGAL and libCGAL_Core.
+
+    </div>
+<P>
+
+Such a shell-script simply creates a CMake script. Processing it
+with CMake, searches for <span class="textsc">Cgal</span> using <TT>find_package</TT>. If found,
+the variable <TT>CGAL_USE_FILE</TT> is set to a compilation environment CMake file. Including
+this file within a CMake script sets up include paths and libraries to
+link with <span class="textsc">Cgal</span> and essential third party libraries. Beyond,
+<TT>find_package</TT> can demand for <TT>COMPONENTS</TT> of <span class="textsc">Cgal</span>,
+that is, all <span class="textsc">Cgal</span> libraries libCGAL_Core (``Core''),
+libCGAL_ImageIO (``ImageIO'') , libCGAL_Qt3 (``Qt3'') and libCGAL_Qt4
+(``Qt4'') or optional 3rd party software such as ``MPFI'' or ``RS3''.
+A user is free to create the <TT>CMakeLists.txt</TT>
+without calling the script (manual creation).
+<P>
+
+<a name="Subsection_19.2"></a>
+<h3>19.2&nbsp;&nbsp;&nbsp;Custom flags in the programs using <span class="textsc">Cgal</span></h3>
+<P>
+
+Normally, programs linked with <span class="textsc">Cgal</span> must be compiled with the same flags
+used by the compilation of <span class="textsc">Cgal</span> libraries. For this reason, the <I>very first</I> time
+a program is configured, all the flags given by the CMake variables <TT>CMAKE_*_FLAGS</TT>
+are <I>locked</I> in the sense that the values recorded in <TT>CGALConfig.cmake</TT> 
+are used to override any values given by CMake itself or yourself.
+<P>
+
+This does not apply to the additional flags that can be given via <TT>CGAL_*_FLAGS</TT>.
+<P>
+
+Such <I>inherited</I> values are then recorded in the current CMake cache for the program.
+The flags are then <I>unlocked</I> in the sense that at any subsequent configuration you can
+provide your own flags and this time they will not be overridden.
+<P>
+
+When using the interactive <TT>cmake-gui</TT> the first press on <TT>Configure</TT> unlocks
+the flags, so that you can edit them as needed.
+<P>
+
+<div class="AdvancedBlock">
+
+The locking of flags is controlled by the variable <TT>CGAL_DONT_OVERRIDE_CMAKE_FLAGS</TT>
+which starts out FALSE and is toggled right after the flags have been loaded from
+<TT>CGALConfig.cmake</TT>.
+<P>
+
+If you use the command line tool you can specify flags <I>directly</I> by setting the
+controlling variable right up front:
+<P>
+
+<PRE>
+
+cd <TT>CGAL-x.y</TT>
+
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-g .
+
+cd <TT>CGAL-x.y</TT>/examples/Straight_skeleton_2
+
+cmake -DCGAL_DIR=<TT>CGAL-x.y</TT> -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS=-O2 -DCGAL_DONT_OVERRIDE_CMAKE_FLAGS=TRUE . 
+
+</PRE>
+
+
+    </div>
+<P>
+
+<HR><H3>Footnotes</H3>
+<P>
+
+<TABLE><TR><TD VALIGN=TOP>
+<TR><TD VALIGN=TOP>
+        <A NAME="Footnote_1">&nbsp;<SUP>1</SUP>&nbsp;</A><TD VALIGN=TOP>
+<A HREF="http://www.cs.nyu.edu/exact/"><TT>http://www.cs.nyu.edu/exact/</TT></A>
+<TR><TD VALIGN=TOP>
+        <A NAME="Footnote_1">&nbsp;<SUP>1</SUP>&nbsp;</A><TD VALIGN=TOP>
+<A HREF="http://gcc.gnu.org/"><TT>http://gcc.gnu.org/</TT></A>
+<TR><TD VALIGN=TOP>
+        <A NAME="Footnote_2">&nbsp;<SUP>2</SUP>&nbsp;</A><TD VALIGN=TOP>
+<A HREF="http://software.intel.com/en-us/intel-compilers/"><TT>http://software.intel.com/en-us/intel-compilers/</TT></A>
+<TR><TD VALIGN=TOP>
+        <A NAME="Footnote_3">&nbsp;<SUP>3</SUP>&nbsp;</A><TD VALIGN=TOP>
+<A HREF="http://msdn.microsoft.com/en-us/vstudio/"><TT>http://msdn.microsoft.com/en-us/vstudio/</TT></A>
+<TR><TD VALIGN=TOP>
+        <A NAME="Footnote_15">&nbsp;<SUP>15</SUP>&nbsp;</A><TD VALIGN=TOP>
+CGAL_Core is not part of <span class="textsc">Cgal</span>, it is a custom version the <span class="textsc">Core</span> library distributed 
+by <span class="textsc">Cgal</span> for the user convenience and it has it's own license.
+<TR><TD VALIGN=TOP>
+        <A NAME="Footnote_16">&nbsp;<SUP>16</SUP>&nbsp;</A><TD VALIGN=TOP>
+The environment variable can be spelled either <TT>BOOST_ROOT</TT> or <TT>BOOSTROOT</TT>
+<TR><TD VALIGN=TOP>
+        <A NAME="Footnote_17">&nbsp;<SUP>17</SUP>&nbsp;</A><TD VALIGN=TOP>
+If both release and debug versions are available, this variable contains a list 
+of the following form: '<TT>optimized;&lt;fullpath-to-release-lib&gt;;debug;&lt;fullpath-to-debug-lib&gt;</TT>', where 
+the '<TT>optimized</TT>' and '<TT>debug</TT>' tags should appear verbatim.
+</TABLE>
+    
+  <div class="NavBottom">
+  
+  <strong>Navigation:</strong>
+
+  <a href="contents.html">Table of Contents</A>&nbsp;&nbsp;
+  <a href="packages.html">Package Overview</a>&nbsp;&nbsp;
+  <a href="biblio.html">Bibliography</a>&nbsp;&nbsp;
+  <a href="manual_index.html">Index</a>&nbsp;&nbsp;
+  <a href="title.html">Title</a>
+  </div>
+
+<div class="NavAddress">
+<SMALL><a href="http://www.cgal.org" target="_top">CGAL Open Source Project</a>.
+Separate Build.
+9 April 2013.</SMALL>
+</div>
+</body>  </html>
