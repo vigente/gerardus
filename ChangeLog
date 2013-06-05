@@ -1,3 +1,12 @@
+2013-06-05  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/test/test_closest_trifacet.m: (0.3.0)
+	* matlab/test/test_cgal_closest_trifacet.m: (0.2.0)
+
+	- Add test "Right ventricle mesh". This test fails for
+	cgal_closest_trifacet(). The returned closest facets are not
+	correct, but this seems to be a bug in CGAL v4.0.2.
+
 2013-06-04  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/closest_trifacet.m: (0.2.1)
