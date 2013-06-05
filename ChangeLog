@@ -1,5 +1,11 @@
 2013-06-05  Ramon Casero  <rcasero@gmail.com>
 
+	* Delete cpp/src/third-party/CGAL-4.0.2:
+	* Delete cpp/src/third-party/gmp-5.0.5:
+	* Delete cpp/src/third-party/mpfr-3.1.1:
+
+	- We have upgraded to new versions of these libraries.
+
 	* matlab/CgalToolbox/CMakeLists.txt: (0.2.1)
 
 	- Update path to CGAL, as we are now using a new version (4.2)
