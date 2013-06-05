@@ -8,13 +8,13 @@ function [lat, lon, sphrad] = proj_on_sphere(x)
 %   LAT, LON are vectors with the latitude and longitude of the points in X
 %   projected onto a sphere. The centre of the sphere is the centroid of X.
 %
-%   SPHRAD is the mean of the distance of the points in X to the centroid.
-%   It can be used as the radius of the sphere that best contains the
-%   projection of X in terms of distances between the the points.
+%   SPHRAD is the median of the distance of the points in X to the
+%   centroid. It can be used as the radius of the sphere that best contains
+%   the projection of X in terms of distances between the the points.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -57,6 +57,6 @@ end
     x(:, 2) - mean(x(:, 2)), ...
     x(:, 3) - mean(x(:, 3)));
 
-% we use the mean radius of the points in the configuration as the radius
+% we use the median radius of the points in the configuration as the radius
 % of the sphere that best can contains their projections
-sphrad = mean(r);
+sphrad = median(r);
