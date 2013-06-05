@@ -1,5 +1,19 @@
 2013-06-05  Ramon Casero  <rcasero@gmail.com>
 
+	* cpp/src/third-party/boost-1.50.0/CMakeLists.txt:
+
+	- Fix bug. The variable saying this is the first or second pass
+	must be set before we throw the error. Also, we must throw a fatal
+	error right after that, to avoid CMake continues doing
+	configuration of subprojects. This also makes it more obvious to
+	the user that the error in the first pass is intentional, and that
+	now a second cmake .. is needed.
+
+	* Rename cpp/src/third-party/boost as cpp/src/third-party/boost-1.50.0:
+
+	- Make more clear the library version, like we do with the rest of
+	third party libraries.
+
 	* Add cpp/src/third-party/gmp-5.0.5:
 
 	- Downloaded from ftp://ftp.gmplib.org/pub/gmp-5.1.2/gmp-5.1.2.tar.lz.
