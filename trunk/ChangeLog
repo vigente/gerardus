@@ -1,5 +1,34 @@
 2013-06-05  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/CMakeLists.txt: (0.5.7)
+
+	- Update path to CGAL, as we are now using a new version (4.2)
+	with a different directory name.
+
+	* cpp/src/third-party/CGAL-4.2/cmake/modules/CGAL_SetupBoost.cmake: (0.1.0)
+
+	- We distribute the boost libraries with gerardus, so we don't
+	need to look for them as an external package. In fact, if we don't
+	comment out the find_package() below, we get a recursive loop with
+	CGAL that throws a configuration warning.
+
+	* cpp/src/third-party/CGAL-4.2/CMakeLists.txt: (0.1.0)
+
+	- Modifications to make CGAL build as a subproject in Gerardus.
+
+	* cpp/src/CMakeLists.txt: (0.2.4)
+
+	- Now instead of giving an error for the Windows build, we are
+	going to use the pre-compiled GMP and MPFR libraries distributed
+	with the Windows installer for CGAL. For Unix-like builds, we
+	build GMP and MPFR from the source code, as we were doing
+	before. This hasn't been tested with Windows yet, though.
+
+	- We need to make sure that the boost libraries are going to be
+	built as dynamic libraries. Without the following directive, they
+	get built as static, and then CGAL gives an error when it tries to
+	build a dynamic library with them.
+
 	* matlab/test/test_cgal_closest_trifacet.m: (0.2.1)
 
 	- Fix bug. We were calling the Matlab implementation in the Right
