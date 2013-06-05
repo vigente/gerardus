@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.2.1
+% Version: 0.3.0
 % $Rev$
 % $Date$
 %
@@ -29,6 +29,10 @@
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see
 % <http://www.gnu.org/licenses/>.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Tetrahedron
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % create a surface mesh that is a tetrahedron
 x = [
@@ -82,3 +86,47 @@ for I = 1:size(xi, 1)
     pause
     
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Right ventricle mesh
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% load alpha-shape convex hull binary mask
+aux = scinrrd_load('data/008-rvhull-downsampled-4.mha');
+
+opt = 10;
+method = 'cgalsurf';
+
+opt = .0045;
+method = 'simplify';
+
+tic
+[node,elem]=v2s(single(aux.data), 1, opt, method);
+toc
+hold off
+plotmesh(node,elem(:,1:3))
+
+% rename the mesh variables so that they are compatible with the rest of
+% our code
+tri = elem(:, 1:3);
+x = node(:, [2 1 3]);
+x(:, 1) = x(:, 1) * aux.axis(2).spacing;
+x(:, 2) = x(:, 2) * aux.axis(1).spacing;
+x(:, 3) = x(:, 3) * aux.axis(3).spacing;
+
+% some test points
+xi = [
+    40 50 80
+    20 20 20
+    80 80 160
+    60 40 140
+    ];
+
+% plot points
+hold on
+plot3(xi(:, 1), xi(:, 2), xi(:, 3), 'r*')
+
+% find closest facet and distance to a point
+tic
+[f, d, p] = cgal_closest_trifacet(tri, x, xi);
+toc
