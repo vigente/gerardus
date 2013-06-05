@@ -1,5 +1,12 @@
 2013-06-05  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CgalToolbox/CgalClosestTriFacet.cpp: (0.1.1)
+
+	- There seems to be a bug in CGAL that gets the wrong closest
+	facet in an AABB tree. I have added some debug code, but before
+	further checking, I'm tagging the current code in Gerardus, and
+	trying to upgrade to CGAL 2.4.
+
 	* matlab/ManifoldToolbox/proj_on_sphere.m: (0.1.1)
 
 	- Replace the mean of the spherical radii by the median, that is
