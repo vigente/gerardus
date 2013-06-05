@@ -1,5 +1,14 @@
 2013-06-05  Ramon Casero  <rcasero@gmail.com>
 
+	* release-0.8.2
+
+	- Tag a version of the current project before making
+	substantial changes by updating CGAL to v4.2.
+
+	- Not all the project is working, as there seems to be a bug in
+	CGAL 2.0.4 in tree.closest_point_and_primitive() that returns the
+	wrong facet.
+
 	* matlab/CgalToolbox/CgalClosestTriFacet.cpp: (0.1.1)
 
 	- There seems to be a bug in CGAL that gets the wrong closest
