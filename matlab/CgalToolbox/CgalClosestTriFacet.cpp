@@ -32,7 +32,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -91,6 +91,10 @@ typedef CGAL::AABB_traits<K, Primitive>           AABB_triangle_traits;
 typedef CGAL::AABB_tree<AABB_triangle_traits>     Tree;
 typedef Tree::Object_and_primitive_id             Object_and_primitive_id;
 typedef Tree::Point_and_primitive_id              Point_and_primitive_id;
+
+// debug
+#include <CGAL/Polyhedron_3.h>
+typedef CGAL::Polyhedron_3<K> Polyhedron;
 
 /*
  * mexFunction(): entry point for the mex function
@@ -168,10 +172,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   }
 
-  // // debug: show the memory address of each triangle in the std::vector
-  // for (it = triangles.begin(); it != triangles.end(); ++it) {
-  //   std::cout << "tri mem address: " << &(*(it)) << std::endl;
-  // }
+  // debug: show the memory address of each triangle in the std::vector
+  for (it = triangles.begin(); it != triangles.end(); ++it) {
+    std::cout << "tri mem address: " << &(*(it)) << std::endl;
+  }
 
   // construct AABB tree
   Tree tree(triangles.begin(),triangles.end());
@@ -204,13 +208,19 @@ void mexFunction(int nlhs, mxArray *plhs[],
   if (f == NULL) {
     mexErrMsgTxt("Cannot get pointer to allocated output 0");
   }
-  double *d = (double *)mxGetData(plhs[1]);
-  if (matlabExport->GetNumberOfArguments() > 1 && d == NULL) {
-    mexErrMsgTxt("Cannot get pointer to allocated output 1");
+  double *d = NULL;
+  if (matlabExport->GetNumberOfArguments() > 1) {
+    d = (double *)mxGetData(plhs[1]);
+    if (d == NULL) {
+      mexErrMsgTxt("Cannot get pointer to allocated output 1");
+    }
   }
-  double *p = (double *)mxGetData(plhs[2]);
-  if (matlabExport->GetNumberOfArguments() > 2 && p == NULL) {
-    mexErrMsgTxt("Cannot get pointer to allocated output 2");
+  double *p = NULL;
+  if (matlabExport->GetNumberOfArguments() > 2) {
+    p = (double *)mxGetData(plhs[2]);
+    if (p == NULL) {
+      mexErrMsgTxt("Cannot get pointer to allocated output 2");
+    }
   }
   
   // loop every point to compute its distance to, intersection with
@@ -223,17 +233,23 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     // get point coordinates to be tested
     xi = matlabImport->GetRowVectorArgument<double, Point>(2, i, "XI", def);
-    
-    // computes distance from query
-    if (matlabExport->GetNumberOfArguments() > 1) {
-      d[i] = sqrt(tree.squared_distance(xi));
-    }
 
+    // debug: print coordinates of point being tested
+    std::cout << "point = " << xi << std::endl;
+    
     // computes closest point and closest facet
     Point_and_primitive_id pp = tree.closest_point_and_primitive(xi);
 
     // closest facet
     f[i] = &(*pp.second) - &(triangles[0]) + 1;
+
+    // debug: show the memory address of the returned facet
+    std::cout << "facet mem address: " << &(*pp.second) << std::endl;
+
+    // computes distance from query
+    if (matlabExport->GetNumberOfArguments() > 1) {
+      d[i] = sqrt(tree.squared_distance(xi));
+    }
 
     // closest point on the surface to the testing point
     if (matlabExport->GetNumberOfArguments() > 2) {
