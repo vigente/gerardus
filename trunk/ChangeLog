@@ -1,5 +1,12 @@
 2013-06-06  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CgalToolbox/CgalClosestTriFacet.cpp: (0.1.2)
+
+	- Compute the distance directly from the closest point result
+	instead of running tree.squared_distance(), which is redundant.
+
+	- I had forgotten to comment out some debug code.
+
 	* matlab/test/test_closest_trifacet.m: (0.3.1)
 
 	Fix bug. I had the wrong function name in the Right Ventricle
