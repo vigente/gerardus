@@ -1,5 +1,15 @@
 2013-06-06  Ramon Casero  <rcasero@gmail.com>
 
+	* cpp/src/CMakeLists.txt: (0.2.7)
+
+	- I commited the change without this comment or increasing the
+	version number. The include_directories and link_directories for
+	the boost libraries have to go before the add_subdirectory. This
+	is because the the boost header files are already in
+	gerardus/include, and we use these instead of the ones within the
+	boost directory tree for compilation (otherwise the cmake system
+	cannot find the header files).
+
 	* cpp/src/third-party/boost-1.50.0/boost/thread/CMakeLists.txt:
 	* cpp/src/third-party/boost-1.50.0/boost/chrono/CMakeLists.txt:
 	* cpp/src/third-party/boost-1.50.0/boost/system/CMakeLists.txt:
