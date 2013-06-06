@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 %
@@ -104,6 +104,9 @@ xi = [
     80 80 160
     60 40 140
     ];
+xi(:, 1) = xi(:, 1) * aux.axis(2).spacing;
+xi(:, 2) = xi(:, 2) * aux.axis(1).spacing;
+xi(:, 3) = xi(:, 3) * aux.axis(3).spacing;
 
 % plot points
 hold on
@@ -111,5 +114,5 @@ plot3(xi(:, 1), xi(:, 2), xi(:, 3), 'r*')
 
 % find closest facet and distance to a point
 tic
-[f, d] = cgal_closest_trifacet(tri, x, xi);
+[f, d, p] = cgal_closest_trifacet(tri, x, xi);
 toc

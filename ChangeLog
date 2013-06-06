@@ -1,5 +1,13 @@
 2013-06-06  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/test/test_cgal_closest_trifacet.m: (0.2.2)
+
+	- Fix bug. The point coordinates in the right ventricle example
+	where incorrectly scaled.
+
+	- Fix bug. In the right ventricle example we were calling
+	closest_trifacet() instead of cgal_closest_trifacet().
+
 	* matlab/CgalToolbox/CgalClosestTriFacet.cpp: (0.1.3)
 	* matlab/CgalToolbox/cgal_closest_trifacet.m: (0.1.1)
 	* matlab/ManifoldToolbox/closest_trifacet.m: (0.2.2)
