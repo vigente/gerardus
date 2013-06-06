@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.2.1
   * $Rev$
   * $Date$
   *
@@ -137,7 +137,11 @@ MatlabExportFilter::GraftItkImageOntoMatlab(typename itk::DataObject::Pointer im
   }
 
   mwSize ndim = size.size();
-  mwSize dims[ndim];
+  mwSize *dims;
+  dims = (mwSize *)malloc(ndim * sizeof(mwSize));
+  if (dims == NULL) {
+	  mexErrMsgTxt("MatlabExportFilter: Cannot allocate memory for dims vector");
+  }
   bool isEmptyMatrix = false;
   for (mwSize i = 0; i < ndim; ++i) {
     dims[i] = size[i];
@@ -251,7 +255,11 @@ MatlabExportFilter::CopyItkImageToMatlab(typename itk::DataObject::Pointer image
   }
 
   mwSize ndim = size.size();
-  mwSize dims[ndim];
+  mwSize *dims;
+  dims = (mwSize *)malloc(ndim * sizeof(mwSize));
+  if (dims == NULL) {
+	  mexErrMsgTxt("MatlabExportFilter: Cannot allocate memory for dims vector");
+  }
   bool isEmptyMatrix = false;
   for (mwSize i = 0; i < ndim; ++i) {
     dims[i] = size[i];

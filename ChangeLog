@@ -1,5 +1,12 @@
 2013-06-06  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/MatlabImageHeader.cxx: (0.1.1)
+	* matlab/GerardusCommon.h: (9.0.2)
+	* matlab/MatlabExportFilter.hxx: (0.2.1)
+
+	- Small adjustments to remove some compilation errors under
+	VisualStudio 10 in Windows.
+
 	* Delete cpp/src/third-party/CGAL-4.2/examples:
 	* Delete cpp/src/third-party/CGAL-4.2/demo:
 	* Delete cpp/src/third-party/CGAL-4.2/doc_html:

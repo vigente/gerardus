@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.9.1
+  * Version: 0.9.2
   * $Rev$
   * $Date$
   *
@@ -109,7 +109,7 @@ void ctrlcErrMsgTxt(std::string sourceFile, int lineNumber) {
   // this provides the full path and function name of the function
   // that called ctrlcCheckPoint()
   int nlhs = 1; // number of output arguments we expect
-  mxArray *plhs[nlhs]; // to store the output argument
+  mxArray *plhs[1]; // to store the output argument
   int nrhs = 1; // number of input arguments we are going to pass
   mxArray *prhs[1]; // to store the input argument we are going to pass
   prhs[0] = mxCreateString("fullpath"); // input argument to pass
