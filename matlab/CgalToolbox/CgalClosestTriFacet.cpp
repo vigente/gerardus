@@ -32,7 +32,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.1.2
   * $Rev$
   * $Date$
   *
@@ -91,10 +91,6 @@ typedef CGAL::AABB_traits<K, Primitive>           AABB_triangle_traits;
 typedef CGAL::AABB_tree<AABB_triangle_traits>     Tree;
 typedef Tree::Object_and_primitive_id             Object_and_primitive_id;
 typedef Tree::Point_and_primitive_id              Point_and_primitive_id;
-
-// debug
-#include <CGAL/Polyhedron_3.h>
-typedef CGAL::Polyhedron_3<K> Polyhedron;
 
 /*
  * mexFunction(): entry point for the mex function
@@ -172,10 +168,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   }
 
-  // debug: show the memory address of each triangle in the std::vector
-  for (it = triangles.begin(); it != triangles.end(); ++it) {
-    std::cout << "tri mem address: " << &(*(it)) << std::endl;
-  }
+  // // debug: show the memory address of each triangle in the std::vector
+  // for (it = triangles.begin(); it != triangles.end(); ++it) {
+  //   std::cout << "tri mem address: " << &(*(it)) << std::endl;
+  // }
 
   // construct AABB tree
   Tree tree(triangles.begin(),triangles.end());
@@ -234,8 +230,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // get point coordinates to be tested
     xi = matlabImport->GetRowVectorArgument<double, Point>(2, i, "XI", def);
 
-    // debug: print coordinates of point being tested
-    std::cout << "point = " << xi << std::endl;
+    // // debug: print coordinates of point being tested
+    // std::cout << "point = " << xi << std::endl;
     
     // computes closest point and closest facet
     Point_and_primitive_id pp = tree.closest_point_and_primitive(xi);
@@ -243,12 +239,16 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // closest facet
     f[i] = &(*pp.second) - &(triangles[0]) + 1;
 
-    // debug: show the memory address of the returned facet
-    std::cout << "facet mem address: " << &(*pp.second) << std::endl;
+    // // debug: show the memory address of the returned facet
+    // std::cout << "facet mem address: " << &(*pp.second) << std::endl;
 
-    // computes distance from query
+    // computes distance from query point to closest triangle
     if (matlabExport->GetNumberOfArguments() > 1) {
-      d[i] = sqrt(tree.squared_distance(xi));
+      d[i] = 0;
+      d[i] += (pp.first[0]-xi[0])*(pp.first[0]-xi[0]);
+      d[i] += (pp.first[1]-xi[1])*(pp.first[1]-xi[1]);
+      d[i] += (pp.first[2]-xi[2])*(pp.first[2]-xi[2]);
+      d[i] = sqrt(d[i]);
     }
 
     // closest point on the surface to the testing point
