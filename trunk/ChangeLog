@@ -1,3 +1,12 @@
+2013-06-06  Ramon Casero  <rcasero@gmail.com>
+
+	* Delete cpp/src/third-party/CGAL-4.2/examples:
+	* Delete cpp/src/third-party/CGAL-4.2/demo:
+	* Delete cpp/src/third-party/CGAL-4.2/doc_html:
+
+	- Unnecessary to build the project, just make checking out the
+	project slower.
+
 2013-06-05  Ramon Casero  <rcasero@gmail.com>
 
 	* Delete cpp/src/third-party/CGAL-4.0.2:
