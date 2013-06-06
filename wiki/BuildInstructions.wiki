@@ -124,12 +124,18 @@ $ sudo apt-get install m4
   * Note for MacOS X users: [http://worldwidepenguin.com/2010/05/how-to-install-itk-on-a-mac-cmake-macports/ this site] has instructions for building ITK using the CMake application (although they forget to mention that you click "Generate" at the end)
   * Note for everyone: You need to set the following variables in your CMake build of ITK
 {{{
-CMAKE_BUILD_TYPE   Release
+CMAKE_BUILD_TYPE   Release (this one ignored by Windows)
 BUILD_SHARED_LIBS  ON
 ITK_USE_REVIEW     ON
 ITK_LEGACY_REMOVE  ON
 }}}
-   * Note for everyone: ITK needs to be compiled with the same version of the compiler used for Matlab. This can be ensured setting the following CMake variables (e.g. [http://www.mathworks.com/support/compilers/R2012a Matlab2012a for Linux requires gcc 4.4])
+  * Note for everyone: You can also untick the following variables to save time, as Gerardus does not need the ITK examples, documentation or tests
+{{{
+BUILD_DOCUMENTATION   OFF
+BUILD_EXAMPLES        OFF
+BUILD_TESTING         OFF
+}}}
+  * Note for everyone: ITK needs to be compiled with the same version of the compiler used for Matlab. This can be ensured setting the following CMake variables (e.g. [http://www.mathworks.com/support/compilers/R2012a Matlab2012a for Linux requires gcc 4.4])
 {{{
 CMAKE_C_COMPILER gcc-4.4
 CMAKE_CXX_COMPILER g++-4.4
