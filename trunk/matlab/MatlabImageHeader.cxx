@@ -10,7 +10,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -48,6 +48,7 @@
 /* C++ headers */
 #include <iostream>
 #include <vector>
+#include <string>
 
 /* Gerardus headers */
 #include "MatlabImageHeader.h"
