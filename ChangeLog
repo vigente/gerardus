@@ -1,7 +1,18 @@
 2013-06-06  Ramon Casero  <rcasero@gmail.com>
 
+	* cpp/src/third-party/boost-1.50.0/boost/thread/CMakeLists.txt:
+	* cpp/src/third-party/boost-1.50.0/boost/chrono/CMakeLists.txt:
+	* cpp/src/third-party/boost-1.50.0/boost/system/CMakeLists.txt:
+	* cpp/src/third-party/boost-1.50.0/boost/date_time/CMakeLists.txt:
+	* cpp/src/third-party/boost-1.50.0/boost/filesystem/CMakeLists.txt:
+
+	- Primarly, we need to generate DLLs for the boost libraries so
+	that they can be linked into MEX files. However, CMake for Windows
+	doesn't seem to know how to link executables to the DLLs, which
+	means that we have to generate additional static libraries too.
+
 	* cpp/src/CMakeLists.txt: (0.2.6)
-	* cpp/src/third-party/boost-1.50.0/CMakeLists.txt: 
+	* cpp/src/third-party/boost-1.50.0/CMakeLists.txt:
 
 	- BUILD_SHARED_LIBS is a variable specific to the boost
 	libraries. It's better to put it inside the boost CMakeLists.txt,
