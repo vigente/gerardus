@@ -27,7 +27,7 @@
 /*
  * Author: Ramon Casero <rcasero@gmail.com>
  * Copyright © 2010-2011 University of Oxford
- * Version: 0.2.3
+ * Version: 0.2.4
  * $Rev$
  * $Date$
  * 
@@ -239,9 +239,9 @@ void mexFunction(int nlhs, // number of expected outputs
 	      if (mxIsInf(im[nnidx])) {continue;}
 
 	      // length of edge linking two voxels (sqrt(dx^2 + dy^2 + dz^2))
-	      ledge = abs(nnr - r) * res[0] * abs(nnr - r) * res[0];
-	      ledge += abs(nnc - c) * res[1] * abs(nnc - c) * res[1];
-	      ledge += abs(nns - s) * res[2] * abs(nns - s) * res[2];
+	      ledge = (double)abs((double)(nnr - r)) * res[0] * (double)abs((double)(nnr - r)) * res[0];
+	      ledge += (double)abs((double)(nnc - c)) * res[1] * (double)abs((double)(nnc - c)) * res[1];
+	      ledge += (double)abs((double)(nns - s)) * res[2] * (double)abs((double)(nns - s)) * res[2];
 	      ledge = sqrt(ledge);
 
 	      // the edge weight between the current voxel and the
