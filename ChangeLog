@@ -1,3 +1,10 @@
+2013-06-06    <Ramon Casero@BORON>
+
+	* matlab/FiltersToolbox/im2dmatrix.cpp: (0.2.4)
+
+	- Small adjustments to remove some compilation errors under
+	VisualStudio 10 in Windows.
+
 2013-06-06  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/test/test_cgal_closest_trifacet.m: (0.2.2)
@@ -23,7 +30,7 @@
 
 	* matlab/test/test_closest_trifacet.m: (0.3.1)
 
-	Fix bug. I had the wrong function name in the Right Ventricle
+	- Fix bug. I had the wrong function name in the Right Ventricle
 	example, calling cgal_closest_trifacet() instead of
 	closest_trifacet().
 
