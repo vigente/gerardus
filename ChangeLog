@@ -1,5 +1,11 @@
 2013-06-06  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/test/test_closest_trifacet.m: (0.3.1)
+
+	Fix bug. I had the wrong function name in the Right Ventricle
+	example, calling cgal_closest_trifacet() instead of
+	closest_trifacet().
+
 	* matlab/MatlabImageHeader.cxx: (0.1.1)
 	* matlab/GerardusCommon.h: (9.0.2)
 	* matlab/MatlabExportFilter.hxx: (0.2.1)
