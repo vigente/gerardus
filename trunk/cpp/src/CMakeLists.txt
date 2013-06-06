@@ -47,12 +47,12 @@ ADD_DEFINITIONS("-D_SCL_SECURE_NO_WARNINGS")
 # add TCLAP libraries to the include path
 INCLUDE_DIRECTORIES("${GERARDUS_SOURCE_DIR}/cpp/src/third-party/tclap-1.2.1/include")
 
-# build boost libraries
-ADD_SUBDIRECTORY(third-party/boost-1.50.0)
-
 # add Boost libraries to the include and linking paths
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+
+# build boost libraries
+ADD_SUBDIRECTORY(third-party/boost-1.50.0)
 
 # extractVoxelCoordinatesFromSegmentationMask
 ADD_EXECUTABLE(extractVoxelCoordinatesFromSegmentationMask
