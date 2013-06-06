@@ -1,8 +1,8 @@
-% test__closest_trifacet.m
+% test_closest_trifacet.m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % $Rev$
 % $Date$
 %
@@ -128,5 +128,5 @@ plot3(xi(:, 1), xi(:, 2), xi(:, 3), 'r*')
 
 % find closest facet and distance to a point
 tic
-[f, d, p] = cgal_closest_trifacet(tri, x, xi);
+[f, d] = closest_trifacet(tri, x, xi);
 toc
