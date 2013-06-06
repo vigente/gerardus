@@ -71,9 +71,9 @@ Matlab MEX functions (file names given following the linux 64 bit convention. In
 
  * Subversion client
  * C++ compiler
- * CMake
+ * CMake (currently tested with v2.8)
  * m4
- * Insight Toolkit
+ * Insight Toolkit (currently tested with v3.4.1)
  * Matlab
  * Gerardus
 
