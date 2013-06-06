@@ -1,3 +1,12 @@
+2013-06-06  Ramon Casero  <rcasero@gmail.com>
+
+	* cpp/src/CMakeLists.txt: (0.2.6)
+	* cpp/src/third-party/boost-1.50.0/CMakeLists.txt: 
+
+	- BUILD_SHARED_LIBS is a variable specific to the boost
+	libraries. It's better to put it inside the boost CMakeLists.txt,
+	to avoid it affecting other subprojects unintentionally.
+
 2013-06-06    <Ramon Casero@BORON>
 
 	* matlab/FiltersToolbox/im2dmatrix.cpp: (0.2.4)

@@ -12,6 +12,12 @@
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 project(Boost)
 
+# gerardus: we need to make sure that the boost libraries are going to
+# be built as dynamic libraries. Without the following directive, they
+# get built as static, and then CGAL or the MEX files give an error
+# when they try to link to boost libraries
+set(BUILD_SHARED_LIBS ON)
+
 list(APPEND CMAKE_MODULE_PATH "${Boost_SOURCE_DIR}/ryppl/cmake/Modules")
 
 set(RYPPL_INITIAL_PASS TRUE CACHE BOOL "")
