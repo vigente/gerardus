@@ -70,7 +70,7 @@ if(WIN32 AND NOT CYGWIN)
     src/unique_path.cpp
     src/windows_file_codecvt.cpp
     )
-  set_target_properties(boost_systemlib PROPERTIES
+  set_target_properties(boost_filesystemlib PROPERTIES
     OUTPUT_NAME "boost_filesystem"
     )
   
