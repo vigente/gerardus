@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2010-2011 University of Oxford
-# Version: 0.2.6
+# Version: 0.2.7
 # $Rev$
 # $Date$
 #
