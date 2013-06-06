@@ -53,3 +53,43 @@ ryppl_export(
   INCLUDE_DIRECTORIES
     include
   )
+
+# gerardus: Primarly, we need to generate DLLs for the boost libraries
+# so that they can be linked into MEX files. However, CMake for
+# Windows doesn't seem to know how to link executables to the DLLs,
+# which means that we have to generate additional static libraries too
+if(WIN32 AND NOT CYGWIN)
+  add_library(boost_filesystemlib
+    STATIC
+    src/operations.cpp
+    src/path.cpp
+    src/portability.cpp
+    src/utf8_codecvt_facet.cpp
+    src/codecvt_error_category.cpp
+    src/path_traits.cpp
+    src/unique_path.cpp
+    src/windows_file_codecvt.cpp
+    )
+  set_target_properties(boost_systemlib PROPERTIES
+    OUTPUT_NAME "boost_filesystem"
+    )
+  
+  ryppl_export(
+    TARGETS
+    boost_filesystemlib
+    DEPENDS
+    BoostConfig
+    BoostCore
+    #     BoostFunctionalHash
+    #     BoostIO
+    #     BoostInteger
+    #     BoostIterator
+    #     BoostSmartPtr
+    #     BoostStaticAssert
+    BoostSystem
+    #     BoostTypeTraits
+    #     BoostUtility
+    INCLUDE_DIRECTORIES
+    include
+    )
+endif()

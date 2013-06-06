@@ -46,6 +46,45 @@ ryppl_export(
     include
   )
 
+# gerardus: Primarly, we need to generate DLLs for the boost libraries
+# so that they can be linked into MEX files. However, CMake for
+# Windows doesn't seem to know how to link executables to the DLLs,
+# which means that we have to generate additional static libraries too
+if(WIN32 AND NOT CYGWIN)
+  add_library(boost_date_timelib
+    STATIC
+    src/gregorian/greg_month.cpp
+    src/gregorian/greg_weekday.cpp
+    src/gregorian/date_generators.cpp
+    )
+  set_target_properties(boost_date_timelib PROPERTIES
+    OUTPUT_NAME "boost_date_time"
+    )
+  
+  ryppl_export(
+    TARGETS
+    boost_date_timelib
+    DEPENDS
+    #     BoostAlgorithm
+    BoostConfig
+    #     BoostConversion
+    BoostCore
+    #     BoostException
+    #     BoostIO
+    #     BoostInteger
+    #     BoostMPL
+    #     BoostRange
+    #     BoostSmartPtr
+    #     BoostTokenizer
+    #     BoostTypeTraits
+    #     BoostUtility
+    #   RECOMMENDS
+    #     BoostSerialization
+    INCLUDE_DIRECTORIES
+    include
+    )
+endif()
+
 return()
 
 file(GLOB date_time_files boost/date_time/*.hpp)
