@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2010-2011 University of Oxford
-# Version: 0.2.5
+# Version: 0.2.6
 # $Rev$
 # $Date$
 #
@@ -180,12 +180,6 @@ else(WIN32 AND NOT CYGWIN)
     CACHE PATH "Path to MPFR library")
 
 endif(WIN32 AND NOT CYGWIN)
-
-# we need to make sure that the boost libraries are going to be built
-# as dynamic libraries. Without the following directive, they get
-# built as static, and then CGAL gives an error when it tries to build
-# a dynamic library with them
-set(BUILD_SHARED_LIBS ON)
 
 # call the subprojects
 ADD_SUBDIRECTORY(third-party/boost-1.50.0)
