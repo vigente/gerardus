@@ -1,5 +1,11 @@
 2013-06-06  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CgalToolbox/CgalClosestTriFacet.cpp: (0.1.3)
+	* matlab/CgalToolbox/cgal_closest_trifacet.m: (0.1.1)
+	* matlab/ManifoldToolbox/closest_trifacet.m: (0.2.2)
+
+	- Add note to help header comparing speeds.
+
 	* matlab/CgalToolbox/CgalClosestTriFacet.cpp: (0.1.2)
 
 	- Compute the distance directly from the closest point result

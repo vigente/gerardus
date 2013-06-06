@@ -2,6 +2,10 @@
  *
  * CGAL_CLOSEST_TRIFACET  Closest triangular facet of a mesh to a point in 3D
  *
+ *  Note that this Matlab implementation is 54 times slower than the
+ *  C++ MEX implementation cgal_closest_trifacet() in the Right Ventricle
+ *  example of matlab/test/cgal_closest_trifacet.m.
+ *
  * [IDX, D, P] = cgal_closest_trifacet(TRI, X, XI)
  *
  *   TRI is a 3-column matrix. Each row contains the 3 nodes that form one
@@ -32,7 +36,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.2
+  * Version: 0.1.3
   * $Rev$
   * $Date$
   *
