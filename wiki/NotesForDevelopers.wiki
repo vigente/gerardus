@@ -192,6 +192,10 @@ grcs(1, :) = grcs(1, :) + idxm(1);
 
 = Integrating the Boost C++ libraries in gerardus =
 
+== Adding the ryppl CMake version of Boost ==
+
+At the time of this writing, Boost 1.50.0.
+
  # Go to the C++ third-party directory
 {{{
 $ cd cpp/src/third-party
@@ -281,3 +285,29 @@ else(WIN32)
     DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
 endif(WIN32)
 }}}
+
+== Precompile Boost libraries for Windows ==
+
+The ryppl CMake version of Boost above works for Linux, but not for Windows, because it only creates one variation of each library (single-threaded, shared library), and Gerardus requires the static or multi-threaded variant in some cases.
+
+In order to make Gerardus compile in Windows, we have to precompile the Boost libraries separately, and then distribute them with Gerardus.
+
+The alternative would be to provide the source code for Boost, and build Boost automatically as an external project. But not only is the boost source code huge, it would take for a long time to compile.
+
+The following instructions are to be followed on Windows.
+
+ # Download the [http://www.boost.org/users/history/version_1_50_0.html Boost source code version 1.50.0 for Windows] and unzip to `C:\Users\YourName\Downloads\boost_1_50_0`
+ # Open a command line terminal with Start->`cmd`
+ # Change directory to the boost source with 
+{{{
+cd C:\Users\YourName\Downloads\boost_1_50_0
+}}}
+ # Configure the build
+{{{
+bootstrap.bat
+}}}
+ # Build the libraries, only those required by Gerardus (otherwise, the whole collection of compiled libraries takes up 1.5GB), with all variants, and copy them to a `gerardus` directory from which we can copy them over to the Gerardus source code tree. This will take for quite a long time
+{{{
+b2 install --prefix=.\gerardus --build-dir=.\bin --layout=tagged --build-type=complete  --build-type=complete --with-chrono --with-date_time --with-filesystem --with-system --with-thread
+}}}
+ # Note that this will create the directories `boost_1_50_0\gerardus\lib` and `boost_1_50_0\gerardus\include`. We already have `include` in Gerardus, so we have ignore it. The content of the `lib` directory can be copied to `gerardus\lib`
