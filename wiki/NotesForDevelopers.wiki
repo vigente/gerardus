@@ -190,124 +190,27 @@ lmax = ceil(sqrt(sum(([nrrd.axis.size] - 1).^2)));
 grcs(1, :) = grcs(1, :) + idxm(1);
 }}}
 
-= Integrating the Boost C++ libraries in gerardus =
+= Integrating the Boost C++ libraries with Gerardus =
 
-== Adding the ryppl CMake version of Boost ==
+These are notes of what we did to get the Boost libraries code into Gerardus.
 
-At the time of this writing, Boost 1.50.0.
-
- # Go to the C++ third-party directory
+ # Go to the [http://www.boost.org/ Boost C++ Libraries] and click on the current release link (1.53.0 at the time of this writing)
+ # Download the tarball with the whole project, e.g. [https://sourceforge.net/projects/boost/files/boost/1.53.0/boost_1_53_0.tar.bz2/download boost_1_53_0.tar.bz2]
+ # Extract `boost_1_53_0` to `gerardus/cpp/src/third-party`. This takes up 456M, which is too much to distribute with Gerardus
+ # Change to the boost source code directory
 {{{
-$ cd cpp/src/third-party
+cd gerardus/cpp/src/third-party/boost_1_53_0
 }}}
- # Download the source code of the [https://svn.boost.org/trac/boost/wiki/CMakeModularizationStatus#CMakeSupport CMake-fied Boost project]
+ # Delete documentation, tests and examples to reduce the size to 144M
 {{{
-$ git clone http://github.com/ryppl/boost-zero boost
-$ cd boost
-$ git submodule update --init
+find . -name test | xargs rm -rf
+find . -name doc | xargs rm -rf
+find . -name examples | xargs rm -rf
+find . -name example | xargs rm -rf
 }}}
- # Delete git metadata, and documentation and test directories
+ # Add and commit the boost source code to the gerardus repository
 {{{
-$ find . -name ".git*" | xargs rm -rf
-$ find . -name doc | xargs rm -rf
-$ find . -name test | grep -v './boost/test$' | xargs rm -rf
+cd ..
+svn add boost_1_53_0
+svn ci boost_1_53_0
 }}}
- # Add the remaining files to Gerardus' subversion repository
-{{{
-$ svn add ../boost
-}}}
- # Create a test file with the commit message, e.g. `boost/svn-commit.txt`
-{{{
-2012-09-04  Ramon Casero  <rcasero@gmail.com>
-
-	* Add cpp/src/third-party/boost:
-
-	- CMake-fied Boost C++ libraries downloaded from
-
-	https://github.com/ryppl/boost-zero
-
-	See details in
-
-	http://code.google.com/p/gerardus/wiki/BuildInstructions#Integrating_the_Boost_C++_libraries_in_gerardus
-}}}
- # Start committing directories to the repository. We have to do this in smaller commits, because Google Code won't accept a large commit
-{{{
-$ svn ci --force-log --file svn-commit.txt -N .
-$ svn ci --force-log --file svn-commit.txt build.cmake CMakeLists.txt LICENSE_1_0.txt ryppl
-$ svn ci --force-log --file svn-commit.txt -N boost
-$ for i in {a..z}; do svn ci --force-log --file svn-commit.txt boost/$i*; done
-}}}
- # Comment out doc and test subdirectories from each module's CMakeLists.txt
-{{{
-$ find . -name CMakeLists.txt | xargs sed -i 's/ryppl_add_doc_subdirectory(doc)/#ryppl_add_doc_subdirectory(doc)/'
-$ find . -name CMakeLists.txt | xargs sed -i 's/ryppl_add_test_subdirectory(test)/#ryppl_add_test_subdirectory(test)/'
-}}}
- # Fix small bug in `cpp/src/third-party/boost/boost/thread/src/pthread/thread.cpp`
-{{{
-#include <../src/pthread/timeconv.inl>
-}}}
- # Fix small bug in `cpp/src/third-party/boost/boost/inspect/inspect.cpp`. Comment out the paragraph
-{{{
-  if ( deprecated_ck )
-      inspectors.push_back( inspector_element( new boost::inspect::deprecated_macro_check ) );
-}}}
- # Build and install Boost separately. This creates, amongst other files and directories, an `include/boost` directory with the header files. Delete all the `.svn` directories, and move this `boost` directory to `gerardus/include`, so that the header files are available to the rest of Gerardus
- # Comment out all Boost modules that we don't need for Gerardus
-{{{
-$ sed -i 's/^add_subdirectory/#add_subdirectory/' CMakeLists.txt
-$ sed -i 's/#add_subdirectory(boost\/config)/add_subdirectory(boost\/config)/' CMakeLists.txt
-$ sed -i 's/#add_subdirectory(boost\/date_time)/add_subdirectory(boost\/date_time)/' CMakeLists.txt
-$ sed -i 's/#add_subdirectory(boost\/filesystem)/add_subdirectory(boost\/filesystem)/' CMakeLists.txt
-$ sed -i 's/#add_subdirectory(boost\/system)/add_subdirectory(boost\/system)/' CMakeLists.txt
-$ sed -i 's/#add_subdirectory(boost\/thread)/add_subdirectory(boost\/thread)/' CMakeLists.txt
-$ sed -i 's/#add_subdirectory(boost\/chrono)/add_subdirectory(boost\/chrono)/' CMakeLists.txt
-}}}
- # Comment out all the `ryppl_export()` blocks in the `CMakeLists.txt` to prevent `make install` from filling `gerardus/lib` with all the files we just saw above when we build Gerardus
-{{{
-$ find . -name CMakeLists.txt | xargs sed -i '/ryppl_export/,/)/s/.*/# &/'
-}}}
-  * If in some case we need to uncomment the `ryppl_export()` blocks, run
-{{{
-$ find . -name CMakeLists.txt | xargs sed -i '/# ryppl_export/,/)/s/^# \(.*\)/\1/g'
-}}}
- # We have removed all the boost targets, so now we need to create them manually. Add to the `CMakeLists.txt` of every Boost module that Gerardus needs (`system`, `filesystem`, `thread`) something like
-{{{
-# install compiled libraries
-if(WIN32)
-  install(TARGETS
-    boost_system
-    RUNTIME ARCHIVE
-    DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
-else(WIN32)
-  install(TARGETS
-    boost_system
-    LIBRARY ARCHIVE
-    DESTINATION ${GERARDUS_SOURCE_DIR}/lib)
-endif(WIN32)
-}}}
-
-== Precompile Boost libraries for Windows ==
-
-The ryppl CMake version of Boost above works for Linux, but not for Windows, because it only creates one variation of each library (single-threaded, shared library), and Gerardus requires the static or multi-threaded variant in some cases.
-
-In order to make Gerardus compile in Windows, we have to precompile the Boost libraries separately, and then distribute them with Gerardus.
-
-The alternative would be to provide the source code for Boost, and build Boost automatically as an external project. But not only is the boost source code huge, it would take for a long time to compile.
-
-The following instructions are to be followed on Windows.
-
- # Download the [http://www.boost.org/users/history/version_1_50_0.html Boost source code version 1.50.0 for Windows] and unzip to `C:\Users\YourName\Downloads\boost_1_50_0`
- # Open a command line terminal with Start->`cmd`
- # Change directory to the boost source with 
-{{{
-cd C:\Users\YourName\Downloads\boost_1_50_0
-}}}
- # Configure the build
-{{{
-bootstrap.bat
-}}}
- # Build the libraries, only those required by Gerardus (otherwise, the whole collection of compiled libraries takes up 1.5GB), with all variants, and copy them to a `gerardus` directory from which we can copy them over to the Gerardus source code tree. This will take for quite a long time
-{{{
-b2 install --prefix=.\gerardus --build-dir=.\bin --layout=tagged --build-type=complete  --build-type=complete --with-chrono --with-date_time --with-filesystem --with-system --with-thread
-}}}
- # Note that this will create the directories `boost_1_50_0\gerardus\lib` and `boost_1_50_0\gerardus\include`. We already have `include` in Gerardus, so we have ignore it. The content of the `lib` directory can be copied to `gerardus\lib`
