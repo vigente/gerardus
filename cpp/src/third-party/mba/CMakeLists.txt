@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.1.2
+# Version: 0.1.3
 # $Rev$
 # $Date$
 #
@@ -31,16 +31,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 # MBA library
-
-## flags for all targets
-IF(WIN32)
-  # to remove warnings from MSVC compiler asking to use fopen_s() an other unportable
-  # functions exclusive to Microsoft
-  ADD_DEFINITIONS("-D_CRT_SECURE_NO_DEPRECATE")
-ELSE(WIN32)
-  # optimise and show all warnings
-  ADD_DEFINITIONS("-O2 -Wall")
-ENDIF(WIN32)
 
 #FIND_PACKAGE(OpenGL REQUIRED)
 IF(WIN32)
