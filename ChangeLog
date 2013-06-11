@@ -1,3 +1,12 @@
+2013-06-11  Ramon Casero  <rcasero@gmail.com>
+
+	* Add cpp/src/third-party/boost_1_50_0:
+
+	- The rpply version of Boost 1.50.0 is just not going to work with
+	Windows without substantial effort. I'm adding the original source
+	files, after deleting the doc, test and example directories, to
+	try to build boost as an external project.
+
 2013-06-06  Ramon Casero  <rcasero@gmail.com>
 
 	* cpp/src/CMakeLists.txt: (0.2.7)
