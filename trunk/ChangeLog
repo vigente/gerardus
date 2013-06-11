@@ -1,9 +1,15 @@
+2013-06-12  Ramon Casero  <rcasero@gmail.com>
+
+
 2013-06-11  Ramon Casero  <rcasero@gmail.com>
 
 	* CMakeLists.txt: (0.3.0)
 	* matlab/CMakeLists.txt: (0.3.0)
 	* matlab/ItkToolbox/CMakeLists.txt: (0.6.0)
 	* matlab/CgalToolbox/CMakeLists.txt: (0.2.2)
+	* cpp/src/CMakeLists.txt: (0.3.0)
+	* cpp/src/third-party/mba/CMakeLists.txt: (0.1.3)
+	* Delete include/boost:
 
 	- Quite big change in the CMake build system. Now Boost libraries
 	are built as an external project. Attempts to integrate the build
