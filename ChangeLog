@@ -1,5 +1,13 @@
 2013-06-11  Ramon Casero  <rcasero@gmail.com>
 
+	* CMakeLists.txt: ()
+
+	* Replace cpp/src/third-party/boost_1_50_0 by
+	cpp/src/third-party/boost_1_53_0:
+
+	- Now we are not limited to the older version by rpply, so we may
+	as well get the latest one.
+
 	* Add cpp/src/third-party/boost_1_50_0:
 
 	- The rpply version of Boost 1.50.0 is just not going to work with
