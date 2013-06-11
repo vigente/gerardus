@@ -1,7 +1,27 @@
 2013-06-11  Ramon Casero  <rcasero@gmail.com>
 
-	* CMakeLists.txt: ()
+	* CMakeLists.txt: (0.3.0)
+	* matlab/CMakeLists.txt: (0.3.0)
+	* matlab/ItkToolbox/CMakeLists.txt: (0.6.0)
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.2)
 
+	- Quite big change in the CMake build system. Now Boost libraries
+	are built as an external project. Attempts to integrate the build
+	and install more closely with the Gerardus CMake build system have
+	proven unsuccessful, in part because without using
+	FindBoost.cmake, the linker gets confused between the local Boost
+	and any system-wide installed Boost, and FindBoost.cmake runs in
+	the configuration phase, before ExternalProject_Add() has the
+	chance to build Boost.
+
+	- The CMake configuration of some third party libraries, like the
+	GMP and MPFR dependencies of CGAL, as well as the Matlab
+	configuration have been moved to the root CMakeLists.txt.
+
+	- Compilation and linking options have been grouped and arranged
+	accordingly.
+
+	* Delete cpp/src/third-party/boost-1.50.0:
 	* Replace cpp/src/third-party/boost_1_50_0 by
 	cpp/src/third-party/boost_1_53_0:
 

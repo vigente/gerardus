@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.2.1
+# Version: 0.2.2
 # $Rev$
 # $Date$
 #
@@ -28,13 +28,8 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-################################################################
-## Post-compilation for all targets
-################################################################
-
-IF(NOT WIN32)
-  ADD_DEFINITIONS("-O2 -Wall")
-ENDIF(NOT WIN32)
+# add Boost to the linking paths of the mex libraries generated here
+link_directories(${Boost_LIBRARY_DIRS})
 
 ################################################################
 ## cgal_insurftri()
@@ -50,6 +45,7 @@ INCLUDE_DIRECTORIES(
   )
 TARGET_LINK_LIBRARIES(cgal_insurftri
   CGAL
+  boost_system
   ${ITK_LIBRARIES})
 
 ################################################################
@@ -67,6 +63,7 @@ INCLUDE_DIRECTORIES(
   )
 TARGET_LINK_LIBRARIES(cgal_closest_trifacet
   CGAL
+  boost_system
   ${ITK_LIBRARIES})
 
 ################################################################

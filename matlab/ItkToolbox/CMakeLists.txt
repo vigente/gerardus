@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.5.8
+# Version: 0.6.0
 # $Rev$
 # $Date$
 #
@@ -29,14 +29,6 @@
 # <http://www.gnu.org/licenses/>.
 
 ################################################################
-## Post-compilation for all targets
-################################################################
-
-IF(NOT WIN32)
-  ADD_DEFINITIONS("-O2 -Wall")
-ENDIF(NOT WIN32)
-
-################################################################
 ## itk_imfilter()
 ################################################################
 
@@ -58,21 +50,6 @@ TARGET_LINK_LIBRARIES(itk_imfilter
 # and only available once CGAL has installed
 add_dependencies(itk_imfilter copy_compiler_config.h)
 
-# ################################################################
-# ## itk_registration()
-# ################################################################
-
-# ADD_MEX_FILE(itk_registration 
-#   ../GerardusCommon.cpp
-#   ../MatlabImageHeader.cxx
-#   ItkRegistration.cpp)
-
-# INCLUDE_DIRECTORIES(
-#   .
-#   )
-# TARGET_LINK_LIBRARIES(itk_registration
-#   ${ITK_LIBRARIES})
-
 ################################################################
 ## itk_pstransform
 ################################################################
@@ -89,14 +66,12 @@ IF(WIN32)
   INSTALL(TARGETS
     itk_imfilter
     itk_pstransform
-#    itk_registration
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ELSE(WIN32)
   INSTALL(TARGETS
     itk_imfilter
     itk_pstransform
-#    itk_registration
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ENDIF(WIN32)
