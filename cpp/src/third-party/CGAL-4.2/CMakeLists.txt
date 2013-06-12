@@ -7,7 +7,7 @@
 # Modified by Ramon Casero for project Gerardus (see section "Gerardus
 # modifications" and comments headed by "gerardus:").
 #
-# Version: 0.1.0
+# Version: 0.1.1
 # $Rev$
 # $Date$
 
@@ -55,6 +55,10 @@ set(WITH_CGAL_ImageIO OFF CACHE BOOL "Whether library CGAL_ImageIO is selected")
 
 # don't install files that we don't need
 set(CGAL_INSTALL_DOC_DIR FALSE)
+
+# add Boost include and linking paths
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
 
 #--------------------------------------------------------------------------------------------------
 #

@@ -1,5 +1,15 @@
 2013-06-12  Ramon Casero  <rcasero@gmail.com>
 
+
+	* CMakeLists.txt: (0.3.3)
+	* cpp/src/CMakeLists.txt: (0.3.2)
+	* cpp/src/third-party/CGAL-4.2/CMakeLists.txt: (0.1.1)
+	* matlab/ItkToolbox/CMakeLists.txt: (0.6.1)
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.3)
+
+	- Final changes to make Gerardus build on Windows 64 bit, with Visual 
+	Studio 10.
+
 	* CMakeLists.txt: (0.3.2)
 	* cpp/src/CMakeLists.txt: (0.3.1)
 

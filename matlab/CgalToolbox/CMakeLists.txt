@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.2.2
+# Version: 0.2.3
 # $Rev$
 # $Date$
 #
@@ -28,7 +28,8 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-# add Boost to the linking paths of the mex libraries generated here
+# add Boost include and linking paths
+include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
 ################################################################
@@ -45,7 +46,7 @@ INCLUDE_DIRECTORIES(
   )
 TARGET_LINK_LIBRARIES(cgal_insurftri
   CGAL
-  boost_system
+  ${Boost_SYSTEM_LIBRARY}
   ${ITK_LIBRARIES})
 
 ################################################################
@@ -63,7 +64,7 @@ INCLUDE_DIRECTORIES(
   )
 TARGET_LINK_LIBRARIES(cgal_closest_trifacet
   CGAL
-  boost_system
+  ${Boost_SYSTEM_LIBRARY}
   ${ITK_LIBRARIES})
 
 ################################################################
