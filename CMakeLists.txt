@@ -1,4 +1,4 @@
-﻿# Author: Ramon Casero <rcasero@gmail.com>
+# Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
 # Version: 0.3.1
 # $Rev$
@@ -298,12 +298,6 @@ else()
   find_package(Boost 1.53.0 
     COMPONENTS chrono date_time filesystem system thread)
   
-IF(Boost_FOUND)
-MESSAGE("Foooooooooooound: ${Boost_LIBRARIES}")
-ELSEIF()
-MESSAGE("Not Foooooooooooound")
-ENDIF()
-
   # Get Boost version number from its config.hpp file
   set(BOOST_VERSION 0)
   file(READ "${Boost_INCLUDE_DIR}/boost/version.hpp"
