@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.3.2
+# Version: 0.3.4
 # $Rev$
 # $Date$
 #
@@ -307,8 +307,12 @@ else()
   message(STATUS "Boost include path: ${Boost_INCLUDE_DIRS}")
   message(STATUS "Boost lib path:     ${Boost_LIBRARY_DIRS}")
   
-  SET(Boost_NO_SYSTEM_PATHS        TRUE)
-  set(Boost_USE_STATIC_LIBS        ON)
+  set(Boost_NO_SYSTEM_PATHS        TRUE)
+  if (WIN32)
+    set(Boost_USE_STATIC_LIBS        ON)
+  else()
+    set(Boost_USE_STATIC_LIBS        OFF)
+  endif()
   set(Boost_USE_MULTITHREADED      ON)
   set(Boost_USE_STATIC_RUNTIME     OFF)
   add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
@@ -317,7 +321,7 @@ else()
   # build system
   find_package(Boost 1.53.0 
     COMPONENTS chrono date_time filesystem system thread)
-  
+
   # Get Boost version number from its config.hpp file
   set(BOOST_VERSION 0)
   file(READ "${Boost_INCLUDE_DIR}/boost/version.hpp"
