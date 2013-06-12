@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.3.0
+# Version: 0.3.1
 # $Rev$
 # $Date$
 #
@@ -263,21 +263,23 @@ if(NOT EXISTS "${GERARDUS_SOURCE_DIR}/include/boost/version.hpp")
   include(ExternalProject)
 
   if(WIN32)
-    set(Boost_bootstrap "bootstrap.exe")
+    set(Boost_bootstrap "bootstrap.bat")
+    set(Boost_b2 "b2")
+    set(Boost_layout "versioned")
   else()
-    set(Boost_bootstrap "bootstrap.sh")
+    set(Boost_bootstrap "./bootstrap.sh")
+    set(Boost_b2 "./b2")
+    set(Boost_layout "tagged")
   endif()
   
   ExternalProject_Add(Boost
     PREFIX ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_1_53_0/
     SOURCE_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_1_53_0/
     BINARY_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_1_53_0/
-    CONFIGURE_COMMAND ./${Boost_bootstrap}
-    BUILD_COMMAND ./b2 --prefix=${GERARDUS_SOURCE_DIR} 
-    --build-dir=./bin --layout=tagged --build-type=complete  
-    --with-chrono --with-date_time --with-filesystem --with-system --with-thread
+    CONFIGURE_COMMAND ${Boost_bootstrap}
+    BUILD_COMMAND ""
     TEST_BEFORE_INSTALL 0
-    INSTALL_COMMAND ./b2 install --prefix=${GERARDUS_SOURCE_DIR} 
+    INSTALL_COMMAND ${Boost_b2} install --prefix=${GERARDUS_SOURCE_DIR} 
     --build-dir=./bin --layout=tagged --build-type=complete  
     --with-chrono --with-date_time --with-filesystem --with-system --with-thread
     LOG_CONFIGURE 1
