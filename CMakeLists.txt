@@ -1,4 +1,4 @@
-# Author: Ramon Casero <rcasero@gmail.com>
+﻿# Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
 # Version: 0.3.1
 # $Rev$
@@ -108,7 +108,7 @@ endif(NOT WIN32)
 project(GERARDUS)
 
 #############################################################################################
-## Third-party library: CGAL
+## Third-party libraries: GMP and MRPF
 #############################################################################################
 
 if(WIN32 AND NOT CYGWIN)
@@ -163,7 +163,8 @@ else(WIN32 AND NOT CYGWIN)
     PREFIX ${MPFR_SOURCE_DIR}
     STAMP_DIR ${MPFR_SOURCE_DIR}/output
     SOURCE_DIR ${MPFR_SOURCE_DIR}
-    CONFIGURE_COMMAND ./configure --prefix=${MPFR_SOURCE_DIR}/output --with-gmp-include=${GMP_SOURCE_DIR}/output/include --with-gmp-lib=${GMP_SOURCE_DIR}/output/lib
+    CONFIGURE_COMMAND ./configure --prefix=${MPFR_SOURCE_DIR}/output 
+	--with-gmp-include=${GMP_SOURCE_DIR}/output/include --with-gmp-lib=${GMP_SOURCE_DIR}/output/lib
     BINARY_DIR ${MPFR_SOURCE_DIR}
     BUILD_COMMAND make
     TEST_BEFORE_INSTALL 1
@@ -189,20 +190,6 @@ else(WIN32 AND NOT CYGWIN)
     CACHE PATH "Path to MPFR library")
 
 endif(WIN32 AND NOT CYGWIN)
-
-# call the subproject, as CGAL is distributed with a CMAke build
-ADD_SUBDIRECTORY(cpp/src/third-party/CGAL-4.2)
-
-# after CGAL builds, we need to copy the header file compiler_config.h
-# it generates to the CGAL include directory, so that it's available
-# for the other sub-projects that use CGAL (e.g. itk_imfilter)
-add_custom_command(
-  OUTPUT ${CGAL_SOURCE_DIR}/include/CGAL/compiler_config.h
-  COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/include/CGAL/compiler_config.h" "${CGAL_SOURCE_DIR}/include/CGAL/"
-  MAIN_DEPENDENCY ${CMAKE_CURRENT_BINARY_DIR/../../include/CGAL/compiler_config.h}
-  DEPENDS CGAL
-  )
-add_custom_target(copy_compiler_config.h DEPENDS "${CGAL_SOURCE_DIR}/include/CGAL/compiler_config.h")
 
 #############################################################################################
 ## Third-party library: ITK
@@ -280,7 +267,7 @@ if(NOT EXISTS "${GERARDUS_SOURCE_DIR}/include/boost/version.hpp")
     BUILD_COMMAND ""
     TEST_BEFORE_INSTALL 0
     INSTALL_COMMAND ${Boost_b2} install --prefix=${GERARDUS_SOURCE_DIR} 
-    --build-dir=./bin --layout=tagged --build-type=complete  
+    --build-dir=./bin --layout=${Boost_layout} --build-type=complete  
     --with-chrono --with-date_time --with-filesystem --with-system --with-thread
     LOG_CONFIGURE 1
     LOG_BUILD 1
@@ -295,10 +282,14 @@ else()
 
   # path to the Boost header files and libraries once they are built
   # and installed
-  set(Boost_INCLUDE_DIR "${GERARDUS_SOURCE_DIR}/include")
+  if(WIN32)
+     set(Boost_INCLUDE_DIR "${GERARDUS_SOURCE_DIR}/include")
+  else()
+     set(Boost_INCLUDE_DIR "${GERARDUS_SOURCE_DIR}/include")
+  endif()
   set(Boost_LIBRARY_DIR "${GERARDUS_SOURCE_DIR}/lib")
-  set(Boost_INCLUDE_DIRS "${GERARDUS_SOURCE_DIR}/include")
-  set(Boost_LIBRARY_DIRS "${GERARDUS_SOURCE_DIR}/lib")
+  set(Boost_INCLUDE_DIRS "${Boost_INCLUDE_DIR}")
+  set(Boost_LIBRARY_DIRS "${Boost_LIBRARY_DIR}")
   message(STATUS "Boost include path: ${Boost_INCLUDE_DIRS}")
   message(STATUS "Boost lib path:     ${Boost_LIBRARY_DIRS}")
   
@@ -307,6 +298,12 @@ else()
   find_package(Boost 1.53.0 
     COMPONENTS chrono date_time filesystem system thread)
   
+IF(Boost_FOUND)
+MESSAGE("Foooooooooooound: ${Boost_LIBRARIES}")
+ELSEIF()
+MESSAGE("Not Foooooooooooound")
+ENDIF()
+
   # Get Boost version number from its config.hpp file
   set(BOOST_VERSION 0)
   file(READ "${Boost_INCLUDE_DIR}/boost/version.hpp"
@@ -322,6 +319,27 @@ else()
   endif()
   
 endif()
+
+#############################################################################################
+## Third-party library: CGAL
+#############################################################################################
+
+# note that CGAL depends on Boost, but it's too cumbersome to add
+# an explicit dependency
+
+# call the subproject, as CGAL is distributed with a CMAke build
+ADD_SUBDIRECTORY(cpp/src/third-party/CGAL-4.2)
+
+# after CGAL builds, we need to copy the header file compiler_config.h
+# it generates to the CGAL include directory, so that it's available
+# for the other sub-projects that use CGAL (e.g. itk_imfilter)
+add_custom_command(
+  OUTPUT ${CGAL_SOURCE_DIR}/include/CGAL/compiler_config.h
+  COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/include/CGAL/compiler_config.h" "${CGAL_SOURCE_DIR}/include/CGAL/"
+  MAIN_DEPENDENCY ${CMAKE_CURRENT_BINARY_DIR/../../include/CGAL/compiler_config.h}
+  DEPENDS CGAL
+  )
+add_custom_target(copy_compiler_config.h DEPENDS "${CGAL_SOURCE_DIR}/include/CGAL/compiler_config.h")
 
 #############################################################################################
 ## Configuration options for all Gerardus
