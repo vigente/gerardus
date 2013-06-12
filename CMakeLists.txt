@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.3.1
+# Version: 0.3.2
 # $Rev$
 # $Date$
 #
@@ -242,7 +242,11 @@ ENDIF(WIN32)
 #  $ make         ====> build
 #  $ make install ====> install
 
-if(NOT EXISTS "${GERARDUS_SOURCE_DIR}/include/boost/version.hpp")
+find_file(Boost_version_hpp version.hpp
+   PATHS "${GERARDUS_SOURCE_DIR}/include/boost-1_53/boost/" "${GERARDUS_SOURCE_DIR}/include/boost/"
+   NO_DEFAULT_PATH)
+
+if(NOT Boost_version_hpp)
 
   message(STATUS "First run: Local Boost libraries for Gerardus need to be built")
 
@@ -259,6 +263,14 @@ if(NOT EXISTS "${GERARDUS_SOURCE_DIR}/include/boost/version.hpp")
     set(Boost_layout "tagged")
   endif()
   
+  # linking of binary programs under Windows will fail if the Boost libraries
+  # are not explicitely built with the right "address model" (32 or 64 bit)
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+     set(Boost_address_model 64)
+  else()
+     set(Boost_address_model 32)
+  endif()
+
   ExternalProject_Add(Boost
     PREFIX ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_1_53_0/
     SOURCE_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_1_53_0/
@@ -266,8 +278,9 @@ if(NOT EXISTS "${GERARDUS_SOURCE_DIR}/include/boost/version.hpp")
     CONFIGURE_COMMAND ${Boost_bootstrap}
     BUILD_COMMAND ""
     TEST_BEFORE_INSTALL 0
-    INSTALL_COMMAND ${Boost_b2} install --prefix=${GERARDUS_SOURCE_DIR} 
-    --build-dir=./bin --layout=${Boost_layout} --build-type=complete  
+    INSTALL_COMMAND ${Boost_b2} install release --prefix=${GERARDUS_SOURCE_DIR} 
+    --build-dir=./bin --layout=${Boost_layout} --build-type=complete 
+    address-model=${Boost_address_model}
     --with-chrono --with-date_time --with-filesystem --with-system --with-thread
     LOG_CONFIGURE 1
     LOG_BUILD 1
@@ -283,7 +296,8 @@ else()
   # path to the Boost header files and libraries once they are built
   # and installed
   if(WIN32)
-     set(Boost_INCLUDE_DIR "${GERARDUS_SOURCE_DIR}/include")
+     set(Boost_INCLUDE_DIR "${GERARDUS_SOURCE_DIR}/include/boost-1_53")
+     set(BOOST_ROOT "${GERARDUS_SOURCE_DIR}")
   else()
      set(Boost_INCLUDE_DIR "${GERARDUS_SOURCE_DIR}/include")
   endif()
@@ -293,6 +307,12 @@ else()
   message(STATUS "Boost include path: ${Boost_INCLUDE_DIRS}")
   message(STATUS "Boost lib path:     ${Boost_LIBRARY_DIRS}")
   
+  SET(Boost_NO_SYSTEM_PATHS        TRUE)
+  set(Boost_USE_STATIC_LIBS        ON)
+  set(Boost_USE_MULTITHREADED      ON)
+  set(Boost_USE_STATIC_RUNTIME     OFF)
+  add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
+
   # integrate the local Boost libraries with the rest of the CMake
   # build system
   find_package(Boost 1.53.0 
