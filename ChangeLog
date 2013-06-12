@@ -1,5 +1,13 @@
 2013-06-12  Ramon Casero  <rcasero@gmail.com>
 
+	* CMakeLists.txt: (0.3.2)
+	* cpp/src/CMakeLists.txt: (0.3.1)
+
+	- Some more Windows-specific changes to build the Boost libraries. 
+	Use ${Boost_LIBRARIES} instead of the names of individual libraries.
+	This way, it'll work for both Windows and Unix-like builds, as
+	find_package(Boost) will take care of finding the library names.
+
 	* CMakeLists.txt: (0.3.1)
 
 	- Add Windows-specific syntax to build the Boost libraries.
