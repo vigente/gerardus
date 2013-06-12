@@ -1,5 +1,8 @@
 2013-06-12  Ramon Casero  <rcasero@gmail.com>
 
+	* release 0.9.0:
+
+	- Gerardus now builds on Linux and Windows, 64 bit.
 
 	* CMakeLists.txt: (0.3.4)
 
