@@ -1,5 +1,8 @@
 2013-06-12  Ramon Casero  <rcasero@gmail.com>
 
+	* CMakeLists.txt: (0.3.1)
+
+	- Add Windows-specific syntax to build the Boost libraries.
 
 2013-06-11  Ramon Casero  <rcasero@gmail.com>
 
