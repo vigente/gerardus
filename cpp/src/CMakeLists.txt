@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2010-2011 University of Oxford
-# Version: 0.3.1
+# Version: 0.3.2
 # $Rev$
 # $Date$
 #
@@ -48,28 +48,28 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/third-party/tclap-1.2.1/include
 ADD_EXECUTABLE(extractVoxelCoordinatesFromSegmentationMask
   ExtractVoxelCoordinatesFromSegmentationMask.cxx)
 TARGET_LINK_LIBRARIES(extractVoxelCoordinatesFromSegmentationMask 
-  ${Boost_LIBRARIES}
+  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
   ${ITK_LIBRARIES})
 
 # padImageWithVoxels
 ADD_EXECUTABLE(padSegmentationMaskWithVoxels
   PadSegmentationMaskWithVoxels.cxx)
 TARGET_LINK_LIBRARIES(padSegmentationMaskWithVoxels
-  ${Boost_LIBRARIES}
+  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
   ${ITK_LIBRARIES})
 
 # rotate3DImage
 ADD_EXECUTABLE(rotate3DImage
   Rotate3DImage.cxx)
 TARGET_LINK_LIBRARIES(rotate3DImage
-  ${Boost_LIBRARIES}
+  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
   ${ITK_LIBRARIES})
 
 # resize3DImage
 ADD_EXECUTABLE(resize3DImage
   Resize3DImage.cxx)
 TARGET_LINK_LIBRARIES(resize3DImage
-  ${Boost_LIBRARIES}
+  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
   ${ITK_LIBRARIES})
 
 # skeletonize3DSegmentation
@@ -77,21 +77,21 @@ ADD_EXECUTABLE(skeletonize3DSegmentation
   Skeletonize3DSegmentation.cxx)
 INCLUDE_DIRECTORIES(third-party/itkBinaryThinningImageFilter3D/Source)
 TARGET_LINK_LIBRARIES(skeletonize3DSegmentation
-  ${Boost_LIBRARIES}
+  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
   ${ITK_LIBRARIES})
 
 # vesselness3DImage
 ADD_EXECUTABLE(vesselness3DImage
   Vesselness3DImage.cxx)
 TARGET_LINK_LIBRARIES(vesselness3DImage
-  ${Boost_LIBRARIES}
+  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
   ${ITK_LIBRARIES})
 
 # rigidRegistration2D
 ADD_EXECUTABLE(rigidRegistration2D
   RigidRegistration2D.cxx)
 TARGET_LINK_LIBRARIES(rigidRegistration2D
-  ${Boost_LIBRARIES}
+  ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
   ${ITK_LIBRARIES})
 
 ################################################################
