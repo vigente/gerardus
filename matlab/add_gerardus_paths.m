@@ -11,7 +11,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -38,10 +38,6 @@
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see
 % <http://www.gnu.org/licenses/>.
-
-% check arguments
-narginchk(0, 0);
-nargoutchk(0, 0);
 
 % path to the gerardus/matlab directory (or equivalently, path to this file
 % add_gerardus_paths.m)
