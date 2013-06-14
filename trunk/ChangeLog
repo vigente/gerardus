@@ -1,5 +1,9 @@
 2013-06-14  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/add_gerardus_paths.m: (0.1.1)
+
+	- Fix bug. Argument checking in a script produces error.
+
 	* Add matlab/add_gerardus_paths.m: (0.1.0)
 
 	- Add all Gerardus toolboxes to the Matlab path.
