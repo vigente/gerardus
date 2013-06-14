@@ -1,5 +1,9 @@
 2013-06-14  Ramon Casero  <rcasero@gmail.com>
 
+	* Rename matlab/ThirdPartyToolbox/nifti as matlab/ThirdPartyToolbox/niftiToolbox:
+
+	- So that it follows the same convention as the others.
+
 	* matlab/ItkToolbox/CMakeLists.txt: (0.6.2)
 
 	- Fix bug. No need to link itk_imfilter to CGAL. This also creates
