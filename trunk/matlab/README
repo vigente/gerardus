@@ -532,6 +532,12 @@ rotmat2extmat.m
 	 ROTMAT2EXTMAT  Convert centroid and rotation matrix pair to extended
 	 matrix form
 	
+scimat_dmatrix_imgeodesic.m
+
+	 SCIMAT_DMATRIX_IMGEODESIC  Compute a distance/adjacency matrix for a set
+	 of scattered points using the image intensity to approximate the
+	 geodesics
+	
 scimat_dmatrix_thickslice.m
 
 	 SCIMAT_DMATRIX_THICKSLICE  Compute a distance/adjacency matrix for a
@@ -619,6 +625,750 @@ pointTriangleDistance.m
 	 POINTTRIANGLEDISTANCE  Calculate distance between a point and a triangle
 	 in 3D
 	
+
+ThirdPartyToolbox/iso2meshToolbox
+-------------------------------------------------------------
+
+advancefront.m
+
+	 advance an edge-front on an oriented surface to the next separated by
+	 one-element width
+	
+bbxflatsegment.m
+
+	 decompose edge loops into flat segments alone x/y/z 
+	 planes of the bounding box
+	
+binsurface.m
+
+	 fast isosurface extraction from 3D binary images
+	
+bwislands.m
+
+	 return the indices of non-zero elements in a 2D or 3D image
+	 grouped by connected regions in a cell array
+	
+cgals2m.m
+
+	 wrapper for CGAL 3D mesher (CGAL 3.5 and newer)
+	 convert a triangular surface to tetrahedral mesh
+	
+cgalv2m.m
+
+	 wrapper for CGAL 3D mesher (CGAL 3.5 or up)
+	 convert a binary (or multi-valued) volume to tetrahedral mesh
+	
+deislands2d.m
+
+	 remove isolated islands on a 2D image below speicified size limit
+	
+deislands3d.m
+
+	 remove isolated islands for 3D image (for each slice)
+	
+delendelem.m
+
+	 delete elements whose nodes are all edge nodes
+	
+deletemeshfile.m
+
+	 delete a given work mesh file under the working directory
+	
+edgeneighbors.m
+
+	 to find neighboring triangular elements in a triangule surface
+	
+elemvolume.m
+
+	 calculate the volume for a list of simplexes
+	
+extractloops.m
+
+	 extract individual loops from an edge table of a loop
+	 collection
+	
+faceneighbors.m
+
+	 to find 4 face-neighboring elements of a tetrahedron
+	
+fallbackexeext.m
+
+	 get the fallback external tool extension names for the current platform
+	
+fillholes3d.m
+
+	 close a 3D image with the speicified gap size and then fill the holes
+	
+finddisconnsurf.m
+
+	 subroutine to extract disconnected surfaces from a 
+	 cluster of surfaces
+	 
+	 author: Qianqian Fang (fangq@nmr.mgh.harvard.edu)
+	 Date: 2008/03/06
+	
+flatsegment.m
+
+	 decompose edge loops into flat segments alone arbitrary planes of the bounding box
+	
+getexeext.m
+
+	 get meshing external tool extension names for the current platform
+	
+getintersecttri.m
+
+	 get the IDs of self-intersecting elements from tetgen
+	 call this when tetgen complains about self-intersection
+	
+getoptkey.m
+
+	 val=getoptkey(key,default,'key1',val1,'key2',val2, ...)
+	
+getplanefrom3pt.m
+
+	 define a plane equation ax+by+cz+d=0 from three 3D points
+	
+getvarfrom.m
+
+	 get variable value by name from specified work-space
+	
+imedge3d.m
+
+	 Extract the boundary voxels from a binary image
+	 
+	 author: Aslak Grinsted <ag at glaciology.net>
+	 modified by Qianqian Fang <fangq at nmr.mgh.harvard.edu>
+	
+internalpoint.m
+
+	 imperical function to find an internal point
+	 of a planar polygon
+	
+iso2meshver.m
+
+	 v=iso2meshver
+	
+isoctavemesh.m
+
+jsonopt.m
+
+	 setting options based on a struct. The struct can be produced
+	 by varargin2struct from a list of 'param','value' pairs
+	
+loadjson.m
+
+	 data=loadjson(fname,'param1',value1,'param2',value2,...)
+	
+maxsurf.m
+
+	 return the surface with the maximum element number (not 
+	 necessarily in area) from a cell arry of surfaces
+	
+mcpath.m
+
+	 get full executable path by prepending a command directory path
+	 parameters:
+	
+mergemesh.m
+
+	 merge two or more tetrahedral meshes or triangular surfaces
+	 
+	 author: Qianqian Fang <fangq at nmr.mgh.harvard.edu>
+	
+mergestruct.m
+
+	 merge two struct objects into one
+	
+mergesurf.m
+
+	 merge two or more triangular meshes and split intersecting elements
+	 
+	 author: Qianqian Fang <fangq at nmr.mgh.harvard.edu>
+	
+meshabox.m
+
+	 create the surface and tetrahedral mesh of a box geometry
+	
+meshacylinder.m
+
+	 [node,face,elem]=meshacylinder(c0,c1,r,tsize,maxvol,ndiv)
+	
+meshanellip.m
+
+	 create the surface and tetrahedral mesh of an ellipsoid
+	
+meshasphere.m
+
+	 create the surface and tetrahedral mesh of a sphere
+	
+meshcentroid.m
+
+	 compute the centroids of a mesh defined by nodes and elements
+	 (surface or tetrahedra) in R^n space
+	
+meshcheckrepair.m
+
+	 check and repair a surface mesh
+	
+meshconn.m
+
+	 create node neighbor list from a mesh
+	
+meshedge.m
+
+	 return all edges in a surface or volumetric mesh
+	
+mesheuler.m
+
+	 Euler's charastistics of a mesh
+	
+meshquality.m
+
+	 compute the Joe-Liu mesh quality measure of a tetrahedral mesh
+	
+meshrefine.m
+
+	 refine a tetrahedral mesh by adding new nodes or constraints
+	
+meshreorient.m
+
+	 reorder nodes in a surface or tetrahedral mesh to ensure all
+	 elements are oriented consistently
+	
+meshresample.m
+
+	 resample mesh using CGAL mesh simplification utility
+	
+meshunitsphere.m
+
+	 create the surface and/or volumetric mesh of a unit sphere 
+	 centered at [0 0 0] and radius 1
+	
+mwpath.m
+
+	 get full temp-file name by prepend working-directory and current session name
+	
+neighborelem.m
+
+	 create node neighbor list from a mesh
+	
+nodevolume.m
+
+	 calculate the Voronoi volume of each node in a simplex mesh
+	
+orderloopedge.m
+
+	 order the node list of a simple loop based on connection sequence
+	
+plotmesh.m
+
+	 plot surface and volumetric meshes
+	 
+	 author: Qianqian Fang <fangq at nmr.mgh.harvard.edu>
+	
+plotsurf.m
+
+	 plot 3D surface meshes
+	 
+	 author: Qianqian Fang <fangq at nmr.mgh.harvard.edu>
+	
+plottetra.m
+
+	 plot 3D surface meshes
+	 
+	 author: Qianqian Fang <fangq at nmr.mgh.harvard.edu>
+	
+qmeshcut.m
+
+	 fast tetrahedral mesh slicer
+	
+raysurf.m
+
+	 perform a Havel-styled ray tracing for a triangular surface
+	
+raytrace.m
+
+	 perform a Havel-styled ray tracing for a triangular surface
+	
+readasc.m
+
+	 read FreeSurfer ASC mesh format
+	
+readgts.m
+
+	 read GNU Triangulated Surface Format (GTS)
+	
+readinr.m
+
+	 load a volume from an INR file
+	
+readmedit.m
+
+	 read Medit mesh format
+	
+readoff.m
+
+	 read Geomview Object File Format (OFF)
+	
+readsmf.m
+
+readtetgen.m
+
+	 read tetgen output files
+	
+remeshsurf.m
+
+	 remesh a triangular surface and the output is guaranteed to be
+	 free of self-intersecting element. This function is similar to 
+	 meshresample, but it can both downsample or upsample a mesh
+	
+removedupelem.m
+
+	 remove doubly duplicated elements
+	
+removedupnodes.m
+
+	 removing the duplicated nodes from a mesh
+	
+removeisolatednode.m
+
+	 remove isolated nodes: nodes that are not included in any element
+	
+removeisolatedsurf.m
+
+	 remove disjointed surface fragment by using mesh diameter
+	
+rotatevec3d.m
+
+	 rotate 3D points from one Cartesian coordinate system to another
+	
+rotmat2vec.m
+
+	 the rotation matrix from vector u to v, satisfying R*u*s=v
+	
+s2m.m
+
+	 volumetric mesh generation from a closed surface, shortcut for surf2mesh
+	
+s2v.m
+
+	 shortcut for surf2vol, coverting a surface to a volumetric image
+	
+saveabaqus.m
+
+	 saveabaqus(node,face,elem,fname)
+	
+saveasc.m
+
+	 save a surface mesh to FreeSurfer ASC mesh format
+	
+savebinstl.m
+
+	 save a tetrahedral mesh to a binary STL (Standard Tessellation Language) file
+	
+savedxf.m
+
+	 save a surface mesh to DXF format
+	
+savegts.m
+
+	 save a surface mesh to GNU Triangulated Surface Format (GTS)
+	
+saveinr.m
+
+	 save a surface mesh to INR Format
+	
+savejmesh.m
+
+	 export a mesh to the JMesh format
+	
+savejson.m
+
+	 json=savejson(rootname,obj,opt)
+	 json=savejson(rootname,obj,'param1',value1,'param2',value2,...)
+	
+savemedit.m
+
+	 save a surface or tetrahedral mesh to Medit format
+	
+savemphtxt.m
+
+	 save tetrahedron mesh to comsol file (.mphtxt)
+	
+saveoff.m
+
+	 save a surface mesh to Geomview Object File Format (OFF)
+	
+savesmf.m
+
+	 save a surface mesh to smf format
+	
+savestl.m
+
+	 save a tetrahedral mesh to an STL (Standard Tessellation Language) file
+	
+savesurfpoly.m
+
+	 save a set of surfaces into poly format (for tetgen)
+	
+savetetgenele.m
+
+	 save a mesh tetrahedral element list to tetgen .ele format
+	
+savetetgennode.m
+
+	 save a mesh node list to tetgen .node format
+	
+savevrml.m
+
+	 save a surface mesh to VRML 1.0 format
+	
+smoothbinvol.m
+
+	 perform a memory-limited 3D image smoothing
+	
+smoothsurf.m
+
+	 smoothing a surface mesh
+	
+sms.m
+
+	 simplified version of surface mesh smoothing
+	
+sortmesh.m
+
+	 sort nodes and elements in a mesh so that the indexed
+	 nodes and elements are closer to each order
+	 (this may reduce cache-miss in a calculation)
+	
+surf2mesh.m
+
+	 create quality volumetric mesh from isosurface patches
+	
+surf2vol.m
+
+	 convert a triangular surface to a shell of voxels in a 3D image
+	
+surf2volz.m
+
+	 convert a triangular surface to a shell of voxels in a 3D image
+	 along the z-axis
+	
+surfaceclean.m
+
+	 remove surface patches that are located inside 
+	               the bounding box faces
+	
+surfboolean.m
+
+	 merge two or more triangular meshes and resolve intersecting elements
+	 
+	 author: Qianqian Fang <fangq at nmr.mgh.harvard.edu>
+	
+surfdiffuse.m
+
+	 apply a smoothing/diffusion process on a surface
+	
+surfedge.m
+
+	 find the edge of an open surface or surface of a volume
+	
+surfinterior.m
+
+	 identify a point that is enclosed by the (closed) surface
+	
+surfnorm.m
+
+	 snorm=surfnorm(node,face,'Normalize',0)
+	
+surfpart.m
+
+	 partition a triangular surface using a closed loop defined by existing edges
+	
+surfplane.m
+
+	 plane equation coefficients for each face in a surface
+	
+surfreorient.m
+
+	 reorder nodes in a single closed surface to ensure the norms of all
+	 triangles are pointing outward
+	
+surfseeds.m
+
+	 calculate a set of interior points with each enclosed by a closed
+	 component of a surface
+	
+thickenbinvol.m
+
+	 thickening a binary volume by a given pixel width
+	 this is similar to bwmorph(vol,'thicken',3) except 
+	 this does it in 3d and only does thickening for 
+	 non-zero elements (and hopefully faster)
+	
+thinbinvol.m
+
+	 thinning a binary volume by a given pixel width
+	 this is similar to bwmorph(vol,'thin',n) except 
+	 this does it in 3d and only does thinning for 
+	 non-zero elements (and hopefully faster)
+	
+uniqedges.m
+
+	 return the unique edge list from a surface or tetrahedral mesh
+	
+v2m.m
+
+	 volumetric mesh generation from binary or gray-scale volumetric images
+	 shortcut for vol2mesh
+	
+v2s.m
+
+	 surface mesh generation from binary or gray-scale volumetric images
+	 shortcut for vol2surf
+	
+varargin2struct.m
+
+	 opt=varargin2struct(...,optstruct,...)
+	
+vol2mesh.m
+
+	 convert a binary (or multi-valued) volume to tetrahedral mesh
+	
+vol2restrictedtri.m
+
+	 surface mesh extraction using CGAL mesher
+	
+vol2surf.m
+
+	 converting a 3D volumetric image to surfaces
+	
+volface.m
+
+	 find the surface patches of a volume
+	
+volmap2mesh.m
+
+	 convert a binary volume to tetrahedral mesh followed by an Affine transform
+	
+
+ThirdPartyToolbox/niftiToolbox
+-------------------------------------------------------------
+
+affine.m
+
+	  Using 2D or 3D affine matrix to rotate, translate, scale, reflect and
+	  shear a 2D image or 3D volume. 2D image is represented by a 2D matrix,
+	  3D volume is represented by a 3D matrix, and data type can be real 
+	  integer or floating-point.
+	
+bipolar.m
+
+	BIPOLAR returns an M-by-3 matrix containing a blue-red colormap, in
+		in which red stands for positive, blue stands for negative, 
+		and white stands for 0.
+	
+bresenham_line3d.m
+
+	  Generate X Y Z coordinates of a 3D Bresenham's line between
+	  two given points.
+	
+clip_nii.m
+
+	  CLIP_NII: Clip the NIfTI volume from any of the 6 sides
+	
+collapse_nii_scan.m
+
+	  Collapse multiple single-scan NIFTI files into a multiple-scan NIFTI file
+	
+expand_nii_scan.m
+
+	  Expand a multiple-scan NIFTI file into multiple single-scan NIFTI files
+	
+extra_nii_hdr.m
+
+	  Decode extra NIFTI header information into hdr.extra
+	
+flip_lr.m
+
+	  When you load any ANALYZE or NIfTI file with 'load_nii.m', and view
+	  it with 'view_nii.m', you may find that the image is L-R flipped.
+	  This is because of the confusion of radiological and neurological
+	  convention in the medical image before NIfTI format is adopted. You
+	  can find more details from:
+	
+get_nii_frame.m
+
+	  Return time frame of a NIFTI dataset. Support both *.nii and 
+	  *.hdr/*.img file extension. If file extension is not provided,
+	  *.hdr/*.img will be used as default. 
+	
+load_nii_ext.m
+
+	  Load NIFTI header extension after its header is loaded using load_nii_hdr.
+	
+load_nii_hdr.m
+
+load_nii_img.m
+
+load_nii.m
+
+	  Load NIFTI or ANALYZE dataset. Support both *.nii and *.hdr/*.img
+	  file extension. If file extension is not provided, *.hdr/*.img will
+	  be used as default.
+	
+load_untouch0_nii_hdr.m
+
+load_untouch_header_only.m
+
+	  Load NIfTI / Analyze header without applying any appropriate affine
+	  geometric transform or voxel intensity scaling. It is equivalent to
+	  hdr field when using load_untouch_nii to load dataset. Support both
+	  *.nii and *.hdr file extension. If file extension is not provided,
+	  *.hdr will be used as default.
+	  
+	  Usage: [header, ext, filetype, machine] = load_untouch_header_only(filename)
+	  
+	  filename - NIfTI / Analyze file name.
+	  
+	  Returned values:
+	  
+	  header - struct with NIfTI / Analyze header fields.
+	  
+	  ext - NIfTI extension if it is not empty.
+	  
+	  filetype	- 0 for Analyze format (*.hdr/*.img);
+			  1 for NIFTI format in 2 files (*.hdr/*.img);
+			  2 for NIFTI format in 1 file (*.nii).
+	  
+	  machine    - a string, see below for details. The default here is 'ieee-le'.
+	
+load_untouch_nii_hdr.m
+
+load_untouch_nii_img.m
+
+load_untouch_nii.m
+
+	  Load NIFTI or ANALYZE dataset, but not applying any appropriate affine
+	  geometric transform or voxel intensity scaling.
+	
+make_ana.m
+
+	  Make ANALYZE 7.5 data structure specified by a 3D or 4D matrix.
+	  Optional parameters can also be included, such as: voxel_size, 
+	  origin, datatype, and description. 
+	  
+	  Once the ANALYZE structure is made, it can be saved into ANALYZE 7.5 
+	  format data file using "save_untouch_nii" command (for more detail, 
+	  type: help save_untouch_nii). 
+	  
+	  Usage: ana = make_ana(img, [voxel_size], [origin], [datatype], [description])
+	
+make_nii.m
+
+	  Make NIfTI structure specified by an N-D matrix. Usually, N is 3 for 
+	  3D matrix [x y z], or 4 for 4D matrix with time series [x y z t]. 
+	  Optional parameters can also be included, such as: voxel_size, 
+	  origin, datatype, and description. 
+	  
+	  Once the NIfTI structure is made, it can be saved into NIfTI file 
+	  using "save_nii" command (for more detail, type: help save_nii). 
+	  
+	  Usage: nii = make_nii(img, [voxel_size], [origin], [datatype], [description])
+	
+mat_into_hdr.m
+
+	MAT_INTO_HDR  The old versions of SPM (any version before SPM5) store
+		an affine matrix of the SPM Reoriented image into a matlab file 
+		(.mat extension). The file name of this SPM matlab file is the
+		same as the SPM Reoriented image file (.img/.hdr extension).
+	
+reslice_nii.m
+
+	  The basic application of the 'reslice_nii.m' program is to perform
+	  any 3D affine transform defined by a NIfTI format image.
+	
+rri_file_menu.m
+
+	  Imbed a file menu to any figure. If file menu exist, it will append
+	  to the existing file menu. This file menu includes: Copy to clipboard,
+	  print, save, close etc.
+	
+rri_orient.m
+
+	  Convert image of different orientations to standard Analyze orientation
+	
+rri_orient_ui.m
+
+rri_select_file.m
+
+	
+rri_xhair.m
+
+	   rri_xhair: create a pair of full_cross_hair at point [x y] in
+	              axes h_ax, and return xhair struct
+	
+rri_zoom_menu.m
+
+	  Imbed a zoom menu to any figure.
+	
+save_nii_ext.m
+
+	  Save NIFTI header extension.
+	
+save_nii_hdr.m
+
+save_nii.m
+
+	  Save NIFTI dataset. Support both *.nii and *.hdr/*.img file extension.
+	  If file extension is not provided, *.hdr/*.img will be used as default.
+	  
+	  Usage: save_nii(nii, filename, [old_RGB])
+	  
+	  nii.hdr - struct with NIFTI header fields (from load_nii.m or make_nii.m)
+	
+save_untouch0_nii_hdr.m
+
+save_untouch_nii_hdr.m
+
+save_untouch_nii.m
+
+	  Save NIFTI or ANALYZE dataset that is loaded by "load_untouch_nii.m".
+	  The output image format and file extension will be the same as the
+	  input one (NIFTI.nii, NIFTI.img or ANALYZE.img). Therefore, any file
+	  extension that you specified will be ignored.
+	
+save_untouch_slice.m
+
+	  Save back to the original image with a portion of slices that was
+	  loaded by "load_untouch_nii". You can process those slices matrix
+	  in any way, as long as their dimension is not altered.
+	
+unxform_nii.m
+
+	  Undo the flipping and rotations performed by xform_nii; spit back only
+	  the raw img data block. Initial cut will only deal with 3D volumes
+	  strongly assume we have called xform_nii to write down the steps used 
+	  in xform_nii.
+	
+verify_nii_ext.m
+
+	  Verify NIFTI header extension to make sure that each extension section
+	  must be an integer multiple of 16 byte long that includes the first 8
+	  bytes of esize and ecode. If the length of extension section is not the
+	  above mentioned case, edata should be padded with all 0.
+	
+view_nii.m
+
+	  VIEW_NII: Create or update a 3-View (Front, Top, Side) of the 
+		brain data that is specified by nii structure
+	
+view_nii_menu.m
+
+	  Imbed Zoom, Interp, and Info menu to view_nii window.
+	
+xform_nii.m
+
 
 ThirdPartyToolbox/sphsplineToolbox
 -------------------------------------------------------------
