@@ -1,3 +1,11 @@
+2013-06-14  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/CMakeLists.txt: (0.6.2)
+
+	- Fix bug. No need to link itk_imfilter to CGAL. This also creates
+	a link to Boost libraries both the ones in Matlab and the ones
+	provided by Gerardus, which throws a runtime error.
+
 2013-06-12  Ramon Casero  <rcasero@gmail.com>
 
 	* release 0.9.0:
