@@ -3,46 +3,15 @@
 
 <wiki:toc max_depth="2" />
 
-= How difficult is to use Gerardus? =
+= Quickstart =
 
-If you just need pure Matlab functions, it's as easy as downloading the code and adding everything in `gerardus/matlab` to your Matlab path.
+If you just need pure Matlab functions, it's as easy as downloading the code with Subversion (instructions [https://code.google.com/p/gerardus/source/checkout here]) and then running from Matlab the script `gerardus/matlab/add_gerardus_paths.m` to add the Gerardus toolboxes to your Matlab path.
 
-If you want to use also the Matlab MEX functions and C++ programs, then you need to also install ITK and run Gerardus' CMake build process (instructions below).
+If you want to use also the Matlab MEX functions and C++ programs, then you need to also build and/or install some dependencies and run Gerardus' CMake build process (instructions below).
 
-[https://code.google.com/p/gerardus/source/browse/?r=1176#svn%2Ftags%2Frelease-0.9.0 Gerardus release 0.9.0] builds on Linux 64 bit and Windows 64 bit (Visual Studio 2010). Mac OSX has not been tested, although it used to work at least some releases ago.
+[https://code.google.com/p/gerardus/source/browse/?r=1176#svn%2Ftags%2Frelease-0.9.0 Gerardus release 0.9.0] builds on Linux 64 bit and Windows 64 bit (Visual Studio 2010). Mac OSX does not build out-of-the-box, although Tom Dole is looking into it.
 
-= Introduction =
-
-Gerardus contains Matlab function that can be run directly without building any code. There are also C++ programs and C++ MEX files that need to be compiled and installed before they can be run. These instructions explain how to that.
-
-After building and installing Gerardus, you should have the command line programs and Matlab MEX functions listed below.
-
-Command line programs (file names given following the linux convention. In Windows, executables have the extension `.exe`):
-
- * `gerardus/programs/`
-  * `extractVoxelCoordinatesFromSegmentationMask`
-  * `padSegmentationMaskWithVoxels`
-  * `resize3DImage`
-  * `rigidRegistration2D`
-  * `rotate3DImage`
-  * `skeletonize3DSegmentation`
-  * `vesselness3DImage`
-
-Matlab MEX functions (file names given following the linux 64 bit convention. In linux 32 bit, Windows 32/64 bit and Mac 32/64 bit the extension is different):
-
- * `gerardus/matlab/`
-  * `PointsToolbox/sparse_breakdown.mexa64`
-  * `PointsToolbox/mba_surface_interpolation.mexa64`
-  * `ItkToolbox/itk_imfilter.mexa64`
-  * `ItkToolbox/itk_registration.mexa64`
-  * `ItkToolbox/itk_pstransform.mexa64`
-  * `ThirdPartyToolbox/dijkstra.mexa64`
-  * `FiltersToolbox/bwregiongrow.mexa64`
-  * `FiltersToolbox/im2dmatrix.mexa64`
-  * `CgalToolbox/cgal_insurftri.mexa64`
-  * `CgalToolbox/cgal_closest_trifacet.mexa64`
-
-= Requirements (Linux, Windows and Mac) =
+= Build and/or install dependencies =
 
 == Summary ==
 
@@ -52,7 +21,6 @@ Matlab MEX functions (file names given following the linux 64 bit convention. In
  * m4
  * Insight Toolkit (currently tested with v4.3.1)
  * Matlab (currently tested with R2012a)
- * Gerardus
 
 == In detail ==
 
@@ -150,7 +118,7 @@ $ svn co https://gerardus.googlecode.com/svn/trunk/ gerardus
 }}}
   * Note for Windows and Mac users: If you are using a graphic interface like TortoiseSVN, choose "Checkout" from the menu options, and enter `https://gerardus.googlecode.com/svn/trunk/` (commiters) or `http://gerardus.googlecode.com/svn/trunk/` (read only) as the repository's URL. Name the destination folder `gerardus`
 
-= Build and install =
+= Build and install Gerardus =
 
 == Instructions for Linux and Mac users ==
 
@@ -184,3 +152,34 @@ $ make install  # install the libraries and MEX files in Gerardus
  # Click on "Generate" again
  # Open again file `gerardus\bin\GERARDUS_MATLAB.sln` with your development environment (e.g. Visual Studio 10)
  # In the "Solution Explorer", right click on "INSTALL" and select "Build". This will build and install the libraries and MEX files
+
+= Notes on MEX functions provided by Gerardus =
+
+Gerardus contains Matlab function that can be run directly without building any code. There are also C++ programs and C++ MEX files that need to be compiled and installed before they can be run. These instructions explain how to that.
+
+After building and installing Gerardus, you should have the command line programs and Matlab MEX functions listed below.
+
+Command line programs (file names given following the linux convention. In Windows, executables have the extension `.exe`):
+
+ * `gerardus/programs/`
+  * `extractVoxelCoordinatesFromSegmentationMask`
+  * `padSegmentationMaskWithVoxels`
+  * `resize3DImage`
+  * `rigidRegistration2D`
+  * `rotate3DImage`
+  * `skeletonize3DSegmentation`
+  * `vesselness3DImage`
+
+Matlab MEX functions (file names given following the linux 64 bit convention. In linux 32 bit, Windows 32/64 bit and Mac 32/64 bit the extension is different):
+
+ * `gerardus/matlab/`
+  * `PointsToolbox/sparse_breakdown.mexa64`
+  * `PointsToolbox/mba_surface_interpolation.mexa64`
+  * `ItkToolbox/itk_imfilter.mexa64`
+  * `ItkToolbox/itk_registration.mexa64`
+  * `ItkToolbox/itk_pstransform.mexa64`
+  * `ThirdPartyToolbox/dijkstra.mexa64`
+  * `FiltersToolbox/bwregiongrow.mexa64`
+  * `FiltersToolbox/im2dmatrix.mexa64`
+  * `CgalToolbox/cgal_insurftri.mexa64`
+  * `CgalToolbox/cgal_closest_trifacet.mexa64`
