@@ -9,7 +9,7 @@ If you just need pure Matlab functions, it's as easy as downloading the code wit
 
 If you want to use also the Matlab MEX functions and C++ programs, then you need to also build and/or install some dependencies and run Gerardus' CMake build process (instructions below).
 
-[https://code.google.com/p/gerardus/source/browse/?r=1176#svn%2Ftags%2Frelease-0.9.0 Gerardus release 0.9.0] builds on Linux 64 bit and Windows 64 bit (Visual Studio 2010). Mac OSX does not build out-of-the-box, although Tom Dole is looking into it.
+[https://code.google.com/p/gerardus/source/browse/?r=1176#svn%2Ftags%2Frelease-0.9.0 Gerardus release 0.9.0] builds on Linux 64 bit and Windows 64 bit (Visual Studio 2010). Mac OSX does not build out-of-the-box, although Tom Doel is looking into it.
 
 = Build and/or install dependencies =
 
