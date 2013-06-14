@@ -5,7 +5,7 @@
 
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.1.2
+# Version: 0.1.3
 # $Rev$
 # $Date$
 #
@@ -85,19 +85,46 @@ do
     # loop every function
     for FILE in `find $DIR/*.m | sort`
     do
-	echo `basename "$FILE"`
-	echo ''
-	# get first text block in the header
-	# remove the line(s) that declares the function
-	# remove the comment characters %
-	# keep only the summary of the help header, not the syntax
-	grep -m 1 -B 1000  "^$" "$FILE" \
-	    | grep '%' \
-	    | tr -d '%' \
-	    | grep -m 1 -B 100  "^$" \
-	    | sed 's/^/\t/'
-    done
 
+	case "${DIR}" in
+	    
+	    # the iso2mesh Toolbox has a different convention for the
+	    # help headers. It's easier to add a special case to this
+	    # script than modifiying all the help headers in iso2mesh
+	    ./ThirdPartyToolbox/iso2meshToolbox)
+
+		echo `basename "$FILE"`
+		echo ''
+        	# get first text block in the header
+                # remove the line(s) that declares the function
+        	# remove the comment characters %
+        	# keep only the summary of the help header, not the syntax
+		# add a tabulation before each line
+		grep -m 1 -B 1000  "^$" "$FILE" \
+		    | grep '%' \
+		    | tr -d '%' \
+		    | tail -n +4 \
+		    | grep -m 1 -B 100  "^$" \
+		    | sed 's/^/\t/'
+		;;
+	    
+	    *)
+		echo `basename "$FILE"`
+		echo ''
+        	# get first text block in the header
+                # remove the line(s) that declares the function
+        	# remove the comment characters %
+        	# keep only the summary of the help header, not the syntax
+		# add a tabulation before each line
+		grep -m 1 -B 1000  "^$" "$FILE" \
+		    | grep '%' \
+		    | tr -d '%' \
+		    | grep -m 1 -B 100  "^$" \
+		    | sed 's/^/\t/'
+		;;
+	esac
+    done
+    
     echo ''
 
 done
