@@ -2,7 +2,8 @@
 
 	* Add test_scimat_dmatrix_imgeodesic.m: (0.1.0)
 
-	- With "Toy example, ellipsoidal shape in 2D", "3D example, rat left ventricle"
+	- With "Toy example, ellipsoidal shape in 2D", "3D example, rat
+	left ventricle"
 
 	* Add matlab/add_gerardus_paths.m: (0.1.1)
 
@@ -12,7 +13,8 @@
 
 	- Add all Gerardus toolboxes to the Matlab path.
 
-	* Rename matlab/ThirdPartyToolbox/nifti as matlab/ThirdPartyToolbox/niftiToolbox:
+	* Rename matlab/ThirdPartyToolbox/nifti as
+	matlab/ThirdPartyToolbox/niftiToolbox:
 
 	- So that it follows the same convention as the others.
 
