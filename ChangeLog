@@ -1,5 +1,11 @@
 2013-06-14  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/update_README.sh: (0.1.3)
+
+	- The iso2mesh Toolbox has a different convention for the help
+	headers. It's easier to add a special case to this script than
+	modifiying all the help headers in iso2mesh.
+
 	* Add matlab/ThirdPartyToolbox/iso2meshToolbox:
 
 	- Version 2013 beta. Website
