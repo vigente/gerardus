@@ -28,7 +28,7 @@ function displayStat(confs, objs, method, windowHandle, cpath)
 
 load(deblank(char(objs)));
 
-[p,fname,e,v] = fileparts(deblank(char(objs)));
+[p,fname,e] = fileparts(deblank(char(objs)));
 
 switch lower(method)
     case 'res_t_map'

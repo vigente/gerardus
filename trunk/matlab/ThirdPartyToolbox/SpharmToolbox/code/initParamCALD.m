@@ -39,7 +39,7 @@ if isempty(vertices) | isempty(faces)
     end
 end
 
-[path,name,ext,ver]=fileparts(filename);
+[path,name,ext]=fileparts(filename);
 
 maxfn = 10^7; % Maximum number of faces
 switchcc = 0; 
@@ -512,6 +512,8 @@ return;
 %
 
 function landmarks = locate_landmarks(theta, phi, landmarks)
+
+theta = full(theta);
 
 disp(sprintf('North Pole : %05d (%f, %f) pi',landmarks(1),0,-0.5));
 disp(sprintf('South Pole : %05d (%f, %f) pi',landmarks(2),0,0.5));

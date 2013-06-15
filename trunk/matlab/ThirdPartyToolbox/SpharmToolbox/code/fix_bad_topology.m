@@ -51,7 +51,7 @@ end
 
 % Read input object dataset
 if ischar(inObject)
-    [path,name,ext,ver] = fileparts(inObject);
+    [path,name,ext] = fileparts(inObject);
 
     if ~strcmp(ext, '.mat')
         disp('Input object data should be Matlab data file (*.mat)');
