@@ -8,17 +8,10 @@
 
 	- Add special rule for third-party Spharm Toolbox.
 
-	* matlab/ThirdPartyToolbox/SpharmToolbox:
-
-	- Move matlab functions from
-	matlab/ThirdPartyToolbox/SpharmToolbox/code to
-	matlab/ThirdPartyToolbox/SpharmToolbox, so that they can be found
-	by update_README.sh.
-
-	* Add matlab/ThirdPartyToolbox/SpharmToolbox:
+	* Add matlab/ThirdPartyToolbox/SpharmToolbox: (1.0.0)
 
 	- From the Li Shen Laboratory, Indiana University. Downloaded from
-	http://www.nitrc.org/projects/spharm-mat/
+	http://imaging.indyrad.iupui.edu/projects/SPHARM/SPHARM-pack/SPHARM-MAT-v1-0-0.tar.gz
 
 2013-06-14  Ramon Casero  <rcasero@gmail.com>
 
