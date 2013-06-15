@@ -1,3 +1,10 @@
+2013-06-15  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ThirdPartyToolbox/SpharmToolbox:
+
+	- From the Li Shen Laboratory, Indiana University. Downloaded from
+	http://www.nitrc.org/projects/spharm-mat/
+
 2013-06-14  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/update_README.sh: (0.1.3)
