@@ -1373,6 +1373,9 @@ xform_nii.m
 ThirdPartyToolbox/SpharmToolbox
 -------------------------------------------------------------
 
+align_FOE.m
+
+
 align_cps.m
 
 	 Goal: Align P to X using ICP
@@ -1663,6 +1666,13 @@ write_surfNpara.m
 xform_nii.m
 
 
+conv2bim.m
+
+	 Goal: 
+
+amira_r_hipp_surf.m
+
+
 
 ThirdPartyToolbox/sphsplineToolbox
 -------------------------------------------------------------
@@ -1690,26 +1700,6 @@ SSSTgrad.m
 SSST.m
 
 	 SSST  Spherical Surface Spline in Tension
-	
-WB08_Fig_1.m
-
-	 $Id: WB08_Fig_1.m,v 1.1.1.1 2008/05/09 21:34:52 myself Exp $
-	
-WB08_Fig_2.m
-
-	 $Id: WB08_Fig_2.m,v 1.1.1.1 2008/05/09 21:34:52 myself Exp $
-	
-WB08_Fig_3.m
-
-	 $Id: WB08_Fig_3.m,v 1.1.1.1 2008/05/09 21:34:52 myself Exp $
-	
-WB08_Fig_4.m
-
-	 $Id: WB08_Fig_4.m,v 1.1.1.1 2008/05/09 21:34:52 myself Exp $
-	
-WB08_Fig_5.m
-
-	 $Id: WB08_Fig_5.m,v 1.1.1.1 2008/05/09 21:34:52 myself Exp $
 	
 WB_lookup.m
 

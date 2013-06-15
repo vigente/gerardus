@@ -5,7 +5,7 @@
 
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.1.4
+# Version: 0.2.0
 # $Rev$
 # $Date$
 #
@@ -82,35 +82,18 @@ do
     echo '-------------------------------------------------------------'
     echo ''
     
-    # loop every function
-    for FILE in `find $DIR/*.m | sort`
-    do
+    # some third party toolboxes follow different conventions to
+    # Gerardus in terms of help headers or where files live, so we
+    # have those cases separately
+    case "${DIR}" in
+	
+	# iso2mesh Toolbox
+	./ThirdPartyToolbox/iso2meshToolbox)
 
-	case "${DIR}" in
-	    
-	    # the Spharm Toolbox has a different convention for the
-	    # help headers. It's easier to add a special case to this
-	    # script than modifiying all the help headers in Spahrm
-	    ./ThirdPartyToolbox/SpharmToolbox)
-
-		echo `basename "$FILE"`
-		echo ''
-		# get the line that says "% goal:" or "% Goal"
-		# remove the comment characters %
-		# add a tabulation before each line
-		# do a line return
-		grep -m 1 '% [Gg]oal:' "$FILE" \
-		    | tr -d '%' \
-		    | sed 's/^/\t/'
-		echo ''
-		;;
-	    
-	    
-	    # the iso2mesh Toolbox has a different convention for the
-	    # help headers. It's easier to add a special case to this
-	    # script than modifiying all the help headers in iso2mesh
-	    ./ThirdPartyToolbox/iso2meshToolbox)
-
+            # loop every function
+	    for FILE in `find $DIR -iname "*.m" | grep -v 'ThirdPartyToolbox/iso2meshToolbox/sample' | sort`
+	    do
+		
 		echo `basename "$FILE"`
 		echo ''
         	# get first text block in the header
@@ -124,9 +107,39 @@ do
 		    | tail -n +4 \
 		    | grep -m 1 -B 100  "^$" \
 		    | sed 's/^/\t/'
-		;;
+	    done
 	    
-	    *)
+	    ;;
+	
+	# Spharm Toolbox
+	./ThirdPartyToolbox/SpharmToolbox)
+	    
+            # loop every function
+	    for FILE in `find $DIR -iname "*.m" | grep -v 'ThirdPartyToolbox/SpharmToolbox/scripts' | sort`
+	    do
+		
+		echo `basename "$FILE"`
+		echo ''
+       		# get the line that says "% goal:" or "% Goal"
+		# remove the comment characters %
+		# add a tabulation before each line
+		# do a line return
+		grep -m 1 '% [Gg]oal:' "$FILE" \
+		    | tr -d '%' \
+		    | sed 's/^/\t/'
+		echo ''
+	    done
+	    
+	    ;;
+	
+	
+	# sphspline Toolbox
+	./ThirdPartyToolbox/sphsplineToolbox)
+	    
+            # loop every function
+	    for FILE in `find $DIR -iname "*.m" | grep -v 'WB0' | sort`
+	    do
+		
 		echo `basename "$FILE"`
 		echo ''
         	# get first text block in the header
@@ -139,11 +152,36 @@ do
 		    | tr -d '%' \
 		    | grep -m 1 -B 100  "^$" \
 		    | sed 's/^/\t/'
-		;;
-	esac
-    done
+	    done
+	    
+	    ;;
+	
+	
+	# All other toolboxes
+	*)
+	    
+            # loop every function
+	    for FILE in `find $DIR -maxdepth 1 -iname "*.m" | sort`
+	    do
+		    
+		echo `basename "$FILE"`
+		echo ''
+        	# get first text block in the header
+                # remove the line(s) that declares the function
+        	# remove the comment characters %
+        	# keep only the summary of the help header, not the syntax
+		# add a tabulation before each line
+		grep -m 1 -B 1000  "^$" "$FILE" \
+		    | grep '%' \
+		    | tr -d '%' \
+		    | grep -m 1 -B 100  "^$" \
+		    | sed 's/^/\t/'
+	    done
+	    
+	    ;;
+    esac
     
     echo ''
-
+    
 done
 } >> README
