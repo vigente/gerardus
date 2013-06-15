@@ -37,7 +37,7 @@ if ~exist('fvec', 'var')
     return;
 end
 
-[pa, na, ex, ve]=fileparts(filename);
+[pa, na, ex]=fileparts(filename);
 
 strMesh = confs.SampleMesh;
 switch upper(strMesh)

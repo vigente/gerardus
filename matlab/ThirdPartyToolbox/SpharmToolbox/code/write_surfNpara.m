@@ -37,7 +37,7 @@ if ~exist('faces', 'var') | ~exist('vertices', 'var') | ~exist('sph_verts', 'var
     return;
 end
 
-[pa, na, ex, ve]=fileparts(filename);
+[pa, na, ex]=fileparts(filename);
 
 type = size(faces,2);
 filename1 = sprintf('%s/%s_surf.meta', confs.OutDirectory, na(1:end-4));

@@ -38,7 +38,7 @@ outNames = {};
 h = waitbar(0,'Please wait...');
 for i = 1:numSbj
     file = objs{i};
-    [pa,na,ex,ve]=fileparts(file);
+    [pa,na,ex]=fileparts(file);
     
     switch method
         case 'InHouse_Fix'
@@ -85,7 +85,7 @@ for i = 1:numSbj
                     mkdir(wdir);
                 end
                 copyfile(file,wdir);
-                [p,fname,ext,ver] = fileparts(file);
+                [p,fname,ext] = fileparts(file);
                 cSTR = sprintf('!%s tmp/%s %s', confs.command, [fname ext], optionSTR);               
             elseif isunix
                 optionSTR=[optionSTR ' -o ' new_name];

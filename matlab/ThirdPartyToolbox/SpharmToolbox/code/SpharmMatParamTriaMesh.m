@@ -27,7 +27,7 @@
 function [vertices, faces, sph_verts, new_name] = parameterizeCALD(file, confs)
 
 load(file);
-[path, name, ext, ver] = fileparts(file);
+[path, name, ext] = fileparts(file);
 
 % First, if obj == bim, then extract surface
 if exist('bim','var')
