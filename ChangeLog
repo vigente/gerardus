@@ -1,5 +1,13 @@
 2013-06-15  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/add_gerardus_paths.m: (0.1.2)
+
+	- Add paths to iso2mesh and Spharm toolboxes.
+
+	* matlab/update_README.sh: (0.1.4)
+
+	- Add special rule for third-party Spharm Toolbox.
+
 	* matlab/ThirdPartyToolbox/SpharmToolbox:
 
 	- Move matlab functions from
