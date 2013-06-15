@@ -5,7 +5,7 @@
 
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.1.3
+# Version: 0.1.4
 # $Rev$
 # $Date$
 #
@@ -87,6 +87,24 @@ do
     do
 
 	case "${DIR}" in
+	    
+	    # the Spharm Toolbox has a different convention for the
+	    # help headers. It's easier to add a special case to this
+	    # script than modifiying all the help headers in Spahrm
+	    ./ThirdPartyToolbox/SpharmToolbox)
+
+		echo `basename "$FILE"`
+		echo ''
+		# get the line that says "% goal:" or "% Goal"
+		# remove the comment characters %
+		# add a tabulation before each line
+		# do a line return
+		grep -m 1 '% [Gg]oal:' "$FILE" \
+		    | tr -d '%' \
+		    | sed 's/^/\t/'
+		echo ''
+		;;
+	    
 	    
 	    # the iso2mesh Toolbox has a different convention for the
 	    # help headers. It's easier to add a special case to this
