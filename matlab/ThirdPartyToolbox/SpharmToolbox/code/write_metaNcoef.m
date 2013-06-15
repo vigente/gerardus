@@ -39,7 +39,7 @@ end
 
 [fvec] = read_coef(coef);
 
-[pa, na, ex, ve]=fileparts(filename);
+[pa, na, ex]=fileparts(filename);
 
 type = size(faces,2);
 filename1 = sprintf('%s/%s_surfSPHARM.meta', confs.OutDirectory, na(1:end-4));

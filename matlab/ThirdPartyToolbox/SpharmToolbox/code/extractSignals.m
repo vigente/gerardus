@@ -41,7 +41,7 @@ grInfo = ones(numSbj1+numSbj2,1);
 
 for i=1:numSbj1
     file = objs1{i};
-    [pa,na,ex,ve]=fileparts(file);
+    [pa,na,ex]=fileparts(file);
 
     load(file);
     % Reconstruction an individual
@@ -67,7 +67,7 @@ end
 
 for i=1:numSbj2
     file = objs2{i};
-    [pa,na,ex,ve]=fileparts(file);
+    [pa,na,ex]=fileparts(file);
 
     load(file);
     % Reconstruction an individual

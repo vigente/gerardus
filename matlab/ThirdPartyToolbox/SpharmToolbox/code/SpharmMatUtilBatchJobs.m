@@ -28,7 +28,7 @@ function batchJobs(confs, objs, method)
 
 numSbj = length(objs);
 file1 = objs{1};
-[path, name, ext, ver] = fileparts(file1);
+[path, name, ext] = fileparts(file1);
 
 if strcmp(method,'PatchPDM')
     if (strcmp('.gipl', ext) | strcmp('.hdr',ext)) & strcmp(confs.ParamPDM, 'None')
@@ -165,7 +165,7 @@ switch method
             options.ParamPDM.OutDirectory = confs.OutDirectory;
             options.ParamPDM.others= confs.ParamOption;
             options.objs = parameterizeObjs(options.ParamPDM, options.objs, 'ParamPDM');
-            if ~isempty(optionis.objs), [pa,na,ext,ver] = fileparts(options.objs{1}); end;
+            if ~isempty(optionis.objs), [pa,na,ext] = fileparts(options.objs{1}); end;
         end
 
         % SPHARM Expansion and alignment

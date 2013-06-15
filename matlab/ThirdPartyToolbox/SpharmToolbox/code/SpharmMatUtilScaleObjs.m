@@ -45,7 +45,7 @@ end
 
 for i = 1:numSbj
     file = objs{i};
-    [pa,na,ex,ve]=fileparts(file);
+    [pa,na,ex]=fileparts(file);
 
     diary(fullfile([confs.OutDirectory '/Logs'],[date, '_', num2str(round(cputime)), '_' na '_scaleObjs.log']));
     

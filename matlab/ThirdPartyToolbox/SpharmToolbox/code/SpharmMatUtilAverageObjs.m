@@ -67,7 +67,7 @@ res = str2num(inform); % base res R + step of hierarchy Hs + depth of hierarchy 
 % collect the data
 for i = 1:numSbj
     file = objs{i};
-    [pa,na,ex,ve]=fileparts(file);
+    [pa,na,ex]=fileparts(file);
     newfile{i} = fullfile(confs.OutDirectory,[na(1:end-3) 'als' ex]);
 
     load(file);

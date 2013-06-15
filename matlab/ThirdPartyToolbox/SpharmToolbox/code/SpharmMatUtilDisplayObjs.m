@@ -43,7 +43,7 @@ end
 
 for i = 1:numSbj
     file = objs{i};
-    [pa,na,ex,ve]=fileparts(file);
+    [pa,na,ex]=fileparts(file);
     nastr = strrep(na,'_','-');
     
     clear adc; clear cdata; rmsd = [];

@@ -56,7 +56,7 @@ if use_color
     c=uint8(zeros(3,num_facet));
 end
 
-[pa,na,ex,ve] = fileparts(filename);
+[pa,na,ex] = fileparts(filename);
 
 str=sprintf('Reading %s ...', na);
 

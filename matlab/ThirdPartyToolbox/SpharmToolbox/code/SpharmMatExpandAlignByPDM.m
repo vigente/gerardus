@@ -36,7 +36,7 @@ end
 h = waitbar(0,'Please wait...');
 for i = 1:numSbj
     file1 = objs{i};
-    [pa, name, ext, v] = fileparts(file1);
+    [pa, name, ext] = fileparts(file1);
     file2 = [pa '/' name(1:end-4) 'para' ext];
     diary(fullfile([confs.OutDirectory '/Logs'],[date, '_', num2str(round(cputime)), '_' name '_ExpPDM.log']));
     
