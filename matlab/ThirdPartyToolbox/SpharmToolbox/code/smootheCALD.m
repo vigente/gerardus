@@ -35,7 +35,7 @@ if isempty(vertices) | isempty(faces) | isempty(sph_verts)
     end
 end
 
-[path,name,ext,ver] = fileparts(name3);
+[path,name,ext] = fileparts(name3);
 
 info = [confs.MeshGridSize confs.MaxSPHARMDegree confs.Tolerance confs.Smoothing confs.Iteration ... 
     confs.LocalIteration];

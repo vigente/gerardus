@@ -1,5 +1,9 @@
 2013-06-15  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/add_gerardus_paths.m: (0.1.3)
+
+	- Correct the paths to the Spharm toolbox.
+
 	* matlab/add_gerardus_paths.m: (0.1.2)
 
 	- Add paths to iso2mesh and Spharm toolboxes.
@@ -9,6 +13,9 @@
 	- Add special rule for third-party Spharm Toolbox.
 
 	* Add matlab/ThirdPartyToolbox/SpharmToolbox: (1.0.0)
+
+	- Fix bugs. Mostly the syntax for fileparts() with 4 output
+	arguments is not valid, at least on Matlab 2012a for linux.
 
 	- From the Li Shen Laboratory, Indiana University. Downloaded from
 	http://imaging.indyrad.iupui.edu/projects/SPHARM/SPHARM-pack/SPHARM-MAT-v1-0-0.tar.gz

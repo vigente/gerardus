@@ -39,7 +39,7 @@ outNames = {};
 h = waitbar(0,'Please wait...');
 for i = 1:numSbj
     file = objs{i};
-    [path, name, ext, ver] = fileparts(file);
+    [path, name, ext] = fileparts(file);
     
     switch method
         case 'ParamCALD'
@@ -70,7 +70,7 @@ for i = 1:numSbj
                     mkdir(wdir);
                 end
                 copyfile(file,wdir);
-                [p,fname,ext,ver] = fileparts(file);
+                [p,fname,ext] = fileparts(file);
                 cSTR = sprintf('!%s tmp/%s %s', confs.command, [fname ext], optionSTR);               
                 new_name = [ 'tmp/' name '*.meta'];                
             elseif isunix

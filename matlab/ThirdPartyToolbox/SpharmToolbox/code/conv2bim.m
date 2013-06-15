@@ -54,7 +54,7 @@ elseif ~exist(inObjectName, 'file')
 end
 
 % Parse input object filename
-[path,name,ext,ver] = fileparts(inObjectName);
+[path,name,ext] = fileparts(inObjectName);
 
 if strcmp(lower(ext), '.txt')
     token = 'TRACE';

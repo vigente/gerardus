@@ -41,7 +41,7 @@ end
 h = waitbar(0,'Please wait...');
 for i = 1:numSbj
     file = objs{i};
-    [path, name, ext, ver] = fileparts(file);
+    [path, name, ext] = fileparts(file);
     
     switch method
         case 'bim2gipl'

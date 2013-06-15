@@ -39,7 +39,7 @@ if isempty(vertices) | isempty(sph_verts)
     end
 end
 
-[pa, na, ex, ve] = fileparts(filename);
+[pa, na, ex] = fileparts(filename);
 new_name = '';
 
 if ~exist('vertices', 'var') | ~exist('sph_verts', 'var')

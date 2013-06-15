@@ -42,7 +42,7 @@ resampleFactor = confs.ResampleFactor;
 h = waitbar(0,'Please wait...');
 for i = 1:numSbj
     file = objs{i};
-    [path, name, ext,ver] = fileparts(file);
+    [path, name, ext] = fileparts(file);
     diary(fullfile([confs.OutDirectory '/Logs'],[date, '_', num2str(round(cputime)), '_' name '_importObj.log']));
 
     vxsize = [1 1 1];

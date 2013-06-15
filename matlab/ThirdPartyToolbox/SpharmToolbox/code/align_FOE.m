@@ -27,7 +27,7 @@
 function [vertices, sph_verts, faces, fvec, new_name]=align_FOE(filename, confs)
 
 load(filename);
-[path,name,ext,ver] = fileparts(filename);
+[path,name,ext] = fileparts(filename);
 
 if ~exist('faces', 'var') | ~exist('vertices', 'var') | ~exist('sph_verts', 'var') | ~exist('fvec', 'var')
     disp('One or more of faces, vertices, spherical vertices, or SPHARM descriptor are missing');

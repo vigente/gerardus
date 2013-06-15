@@ -54,7 +54,7 @@ tfvec = fvec;
 
 load(filename);
 [fvec, max_d] = fixed_fvec(fvec,confs.MaxSPHARMDegree,scale);
-[path,name,ext,ver] = fileparts(filename);
+[path,name,ext] = fileparts(filename);
 
 if ~exist('faces', 'var') | ~exist('vertices', 'var') | ~exist('sph_verts', 'var') | ~exist('fvec', 'var')
     disp('One or more of faces, vertices, spherical vertices, or SPHARM descriptor are missing');

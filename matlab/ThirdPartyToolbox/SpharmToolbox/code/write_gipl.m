@@ -50,7 +50,7 @@ if max(size(origin)==3)
     origin(4)= 0;
 end
 
-[path, name, ext,ver] = fileparts(fname);
+[path, name, ext] = fileparts(fname);
 
 postfix = name(end-2:end);
 if strcmp(postfix, 'bim') | strcmp(postfix, 'fix')
