@@ -1,5 +1,16 @@
 2013-06-17  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/test/test_surface_param.m: (0.1.0)
+	* Add matlab/PointsToolbox/surface_param.m: (0.1.0)
+
+	- This function extracts the parametrization part of
+	surface_interpolation(), that is going to be deprecated. I have
+	changed the way you pass arguments to sphisomap to make it
+	comparable to isomap. Now all optimization is done in the full
+	disjkstra distance matrix. I have also simplified the code,
+	merging the part about default and the part with the actual
+	parametrization.
+
 	* matlab/ThirdPartyToolbox/dijkstra.m: (0.3.1)
 	* matlab/ThirdPartyToolbox/dijkstra.cpp: (0.3.1)
 
