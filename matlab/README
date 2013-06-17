@@ -567,6 +567,11 @@ surface_interpolation.m
 	 SURFACE_INTERPOLATION  Interpolate a surface from a scattered set of
 	 points
 	
+surface_param.m
+
+	 SURFACE_PARAM  Parametrization of a scattered set of points that belong
+	 to a surface
+	
 thickslice_collate_sax_la.m
 
 	 THICKSLICE_COLLATE_SAX_LA  Build a distance/adjacency matrix collating
