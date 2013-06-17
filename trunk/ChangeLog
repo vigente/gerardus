@@ -1,4 +1,18 @@
+2013-06-17  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ThirdPartyToolbox/dijkstra.m: (0.3.1)
+	* matlab/ThirdPartyToolbox/dijkstra.cpp: (0.3.1)
+
+	- Small clarification in the help header.
+
 2013-06-15  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/update_README.sh: (0.2.0)
+
+	- Put the case loop outside, and then the loop for each file
+	inside the particular cases. This allows us to use different find
+	commands to list the files in each toolbox, suiting the different
+	conventions of third party toolboxes.
 
 	* matlab/add_gerardus_paths.m: (0.1.3)
 

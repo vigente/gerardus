@@ -10,6 +10,10 @@ function [d, p, d2] = dijkstra(g, s, t, g2)
 %   from node i to node j in the graph. That is, G contains the edge
 %   weights or distances between nodes.
 %
+%   G doesn't need to be symmetric. The connections from node i are given
+%   by column G(:, i). Thus, it's possible that e.g. G(2,5)=1.5, but
+%   G(5,2)=0.0.
+%
 %   Note: Matlab's convention is that the absence of an element in a sparse
 %   matrix means edge weight = 0. However, in this function, the lack of an
 %   entry in the sparse matrix is understood as a lack of edge (or edge
@@ -85,7 +89,7 @@ function [d, p, d2] = dijkstra(g, s, t, g2)
 %
 % http://code.google.com/p/gerardus/
 %
-% Version: 0.3.0
+% Version: 0.3.1
 % $Rev$
 % $Date$
 
