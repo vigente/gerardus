@@ -1,5 +1,10 @@
 2013-06-17  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/test/test_surface_param.m: (0.2.0)
+	* Add matlab/PointsToolbox/surface_param.m: (0.2.0)
+
+	- Add Control Area and Length Distortions (CALD) by Li Shen.
+
 	* Add matlab/test/test_surface_param.m: (0.1.0)
 	* Add matlab/PointsToolbox/surface_param.m: (0.1.0)
 
