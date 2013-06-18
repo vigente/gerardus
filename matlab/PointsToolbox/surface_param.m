@@ -147,6 +147,7 @@ function [uv, out] = surface_param(x, param)
 %
 % [3] Shen and Makedon, "Spherical mapping for processing of 3D closed
 % surfaces", Image and Vision Computing, 24(7):743–761, 2006.
+% http://www.sciencedirect.com/science/article/pii/S0262885606000485
 %
 % [4] CALD and SPHARM-MAT homepage,
 % http://www.iupui.edu/~shenlab/software.html
