@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -83,10 +83,8 @@ title('Isomap')
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Closed surface
+%% Closed surface from scattered point set
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% spherical Isomap with an alpha-shape distance matrix
 
 % load discrete point set
 scimat = scinrrd_load('data/thick-slice-points-seg.mat');
@@ -103,7 +101,6 @@ axis equal
 % mesh the points using an alpha-shape
 [~, s] = alphavol(x, 0.002);
 tri = s.bnd;
-param.d = dmatrix_mesh(x, tri);
 
 % plot mesh
 subplot(2, 2, 2)
@@ -111,8 +108,11 @@ hold off
 trisurf(tri, x(:, 1), x(:, 2), x(:, 3));
 axis equal
 
+%% spherical Isomap
+
 % compute spherical Isomap parametrization, no need the constrain the
 % distance matrix more
+param.d = dmatrix_mesh(x, tri);
 param.type = 'sphisomap';
 param.neigh = 'epsilon';
 param.size = Inf;
@@ -131,6 +131,87 @@ axis equal
 
 % plot error
 subplot(2, 2, 4)
+hold off
+plot(out.err)
+ylabel('||D-D_{param}||_{Frob}')
+xlabel('Iteration (each point movement)')
+title('Isometry error')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Closed surface from segmentation mesh
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% load segmentation
+scimat = scinrrd_load('data/008-lvhull-downsampled-4.mha');
+
+% compute surface mesh from segmentation
+opt = .004;
+method = 'simplify';
+
+tic
+[x, tri] = v2s(single(scimat.data), 1, opt, method);
+tri = tri(:, 1:3);
+toc
+hold off
+plotmesh(x, tri)
+
+%% CALD (Control Area and Length Distortions)
+
+% first using the SPHARM-MAT toolbox GUI
+faces = tri;
+vertices = x;
+save('/tmp/bar_obj.mat', 'faces', 'vertices')
+SPHARM_MAT
+load('/tmp/bar_CALD_smo.mat')
+
+% plot parametrization
+subplot(2, 2, 3)
+hold off
+[~, xyzsph] = procrustes(x, sph_verts, 'Scaling', false);
+trisurf(tri, xyzsph(:, 1), xyzsph(:, 2), xyzsph(:, 3));
+title('CALD')
+axis equal
+
+% compute CALD parametrization using our surface_param() function
+param.type = 'cald';
+param.tri = tri;
+[uv, out] = surface_param(x, param);
+
+% plot parametrization
+subplot(2, 2, 3)
+hold off
+lat = uv(:, 1);
+lon = uv(:, 2);
+[xsph, ysph, zsph] = sph2cart(lon, lat, 1);
+[~, xyzsph] = procrustes(x, [xsph, ysph, zsph], 'Scaling', false);
+trisurf(tri, xyzsph(:, 1), xyzsph(:, 2), xyzsph(:, 3));
+title('CALD')
+axis equal
+
+%% spherical Isomap
+
+% compute spherical Isomap parametrization, no need the constrain the
+% distance matrix more
+param.d = dmatrix_mesh(x, tri);
+param.type = 'sphisomap';
+param.neigh = 'epsilon';
+param.size = Inf;
+param.init = 'sphproj';
+param.maxiter = 50;
+[uv, out] = surface_param(x, param);
+lat = uv(:, 1);
+lon = uv(:, 2);
+
+% plot parametrization
+subplot(2, 2, 4)
+hold off
+[xsph, ysph, zsph] = sph2cart(lon, lat, 1);
+[~, xyzsph] = procrustes(x, [xsph ysph zsph], 'Scaling', false);
+trisurf(tri, xsph, ysph, zsph);
+title('Spherical Isomap')
+axis equal
+
+% plot error
 hold off
 plot(out.err)
 ylabel('||D-D_{param}||_{Frob}')
