@@ -1,5 +1,19 @@
 2013-06-19  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/PointsToolbox/surface_param.m: (0.2.1)
+	- 'sphisomap': Update estimation of sphere radius. The mean of
+	point radii did not work very well. Now we estimate the sphere
+	radius from the half-circumference.
+
+	* matlab/test/test_surface_param.m: (0.2.1)
+
+	- Apply PCA normalization to the mesh before computing spherical
+	Isomap parametrization. This makes the mesh a lot more similar to
+	a sphere.
+
+	- Add comparisons between CALD and spherical Isomap
+	parametrizations.
+
 	* matlab/ManifoldToolbox/smdscale.m: (0.4.0)
 	* matlab/test/test_smdscale.m: (0.2.3)
 
