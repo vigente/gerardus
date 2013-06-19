@@ -50,7 +50,7 @@ axis equal
 
 % embbed the point set on the sphere using the initial guess
 tic
-opt.maxiter = 100;
+opt.maxiter = 40;
 [lat, lon, err, stopCondition, dsph, sphrad] = ...
     smdscale(sparse(d), [], lat, lon, opt);
 toc
@@ -104,7 +104,7 @@ axis equal
 % Dijkstra'd full distance matrix, because local optimisation reduces the
 % error but doesn't produce a visually good result
 tic
-opt.maxiter = 100;
+opt.maxiter = 40;
 [lat, lon, err0, stopCondition, dsph] = ...
     smdscale(dijkstra(sparse(d), 1:N), sphrad, lat, lon, opt);
 toc
@@ -132,7 +132,7 @@ legend('Random initialisation', 'Sphere projection intialisation')
 % now we run MDS again, but this time starting from the previous result,
 % and using the sparse distance matrix, to fine tune the result
 tic
-opt.maxiter = 100;
+opt.maxiter = 40;
 [lat, lon, err1, stopCondition, dsph] = ...
     smdscale(d, sphrad, lat, lon, opt);
 toc
