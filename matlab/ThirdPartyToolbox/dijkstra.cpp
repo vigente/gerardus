@@ -89,7 +89,7 @@
  *
  * http://code.google.com/p/gerardus/
  *
- * Version: 0.3.1
+ * Version: 0.3.2
  * $Rev$
  * $Date$
  *
@@ -858,6 +858,8 @@ void dodijk_sparse(long int M,    // input: sparse distance matrix: # of rows
   INF   = mxGetInf();
   SMALL = mxGetEps();
 
+  std::cout << "FOO: " << SMALL << std::endl;//////////////////////////////////////
+
   // check that we either don't have any variables for the secondary
   // distance matrix, or we have all we need
   if ((D2 == NULL) && (sr2 != NULL)) {
@@ -1135,7 +1137,7 @@ void mexFunction(int          nlhs,
   NS = mxGetN(prhs[1]);
   
   if ((MS==0) || (NS==0) || ((MS>1) && (NS>1))) {
-    mexErrMsgTxt("Source nodes are specified in one dimensional matrix only");
+    mexErrMsgTxt("Source nodes must be given as a vector");
   }
   if (NS>MS) {
     MS=NS;
@@ -1256,17 +1258,29 @@ void mexFunction(int          nlhs,
     dodijk_sparse(M, N, S, Psmall, Dsmall, sr, irs, jcs, A, theHeap, // basic Dijkstra arguments
 		  target, D2small, sr2);                             // extensions
     
+    std::cout << "LALALA: " << S << std::endl;////////////////////
+
     for (j=0; j<M; j++) {
       // copy distance values and predecessor indices to output 
       *(D + j*MS + i) = *(Dsmall + j);
       *(P + j*MS + i) = *(Psmall + j) + 1;
     }
 
+    // fix bug: the original algorithm returns a distance
+    // SMALL=2.22045e-16 between each node and itself, because of the
+    // way the algorithm is initialized. This distance should be zero
+    *(D + S*MS + i) = 0.0;
+
     if ((nrhs > 3) && (nlhs > 2)) {
       for (j=0; j<M; j++) {
 	// copy distance values and predecessor indices to output 
 	*(D2 + j*MS + i) = *(D2small + j);
       }
+
+      // fix bug: the original algorithm returns a distance
+      // SMALL=2.22045e-16 between each node and itself, because of the
+      // way the algorithm is initialized. This distance should be zero
+      *(D2 + S*MS + i) = 0.0;
     }
     
     /* -------------------------------------------------------------------------------------------------
