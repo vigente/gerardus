@@ -1,5 +1,11 @@
 2013-06-19  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ThirdPartyToolbox/dijkstra.cpp: (0.3.2)
+
+	- Fix bug: the original algorithm returns a distance
+	SMALL=2.22045e-16 between each node and itself, because of the way
+	the algorithm is initialized. This distance should be zero.
+
 	* Add matlab/PointsToolbox/pca_normalize.m: (0.1.0)
 	* Add matlab/test/test_pca_normalize.m: (0.1.0)
 
