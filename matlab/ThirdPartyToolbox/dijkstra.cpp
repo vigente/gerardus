@@ -858,8 +858,6 @@ void dodijk_sparse(long int M,    // input: sparse distance matrix: # of rows
   INF   = mxGetInf();
   SMALL = mxGetEps();
 
-  std::cout << "FOO: " << SMALL << std::endl;//////////////////////////////////////
-
   // check that we either don't have any variables for the secondary
   // distance matrix, or we have all we need
   if ((D2 == NULL) && (sr2 != NULL)) {
@@ -1258,8 +1256,6 @@ void mexFunction(int          nlhs,
     dodijk_sparse(M, N, S, Psmall, Dsmall, sr, irs, jcs, A, theHeap, // basic Dijkstra arguments
 		  target, D2small, sr2);                             // extensions
     
-    std::cout << "LALALA: " << S << std::endl;////////////////////
-
     for (j=0; j<M; j++) {
       // copy distance values and predecessor indices to output 
       *(D + j*MS + i) = *(Dsmall + j);
