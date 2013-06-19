@@ -451,6 +451,12 @@ mba_surface_interpolation.m
 
 	 MBA_SURFACE_INTERPOLATION  Scattered data Multilevel B-spline interpolation
 	
+pca_normalize.m
+
+	 PCA_NORMALIZE  Normalize a set of points so that its centroid is zero,the
+	 Principal Components correspond to the Cartesian axes, and the variance
+	 (eigenvalue) along each Principal Component is one
+	
 plotaxes.m
 
 	 PLOTAXES  Plot axes of 3D coordinate system

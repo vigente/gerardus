@@ -20,10 +20,12 @@ function [x, s] = pts_cn(x)
 %  [1] Rohlf, F. & Slice, D. Extensions of the Procrustes method for the
 %  optimal superimposition of landmarks. Systematic Zoology, 1990, 39,
 %  40-59.
+%
+% See also: pca_normalize.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 1.0.0
+% Version: 1.0.1
 % $Rev$
 % $Date$
 % 
@@ -51,8 +53,8 @@ function [x, s] = pts_cn(x)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 1, nargin, 'struct'));
-error(nargoutchk(0, 2, nargout, 'struct'));
+narginchk(1, 1);
+nargoutchk(0, 2);
 
 % get sizes
 [~, K, N] = size(x);
