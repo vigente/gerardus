@@ -38,7 +38,10 @@ function [lat, lon, err, stopCondition, dsph, sphrad] = smdscale(d, sphrad, lat,
 %     [x, y, z] = sph2cart(LON, LAT, SPHRAD);
 %
 %   ERR is a vector with the Frobenius norm error measure at each step of
-%   the optimisation algorithm (moving each point counts as a step).
+%   the optimisation algorithm (moving each point counts as a step). Note
+%   that for local neighbourhood matrices, the Frobenius norm will be
+%   smaller because there are more elements that don't contribute towards
+%   the error (because they are 0 or Inf).
 %
 %   STOP is a cell-array with the condition/s that made the algorithm stop,
 %   in string form.
@@ -243,8 +246,8 @@ while isempty(stopCondition)
             lat(neigh), lon(neigh), [sphrad 0], 'radians');
         dsph(neigh, I) = dsph(I, neigh)';
         
-        % compute Frobenius norm of the error at this iteration (Inf values
-        % are ignored)
+        % compute Frobenius norm of the error at this iteration (of the
+        % local neighbourhood distance matrix)
         err(end+1) = norm(dsph(idx) - d(idx));
         
     end
