@@ -1,6 +1,7 @@
 2013-06-19  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ThirdPartyToolbox/dijkstra.cpp: (0.3.2)
+	* matlab/test/test_dijkstra.m: (0.3.1)
 
 	- Fix bug: the original algorithm returns a distance
 	SMALL=2.22045e-16 between each node and itself, because of the way
