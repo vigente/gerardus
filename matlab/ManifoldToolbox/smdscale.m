@@ -1,4 +1,4 @@
-function [lat, lon, err, stopCondition, dsph] = smdscale(d, sphrad, lat, lon, opt)
+function [lat, lon, err, stopCondition, dsph, sphrad] = smdscale(d, sphrad, lat, lon, opt)
 % SMDSCALE  Multidimensional scaling on a sphere
 %
 % This function solves a Multidimensional Scaling problem by finding a way
@@ -7,56 +7,66 @@ function [lat, lon, err, stopCondition, dsph] = smdscale(d, sphrad, lat, lon, op
 % close as possible (in the Frobenius norm sense) to an input distance
 % matrix.
 %
-% [LAT, LON, ERR, STOP, DSPH] = smdscale(D, SPHRAD)
+% [LAT, LON, ERR, STOP, DSPH, SPHRAD] = smdscale(D)
 %
 %   D is a square matrix where D(i,j) is some distance (e.g. in meters)
-%   between the i-th and j-th points. Note that the points themselves are
-%   unknown, we only know the distances between them. Values of D(i,j)=0 or
-%   D(i,j)=Inf mean that points i, j are not connected. The algorithm only
-%   takes into account the neighbours of a point when it's optimised, so if
-%   a fully connected distance matrix is needed, run
+%   between points i and j. Note that the points themselves are unknown, we
+%   only know the distances between them. These distances could be geodesic
+%   distances, or approximations thereof, e.g. chord-length distances.
+%   Values of D(i,j)=0 or D(i,j)=Inf mean that points i and j are not
+%   neighbours, i.e. connected by an edge.
+%
+%   The optimisation algorithm works by relocating each point i so that its
+%   new distance on the sphere to each neighbour j is as close to D(i,j) as
+%   possible. Note that non-neighbours (D=0 or D=Inf) are ignored in the
+%   optimisation. This allows sparse matrices and local neighbourhood
+%   optimisations.
+%
+%   Global optimisations (i.e. the graph is complete, so every pair of
+%   points is connected) can be achieved too by converting a local
+%   neighbourhood graph to a complete graph:
 %
 %     D = dijkstra(sparse(D), 1:length(d));
 %
-%   SPHRAD is a scalar with the radius of the sphere. By default, SPHRAD=1.
-%   Note that the radius of the sphere is a critical parameter. E.g. a
-%   matrix D with small distance values cannot be proprely fitted to a
-%   large sphere (because then we would be trying to embed a spherical
-%   point configuration on a surface that is quite similar to a plane).
-%
-%   LAT, LON are the solution to the problem. They are vectors with the
-%   latitude and longitude coordinates (in radians) of a point
-%   configuration on the sphere. The arc length distance matrix between
-%   said points tries to approximate D as well as possible in the Frobenius
+%   LAT, LON are vectors with the latitude and longitude coordinates (in
+%   radians) of a set of points on the sphere. The great circle distances
+%   between the points approximate D as well as possible in the Frobenius
 %   norm sense (ignoring Inf values).
 %
 %   To compute the (x,y,z) Euclidean coordinates of the sphere points run
 %
 %     [x, y, z] = sph2cart(LON, LAT, SPHRAD);
 %
-%   ERR is a vector with the error measure at each step of the optimisation
-%   algorithm (moving each point counts as a step). The error measure is
-%   computed as the Frobenius norm of the matrix (D-DSPH), ignoring
-%   infinite distances.
+%   ERR is a vector with the Frobenius norm error measure at each step of
+%   the optimisation algorithm (moving each point counts as a step).
 %
 %   STOP is a cell-array with the condition/s that made the algorithm stop,
 %   in string form.
 %
-%   DSPH is the matrix of arc length distances between the points given
-%   by LAT, LON, SPHRAD (units: meters).
+%   DSPH (units: meters) is the matrix of great circle or geodesic
+%   distances between the points given by LAT, LON, and SPHRAD. The great
+%   circle distance between points i and j can be computed in Matlab as
+%
+%     dsph = distance(lat(i), lon(i), lat(j), lon(j), [sphrad 0], 'radians');
+%
+%   SPHRAD is a scalar with the radius of the sphere. Note that the radius
+%   of the sphere is a critical parameter. If the sphere is too small or
+%   too large, the algorithm will produce very poor results. By default, it
+%   is estimated so that it can accommodate the distance from each point to
+%   the most distant point. If D is a local neighbourhood matrix, this
+%   requires running a full Dijkstra on D, which may be slow for large
+%   matrices. The sphere's radius is estimated from the full D matrix as:
+%
+%      sphrad = median(max(D)) / pi;
 %
 % [...] = smdscale(D, SPHRAD, LAT0, LON0, OPT)
+%
+%   SPHRAD can be provided by the user, in which case it is not estimated
+%   internally.
 %
 %   LAT0, LON0 are the user's initial guess for the latitude and longitude
 %   of the point configuration. By default, a configuration of points
 %   randomly distributed over the sphere is used.
-%
-%   In some cases, what you want to do is embed a Euclidean or manifold
-%   point configuration onto a sphere, i.e. you have a matrix X with the
-%   Euclidean coordinates of the points. In this case, you can obtain a
-%   good initial guess by running
-%
-%     [LAT0, LON0, SPHRAD] = proj_on_sphere(X);
 %
 %   OPT is a struct with the stop conditions for the algorithm. The next
 %   conditions are available:
@@ -76,9 +86,9 @@ function [lat, lon, err, stopCondition, dsph] = smdscale(d, sphrad, lat, lon, op
 % al. (2010), but avoids using chords or approximating the mean on the
 % sphere by the Euclidean mean followed by projection on the sphere (code
 % not available, but explained in personal communication). It also improves
-% on Agarwal et al in that it does not assume that D is a full matrix, and
-% thus can optimise local neighbourhoods of the point configuration. Many
-% thanks to A. Agarwal for his comments about his paper.
+% on Agarwal et al in that it provides an estimate of the sphere's radius,
+% and it can work with a full D matrix or a local neighbourhood D matrix.
+% Many thanks to A. Agarwal for his comments about his paper.
 %
 % A. Agarwal et al. (2010) "Universal Multi-Dimensional Scaling",
 % Proceedings of the 16th ACM SIGKDD International Conference on Knowledge
@@ -86,7 +96,7 @@ function [lat, lon, err, stopCondition, dsph] = smdscale(d, sphrad, lat, lon, op
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.3.2
+% Version: 0.4.0
 % $Rev$
 % $Date$
 %
@@ -116,7 +126,7 @@ function [lat, lon, err, stopCondition, dsph] = smdscale(d, sphrad, lat, lon, op
 
 % check arguments
 narginchk(1, 5);
-nargoutchk(0, 5);
+nargoutchk(0, 6);
 
 % number of points
 N = size(d, 1);
@@ -126,7 +136,24 @@ end
 
 % defaults
 if (nargin < 2 || isempty(sphrad))
-    sphrad = 1;
+    % is the distance matrix a local neighbourhood matrix?
+    if nnz(d~=0 & ~isinf(d)) < numel(d) - length(d)
+        % we need the full matrix to estimate the sphere's radius
+        dfull = dijkstra(sparse(d), 1:N);
+        
+        % estimate the size of the sphere so that it can accommodate the
+        % distance matrix
+        %
+        % first, we find the furthest point from each point. The median of
+        % the corresponding distances give an estimate of the half
+        % circumference of the sphere. The radius = half_circumference/pi
+        % because circumference = 2*pi*radius
+        sphrad = median(max(dfull)) / pi;
+    else
+        % we estimate the radius directly from the input distance matrix
+        sphrad = median(max(d)) / pi;
+    end
+    
 end
 if (nargin < 3 || isempty(lat))
     % random distribution of points on the sphere
