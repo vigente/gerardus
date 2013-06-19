@@ -1,5 +1,15 @@
 2013-06-19  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/smdscale.m: (0.4.0)
+	* matlab/test/test_smdscale.m: (0.2.3)
+
+	- Add internal estimation of the sphere's radius if it's not
+	provided. We do it by computing the full distance matrix, if
+	necessary, then from it the longest distances from each point, and
+	the median of it all. This should give a reasonable estimate of
+	the sphere's half circumference. From it, it's easy to compute the
+	radius.
+
 	* matlab/ThirdPartyToolbox/dijkstra.cpp: (0.3.2)
 	* matlab/test/test_dijkstra.m: (0.3.1)
 

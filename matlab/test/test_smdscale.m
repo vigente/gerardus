@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.2.2
+% Version: 0.2.3
 % $Rev$
 % $Date$
 %
@@ -37,7 +37,7 @@
 %% We want to project it onto the sphere
 
 % load discrete point set with an associated local neighbourhood
-load('test/thick-slice-points-xyz-d.mat')
+load('data/thick-slice-points-xyz-d.mat')
 
 % plot neighbourhood
 hold off
@@ -46,33 +46,37 @@ gplot3d(d, xyz)
 axis equal
 
 % initial guess for the sphere embedding
-[lat, lon, sphrad] = proj_on_sphere(xyz);
+[lat, lon] = proj_on_sphere(xyz);
 
 % embbed the point set on the sphere using the initial guess
 tic
 opt.maxiter = 100;
-[lat, lon, err, stopCondition, dsph] = ...
-    smdscale(sparse(d), sphrad, lat, lon, opt);
+[lat, lon, err, stopCondition, dsph, sphrad] = ...
+    smdscale(sparse(d), [], lat, lon, opt);
 toc
+
+% plot error
+hold off
+plot(err)
+ylabel('||D-D_{param}||_{Frob}')
+xlabel('Iteration (each point movement)')
+title('Isometry error')
 
 % compute the Euclidean coordinates of the projected points
 [xsph, ysph, zsph] = sph2cart(lon, lat, sphrad);
 
 % use a rigid Procrustes to find a rotation that aligns the sphere with the
 % LV points
-[~, xyzsph] = procrustes(xyz, [xsph; ysph; zsph]', 'Scaling', false);
+[~, xyzsph] = procrustes(xyz, [xsph ysph zsph], 'Scaling', false);
 
 % plot the aligned points
+hold off
+subplot(1, 1, 1)
+gplot3d(d, xyz)
+axis equal
 hold on
 gplot3d(d, xyzsph, 'r')
 axis equal
-
-% plot the error functions
-hold off
-plot(err)
-title('Distance matrix approximation error')
-xlabel('No. of optimisation steps (moving one point counts as 1 step)')
-ylabel('Frobenius norm')
 
 % plot the normalised distance matrix error
 hold off
@@ -107,7 +111,7 @@ toc
 
 % convert sphere coordinates to Euclidean coordinates
 [x, y, z] = sph2cart(lon, lat, sphrad);
-xyz = cat(1, x, y, z)';
+xyz = [x y z];
 clear x y z
 
 % plot result
@@ -129,7 +133,7 @@ legend('Random initialisation', 'Sphere projection intialisation')
 % and using the sparse distance matrix, to fine tune the result
 tic
 opt.maxiter = 100;
-[lat, lon, err0, stopCondition, dsph] = ...
+[lat, lon, err1, stopCondition, dsph] = ...
     smdscale(d, sphrad, lat, lon, opt);
 toc
 
@@ -148,8 +152,9 @@ hold off
 plot(err0, '--')
 hold on
 plot(err)
+plot(err1, ':')
 title('Distance matrix approximation error')
 xlabel('No. of optimisation steps (moving one point counts as 1 step)')
 ylabel('Frobenius norm of distance matrix error')
-legend('First MDS initialisation', 'Sphere projection intialisation')
-
+legend('Random initialisation', 'Sphere projection intialisation', ...
+    'Random init + Local neighbourhood')
