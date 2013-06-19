@@ -1,3 +1,18 @@
+2013-06-19  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/PointsToolbox/pca_normalize.m: (0.1.0)
+	* Add matlab/test/test_pca_normalize.m: (0.1.0)
+
+	- Normalize a set of points so that its centroid is zero,the
+	Principal Components correspond to the Cartesian axes, and the
+	variance (eigenvalue) along each Principal Component is one.
+
+	* matlab/PointsToolbox/pts_cn.m: (0.1.1)
+
+	- Update argument checking syntax.
+
+	- Add "See also" to new function pca_normalize.
+
 2013-06-17  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/test/test_surface_param.m: (0.2.0)
