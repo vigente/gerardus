@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 %
@@ -152,30 +152,41 @@ tic
 [x, tri] = v2s(single(scimat.data), 1, opt, method);
 tri = tri(:, 1:3);
 toc
+
+% plot mesh
+subplot(2, 1, 1)
 hold off
 plotmesh(x, tri)
+axis equal
+
+% normalize the mesh so that it's more spherical (CALD does not need this,
+% but this way the comparison is fairer)
+x = pca_normalize(x);
+
 
 %% CALD (Control Area and Length Distortions)
 
-% first using the SPHARM-MAT toolbox GUI
-faces = tri;
-vertices = x;
-save('/tmp/bar_obj.mat', 'faces', 'vertices')
-SPHARM_MAT
-load('/tmp/bar_CALD_smo.mat')
-
-% plot parametrization
-subplot(2, 2, 3)
-hold off
-[~, xyzsph] = procrustes(x, sph_verts, 'Scaling', false);
-trisurf(tri, xyzsph(:, 1), xyzsph(:, 2), xyzsph(:, 3));
-title('CALD')
-axis equal
+% % first using the SPHARM-MAT toolbox GUI
+% faces = tri;
+% vertices = x;
+% save('/tmp/bar_obj.mat', 'faces', 'vertices')
+% SPHARM_MAT
+% load('/tmp/bar_CALD_smo.mat')
+% 
+% % plot parametrization
+% subplot(2, 2, 3)
+% hold off
+% [~, xyzsph] = procrustes(x, sph_verts, 'Scaling', false);
+% trisurf(tri, xyzsph(:, 1), xyzsph(:, 2), xyzsph(:, 3));
+% title('CALD')
+% axis equal
 
 % compute CALD parametrization using our surface_param() function
 param.type = 'cald';
 param.tri = tri;
 [uv, out] = surface_param(x, param);
+latCALD = uv(:, 1);
+lonCALD = uv(:, 2);
 
 % plot parametrization
 subplot(2, 2, 3)
@@ -190,30 +201,76 @@ axis equal
 
 %% spherical Isomap
 
-% compute spherical Isomap parametrization, no need the constrain the
-% distance matrix more
+% compute spherical Isomap parametrization
 param.d = dmatrix_mesh(x, tri);
 param.type = 'sphisomap';
 param.neigh = 'epsilon';
 param.size = Inf;
-param.init = 'sphproj';
+param.init = 'random';
 param.maxiter = 50;
 [uv, out] = surface_param(x, param);
-lat = uv(:, 1);
-lon = uv(:, 2);
+latIso = uv(:, 1);
+lonIso = uv(:, 2);
 
 % plot parametrization
 subplot(2, 2, 4)
 hold off
-[xsph, ysph, zsph] = sph2cart(lon, lat, 1);
+[xsph, ysph, zsph] = sph2cart(lonIso, latIso, 1);
 [~, xyzsph] = procrustes(x, [xsph ysph zsph], 'Scaling', false);
 trisurf(tri, xsph, ysph, zsph);
 title('Spherical Isomap')
 axis equal
 
 % plot error
+subplot(1, 1, 1)
 hold off
 plot(out.err)
 ylabel('||D-D_{param}||_{Frob}')
 xlabel('Iteration (each point movement)')
 title('Isometry error')
+
+% plot distances to optimize vs spherical distances
+d = dijkstra(sparse(param.d), 1:length(param.d));
+subplot(2, 1, 2)
+hold off
+plot(d(:), out.dsph(:), '.')
+hold on
+plot([0 max(d(:))], [0 max(d(:))], 'r', 'LineWidth', 2)
+title('Spherical Isomap')
+xlabel('Distance on the mesh')
+ylabel('Distance on the spherical parametrization')
+axis equal
+
+%% compare spherical Isomap and CALD
+
+% compute great circle distances for CALD
+dshpCALD = zeros(size(out.dsph));
+for I = 1:length(dshpCALD)
+    dsphCALD(:, I) = distance(latCALD(I), lonCALD(I), latCALD, lonCALD, ...
+        [out.sphrad 0], 'radians');
+end
+
+% plot distances to optimize vs spherical distances for CALD
+subplot(2, 1, 1)
+hold off
+plot(d(:), dsphCALD(:), '.')
+hold on
+plot([0 max(d(:))], [0 max(d(:))], 'r', 'LineWidth', 2)
+title('CALD')
+xlabel('Distance on the mesh')
+ylabel('Distance on the spherical parametrization')
+axis equal
+
+
+% plot boxplots with the distance ratios
+N = numel(d);
+subplot(1, 1, 1)
+hold off
+boxplot([d(:)-dsphCALD(:) ; d(:)-out.dsph(:)], ...
+    [ones(N, 1); 2*ones(N, 1)], 'labels', {'CALD', 'Sph Isomap'}, ...
+    'notch', 'on')
+title('Target distance - distance on spherical parametrization')
+
+subplot(1, 2, 2)
+hold off
+boxplot()
