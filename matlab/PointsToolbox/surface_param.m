@@ -154,7 +154,7 @@ function [uv, out] = surface_param(x, param)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -312,12 +312,9 @@ switch param.type
                     % initial guess for the sphere embedding by simply
                     % projecting each point along the radius to the
                     % centroid
-                    [lat, lon, sphrad] = proj_on_sphere(x);
+                    [lat, lon] = proj_on_sphere(x);
                     
                 case 'random'
-                    
-                    % kludge: we use this to estimate the sphere's radius
-                    [~, ~, sphrad] = proj_on_sphere(x);
                     
                     % counter-intuitively, starting from a completely
                     % random distribution usually gives good results
@@ -340,9 +337,18 @@ switch param.type
         % one
         param.d = dijkstra(param.d, 1:N);
         
+        % estimate the size of the sphere so that it can accommodate the
+        % distance matrix
+        %
+        % first, we find the furthest point from each point. The median of
+        % the corresponding distances give an estimate of the half
+        % circumference of the sphere. The radius = half_circumference/pi
+        % because circumference = 2*pi*radius
+        sphrad = median(max(param.d)) / pi;
+        
         % compute the parametrization that optimises isometry
-        [lat, lon, out.err] = smdscale(param.d, sphrad, lat, lon, param);
-            
+        [lat, lon, out.err, out.stopCondition, out.dsph, out.sphrad] = ...
+            smdscale(param.d, sphrad, lat, lon, rmfield(param, 'd'));
         
 %         % DEBUG: plot parametrization
 %         [xsph, ysph, zsph] = sph2cart(lon, lat, sphrad);
