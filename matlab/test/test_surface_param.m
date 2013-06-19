@@ -143,6 +143,7 @@ title('Isometry error')
 
 % load segmentation
 scimat = scinrrd_load('data/008-lvhull-downsampled-4.mha');
+scimat = scinrrd_load('data/008-rvhull-downsampled-4.mha');
 
 % compute surface mesh from segmentation
 opt = .004;
@@ -244,8 +245,8 @@ axis equal
 %% compare spherical Isomap and CALD
 
 % compute great circle distances for CALD
-dshpCALD = zeros(size(out.dsph));
-for I = 1:length(dshpCALD)
+dsphCALD = zeros(size(out.dsph));
+for I = 1:length(dsphCALD)
     dsphCALD(:, I) = distance(latCALD(I), lonCALD(I), latCALD, lonCALD, ...
         [out.sphrad 0], 'radians');
 end
@@ -270,7 +271,3 @@ boxplot([d(:)-dsphCALD(:) ; d(:)-out.dsph(:)], ...
     [ones(N, 1); 2*ones(N, 1)], 'labels', {'CALD', 'Sph Isomap'}, ...
     'notch', 'on')
 title('Target distance - distance on spherical parametrization')
-
-subplot(1, 2, 2)
-hold off
-boxplot()
