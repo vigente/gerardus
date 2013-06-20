@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.3.4
+# Version: 0.4.0
 # $Rev$
 # $Date$
 #
@@ -225,118 +225,170 @@ ENDIF(WIN32)
 ## Third-party library: Boost
 #############################################################################################
 
-# Boost libraries are built as an external project. Attempts to
-# integrate the build and install more closely with the Gerardus CMake
-# build system have proven unsuccessful, in part because without using
-# FindBoost.cmake, the linker gets confused between the local Boost
-# and any system-wide installed Boost, and FindBoost.cmake runs in the
-# configuration phase, before ExternalProject_Add() has the chance to
-# build Boost.
+# Boost libraries are required by the executable programs in Gerardus,
+# and anything that uses CGAL. In the past, we tried to build the
+# Boost libraries we needed and link to them. However, Matlab also
+# uses and provides its own Boost libraries in the same directory
+# where it keeps the mex libraries. This created error prone
+# situations where MEX functions where linked to two different
+# versions of the same Boost library.
 #
-# Hence, we use a hack:
-#
-#  $ cd gerardus/bin
-#  $ cmake ..     ====> configure the build of Boost
-#  $ make         ====> build and install Boost
-#  $ cmake ..     ====> configure Gerardus and the rest of third party libraries
-#  $ make         ====> build
-#  $ make install ====> install
+# To avoid that trouble, we now avoid that duplication. Instead, we
+# figure out what version of Boost Matlab is using, download the
+# corresponding header files, install them in Gerardus, and link to
+# the Boost libraries already distributed with Matlab.
 
+# get the version of Boost distributed with Matlab
+get_filename_component(MATLAB_BOOST_LIB_PATH ${MATLAB_MEX_LIBRARY} PATH)
+file(GLOB AUX_BOOST_VERSION  "${MATLAB_BOOST_LIB_PATH}/*boost_system*")
+get_filename_component(AUX_BOOST_VERSION ${AUX_BOOST_VERSION} NAME)
+string(REGEX MATCH "[0-9]+[._][0-9]+[._][0-9]+" AUX_BOOST_VERSION ${AUX_BOOST_VERSION}) # e.g. 1.44.0
+message(STATUS "Matlab is linked to Boost version ${AUX_BOOST_VERSION}")
+string(REPLACE "." "_" AUX_BOOST_VERSION_ ${AUX_BOOST_VERSION})                         # e.g. 1_44_0
+
+# path to the Boost header files and libraries
+set(Boost_INCLUDE_DIR "${GERARDUS_SOURCE_DIR}/include")
+set(Boost_LIBRARY_DIR "${GERARDUS_SOURCE_DIR}/lib")
+
+
+# check whether the Boost headers have already been installed in
+# Gerardus
 find_file(Boost_version_hpp version.hpp
-   PATHS "${GERARDUS_SOURCE_DIR}/include/boost-1_53/boost/" "${GERARDUS_SOURCE_DIR}/include/boost/"
-   NO_DEFAULT_PATH)
+  PATHS "${Boost_INCLUDE_DIR}/boost/"
+  NO_DEFAULT_PATH)
 
+# if they haven't, we install them
 if(NOT Boost_version_hpp)
 
-  message(STATUS "First run: Local Boost libraries for Gerardus need to be built")
+  message(STATUS "include/boost/version.hpp not found. Preparing to install Boost header files")
 
-  # build Boost libraries as an external project
-  include(ExternalProject)
+  set(BOOST_TARBALL_URL 
+    http://downloads.sourceforge.net/project/boost/boost/${AUX_BOOST_VERSION}/boost_${AUX_BOOST_VERSION_}.tar.gz)
+  set(BOOST_TARBALL_FILENAME
+    ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_${AUX_BOOST_VERSION_}.tar.gz)
 
-  if(WIN32)
-    set(Boost_bootstrap "bootstrap.bat")
-    set(Boost_b2 "b2")
-    set(Boost_layout "versioned")
+  # check whether we need to download the tarball with the Boost
+  # source code, or whether it's already been downloaded
+  if(EXISTS ${BOOST_TARBALL_FILENAME})
+
+    message(STATUS "Boost source code previously downloaded")
+
   else()
-    set(Boost_bootstrap "./bootstrap.sh")
-    set(Boost_b2 "./b2")
-    set(Boost_layout "tagged")
+
+    # download the tarball with the Boost source code that corresponds
+    # to the Boost version in Matlab
+    file(DOWNLOAD
+      ${BOOST_TARBALL_URL}
+      ${BOOST_TARBALL_FILENAME}
+      SHOW_PROGRESS
+      STATUS Boost_DOWNLOAD_STATUS)
+    
+    if (Boost_DOWNLOAD_STATUS MATCHES "0;\"No error\"")
+      message(STATUS "Boost source code correctly downloaded")
+    else()
+      message(FATAL_ERROR "${Boost_DOWNLOAD_STATUS}\nCould not download Boost source code from\n${BOOST_TARBALL_URL}")
+    endif()
+  endif()
+
+  # uncompress the Boost tarball
+  execute_process(
+    COMMAND ${CMAKE_COMMAND} -E tar xzf ${BOOST_TARBALL_FILENAME}
+    WORKING_DIRECTORY ${GERARDUS_SOURCE_DIR}/cpp/src/third-party)
+
+  # copy the header files to Gerardus' include directory
+  file(COPY ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_${AUX_BOOST_VERSION_}/boost
+    DESTINATION ${Boost_INCLUDE_DIR})
+
+  # patch the Boost include files if necessary
+  # version 1.44.0: https://bbs.archlinux.org/viewtopic.php?pid=1126374
+  if (${AUX_BOOST_VERSION} MATCHES "1.44.0")
+    message(STATUS "This version of Boost needs patching")
+    file(READ ${Boost_INCLUDE_DIR}/boost/thread/xtime.hpp AUX)
+    string(REPLACE TIME_UTC TIME_UTC_ AUX "${AUX}")
+    file(WRITE ${Boost_INCLUDE_DIR}/boost/thread/xtime.hpp "${AUX}")
   endif()
   
-  # linking of binary programs under Windows will fail if the Boost libraries
-  # are not explicitely built with the right "address model" (32 or 64 bit)
+  message(STATUS "Boost header files have been installed")
+
+endif(NOT Boost_version_hpp)
+
+# in non-Windows systems, we reuse the same Boost libraries used by
+# Matlab by creating symlinks to them. Additionally, we also need to
+# build an extra library not provided by Matlab from the source
+include(ExternalProject)
+if(NOT WIN32)
+  # create symlinks to the boost libraries
+  execute_process(
+    COMMAND ${CMAKE_COMMAND} -E create_symlink 
+    ${MATLAB_BOOST_LIB_PATH}/libboost_date_time.so.${AUX_BOOST_VERSION} 
+    ${Boost_LIBRARY_DIR}/libboost_date_time.so)
+  execute_process(
+    COMMAND ${CMAKE_COMMAND} -E create_symlink 
+    ${MATLAB_BOOST_LIB_PATH}/libboost_filesystem.so.${AUX_BOOST_VERSION} 
+    ${Boost_LIBRARY_DIR}/libboost_filesystem.so)
+  execute_process(
+    COMMAND ${CMAKE_COMMAND} -E create_symlink 
+    ${MATLAB_BOOST_LIB_PATH}/libboost_system.so.${AUX_BOOST_VERSION} 
+    ${Boost_LIBRARY_DIR}/libboost_system.so)
+  execute_process(
+    COMMAND ${CMAKE_COMMAND} -E create_symlink 
+    ${MATLAB_BOOST_LIB_PATH}/libboost_thread.so.${AUX_BOOST_VERSION} 
+    ${Boost_LIBRARY_DIR}/libboost_thread.so)
+
+else() # Windows Matlab doesn't provide compiled Boost libraries, so
+       # we build them ourselves
+
+  # build missing Boost libraries not provided by Matlab
+  set(BOOST_SOURCE_DIR
+    ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_${AUX_BOOST_VERSION_})
+
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-     set(Boost_address_model 64)
+    set(Boost_address_model 64)
   else()
-     set(Boost_address_model 32)
+    set(Boost_address_model 32)
   endif()
 
-  ExternalProject_Add(Boost
-    PREFIX ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_1_53_0/
-    SOURCE_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_1_53_0/
-    BINARY_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_1_53_0/
-    CONFIGURE_COMMAND ${Boost_bootstrap}
+  ExternalProject_Add(BoostExternal
+    PREFIX ${BOOST_SOURCE_DIR}
+    SOURCE_DIR ${BOOST_SOURCE_DIR}
+    BINARY_DIR ${BOOST_SOURCE_DIR}
+    CONFIGURE_COMMAND bootstrap
     BUILD_COMMAND ""
     TEST_BEFORE_INSTALL 0
-    INSTALL_COMMAND ${Boost_b2} install release --prefix=${GERARDUS_SOURCE_DIR} 
-    --build-dir=./bin --layout=${Boost_layout} --build-type=complete 
-    address-model=${Boost_address_model}
-    --with-chrono --with-date_time --with-filesystem --with-system --with-thread
+    INSTALL_COMMAND bjam install release --prefix=${GERARDUS_SOURCE_DIR}
+    --build-dir=.\bin address-model=${Boost_address_model}
+    --with-chrono
     LOG_CONFIGURE 1
     LOG_BUILD 1
     LOG_INSTALL 1
     )
 
-  return()
-
-else()
-
-  message(STATUS "Second run: Local Boost libraries for Gerardus found")
-
-  # path to the Boost header files and libraries once they are built
-  # and installed
-  if(WIN32)
-     set(Boost_INCLUDE_DIR "${GERARDUS_SOURCE_DIR}/include/boost-1_53")
-     set(BOOST_ROOT "${GERARDUS_SOURCE_DIR}")
-  else()
-     set(Boost_INCLUDE_DIR "${GERARDUS_SOURCE_DIR}/include")
-  endif()
-  set(Boost_LIBRARY_DIR "${GERARDUS_SOURCE_DIR}/lib")
-  set(Boost_INCLUDE_DIRS "${Boost_INCLUDE_DIR}")
-  set(Boost_LIBRARY_DIRS "${Boost_LIBRARY_DIR}")
-  message(STATUS "Boost include path: ${Boost_INCLUDE_DIRS}")
-  message(STATUS "Boost lib path:     ${Boost_LIBRARY_DIRS}")
-  
-  set(Boost_NO_SYSTEM_PATHS        TRUE)
-  if (WIN32)
-    set(Boost_USE_STATIC_LIBS        ON)
-  else()
-    set(Boost_USE_STATIC_LIBS        OFF)
-  endif()
-  set(Boost_USE_MULTITHREADED      ON)
-  set(Boost_USE_STATIC_RUNTIME     OFF)
-  add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
-
-  # integrate the local Boost libraries with the rest of the CMake
-  # build system
-  find_package(Boost 1.53.0 
-    COMPONENTS chrono date_time filesystem system thread)
-
-  # Get Boost version number from its config.hpp file
-  set(BOOST_VERSION 0)
-  file(READ "${Boost_INCLUDE_DIR}/boost/version.hpp"
-    _boost_VERSION_HPP_CONTENTS)
-  string(REGEX REPLACE ".*#define BOOST_VERSION ([0-9]+).*" "\\1" 
-    Boost_VERSION "${_boost_VERSION_HPP_CONTENTS}")
-  set(Boost_VERSION ${Boost_VERSION} CACHE INTERNAL 
-    "The version number for boost libraries released together with Gerardus")
-  if(NOT "${Boost_VERSION}" STREQUAL "0")
-    math(EXPR Boost_MAJOR_VERSION "${Boost_VERSION} / 100000")
-    math(EXPR Boost_MINOR_VERSION "${Boost_VERSION} / 100 % 1000")
-    math(EXPR Boost_SUBMINOR_VERSION "${Boost_VERSION} % 100")
-  endif()
-  
 endif()
+
+#set(BOOST_ROOT "${MATLAB_BOOST_LIB_PATH}")
+set(Boost_INCLUDE_DIRS "${Boost_INCLUDE_DIR}")
+set(Boost_LIBRARY_DIRS "${Boost_LIBRARY_DIR}")
+
+message(STATUS "Boost include path: ${Boost_INCLUDE_DIRS}")
+message(STATUS "Boost lib path:     ${Boost_LIBRARY_DIRS}")
+
+set(BOOST_INCLUDEDIR "${Boost_INCLUDE_DIR}")
+set(BOOST_LIBRARYDIR "${Boost_LIBRARY_DIR}")
+set(Boost_DEBUG FALSE)
+set(Boost_NO_SYSTEM_PATHS        TRUE)
+if (WIN32)
+  set(Boost_USE_STATIC_LIBS      ON)
+else()
+  set(Boost_USE_STATIC_LIBS      OFF)
+endif()
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME     OFF)
+add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
+
+# integrate the local Boost libraries with the rest of the CMake
+# build system
+find_package(Boost ${AUX_BOOST_VERSION}
+  COMPONENTS date_time filesystem system thread)
 
 #############################################################################################
 ## Third-party library: CGAL
@@ -345,7 +397,7 @@ endif()
 # note that CGAL depends on Boost, but it's too cumbersome to add
 # an explicit dependency
 
-# call the subproject, as CGAL is distributed with a CMAke build
+# call the subproject, as CGAL is distributed with a CMake build
 ADD_SUBDIRECTORY(cpp/src/third-party/CGAL-4.2)
 
 # after CGAL builds, we need to copy the header file compiler_config.h
