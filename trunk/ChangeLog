@@ -1,3 +1,30 @@
+2013-06-21  Ramon Casero  <rcasero@gmail.com>
+
+	* CMakeLists.txt: (0.4.0)
+
+	- Big change again. In Linux, having both the Boost libraries
+	externally compiled and the ones provided by Matlab created
+	problems. For example, MEX functions link to the Matlab boost
+	libraries via the mex libraries. If we also link them to CGAL,
+	then they get linked to the external Boost libraries too.
+
+	Now, instead of that, we figure out which version of Boost is
+	provided by Matlab. Then, we download the source code of that
+	version, and copy the header files to the include directory. In
+	the case of Boost 1.44.0 (the one required by Matlab 2012a), we
+	also need to patch one of the files due to a bug.
+
+	In Linux, we don't build the Boost libraries, though. We just
+	create symlinks to the Matlab provided libraries.
+
+	This new approach requires only one cmake and one make to build
+	Gerardus, instead of the convoluted build before.
+
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.4)
+
+	- Remove the linking to the Boost libraries, as it's no longer
+	necessary.
+
 2013-06-19  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/surface_param.m: (0.2.1)

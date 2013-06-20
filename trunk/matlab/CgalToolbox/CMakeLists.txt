@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.2.3
+# Version: 0.2.4
 # $Rev$
 # $Date$
 #
@@ -28,9 +28,6 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-# add Boost include and linking paths
-include_directories(${Boost_INCLUDE_DIRS})
-link_directories(${Boost_LIBRARY_DIRS})
 
 ################################################################
 ## cgal_insurftri()
@@ -46,8 +43,8 @@ INCLUDE_DIRECTORIES(
   )
 TARGET_LINK_LIBRARIES(cgal_insurftri
   CGAL
-  ${Boost_SYSTEM_LIBRARY}
   ${ITK_LIBRARIES})
+add_dependencies(cgal_insurftri copy_compiler_config.h)
 
 ################################################################
 ## cgal_closest_trifacet()
@@ -64,8 +61,8 @@ INCLUDE_DIRECTORIES(
   )
 TARGET_LINK_LIBRARIES(cgal_closest_trifacet
   CGAL
-  ${Boost_SYSTEM_LIBRARY}
   ${ITK_LIBRARIES})
+add_dependencies(cgal_closest_trifacet copy_compiler_config.h)
 
 ################################################################
 ## installation of targets
