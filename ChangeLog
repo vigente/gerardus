@@ -1,5 +1,9 @@
 2013-06-23  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/test/test_surface_param.m: (0.2.2)
+
+	- Fix bug. Wrong variable name.
+
 	* Delete cpp/src/third-party/boost_1_53_0:
 
 	- No longer necessary. The Linux build uses the boost libraries
