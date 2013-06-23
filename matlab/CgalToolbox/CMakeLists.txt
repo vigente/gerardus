@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.2.4
+# Version: 0.2.5
 # $Rev$
 # $Date$
 #
@@ -29,6 +29,12 @@
 # <http://www.gnu.org/licenses/>.
 
 
+INCLUDE_DIRECTORIES(
+  ${Boost_INCLUDE_DIR}
+  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/include
+  ..
+  )
+
 ################################################################
 ## cgal_insurftri()
 ################################################################
@@ -36,11 +42,6 @@
 ADD_MEX_FILE(cgal_insurftri
   CgalInSurfaceTriangulation.cpp)
 
-INCLUDE_DIRECTORIES(
-  ${GERARDUS_SOURCE_DIR}/include
-  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/include
-  ..
-  )
 TARGET_LINK_LIBRARIES(cgal_insurftri
   CGAL
   ${ITK_LIBRARIES})
@@ -54,11 +55,6 @@ ADD_MEX_FILE(cgal_closest_trifacet
   CgalClosestTriFacet.cpp
   )
 
-INCLUDE_DIRECTORIES(
-  ${GERARDUS_SOURCE_DIR}/include
-  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/include
-  ..
-  )
 TARGET_LINK_LIBRARIES(cgal_closest_trifacet
   CGAL
   ${ITK_LIBRARIES})
