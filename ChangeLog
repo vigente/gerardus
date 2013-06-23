@@ -1,5 +1,12 @@
 2013-06-23  Ramon Casero  <rcasero@gmail.com>
 
+	* Delete cpp/src/third-party/boost_1_53_0:
+
+	- No longer necessary. The Linux build uses the boost libraries
+	provided by Matlab, and the Windows build downloads the source
+	corde of the same version as the boost libraries provided by
+	Matlab.
+
 	* CMakeLists.txt: (0.5.0)
 
 	- Make the build work in Windows. In Windows, we cannot link to
