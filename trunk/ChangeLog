@@ -1,3 +1,32 @@
+2013-06-23  Ramon Casero  <rcasero@gmail.com>
+
+	* CMakeLists.txt: (0.5.0)
+
+	- Make the build work in Windows. In Windows, we cannot link to
+	the Boost libraries provided by Matlab, as we do in Linux. The
+	reason is that Windows Matlab only provides the .dlls, and not the
+	.lib files necessary to link even dynamically. Thus, in the end we
+	are going to leave things as they were in Linux (link to Matlab
+	provided Boost libraries), and in Windows we have to build the
+	Boost libraries ourselves, and link to them.
+
+	- However, it's worth noting that we are not using
+	ExternalProject_Add(), because this means that the Boost libraries
+	are not available at configuration time, which means that
+	FindBoost cannot find them, so they are not available to
+	targets. Instead, we just download, build and install Boost by
+	hand, at configuration time.
+
+	* matlab/ItkToolbox/CMakeLists.txt: (0.6.3)
+
+	- Fix bug. Windows requires that we explicitely ask to link
+	itk_imfilter to CGAL.
+
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.5)
+
+	- Minor, relocate code a bit further up, and avoid using the same
+	include_directories() twice, as it's redundant.
+
 2013-06-21  Ramon Casero  <rcasero@gmail.com>
 
 	* CMakeLists.txt: (0.4.0)
