@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 %
@@ -44,7 +44,7 @@ axis equal
 
 % compute simple XY parametrization
 uv0 = surface_param(x, 'xy');
-d0 = dmatrix(uv', uv', 'euclidean');
+d0 = dmatrix(uv0', uv0', 'euclidean');
 
 % plot parametrization
 subplot(2, 2, 2)
