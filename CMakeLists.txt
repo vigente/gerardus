@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.4.0
+# Version: 0.5.0
 # $Rev$
 # $Date$
 #
@@ -239,33 +239,61 @@ ENDIF(WIN32)
 # the Boost libraries already distributed with Matlab.
 
 # get the version of Boost distributed with Matlab
-get_filename_component(MATLAB_BOOST_LIB_PATH ${MATLAB_MEX_LIBRARY} PATH)
+if(WIN32)
+  set(MATLAB_BOOST_LIB_PATH "${MATLAB_ROOT}/bin/win64")
+else()
+  get_filename_component(MATLAB_BOOST_LIB_PATH ${MATLAB_MEX_LIBRARY} PATH)
+endif()
 file(GLOB AUX_BOOST_VERSION  "${MATLAB_BOOST_LIB_PATH}/*boost_system*")
 get_filename_component(AUX_BOOST_VERSION ${AUX_BOOST_VERSION} NAME)
-string(REGEX MATCH "[0-9]+[._][0-9]+[._][0-9]+" AUX_BOOST_VERSION ${AUX_BOOST_VERSION}) # e.g. 1.44.0
+if(WIN32)
+  string(REGEX MATCH "[0-9]+[._][0-9]+" AUX_BOOST_VERSION ${AUX_BOOST_VERSION}) # e.g. 1_44
+#  set(AUX_BOOST_VERSION ${AUX_BOOST_VERSION}_0)                                 # e.g. 1_44_0
+  string(REPLACE "_" "." AUX_BOOST_VERSION ${AUX_BOOST_VERSION})                # e.g. 1.44
+else()
+  string(REGEX MATCH "[0-9]+[._][0-9]+[._][0-9]+" AUX_BOOST_VERSION ${AUX_BOOST_VERSION}) # e.g. 1.44.0
+                                                                                          # or 1.44
+endif()
 message(STATUS "Matlab is linked to Boost version ${AUX_BOOST_VERSION}")
-string(REPLACE "." "_" AUX_BOOST_VERSION_ ${AUX_BOOST_VERSION})                         # e.g. 1_44_0
+string(REPLACE "." "_" AUX_BOOST_VERSION_ ${AUX_BOOST_VERSION})                           # e.g. 1_44_0
+                                                                                          # or 1_44
+# path to where the Boost header files will be found in Gerardus
+if(WIN32)
+  set(BOOST_SOURCE_DIR
+    ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_${AUX_BOOST_VERSION_}_0)
+  set(Boost_INCLUDE_DIR "${GERARDUS_SOURCE_DIR}/include/boost-${AUX_BOOST_VERSION_}")
+else()
+  set(BOOST_SOURCE_DIR
+    ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_${AUX_BOOST_VERSION_})
+  set(Boost_INCLUDE_DIR "${GERARDUS_SOURCE_DIR}/include")
+endif()
 
-# path to the Boost header files and libraries
-set(Boost_INCLUDE_DIR "${GERARDUS_SOURCE_DIR}/include")
+# path to where the Boost libraries will be found in Gerardus
 set(Boost_LIBRARY_DIR "${GERARDUS_SOURCE_DIR}/lib")
 
-
-# check whether the Boost headers have already been installed in
-# Gerardus
+# we want to know whether Boost has already been installed. As
+# checking for the whole project is complicated, we are going to check
+# only whether file /boost/version.hpp is in its expected location. If
+# it isn't, then we install the boost libraries (in linux, we just
+# soft link to them; in Windows, we need to build and install them)
 find_file(Boost_version_hpp version.hpp
   PATHS "${Boost_INCLUDE_DIR}/boost/"
   NO_DEFAULT_PATH)
-
-# if they haven't, we install them
 if(NOT Boost_version_hpp)
 
-  message(STATUS "include/boost/version.hpp not found. Preparing to install Boost header files")
+  message(STATUS "${Boost_INCLUDE_DIR}/boost/version.hpp not found.\nPreparing to install Boost libraries")
 
-  set(BOOST_TARBALL_URL 
-    http://downloads.sourceforge.net/project/boost/boost/${AUX_BOOST_VERSION}/boost_${AUX_BOOST_VERSION_}.tar.gz)
-  set(BOOST_TARBALL_FILENAME
-    ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_${AUX_BOOST_VERSION_}.tar.gz)
+  if(WIN32)
+    set(BOOST_TARBALL_URL 
+      http://downloads.sourceforge.net/project/boost/boost/${AUX_BOOST_VERSION}.0/boost_${AUX_BOOST_VERSION_}_0.tar.gz)
+    set(BOOST_TARBALL_FILENAME
+      ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_${AUX_BOOST_VERSION_}_0.tar.gz)
+  else()
+    set(BOOST_TARBALL_URL 
+      http://downloads.sourceforge.net/project/boost/boost/${AUX_BOOST_VERSION}/boost_${AUX_BOOST_VERSION_}.tar.gz)
+    set(BOOST_TARBALL_FILENAME
+      ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_${AUX_BOOST_VERSION_}.tar.gz)
+  endif()
 
   # check whether we need to download the tarball with the Boost
   # source code, or whether it's already been downloaded
@@ -283,87 +311,110 @@ if(NOT Boost_version_hpp)
       SHOW_PROGRESS
       STATUS Boost_DOWNLOAD_STATUS)
     
-    if (Boost_DOWNLOAD_STATUS MATCHES "0;\"No error\"")
+    if ((Boost_DOWNLOAD_STATUS MATCHES "0;\"No error\"") 
+        OR (Boost_DOWNLOAD_STATUS MATCHES "0;\"no error\""))
       message(STATUS "Boost source code correctly downloaded")
     else()
       message(FATAL_ERROR "${Boost_DOWNLOAD_STATUS}\nCould not download Boost source code from\n${BOOST_TARBALL_URL}")
     endif()
   endif()
 
-  # uncompress the Boost tarball
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} -E tar xzf ${BOOST_TARBALL_FILENAME}
-    WORKING_DIRECTORY ${GERARDUS_SOURCE_DIR}/cpp/src/third-party)
-
-  # copy the header files to Gerardus' include directory
-  file(COPY ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_${AUX_BOOST_VERSION_}/boost
-    DESTINATION ${Boost_INCLUDE_DIR})
-
-  # patch the Boost include files if necessary
-  # version 1.44.0: https://bbs.archlinux.org/viewtopic.php?pid=1126374
-  if (${AUX_BOOST_VERSION} MATCHES "1.44.0")
-    message(STATUS "This version of Boost needs patching")
-    file(READ ${Boost_INCLUDE_DIR}/boost/thread/xtime.hpp AUX)
-    string(REPLACE TIME_UTC TIME_UTC_ AUX "${AUX}")
-    file(WRITE ${Boost_INCLUDE_DIR}/boost/thread/xtime.hpp "${AUX}")
+  # uncompress the Boost tarball if necessary
+  if(NOT EXISTS "${BOOST_SOURCE_DIR}")
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E tar xzf ${BOOST_TARBALL_FILENAME}
+      WORKING_DIRECTORY ${GERARDUS_SOURCE_DIR}/cpp/src/third-party)
   endif()
+
+  # In Windows, we need to build and install the libraries, because
+  # Matlab only makes the .dll Boost files available, and we need the
+  # .lib for linking, even for dynamic linking
+  #
+  # We don't use ExternalProject_Add() because we need the Boost
+  # libraries to be available for FindBoost() and the rest of the
+  # targets in Gerardus that link to them at configuration time
+  if (WIN32)
+
+    # for the build, we need to tell the Boost builder whether this is
+    #  a 32 or 64 bit system
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(Boost_address_model 64)
+    else()
+      set(Boost_address_model 32)
+    endif()
+
+    message(STATUS "Configuring Boost libraries")
+    execute_process(
+      COMMAND bootstrap.bat
+      WORKING_DIRECTORY ${BOOST_SOURCE_DIR}
+      RESULT_VARIABLE COMMAND_RESULT)
+    if(${COMMAND_RESULT} MATCHES 0)
+      message(STATUS "Boost libraries configured")
+    else()
+      message(FATAL_ERROR "Boost libraries configuration error:\n${COMMAND_RESULT}")
+    endif()
+
+    message(STATUS "Building and installing Boost libraries and header files")
+    execute_process(
+      COMMAND bjam.exe install variant=release 
+        --prefix=${GERARDUS_SOURCE_DIR}
+        --build-dir=./bin address-model=${Boost_address_model}
+        --build-type=complete
+        --with-system --with-filesystem --with-thread --with-date_time
+      WORKING_DIRECTORY ${BOOST_SOURCE_DIR}
+      RESULT_VARIABLE COMMAND_RESULT)
+    if(${COMMAND_RESULT} MATCHES 0)
+      message(STATUS "Boost libraries and header files built and installed")
+    else()
+      message(FATAL_ERROR "Boost libraries build error:\n${COMMAND_RESULT}")
+    endif()
+
+  # In Linux it's easier, because we can link directly to the .so
+  #  files provided by Matlab
+  else()
+
+    # copy the header files to Gerardus' include directory
+    file(COPY "${BOOST_SOURCE_DIR}/boost"
+      DESTINATION "${Boost_INCLUDE_DIR}")
+
+    # patch the Boost include files if necessary
+    # version 1.44.0: https://bbs.archlinux.org/viewtopic.php?pid=1126374
+    if (${AUX_BOOST_VERSION} MATCHES "1.44.0")
+      message(STATUS "This version of Boost needs patching")
+      file(READ "${Boost_INCLUDE_DIR}/boost/thread/xtime.hpp" AUX)
+      string(REPLACE TIME_UTC TIME_UTC_ AUX "${AUX}")
+      file(WRITE "${Boost_INCLUDE_DIR}/boost/thread/xtime.hpp" "${AUX}")
+    endif()
+
+    message(STATUS "Boost header files have been patched and installed")
+
+    # create symlinks to the boost libraries
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E create_symlink 
+      ${MATLAB_BOOST_LIB_PATH}/libboost_date_time.so.${AUX_BOOST_VERSION} 
+      ${Boost_LIBRARY_DIR}/libboost_date_time.so)
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E create_symlink 
+      ${MATLAB_BOOST_LIB_PATH}/libboost_filesystem.so.${AUX_BOOST_VERSION} 
+      ${Boost_LIBRARY_DIR}/libboost_filesystem.so)
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E create_symlink 
+      ${MATLAB_BOOST_LIB_PATH}/libboost_system.so.${AUX_BOOST_VERSION} 
+      ${Boost_LIBRARY_DIR}/libboost_system.so)
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E create_symlink 
+      ${MATLAB_BOOST_LIB_PATH}/libboost_thread.so.${AUX_BOOST_VERSION} 
+      ${Boost_LIBRARY_DIR}/libboost_thread.so)
+
+    message(STATUS "Symlinks created in gerardus/lib to the Boost libraries provided by Matlab")
+
+  endif()
+
+else()
   
-  message(STATUS "Boost header files have been installed")
+  message(STATUS "${Boost_INCLUDE_DIR}/boost/version.hpp found.\nAssuming that Boost libraries and headers are installed")
 
 endif(NOT Boost_version_hpp)
-
-# in non-Windows systems, we reuse the same Boost libraries used by
-# Matlab by creating symlinks to them. Additionally, we also need to
-# build an extra library not provided by Matlab from the source
-include(ExternalProject)
-if(NOT WIN32)
-  # create symlinks to the boost libraries
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} -E create_symlink 
-    ${MATLAB_BOOST_LIB_PATH}/libboost_date_time.so.${AUX_BOOST_VERSION} 
-    ${Boost_LIBRARY_DIR}/libboost_date_time.so)
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} -E create_symlink 
-    ${MATLAB_BOOST_LIB_PATH}/libboost_filesystem.so.${AUX_BOOST_VERSION} 
-    ${Boost_LIBRARY_DIR}/libboost_filesystem.so)
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} -E create_symlink 
-    ${MATLAB_BOOST_LIB_PATH}/libboost_system.so.${AUX_BOOST_VERSION} 
-    ${Boost_LIBRARY_DIR}/libboost_system.so)
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} -E create_symlink 
-    ${MATLAB_BOOST_LIB_PATH}/libboost_thread.so.${AUX_BOOST_VERSION} 
-    ${Boost_LIBRARY_DIR}/libboost_thread.so)
-
-else() # Windows Matlab doesn't provide compiled Boost libraries, so
-       # we build them ourselves
-
-  # build missing Boost libraries not provided by Matlab
-  set(BOOST_SOURCE_DIR
-    ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_${AUX_BOOST_VERSION_})
-
-  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(Boost_address_model 64)
-  else()
-    set(Boost_address_model 32)
-  endif()
-
-  ExternalProject_Add(BoostExternal
-    PREFIX ${BOOST_SOURCE_DIR}
-    SOURCE_DIR ${BOOST_SOURCE_DIR}
-    BINARY_DIR ${BOOST_SOURCE_DIR}
-    CONFIGURE_COMMAND bootstrap
-    BUILD_COMMAND ""
-    TEST_BEFORE_INSTALL 0
-    INSTALL_COMMAND bjam install release --prefix=${GERARDUS_SOURCE_DIR}
-    --build-dir=.\bin address-model=${Boost_address_model}
-    --with-chrono
-    LOG_CONFIGURE 1
-    LOG_BUILD 1
-    LOG_INSTALL 1
-    )
-
-endif()
 
 #set(BOOST_ROOT "${MATLAB_BOOST_LIB_PATH}")
 set(Boost_INCLUDE_DIRS "${Boost_INCLUDE_DIR}")
@@ -374,10 +425,10 @@ message(STATUS "Boost lib path:     ${Boost_LIBRARY_DIRS}")
 
 set(BOOST_INCLUDEDIR "${Boost_INCLUDE_DIR}")
 set(BOOST_LIBRARYDIR "${Boost_LIBRARY_DIR}")
-set(Boost_DEBUG FALSE)
+set(Boost_DEBUG                  FALSE)
 set(Boost_NO_SYSTEM_PATHS        TRUE)
 if (WIN32)
-  set(Boost_USE_STATIC_LIBS      ON)
+  set(Boost_USE_STATIC_LIBS      OFF)
 else()
   set(Boost_USE_STATIC_LIBS      OFF)
 endif()
@@ -414,6 +465,12 @@ add_custom_target(copy_compiler_config.h DEPENDS "${CGAL_SOURCE_DIR}/include/CGA
 #############################################################################################
 ## Configuration options for all Gerardus
 #############################################################################################
+
+# make the libraries that live in the Gerardus lib directory available
+# to all targets
+link_directories(
+  ${GERARDUS_SOURCE_DIR}/lib
+  )
 
 ##################################################################
 ## Block so that rpaths are added to both the MEX file in the build
