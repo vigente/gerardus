@@ -1,5 +1,12 @@
 2013-06-23  Ramon Casero  <rcasero@gmail.com>
 
+	* release 0.10.0:
+
+	- Substantial changes to the build, particularly regarding the
+	Boost libraries. Now in Linux we link to the Boost libraries (.so)
+	provided by Matlab. In Windows, we download the source code and
+	build+install the Boost libraries.
+
 	* matlab/test/test_surface_param.m: (0.2.2)
 
 	- Fix bug. Wrong variable name.
