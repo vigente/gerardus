@@ -131,27 +131,20 @@ $ svn co https://gerardus.googlecode.com/svn/trunk/ gerardus
 $ cd gerardus
 $ mkdir bin
 $ cd bin
-$ cmake ..      # in the first run, this will only configure Boost
-$ make          # in the first run, this will only install Boost
-$ cmake ..      # configure the rest of Gerardus
-$ make          # build the rest of Gerardus
-$ make install  # install the libraries and MEX files in Gerardus
+$ cmake ..
+$ make install
 }}}
  # Open Matlab and add all the toolboxes in `gerardus/matlab/*` to the Matlab path
 
 == Instructions for Windows users ==
 
  # Open file `gerardus\CMakeLists.txt` with your CMake program
- # Click on the "Configure" button. Specify the generator for this project (the one we have tested is "Visual Studio 10" with "Use default native compilers"). In the first run, this will only configure the Boost libraries
+ # Click on the "Configure" button. Specify the generator for this project (the one we have tested is "Visual Studio 10" with "Use default native compilers").
  # Click on the "Generate" button
  # Open file `gerardus\bin\GERARDUS_MATLAB.sln` with your development environment (e.g. Visual Studio 10)
  # Select "Release" from the configuration pull-down menu above the Solution Explorer, instead of "Debug"
- # Select "Build -> Build Solution" from the menu. This will build and install the Boost libraries required by Gerardus locally
- # Close Visual Studio and go back to the CMake GUI
- # Click again on "Configure". This will now configure the rest of the Gerardus project
- # Click on "Generate" again
- # Open again file `gerardus\bin\GERARDUS_MATLAB.sln` with your development environment (e.g. Visual Studio 10)
- # In the "Solution Explorer", right click on "INSTALL" and select "Build". This will build and install the libraries and MEX files
+ # Select "Build -> Build Solution" from the menu. This will build the libraries and MEX files
+ # In the "Solution Explorer", right click on "INSTALL" and select "Build". This will install the libraries and MEX files
 
 = Notes on MEX functions provided by Gerardus =
 
