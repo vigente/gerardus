@@ -1,5 +1,40 @@
 2013-06-24  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/ThirdPartyToolbox/SphericalTrigToolbox: (0.1.4)
+
+	- Oblique Spherical Triangle toolbox by Rody Oldenhuis, 23 Feb
+	2009 (Updated 30 Nov 2012). Downloaded from
+
+	http://www.mathworks.co.uk/matlabcentral/fileexchange/23075-oblique-spherical-triangle-toolbox
+
+	This toolbox can solve any of the 6 possible subproblems
+	associated with an oblique spherical triangle, when only 3 of the
+	6 angles are known.
+
+	The toolbox basically is an implementation of the set of tools
+	developed in [Wertz, 2001], which aimed to fully automize the
+	procedure and do away with the need of user intervention.
+
+	EXAMPLE:
+
+	[b1, c1, C1, b2, c2, C2] = aas(A, B, a)
+
+	gives both solutions for the sides b and c and the angle C, when
+	given angles A, B and side a. This particular problem can be
+	called the Angle-Angle-Side problem, hence the name.
+
+	Both degrees and radians are implemented, the difference is
+	indicating by appending a 'd' to the function name. The above
+	example expects and returns radians, whereas
+
+	[b1, c1, C1, b2, c2, C2] = aasd(A, B, a)
+
+	expects and returns degrees.
+
+	[Wertz, 2001] James R. Wertz, Mission Geometry: Orbit and
+	Constellation Design and Management, 2001. Published by Microcosm
+	and Kluwer Academic Publishers.
+
 	* matlab/CgalToolbox/CgalTriFacetArea.cpp: (0.1.0)
 	* matlab/CgalToolbox/cgal_trifacet_area.m: (0.1.0)
 	* matlab/test/test_cgal_trifacet_area.m: (0.1.0)
