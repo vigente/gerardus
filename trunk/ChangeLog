@@ -1,6 +1,7 @@
 2013-06-24  Ramon Casero  <rcasero@gmail.com>
 
-	* Add matlab/ThirdPartyToolbox/SphericalTrigToolbox: (0.1.4)
+	* Add matlab/ThirdPartyToolbox/SphericalTrigToolbox:
+	* Add matlab/add_gerardus_paths.m: (0.1.4)
 
 	- Oblique Spherical Triangle toolbox by Rody Oldenhuis, 23 Feb
 	2009 (Updated 30 Nov 2012). Downloaded from
