@@ -17,7 +17,7 @@
 # (Note that the original file does work for Ubuntu Natty)
 #
 # Author: Ramon Casero <rcasero@gmail.com>, Tom Doel
-# Version: 0.2.7
+# Version: 0.2.8
 # $Rev$
 # $Date$
 #
@@ -39,8 +39,9 @@
 
 SET(MATLAB_FOUND 0)
 IF(WIN32)
+
   # Search for a version of Matlab available, starting from the most modern one to older versions
-  FOREACH(MATVER "7.20" "7.19" "7.18" "7.17" "7.16" "7.15" "7.14" "7.13" "7.12" "7.11" "7.10" "7.9" "7.8" "7.7" "7.6" "7.5" "7.4")
+  FOREACH(MATVER "8.0" "7.20" "7.19" "7.18" "7.17" "7.16" "7.15" "7.14" "7.13" "7.12" "7.11" "7.10" "7.9" "7.8" "7.7" "7.6" "7.5" "7.4")
     IF((NOT DEFINED MATLAB_ROOT) 
         OR ("${MATLAB_ROOT}" STREQUAL "")
         OR ("${MATLAB_ROOT}" STREQUAL "/registry"))
@@ -55,6 +56,7 @@ IF(WIN32)
   
   # Directory name depending on whether the Windows architecture is 32
   # bit or 64 bit
+message("Hello: ${MATLAB_ROOT}")
   if(EXISTS "${MATLAB_ROOT}/extern/lib/win64/microsoft")
 	set(WINDIR "win64")
   elseif(EXISTS "${MATLAB_ROOT}/extern/lib/win32/microsoft")
