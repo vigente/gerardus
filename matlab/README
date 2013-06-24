@@ -83,6 +83,10 @@ cgal_insurftri.m
 	 CGAL_INSURFACETRIANGULATION  Find whether a point is inside or outside a
 	 closed surface
 	
+cgal_trifacet_area.m
+
+	 CGAL_TRIFACET_AREA  Area of the facets in a triangular mesh
+	
 
 FileFormatToolbox
 -------------------------------------------------------------

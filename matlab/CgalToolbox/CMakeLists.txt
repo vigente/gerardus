@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.2.5
+# Version: 0.2.6
 # $Rev$
 # $Date$
 #
@@ -61,6 +61,19 @@ TARGET_LINK_LIBRARIES(cgal_closest_trifacet
 add_dependencies(cgal_closest_trifacet copy_compiler_config.h)
 
 ################################################################
+## cgal_trifacet_area()
+################################################################
+
+ADD_MEX_FILE(cgal_trifacet_area
+  CgalTriFacetArea.cpp
+  )
+
+TARGET_LINK_LIBRARIES(cgal_trifacet_area
+  CGAL
+  ${ITK_LIBRARIES})
+add_dependencies(cgal_trifacet_area copy_compiler_config.h)
+
+################################################################
 ## installation of targets
 ################################################################
 
@@ -68,12 +81,14 @@ IF(WIN32)
   INSTALL(TARGETS
     cgal_insurftri
     cgal_closest_trifacet
+    cgal_trifacet_area
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ELSE(WIN32)
   INSTALL(TARGETS
     cgal_insurftri
     cgal_closest_trifacet
+    cgal_trifacet_area
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ENDIF(WIN32)
