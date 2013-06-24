@@ -74,27 +74,27 @@ BUILD_SHARED_LIBS  ON
 ITK_USE_REVIEW     ON
 ITK_LEGACY_REMOVE  ON
 }}}
+   * Windows users can do this checking the "Advanced" box in the CMake interface, and then checking the `ITK_USE_REVIEW` and `ITK_LEGACY_REMOVE`. If using Visual Studio, then the `CMAKE_BUILD_TYPE` entry will be ignored anyway, because Visual Studio is a multi-configuration sytem
   * Note for everyone: You can also untick the following variables to save time, as Gerardus does not need the ITK examples, documentation or tests
 {{{
 BUILD_DOCUMENTATION   OFF
 BUILD_EXAMPLES        OFF
 BUILD_TESTING         OFF
 }}}
-  * Note for everyone: ITK needs to be compiled with the same version of the compiler used for Matlab. This can be ensured setting the following CMake variables (e.g. [http://www.mathworks.com/support/compilers/R2012a Matlab2012a for Linux requires gcc 4.4])
+  * Note for Linux and MacOSX: ITK needs to be compiled with the same version of the compiler used for Matlab. This can be ensured setting the following CMake variables (e.g. [http://www.mathworks.com/support/compilers/R2012a Matlab2012a for Linux requires gcc 4.4])
 {{{
 CMAKE_C_COMPILER gcc-4.4
 CMAKE_CXX_COMPILER g++-4.4
 }}}
-   * Linux and MacOSX users can do this with flags when running cmake, e.g.
+  * Linux and MacOSX users can save time running cmake like this:
 {{{
 $ cmake -DBUILD_SHARED_LIBS=ON -DITK_USE_REVIEW=ON \
 -DCMAKE_BUILD_TYPE=Release -DITK_LEGACY_REMOVE=ON \
 -DCMAKE_C_COMPILER=/usr/bin/gcc-4.4 \
 -DCMAKE_CXX_COMPILER=/usr/bin/g++-4.4  ..
 }}}
-   * Windows users can do this checking the "Advanced" box in the CMake interface, and then checking the `ITK_USE_REVIEW` and `ITK_LEGACY_REMOVE`. If using Visual Studio, then the `CMAKE_BUILD_TYPE` entry will be ignored anyway, because Visual Studio is a multi-configuration sytem
   * Notes for Windows users:
-   * You need to run Visual Studio as Administrator to install ITK
+   * Start Visual Studio as *Administrator*. This is required to install ITK
    * The ITK folder must be close to the root directory C:/>, because sometimes ITK gives compilation problems in Windows if the paths to files are very long strings
    * It's important to select "Release" instead of "Debug" from the pull-down configuration menu above the Solution Explorer. This will enable to build and install the Release version of ITK, which will then be needed by the Release build of Gerardus
    * Click on "Start" -> "My computer" -> "View system information", and in the "Advanced" tab click on "Environment Variables". Select the System variable `Path`, and click "Edit". Add the path to the `ITKCOMMON.DLL` library, e.g. "C:\Program Files\ITK\bin"
