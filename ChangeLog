@@ -36,6 +36,15 @@
 	Constellation Design and Management, 2001. Published by Microcosm
 	and Kluwer Academic Publishers.
 
+2013-06-24  Chris Kelly <christopher.kelly28@googlemail.com>
+
+	* matlab/FindMatlab.cmake: (0.2.8)
+
+        - Matlab2012b is version 8.0. Add this to the list of recognisable
+	versions so that configuration doesn't fail.
+
+2013-06-24  Ramon Casero  <rcasero@gmail.com>
+
 	* matlab/CgalToolbox/CgalTriFacetArea.cpp: (0.1.0)
 	* matlab/CgalToolbox/cgal_trifacet_area.m: (0.1.0)
 	* matlab/test/test_cgal_trifacet_area.m: (0.1.0)
