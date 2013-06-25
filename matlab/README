@@ -362,6 +362,11 @@ addpoint2tri.m
 
 	 ADDPOINT2TRI  Add one or more nodes to a triangular mesh
 	
+check_sphtrisurf_vertices.m
+
+	 CHECK_SPHTRISURF_VERTICES  Check integrity of the vertices of a spherical
+	 triangular mesh, to make sure facets do not overlap
+	
 closest_trifacet.m
 
 	 CLOSEST_TRIFACET  Closest triangular facet of a mesh to a point in 3D
@@ -1688,6 +1693,64 @@ conv2bim.m
 amira_r_hipp_surf.m
 
 
+
+ThirdPartyToolbox/SphericalTrigToolbox
+-------------------------------------------------------------
+
+aaad.m
+
+	AAAD  gives both solutions to the angle-angle-angle problem, in degrees.
+	
+aaa.m
+
+	AAA  gives both solutions to the angle-angle-angle problem, in radians.
+	
+aasd.m
+
+	AASD   gives both solutions to the angle-angle-side problem, in degrees.
+	
+aas.m
+
+	AAS   gives both solutions to the angle-angle-side problem, in radians.
+	
+acos2d.m
+
+	ACOS2D      4-quadrant arccosine function, in degrees. 
+	
+acos2.m
+
+	ACOS2      4-quadrant arccosine function, in radians. 
+	
+asad.m
+
+	ASAD   gives both solutions to the angle-side-angle problem, in degrees.
+	
+asa.m
+
+	ASA   gives both solutions to the angle-side-angle problem, in radians.
+	
+sasd.m
+
+	SASD   gives both solutions to the side-angle-side problem, in degrees.
+	
+sas.m
+
+	SAS   gives both solutions to the side-angle-side problem, in radians.
+	
+ssad.m
+
+	SSAD  gives both solutions to the side-side-angle problem, in degrees.
+	
+ssa.m
+
+	SSA   gives both solutions to the side-side-angle problem, in radians.
+	
+sssd.m
+
+sss.m
+
+	SSS   gives both solutions to the side-side-side problem, in radians.
+	
 
 ThirdPartyToolbox/sphsplineToolbox
 -------------------------------------------------------------
