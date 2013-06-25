@@ -1,3 +1,11 @@
+2013-06-25  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ManifoldToolbox/check_sphtrisurf_vertices.m: (0.1.0)
+	* Add matlab/test/test_check_sphtrisurf_vertices.m: (0.1.0)
+
+	- CHECK_SPHTRISURF_VERTICES Check integrity of the vertices of a
+	spherical triangular mesh, to make sure facets do not overlap.
+
 2013-06-24  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ThirdPartyToolbox/SphericalTrigToolbox:
