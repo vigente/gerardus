@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.5.0
+# Version: 0.5.1
 # $Rev$
 # $Date$
 #
@@ -196,11 +196,15 @@ endif(WIN32 AND NOT CYGWIN)
 #############################################################################################
 
 # find ITK
+if(WIN32)
+  set(ITK_DIR "C:/Program Files/ITK/lib/cmake/ITK-4.3")
+endif()
 FIND_PACKAGE(ITK REQUIRED)
 IF(ITK_FOUND)
   INCLUDE(${ITK_USE_FILE})
   MESSAGE(STATUS "ITK v" ${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR}.${ITK_VERSION_PATCH})
 ENDIF(ITK_FOUND)
+
 
 ## flags for all targets
 IF(WIN32)
