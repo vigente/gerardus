@@ -56,7 +56,6 @@ IF(WIN32)
   
   # Directory name depending on whether the Windows architecture is 32
   # bit or 64 bit
-message("Hello: ${MATLAB_ROOT}")
   if(EXISTS "${MATLAB_ROOT}/extern/lib/win64/microsoft")
 	set(WINDIR "win64")
   elseif(EXISTS "${MATLAB_ROOT}/extern/lib/win32/microsoft")
