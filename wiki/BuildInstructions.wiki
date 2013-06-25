@@ -97,7 +97,7 @@ $ cmake -DBUILD_SHARED_LIBS=ON -DITK_USE_REVIEW=ON \
    * Start Visual Studio as *Administrator*. This is required to install ITK
    * The ITK folder must be close to the root directory C:/>, because sometimes ITK gives compilation problems in Windows if the paths to files are very long strings
    * It's important to select "Release" instead of "Debug" from the pull-down configuration menu above the Solution Explorer. This will enable to build and install the Release version of ITK, which will then be needed by the Release build of Gerardus
-   * Click on "Start" -> "My computer" -> "View system information", and in the "Advanced" tab click on "Environment Variables". Select the System variable `Path`, and click "Edit". Add the path to the `ITKCOMMON.DLL` library, e.g. "C:\Program Files\ITK\bin". Add also the path to the Gerardus libraries, e.g. "C:\Users\Chris\Documents\gerardus\lib" (*Note:* this is different for each user!)
+   * Click on "Start" -> "My computer" -> "View system information", and in the "Advanced" tab click on "Environment Variables". Select the System variable `Path`, and click "Edit". Add the path to the `ITKCOMMON.DLL` library, e.g. "C:\Program Files\ITK\bin".
  * [http://www.mathworks.com/products/matlab/ Matlab]
   # Matlab has its own installer for each operating system (Linux, Windows, MacOS X, etc)
   * Note for Linux / MacOS X users: Ensure the matlab binary is in the system path. For example, you can add a symlink from a directory already in the path. Assuming your `matlab` binary is in `/opt/matlab/bin/`, then
@@ -145,6 +145,7 @@ $ make install
  # Select "Release" from the configuration pull-down menu above the Solution Explorer, instead of "Debug"
  # Select "Build -> Build Solution" from the menu. This will build the libraries and MEX files
  # In the "Solution Explorer", right click on "INSTALL" and select "Build". This will install the libraries and MEX files
+ # Click on "Start" -> "My computer" -> "View system information", and in the "Advanced" tab click on "Environment Variables". Select the System variable `Path`, and click "Edit". Add the path to the `ITKCOMMON.DLL` library, e.g. "C:\Program Files\ITK\bin". Make sure that the paths to the Gerardus libraries, e.g. "C:\Users\Chris\Documents\gerardus\lib", and to wherever the Matlab libmex.dll file is, e.g. "C:\Program Files\MATLAB\R2012\bin\win64" (*Note:* this is different for each user!) are there, or add them if necessary. After editing the Path variable you'll need to reboot Matlab.
 
 = Notes on MEX functions provided by Gerardus =
 
