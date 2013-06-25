@@ -145,7 +145,7 @@ $ make install
  # Select "Release" from the configuration pull-down menu above the Solution Explorer, instead of "Debug"
  # Select "Build -> Build Solution" from the menu. This will build the libraries and MEX files
  # In the "Solution Explorer", right click on "INSTALL" and select "Build". This will install the libraries and MEX files
- # Click on "Start" -> "My computer" -> "View system information", and in the "Advanced" tab click on "Environment Variables". Select the System variable `Path`, and click "Edit". Add the path to the `ITKCOMMON.DLL` library, e.g. "C:\Program Files\ITK\bin". Make sure that the paths to the Gerardus libraries, e.g. "C:\Users\Chris\Documents\gerardus\lib", and to wherever the Matlab libmex.dll file is, e.g. "C:\Program Files\MATLAB\R2012\bin\win64" (*Note:* this is different for each user!) are there, or add them if necessary. After editing the Path variable you'll need to reboot Matlab.
+ # Click on "Start" -> "My computer" -> "View system information", and in the "Advanced" tab click on "Environment Variables". Select the System variable `Path`, and click "Edit". Add the path to the `ITKCOMMON.DLL` library, e.g. "C:\Program Files\ITK\bin". Make sure that the paths to the Gerardus libraries, e.g. "C:\Users\Chris\Documents\gerardus\lib", and to wherever the Matlab libmex.dll file is, e.g. "`C:\Program Files\MATLAB\R2012\bin\win64`" (*Note:* this is different for each user!) are there, or add them if necessary. After editing the Path variable you'll need to reboot Matlab.
 
 = Notes on MEX functions provided by Gerardus =
 
