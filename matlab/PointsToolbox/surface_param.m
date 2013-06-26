@@ -34,6 +34,7 @@ function [uv, out] = surface_param(x, param)
 %                 'isomap'
 %
 %     Unit sphere:
+%                 'sphproj
 %                 'cald'
 %                 'sphisomap'
 %
@@ -78,8 +79,14 @@ function [uv, out] = surface_param(x, param)
 %                    won't need to change this. For details, see
 %                    help IsomapII.
 %
+%     * 'sphproj':   Direct projection on unit sphere centered on point set
+%       centroid.
+%
+%       OUT.rmed:    Median value of the radii of all points in the point
+%                    set.
+%
 %     * 'cald':      Li Shen's Control Area and Length Distortions (CALD)
-%                    spherical parametrization [3].
+%       spherical parametrization [3].
 %
 %       PARAM.MeshGridSize: The interpolation mesh used to smooth the
 %                    spherical parametrization has length
@@ -154,7 +161,7 @@ function [uv, out] = surface_param(x, param)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.2.1
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
@@ -240,6 +247,22 @@ switch param.type
         if (size(uv, 1) ~= size(x, 1))
             error('The neighbourhood size (param.size) is too small to connect all points')
         end
+        
+    case 'sphproj'
+        
+        % init output
+        uv = zeros(size(x, 1), 1);
+        
+        % project 3D Cartesian coordinates onto the surface of a sphere
+        % lon, lat given in radians, centered around 0
+        [uv(:, 2), uv(:, 1), r] = cart2sph(...
+            x(:, 1) - mean(x(:, 1)), ...
+            x(:, 2) - mean(x(:, 2)), ...
+            x(:, 3) - mean(x(:, 3)));
+        
+        % we use the median radius of the points in the configuration as the radius
+        % of the sphere that best can contains their projections
+        out.rmed = median(r);
         
     case 'sphisomap'
 

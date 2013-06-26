@@ -1,8 +1,17 @@
+2013-06-26  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/surface_param.m: (0.3.0)
+	* matlab/test/test_surface_param.m: (0.3.0)
+
+	- Add 'sphproj' parametrization: Direct projection on unit sphere
+	centered on point set centroid. This cannibalises function
+	proj_on_sphere(), that will shortly be deleted.
+
 2013-06-25 Chris Kelly <christopher.kelly28@googlemail.com>
 
 	* CMakeLists.txt: (0.5.1)
-	
-	- Windows finds the source code directory of ITK rather than the 
+
+	- Windows finds the source code directory of ITK rather than the
 	installed ITK, so we have to tell it where to find the correct
 	directory.
 
