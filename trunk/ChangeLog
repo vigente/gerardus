@@ -1,5 +1,11 @@
 2013-06-26  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/ManifoldToolbox/surface_tridomain.m: (0.1.0)
+	* Add matlab/test/test_surface_tridomain.m: (0.1.0)
+
+	- SURFACE_TRIDOMAIN Triangular mesh to cover a planar or spherical
+	domain.
+
 	* matlab/PointsToolbox/surface_param.m: (0.3.0)
 	* matlab/test/test_surface_param.m: (0.3.0)
 
