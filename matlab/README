@@ -394,6 +394,10 @@ smdscale.m
 
 	 SMDSCALE  Multidimensional scaling on a sphere
 	
+surface_tridomain.m
+
+	 SURFACE_TRIDOMAIN  Triangular mesh to cover a planar or spherical domain
+	
 
 PointsToolbox
 -------------------------------------------------------------
