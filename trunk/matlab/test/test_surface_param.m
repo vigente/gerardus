@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.2.2
+% Version: 0.3.0
 % $Rev$
 % $Date$
 %
@@ -155,7 +155,7 @@ tri = tri(:, 1:3);
 toc
 
 % plot mesh
-subplot(2, 1, 1)
+subplot(1, 2, 1)
 hold off
 plotmesh(x, tri)
 axis equal
@@ -164,6 +164,21 @@ axis equal
 % but this way the comparison is fairer)
 x = pca_normalize(x);
 
+%% Direct sphere projection
+[uv, out] = surface_param(x, 'sphproj');
+
+% plot parametrization
+subplot(1, 2, 2)
+hold off
+lat = uv(:, 1);
+lon = uv(:, 2);
+[xsph, ysph, zsph] = sph2cart(lon, lat, 1);
+[~, xyzsph] = procrustes(x, [xsph, ysph, zsph], 'Scaling', false);
+trisurf(tri, xyzsph(:, 1), xyzsph(:, 2), xyzsph(:, 3));
+title('Projection on sphere')
+axis equal
+
+% note the severe overlapping in the RV case
 
 %% CALD (Control Area and Length Distortions)
 
