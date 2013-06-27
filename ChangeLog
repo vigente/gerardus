@@ -1,3 +1,16 @@
+2013-06-27  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/dmatrix_sphmesh.m: (0.1.0)
+	* matlab/test/test_dmatrix_sphmesh.m: (0.1.0)
+
+	- DMATRIX_SPHMESH Sparse great-circle distance and shortest-path
+	distance matrices between the nodes of a spherical mesh.
+
+	* matlab/ManifoldToolbox/dmatrix_mesh.m: (0.1.1)
+
+	- Fix bug. In each mesh facet, one edge was being forgotten, the
+	one that links the last vertex in tri(i, :) to the first one.
+
 2013-06-26  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ManifoldToolbox/surface_tridomain.m: (0.1.0)

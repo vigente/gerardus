@@ -1,22 +1,22 @@
-function [d, dtot] = dmatrix_mesh(x, tri)
-% DMATRIX_MESH  Sparse distance and shortest-path distance matrices between
-% the nodes of a mesh
+function [d, dtot] = dmatrix_sphmesh(uv, tri)
+% DMATRIX_SPHMESH  Sparse great-circle distance and shortest-path distance 
+% matrices between the nodes of a spherical mesh
 %
-% [D, DTOT] = dmatrix_mesh(X, TRI)
+% [D, DTOT] = dmatrix_sphmesh(UV, TRI)
 %
-%   X is a matrix where each row contains the real world coordinates of a
-%   mesh node. Thus, for 2D points, X has 2 columns, for 3D points, 3
-%   columns and so on.
+%   UV is a 2-column matrix where each row contains the latitude and
+%   longitude coordinates of a mesh node, in radians.
 %
 %   TRI is a matrix where each row contains the indices of the nodes that
 %   form an element in the mesh. Thus, for a triangulation, TRI has 3
 %   columns, for a tetrahedral mesh, TRI has 4 columns and so on.
 %
-%   D is a sparse matrix. D(i,j) is the length of the edge between nodes i
-%   and j. If the nodes are not connected, D(i,j) is a "hole" in the
-%   matrix. Note that although under Matlab sparse matrix's definition this
-%   technically means D(i,j)=0, by convention in function dijkstra(), this
-%   means for us D(i,j)=Inf.
+%   D is a sparse matrix. D(i,j) is the geodesic length of the spherical
+%   segment between nodes i and j. The lengths are given in radians, or
+%   equivalently, metres, as the sphere has radius 1. If the nodes are not
+%   connected, D(i,j) is a "hole" in the matrix. Note that although under
+%   Matlab sparse matrix's definition this technically means D(i,j)=0, by
+%   convention in function dijkstra(), this means for us D(i,j)=Inf.
 %
 %   DTOT is a full matrix. DTOT(i,j) is the shortest-path length between
 %   nodes i and j, using Dijkstra's algorithm. Note that if node j cannot
@@ -25,7 +25,7 @@ function [d, dtot] = dmatrix_mesh(x, tri)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.0
 % $Rev$
 % $Date$
 %
@@ -57,8 +57,8 @@ function [d, dtot] = dmatrix_mesh(x, tri)
 narginchk(2, 2);
 nargoutchk(0, 2);
 
-% count the number of edges in the mesh
-Nedge = size(tri, 1) * (size(tri, 2) - 1);
+% count the number of edges in the mesh (even if they are duplicated)
+Nedge = size(tri, 1) * size(tri, 2);
 
 % rearrange tri so that we have a 2-column matrix with a list of all the
 % edges
@@ -76,8 +76,8 @@ e = sort(e, 2, 'ascend');
 e = unique(e, 'rows');
 
 % compute length of each edge
-d = x(e(:, 1), :) - x(e(:, 2), :);
-d = sqrt(sum(d.*d, 2));
+d = distance(uv(e(:, 1), 1), uv(e(:, 1), 2), ...
+    uv(e(:, 2), 1), uv(e(:, 2), 2), 'radians');
 
 % create a sparse matrix with the distances (and make it symmetric)
 d = sparse([e(:, 1); e(:, 2)], [e(:, 2); e(:, 1)], [d; d]);
