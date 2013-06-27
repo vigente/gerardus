@@ -381,6 +381,11 @@ dmatrix_mesh.m
 	 DMATRIX_MESH  Sparse distance and shortest-path distance matrices between
 	 the nodes of a mesh
 	
+dmatrix_sphmesh.m
+
+	 DMATRIX_SPHMESH  Sparse great-circle distance and shortest-path distance 
+	 matrices between the nodes of a spherical mesh
+	
 proj_on_sphere.m
 
 	 PROJ_ON_SPHERE  Project a point configuration onto a sphere
