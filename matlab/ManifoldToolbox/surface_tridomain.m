@@ -67,7 +67,7 @@ function [tri, uv] = surface_tridomain(gridtype, inctype, inc, uvmin, uvmax, k)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -191,7 +191,7 @@ switch gridtype
 
         % create grid of angular values
         [loni, lati] = ndgrid(...
-            -pi:inc(2):pi, ...
+            -pi+inc(2):inc(2):pi, ...
             -pi/2:inc(1):pi/2);
         
         % remove all the points that map to the south and north poles
