@@ -39,6 +39,33 @@ function [tri, uv] = surface_tridomain(gridtype, inctype, inc, uvmin, uvmax, k)
 %   K is a scalar or 2-vector with the factor by which the domain size is
 %   multiplied in the U and V coordinates. By default, K=[1 1].
 %
+% [TRI, UV] = surface_tridomain('rect', ULIN, VLIN)
+%
+%   This distance allows to provide two vectors ULIN, VLIN, similarly to
+%   the syntax in Matlab's function ndgrid(). This enables non-uniform
+%   spacings. For example,
+%
+%     [tri, uv] = surface_tridomain('rect', [0 .2 .5 1.5], [.1 .6 3])
+%
+%   creates vertices at
+%
+%     reshape(uv(:, 1), 3, 4)
+%
+%     ans =
+% 
+%          0    0.2000    0.5000    1.5000
+%          0    0.2000    0.5000    1.5000
+%          0    0.2000    0.5000    1.5000
+%
+%     
+%     reshape(uv(:, 2), 3, 4)
+%
+%     ans =
+% 
+%     0.1000    0.1000    0.1000    0.1000
+%     0.6000    0.6000    0.6000    0.6000
+%     3.0000    3.0000    3.0000    3.0000
+%
 % -------------------------------------------------------------------------
 % Spherical domains for closed surfaces, constant angular step:
 % -------------------------------------------------------------------------
@@ -67,7 +94,7 @@ function [tri, uv] = surface_tridomain(gridtype, inctype, inc, uvmin, uvmax, k)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -97,7 +124,11 @@ function [tri, uv] = surface_tridomain(gridtype, inctype, inc, uvmin, uvmax, k)
 % check arguments
 switch gridtype
     case 'rect'
-        narginchk(5, 6);
+        if (ischar(inctype))
+            narginchk(5, 6);
+        else
+            narginchk(3, 3);
+        end
     case 'sphang'
         narginchk(3, 3);
     otherwise
@@ -111,7 +142,7 @@ if (nargin < 6 || isempty(k))
 end
 
 % more input argument checks
-if (strcmp(gridtype, 'rect'))
+if (strcmp(gridtype, 'rect') && ischar(inctype))
     if (~isvector(uvmin) || length(uvmin) ~= 2)
         error('UVMIN must be a 2-vector')
     end
@@ -119,14 +150,16 @@ if (strcmp(gridtype, 'rect'))
         error('UVMAX must be a 2-vector')
     end
 end
-if (~isvector(inc) || length(inc) < 1 || length(inc) > 2)
-    error('DELTA or N must be a scalar or 2-vector')
-end
-if (isscalar(inc))
-    inc = [inc inc];
-end
-if (isscalar(k))
-    k = [k k];
+if (ischar(inctype))
+    if (~isvector(inc) || length(inc) < 1 || length(inc) > 2)
+        error('DELTA or N must be a scalar or 2-vector')
+    end
+    if (isscalar(inc))
+        inc = [inc inc];
+    end
+    if (isscalar(k))
+        k = [k k];
+    end
 end
 
 % type of grid
@@ -134,24 +167,38 @@ switch gridtype
     
     case 'rect'
         
-        % if the user provided number of points for the grid, convert it to
-        % step size
-        if strcmp(inctype, 'num')
-            inc = (uvmax - uvmin) ./ (inc - 1);
+        % if the user provides directly the grid vectors, instead of asking
+        % e.g. for a step size and interval
+        if(~ischar(inctype))
+            
+            [vi, ui] = ndgrid(...
+                inc, ...      % v-vector
+                inctype);     % u-vector
+            
+        % the user is providing an interval for the grid, and step size or
+        % number of points
+        else
+        
+            % if the user provided number of points for the grid, convert it to
+            % step size
+            if strcmp(inctype, 'num')
+                inc = (uvmax - uvmin) ./ (inc - 1);
+            end
+            
+            % box size and centroid
+            sz = uvmax - uvmin;
+            uvm = mean([uvmax; uvmin], 1);
+            
+            % extend the box if necessary
+            uvmin = uvm - sz/2.*k;
+            uvmax = uvm + sz/2.*k;
+            
+            % generate grid for the embedding box
+            [vi, ui] = ndgrid(...
+                uvmin(2):inc(2):uvmax(2), ...
+                uvmin(1):inc(1):uvmax(1));
+            
         end
-
-        % box size and centroid
-        sz = uvmax - uvmin;
-        uvm = mean([uvmax; uvmin], 1);
-        
-        % extend the box if necessary
-        uvmin = uvm - sz/2.*k;
-        uvmax = uvm + sz/2.*k;
-        
-        % generate grid for the embedding box
-        [vi, ui] = ndgrid(...
-            uvmin(2):inc(2):uvmax(2), ...
-            uvmin(1):inc(1):uvmax(1));
         
         % create triangles:
         % v1 ----- v3    |
