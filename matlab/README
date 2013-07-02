@@ -399,6 +399,8 @@ smdscale.m
 
 	 SMDSCALE  Multidimensional scaling on a sphere
 	
+sphtri_N2len.m
+
 surface_tridomain.m
 
 	 SURFACE_TRIDOMAIN  Triangular mesh to cover a planar or spherical domain
@@ -585,6 +587,11 @@ scinrrd_surface_interpolation.m
 sparse_breakdown.m
 
 	 SPARSE_BREAKDOWN  Extract internal arrays from sparse matrix
+	
+surface_interp.m
+
+	 SURFACE_INTERP  Interpolate a surface from a parametrized scattered set
+	 of points
 	
 surface_interpolation.m
 
@@ -1702,6 +1709,46 @@ conv2bim.m
 amira_r_hipp_surf.m
 
 
+
+ThirdPartyToolbox/SphereUniformSamplingToolbox
+-------------------------------------------------------------
+
+IcosahedronMesh.m
+
+ParticleSampleSphere.m
+
+	 Create an approximately uniform triangular tessellation of the unit 
+	 sphere by minimizing generalized electrostatic potential energy 
+	 (aka Reisz s-energy) of the system of charged particles. Effectively, 
+	 this function produces a locally optimal solution to the problem that 
+	 involves finding a minimum Reisz s-energy configuration of N equal 
+	 charges confined to the surface of the unit sphere (s=1 corresponds to 
+	 the problem originally posed by J. J. Thomson). 
+	
+RandSampleSphere.m
+
+	 Generate a uniform or stratified sampling of a unit sphere.
+	
+SubdivideSphericalMesh.m
+
+	 Subdivide triangular mesh representing the surface of the unit sphere
+	 k times using triangular quadrisection (see function TriQuad for more 
+	 info). The newly inserted vertices are re-projected onto the unit sphere
+	 after every iteration.
+	
+TriQuad.m
+
+	 Subdivide triangular mesh using triangular quadrisection. During this
+	 operation new vertices are inserted at the edge midpoints thereby 
+	 producing four new faces for every face of the original mesh. 
+	 Illustration of this operation is provided below:
+	 
+	                     x3                        x3
+	                    /  \      subdivision     /  \
+	                   /    \         -->        v3__v2
+	                  /      \                  / \  / \
+	                x1________x2              x1___v1___x2
+	
 
 ThirdPartyToolbox/SphericalTrigToolbox
 -------------------------------------------------------------
