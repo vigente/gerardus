@@ -1,5 +1,22 @@
 2013-07-02  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/ThirdPartyToolbox/SphereUniformSamplingToolbox:
+	* matlab/add_gerardus_paths.m: (0.1.5)
+
+	- Uniform Sampling of a Sphere by Anton Semechko. 05 Jun 2012
+	(Updated 23 May 2013). Downloaded from
+
+	http://www.mathworks.co.uk/matlabcentral/fileexchange/37004-uniform-sampling-of-a-sphere
+
+	- "The main function is titled 'ParticleSampleSphere' and allows
+	you to create an approximately uniform triangular tessellation of
+	the unit sphere by minimizing the generalized electrostatic
+	potential energy (aka Reisz s-energy) of the system of charged
+	particles. Effectively, this function produces a locally optimal
+	solution to the problem of finding a minimum Reisz s-energy
+	configuration of N equal charges (s=1 corresponds to the original
+	Thomson problem)."
+
 	* matlab/ManifoldToolbox/surface_tridomain.m: (0.2.0)
 
 	- Add syntax [TRI, UV] = surface_tridomain('rect', ULIN, VLIN).
