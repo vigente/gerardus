@@ -1,5 +1,9 @@
 2013-07-02  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/update_README.sh: (0.2.1)
+
+	- Add entry for ManifoldToolbox in the summary.
+
 	* Add matlab/ThirdPartyToolbox/SphereUniformSamplingToolbox:
 	* matlab/add_gerardus_paths.m: (0.1.5)
 
