@@ -1,3 +1,9 @@
+2013-07-02  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/surface_tridomain.m: (0.2.0)
+
+	- Add syntax [TRI, UV] = surface_tridomain('rect', ULIN, VLIN).
+
 2013-07-01  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/surface_tridomain.m: (0.1.1)
