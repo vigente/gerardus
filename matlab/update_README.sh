@@ -5,7 +5,7 @@
 
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.2.0
+# Version: 0.2.1
 # $Rev$
 # $Date$
 #
@@ -59,6 +59,10 @@ echo ''
 echo '* ItkToolbox'
 echo ''
 echo '	ITK functions running as MEX files in Matlab.'
+echo ''
+echo '* ManifoldToolbox'
+echo ''
+echo '	Operations with meshes and manifolds, open and closed.'
 echo ''
 echo '* PointsToolbox'
 echo ''
