@@ -22,6 +22,10 @@ Toolboxes in Gerardus:
 
 	ITK functions running as MEX files in Matlab.
 
+* ManifoldToolbox
+
+	Operations with meshes and manifolds, open and closed.
+
 * PointsToolbox
 
 	Functions to operate with sets of points.
