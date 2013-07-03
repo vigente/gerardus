@@ -409,6 +409,10 @@ surface_tridomain.m
 
 	 SURFACE_TRIDOMAIN  Triangular mesh to cover a planar or spherical domain
 	
+tri_squeeze.m
+
+	 TRI_SQUEEZE  Remove disconnected vertices from triangular mesh
+	
 
 PointsToolbox
 -------------------------------------------------------------
