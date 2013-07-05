@@ -23,7 +23,7 @@ function h = quadsurf(x, y, z, c, varargin)
 % quadsurf(X, Y, Z, C, <parameter/value pairs>)
 %
 %   C is a matrix of the same size as X, Y and Z, and specifies the colour
-%   of the vertices by indexing into the colormap.
+%   of the vertices by indexing into the colormap. By default, C=Z.
 %
 %   The X,Y,Z,C quad can be followed by parameter/value pairs to specify
 %   additional properties of the Patch, e.g. 
