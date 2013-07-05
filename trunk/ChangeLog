@@ -1,3 +1,9 @@
+2013-07-05  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/quadsurf.m: (0.1.0)
+
+	- QUADSURF Quadrangular mesh surface plot.
+
 2013-07-03  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ManifoldToolbox/tri_squeeze.m: (0.1.0)
