@@ -394,6 +394,10 @@ proj_on_sphere.m
 
 	 PROJ_ON_SPHERE  Project a point configuration onto a sphere
 	
+quadsurf.m
+
+	 QUADSURF  Quadrangular mesh surface plot
+	
 scimat_closed_surf_to_bw.m
 
 	 SCIMAT_CLOSED_SURF_TO_BW  Segment the inside of the triangulation of a
