@@ -24,6 +24,8 @@ function [d, dtot] = dmatrix_mesh(tri, x)
 %   nodes i and j, using Dijkstra's algorithm. Note that if node j cannot
 %   be reached from node i at all, then DTOT(i,j)=Inf. For nodes connected
 %   by edges, D(i,j)=DTOT(i,j).
+%
+% See also: dmatrix_con, dmatrix_sphmesh, dmatrix.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
