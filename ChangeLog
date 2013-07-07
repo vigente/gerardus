@@ -1,5 +1,11 @@
 2013-07-07  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/dmatrix_con.m: (0.1.1)
+
+	- Fix bug. If the input connectivity matrix was boolean, then
+	distances got casted to boolean too. To fix this, we cast the
+	connectivity matrix to double.
+
 	* Add matlab/ManifoldToolbox/dmatrix_con.m: (0.1.0)
 
 	- DMATRIX_CON Sparse distance and shortest-path distance matrices
