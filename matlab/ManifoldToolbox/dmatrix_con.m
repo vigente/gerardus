@@ -27,7 +27,7 @@ function [con, dtot] = dmatrix_con(con, x)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -69,6 +69,7 @@ d = x(e(:, 1), :) - x(e(:, 2), :);
 d = sqrt(sum(d.*d, 2));
 
 % replace connectivity flat with the length of the edge
+con = double(con);
 con(con>0) = d;
 
 % if requested by the user, compute the full distance matrix using
