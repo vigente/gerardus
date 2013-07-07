@@ -375,10 +375,19 @@ closest_trifacet.m
 
 	 CLOSEST_TRIFACET  Closest triangular facet of a mesh to a point in 3D
 	
+congrow.m
+
+	 CONGROW  Grow the local neighbourhoods in a connectivity matrix
+	
 delaunay_sphere.m
 
 	 DELAUNAY_SPHERE  Triangulation of a sphere or a surface topologically
 	 equivalent to a sphere so that it can be used as a mesh
+	
+dmatrix_con.m
+
+	 DMATRIX_CON  Sparse distance and shortest-path distance matrices between
+	 the nodes of a mesh from a connectivity matrix
 	
 dmatrix_mesh.m
 
