@@ -1,5 +1,15 @@
 2013-07-07  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/ManifoldToolbox/dmatrix_con.m: (0.1.0)
+
+	- DMATRIX_CON Sparse distance and shortest-path distance matrices
+	between the nodes of a mesh from a connectivity matrix.
+
+	* Add matlab/ManifoldToolbox/congrow.m: (0.1.0)
+	* Add matlab/test/test_congrow.m: (0.1.0)
+
+	- CONGROW Grow the local neighbourhoods in a connectivity matrix.
+
 	* matlab/ManifoldToolbox/dmatrix_sphmesh.m: (0.2.0)
 	* matlab/ManifoldToolbox/dmatrix_mesh.m: (0.2.0)
 	* matlab/test/test_dmatrix_sphmesh.m: (0.1.1)
