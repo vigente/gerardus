@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -40,7 +40,7 @@ uv = [
 tri = [1 2 3];
 
 % compute distance matrix
-d = dmatrix_sphmesh(uv, tri);
+d = dmatrix_sphmesh(tri, uv);
 
 % ans =
 % 
@@ -68,7 +68,7 @@ trisurf(tri, x, y, z)
 axis equal
 
 % compute distance matrix
-d = dmatrix_sphmesh(uv, tri);
+d = dmatrix_sphmesh(tri, uv);
 full(d)
 
 % ans =

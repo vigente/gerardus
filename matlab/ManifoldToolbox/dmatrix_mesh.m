@@ -1,16 +1,18 @@
-function [d, dtot] = dmatrix_mesh(x, tri)
+function [d, dtot] = dmatrix_mesh(tri, x)
 % DMATRIX_MESH  Sparse distance and shortest-path distance matrices between
 % the nodes of a mesh
 %
-% [D, DTOT] = dmatrix_mesh(X, TRI)
-%
-%   X is a matrix where each row contains the real world coordinates of a
-%   mesh node. Thus, for 2D points, X has 2 columns, for 3D points, 3
-%   columns and so on.
+% [D, DTOT] = dmatrix_mesh(TRI)
+% [D, DTOT] = dmatrix_mesh(TRI, X)
 %
 %   TRI is a matrix where each row contains the indices of the nodes that
 %   form an element in the mesh. Thus, for a triangulation, TRI has 3
 %   columns, for a tetrahedral mesh, TRI has 4 columns and so on.
+%
+%   X is a matrix where each row contains the real world coordinates of a
+%   mesh node. Thus, for 2D points, X has 2 columns, for 3D points, 3
+%   columns and so on. If X is not provided, then distances between
+%   connected vertices are assumed to be 1.
 %
 %   D is a sparse matrix. D(i,j) is the length of the edge between nodes i
 %   and j. If the nodes are not connected, D(i,j) is a "hole" in the
@@ -25,7 +27,7 @@ function [d, dtot] = dmatrix_mesh(x, tri)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -54,7 +56,7 @@ function [d, dtot] = dmatrix_mesh(x, tri)
 % <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(2, 2);
+narginchk(1, 2);
 nargoutchk(0, 2);
 
 % count the number of edges in the mesh
@@ -76,8 +78,12 @@ e = sort(e, 2, 'ascend');
 e = unique(e, 'rows');
 
 % compute length of each edge
-d = x(e(:, 1), :) - x(e(:, 2), :);
-d = sqrt(sum(d.*d, 2));
+if (nargin > 1)
+    d = x(e(:, 1), :) - x(e(:, 2), :);
+    d = sqrt(sum(d.*d, 2));
+else
+    d = ones(size(e, 1), 1);
+end
 
 % create a sparse matrix with the distances (and make it symmetric)
 d = sparse([e(:, 1); e(:, 2)], [e(:, 2); e(:, 1)], [d; d]);

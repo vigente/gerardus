@@ -1,3 +1,16 @@
+2013-07-07  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/dmatrix_sphmesh.m: (0.2.0)
+	* matlab/ManifoldToolbox/dmatrix_mesh.m: (0.2.0)
+	* matlab/test/test_dmatrix_sphmesh.m: (0.1.1)
+	* matlab/test/test_surface_tridomain: (0.1.1)
+
+	- Swap the order of the input arguments to (tri, x). This allows
+	that we pass only the edge description of the mesh, tri, without
+	having to also give vertex coordinates. In addition, this also
+	agrees with the format of the rest of mesh-related function in
+	gerardus.
+
 2013-07-05  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/quadsurf.m: (0.1.0)

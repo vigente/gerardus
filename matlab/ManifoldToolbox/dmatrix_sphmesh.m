@@ -1,15 +1,18 @@
-function [d, dtot] = dmatrix_sphmesh(uv, tri)
+function [d, dtot] = dmatrix_sphmesh(tri, uv)
 % DMATRIX_SPHMESH  Sparse great-circle distance and shortest-path distance 
 % matrices between the nodes of a spherical mesh
 %
-% [D, DTOT] = dmatrix_sphmesh(UV, TRI)
-%
-%   UV is a 2-column matrix where each row contains the latitude and
-%   longitude coordinates of a mesh node, in radians.
+% [D, DTOT] = dmatrix_sphmesh(TRI)
+% [D, DTOT] = dmatrix_sphmesh(TRI, UV)
 %
 %   TRI is a matrix where each row contains the indices of the nodes that
 %   form an element in the mesh. Thus, for a triangulation, TRI has 3
 %   columns, for a tetrahedral mesh, TRI has 4 columns and so on.
+%
+%   UV is a 2-column matrix where each row contains the latitude and
+%   longitude coordinates of a mesh node, in radians. If UV is not
+%   provided, then distances between connected vertices are assumed to be
+%   1.
 %
 %   D is a sparse matrix. D(i,j) is the geodesic length of the spherical
 %   segment between nodes i and j. The lengths are given in radians, or
@@ -25,7 +28,7 @@ function [d, dtot] = dmatrix_sphmesh(uv, tri)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -54,7 +57,7 @@ function [d, dtot] = dmatrix_sphmesh(uv, tri)
 % <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(2, 2);
+narginchk(1, 2);
 nargoutchk(0, 2);
 
 % count the number of edges in the mesh (even if they are duplicated)
@@ -76,8 +79,12 @@ e = sort(e, 2, 'ascend');
 e = unique(e, 'rows');
 
 % compute length of each edge
-d = distance(uv(e(:, 1), 1), uv(e(:, 1), 2), ...
-    uv(e(:, 2), 1), uv(e(:, 2), 2), 'radians');
+if (nargin > 1)
+    d = distance(uv(e(:, 1), 1), uv(e(:, 1), 2), ...
+        uv(e(:, 2), 1), uv(e(:, 2), 2), 'radians');
+else
+    d = ones(size(e, 1), 1);
+end
 
 % create a sparse matrix with the distances (and make it symmetric)
 d = sparse([e(:, 1); e(:, 2)], [e(:, 2); e(:, 1)], [d; d]);
