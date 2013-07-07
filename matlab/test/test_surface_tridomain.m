@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -110,3 +110,57 @@ trisurf(tri, x, y, z)
 
 % plot mesh
 trisurf(tri, x, y, z)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Spherical domain with uniform point distribution
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[xyz,tri]=meshunitsphere(1);
+
+% plot mesh
+trisurf(tri, xyz(:, 1), xyz(:, 2), xyz(:, 3))
+
+
+% without extending the domain size
+[tri, uv] = surface_tridomain('sphang', 'num', [4 4]);
+
+% Cartesian coordinates to the points on the sphere
+[x, y, z] = sph2cart(uv(:, 2), uv(:, 1), 1);
+
+% plot mesh
+trisurf(tri, x, y, z)
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Third party libraries for uniform triangular mesh on unit sphere
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% DistMesh Toolbox by Per-Olof Persson
+
+% it doesn't allow an easy selection of the number of vertices. The minimum
+% number of points seems to be 132 for h0=0.36. Larger values of h0 make
+% the algorithm oscillate
+%
+% http://persson.berkeley.edu/distmesh/
+fd=@(p) dsphere(p,0,0,0,1);
+[xyz,tri]=distmeshsurface(fd,@huniform,0.36,1.1*[-1,-1,-1;1,1,1]);
+
+%% dist toolbox by Anton Semechko
+
+% http://www.mathworks.co.uk/matlabcentral/fileexchange/37004-uniform-sampling-of-a-sphere
+
+% Uniformly distribute 162 particles across the surface of the unit sphere 
+[xyz,tri,~,Ue]=ParticleSampleSphere('N',20); % this operation takes ~8 sec on my machine (6GB RAM & 2.8 GHz processor)
+
+% plot mesh
+hold off
+trisurf(tri, xyz(:, 1), xyz(:, 2), xyz(:, 3))
+axis equal
+
+[lon, lat] = cart2sph(xyz(:, 1), xyz(:, 2), xyz(:, 3));
+
+% compute spherical length of edge connections
+d = dmatrix_sphmesh(tri, [lat lon]);
+
+% check deviation from equilength
+boxplot(d(d~=0))
