@@ -1,3 +1,10 @@
+2013-07-11  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/trihemisphere.m: (0.1.0)
+
+	- TRIHEMISPHERE Triangular mesh on hemisphere with roughly
+	uniformly distributed points.
+
 2013-07-07  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/dmatrix_con.m: (0.1.1)
