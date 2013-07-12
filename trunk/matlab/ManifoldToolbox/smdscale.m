@@ -1,13 +1,28 @@
-function [lat, lon, err, stopCondition, dsph, sphrad] = smdscale(d, sphrad, lat, lon, opt)
+function [lat, lon, stopCondition, err, dout, sphrad] = smdscale(d, sphrad, lat, lon, opt)
 % SMDSCALE  Multidimensional scaling on a sphere
 %
 % This function solves a Multidimensional Scaling problem by finding a way
 % to distribute (embed) a set of points on a sphere so that the matrix
 % formed from the geodesic distance between connected pairs of points is as
-% close as possible (in the Frobenius norm sense) to an input distance
+% close as possible (in the Frobenius norm sense) to the input distance
 % matrix.
 %
-% [LAT, LON, ERR, STOP, DSPH, SPHRAD] = smdscale(D)
+% This function is based on the MDS optimisation idea proposed by Agarwal
+% et al. (2010) for the sphere when the error metric is raw stress
+% (sigma_r) of the geodesic distances
+%
+%    sigma_r = sqrt(sum_{i,j} (d_ij - dout_ij)^2)
+%
+% No code was available with the paper, which does not provide the
+% implementation details for the sphere either. Our implementation uses
+% spherical trigonometry formulas to compute geodesic distances, means and
+% point displacements over the sphere.
+%
+% The original paper assumes that the input distance matrix is full (i.e.
+% all points are connected to all points). We allow for sparse input
+% matrices, that represent local neighbourhoods of connectivity.
+%
+% [LAT, LON, STOP, ERR, DOUT, SPHRAD] = smdscale(D)
 %
 %   D is a square matrix where D(i,j) is some distance (e.g. in meters)
 %   between points i and j. Note that the points themselves are unknown, we
@@ -28,39 +43,50 @@ function [lat, lon, err, stopCondition, dsph, sphrad] = smdscale(d, sphrad, lat,
 %
 %     D = dijkstra(sparse(D), 1:length(d));
 %
-%   LAT, LON are vectors with the latitude and longitude coordinates (in
-%   radians) of a set of points on the sphere. The great circle distances
-%   between the points approximate D as well as possible in the Frobenius
-%   norm sense (ignoring Inf values).
+%   LAT, LON give the output parametrization of the unknown points. LAT,
+%   LON are vectors with the latitude and longitude coordinates (in
+%   radians).
 %
 %   To compute the (x,y,z) Euclidean coordinates of the sphere points run
 %
-%     [x, y, z] = sph2cart(LON, LAT, SPHRAD);
-%
-%   ERR is a vector with the Frobenius norm error measure at each step of
-%   the optimisation algorithm (moving each point counts as a step). Note
-%   that for local neighbourhood matrices, the Frobenius norm will be
-%   smaller because there are more elements that don't contribute towards
-%   the error (because they are 0 or Inf).
+%     [x, y, z] = sph2cart(LON, LAT, 1);
 %
 %   STOP is a cell-array with the condition/s that made the algorithm stop,
 %   in string form.
 %
-%   DSPH (units: meters) is the matrix of great circle or geodesic
-%   distances between the points given by LAT, LON, and SPHRAD. The great
-%   circle distance between points i and j can be computed in Matlab as
+%   ERR is a struct with several error measures at each algorithm
+%   iteration:
 %
-%     dsph = distance(lat(i), lon(i), lat(j), lon(j), [sphrad 0], 'radians');
+%     ERR.rawstress: Raw stress (sigma_r), as defined above.
 %
-%   SPHRAD is a scalar with the radius of the sphere. Note that the radius
-%   of the sphere is a critical parameter. If the sphere is too small or
-%   too large, the algorithm will produce very poor results. By default, it
-%   is estimated so that it can accommodate the distance from each point to
-%   the most distant point. If D is a local neighbourhood matrix, this
-%   requires running a full Dijkstra on D, which may be slow for large
-%   matrices. The sphere's radius is estimated from the full D matrix as:
+%     ERR.stress1:   Stress-1 (sigma_1).
 %
-%      sphrad = median(max(D)) / pi;
+%         sigma_1 = sqrt(sigma_r / sum_{i,j} (d_ij)^2)
+%
+%     ERR.maxalpha:  Maximum angular displacement of any point in each
+%                    iteration.
+%
+%     ERR.medalpha:  Median angular displacement of all points in each
+%                    iteration.
+%
+%   DOUT is the matrix of great circle or geodesic distances between the
+%   points given by LAT, LON, and SPHRAD. The great circle distance between
+%   points i and j can be computed in Matlab as
+%
+%     dsph = distance(lat(i), lon(i), lat(j), lon(j), sphrad, 'radians');
+%
+%   SPHRAD is a scalar with the radius of the sphere used in the MDS
+%   algorithm. Note that the radius of the sphere is a critical parameter.
+%   If the sphere is too small or too large, the algorithm will produce
+%   very poor results. If not provided, SPHRAD is estimated so that it can
+%   accommodate the distance from each point to the most distant point.
+%   Note that for a sparse D matrix, this requires running a full Dijkstra,
+%   which may be slow for large matrices. The sphere's radius is estimated
+%   from the full D matrix as:
+%
+%      sphrad = median(max(DD)) / pi;
+%
+%   where DD=dijkstra(D, 1:N);
 %
 % [...] = smdscale(D, SPHRAD, LAT0, LON0, OPT)
 %
@@ -71,35 +97,31 @@ function [lat, lon, err, stopCondition, dsph, sphrad] = smdscale(d, sphrad, lat,
 %   of the point configuration. By default, a configuration of points
 %   randomly distributed over the sphere is used.
 %
-%   OPT is a struct with the stop conditions for the algorithm. The next
+%   OPT is a struct with the stop conditions for the algorithm. The
+%   algorithm stops when any of the stop conditions are met. The following
 %   conditions are available:
 %
-%     opt.maxiter: (default = 20) maximum number of iterations we allow the
+%     opt.MaxIter: (default = 20) maximum number of iterations we allow the
 %                  optimisation algorithm. Each iteration consists of an
 %                  entire sweep of all points on the sphere.
 %
-%     opt.fronorm: target value of the Frobenius norm of the distance
-%                  matrix error.
+%     opt.MaxAlpha: alpha is the angular distance (in radians) that each
+%                   output point is moved in an iteration. The algorithm
+%                   will stop if no point has been moved more than MaxAlpha
+%                   radians.
 %
-%     opt.frorel:  relative decrease of the Frobenius norm, e.g. 0.1. This
-%                  condition is only considered when the norm is
-%                  decreasing, not if it increases.
-%
-% This function implements the MDS optimisation idea proposed by Agarwal et
-% al. (2010), but avoids using chords or approximating the mean on the
-% sphere by the Euclidean mean followed by projection on the sphere (code
-% not available, but explained in personal communication). It also improves
-% on Agarwal et al in that it provides an estimate of the sphere's radius,
-% and it can work with a full D matrix or a local neighbourhood D matrix.
-% Many thanks to A. Agarwal for his comments about his paper.
 %
 % A. Agarwal et al. (2010) "Universal Multi-Dimensional Scaling",
 % Proceedings of the 16th ACM SIGKDD International Conference on Knowledge
 % Discovery and Data Mining, 53:1149-1158.
+%
+% J. P. Snyder (1987), "Map Projections: A Working Manual",  US Geological
+% Survey Professional Paper 1395, US Government Printing Office,
+% Washington, DC, 1987.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.4.0
+% Version: 0.5.0
 % $Rev$
 % $Date$
 %
@@ -166,8 +188,11 @@ if (nargin < 4 || isempty(lon))
     % random distribution of points on the sphere
     lon = rand(1, N) * pi * 2;
 end
-if (nargin < 5 || isempty(opt) || ~isfield(opt, 'maxiter'))
-    opt.maxiter = 20;
+if (nargin >= 5 && ~isstruct(opt))
+    error('OPT must be a struct')
+end
+if (nargin < 5 || isempty(opt))
+    opt.MaxIter = 20;
 end
 
 % check that the initial guess is a valid matrix
@@ -178,93 +203,152 @@ if (length(lon) ~= N)
     error('LON must be a vector with length(D) elements')
 end
 
-% make sure that lat and lon vectors are row vectors
-lat = lat(:)';
-lon = lon(:)';
+% make sure that lat and lon vectors are column vectors
+lat = lat(:);
+lon = lon(:);
 
-% matrix of arc length distances between the points in the sphere
-dsph = arclen_dmatrix(lat, lon, sphrad);
+% when the optimisation algorithm re-positions a point, it will take into
+% account only its direct neighbours, according to the distance matrix.
+% Here we compute the adjacency matrix (we assume that d=0 or d->Inf means
+% that two points are not connected)
+con = (d ~= 0) & ~isinf(d);
 
-% when the optimisation algorithm re-positions a point, it only takes into
-% accound its distance to the points it's directly connected to. This
-% improves convergence to a better error. Here we compute the adjacency
-% matrix (we assume that d=0 or d->Inf means that two points are not
-% connected)
-idx = (d ~= 0) & ~isinf(d);
+% convert distances to arc distances. This way, all computations are
+% independent of the radius
+d = d / sphrad;
+
+% if the user requests computation of stress measures, we are going to need
+% a sparse matrix to store distances between points
+%
+% note that distances will be in radians
+if (nargout >= 4)
     
-% Frobenius norm of the distance error matrix (Inf values are ignored)
-err = norm(dsph(idx) - d(idx));
+    % list of pairs of connected vertices
+    [Icon, Jcon] = find(con);
+    
+    % angular distance between points
+    dout = distanceang(lat(Icon), lon(Icon), lat(Jcon), lon(Jcon));
+    
+    % compute different types of stress
+    err.rawstress = sphrad * norm(dout - d(con));
+    normdcon = norm(d(con)); % no need to repeat this computation
+    err.stress1 = sqrt(norm(dout - d(con))/normdcon);
+    
+    % initialize vector for relocation angular distance
+    err.maxalpha = nan;
+    err.medalpha = nan;
+end
 
-% convert distances in the distance matrix from geodesic distances (e.g. in
-% meters) to distances on the sphere given in radians. The reference sphere
-% has the radius just computed above. Note that despite km2rad() expecting
-% distances in km, as long as we give the distance and radius in the same
-% units (e.g. both in meters), the result is the same
-drad = km2rad(d, sphrad);
+
+% keep track of how much each point gets moved in an iteration
+alpha = zeros(N, 1);
 
 % iterate points. Each point is rearranged to try to get as close as
 % possible to the target distance of the points it's connected to
 stopCondition = []; niter = 0;
 while isempty(stopCondition)
-
+    
     % an iteration consists in N steps. In each step, we re-adjust one
     % point with respect to only its neighbourhood
     niter = niter + 1;
     for I = 1:N
         
-        % neighbours of current point
-        neigh = idx(I, :);
+        % save the current point coordinates before we start relocating it
+        lat0 = lat(I);
+        lon0 = lon(I);
         
-        % compute azimuth of the great circles that conects our current
-        % point to each other point. The azimuth is just a convenient way
-        % of describing the geodesic from the current point to each other
-        % point
-        %
-        % (great circle: intersection of the sphere and a plane which
-        % passes through the center point of the sphere; great circles are
-        % the geodesics of the sphere -
-        % http://en.wikipedia.org/wiki/Great_circle)
-        %
-        % (azimuth: "angle at which a smooth curve crosses a meridian,
-        % taken clockwise from north. The North Pole has an azimuth of 0º
-        % from every other point on the globe." -
-        % http://www.mathworks.com/help/map/ref/azimuth.html)
-        az = azimuth(lat(neigh), lon(neigh), lat(I), lon(I), 'radians');
+        while (1) % relocation of current point
+            
+            % position of current point (target of the displacements)
+            lat2 = lat(I);
+            lon2 = lon(I);
+            
+            % neighbours of current point
+            neigh = full(con(:, I));
+            
+            % position of neighbours (origin of the displacements)
+            lat1 = lat(neigh);
+            lon1 = lon(neigh);
+            
+            % compute azimuth of the great circles that conects neighbours
+            % to current point. The azimuth is just a compact way of
+            % describing a great circle with just a number. Formula from
+            % Snyder (1987), p. 31
+            %
+            %
+            % (great circle: intersection of the sphere and a plane which
+            % passes through the center point of the sphere; great circles
+            % are the geodesics of the sphere -
+            % http://en.wikipedia.org/wiki/Great_circle)
+            %
+            % (azimuth: "angle at which a smooth curve crosses a meridian,
+            % taken clockwise from north. The North Pole has an azimuth of
+            % 0º from every other point on the globe." -
+            % http://www.mathworks.com/help/map/ref/azimuth.html)
+            az = atan2(...
+                cos(lat2) .* sin(lon2-lon1),...
+                cos(lat1) .* sin(lat2) - sin(lat1) .* cos(lat2) .* cos(lon2-lon1));
+            
+            % azimuths are undefined at the poles. Following Matlab's
+            % convention, we make them zero at the north pole and pi at the
+            % south pole
+            az(lat1 <= -pi/2) = 0;
+            az(lat2 >=  pi/2) = 0;
+            az(lat2 <= -pi/2) = pi;
+            az(lat1 >=  pi/2) = pi;
+
+%             % DEBUG: using instead Matlab's azimuth function (slower)
+%             az = azimuth(lat1, lon1, lat2, lon2, 'radians');
+            
+            % move each neighbour towards current point, along the great
+            % circle that connects them, according to the target distance
+            [lat1, lon1] = reckongc(lat1, lon1, az, full(d(neigh, I)));
+            
+%             % DEBUG: using instead Matlab's reckon function (slower)
+%             [lat1, lon1] = reckon(lat1, lon1, d(neigh, I), az, 'radians');
+            
+            % each neighbour has been moved to a new location. We now move
+            % the current point to the mean of the neighbours new locations
+            [x, y, z] = sph2cart(lon1, lat1, 1);
+            [lon(I), lat(I)] = cart2sph(sum(x), sum(y), sum(z));
+            
+%             % DEBUG: using instead Matlab's meanm (slower)
+%             [lat(I), lon(I)] = meanm(lat1, lon1, 'radians');
+            
+            % if the current point relocation has stabilized, then we move
+            % on to the next point (0.0873 rad = 5 degrees)
+            if (distanceang(lat2, lon2, lat(I), lon(I)) < 0.0873)
+                break
+            end
+            
+        end % while loop for relocation of current point
         
-        % move each point towards current point, along the great circle
-        % that connects them
-        [lat2, lon2] = reckon(lat(neigh), lon(neigh), ...
-            drad(I, neigh), az, 'radians');
+        % once we have stopped moving the current point around, we save the
+        % total angular distance it has moved
+        alpha(I) = distanceang(lat0, lon0, lat(I), lon(I));
         
-        % the current point's new position will be the mean of where each
-        % neighbour tells it to go. The mean has to be a special mean
-        % computed on the sphere
-        [lat(I), lon(I)] = meanm(lat2, lon2, 'radians');
-        
-        % update the matrix of arc length distances
-        dsph(I, neigh) = distance(lat(I), lon(I), ...
-            lat(neigh), lon(neigh), [sphrad 0], 'radians');
-        dsph(neigh, I) = dsph(I, neigh)';
-        
-        % compute Frobenius norm of the error at this iteration (of the
-        % local neighbourhood distance matrix)
-        err(end+1) = norm(dsph(idx) - d(idx));
-        
-    end
+    end % end loop of N points
     
+    % note that distances will be in radians
+    if (nargout >= 4)
+        
+        % angular distance between points
+        dout = distanceang(lat(Icon), lon(Icon), lat(Jcon), lon(Jcon));
+        
+        % compute different types of stress
+        err.rawstress(end+1) = sphrad * norm(dout - d(con));
+        err.stress1(end+1) = sqrt(norm(dout - d(con))/normdcon);
+        err.maxalpha(end+1) = max(abs(alpha));
+        err.medalpha(end+1) = median(abs(alpha));
+    end
+        
     % check stop conditions (more than one may be true)
-    if (isfield(opt, 'maxiter') && (niter >= opt.maxiter))
-        stopCondition{end+1} = 'maxiter';
+    if (isfield(opt, 'MaxIter') && (niter >= opt.MaxIter))
+        stopCondition{end+1} = 'MaxIter';
     end
     
-    if (isfield(opt, 'frorel') && length(err) > 1 ...
-            && err(end) < err(end-1) ...
-            && (err(end-1)-err(end))/err(end-1) < opt.frorel)
-        stopCondition{end+1} = 'frorel';
-    end
-    
-    if (isfield(opt, 'fronorm') && err(end) <= opt.fronorm)
-        stopCondition{end+1} = 'fronorm';
+    if (isfield(opt, 'MaxAlpha') && (max(abs(alpha)) < opt.MaxAlpha))
+        stopCondition{end+1} = 'MaxAlpha';
     end
         
 end
@@ -273,19 +357,55 @@ end
 lat = lat(:);
 lon = lon(:);
 
+if (nargout >= 4)
+    % convert output distances from angular to geodesic distances
+    dout = dout * sphrad;
+    
+    % reformat vector dout as sparse matrix
+    aux = d;
+    aux(con) = dout;
+    dout = aux;
 end
 
-% matrix of distances between points on the sphere, given in arc length
-% (i.e. units are meters)
-function d = arclen_dmatrix(lat, lon, sphrad)
-
-% number of points on the sphere
-N = length(lat);
-
-% compute distance matrix row by row
-d = zeros(N);
-for I = 1:N
-    d(I, :) = distance(lat(I), lon(I), lat, lon, [sphrad 0], 'radians');
 end
 
+% angular distances between two points on the sphere
+function alpha = distanceang(lat1, lon1, lat2, lon2)
+
+% haversine formula with the modified formulation discussed by Bob
+% Chamberlain for better numerical accuracy over large distances
+a = sin((lat2-lat1)/2).^2 ...
+    + cos(lat2).*cos(lat1).*sin((lon2-lon1)/2).^2;
+
+alpha = 2*atan2(sqrt(a), sqrt(1-a));
+
+end
+
+% Matlab has a function reckon() to compute the destination if we move from
+% a point on the sphere along a certain great circle a certain distance.
+% This function is a wrapper of an internal private function called
+% greatcirclefwd(). We can accelerate computations a bit if we simply avoid
+% using reckon() and reimplement the functionality of greatcirclefwd() from
+% Snyder (1987), p. 31.
+%
+% Here lat, long are latitude, longitude; az is the great circle's azimuth;
+% and drad is the angular distance we want to travel. All distances and
+% coordinates in radians
+function [lat2, lon2] = reckongc(lat, lon, az, drad)
+% On a sphere of radius A, compute points on a great circle at specified
+% azimuths and ranges.  PHI, LAMBDA, PHI0, LAMBDA0, and AZ are angles in
+% radians, and RNG is a distance having the same units as R.
+
+% points near the pole may have bad estimations of azimuth. Make sure they
+% have valid values
+epsilon = 10*epsm('radians');    % set tolerance
+az(lat >= pi/2-epsilon) = pi;    % starting at north pole
+az(lat <= epsilon-pi/2) = 0;     % starting at south pole
+
+% target latitude
+lat2 = asin(sin(lat) .* cos(drad) + cos(lat) .* sin(drad) .* cos(az));
+
+% target longitude
+lon2 = lon + atan2(sin(drad) .* sin(az), ...
+    cos(lat) .* cos(drad) - sin(lat) .* sin(drad) .* cos(az));
 end
