@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.2.3
+% Version: 0.2.4
 % $Rev$
 % $Date$
 %
@@ -48,19 +48,28 @@ axis equal
 % initial guess for the sphere embedding
 [lat, lon] = proj_on_sphere(xyz);
 
-% embbed the point set on the sphere using the initial guess
+% embbed the point set on the sphere
 tic
-opt.maxiter = 40;
-[lat, lon, err, stopCondition, dsph, sphrad] = ...
+opt.MaxAlpha = 1/180*pi; % stop if points don't move more than 1 degree
+[lat, lon, stopCondition, err, dout, sphrad] = ...
     smdscale(sparse(d), [], lat, lon, opt);
 toc
 
-% plot error
+% plot errors
+cla
+subplot(2, 2, 1)
+plot(err.rawstress)
+title('Raw stress')
+subplot(2, 2, 2)
+plot(err.stress1)
+title('Stress-1')
+subplot(2, 1, 2)
 hold off
-plot(err)
-ylabel('||D-D_{param}||_{Frob}')
-xlabel('Iteration (each point movement)')
-title('Isometry error')
+plot(err.maxalpha/pi*180)
+hold on
+plot(err.medalpha/pi*180, '--')
+ylabel('degrees')
+title('Alpha')
 
 % compute the Euclidean coordinates of the projected points
 [xsph, ysph, zsph] = sph2cart(lon, lat, sphrad);
@@ -78,20 +87,28 @@ hold on
 gplot3d(d, xyzsph, 'r')
 axis equal
 
-% plot the normalised distance matrix error
+% plot the normalised distance matrix error as a boxplot
 hold off
 idx = d>0;
-boxplot( abs(d(idx)-dsph(idx))./d(idx) )
+boxplot(abs(d(idx)-dout(idx))./d(idx))
+
+% plot the normalised distance matrix error as distance/distance scattered
+% plot
+hold off
+plot(d(idx), (d(idx)-dout(idx)./d(idx)), '.')
+hold on
+plot([0 3.5e-3], [0 0])
+axis([0 3.5e-3 -2.5 .5])
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% In this case we have no good initial guess, so we use a random one
 
 % random distribution of points on the sphere
 N = length(d);
-lat = (rand(1, N)-.5) * pi;
-lon = rand(1, N) * pi * 2;
+lat = (rand(N, 1)-.5) * pi;
+lon = rand(N, 1) * pi * 2;
 [x, y, z] = sph2cart(lon, lat, sphrad);
-xyz = cat(1, x, y, z)';
+xyz = [x(:), y(:), z(:)];
 clear x y z
 
 % plot initial guess
@@ -104,14 +121,14 @@ axis equal
 % Dijkstra'd full distance matrix, because local optimisation reduces the
 % error but doesn't produce a visually good result
 tic
-opt.maxiter = 40;
-[lat, lon, err0, stopCondition, dsph] = ...
+opt.MaxAlpha = 1/180*pi; % stop if points don't move more than 1 degree
+[lat, lon, stopCondition, err0, dout] = ...
     smdscale(dijkstra(sparse(d), 1:N), sphrad, lat, lon, opt);
 toc
 
 % convert sphere coordinates to Euclidean coordinates
 [x, y, z] = sph2cart(lon, lat, sphrad);
-xyz = [x y z];
+xyz = [x(:), y(:), z(:)];
 clear x y z
 
 % plot result
@@ -119,27 +136,29 @@ hold on
 gplot3d(d, xyz, 'r')
 axis equal
 
-% plot the error functions
+% plot the normalised distance matrix error as a boxplot
 hold off
-plot(err0, '--')
+idx = d>0;
+boxplot(abs(d(idx)-dout(idx))./d(idx))
+
+% plot the normalised distance matrix error as distance/distance scattered
+% plot
+hold off
+plot(d(idx), (d(idx)-dout(idx)./d(idx)), '.')
 hold on
-plot(err)
-title('Distance matrix approximation error')
-xlabel('No. of optimisation steps (moving one point counts as 1 step)')
-ylabel('Frobenius norm of distance matrix error')
-legend('Random initialisation', 'Sphere projection intialisation')
+plot([0 3.5e-3], [0 0])
+axis([0 3.5e-3 -2.5 .5])
 
 % now we run MDS again, but this time starting from the previous result,
 % and using the sparse distance matrix, to fine tune the result
 tic
-opt.maxiter = 40;
-[lat, lon, err1, stopCondition, dsph] = ...
+[lat, lon, stopCondition, err1, dout] = ...
     smdscale(d, sphrad, lat, lon, opt);
 toc
 
 % convert sphere coordinates to Euclidean coordinates
 [x, y, z] = sph2cart(lon, lat, sphrad);
-xyz = cat(1, x, y, z)';
+xyz = [x(:), y(:), z(:)];
 clear x y z
 
 % plot result
@@ -147,14 +166,15 @@ hold off
 gplot3d(d, xyz, 'r')
 axis equal
 
-% plot the error functions
+% plot the normalised distance matrix error as a boxplot
 hold off
-plot(err0, '--')
+idx = d>0;
+boxplot(abs(d(idx)-dout(idx))./d(idx))
+
+% plot the normalised distance matrix error as distance/distance scattered
+% plot
+hold off
+plot(d(idx), (d(idx)-dout(idx)./d(idx)), '.')
 hold on
-plot(err)
-plot(err1, ':')
-title('Distance matrix approximation error')
-xlabel('No. of optimisation steps (moving one point counts as 1 step)')
-ylabel('Frobenius norm of distance matrix error')
-legend('Random initialisation', 'Sphere projection intialisation', ...
-    'Random init + Local neighbourhood')
+plot([0 3.5e-3], [0 0])
+axis([0 3.5e-3 -2.5 .5])
