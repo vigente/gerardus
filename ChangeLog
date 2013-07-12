@@ -1,3 +1,27 @@
+2013-07-12  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/smdscale.m: (0.5.0)
+	* matlab/test/test_smdscale.m: (0.2.4)
+
+	- Substantial rewrite of smdscale.
+
+	- The previous version did not have a correct implementation of
+	Agarwal's method. An iteration to adjust the mean position of each
+	point with respect to its neighbours was missing.
+
+	- I have replace Matlab functions distance, azimuth, meanm and
+	reckon by the corresponding formulas, so that the function runs
+	faster.
+
+	- Now we convert to angular distances, and then internally all
+	operations are with angular distances in radians.
+
+	- Output arguments stopCondition and err have swapped places.
+
+	- err is no longer a vector with the Frobenius norm. Now it's a
+	struct with several error metrics: err.rawstress, err.stress1,
+	err.maxalpha, err.medalpha.
+
 2013-07-11  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/trihemisphere.m: (0.1.0)
