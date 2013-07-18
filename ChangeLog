@@ -1,5 +1,18 @@
 2013-07-18  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ThirdPartyToolbox/FastMarchingToolbox/mex/perform_front_propagation_3d_mex.cpp:
+
+	- Fix bug. Compilation errors in linux due to using general types
+	(int) when a MEX type was needed (mwSize).
+
+	* matlab/ThirdPartyToolbox/FastMarchingToolbox/CMakeLists.txt: (0.1.1)
+
+	- Remove build of anisotropic propagation from toolbox, as it
+	fails due to missing files. The reasons is that: Gabriel Peyre
+	(21 Dec 2010): The code for the anisotropic propagation is not
+	included anymore in the toolbox, so do not try to compile
+	it. Contact me if you *really* need anisotropic propagation.
+
 	* Add matlab/ThirdPartyToolbox/FastMarchingToolbox/CMakeLists.txt:
 	(0.1.0)
 	* matlab/ThirdPartyToolbox/CMakeLists.txt: (0.1.1)
