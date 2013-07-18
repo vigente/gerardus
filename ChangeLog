@@ -1,3 +1,15 @@
+2013-07-18  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ThirdPartyToolbox/FastMarchingToolbox:
+
+	- Toolbox Fast Marching by Gabriel Peyre
+
+	24 Oct 2004 (Updated 27 Jun 2009). A toolbox for the computation
+	of the Fast Marching algorithm in 2D and 3D.
+
+	Downloaded from
+	http://www.mathworks.com/matlabcentral/fileexchange/6110
+
 2013-07-12  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/smdscale.m: (0.5.0)
