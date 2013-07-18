@@ -16,6 +16,10 @@
 %   Copyright (c) 2004 Gabriel Peyré
 *=================================================================*/
 
+/**
+ * Small compilation errors fixed by Ramon Casero for project Gerardus
+ */
+
 #include "perform_front_propagation_3d.h"
 #include "mex.h"
 
@@ -83,7 +87,7 @@ void mexFunction(	int nlhs, mxArray *plhs[],
 		values = NULL;
 		
 	// first ouput : distance
-	int dims[3] = {n,p,q};
+	mwSize dims[3] = {n,p,q};
 	plhs[0] = mxCreateNumericArray(3, dims, mxDOUBLE_CLASS, mxREAL );
 	D = mxGetPr(plhs[0]);
 	// second output : state

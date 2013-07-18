@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2013 University of Oxford
-# Version: 0.1.0
+# Version: 0.1.1
 # $Rev$
 # $Date$
 #
@@ -43,8 +43,8 @@ add_mex_file(perform_circular_front_propagation_2d
   mex/perform_front_propagation_2d.cpp 
   mex/fheap/fib.cpp)
 
-add_mex_file(perform_front_propagation_anisotropic
-  mex/perform_front_propagation_anisotropic.cpp)
+#add_mex_file(perform_front_propagation_anisotropic
+#  mex/perform_front_propagation_anisotropic.cpp)
 
 add_mex_file(fm2dAniso
   mex/anisotropic-fm-feth/fm2dAniso.cpp)
@@ -82,7 +82,7 @@ if(WIN32)
     perform_front_propagation_2d
     perform_front_propagation_3d
     perform_circular_front_propagation_2d
-    perform_front_propagation_anisotropic
+#    perform_front_propagation_anisotropic
     fm2dAniso
     skeleton
     eucdist2
@@ -94,7 +94,7 @@ else(WIN32)
     perform_front_propagation_2d
     perform_front_propagation_3d
     perform_circular_front_propagation_2d
-    perform_front_propagation_anisotropic
+#    perform_front_propagation_anisotropic
     fm2dAniso
     skeleton
     eucdist2
