@@ -1,5 +1,9 @@
 2013-07-18  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/add_gerardus_paths.m: (0.1.6)
+
+	- Add paths for FastMarchingToolbox Matlab and MEX files.
+
 	* matlab/ThirdPartyToolbox/FastMarchingToolbox/mex/perform_front_propagation_3d_mex.cpp:
 
 	- Fix bug. Compilation errors in linux due to using general types
