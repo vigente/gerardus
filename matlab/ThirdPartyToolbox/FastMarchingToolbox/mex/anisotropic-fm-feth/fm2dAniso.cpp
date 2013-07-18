@@ -1,3 +1,7 @@
+/**
+ * Small compilation errors fixed by Ramon Casero for project Gerardus
+ */
+
 #include "fm2dAniso.h"
 
 void mexFunction(	int nlhs, mxArray *plhs[], 
@@ -12,7 +16,7 @@ void mexFunction(	int nlhs, mxArray *plhs[],
 		mexErrMsgTxt("HERE T must be a 2D x 2x2 tensor field of symmetric definite matrices.");
 	//------------------------------------------------------------------
 	// First argument : spacing and dimensions
-	const int* dim_h = mxGetDimensions(prhs[0]);
+	const mwSize* dim_h = mxGetDimensions(prhs[0]);
     if ( (dim_h[0]!=2) || (dim_h[1]!=1) )
 	  mexErrMsgTxt("Library error: h must be a 2x1 array list.");
 	hx = mxGetPr(prhs[0])[0]; hy = mxGetPr(prhs[0])[1];
@@ -42,7 +46,7 @@ void mexFunction(	int nlhs, mxArray *plhs[],
     	Dmax = (float) mxGetScalar(prhs[3]);
 	//==================================================================
 	// Outputs
-	int dims[2] = {Nx,Ny};
+	mwSize dims[2] = {Nx,Ny};
 	// First output : minimal action map
 	plhs[0] = mxCreateNumericArray(2, dims, mxSINGLE_CLASS, mxREAL );
 	U = (float*) mxGetPr(plhs[0]);
