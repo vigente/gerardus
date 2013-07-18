@@ -1,5 +1,16 @@
 2013-07-18  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/ThirdPartyToolbox/FastMarchingToolbox/CMakeLists.txt:
+	(0.1.0)
+	* matlab/ThirdPartyToolbox/CMakeLists.txt: (0.1.1)
+
+	- Add the fast marching toolbox to the gerardus build system.
+
+	* matlab/ThirdPartyToolbox/FastMarchingToolbox:
+
+	- Change end-of-line to linux format. Set svn property for native
+	end-of-line.
+
 	* matlab/ThirdPartyToolbox/FastMarchingToolbox/mex/anisotropic-fm-feth/fm2dAniso.h:
 
 	- Remove compilation warning in linux. Unused variables.
