@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2012 University of Oxford
-# Version: 0.1.0
+# Copyright © 2012-2013 University of Oxford
+# Version: 0.1.1
 # $Rev$
 # $Date$
 #
@@ -58,3 +58,9 @@ ELSE(WIN32)
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ENDIF(WIN32)
+
+################################################################
+## toolboxes in subdirectories
+################################################################
+add_subdirectory(FastMarchingToolbox)
+
