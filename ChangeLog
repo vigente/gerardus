@@ -1,5 +1,14 @@
 2013-07-18  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ThirdPartyToolbox/FastMarchingToolbox/mex/anisotropic-fm-feth/fm2dAniso.h:
+
+	- Remove compilation warning in linux. Unused variables.
+
+	* matlab/ThirdPartyToolbox/FastMarchingToolbox/mex/anisotropic-fm-feth/fm2dAniso.cpp:
+
+	- Fix bug. Compilation errors in linux due to using general types
+	(int) when a MEX type was needed (mwSize).
+
 	* Add matlab/ThirdPartyToolbox/FastMarchingToolbox:
 
 	- Toolbox Fast Marching by Gabriel Peyre
