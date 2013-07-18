@@ -408,7 +408,7 @@ void TsitsiklisQuadrantGradient(float* result_gradient, float m1, float m2, floa
                                 float Ua,float Ub, int QuadNb)
 //================================================================
 {
-	float ha, hb, hb2, ha_hb;
+	/* float ha, hb, hb2, ha_hb; */
     float k1, k2, alpha, r11, r12, r22, R;
     //-----------------------------------------------------------
     k1 = Ua - Ub;
