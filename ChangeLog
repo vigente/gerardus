@@ -1,3 +1,10 @@
+2013-07-19  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ThirdPartyToolbox/FastMarchingToolbox/mex/anisotropic-fm-feth/fm2dAniso.h:
+
+	- Fix bug. Windows cmath or math.h libraries don't include a
+	round() function, so we have to code one by hand for Windows.
+
 2013-07-18  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/add_gerardus_paths.m: (0.1.6)
