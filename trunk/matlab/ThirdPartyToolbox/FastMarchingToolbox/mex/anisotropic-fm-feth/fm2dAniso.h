@@ -1,7 +1,18 @@
 // FastMarching2D.cpp : Defines the entry point for the DLL application.
 //
 
+/**
+ * Small compilation error fixed by Ramon Casero for project Gerardus:
+ * Windows cmath or math.h libraries don't include a round() function, so
+ * we have to code one by hand for Windows.
+ */
+
 #include "fm.h"
+#ifdef WIN32
+inline double round(double d) {
+	return (d>=0.0) ? floor(d + 0.5) : ceil(d - 0.5);
+}
+#endif
 
 #define kDead -1
 #define kOpen -2
