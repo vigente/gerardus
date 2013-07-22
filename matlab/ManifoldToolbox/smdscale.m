@@ -120,7 +120,7 @@ function [lat, lon, stopCondition, err, dout, sphrad] = smdscale(d, sphrad, lat,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.5.1
+% Version: 0.5.2
 % $Rev$
 % $Date$
 %
@@ -399,7 +399,9 @@ if (nargout >= 4)
     % reformat vector dout as sparse matrix if the input is also a sparse
     % matrix
     if issparse(d)
-        dout = sparse(dout);
+        aux = d;
+        aux(d~=0) = dout;
+        dout = sparse(aux);
     end
 end
 
