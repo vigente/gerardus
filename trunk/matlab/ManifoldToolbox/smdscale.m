@@ -1,5 +1,5 @@
 function [lat, lon, stopCondition, err, dout, sphrad] = smdscale(d, sphrad, lat, lon, opt)
-% SMDSCALE  Multidimensional scaling on a sphere
+% SMDSCALE  Local neighbourhood Multidimensional scaling on a sphere
 %
 % This function solves a Multidimensional Scaling problem by finding a way
 % to distribute (embed) a set of points on a sphere so that the matrix
@@ -8,7 +8,7 @@ function [lat, lon, stopCondition, err, dout, sphrad] = smdscale(d, sphrad, lat,
 % matrix.
 %
 % This function is based on the MDS optimisation idea proposed by Agarwal
-% et al. (2010) for the sphere when the error metric is raw stress
+% et al. (2010) for the sphere in case the error metric is raw stress
 % (sigma_r) of the geodesic distances
 %
 %    sigma_r = sqrt(sum_{i,j} (d_ij - dout_ij)^2)
@@ -28,8 +28,12 @@ function [lat, lon, stopCondition, err, dout, sphrad] = smdscale(d, sphrad, lat,
 %   between points i and j. Note that the points themselves are unknown, we
 %   only know the distances between them. These distances could be geodesic
 %   distances, or approximations thereof, e.g. chord-length distances.
-%   Values of D(i,j)=0 or D(i,j)=Inf mean that points i and j are not
-%   neighbours, i.e. connected by an edge.
+%
+%   D can be a full or sparse matrix. In both cases, values of D(i,j)=0 or
+%   D(i,j)=Inf mean that points i and j are not neighbours, i.e. they are
+%   not connected by an edge. Whether D is full or sparse can affect
+%   performance. If D has lots of zeros, it's better to input D as a sparse
+%   matrix. If D has few zeros, it's better to input D as a full matrix. 
 %
 %   The optimisation algorithm works by relocating each point i so that its
 %   new distance on the sphere to each neighbour j is as close to D(i,j) as
@@ -37,15 +41,10 @@ function [lat, lon, stopCondition, err, dout, sphrad] = smdscale(d, sphrad, lat,
 %   optimisation. This allows sparse matrices and local neighbourhood
 %   optimisations.
 %
-%   Global optimisations (i.e. the graph is complete, so every pair of
-%   points is connected) can be achieved too by converting a local
-%   neighbourhood graph to a complete graph:
-%
-%     D = dijkstra(sparse(D), 1:length(d));
-%
 %   LAT, LON give the output parametrization of the unknown points. LAT,
 %   LON are vectors with the latitude and longitude coordinates (in
-%   radians).
+%   radians). Note that LAT, LON is one of infinite solutions, as D is
+%   invariant to rotations.
 %
 %   To compute the (x,y,z) Euclidean coordinates of the sphere points run
 %
@@ -80,13 +79,13 @@ function [lat, lon, stopCondition, err, dout, sphrad] = smdscale(d, sphrad, lat,
 %   If the sphere is too small or too large, the algorithm will produce
 %   very poor results. If not provided, SPHRAD is estimated so that it can
 %   accommodate the distance from each point to the most distant point.
-%   Note that for a sparse D matrix, this requires running a full Dijkstra,
-%   which may be slow for large matrices. The sphere's radius is estimated
-%   from the full D matrix as:
+%   Note that this requires running a full Dijkstra, which may be slow for
+%   very sparse large matrices. The sphere's radius is estimated from the
+%   Dijkstra distance matrix DD as:
 %
 %      sphrad = median(max(DD)) / pi;
 %
-%   where DD=dijkstra(D, 1:N);
+%   where DD=dijkstra(sparse(D), 1:N);
 %
 % [...] = smdscale(D, SPHRAD, LAT0, LON0, OPT)
 %
@@ -121,7 +120,7 @@ function [lat, lon, stopCondition, err, dout, sphrad] = smdscale(d, sphrad, lat,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.5.0
+% Version: 0.5.1
 % $Rev$
 % $Date$
 %
@@ -161,24 +160,20 @@ end
 
 % defaults
 if (nargin < 2 || isempty(sphrad))
-    % is the distance matrix a local neighbourhood matrix?
-    if nnz(d~=0 & ~isinf(d)) < numel(d) - length(d)
-        % we need the full matrix to estimate the sphere's radius
-        dfull = dijkstra(sparse(d), 1:N);
-        
-        % estimate the size of the sphere so that it can accommodate the
-        % distance matrix
-        %
-        % first, we find the furthest point from each point. The median of
-        % the corresponding distances give an estimate of the half
-        % circumference of the sphere. The radius = half_circumference/pi
-        % because circumference = 2*pi*radius
-        sphrad = median(max(dfull)) / pi;
-    else
-        % we estimate the radius directly from the input distance matrix
-        sphrad = median(max(d)) / pi;
-    end
+    % we need the full matrix to estimate the sphere's radius. The user
+    % could have provided a full distance matrix, but with lots of zeros
+    % because not all elements are connected
+    dfull = dijkstra(sparse(d), 1:N);
     
+    % estimate the size of the sphere so that it can accommodate the
+    % distance matrix
+    %
+    % first, we find the furthest point from each point. The median of
+    % the corresponding distances give an estimate of the half
+    % circumference of the sphere. The radius = half_circumference/pi
+    % because circumference = 2*pi*radius
+    sphrad = median(max(dfull)) / pi;
+    clear dfull
 end
 if (nargin < 3 || isempty(lat))
     % random distribution of points on the sphere
@@ -207,32 +202,49 @@ end
 lat = lat(:);
 lon = lon(:);
 
-% when the optimisation algorithm re-positions a point, it will take into
-% account only its direct neighbours, according to the distance matrix.
-% Here we compute the adjacency matrix (we assume that d=0 or d->Inf means
-% that two points are not connected)
-con = (d ~= 0) & ~isinf(d);
+% we consider zero and infinite values in the distance matrix the same, as
+% a lack of connection
+d(isinf(d)) = 0;
 
 % convert distances to arc distances. This way, all computations are
 % independent of the radius
 d = d / sphrad;
 
-% if the user requests computation of stress measures, we are going to need
-% a sparse matrix to store distances between points
+% we computate stress measures only if the user requests them
 %
 % note that distances will be in radians
 if (nargout >= 4)
+
+    if issparse(d) % local neighbourhoods
+
+        % for local neighbourhoods, most points are not connected, so it's
+        % inefficient to compute distance between them. Instead, we keep a
+        % list of connected points
+        [Icon, Jcon] = find(d ~= 0);
+        
+        % angular distance between points
+        dout = distanceang(lat(Icon), lon(Icon), lat(Jcon), lon(Jcon));
+        
+        % compute different types of stress
+        err.rawstress = sphrad * norm(dout - d(d ~= 0));
+        normdcon = norm(d(d ~= 0)); % no need to repeat this computation
+        err.stress1 = sqrt(norm(dout - d(d ~= 0))/normdcon);
     
-    % list of pairs of connected vertices
-    [Icon, Jcon] = find(con);
+    else % fully connected graphs
+        
+        % angular distance between points
+        dout = dmatrix_ang(lat, lon);
+        
+        % keep only distances between connected points
+        dout(d == 0) = 0;
+        
+        % compute different types of stress
+        err.rawstress = sphrad * norm(dout - d);
+        normdcon = norm(d); % no need to repeat this computation
+        err.stress1 = sqrt(norm(dout - d)/normdcon);
     
-    % angular distance between points
-    dout = distanceang(lat(Icon), lon(Icon), lat(Jcon), lon(Jcon));
+    end
     
-    % compute different types of stress
-    err.rawstress = sphrad * norm(dout - d(con));
-    normdcon = norm(d(con)); % no need to repeat this computation
-    err.stress1 = sqrt(norm(dout - d(con))/normdcon);
     
     % initialize vector for relocation angular distance
     err.maxalpha = nan;
@@ -263,8 +275,13 @@ while isempty(stopCondition)
             lat2 = lat(I);
             lon2 = lon(I);
             
-            % neighbours of current point
-            neigh = full(con(:, I));
+            % neighbours of current point. These indices are obviously
+            % necessary in the case of a sparse matrix. In the case of a
+            % full matrix, it is more difficult to justify. First, this
+            % prevents each point from being its own neighbour. Second, the
+            % user may have provided a full matrix, but missing some
+            % connections
+            neigh = d(:, I) ~= 0;
             
             % position of neighbours (origin of the displacements)
             lat1 = lat(neigh);
@@ -332,15 +349,33 @@ while isempty(stopCondition)
     % note that distances will be in radians
     if (nargout >= 4)
         
-        % angular distance between points
-        dout = distanceang(lat(Icon), lon(Icon), lat(Jcon), lon(Jcon));
+        if issparse(d) % local neighbourhoods
+            
+            % angular distance between points
+            dout = distanceang(lat(Icon), lon(Icon), lat(Jcon), lon(Jcon));
+            
+            % compute different types of stress
+            err.rawstress(end+1) = sphrad * norm(dout - d(d ~= 0));
+            err.stress1(end+1) = sqrt(norm(dout - d(d ~= 0))/normdcon);
+            
+        else % fully connected graphs
+            
+            % angular distance between points
+            dout = dmatrix_ang(lat, lon);
+            
+            % keep only distances between connected points
+            dout(d == 0) = 0;
+            
+            % compute different types of stress
+            err.rawstress(end+1) = sphrad * norm(dout - d);
+            err.stress1(end+1) = sqrt(norm(dout - d)/normdcon);
+        end
         
-        % compute different types of stress
-        err.rawstress(end+1) = sphrad * norm(dout - d(con));
-        err.stress1(end+1) = sqrt(norm(dout - d(con))/normdcon);
         err.maxalpha(end+1) = max(abs(alpha));
         err.medalpha(end+1) = median(abs(alpha));
     end
+    
+    % check 
         
     % check stop conditions (more than one may be true)
     if (isfield(opt, 'MaxIter') && (niter >= opt.MaxIter))
@@ -361,15 +396,16 @@ if (nargout >= 4)
     % convert output distances from angular to geodesic distances
     dout = dout * sphrad;
     
-    % reformat vector dout as sparse matrix
-    aux = d;
-    aux(con) = dout;
-    dout = aux;
+    % reformat vector dout as sparse matrix if the input is also a sparse
+    % matrix
+    if issparse(d)
+        dout = sparse(dout);
+    end
 end
 
 end
 
-% angular distances between two points on the sphere
+% angular distances between points on the sphere
 function alpha = distanceang(lat1, lon1, lat2, lon2)
 
 % haversine formula with the modified formulation discussed by Bob
@@ -378,6 +414,17 @@ a = sin((lat2-lat1)/2).^2 ...
     + cos(lat2).*cos(lat1).*sin((lon2-lon1)/2).^2;
 
 alpha = 2*atan2(sqrt(a), sqrt(1-a));
+
+end
+
+% angular distances matrix between points on the sphere
+function dalpha = dmatrix_ang(lat, lon)
+
+% convert vectors to matrix form
+lat = repmat(lat, 1, size(lat, 1));
+lon = repmat(lon, 1, size(lon, 1));
+
+dalpha = distanceang(lat, lon, lat', lon');
 
 end
 
