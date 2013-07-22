@@ -1,3 +1,19 @@
+2013-07-22  Ramon Casero  <rcasero@gmail.com>
+
+	* Add test/test_lmdscale.m: (0.1.0)
+	* Add matlab/ManifoldToolbox/lmdscale.m: (0.1.0)
+
+	- LMDSCALE Local neighbourhood Multidimensional scaling on a
+	plane.
+
+	* matlab/ManifoldToolbox/smdscale.m: (0.5.1)
+
+	- Deal with input D matrix in a better way. Now D can be sparse or
+	full, but in both cases local neighbourhoods are dealt with. The
+	only difference is in efficiency. The algorithm is more efficient
+	when D is full for lots of connections, and sparse for few
+	connections (as in a mesh).
+
 2013-07-19  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ThirdPartyToolbox/FastMarchingToolbox/mex/anisotropic-fm-feth/fm2dAniso.h:
