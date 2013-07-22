@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.2.4
+% Version: 0.3.0
 % $Rev$
 % $Date$
 %
@@ -31,28 +31,33 @@
 % <http://www.gnu.org/licenses/>.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% We have a sparse distance matrix that defines a local neighbourhood on a 
-%% scattered set of points
-%%
-%% We want to project it onto the sphere
+%% Uniform sampling of points on a sphere, with a triangular mesh, using
+%% true geodesic distances, random initialization
 
-% load discrete point set with an associated local neighbourhood
-load('data/thick-slice-points-xyz-d.mat')
+% uniformly distribute particles across the surface of the unit sphere
+% using Anton Semechko's implementation of Reisz s-energy minimisation
+[xyz, tri] = ParticleSampleSphere('N', 50);
 
-% plot neighbourhood
+% plot mesh
 hold off
-subplot(1, 1, 1)
-gplot3d(d, xyz)
+trisurf(tri, xyz(:, 1), xyz(:, 2), xyz(:, 3))
 axis equal
 
-% initial guess for the sphere embedding
-[lat, lon] = proj_on_sphere(xyz);
+% compute true lat, lon coordinates of each point
+[lon, lat] = cart2sph(xyz(:, 1), xyz(:, 2), xyz(:, 3));
 
-% embbed the point set on the sphere
+% compute full matrix of distances between all pairs of points
+lat2 = repmat(lat, 1, size(lat, 1));
+lon2 = repmat(lon, 1, size(lon, 1));
+d = distance(lat2, lon2, lat2', lon2', 'radians');
+
+% compute spherical MDS using the full matrix on a random initialization
 tic
+opt.MaxIter = 50;
 opt.MaxAlpha = 1/180*pi; % stop if points don't move more than 1 degree
-[lat, lon, stopCondition, err, dout, sphrad] = ...
-    smdscale(sparse(d), [], lat, lon, opt);
+sphrad = 1;
+[lat2, lon2, stopCondition, err, dout] = ...
+    smdscale(d, sphrad, [], [], opt);
 toc
 
 % plot errors
@@ -72,7 +77,7 @@ ylabel('degrees')
 title('Alpha')
 
 % compute the Euclidean coordinates of the projected points
-[xsph, ysph, zsph] = sph2cart(lon, lat, sphrad);
+[xsph, ysph, zsph] = sph2cart(lon2, lat2, sphrad);
 
 % use a rigid Procrustes to find a rotation that aligns the sphere with the
 % LV points
@@ -80,101 +85,324 @@ title('Alpha')
 
 % plot the aligned points
 hold off
-subplot(1, 1, 1)
-gplot3d(d, xyz)
+subplot(1, 2, 1)
+trisurf(tri, xyz(:, 1), xyz(:, 2), xyz(:, 3))
 axis equal
-hold on
-gplot3d(d, xyzsph, 'r')
+subplot(1, 2, 2)
+trisurf(tri, xyzsph(:, 1), xyzsph(:, 2), xyzsph(:, 3))
 axis equal
-
-% plot the normalised distance matrix error as a boxplot
-hold off
-idx = d>0;
-boxplot(abs(d(idx)-dout(idx))./d(idx))
-
-% plot the normalised distance matrix error as distance/distance scattered
-% plot
-hold off
-plot(d(idx), (d(idx)-dout(idx)./d(idx)), '.')
-hold on
-plot([0 3.5e-3], [0 0])
-axis([0 3.5e-3 -2.5 .5])
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% In this case we have no good initial guess, so we use a random one
+%% Uniform sampling of points on a sphere, with a triangular mesh, using
+%% Fast Marching distances, random initialization
 
-% random distribution of points on the sphere
-N = length(d);
-lat = (rand(N, 1)-.5) * pi;
-lon = rand(N, 1) * pi * 2;
-[x, y, z] = sph2cart(lon, lat, sphrad);
-xyz = [x(:), y(:), z(:)];
-clear x y z
+% compute Fast Marching full matrix of distances between all pairs of
+% points
+for I = 1:size(lat, 1)
+    d(:, I) = perform_fast_marching_mesh(xyz, tri, I);
+end
 
-% plot initial guess
+% compute spherical MDS using the full matrix on a random initialization
+tic
+opt.MaxIter = 50;
+opt.MaxAlpha = 1/180*pi; % stop if points don't move more than 1 degree
+sphrad = 1;
+[lat2, lon2, stopCondition, err, dout] = ...
+    smdscale(d, sphrad, [], [], opt);
+toc
+
+% plot errors
+cla
+subplot(2, 2, 1)
+plot(err.rawstress)
+title('Raw stress')
+subplot(2, 2, 2)
+plot(err.stress1)
+title('Stress-1')
+subplot(2, 1, 2)
+hold off
+plot(err.maxalpha/pi*180)
+hold on
+plot(err.medalpha/pi*180, '--')
+ylabel('degrees')
+title('Alpha')
+
+% compute the Euclidean coordinates of the projected points
+[xsph, ysph, zsph] = sph2cart(lon2, lat2, sphrad);
+
+% use a rigid Procrustes to find a rotation that aligns the sphere with the
+% LV points
+[~, xyzsph] = procrustes(xyz, [xsph ysph zsph], 'Scaling', false);
+
+% plot the aligned points
+hold off
+subplot(1, 2, 1)
+trisurf(tri, xyz(:, 1), xyz(:, 2), xyz(:, 3))
+axis equal
+subplot(1, 2, 2)
+trisurf(tri, xyzsph(:, 1), xyzsph(:, 2), xyzsph(:, 3))
+axis equal
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Uniform sampling of points on a sphere, with a triangular mesh, using
+%% Fast Marching distances, local neighbourhood, random initialization
+
+% compute Fast Marching full matrix of distances between all pairs of
+% points
+for I = 1:size(lat, 1)
+    d(:, I) = perform_fast_marching_mesh(xyz, tri, I);
+end
+
+% create local neighbourhoods by removing connections in distance matrix
+% larger than 45 degrees
+d(d > 135/180*pi) = 0;
+d = sparse(d);
+
+% compute spherical MDS using the full matrix on a random initialization
+tic
+opt.MaxIter = 100;
+opt.MaxAlpha = 1/180*pi; % stop if points don't move more than 1 degree
+sphrad = 1;
+[lat2, lon2, stopCondition, err, dout] = ...
+    smdscale(d, sphrad, [], [], opt);
+toc
+
+% check whether the result is a valid parametrization
+ok = check_sphtrisurf_vertices(tri, [lat2 lon2]);
+all(ok)
+
+% plot errors
+cla
+subplot(2, 2, 1)
+plot(err.rawstress)
+title('Raw stress')
+subplot(2, 2, 2)
+plot(err.stress1)
+title('Stress-1')
+subplot(2, 1, 2)
+hold off
+plot(err.maxalpha/pi*180)
+hold on
+plot(err.medalpha/pi*180, '--')
+ylabel('degrees')
+title('Alpha')
+
+% compute the Euclidean coordinates of the projected points
+[xsph, ysph, zsph] = sph2cart(lon2, lat2, sphrad);
+
+% use a rigid Procrustes to find a rotation that aligns the sphere with the
+% LV points
+[~, xyzsph] = procrustes(xyz, [xsph ysph zsph], 'Scaling', false);
+
+% plot the aligned points
+hold off
+subplot(1, 2, 1)
+trisurf(tri, xyz(:, 1), xyz(:, 2), xyz(:, 3))
+axis equal
+subplot(1, 2, 2)
+trisurf(tri, xyzsph(:, 1), xyzsph(:, 2), xyzsph(:, 3))
+axis equal
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Left Ventricle mesh without PCA normalization
+
+clear
+
+% load segmentation mask of LV hull
+im = scinrrd_load('data/008-lvhull-downsampled-4.mha');
+
+% compute mesh from segmentation
+opt = .004;
+method = 'simplify';
+
+tic
+[xyz, tri] = v2s(single(im.data), 1, opt, method);
+toc
+
+% extract boundary mesh
+tri = TriRep(tri, xyz(:, 1), xyz(:, 2), xyz(:, 3));
+tri = freeBoundary(tri);
+
+% remove unused nodes
+[tri, xyz] = tri_squeeze(tri, xyz);
+
+% keep a note of the direct directions for later
+con = dmatrix_mesh(tri)~=0;
+
+% plot mesh
 hold off
 subplot(1, 1, 1)
-gplot3d(d, xyz)
+trisurf(tri, xyz(:, 1), xyz(:, 2), xyz(:, 3))
 axis equal
 
-% embbed the point set on the sphere using the random points. We use the
-% Dijkstra'd full distance matrix, because local optimisation reduces the
-% error but doesn't produce a visually good result
+% initial guess for the sphere embedding
+[lat, lon] = proj_on_sphere(xyz);
+
+% compute Fast Marching full matrix of distances between all pairs of
+% points
+d = zeros(size(lat, 1));
+for I = 1:size(lat, 1)
+    d(:, I) = perform_fast_marching_mesh(xyz, tri, I);
+end
+
+% embbed the point set on the sphere
 tic
+opt.MaxIter = 50;
 opt.MaxAlpha = 1/180*pi; % stop if points don't move more than 1 degree
-[lat, lon, stopCondition, err0, dout] = ...
-    smdscale(dijkstra(sparse(d), 1:N), sphrad, lat, lon, opt);
+[lat2, lon2, stopCondition, err, dout, sphrad] = ...
+    smdscale(sparse(d), [], lat, lon, opt);
 toc
 
-% convert sphere coordinates to Euclidean coordinates
-[x, y, z] = sph2cart(lon, lat, sphrad);
-xyz = [x(:), y(:), z(:)];
-clear x y z
+% check whether the result is a valid parametrization
+ok = check_sphtrisurf_vertices(tri, [lat2 lon2]);
+all(ok)
 
-% plot result
+% plot errors
+cla
+subplot(2, 2, 1)
+plot(err.rawstress)
+title('Raw stress')
+subplot(2, 2, 2)
+plot(err.stress1)
+title('Stress-1')
+subplot(2, 1, 2)
+hold off
+plot(err.maxalpha/pi*180)
 hold on
-gplot3d(d, xyz, 'r')
+plot(err.medalpha/pi*180, '--')
+ylabel('degrees')
+title('Alpha')
+
+% compute the Euclidean coordinates of the projected points
+[xsph, ysph, zsph] = sph2cart(lon2, lat2, sphrad);
+
+% use a rigid Procrustes to find a rotation that aligns the sphere with the
+% LV points
+[~, xyzsph] = procrustes(xyz, [xsph ysph zsph], 'Scaling', false);
+
+% plot the aligned points
+hold off
+subplot(1, 2, 1)
+trisurf(tri, xyz(:, 1), xyz(:, 2), xyz(:, 3))
+axis equal
+subplot(1, 2, 2)
+trisurf(tri, xyzsph(:, 1), xyzsph(:, 2), xyzsph(:, 3))
 axis equal
 
 % plot the normalised distance matrix error as a boxplot
+subplot(1, 2, 1)
 hold off
-idx = d>0;
-boxplot(abs(d(idx)-dout(idx))./d(idx))
+boxplot(abs(d(con)-dout(con))./d(con))
 
 % plot the normalised distance matrix error as distance/distance scattered
 % plot
+subplot(1, 2, 2)
 hold off
-plot(d(idx), (d(idx)-dout(idx)./d(idx)), '.')
+plot(d(con), (d(con)-dout(con)./d(con)), '.')
 hold on
-plot([0 3.5e-3], [0 0])
-axis([0 3.5e-3 -2.5 .5])
+plot([0 30], [0 30], 'r', 'LineWidth', 2)
+axis equal
 
-% now we run MDS again, but this time starting from the previous result,
-% and using the sparse distance matrix, to fine tune the result
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Left Ventricle mesh with PCA normalization
+
+clear
+
+% load segmentation mask of LV hull
+im = scinrrd_load('data/008-lvhull-downsampled-4.mha');
+
+% compute mesh from segmentation
+opt = .004;
+method = 'simplify';
+
 tic
-[lat, lon, stopCondition, err1, dout] = ...
-    smdscale(d, sphrad, lat, lon, opt);
+[xyz, tri] = v2s(single(im.data), 1, opt, method);
 toc
 
-% convert sphere coordinates to Euclidean coordinates
-[x, y, z] = sph2cart(lon, lat, sphrad);
-xyz = [x(:), y(:), z(:)];
-clear x y z
+% extract boundary mesh
+tri = TriRep(tri, xyz(:, 1), xyz(:, 2), xyz(:, 3));
+tri = freeBoundary(tri);
 
-% plot result
+% remove unused nodes
+[tri, xyz] = tri_squeeze(tri, xyz);
+
+% keep a note of the direct directions for later
+con = dmatrix_mesh(tri)~=0;
+
+% plot mesh
 hold off
-gplot3d(d, xyz, 'r')
+subplot(1, 1, 1)
+trisurf(tri, xyz(:, 1), xyz(:, 2), xyz(:, 3))
+axis equal
+
+% PCA normalization of the mesh
+xyz = pca_normalize(xyz);
+
+% initial guess for the sphere embedding
+[lat, lon, sphrad] = proj_on_sphere(xyz);
+
+% compute Fast Marching full matrix of distances between all pairs of
+% points
+d = zeros(size(lat, 1));
+for I = 1:size(lat, 1)
+    d(:, I) = perform_fast_marching_mesh(xyz, tri, I);
+end
+
+% embbed the point set on the sphere
+tic
+opt.MaxIter = 50;
+opt.MaxAlpha = 1/180*pi; % stop if points don't move more than 1 degree
+[lat2, lon2, stopCondition, err, dout] = ...
+    smdscale(sparse(d), sphrad, lat, lon, opt);
+toc
+
+% check whether the result is a valid parametrization
+ok = check_sphtrisurf_vertices(tri, [lat2 lon2]);
+all(ok)
+
+% plot errors
+cla
+subplot(2, 2, 1)
+plot(err.rawstress)
+title('Raw stress')
+subplot(2, 2, 2)
+plot(err.stress1)
+title('Stress-1')
+subplot(2, 1, 2)
+hold off
+plot(err.maxalpha/pi*180)
+hold on
+plot(err.medalpha/pi*180, '--')
+ylabel('degrees')
+title('Alpha')
+
+% compute the Euclidean coordinates of the projected points
+[xsph, ysph, zsph] = sph2cart(lon2, lat2, sphrad);
+
+% use a rigid Procrustes to find a rotation that aligns the sphere with the
+% LV points
+[~, xyzsph] = procrustes(xyz, [xsph ysph zsph], 'Scaling', false);
+
+% plot the aligned points
+hold off
+subplot(1, 2, 1)
+trisurf(tri, xyz(:, 1), xyz(:, 2), xyz(:, 3))
+axis equal
+subplot(1, 2, 2)
+trisurf(tri, xyzsph(:, 1), xyzsph(:, 2), xyzsph(:, 3))
 axis equal
 
 % plot the normalised distance matrix error as a boxplot
+subplot(1, 2, 1)
 hold off
-idx = d>0;
-boxplot(abs(d(idx)-dout(idx))./d(idx))
+boxplot(abs(d(con)-dout(con))./d(con))
 
 % plot the normalised distance matrix error as distance/distance scattered
 % plot
+subplot(1, 2, 2)
 hold off
-plot(d(idx), (d(idx)-dout(idx)./d(idx)), '.')
+plot(d(con), (d(con)-dout(con)./d(con)), '.')
 hold on
-plot([0 3.5e-3], [0 0])
-axis([0 3.5e-3 -2.5 .5])
+plot([-1 2], [-1 2], 'r', 'LineWidth', 2)
+axis equal
