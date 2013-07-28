@@ -31,7 +31,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -290,7 +290,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
 	//   // DEBUG:
 	//   std::cout << "\t\tDisregarding intersection: it's a valid edge between current triangle and neighbour" << std::endl;
-	// } else {
+
+	} else {
+
 	//   // DEBUG:
 	//   std::cout << "\t\tMesh self-intersection detected" << std::endl;
 
@@ -327,7 +329,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
 	//   // DEBUG:
 	//   std::cout << "\t\tDisregarding intersection: it's a valid vertex shared by current triangle and neighbour" << std::endl;
-	// } else {
+
+	} else {
+
 	//   // DEBUG:
 	//   std::cout << "\t\tMesh self-intersection detected" << std::endl;
 
