@@ -28,8 +28,6 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-message("FOOO: ${GMP_INCLUDE_DIR}")
-message("FOOO: ${MPFR_INCLUDE_DIR}")
 include_directories(
   ${Boost_INCLUDE_DIR}
   ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/include
