@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.5.1
+# Version: 0.5.2
 # $Rev$
 # $Date$
 #
@@ -145,8 +145,9 @@ else(WIN32 AND NOT CYGWIN)
     LOG_TEST 1
     LOG_INSTALL 1
     )
-  add_library(gmp STATIC IMPORTED GLOBAL)
-  set_property(TARGET gmp PROPERTY IMPORTED_LOCATION ${GMP_SOURCE_DIR}/output/lib)
+#  add_library(gmp STATIC IMPORTED GLOBAL)
+  add_library(gmp SHARED IMPORTED GLOBAL)
+  set_property(TARGET gmp PROPERTY IMPORTED_LOCATION ${GMP_SOURCE_DIR}/output/lib/libgmp.so)
   set(GMP_FOUND TRUE 
     CACHE BOOL "GMP library is part of Gerardus, so this is always true")
   set(GMP_INCLUDE_DIR ${GMP_SOURCE_DIR}
@@ -176,8 +177,9 @@ else(WIN32 AND NOT CYGWIN)
     LOG_TEST 1
     LOG_INSTALL 1
     )
-  add_library(mpfr STATIC IMPORTED GLOBAL)
-  set_property(TARGET mpfr PROPERTY IMPORTED_LOCATION ${MPFR_SOURCE_DIR}/output/lib)
+#  add_library(mpfr STATIC IMPORTED GLOBAL)
+  add_library(mpfr SHARED IMPORTED GLOBAL)
+  set_property(TARGET mpfr PROPERTY IMPORTED_LOCATION ${MPFR_SOURCE_DIR}/output/lib/libmpfr.so)
   set(MPFR_FOUND TRUE 
     CACHE BOOL "MPFR library is part of Gerardus, so this is always true")
   set(MPFR_INCLUDE_DIR ${MPFR_SOURCE_DIR}/src
