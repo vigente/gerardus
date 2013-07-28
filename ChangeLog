@@ -1,5 +1,9 @@
 2013-07-28  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/add_gerardus_paths.m: (0.1.7)
+
+	- I had forgotten to add CgalToolbox.
+
 	* matlab/CgalToolbox/CgalCheckSelfIntersect.cpp: (0.1.1)
 
 	- Fix bug. I had commented out the "else" line in two "if" blocks,
