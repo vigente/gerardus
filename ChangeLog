@@ -1,4 +1,65 @@
+2013-07-28  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/CgalToolbox/CgalCheckSelfIntersect.cpp: (0.1.0)
+	* Add matlab/CgalToolbox/cgal_check_self_intersect.m: (0.1.0)
+	* Add matlab/test/test_cgal_check_self_intersect.m: (0.1.0)
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.7)
+
+	- CGAL_CHECK_SELF_INTERSECT Check for self-intersections in a
+	triangular mesh.
+
+	* matlab/VectorWrapper.h: (0.5.2)
+	* matlab/ItkToolbox/CMakeLists.txt: (0.6.4)
+
+	- Add partial specialization for
+	CGAL::Point_3<CGAL::Exact_predicates_exact_constructions_kernel >.
+
+	- This makes targets downstream, e.g. itk_imfilter(), need to
+	compile against gmp.h and mpfr.h. This problem originates in that
+	we didn't create an inheritance tree to have a basic
+	MatlabImportFilter that only includes basic types, which then we
+	can use to create children classes like MatlabImportCgalFilter or
+	MatlabImportItkFilter. Anyway, this is not a big problem that we
+	need to fix now.
+
+	* CMakeLists.txt: (0.5.2)
+
+	- Fix bug. For linux and MacOS X builds, libraries gmp and mpfr
+	are added as targets by hand, as they are built as an external
+	project. However, instead of giving the location of the library,
+	we were giving the location of their directories. This made the
+	linker fail when it tried to link against them.
+
+	- Fix bug. In linux and MacOS X builds, libraries gmp and mpfr
+	should be shared libraries rather than static libraries, otherwise
+	we cannot link MEX files to them.
+
+	* Delete matlab/ManifoldToolbox/check_sphtrisurf_vertices.m:
+
+	- The math supporting this function is wrong. It's possible to
+	create a vertex that created overlaps and has sum of adjacent
+	angles = 2*pi. The reason is that when a vertex is moved outside
+	the convex hull of its neighbours, it's angle sum will be < 2*pi,
+	but some of its neighbours will have > 2*pi. If we then move one
+	of these neihgbours outside its corresponding convex hull, it
+	should have <2*pi. Thus, there's some intermediate position where
+	the angle sum = 2*pi.
+
+	- This function is replaced by
+	matlab/CgalToolbox/cgal_check_self_intersect.m.
+
 2013-07-22  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/smdscale.m: (0.5.2)
+
+	- Fix bug. If input was sparse distance matrix, output distance
+	matrix was given as a vector, instead of as a sparse matrix.
+
+	* test/test_smdscale.m: (0.3.0)
+
+	- Delete the tests with a Isomap-like graph. Add simple tests with
+	points on a sphere. Add test with a triangular mesh from a left
+	ventricle segmentation, with and without PCA normalization.
 
 	* Add test/test_lmdscale.m: (0.1.0)
 	* Add matlab/ManifoldToolbox/lmdscale.m: (0.1.0)

@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.2.6
+# Version: 0.2.7
 # $Rev$
 # $Date$
 #
@@ -28,10 +28,13 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-
-INCLUDE_DIRECTORIES(
+message("FOOO: ${GMP_INCLUDE_DIR}")
+message("FOOO: ${MPFR_INCLUDE_DIR}")
+include_directories(
   ${Boost_INCLUDE_DIR}
   ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/include
+  ${GMP_INCLUDE_DIR}
+  ${MPFR_INCLUDE_DIR}
   ..
   )
 
@@ -45,6 +48,8 @@ ADD_MEX_FILE(cgal_insurftri
 TARGET_LINK_LIBRARIES(cgal_insurftri
   CGAL
   ${ITK_LIBRARIES})
+# we need this dependency to make sure that the CGAL library is built
+# before we try to build the mex function
 add_dependencies(cgal_insurftri copy_compiler_config.h)
 
 ################################################################
@@ -58,6 +63,8 @@ ADD_MEX_FILE(cgal_closest_trifacet
 TARGET_LINK_LIBRARIES(cgal_closest_trifacet
   CGAL
   ${ITK_LIBRARIES})
+# we need this dependency to make sure that the CGAL library is built
+# before we try to build the mex function
 add_dependencies(cgal_closest_trifacet copy_compiler_config.h)
 
 ################################################################
@@ -71,7 +78,26 @@ ADD_MEX_FILE(cgal_trifacet_area
 TARGET_LINK_LIBRARIES(cgal_trifacet_area
   CGAL
   ${ITK_LIBRARIES})
+# we need this dependency to make sure that the CGAL library is built
+# before we try to build the mex function
 add_dependencies(cgal_trifacet_area copy_compiler_config.h)
+
+################################################################
+## cgal_check_self_intersect()
+################################################################
+
+add_mex_file(cgal_check_self_intersect
+  CgalCheckSelfIntersect.cpp
+  )
+
+target_link_libraries(cgal_check_self_intersect
+#  gmp
+#  mpfr
+  CGAL
+  ${ITK_LIBRARIES})
+# we need this dependency to make sure that the CGAL library is built
+# before we try to build the mex function
+add_dependencies(cgal_check_self_intersect copy_compiler_config.h)
 
 ################################################################
 ## installation of targets
@@ -82,6 +108,7 @@ IF(WIN32)
     cgal_insurftri
     cgal_closest_trifacet
     cgal_trifacet_area
+    cgal_check_self_intersect
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ELSE(WIN32)
@@ -89,6 +116,7 @@ ELSE(WIN32)
     cgal_insurftri
     cgal_closest_trifacet
     cgal_trifacet_area
+    cgal_check_self_intersect
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ENDIF(WIN32)
