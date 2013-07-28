@@ -1,5 +1,11 @@
 2013-07-28  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CgalToolbox/CgalCheckSelfIntersect.cpp: (0.1.1)
+
+	- Fix bug. I had commented out the "else" line in two "if" blocks,
+	so legitimate intersections were being counted as
+	self-intersections.
+
 	* Add matlab/CgalToolbox/CgalCheckSelfIntersect.cpp: (0.1.0)
 	* Add matlab/CgalToolbox/cgal_check_self_intersect.m: (0.1.0)
 	* Add matlab/test/test_cgal_check_self_intersect.m: (0.1.0)
