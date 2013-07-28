@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.6.3
+# Version: 0.6.4
 # $Rev$
 # $Date$
 #
@@ -28,8 +28,12 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-# add Boost include and linking paths
-include_directories(${Boost_INCLUDE_DIRS})
+# add include and linking paths
+include_directories(
+  ${Boost_INCLUDE_DIRS}
+  ${GMP_INCLUDE_DIR}
+  ${MPFR_INCLUDE_DIR}
+  )
 link_directories(${Boost_LIBRARY_DIRS})
 
 ################################################################
