@@ -11,7 +11,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 %
@@ -108,3 +108,6 @@ if ~isempty(strfind(getenv('OS'), 'Windows'))
     end
     setenv('PATH', systemPath);
 end
+
+% clear up after running
+clear I matdirpath pathsToDlls pth str systemPath toolboxes
