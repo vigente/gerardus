@@ -11,7 +11,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.7
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -87,4 +87,24 @@ end
 str = input('Save current path to gerardus/matlab (y/N)? ', 's');
 if (str == 'y')
     savepath([matdirpath filesep 'pathdef.m'])
+end
+
+%% System paths to DLLs for Windows
+if ~isempty(strfind(getenv('OS'), 'Windows'))
+    
+    % full paths to directories with DLLs
+    pathsToDlls = {cd(cd('..\lib')), cd(cd('..\lib\bin')), cd(cd('..\cpp\src\third-party\CGAL-4.2\auxiliary\gmp\lib'))};
+    
+    % get system paths
+    systemPath = getenv('PATH');
+    
+    % add paths to directories with DLLs unless they are already in the
+    % system path
+    for I = 1:length(pathsToDlls)
+        if isempty(strfind(lower(systemPath), lower(pathsToDlls{I})))
+            disp(['Adding ' pathsToDlls{I} ' to system path'])
+            systemPath = [pathsToDlls{I} ';' systemPath];
+        end
+    end
+    setenv('PATH', systemPath);
 end
