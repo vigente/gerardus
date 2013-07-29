@@ -1,5 +1,9 @@
 2013-07-29  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/add_gerardus_paths.m: (0.2.1)
+
+	- Clear up after running.
+
 	* matlab/add_gerardus_paths.m: (0.2.0)
 
 	- Automate adding system paths to DLLs for Windows.
