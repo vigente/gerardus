@@ -1,5 +1,13 @@
 2013-07-30  Ramon Casero  <rcasero@gmail.com>
 
+	* release 0.11.0
+
+	- Fixed some issues with MEX functions failing on Windows because
+	the DLLs they linked to (CGAL, GMP, MPFR) where not visible. That
+	has been fixed by adding code to add_gerardus_paths.m, so that the
+	DLL directories are added from Matlab to the system path in
+	Windows. This realease has been tested to work on Windows.
+
 	* CMakeLists.txt: (0.5.3)
 
 	- Fix bug. In Windows, gmp and mpfr are provided as .lib/.dll
