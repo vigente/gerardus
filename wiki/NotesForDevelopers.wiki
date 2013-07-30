@@ -214,3 +214,38 @@ cd ..
 svn add boost_1_53_0
 svn ci boost_1_53_0
 }}}
+
+= Debugging problems with MEX functions in Windows =
+
+MEX files in Windows are DLLs that can link to other DLLs. Sometimes a MEX file may not run giving the error
+{{{
+Invalid MEX-file <mexfilename>:
+The specified module could not be found.
+}}}
+As explained in Mathworks support page [http://www.mathworks.co.uk/help/matlab/matlab_external/invalid-mex-file-error.html "Invalid MEX-File Error"], in Windows one can install the program Dependency Walker, and run it within Matlab to figure out whether all DLLs the MEX file depends on are visible, e.g.
+{{{
+>> !"C:\Program Files\depends22_x64\depends.exe" ..\ItkToolbox\itk_imfilter.mexw64
+}}}
+To make a DLL visible, its has to be in the same directory as the MEX file, or it's directory has to be in the system path (which is different from the Matlab toolbox path). In Gerardus, we solve this problem in the script [https://code.google.com/p/gerardus/source/browse/trunk/matlab/add_gerardus_paths.m add_gerardus_paths.m] with the code
+{{{
+%% System paths to DLLs for Windows
+if ~isempty(strfind(getenv('OS'), 'Windows'))
+    
+    % full paths to directories with DLLs
+    pathsToDlls = {cd(cd('..\lib')), cd(cd('..\lib\bin')), cd(cd('..\cpp\src\third-party\CGAL-4.2\auxiliary\gmp\lib'))};
+    
+    % get system paths
+    systemPath = getenv('PATH');
+    
+    % add paths to directories with DLLs unless they are already in the
+    % system path
+    for I = 1:length(pathsToDlls)
+        if isempty(strfind(lower(systemPath), lower(pathsToDlls{I})))
+            disp(['Adding ' pathsToDlls{I} ' to system path'])
+            systemPath = [pathsToDlls{I} ';' systemPath];
+        end
+    end
+    setenv('PATH', systemPath);
+end
+}}}
+This code searches the system path, and adds any DLL directory that is missing.
