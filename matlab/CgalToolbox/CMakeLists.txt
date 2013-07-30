@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.2.7
+# Version: 0.2.8
 # $Rev$
 # $Date$
 #
@@ -29,10 +29,10 @@
 # <http://www.gnu.org/licenses/>.
 
 include_directories(
-  ${Boost_INCLUDE_DIR}
-  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/include
-  ${GMP_INCLUDE_DIR}
-  ${MPFR_INCLUDE_DIR}
+  "${Boost_INCLUDE_DIR}"
+  "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/include"
+  "${GMP_INCLUDE_DIR}"
+  "${MPFR_INCLUDE_DIR}"
   ..
   )
 
@@ -89,8 +89,6 @@ add_mex_file(cgal_check_self_intersect
   )
 
 target_link_libraries(cgal_check_self_intersect
-#  gmp
-#  mpfr
   CGAL
   ${ITK_LIBRARIES})
 # we need this dependency to make sure that the CGAL library is built
@@ -108,7 +106,7 @@ IF(WIN32)
     cgal_trifacet_area
     cgal_check_self_intersect
     RUNTIME
-    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
+    DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}")
 ELSE(WIN32)
   INSTALL(TARGETS
     cgal_insurftri
@@ -116,5 +114,5 @@ ELSE(WIN32)
     cgal_trifacet_area
     cgal_check_self_intersect
     LIBRARY
-    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
+    DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}")
 ENDIF(WIN32)
