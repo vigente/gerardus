@@ -14,7 +14,7 @@
  # Add the new function to the desired folder in the repository
  # Add a test script to the directory "gerardus\matlab\test"
  # Open the SVN properties window and import "common.svnprops" from the gerardus directory - do this for both files
- # Update the ChangeLog with details of the commit
+ # Update the !ChangeLog with details of the commit
  # Select "SVN Commit" of the gerardus folder
 
 == Sending patches ==
