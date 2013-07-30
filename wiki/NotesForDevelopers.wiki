@@ -9,6 +9,14 @@
   * Sending patches to the mailing list. Then one of the developers will apply the patch, test it, and if there are no problems, commit the changes to the repository
   * If you are in the [http://code.google.com/p/gerardus/people/list committers list], then you can commit your code directly to the repository
 
+== Adding new Matlab funtions to the repository ==
+
+ # Add the new function to the desired folder in the repository
+ # Add a test script to the directory "gerardus\matlab\test"
+ # Open the SVN properties window and import "common.svnprops" from the gerardus directory - do this for both files
+ # Update the ChangeLog with details of the commit
+ # Select "SVN Commit" of the gerardus folder
+
 == Sending patches ==
 
 If you spot a bug in the code, or want to improve a function, but you are not in the [http://code.google.com/p/gerardus/people/list committers list], this is the simplest way to contribute.
