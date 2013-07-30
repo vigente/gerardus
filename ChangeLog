@@ -1,5 +1,14 @@
 2013-07-30  Christopher Kelly  <christopher.kelly28@gmail.com>
 
+	* Add common.svnprops
+	
+	- SVN properties file which can be imported in the SVN properties window 
+	when adding MATLAB files to repository. This contains the Rev, Date and 
+	native properties, and will save us from the pain in the neck that would
+	be having to add them by hand for every new file.
+
+2013-07-30  Christopher Kelly  <christopher.kelly28@gmail.com>
+
 	* Add matlab/CardiacToolbox/ventricles_phantom.m: (0.1.0)
 	* Add matlab/test/test_ventricles_phantom.m: (0.1.0)
 
