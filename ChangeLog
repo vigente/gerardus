@@ -1,5 +1,10 @@
 2013-07-30  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/test/test_ventricles_phantom.m: (0.1.1)
+
+	- Add section "create a mesh from the myocardium binary mask",
+	that makes use of the third-party iso2mesh toolbox.
+
 	* Delete matlab/test/test_check_sphtrisurf_vertices.m:
 
 	- I had forgotten to delete the test script of function

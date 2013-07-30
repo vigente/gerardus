@@ -4,7 +4,7 @@
 
 % Author: Christopher Kelly <christopher.kelly28@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -87,4 +87,29 @@ surface( permute(x((size(heart,2)/2),:,:),[2,3,1]),...
          permute(heart((size(heart,2)/2),:,:),[2,3,1]),...
          'edgecolor', 'none');
      
-     
+%% create a mesh from the myocardium binary mask
+
+% convert myocardial binary mask to mesh at full resolution
+[x, tri] = binsurface(myo, 3);
+
+% plot mesh
+hold off
+plotmesh(x, tri)
+
+% convert myocardial binary mask to mesh at reduced resolution
+isovalues = 1;
+% opt = 1.5;
+% method = 'cgalsurf';
+opt = .1;
+method = 'simplify';
+tic
+[x, tri] = v2s(single(myo), isovalues, opt, method);
+tri = tri(:, 1:3);
+toc
+
+% plot mesh
+cla
+hold off
+plotmesh(x, tri)
+view(-62, 52)
+axis equal
