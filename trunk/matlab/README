@@ -74,6 +74,10 @@ trimatria.m
 
 	 TRIMATRIA  Remove the atria from a whole cardiac tissue segmentation
 	
+ventricles_phantom.m
+
+	 VENTRICLES_PHANTOM Create phantom image of simplified heart ventricles
+	
 
 CgalToolbox
 -------------------------------------------------------------
