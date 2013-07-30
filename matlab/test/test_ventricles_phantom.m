@@ -89,6 +89,9 @@ surface( permute(x((size(heart,2)/2),:,:),[2,3,1]),...
      
 %% create a mesh from the myocardium binary mask
 
+% run function with zero noise
+[heart, LV, RV, myo] = ventricles_phantom;
+
 % convert myocardial binary mask to mesh at full resolution
 [x, tri] = binsurface(myo, 3);
 
@@ -109,7 +112,6 @@ toc
 
 % plot mesh
 cla
-hold off
 plotmesh(x, tri)
 view(-62, 52)
 axis equal
