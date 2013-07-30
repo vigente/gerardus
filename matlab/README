@@ -374,11 +374,6 @@ addpoint2tri.m
 
 	 ADDPOINT2TRI  Add one or more nodes to a triangular mesh
 	
-check_trisurf_vertices.m
-
-	 CHECK_TRISURF_VERTICES  Check integrity of the vertices of a 
-	 triangular mesh, to make sure facets do not overlap
-	
 closest_trifacet.m
 
 	 CLOSEST_TRIFACET  Closest triangular facet of a mesh to a point in 3D
