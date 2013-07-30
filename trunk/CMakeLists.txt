@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.5.2
+# Version: 0.5.3
 # $Rev$
 # $Date$
 #
@@ -116,10 +116,30 @@ if(WIN32 AND NOT CYGWIN)
   # for Windows builds, we use the pre-compiled 64-bit libraries
   # provided by the CGAL Windows installer, that we distribute with
   # Gerardus
-  set(GMP_INCLUDE_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/auxiliary/gmp/include)
-  set(MPFR_INCLUDE_DIR ${GMP_INCLUDE_DIR})
-  set(GMP_LIBRARY_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/auxiliary/gmp/lib)
-  set(MPFR_LIBRARY_DIR ${GMP_LIBRARY_DIR})
+  set(GMP_INCLUDE_DIR "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/auxiliary/gmp/include")
+  set(MPFR_INCLUDE_DIR "${GMP_INCLUDE_DIR}")
+  set(GMP_LIBRARY_DIR "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/auxiliary/gmp/lib")
+  set(MPFR_LIBRARY_DIR "${GMP_LIBRARY_DIR}")
+
+  add_library(gmp SHARED IMPORTED GLOBAL)
+  set_property(TARGET gmp PROPERTY IMPORTED_LOCATION "${GMP_LIBRARY_DIR}/libgmp-10.dll")
+  set_property(TARGET gmp PROPERTY IMPORTED_IMPLIB "${GMP_LIBRARY_DIR}/libgmp-10.lib")
+  add_library(mpfr SHARED IMPORTED GLOBAL)
+  set_property(TARGET mpfr PROPERTY IMPORTED_LOCATION "${GMP_LIBRARY_DIR}/libmpfr-4.dll")
+  set_property(TARGET mpfr PROPERTY IMPORTED_IMPLIB "${GMP_LIBRARY_DIR}/libmpfr-4.lib")
+
+  set(GMP_FOUND TRUE 
+    CACHE BOOL "GMP library is part of Gerardus, so this is always true")
+  set(GMP_LIBRARY_DIRS "${GMP_LIBRARY_DIR}"
+    CACHE PATH "Path to GMP library")
+  set(GMP_LIBRARIES_DIR "${GMP_LIBRARY_DIR}"
+    CACHE PATH "Path to GMP library")
+  set(MPFR_FOUND TRUE 
+    CACHE BOOL "MPFR library is part of Gerardus, so this is always true")
+  set(MPFR_LIBRARY_DIRS "${MPFR_LIBRARY_DIR}"
+    CACHE PATH "Path to MPFR library")
+  set(MPFR_LIBRARIES_DIR "${MPFR_LIBRARY_DIR}"
+    CACHE PATH "Path to MPFR library")
 
 else(WIN32 AND NOT CYGWIN)
 
@@ -145,7 +165,6 @@ else(WIN32 AND NOT CYGWIN)
     LOG_TEST 1
     LOG_INSTALL 1
     )
-#  add_library(gmp STATIC IMPORTED GLOBAL)
   add_library(gmp SHARED IMPORTED GLOBAL)
   set_property(TARGET gmp PROPERTY IMPORTED_LOCATION ${GMP_SOURCE_DIR}/output/lib/libgmp.so)
   set(GMP_FOUND TRUE 
@@ -177,7 +196,6 @@ else(WIN32 AND NOT CYGWIN)
     LOG_TEST 1
     LOG_INSTALL 1
     )
-#  add_library(mpfr STATIC IMPORTED GLOBAL)
   add_library(mpfr SHARED IMPORTED GLOBAL)
   set_property(TARGET mpfr PROPERTY IMPORTED_LOCATION ${MPFR_SOURCE_DIR}/output/lib/libmpfr.so)
   set(MPFR_FOUND TRUE 

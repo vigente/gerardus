@@ -1,3 +1,12 @@
+2013-07-30  Ramon Casero  <rcasero@gmail.com>
+
+	* CMakeLists.txt: (0.5.3)
+
+	- Fix bug. In Windows, gmp and mpfr are provided as .lib/.dll
+	pairs. They have to be added to the project as shared and not
+	static libraries. Also, we have to set up some variables as we do
+	in linux/mac.
+
 2013-07-29  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/add_gerardus_paths.m: (0.2.1)
