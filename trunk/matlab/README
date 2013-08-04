@@ -84,7 +84,8 @@ CgalToolbox
 
 cgal_check_self_intersect.m
 
-	 CgalCheckSelfIntersect.cpp
+	 CGAL_CHECK_SELF_INTERSECT Check for self-intersections in a triangular
+	 mesh
 	
 cgal_closest_trifacet.m
 
