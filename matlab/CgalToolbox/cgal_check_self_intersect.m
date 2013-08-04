@@ -1,6 +1,4 @@
 function c = cgal_check_self_intersect(tri, x)
-% CgalCheckSelfIntersect.cpp
-%
 % CGAL_CHECK_SELF_INTERSECT Check for self-intersections in a triangular
 % mesh
 %
