@@ -39,7 +39,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.1.2
   * $Rev$
   * $Date$
   *
@@ -299,43 +299,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   } // end loop for each alpha
 
-
-  as.set_alpha(*alphaOptIt);
-  assert(as.number_of_solid_components() == numComponents);
-
-  // get alpha-shape surface
-  std::list<Facet>       facets;
-  as.get_alpha_shape_facets(std::back_inserter(facets),
-                            Alpha_shape_3::REGULAR);
-
-  // // create output for the triangulation
-  // plhs[OUT_TRI] = mxCreateNumericMatrix(facets.size(), 3, mxDOUBLE_CLASS, mxREAL);
-  // if (plhs[OUT_TRI] == NULL) {
-  //   mexErrMsgTxt("Cannot allocate memory for output TRI" );
-  // }
-
-  // // pointer to the triangulation output
-  // double *f = (double *)mxGetData(plhs[OUT_TRI]); // triangulation
-  // if (f == NULL) {
-  //   mexErrMsgTxt("Memory for output TRI has been allocated, but I cannot get a pointer to it");
-  // }
-
-  // // write facets to Matlab output
-  // mwSize i = 0; // row index of Matlab output
-  // for (std::list<Facet>::iterator it = facets.begin(); it != facets.end(); ++it) {
-
-  //   std::cout << "facet = "
-  // 	      << it->first->vertex(Delaunay::vertex_triple_index(it->second,0))->info()
-  // 	      << ", "
-  // 	      << it->first->vertex(Delaunay::vertex_triple_index(it->second,1))->info()
-  // 	      << ", "
-  // 	      << it->first->vertex(Delaunay::vertex_triple_index(it->second,2))->info()
-  // 	      << std::endl;
-
-  //   // increase row index of Matlab output
-  //   i++;
-  // }
-  
 }
 
 #endif /* CGALALPHASHAPE3 */

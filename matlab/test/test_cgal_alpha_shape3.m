@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -44,6 +44,11 @@ xyz = [
 % compute alpha shape
 [alphalim, tri] = cgal_alpha_shape3(xyz);
 
+% plot meshes
+subplot(1, 1, 1)
+hold off
+trisurf(tri{1}, xyz(:, 1), xyz(:, 2), xyz(:, 3))
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% pyramid with an indentation in the base
 
@@ -62,10 +67,10 @@ alphalim
 % plot meshes
 subplot(1, 2, 1)
 hold off
-trisurf(tri{2}, xyz)
+trisurf(tri{2}, xyz(:, 1), xyz(:, 2), xyz(:, 3))
 subplot(1, 2, 2)
 hold off
-trisurf(tri{3}, xyz)
+trisurf(tri{3}, xyz(:, 1), xyz(:, 2), xyz(:, 3))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% crescent shape
