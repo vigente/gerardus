@@ -1,5 +1,17 @@
 2013-08-05  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CgalToolbox/CgalAlphaShape3.cpp: (0.1.1)
+	* cpp/src/third-party/CGAL-4.2/include/CGAL/Triangulation_hierarchy_3.h:
+
+	- To accelerate the Delaunay triangulation, add
+	CGAL::Fast_location flag to the type definition. This triggers a
+	bug in Triangulation_hierarchy_3.h. Sebastien Loriot sent a
+	patched file in this email thread
+
+	http://cgal-discuss.949826.n4.nabble.com/Extracting-triangulation-from-alpha-shape-td4657870.html#a4657881
+
+	- Fix bug. Comment out debug message.
+
 	* Add matlab/CgalToolbox/CgalAlphaShape3.cpp: (0.1.0)
 	* Add matlab/CgalToolbox/cgal_alpha_shape3.m: (0.1.0)
 	* Add matlab/test/test_cgal_alpha_shape3.m: (0.1.0)
