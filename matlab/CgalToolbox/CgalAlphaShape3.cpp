@@ -39,7 +39,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -95,7 +95,7 @@ typedef CGAL::Alpha_shape_vertex_base_3<K, Vb>       AsVb;
 typedef CGAL::Alpha_shape_cell_base_3<K>             Fb;
 // triangulation structure: vertex and cell
 typedef CGAL::Triangulation_data_structure_3<AsVb, Fb> Tds;
-typedef CGAL::Delaunay_triangulation_3<K, Tds>       Delaunay;
+typedef CGAL::Delaunay_triangulation_3<K, Tds, CGAL::Fast_location>       Delaunay;
 typedef CGAL::Alpha_shape_3<Delaunay>                Alpha_shape_3;
 
 typedef K::Point_3                                   Point;
@@ -160,9 +160,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
 			  );
   }
 
-  for (std::vector<PointWithIndex>::iterator it = x.begin(); it != x.end(); ++it) {
-    std::cout << "point " << it->second << " = " << it->first << std::endl;
-  }
+  // // DEBUG:
+  // for (std::vector<PointWithIndex>::iterator it = x.begin(); it != x.end(); ++it) {
+  //   std::cout << "point " << it->second << " = " << it->first << std::endl;
+  // }
 
   // read number of components from input
   mwSize numComponents = matlabImport->GetScalarArgument<mwSize>(IN_NCOMP, "NCOMP", 1);
