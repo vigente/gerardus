@@ -1,3 +1,27 @@
+2013-08-05  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/CgalToolbox/CgalAlphaShape3.cpp: (0.1.0)
+	* Add matlab/CgalToolbox/cgal_alpha_shape3.m: (0.1.0)
+	* Add matlab/test/test_cgal_alpha_shape3.m: (0.1.0)
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.9)
+
+	- CGAL_ALPHA_SHAPE3  Alpha-shape of a 3D set of points.
+
+	* matlab/VectorWrapper.h: (0.5.3)
+
+	- Fix bug, the VectorValueType for the partial specialization of
+	K=CGAL::Exact_predicates_exact_constructions_kernel should have
+	been K, not double.
+
+	- Add partial specialization for
+	CGAL::Exact_predicates_inexact_constructions_kernel.
+
+	* matlab/CgalToolbox/CgalCheckSelfIntersect.cpp: (0.1.2)
+
+	- Fix bug, the VectorValueType for the partial specialization of
+	K=CGAL::Exact_predicates_exact_constructions_kernel should have
+	been K, not double.
+
 2013-07-30  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/test/test_ventricles_phantom.m: (0.1.1)

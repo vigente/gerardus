@@ -30,7 +30,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.5.2
+  * Version: 0.5.3
   * $Rev$
   * $Date$
   *
@@ -68,6 +68,7 @@
 /* CGAL headers */
 #include <CGAL/Simple_cartesian.h>
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 
 /* Boost headers */
 #include <boost/lexical_cast.hpp>
@@ -207,6 +208,7 @@ template<class VectorValueType, class MatlabValueType, unsigned int VectorSize>
  * CGAL::Point_3<CGAL::Simple_cartesian<type> > 
  * CGAL::Direction_3<CGAL::Simple_cartesian<double> >
  * CGAL::Point_3<CGAL::Exact_predicates_exact_constructions_kernel > 
+ * CGAL::Point_3<CGAL::Exact_predicates_inexact_constructions_kernel > 
  * vector-like class
  */
 
@@ -254,7 +256,8 @@ class VectorWrapper<double, typename CGAL::Direction_3<CGAL::Simple_cartesian<do
 
 // partial specialisation for CGAL::Point_3<CGAL::Exact_predicates_exact_constructions_kernel >
 template<class MatlabValueType, unsigned int VectorSize>
-class VectorWrapper<double, typename CGAL::Point_3<CGAL::Exact_predicates_exact_constructions_kernel >, 
+class VectorWrapper<CGAL::Exact_predicates_exact_constructions_kernel, 
+  typename CGAL::Point_3<CGAL::Exact_predicates_exact_constructions_kernel >, 
   MatlabValueType, VectorSize>{
 
  public:
@@ -265,6 +268,24 @@ class VectorWrapper<double, typename CGAL::Point_3<CGAL::Exact_predicates_exact_
     ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
     return ReadCgalRowVector<double, 
       typename CGAL::Point_3<CGAL::Exact_predicates_exact_constructions_kernel >,
+      MatlabValueType>(pm, row, paramName);
+  }
+};
+
+// partial specialisation for CGAL::Point_3<CGAL::Exact_predicates_inexact_constructions_kernel >
+template<class MatlabValueType, unsigned int VectorSize>
+class VectorWrapper<CGAL::Exact_predicates_inexact_constructions_kernel, 
+  typename CGAL::Point_3<CGAL::Exact_predicates_inexact_constructions_kernel >, 
+  MatlabValueType, VectorSize>{
+
+ public:
+
+  VectorWrapper() {}
+
+  typename CGAL::Point_3<CGAL::Exact_predicates_inexact_constructions_kernel >
+    ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+    return ReadCgalRowVector<double, 
+      typename CGAL::Point_3<CGAL::Exact_predicates_inexact_constructions_kernel >,
       MatlabValueType>(pm, row, paramName);
   }
 };

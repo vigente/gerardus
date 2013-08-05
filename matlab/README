@@ -82,6 +82,10 @@ ventricles_phantom.m
 CgalToolbox
 -------------------------------------------------------------
 
+cgal_alpha_shape3.m
+
+	 CGAL_ALPHA_SHAPE3  Alpha-shape of a 3D set of points
+	
 cgal_check_self_intersect.m
 
 	 CGAL_CHECK_SELF_INTERSECT Check for self-intersections in a triangular
