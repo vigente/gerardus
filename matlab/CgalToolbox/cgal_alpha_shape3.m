@@ -1,3 +1,4 @@
+function varargout = cgal_alpha_shape3(varargin)
 % CGAL_ALPHA_SHAPE3  Alpha-shape of a 3D set of points
 %
 % [ALPHALIM, TRI] = cgal_alpha_shape3(X, [], NCOMP)
