@@ -1,5 +1,13 @@
 2013-08-05  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/test/test_cgal_alpha_shape3.m: (0.1.1)
+
+	- Fix bug. Bad syntax of trisurf.
+
+	* matlab/CgalToolbox/CgalAlphaShape3.cpp: (0.1.2)
+
+	- Fix bug. Remove useless code at the end of the file.
+
 	* matlab/CgalToolbox/CgalAlphaShape3.cpp: (0.1.1)
 	* cpp/src/third-party/CGAL-4.2/include/CGAL/Triangulation_hierarchy_3.h:
 
