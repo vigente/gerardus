@@ -294,6 +294,8 @@ VectorType ReadItkHalfSize(const mxArray *pm, std::string paramName) {
  * Partial specialisation if we want to put Matlab's row data into a
  * CGAL::Point_3<CGAL::Simple_cartesian<type> >
  * CGAL::Direction_3<CGAL::Simple_cartesian<type> > 
+ * CGAL::Point_3<CGAL::Exact_predicates_exact_constructions_kernel > 
+ * CGAL::Point_3<CGAL::Exact_predicates_inexact_constructions_kernel > 
  * vector-like class
  */
 
