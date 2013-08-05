@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.2.8
+# Version: 0.2.9
 # $Rev$
 # $Date$
 #
@@ -96,6 +96,21 @@ target_link_libraries(cgal_check_self_intersect
 add_dependencies(cgal_check_self_intersect copy_compiler_config.h)
 
 ################################################################
+## cgal_alpha_shape3()
+################################################################
+
+add_mex_file(cgal_alpha_shape3
+  CgalAlphaShape3.cpp
+  )
+
+target_link_libraries(cgal_alpha_shape3
+  CGAL
+  ${ITK_LIBRARIES})
+# we need this dependency to make sure that the CGAL library is built
+# before we try to build the mex function
+add_dependencies(cgal_alpha_shape3 copy_compiler_config.h)
+
+################################################################
 ## installation of targets
 ################################################################
 
@@ -105,6 +120,7 @@ IF(WIN32)
     cgal_closest_trifacet
     cgal_trifacet_area
     cgal_check_self_intersect
+    cgal_alpha_shape3
     RUNTIME
     DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}")
 ELSE(WIN32)
@@ -113,6 +129,7 @@ ELSE(WIN32)
     cgal_closest_trifacet
     cgal_trifacet_area
     cgal_check_self_intersect
+    cgal_alpha_shape3
     LIBRARY
     DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}")
 ENDIF(WIN32)
