@@ -1,8 +1,8 @@
-function scimat = scimat_lconvhull_smoothing(scimat, alpha)
+function scimat = scimat_lconvhull_smoothing(scimat, rad)
 % SCIMAT_LCONVHULL_SMOOTHING  Smoothing of a binary image using a local
 % convex hull
 %
-% SCIMAT2 = scimat_lconvhull_smoothing(SCIMAT, ALPHA)
+% SCIMAT2 = scimat_lconvhull_smoothing(SCIMAT, RAD)
 %
 %   SCIMAT is a SCI MAT volume with a binary image.
 %
@@ -10,23 +10,26 @@ function scimat = scimat_lconvhull_smoothing(scimat, alpha)
 %   their coordinates produces a mesh triangulation with the local convex
 %   hull.
 %
-%   ALPA is a scalar with the radius of the alpha shape, i.e. the size of
+%   RAD is a scalar with the radius of the alpha shape, i.e. the size of
 %   the convex hull neighbourhood. When the convex hull is computed, only
-%   voxels within ALPHA distance can be connected. When ALPHA=Inf, the
-%   convex hull is obtained.
+%   voxels within RAD distance can be connected. When RAD=Inf, the
+%   convex hull is obtained. Note that if you want to compare to other
+%   alpha shape functions, e.g. cgal_alpha_shape3() or
+%   cgal_fixed_alpha_shape3(), ALPHA=RAD^2.
 %
 %   The inside of the triangulation is converted to voxels using
 %   cgal_insurftri().
 %
-%   ALPHA2 is the same SCI MAT volume with the local convex hull of SCIMAT.
+%   SCIMAT2 is the local convex hull of SCIMAT.
 %
 % This function uses alphavol() by Jonas Lundgren.
 %
-% See also: cgal_insurftri.
+% See also: cgal_insurftri, cgal_alpha_shape3, cgal_fixed_alpha_shape3,
+% scimat_closed_surf_to_bw
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.3.3
+% Version: 0.3.5
 % $Rev$
 % $Date$
 % 
@@ -65,20 +68,23 @@ if ((nnz(scimat.data) == 0) || (numel(scimat.data) == nnz(scimat.data)))
     return
 end
 
+% if we don't have at least 4 unique points, the delaunay triangulation
+% will give an error
+if (nnz(scimat.data) < 4)
+    return
+end
+
+% compute perimeter voxels
+scimat.data = bwperim(scimat.data);
+
 % coordinates of segmented voxels
 [r, c, s] = ind2sub(size(scimat.data), find(scimat.data));
 x = scinrrd_index2world([r c s], scimat.axis);
 clear r c s
 
-% if we don't have at least 4 unique points, the delaunay triangulation
-% will give an error
-if (size(x, 1) < 4)
-    return
-end
-
 % compute alpha shape
 try
-    [~, s] = alphavol(x, alpha);
+    [~, s] = alphavol(x, rad);
 catch err
     % "Error computing the Delaunay triangulation. The points may be
     % coplanar or collinear"
@@ -95,6 +101,13 @@ end
 % keep only the mesh surface
 tri = s.bnd;
 clear s
+
+% % compute alpha shape (alternative mode using CGAL functions): this method
+% % is slower because of the CGAL Delaunay triangulation
+% tic
+% tri = cgal_fixed_alpha_shape3(x, rad.^2);
+% tri = tri{1};
+% toc
 
 % very small segmentations can produce degenerated surfaces. In that case,
 % there's nothing to smooth and we can just exit without modifying the
