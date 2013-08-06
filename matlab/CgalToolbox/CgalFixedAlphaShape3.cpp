@@ -36,7 +36,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.2
+  * Version: 0.1.3
   * $Rev$
   * $Date$
   *
@@ -164,6 +164,18 @@ void mexFunction(int nlhs, mxArray *plhs[],
 			  matlabImport->GetRowVectorArgument<K, Point>(IN_X, i, "X", xDef),
 			  i+1 // because this will be a row index in Matlab, 1, ..., Nrows
 			  );
+
+    // don't accept NaNs or Infs, otherwise they will give a segfault
+    if(mxIsNaN(x[i].first[0])
+       || mxIsNaN(x[i].first[1])
+       || mxIsNaN(x[i].first[2])
+       || mxIsInf(x[i].first[0])
+       || mxIsInf(x[i].first[1])
+       || mxIsInf(x[i].first[2])
+       ) {
+      mexErrMsgTxt("X contains NaN or Inf values" );
+    }
+    
   }
 
   // // DEBUG:
