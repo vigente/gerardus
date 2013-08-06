@@ -68,9 +68,11 @@ alphalim
 subplot(1, 2, 1)
 hold off
 trisurf(tri{2}, xyz(:, 1), xyz(:, 2), xyz(:, 3))
+view(78, 40)
 subplot(1, 2, 2)
 hold off
 trisurf(tri{3}, xyz(:, 1), xyz(:, 2), xyz(:, 3))
+view(78, 40)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% crescent shape
