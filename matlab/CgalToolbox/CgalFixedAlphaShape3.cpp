@@ -36,7 +36,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.1.2
   * $Rev$
   * $Date$
   *
@@ -73,6 +73,7 @@
 
 /* C++ headers */
 #include <iostream>
+#include <ctime> // DEBUG
 
 /* Gerardus headers */
 #include "MatlabImportFilter.h"
@@ -94,7 +95,11 @@ typedef CGAL::Fixed_alpha_shape_vertex_base_3<K, Vb> AsVb;
 typedef CGAL::Fixed_alpha_shape_cell_base_3<K>       Fb;
 // triangulation structure: vertex and cell
 typedef CGAL::Triangulation_data_structure_3<AsVb, Fb> Tds;
-typedef CGAL::Delaunay_triangulation_3<K, Tds, CGAL::Fast_location> Delaunay;
+
+// with an example of 412,068 points, using CGAL::Fast_location makes
+// it slightly slower
+//typedef CGAL::Delaunay_triangulation_3<K, Tds, CGAL::Fast_location> Delaunay;
+typedef CGAL::Delaunay_triangulation_3<K, Tds> Delaunay;
 typedef CGAL::Fixed_alpha_shape_3<Delaunay>          Alpha_shape_3;
 
 typedef K::Point_3                                   Point;
@@ -107,6 +112,10 @@ typedef Alpha_shape_3::Facet                         Facet;
  */
 void mexFunction(int nlhs, mxArray *plhs[], 
 		 int nrhs, const mxArray *prhs[]) {
+
+  // // DEBUG:
+  // std::cout << "LLInitializing and reading data from Matlab" << std::endl;
+  // clock_t time0 = clock();
 
   // indices for inputs and outputs
   enum InputIndexType {IN_X, IN_ALPHA, InputIndexType_MAX};
@@ -163,6 +172,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // }
 
   // // DEBUG
+  // std::cout << "time = " << (double(clock() - time0) / CLOCKS_PER_SEC) << " sec" << std::endl;
+  // time0 = clock();
   // std::cout << "Computing Delaunay triangulation" << std::endl;
 
   // Delaunay triangulation
@@ -172,6 +183,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   // // DEBUG
   // std::cout << "Delaunay triangulation computed" << std::endl;
+  // std::cout << "time = " << (double(clock() - time0) / CLOCKS_PER_SEC) << " sec" << std::endl;
+  // time0 = clock();
 
   // read vector of alpha values provided by the user
   std::vector<double> alphaDef(1, 0.0);
@@ -208,6 +221,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // // DEBUG
     // std::cout << "Alpha shape computed in REGULARIZED mode by default"
     //           << std::endl;
+    // std::cout << "time = " << (double(clock() - time0) / CLOCKS_PER_SEC) << " sec" << std::endl;
+    // time0 = clock();
     
     // // DEBUG:
     // std::cout << "Extracting surface triangulation for alpha = " << alpha[i]
@@ -268,7 +283,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     } // end loop for each facet
     
-
+    // // DEBUG
+    // std::cout << "Surface triangulation extracted"
+    //           << std::endl;
+    // std::cout << "time = " << (double(clock() - time0) / CLOCKS_PER_SEC) << " sec" << std::endl;
+    // time0 = clock();
+    
 
   } // end loop for each alpha
   
