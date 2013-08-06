@@ -84,7 +84,7 @@ CgalToolbox
 
 cgal_alpha_shape3.m
 
-	 CGAL_ALPHA_SHAPE3  Alpha-shape of a 3D set of points
+	 CGAL_ALPHA_SHAPE3  Whole alpha-shape of a 3D set of points
 	
 cgal_check_self_intersect.m
 
@@ -94,6 +94,10 @@ cgal_check_self_intersect.m
 cgal_closest_trifacet.m
 
 	 CGAL_CLOSEST_TRIFACET  Closest triangular facet of a mesh to a point in 3D
+	
+cgal_fixed_alpha_shape3.m
+
+	 CGAL_FIXED_ALPHA_SHAPE3  Individual alpha-shapes of a 3D set of points
 	
 cgal_insurftri.m
 
