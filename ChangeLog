@@ -1,5 +1,18 @@
 2013-08-06  Ramon Casero  <rcasero@gmail.com>
 
+	* CMakeLists.txt: (0.5.5)
+
+	- Fix bug. Make previous change work in Windows too. For Windows,
+	the directory for Boost libraries is gerardus/lib, as that's where
+	they get built and installed (in Windows, we cannot use the Boost
+	libraries released with Matlab).
+
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.12)
+
+	- Fix bug. Make previous change work in Windows too. In Windows,
+	adding Boost_THREAD_LIBRARY to the list of libraries linked to by
+	cgal_check_self_intersect erroneously duplicates symbols.
+
 	* CMakeLists.txt: (0.5.4)
 
 	- Fix bug. In Linux and Mac, the binaries had broken links to the
