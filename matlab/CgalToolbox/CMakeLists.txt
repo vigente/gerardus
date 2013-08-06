@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012 University of Oxford
-# Version: 0.2.10
+# Version: 0.2.11
 # $Rev$
 # $Date$
 #
@@ -89,6 +89,7 @@ add_mex_file(cgal_check_self_intersect
   )
 
 target_link_libraries(cgal_check_self_intersect
+  ${Boost_THREAD_LIBRARY}
   CGAL
   ${ITK_LIBRARIES})
 # we need this dependency to make sure that the CGAL library is built
