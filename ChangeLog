@@ -1,5 +1,23 @@
 2013-08-06  Ramon Casero  <rcasero@gmail.com>
 
+	* CMakeLists.txt: (0.5.4)
+
+	- Fix bug. In Linux and Mac, the binaries had broken links to the
+	Boost libraries. For example, linked to libbost_system.so.1.44.0
+	but in the gerardus/lib directory, that only contained the
+	softlink libbost_system.so. Hence, the binary could not find the
+	library.
+
+	To fix it, we no longer soft link to the Boost libraries from
+	gerardus/lib. Instead, in Linux and Mac we look for the actual
+	boost libraries in the Matlab directory, and link directly to
+	them.
+
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.11)
+
+	- Fix bug. cgal_check_self_intersect needs to be explicitly linked
+	to the Boost_THREAD_LIBRARY.
+
 	* matlab/CgalToolbox/CgalFixedAlphaShape3.cpp: (0.1.2)
 
 	- Add debug messages for time profiling.
@@ -13,6 +31,7 @@
 	points.
 
 	* matlab/CgalToolbox/cgal_alpha_shape3.m: (0.1.1)
+	* matlab/CgalToolbox/CgalAlphaShape3.cpp: (0.1.3)
 
 	- Add info to help header.
 

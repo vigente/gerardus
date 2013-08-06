@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.5.3
+# Version: 0.5.4
 # $Rev$
 # $Date$
 #
@@ -293,7 +293,7 @@ else()
 endif()
 
 # path to where the Boost libraries will be found in Gerardus
-set(Boost_LIBRARY_DIR "${GERARDUS_SOURCE_DIR}/lib")
+set(Boost_LIBRARY_DIR "${MATLAB_BOOST_LIB_PATH}")
 
 # we want to know whether Boost has already been installed. As
 # checking for the whole project is complicated, we are going to check
@@ -412,26 +412,6 @@ if(NOT Boost_version_hpp)
 
     message(STATUS "Boost header files have been patched and installed")
 
-    # create symlinks to the boost libraries
-    execute_process(
-      COMMAND ${CMAKE_COMMAND} -E create_symlink 
-      ${MATLAB_BOOST_LIB_PATH}/libboost_date_time.so.${AUX_BOOST_VERSION} 
-      ${Boost_LIBRARY_DIR}/libboost_date_time.so)
-    execute_process(
-      COMMAND ${CMAKE_COMMAND} -E create_symlink 
-      ${MATLAB_BOOST_LIB_PATH}/libboost_filesystem.so.${AUX_BOOST_VERSION} 
-      ${Boost_LIBRARY_DIR}/libboost_filesystem.so)
-    execute_process(
-      COMMAND ${CMAKE_COMMAND} -E create_symlink 
-      ${MATLAB_BOOST_LIB_PATH}/libboost_system.so.${AUX_BOOST_VERSION} 
-      ${Boost_LIBRARY_DIR}/libboost_system.so)
-    execute_process(
-      COMMAND ${CMAKE_COMMAND} -E create_symlink 
-      ${MATLAB_BOOST_LIB_PATH}/libboost_thread.so.${AUX_BOOST_VERSION} 
-      ${Boost_LIBRARY_DIR}/libboost_thread.so)
-
-    message(STATUS "Symlinks created in gerardus/lib to the Boost libraries provided by Matlab")
-
   endif()
 
 else()
@@ -465,6 +445,21 @@ add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
 find_package(Boost ${AUX_BOOST_VERSION}
   COMPONENTS date_time filesystem system thread)
 
+if(NOT WIN32)
+find_library(Boost_DATE_TIME_LIBRARY 
+  NAMES libboost_date_time.so.${AUX_BOOST_VERSION}
+  PATHS "${Boost_LIBRARY_DIR}")
+find_library(Boost_FILESYSTEM_LIBRARY 
+  NAMES libboost_filesystem.so.${AUX_BOOST_VERSION}
+  PATHS "${Boost_LIBRARY_DIR}")
+find_library(Boost_SYSTEM_LIBRARY 
+  NAMES libboost_system.so.${AUX_BOOST_VERSION}
+  PATHS "${Boost_LIBRARY_DIR}")
+find_library(Boost_THREAD_LIBRARY 
+  NAMES libboost_thread.so.${AUX_BOOST_VERSION}
+  PATHS "${Boost_LIBRARY_DIR}")
+endif()
+
 #############################################################################################
 ## Third-party library: CGAL
 #############################################################################################
@@ -473,7 +468,7 @@ find_package(Boost ${AUX_BOOST_VERSION}
 # an explicit dependency
 
 # call the subproject, as CGAL is distributed with a CMake build
-ADD_SUBDIRECTORY(cpp/src/third-party/CGAL-4.2)
+add_subdirectory(cpp/src/third-party/CGAL-4.2)
 
 # after CGAL builds, we need to copy the header file compiler_config.h
 # it generates to the CGAL include directory, so that it's available
