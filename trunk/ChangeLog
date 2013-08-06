@@ -1,5 +1,9 @@
 2013-08-06  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CgalToolbox/CgalFixedAlphaShape3.cpp: (0.1.2)
+
+	- Add debug messages for time profiling.
+
 	* Add matlab/CgalToolbox/CgalFixedAlphaShape3.cpp: (0.1.0)
 	* Add matlab/CgalToolbox/cgal_fixed_alpha_shape3.m: (0.1.0)
 	* Add matlab/test/test_cgal_fixed_alpha_shape3.m: (0.1.0)
