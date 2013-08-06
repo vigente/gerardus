@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.5.4
+# Version: 0.5.5
 # $Rev$
 # $Date$
 #
@@ -293,7 +293,11 @@ else()
 endif()
 
 # path to where the Boost libraries will be found in Gerardus
-set(Boost_LIBRARY_DIR "${MATLAB_BOOST_LIB_PATH}")
+if(WIN32)
+  set(Boost_LIBRARY_DIR "${GERARDUS_SOURCE_DIR}/lib")
+else()
+  set(Boost_LIBRARY_DIR "${MATLAB_BOOST_LIB_PATH}")
+endif()
 
 # we want to know whether Boost has already been installed. As
 # checking for the whole project is complicated, we are going to check
@@ -360,7 +364,7 @@ if(NOT Boost_version_hpp)
   if (WIN32)
 
     # for the build, we need to tell the Boost builder whether this is
-    #  a 32 or 64 bit system
+    # a 32 or 64 bit system
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
       set(Boost_address_model 64)
     else()
@@ -446,18 +450,18 @@ find_package(Boost ${AUX_BOOST_VERSION}
   COMPONENTS date_time filesystem system thread)
 
 if(NOT WIN32)
-find_library(Boost_DATE_TIME_LIBRARY 
-  NAMES libboost_date_time.so.${AUX_BOOST_VERSION}
-  PATHS "${Boost_LIBRARY_DIR}")
-find_library(Boost_FILESYSTEM_LIBRARY 
-  NAMES libboost_filesystem.so.${AUX_BOOST_VERSION}
-  PATHS "${Boost_LIBRARY_DIR}")
-find_library(Boost_SYSTEM_LIBRARY 
-  NAMES libboost_system.so.${AUX_BOOST_VERSION}
-  PATHS "${Boost_LIBRARY_DIR}")
-find_library(Boost_THREAD_LIBRARY 
-  NAMES libboost_thread.so.${AUX_BOOST_VERSION}
-  PATHS "${Boost_LIBRARY_DIR}")
+  find_library(Boost_DATE_TIME_LIBRARY 
+    NAMES libboost_date_time.so.${AUX_BOOST_VERSION}
+    PATHS "${Boost_LIBRARY_DIR}")
+  find_library(Boost_FILESYSTEM_LIBRARY 
+    NAMES libboost_filesystem.so.${AUX_BOOST_VERSION}
+    PATHS "${Boost_LIBRARY_DIR}")
+  find_library(Boost_SYSTEM_LIBRARY 
+    NAMES libboost_system.so.${AUX_BOOST_VERSION}
+    PATHS "${Boost_LIBRARY_DIR}")
+  find_library(Boost_THREAD_LIBRARY 
+    NAMES libboost_thread.so.${AUX_BOOST_VERSION}
+    PATHS "${Boost_LIBRARY_DIR}")
 endif()
 
 #############################################################################################
