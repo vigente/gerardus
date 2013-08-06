@@ -1,39 +1,26 @@
-function varargout = cgal_alpha_shape3(varargin)
-% CGAL_ALPHA_SHAPE3  Whole alpha-shape of a 3D set of points
+function varargout = cgal_fixed_alpha_shape3(varargin)
+% CGAL_FIXED_ALPHA_SHAPE3  Individual alpha-shapes of a 3D set of points
 %
-% [ALPHALIM, TRI] = cgal_alpha_shape3(X, [], NCOMP)
+% TRI = cgal_fixed_alpha_shape3(X, ALPHA)
 %
 %   X is a 3-column matrix. X(i, :) contains the xyz-coordinates of a 3D
 %   point.
 %
-%   NCOMP is a scalar with the number of connected components in the output
-%   alpha shape. By default, NCOMP=1.
-%
-%   ALPHALIM is a 3 vector:
-%
-%     ALPHALIM(1): minimum in the range of possible alpha values.
-%     ALPHALIM(2): optimal alpha value for NCOMP connected  components.
-%     ALPHALIM(3): maximum in the range of possible alpha values.
-%
-%   TRI is a cell containing a 3-column matrix with the alpha-shape
-%   triangulation produced by ALPHALIM(2). This alpha-shape has NCOMP
-%   connected components. Each row contains the 3 nodes that form one
-%   triangular facet in the mesh. The mesh can be visualised running:
-%
-%     >> trisurf(tri{1}, x)
-%
-%
-% [~, TRI] = cgal_alpha_shape3(X, ALPHA)
-%
 %   ALPHA is a vector of scalar alpha values, alpha=R^2, where R is the
-%   probe radius. TRI is a cell array of the same length as ALPHA. Cell
-%   TRI{i} contains the alpha shape triangulation for ALPHA{i}.
+%   probe radius.
 %
-% This function uses CGAL's implementation of non-fixed alpha shapes [1].
-% With non-fixed alpha shapes, the result for all alpha values is computed
-% internally, and then only those the solutions requested by the user are
-% extracted. If only an alpha value or a few are required, it may be faster
-% to use cgal_fixed_alpha_shape3().
+%   TRI is a cell array of the same length as ALPHA. Cell TRI{i} contains
+%   the alpha shape triangulation for ALPHA{i}. Each row contains the 3
+%   nodes that form one triangular facet in the mesh. The i-th mesh can be
+%   visualised running:
+%
+%     >> trisurf(tri{i}, x)
+%
+%
+% This function uses CGAL's implementation of fixed alpha shapes [1]. Fixed
+% alpha shapes are more efficient when only the shape for one or a few
+% alpha values is required. When many alpha values are required, it may be
+% faster to use cgal_alpha_shape3().
 %
 % However, note that Matlab function alphavol() implemented by Jonas
 % Lundgren and provided as a third-party function in Gerardus seems to be
@@ -42,11 +29,11 @@ function varargout = cgal_alpha_shape3(varargin)
 %
 % [1] http://www.cgal.org/Manual/latest/doc_html/cgal_manual/Alpha_shapes_3/Chapter_main.html
 %
-% See also: alphavol, cgal_fixed_alpha_shape3, scimat_lconvhull_smoothing
+% See also: alphavol, cgal_alpha_shape3, scimat_lconvhull_smoothing
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.0
 % $Rev$
 % $Date$
 %

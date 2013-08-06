@@ -1,3 +1,17 @@
+2013-08-06  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/CgalToolbox/CgalFixedAlphaShape3.cpp: (0.1.0)
+	* Add matlab/CgalToolbox/cgal_fixed_alpha_shape3.m: (0.1.0)
+	* Add matlab/test/test_cgal_fixed_alpha_shape3.m: (0.1.0)
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.10)
+
+	- CGAL_FIXED_ALPHA_SHAPE3 Individual alpha-shapes of a 3D set of
+	points.
+
+	* matlab/CgalToolbox/cgal_alpha_shape3.m: (0.1.1)
+
+	- Add info to help header.
+
 2013-08-05  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/test/test_cgal_alpha_shape3.m: (0.1.1)
