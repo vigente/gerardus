@@ -1,5 +1,11 @@
 2013-08-06  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CgalToolbox/CgalAlphaShape3.cpp: (0.1.4)
+	* matlab/CgalToolbox/CgalFixedAlphaShape3.cpp: (0.1.3)
+
+	- Give an error if X has NaNs or Infs. Otherwise, Matlab will
+	throw a segfault.
+
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.3.6)
 
 	- Replace bunch of code to convert mesh to segmentation mask by
