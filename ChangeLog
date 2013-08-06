@@ -1,5 +1,10 @@
 2013-08-06  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.3.6)
+
+	- Replace bunch of code to convert mesh to segmentation mask by
+	function scimat_closed_surf_to_bw().
+
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.3.5)
 
 	- Fix syntax. The input argument we use is the radius of the alpha
