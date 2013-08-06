@@ -1,5 +1,15 @@
 2013-08-06  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.3.5)
+
+	- Fix syntax. The input argument we use is the radius of the alpha
+	shape, not the alpha value. In fact, alpha=radius^2.
+
+	- Add commented out code to compute the alpha shape with
+	cgal_fixed_alpha_shape3() instead of alphavol(). The CGAL code is
+	slower (because of the Delaunay triangulation), and we won't use
+	it.
+
 	* CMakeLists.txt: (0.5.5)
 
 	- Fix bug. Make previous change work in Windows too. For Windows,
