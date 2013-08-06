@@ -67,9 +67,11 @@ tri = cgal_fixed_alpha_shape3(xyz, [0 0.5625    1.5469]);
 subplot(1, 2, 1)
 hold off
 trisurf(tri{2}, xyz(:, 1), xyz(:, 2), xyz(:, 3))
+view(78, 40)
 subplot(1, 2, 2)
 hold off
 trisurf(tri{3}, xyz(:, 1), xyz(:, 2), xyz(:, 3))
+view(78, 40)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% crescent shape
