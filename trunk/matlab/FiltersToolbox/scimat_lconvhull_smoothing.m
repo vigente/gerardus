@@ -29,7 +29,7 @@ function scimat = scimat_lconvhull_smoothing(scimat, rad)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.3.5
+% Version: 0.3.6
 % $Rev$
 % $Date$
 % 
@@ -129,40 +129,6 @@ end
 % ylabel('y (mm)')
 % zlabel('z (mm)')
 
-% % initialise the output
-% scimat.data = false(size(scimat.data));
-
-% tight box around the surface
-aux = x(tri(:), :);
-box = [min(aux); max(aux)];
-
-% world-coordinates to index values. We only need to search within this
-% box, as voxels outside the box are definitely outside the surface too
-boxidx = round(scinrrd_world2index(box, scimat.axis));
-
-% all voxels in the original segmentation will be in the local convex hull.
-% So we only need to check background voxels within the box
-
-% linear indices of background voxels within the box
-idx = find(~scimat.data(...
-    boxidx(1, 1):boxidx(2, 1), ...
-    boxidx(1, 2):boxidx(2, 2), ...
-    boxidx(1, 3):boxidx(2, 3) ...
-    ));
-
-% box linear indices => box r, c, s
-[r, c, s] = ind2sub(diff(boxidx) + 1, idx);
-
-% convert box indices to whole image indices
-r = r + boxidx(1, 1) - 1;
-c = c + boxidx(1, 2) - 1;
-s = s + boxidx(1, 3) - 1;
-
-% r, c, s => world coordinates
-xyz = scinrrd_index2world([r c s], scimat.axis);
-
-% linear indices
-idx = sub2ind(size(scimat.data), r, c, s);
-
-% convert the triangulation surface to a binary mask
-scimat.data(idx) = cgal_insurftri(tri, x, xyz, rand(3, 3));
+% convert mesh to segmentation
+scimat.data(scimat.data~=0) = 0;
+scimat = scimat_closed_surf_to_bw(tri, x, scimat);
