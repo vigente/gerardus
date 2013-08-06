@@ -1,5 +1,5 @@
 /* 
- * CGAL_ALPHA_SHAPE3  Alpha-shape of a 3D set of points
+ * CGAL_ALPHA_SHAPE3  Whole alpha-shape of a 3D set of points
  *
  * [ALPHALIM, TRI] = cgal_alpha_shape3(X, [], NCOMP)
  *
@@ -20,26 +20,36 @@
  *   connected components. Each row contains the 3 nodes that form one
  *   triangular facet in the mesh. The mesh can be visualised running:
  *
- *     >> trisurf(tri{1}, xyz)
+ *     >> trisurf(tri{1}, x)
+ *
  *
  * [~, TRI] = cgal_alpha_shape3(X, ALPHA)
  *
- *   ALPHA is a vector of scalar ALPHA values. TRI is a cell array of the
- *   same length as ALPHA. Cell TRI{i} contains the alpha shape
- *   triangulation for ALPHA{i}.
+ *   ALPHA is a vector of scalar alpha values, alpha=R^2, where R is the
+ *   probe radius. TRI is a cell array of the same length as ALPHA. Cell
+ *   TRI{i} contains the alpha shape triangulation for ALPHA{i}.
  *
- * This function uses CGAL's implementation of alpha shapes [1]. For
- * efficiency, all alpha shape's are computed internally, and then only
- * those requested by the user are extracted and provided at the output.
+ * This function uses CGAL's implementation of non-fixed alpha shapes [1].
+ * With non-fixed alpha shapes, the result for all alpha values is computed
+ * internally, and then only those the solutions requested by the user are
+ * extracted. If only an alpha value or a few are required, it may be faster
+ * to use cgal_fixed_alpha_shape3().
+ *
+ * However, note that Matlab function alphavol() implemented by Jonas
+ * Lundgren and provided as a third-party function in Gerardus seems to be
+ * faster than either of the CGAL MEX functions, at least for a single alpha
+ * value.
  *
  * [1] http://www.cgal.org/Manual/latest/doc_html/cgal_manual/Alpha_shapes_3/Chapter_main.html
+ *
+ * See also: alphavol, cgal_fixed_alpha_shape3, scimat_lconvhull_smoothing
  *
  */
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.2
+  * Version: 0.1.3
   * $Rev$
   * $Date$
   *
