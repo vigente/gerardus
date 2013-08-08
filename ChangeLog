@@ -1,5 +1,23 @@
 2013-08-08  Ramon Casero  <rcasero@gmail.com>
 
+	* cpp/src/third-party/CGAL-4.2/cmake/modules/CGAL_SetupDependencies.cmake:
+
+	- Undo last change, leave find_package(GMP/MPFR) where it was.
+
+	* CMakeLists.txt: (0.5.8)
+
+	- Fix bug. I think that the External Projects called GMP and MPFR
+	confuse things, so rename as GMP_GERARDUS and MPFR_GERARDUS.
+
+	- Remove the file size checking of the boost tarball. I hadn't
+	realized that it requires an external module that overwrites
+	CMake's file(). This could be a pain to maintain in the future.
+
+	* cpp/src/third-party/CGAL-4.2/CMakeLists.txt:
+
+	- Add explicit dependencies from the core CGAL library to gmp and
+	mpfr libraries, to make sure that the latter are build before.
+
 	* CMakeLists.txt: (0.5.7)
 
 	- Fix bug. Wrong variable name for C++ compiler.
