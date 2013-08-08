@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.5.5
+# Version: 0.5.6
 # $Rev$
 # $Date$
 #
@@ -95,8 +95,63 @@ endif(MATLAB_FOUND)
 # variables after project(), this creates an infinite loop.
 if(NOT WIN32)
   if(BUILD_WITH_CUDA OR ${MATLAB_VERSION} MATCHES "R2012a")
-    set(ENV{CC} gcc-4.4)
-    set(ENV{CXX} g++-4.4)
+
+    # if the user has provided environmental variables with the
+    # compilers, we are going to check that they have the correct
+    # version
+    if(DEFINED ENV{CC})
+      message(STATUS "User wants to use the compiler binary: $ENV{CC}")
+
+      # get version of the C compiler
+      exec_program(
+	$ENV{CC}
+	ARGS                    --version
+	OUTPUT_VARIABLE _compiler_output)
+      string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
+        gcc_compiler_version ${_compiler_output})
+      message(STATUS "This binary corresponds to version: ${gcc_compiler_version}")
+      string(REGEX MATCH "[0-9]\\.[0-9]"
+        gcc_compiler_version ${gcc_compiler_version})
+
+      if(NOT gcc_compiler_version VERSION_EQUAL "4.4")
+	message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires gcc 4.4")
+      else()
+	message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
+      endif()
+
+    else()
+      # if the user does not provide an environmental variable with
+      # the compiler, we set it up
+      set(ENV{CC} gcc-4.4)
+    endif()
+
+    if(DEFINED ENV{CXX})
+      message(STATUS "User wants to use the compiler binary : $ENV{CXX}")
+
+      # get version of the C++ compiler
+      exec_program(
+	$ENV{CXX}
+	ARGS                    --version
+	OUTPUT_VARIABLE _compiler_output)
+
+      string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
+        gxx_compiler_version ${_compiler_output})
+      message(STATUS "This binary corresponds to version: ${gxx_compiler_version}")
+      string(REGEX MATCH "[0-9]\\.[0-9]"
+        gxx_compiler_version ${gxx_compiler_version})
+
+      if(NOT gxx_compiler_version VERSION_EQUAL "4.4")
+	message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires g++ 4.4")
+      else()
+	message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
+      endif()
+
+    else()
+      # if the user does not provide an environmental variable with
+      # the compiler, we set it up
+      set(ENV{CC} g++-4.4)
+    endif()
+
   endif(BUILD_WITH_CUDA OR ${MATLAB_VERSION} MATCHES "R2012a")
 endif(NOT WIN32)
 
@@ -153,6 +208,7 @@ else(WIN32 AND NOT CYGWIN)
     PREFIX ${GMP_SOURCE_DIR}
     STAMP_DIR ${GMP_SOURCE_DIR}/output
     SOURCE_DIR ${GMP_SOURCE_DIR}
+    DOWNLOAD_COMMAND ""
     CONFIGURE_COMMAND ./configure --prefix=${GMP_SOURCE_DIR}/output
     BINARY_DIR ${GMP_SOURCE_DIR}
     BUILD_COMMAND make
@@ -177,12 +233,15 @@ else(WIN32 AND NOT CYGWIN)
     CACHE PATH "Path to GMP library")
   set(GMP_LIBRARIES_DIR ${GMP_SOURCE_DIR}/output/lib
     CACHE PATH "Path to GMP library")
+  # this line needed by CGAL to avoid looking for GMP in the system
+  set(GMP_LIBRARIES "${GMP_SOURCE_DIR}/output/lib/libgmp.so") 
   
   ExternalProject_Add(MPFR
     DEPENDS GMP
     PREFIX ${MPFR_SOURCE_DIR}
     STAMP_DIR ${MPFR_SOURCE_DIR}/output
     SOURCE_DIR ${MPFR_SOURCE_DIR}
+    DOWNLOAD_COMMAND ""
     CONFIGURE_COMMAND ./configure --prefix=${MPFR_SOURCE_DIR}/output 
 	--with-gmp-include=${GMP_SOURCE_DIR}/output/include --with-gmp-lib=${GMP_SOURCE_DIR}/output/lib
     BINARY_DIR ${MPFR_SOURCE_DIR}
@@ -208,6 +267,8 @@ else(WIN32 AND NOT CYGWIN)
     CACHE PATH "Path to MPFR library")
   set(MPFR_LIBRARIES_DIR ${MPFR_SOURCE_DIR}/output/lib
     CACHE PATH "Path to MPFR library")
+  # this line needed by CGAL to avoid looking for MPRF in the system
+  set(MPFR_LIBRARIES "${MPFR_SOURCE_DIR}/output/lib/libmpfr.so")
 
 endif(WIN32 AND NOT CYGWIN)
 
@@ -333,15 +394,28 @@ if(NOT Boost_version_hpp)
 
     # download the tarball with the Boost source code that corresponds
     # to the Boost version in Matlab
+    message(STATUS "Downloading ${BOOST_TARBALL_URL}\nto ${BOOST_TARBALL_FILENAME}")
     file(DOWNLOAD
       ${BOOST_TARBALL_URL}
       ${BOOST_TARBALL_FILENAME}
       SHOW_PROGRESS
       STATUS Boost_DOWNLOAD_STATUS)
+
+    # size of downloaded file
+    include(FileInformation)
+    file(SIZE ${BOOST_TARBALL_FILENAME} BOOST_TARBALL_SIZE)
     
     if ((Boost_DOWNLOAD_STATUS MATCHES "0;\"No error\"") 
         OR (Boost_DOWNLOAD_STATUS MATCHES "0;\"no error\""))
-      message(STATUS "Boost source code correctly downloaded")
+      message(STATUS "Boost source tarball downloaded")
+      # it is possible that the download seems correct, but the
+      # tarball is an empty file. We need to detect these cases, and
+      # exit the build with an error. In those cases, the user should
+      # just download the tarball, e.g. with wget from Linux, copy it
+      # to the expected ${BOOST_TARBALL_FILENAME}, and re-run cmake
+      if(NOT BOOST_TARBALL_SIZE)
+	message(FATAL_ERROR "Boost source tarball has size zero: ${BOOST_TARBALL_FILENAME}")
+      endif()
     else()
       message(FATAL_ERROR "${Boost_DOWNLOAD_STATUS}\nCould not download Boost source code from\n${BOOST_TARBALL_URL}")
     endif()
@@ -420,7 +494,8 @@ if(NOT Boost_version_hpp)
 
 else()
   
-  message(STATUS "${Boost_INCLUDE_DIR}/boost/version.hpp found.\nAssuming that Boost libraries and headers are installed")
+  message(STATUS "${Boost_INCLUDE_DIR}/boost/version.hpp found.")
+  message(STATUS "Assuming that Boost libraries and headers are installed")
 
 endif(NOT Boost_version_hpp)
 
@@ -446,22 +521,31 @@ add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
 
 # integrate the local Boost libraries with the rest of the CMake
 # build system
-find_package(Boost ${AUX_BOOST_VERSION}
-  COMPONENTS date_time filesystem system thread)
+if(WIN32)
 
-if(NOT WIN32)
-  find_library(Boost_DATE_TIME_LIBRARY 
-    NAMES libboost_date_time.so.${AUX_BOOST_VERSION}
-    PATHS "${Boost_LIBRARY_DIR}")
-  find_library(Boost_FILESYSTEM_LIBRARY 
-    NAMES libboost_filesystem.so.${AUX_BOOST_VERSION}
-    PATHS "${Boost_LIBRARY_DIR}")
-  find_library(Boost_SYSTEM_LIBRARY 
-    NAMES libboost_system.so.${AUX_BOOST_VERSION}
-    PATHS "${Boost_LIBRARY_DIR}")
-  find_library(Boost_THREAD_LIBRARY 
-    NAMES libboost_thread.so.${AUX_BOOST_VERSION}
-    PATHS "${Boost_LIBRARY_DIR}")
+  # in Windows, we can just look for the library files
+  find_package(Boost ${AUX_BOOST_VERSION}
+    COMPONENTS date_time filesystem system thread)
+
+else()
+
+  # FindBoost.cmake will not find the boost libraries in linux because
+  # Matlab saves them as e.g. libboost_system.so.1.44.0, so we need to
+  # add them by hand
+
+  # library suffixes get automatically added to the end of the name
+  # when looking for libraries. Because we are looking for libraries
+  # with names like e.g. libboost_system.so.1.44.0, we are going to
+  # temporarily allow that kind of suffix
+  set(AUX "${CMAKE_FIND_LIBRARY_SUFFIXES}")
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ".so.${AUX_BOOST_VERSION}")
+
+  find_package(Boost ${AUX_BOOST_VERSION}
+    COMPONENTS date_time filesystem system thread)
+
+  # recover the library suffixes
+  set(CMAKE_FIND_LIBRARY_SUFFIXES "${AUX}")
+
 endif()
 
 #############################################################################################
