@@ -1,3 +1,41 @@
+2013-08-08  Ramon Casero  <rcasero@gmail.com>
+
+	* CMakeLists.txt: (0.5.6)
+
+	- Modifications for Linux/Mac so that Gerardus' CMake system can
+	configure the project on an Oxford Supercomputing Centre cluster
+	(in particular, SAL). By extension, this should make the project
+	work on more machines.
+
+	- The compilers can be given as environmental variables as
+	gcc/g++, instead of e.g. gcc-4.4. If that's the case, now we check
+	what version the compilers are, and whether they are compatible
+	with the Matlab version (currently, only Matlab R2012a tested).
+
+	- Older versions of cmake require that ExternalProject_Add have an
+	empty DOWNLOAD_COMMAND even if source code is already in a known
+	directory.
+
+	- With the Boost libraries, it is possible that the download of
+	the boost tarball seems correct, but the tarball is an empty
+	file. We need to detect these cases, and exit the build with an
+	error. In those cases, the user should just download the tarball,
+	e.g. with wget from Linux, copy it to the expected
+	${BOOST_TARBALL_FILENAME}, and re-run cmake
+
+	- Tidy up Boost detection for Linux/Mac. In Linux/Mac, Matlab
+	distributes the Boost libraries with names like
+	e.g. libboost_system.so.1.44.0. But FindBoost looks for libraries
+	with a suffic .so, so it cannot find them. Thus, we are going to
+	temporarily make .so.1.44.0 a valid suffix, just for the Boost
+	libraries.
+
+	* cpp/src/third-party/CGAL-4.2/cmake/modules/CGAL_SetupDependencies.cmake:
+
+	- Only look for GMP and MPFR if they are not provided with
+	Gerardus. This problem appeared when trying to build Gerardus in
+	the OSC cluster SAL.
+
 2013-08-06  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/CgalToolbox/CgalAlphaShape3.cpp: (0.1.4)
