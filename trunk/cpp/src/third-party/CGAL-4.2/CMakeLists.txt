@@ -619,6 +619,9 @@ option( CGAL_ALLOW_ALL_PRECONFIGURED_LIBS_COMPONENT "Select to allow to use all 
  
 include(CGAL_SetupDependencies)
 
+# gerardus: create explicit dependency of CGAL to the library, to make sure that GMP and MPFR are built before
+add_dependencies(${CGAL_Core_LIB} gmp mpfr)
+
 message("== Detect external libraries (DONE) ==\n")
 
 #--------------------------------------------------------------------------------------------------
