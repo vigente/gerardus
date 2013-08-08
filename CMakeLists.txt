@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.5.6
+# Version: 0.5.7
 # $Rev$
 # $Date$
 #
@@ -149,7 +149,7 @@ if(NOT WIN32)
     else()
       # if the user does not provide an environmental variable with
       # the compiler, we set it up
-      set(ENV{CC} g++-4.4)
+      set(ENV{CXX} g++-4.4)
     endif()
 
   endif(BUILD_WITH_CUDA OR ${MATLAB_VERSION} MATCHES "R2012a")
