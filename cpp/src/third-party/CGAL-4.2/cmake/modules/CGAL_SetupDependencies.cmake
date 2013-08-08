@@ -27,9 +27,7 @@ foreach (lib ${CGAL_SUPPORTING_3RD_PARTY_LIBRARIES})
       message (STATUS "Configuring library: ${lib} ...")
     endif()
   
-	# gerardus: only look for GMP and MPFR if they are not provided with Gerardus
-	# gerardus: next line needs to be commented out and copied below
-#    find_package( ${lib} )
+    find_package(${lib})
    
     if ( ${vlib}_FOUND ) 
       if ( CGAL_ENABLE_PRECONFIG )
@@ -39,9 +37,6 @@ foreach (lib ${CGAL_SUPPORTING_3RD_PARTY_LIBRARIES})
         message( STATUS "  ${lib} libraries:    ${${vlib}_LIBRARIES}" )
         message( STATUS "  ${lib} definitions:  ${${vlib}_DEFINITIONS}" )
       else() 
-	# gerardus: only look for GMP and MPFR if they are not provided with Gerardus
-	find_package( ${lib} )
-
         message( STATUS "${lib} has been configured") 
         use_lib( ${vlib} ${${vlib}_USE_FILE})
       endif()

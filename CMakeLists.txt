@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.5.7
+# Version: 0.5.8
 # $Rev$
 # $Date$
 #
@@ -204,7 +204,7 @@ else(WIN32 AND NOT CYGWIN)
 
   include(ExternalProject)
 
-  ExternalProject_Add(GMP
+  ExternalProject_Add(GMP_GERARDUS
     PREFIX ${GMP_SOURCE_DIR}
     STAMP_DIR ${GMP_SOURCE_DIR}/output
     SOURCE_DIR ${GMP_SOURCE_DIR}
@@ -223,8 +223,8 @@ else(WIN32 AND NOT CYGWIN)
     )
   add_library(gmp SHARED IMPORTED GLOBAL)
   set_property(TARGET gmp PROPERTY IMPORTED_LOCATION ${GMP_SOURCE_DIR}/output/lib/libgmp.so)
-  set(GMP_FOUND TRUE 
-    CACHE BOOL "GMP library is part of Gerardus, so this is always true")
+#  set(GMP_FOUND TRUE 
+#    CACHE BOOL "GMP library is part of Gerardus, so this is always true")
   set(GMP_INCLUDE_DIR ${GMP_SOURCE_DIR}
     CACHE PATH "Path to GMP include files")
   set(GMP_LIBRARY_DIR ${GMP_SOURCE_DIR}/output/lib
@@ -236,8 +236,8 @@ else(WIN32 AND NOT CYGWIN)
   # this line needed by CGAL to avoid looking for GMP in the system
   set(GMP_LIBRARIES "${GMP_SOURCE_DIR}/output/lib/libgmp.so") 
   
-  ExternalProject_Add(MPFR
-    DEPENDS GMP
+  ExternalProject_Add(MPFR_GERARDUS
+    DEPENDS GMP_GERARDUS
     PREFIX ${MPFR_SOURCE_DIR}
     STAMP_DIR ${MPFR_SOURCE_DIR}/output
     SOURCE_DIR ${MPFR_SOURCE_DIR}
@@ -257,8 +257,8 @@ else(WIN32 AND NOT CYGWIN)
     )
   add_library(mpfr SHARED IMPORTED GLOBAL)
   set_property(TARGET mpfr PROPERTY IMPORTED_LOCATION ${MPFR_SOURCE_DIR}/output/lib/libmpfr.so)
-  set(MPFR_FOUND TRUE 
-    CACHE BOOL "MPFR library is part of Gerardus, so this is always true")
+#  set(MPFR_FOUND TRUE 
+#    CACHE BOOL "MPFR library is part of Gerardus, so this is always true")
   set(MPFR_INCLUDE_DIR ${MPFR_SOURCE_DIR}/src
     CACHE PATH "Path to MPFR include files")
   set(MPFR_LIBRARY_DIR ${MPFR_SOURCE_DIR}/output/lib
@@ -401,21 +401,9 @@ if(NOT Boost_version_hpp)
       SHOW_PROGRESS
       STATUS Boost_DOWNLOAD_STATUS)
 
-    # size of downloaded file
-    include(FileInformation)
-    file(SIZE ${BOOST_TARBALL_FILENAME} BOOST_TARBALL_SIZE)
-    
     if ((Boost_DOWNLOAD_STATUS MATCHES "0;\"No error\"") 
         OR (Boost_DOWNLOAD_STATUS MATCHES "0;\"no error\""))
       message(STATUS "Boost source tarball downloaded")
-      # it is possible that the download seems correct, but the
-      # tarball is an empty file. We need to detect these cases, and
-      # exit the build with an error. In those cases, the user should
-      # just download the tarball, e.g. with wget from Linux, copy it
-      # to the expected ${BOOST_TARBALL_FILENAME}, and re-run cmake
-      if(NOT BOOST_TARBALL_SIZE)
-	message(FATAL_ERROR "Boost source tarball has size zero: ${BOOST_TARBALL_FILENAME}")
-      endif()
     else()
       message(FATAL_ERROR "${Boost_DOWNLOAD_STATUS}\nCould not download Boost source code from\n${BOOST_TARBALL_URL}")
     endif()
@@ -425,7 +413,18 @@ if(NOT Boost_version_hpp)
   if(NOT EXISTS "${BOOST_SOURCE_DIR}")
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E tar xzf ${BOOST_TARBALL_FILENAME}
-      WORKING_DIRECTORY ${GERARDUS_SOURCE_DIR}/cpp/src/third-party)
+      WORKING_DIRECTORY ${GERARDUS_SOURCE_DIR}/cpp/src/third-party
+      RESULT_VARIABLE BOOST_UNTAR_ERROR)
+
+    # it is possible that the download seems correct, but the
+    # tarball is an empty file. We need to detect these cases, and
+    # exit the build with an error. In those cases, the user should
+    # just download the tarball, e.g. with wget from Linux, copy it
+    # to the expected ${BOOST_TARBALL_FILENAME}, and re-run cmake
+    if(BOOST_UNTAR_ERROR)
+      message(FATAL_ERROR "Boost tarball cannot be uncompressed: ${BOOST_TARBALL_FILENAME}")
+    endif()
+
   endif()
 
   # In Windows, we need to build and install the libraries, because
