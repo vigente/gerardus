@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.4.0
+  * Version: 0.4.1
   * $Rev$
   * $Date$
   *
@@ -155,6 +155,7 @@ VectorType VectorWrapper<VectorValueType, VectorType, MatlabValueType, VectorSiz
  * Partial specialisation if we want to put Matlab's row data into an
  * itk::Size<VectorSize> or
  * itk::FixedArray<VectorSize>
+ * itk::Point
  * vector-like class
  */
 
