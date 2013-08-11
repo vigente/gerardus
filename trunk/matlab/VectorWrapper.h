@@ -30,7 +30,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.5.3
+  * Version: 0.5.4
   * $Rev$
   * $Date$
   *
@@ -64,6 +64,7 @@
 
 /* ITK headers */
 #include "itkSize.h"
+#include "itkPoint.h"
 
 /* CGAL headers */
 #include <CGAL/Simple_cartesian.h>
@@ -120,10 +121,10 @@ template<class VectorValueType, class VectorType, class MatlabValueType, unsigne
 };
 
 /*
- * Partial specialisation if we want to put Matlab's row data into an
- * itk::Size<VectorSize> or
+ * Partial specialisation if we want to put Matlab's row data into a vector-like class:
+ * itk::Size<VectorSize> 
  * itk::FixedArray<VectorSize>
- * vector-like class
+ * itk::PointType
  */
 
 // ReadItkRowVector
@@ -198,6 +199,35 @@ template<class VectorValueType, class MatlabValueType, unsigned int VectorSize>
     ReadHalfSize(const mxArray *pm, std::string paramName) {
     return ReadItkHalfSize<VectorValueType,
       typename itk::FixedArray<VectorValueType, VectorSize>, MatlabValueType>(pm, paramName);
+  }
+
+};
+
+// partial specialisation for itk::Point<VectorValueType, VectorSize>
+template<class VectorValueType, class MatlabValueType, unsigned int VectorSize>
+  class VectorWrapper<VectorValueType, typename itk::Point<VectorValueType, VectorSize>,
+  MatlabValueType, VectorSize>{
+
+ public:
+
+  VectorWrapper() {}
+
+  typename itk::Point<VectorValueType, VectorSize>
+    ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
+    return ReadItkRowVector<VectorValueType,
+      typename itk::Point<VectorValueType, VectorSize>, MatlabValueType>(pm, row, paramName);
+  }
+
+  typename itk::Point<VectorValueType, VectorSize>
+    ReadSize(const mxArray *pm, std::string paramName) {
+    return ReadItkSize<VectorValueType,
+      typename itk::Point<VectorValueType, VectorSize>, MatlabValueType>(pm, paramName);
+  }
+
+  typename itk::Point<VectorValueType, VectorSize>
+    ReadHalfSize(const mxArray *pm, std::string paramName) {
+    return ReadItkHalfSize<VectorValueType,
+      typename itk::Point<VectorValueType, VectorSize>, MatlabValueType>(pm, paramName);
   }
 
 };
