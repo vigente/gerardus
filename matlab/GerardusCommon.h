@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.9.2
+  * Version: 0.10.0
   * $Rev$
   * $Date$
   *
@@ -289,6 +289,58 @@ struct TypeIsDouble
 template<>
 struct TypeIsDouble< double >
 { static const bool value = true; };
+
+/**
+ * function to convert a C++ type (double, int, signed long, etc.) to
+ * a Matlab ClassId. The ClassId is used by
+ * e.g. mxCreateNumericArray() to allocate Matlab memory for an array
+ * of a given type.
+ *
+ * This function provides an interface between the template types
+ * favoured by C++ and ITK (resoved at compilation time), and the data
+ * types favoured by Matlab (resolved at run time).
+ */
+template<class TPixel>
+mxClassID convertCppDataTypeToMatlabCassId() {
+
+  // initialize output as a data type that is unknown to Matlab
+  mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
+
+  // conver C++ types to Matlab types
+  if (TypeIsBool<TPixel>::value) {
+    outputVoxelClassId = mxLOGICAL_CLASS;
+  } else if (TypeIsUint8<TPixel>::value) {
+    outputVoxelClassId = mxUINT8_CLASS;
+  } else if (TypeIsInt8<TPixel>::value) {
+    outputVoxelClassId = mxINT8_CLASS;
+  } else if (TypeIsUint16<TPixel>::value) {
+    outputVoxelClassId = mxUINT16_CLASS;
+  } else if (TypeIsInt16<TPixel>::value) {
+    outputVoxelClassId = mxINT16_CLASS;
+  } else if (TypeIsInt32<TPixel>::value) {
+    outputVoxelClassId = mxINT32_CLASS;
+  } else if (TypeIsInt64<TPixel>::value) {
+    outputVoxelClassId = mxINT64_CLASS;
+  } else if (TypeIsSignedLong<TPixel>::value) {
+    if (sizeof(signed long) == 4) {
+      outputVoxelClassId = mxINT32_CLASS;
+    } else if (sizeof(signed long) == 8) {
+      outputVoxelClassId = mxINT64_CLASS;
+    } else {
+      mexErrMsgTxt("MatlabExportFilter: signed long is neither 4 or 8 byte in this architecture");
+    }
+    outputVoxelClassId = mxINT64_CLASS;
+  } else if (TypeIsFloat<TPixel>::value) {
+    outputVoxelClassId = mxSINGLE_CLASS;
+  } else if (TypeIsDouble<TPixel>::value) {
+    outputVoxelClassId = mxDOUBLE_CLASS;
+  } else {
+    mexErrMsgTxt("MatlabExportFilter: Assertion fail: Unrecognised output data type");
+  }
+  
+  // provide result and exit
+  return outputVoxelClassId;
+}
 
 /**
  * function to print the content "of any sequence that supports input

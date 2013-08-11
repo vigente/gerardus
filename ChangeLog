@@ -1,5 +1,11 @@
 2013-08-11  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/GerardusCommon.h: (0.10.0)
+	* matlab/MatlabExportFilter.hxx: (0.3.1)
+
+	- Avoid code duplication with new function
+	convertCppDataTypeToMatlabCassId().
+
 	* matlab/MatlabExportFilter.hxx: (0.3.0)
 	* matlab/MatlabExportFilter.h: (0.3.0)
 
