@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.2.1
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -299,6 +299,144 @@ MatlabExportFilter::CopyItkImageToMatlab(typename itk::DataObject::Pointer image
   return;
 }
 
+// function to allocate memory on the Matlab side and copy a vector
+// of scalars from the C++ side.
+template <class TPixel, class TVector>
+void 
+MatlabExportFilter::CopyVectorOfScalarsToMatlab(unsigned int idx, std::string paramName, 
+						TVector v, mwSize size) {
 
+  // convert output data type to output class ID
+  mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
+  if (TypeIsBool<TPixel>::value) {
+    outputVoxelClassId = mxLOGICAL_CLASS;
+  } else if (TypeIsUint8<TPixel>::value) {
+    outputVoxelClassId = mxUINT8_CLASS;
+  } else if (TypeIsInt8<TPixel>::value) {
+    outputVoxelClassId = mxINT8_CLASS;
+  } else if (TypeIsUint16<TPixel>::value) {
+    outputVoxelClassId = mxUINT16_CLASS;
+  } else if (TypeIsInt16<TPixel>::value) {
+    outputVoxelClassId = mxINT16_CLASS;
+  } else if (TypeIsInt32<TPixel>::value) {
+    outputVoxelClassId = mxINT32_CLASS;
+  } else if (TypeIsInt64<TPixel>::value) {
+    outputVoxelClassId = mxINT64_CLASS;
+  } else if (TypeIsSignedLong<TPixel>::value) {
+    if (sizeof(signed long) == 4) {
+      outputVoxelClassId = mxINT32_CLASS;
+    } else if (sizeof(signed long) == 8) {
+      outputVoxelClassId = mxINT64_CLASS;
+    } else {
+      mexErrMsgTxt("MatlabExportFilter: signed long is neither 4 or 8 byte in this architecture");
+    }
+    outputVoxelClassId = mxINT64_CLASS;
+  } else if (TypeIsFloat<TPixel>::value) {
+    outputVoxelClassId = mxSINGLE_CLASS;
+  } else if (TypeIsDouble<TPixel>::value) {
+    outputVoxelClassId = mxDOUBLE_CLASS;
+  } else {
+    mexErrMsgTxt("MatlabExportFilter: Assertion fail: Unrecognised output data type");
+  }
+
+  // create output matrix for Matlab's result
+  mwSize ndim = 2;
+  mwSize dims[2] = {size, 1};
+  this->args[idx] = (mxArray *)mxCreateNumericArray(ndim, dims,
+						    outputVoxelClassId,
+						    mxREAL);
+  if (this->args[idx] == NULL) {
+    mexErrMsgTxt("MatlabExportFilter: Cannot allocate memory for output matrix");
+  }
+  
+  // pointer to the Matlab output buffer
+  TVector *buffer =  (TVector *)mxGetData(this->args[idx]);
+  if(buffer == NULL) {
+    mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to allocated memory for output matrix");
+  }
+
+}
+
+// function to allocate memory on the Matlab side and copy a vector
+// of vectors from the C++ side.
+template <class TPixel, class TInsideVector, class TOutsideVector>
+void 
+MatlabExportFilter::CopyVectorOfVectorsToMatlab(unsigned int idx, std::string paramName,
+						TOutsideVector v, 
+						mwSize outsideSize, mwSize insideSize) {
+
+  // convert output data type to output class ID
+  mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
+  if (TypeIsBool<TPixel>::value) {
+    outputVoxelClassId = mxLOGICAL_CLASS;
+  } else if (TypeIsUint8<TPixel>::value) {
+    outputVoxelClassId = mxUINT8_CLASS;
+  } else if (TypeIsInt8<TPixel>::value) {
+    outputVoxelClassId = mxINT8_CLASS;
+  } else if (TypeIsUint16<TPixel>::value) {
+    outputVoxelClassId = mxUINT16_CLASS;
+  } else if (TypeIsInt16<TPixel>::value) {
+    outputVoxelClassId = mxINT16_CLASS;
+  } else if (TypeIsInt32<TPixel>::value) {
+    outputVoxelClassId = mxINT32_CLASS;
+  } else if (TypeIsInt64<TPixel>::value) {
+    outputVoxelClassId = mxINT64_CLASS;
+  } else if (TypeIsSignedLong<TPixel>::value) {
+    if (sizeof(signed long) == 4) {
+      outputVoxelClassId = mxINT32_CLASS;
+    } else if (sizeof(signed long) == 8) {
+      outputVoxelClassId = mxINT64_CLASS;
+    } else {
+      mexErrMsgTxt("MatlabExportFilter: signed long is neither 4 or 8 byte in this architecture");
+    }
+    outputVoxelClassId = mxINT64_CLASS;
+  } else if (TypeIsFloat<TPixel>::value) {
+    outputVoxelClassId = mxSINGLE_CLASS;
+  } else if (TypeIsDouble<TPixel>::value) {
+    outputVoxelClassId = mxDOUBLE_CLASS;
+  } else {
+    mexErrMsgTxt("MatlabExportFilter: Assertion fail: Unrecognised output data type");
+  }
+
+  // if we are asked to copy the data to an output argument that the
+  // user has not requested, we avoid wasting time and memory, and
+  // simply exit. The only exception is for the first output argument,
+  // plhs[0]. Even if the user has not requested any output arguments,
+  // e.g. my_mex_function([1 4.4 2]); we need to allocate memory for an empty
+  // matrix, otherwise Matlab will give an "One or more output
+  // arguments not assigned during call to..." error
+  if (idx >= this->GetNumberOfArguments()) {
+    if (idx == 0) {
+      this->args[0] = mxCreateDoubleMatrix(0, 0, mxREAL);
+    } else {
+      return;
+    }
+  }
+
+  // allocate memory for the output
+  mwSize ndim = 2;
+  mwSize dims[2] = {outsideSize, insideSize};
+  this->args[idx] = (mxArray *)mxCreateNumericArray(ndim, dims,
+						    outputVoxelClassId,
+						    mxREAL);
+
+  if (this->args[idx] == NULL) {
+    mexErrMsgTxt("MatlabExportFilter: Cannot allocate memory for output matrix");
+  }
+  
+  // pointer to the Matlab output buffer
+  TPixel *buffer =  (TPixel *)mxGetData(this->args[idx]);
+  if(buffer == NULL) {
+    mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to allocated memory for output matrix");
+  }
+
+  // copy vector to the output
+  for (mwIndex row = 0; row < outsideSize; ++row) {
+    for (mwIndex col = 0; col < insideSize; ++col) {
+      buffer[col * outsideSize + row] = v[row][col];
+    }
+  }
+
+}
 
 #endif /* MATLABEXPORTFILTER_HXX */

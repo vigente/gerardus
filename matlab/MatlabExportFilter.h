@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -137,6 +137,50 @@ public:
     CopyItkImageToMatlab<TPixel, VectorDimension, TPixel>(image, size, 
 							  idx, paramName);
   }
+
+  // function to allocate memory on the Matlab side and copy a vector
+  // of scalars from the C++ side. It can export any C++ class that
+  // accepts operator[], e.g. v[i].
+  //
+  // idx:  index of the Matlab output
+  // v:    vector we want to export to Matlab
+  // size: length of the v vector. Having size as a parameter here
+  //       saves us from having to do a specialization of this function for
+  //       every class, as different classes provide their size with
+  //       different methods, e.g. v.size(), v.Size(), v.length(), etc.
+  template <class TPixel, class TVector>
+    void CopyVectorOfScalarsToMatlab(unsigned int idx, std::string paramName, 
+				     TVector v, mwSize size);
+
+  // function to allocate memory on the Matlab side and copy a vector
+  // of vectors from the C++ side. Both vectors must accept
+  // operator[], e.g. w = v[i], w[j]. The inside vectors will be
+  // stacked by rows. E.g., if you have a vector of Points, each point
+  // will be copied to a row.
+  //
+  // idx:   index of the Matlab output
+  //
+  // v:     vector of vectors we want to export to Matlab. This should
+  //        generally be an std::vector or any other class that implements
+  //        operator[]. Examples on how to get vectors:
+  //        - ITK:
+  //          Coordinates of points:
+  //          const std::vector<PointType> x = registration->GetMovingPointSet()->GetPoints()->CastToSTLConstContainer();
+  //          Data associated to points (e.g. intensity, colour):
+  //          registration->GetMovingPointSet()->GetDataPoints()->CastToSTLConstContainer();
+  //
+  // outsideSize: length of the outside vector = Number of rows in the Matlab output
+  //
+  // insideSize:  length of the inside vector = Number of cols in the Matlab output
+  //
+  //        Having these lengths as parameters here
+  //        saves us from having to do a specialization of this function for
+  //        every class, as different classes provide their size with
+  //        different methods, e.g. v.size(), v.Size(), v.length(), etc.
+  template <class TPixel, class TInsideVector, class TOutsideVector>
+    void CopyVectorOfVectorsToMatlab(unsigned int idx, std::string paramName,
+				     TOutsideVector v, 
+				     mwSize outsideSize, mwSize insideSize);
 
 };
 
