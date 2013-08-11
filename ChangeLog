@@ -1,5 +1,15 @@
 2013-08-11  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/MatlabExportFilter.hxx: (0.3.2)
+
+	- Fix bug. CopyVectorOfScalarsToMatlab() was missing the bit that
+	actually copies the vector content to the Matlab buffer.
+
+	* matlab/VectorWrapper.h: (0.5.4)
+	* matlab/VectorWrapper.hxx: (0.4.1)
+
+	- Add partial specialization for itk::Point.
+
 	* matlab/GerardusCommon.h: (0.10.0)
 	* matlab/MatlabExportFilter.hxx: (0.3.1)
 

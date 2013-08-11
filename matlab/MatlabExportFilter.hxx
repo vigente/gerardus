@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.3.1
+  * Version: 0.3.2
   * $Rev$
   * $Date$
   *
@@ -260,9 +260,14 @@ MatlabExportFilter::CopyVectorOfScalarsToMatlab(unsigned int idx, std::string pa
   }
   
   // pointer to the Matlab output buffer
-  TVector *buffer =  (TVector *)mxGetData(this->args[idx]);
+  TPixel *buffer =  (TPixel *)mxGetData(this->args[idx]);
   if(buffer == NULL) {
     mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to allocated memory for output matrix");
+  }
+
+  // copy vector to the output
+  for (mwIndex row = 0; row < size; ++row) {
+    buffer[row] = v[row];
   }
 
 }
