@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -91,37 +91,7 @@ MatlabExportFilter::GraftItkImageOntoMatlab(typename itk::DataObject::Pointer im
   }
 
   // convert output data type to output class ID
-  mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
-  if (TypeIsBool<TPixel>::value) {
-    outputVoxelClassId = mxLOGICAL_CLASS;
-  } else if (TypeIsUint8<TPixel>::value) {
-    outputVoxelClassId = mxUINT8_CLASS;
-  } else if (TypeIsInt8<TPixel>::value) {
-    outputVoxelClassId = mxINT8_CLASS;
-  } else if (TypeIsUint16<TPixel>::value) {
-    outputVoxelClassId = mxUINT16_CLASS;
-  } else if (TypeIsInt16<TPixel>::value) {
-    outputVoxelClassId = mxINT16_CLASS;
-  } else if (TypeIsInt32<TPixel>::value) {
-    outputVoxelClassId = mxINT32_CLASS;
-  } else if (TypeIsInt64<TPixel>::value) {
-    outputVoxelClassId = mxINT64_CLASS;
-  } else if (TypeIsSignedLong<TPixel>::value) {
-    if (sizeof(signed long) == 4) {
-      outputVoxelClassId = mxINT32_CLASS;
-    } else if (sizeof(signed long) == 8) {
-      outputVoxelClassId = mxINT64_CLASS;
-    } else {
-      mexErrMsgTxt("MatlabExportFilter: signed long is neither 4 or 8 byte in this architecture");
-    }
-    outputVoxelClassId = mxINT64_CLASS;
-  } else if (TypeIsFloat<TPixel>::value) {
-    outputVoxelClassId = mxSINGLE_CLASS;
-  } else if (TypeIsDouble<TPixel>::value) {
-    outputVoxelClassId = mxDOUBLE_CLASS;
-  } else {
-    mexErrMsgTxt("MatlabExportFilter: Assertion fail: Unrecognised output data type");
-  }
+  mxClassID outputVoxelClassId = convertCppDataTypeToMatlabCassId<TPixel>();
 
   // dimensions for the output array
   typedef typename itk::Image<TVector, VectorDimension> OutputImageType;
@@ -209,37 +179,7 @@ MatlabExportFilter::CopyItkImageToMatlab(typename itk::DataObject::Pointer image
   }
 
   // convert output data type to output class ID
-  mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
-  if (TypeIsBool<TPixel>::value) {
-    outputVoxelClassId = mxLOGICAL_CLASS;
-  } else if (TypeIsUint8<TPixel>::value) {
-    outputVoxelClassId = mxUINT8_CLASS;
-  } else if (TypeIsInt8<TPixel>::value) {
-    outputVoxelClassId = mxINT8_CLASS;
-  } else if (TypeIsUint16<TPixel>::value) {
-    outputVoxelClassId = mxUINT16_CLASS;
-  } else if (TypeIsInt16<TPixel>::value) {
-    outputVoxelClassId = mxINT16_CLASS;
-  } else if (TypeIsInt32<TPixel>::value) {
-    outputVoxelClassId = mxINT32_CLASS;
-  } else if (TypeIsInt64<TPixel>::value) {
-    outputVoxelClassId = mxINT64_CLASS;
-  } else if (TypeIsSignedLong<TPixel>::value) {
-    if (sizeof(signed long) == 4) {
-      outputVoxelClassId = mxINT32_CLASS;
-    } else if (sizeof(signed long) == 8) {
-      outputVoxelClassId = mxINT64_CLASS;
-    } else {
-      mexErrMsgTxt("MatlabExportFilter: signed long is neither 4 or 8 byte in this architecture");
-    }
-    outputVoxelClassId = mxINT64_CLASS;
-  } else if (TypeIsFloat<TPixel>::value) {
-    outputVoxelClassId = mxSINGLE_CLASS;
-  } else if (TypeIsDouble<TPixel>::value) {
-    outputVoxelClassId = mxDOUBLE_CLASS;
-  } else {
-    mexErrMsgTxt("MatlabExportFilter: Assertion fail: Unrecognised output data type");
-  }
+  mxClassID outputVoxelClassId = convertCppDataTypeToMatlabCassId<TPixel>();
 
   // dimensions for the output array
   typedef typename itk::Image<TVector, VectorDimension> OutputImageType;
@@ -307,37 +247,7 @@ MatlabExportFilter::CopyVectorOfScalarsToMatlab(unsigned int idx, std::string pa
 						TVector v, mwSize size) {
 
   // convert output data type to output class ID
-  mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
-  if (TypeIsBool<TPixel>::value) {
-    outputVoxelClassId = mxLOGICAL_CLASS;
-  } else if (TypeIsUint8<TPixel>::value) {
-    outputVoxelClassId = mxUINT8_CLASS;
-  } else if (TypeIsInt8<TPixel>::value) {
-    outputVoxelClassId = mxINT8_CLASS;
-  } else if (TypeIsUint16<TPixel>::value) {
-    outputVoxelClassId = mxUINT16_CLASS;
-  } else if (TypeIsInt16<TPixel>::value) {
-    outputVoxelClassId = mxINT16_CLASS;
-  } else if (TypeIsInt32<TPixel>::value) {
-    outputVoxelClassId = mxINT32_CLASS;
-  } else if (TypeIsInt64<TPixel>::value) {
-    outputVoxelClassId = mxINT64_CLASS;
-  } else if (TypeIsSignedLong<TPixel>::value) {
-    if (sizeof(signed long) == 4) {
-      outputVoxelClassId = mxINT32_CLASS;
-    } else if (sizeof(signed long) == 8) {
-      outputVoxelClassId = mxINT64_CLASS;
-    } else {
-      mexErrMsgTxt("MatlabExportFilter: signed long is neither 4 or 8 byte in this architecture");
-    }
-    outputVoxelClassId = mxINT64_CLASS;
-  } else if (TypeIsFloat<TPixel>::value) {
-    outputVoxelClassId = mxSINGLE_CLASS;
-  } else if (TypeIsDouble<TPixel>::value) {
-    outputVoxelClassId = mxDOUBLE_CLASS;
-  } else {
-    mexErrMsgTxt("MatlabExportFilter: Assertion fail: Unrecognised output data type");
-  }
+  mxClassID outputVoxelClassId = convertCppDataTypeToMatlabCassId<TPixel>();
 
   // create output matrix for Matlab's result
   mwSize ndim = 2;
@@ -366,37 +276,7 @@ MatlabExportFilter::CopyVectorOfVectorsToMatlab(unsigned int idx, std::string pa
 						mwSize outsideSize, mwSize insideSize) {
 
   // convert output data type to output class ID
-  mxClassID outputVoxelClassId = mxUNKNOWN_CLASS;
-  if (TypeIsBool<TPixel>::value) {
-    outputVoxelClassId = mxLOGICAL_CLASS;
-  } else if (TypeIsUint8<TPixel>::value) {
-    outputVoxelClassId = mxUINT8_CLASS;
-  } else if (TypeIsInt8<TPixel>::value) {
-    outputVoxelClassId = mxINT8_CLASS;
-  } else if (TypeIsUint16<TPixel>::value) {
-    outputVoxelClassId = mxUINT16_CLASS;
-  } else if (TypeIsInt16<TPixel>::value) {
-    outputVoxelClassId = mxINT16_CLASS;
-  } else if (TypeIsInt32<TPixel>::value) {
-    outputVoxelClassId = mxINT32_CLASS;
-  } else if (TypeIsInt64<TPixel>::value) {
-    outputVoxelClassId = mxINT64_CLASS;
-  } else if (TypeIsSignedLong<TPixel>::value) {
-    if (sizeof(signed long) == 4) {
-      outputVoxelClassId = mxINT32_CLASS;
-    } else if (sizeof(signed long) == 8) {
-      outputVoxelClassId = mxINT64_CLASS;
-    } else {
-      mexErrMsgTxt("MatlabExportFilter: signed long is neither 4 or 8 byte in this architecture");
-    }
-    outputVoxelClassId = mxINT64_CLASS;
-  } else if (TypeIsFloat<TPixel>::value) {
-    outputVoxelClassId = mxSINGLE_CLASS;
-  } else if (TypeIsDouble<TPixel>::value) {
-    outputVoxelClassId = mxDOUBLE_CLASS;
-  } else {
-    mexErrMsgTxt("MatlabExportFilter: Assertion fail: Unrecognised output data type");
-  }
+  mxClassID outputVoxelClassId = convertCppDataTypeToMatlabCassId<TPixel>();
 
   // if we are asked to copy the data to an output argument that the
   // user has not requested, we avoid wasting time and memory, and
