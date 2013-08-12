@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.6.1
+  * Version: 0.6.2
   * $Rev$
   * $Date$
   *
@@ -101,7 +101,7 @@ public:
   //
   // returns: an index to identify the newly registered input
   //          array. This index can then be used to access the array, e.g. with
-  //          GetStringArgument(idx, ...)
+  //          ReadStringFromMatlab(idx, ...)
   size_t SetAdditionalMatlabArgumentPointer(const mxArray *mp) {
     if (mp == NULL) {
       mexErrMsgTxt("Pointer to argument is NULL");
@@ -135,12 +135,12 @@ public:
   // to run mxGetNumberOfDimensions() and mxGetDimensions(), and then
   // casting the result into e.g. itk::Size to pass it to ITK
   template <class VectorValueType, class VectorType>
-    VectorType GetArraySize(unsigned int idx, 
+    VectorType ReadMatlabArraySize(unsigned int idx, 
 			    std::string paramName,
 			    VectorType def);
 
   template <class VectorValueType, class VectorType, unsigned int VectorSize>
-    VectorType GetArraySize(unsigned int idx, 
+    VectorType ReadMatlabArraySize(unsigned int idx, 
 			    std::string paramName,
 			    VectorType def);
 
@@ -151,12 +151,12 @@ public:
   // with size=[3, 7] has a half-size or radius=[1, 3]. I.e. 
   // size = 2 * radius + 1
   template <class VectorValueType, class VectorType>
-    VectorType GetArrayHalfSize(unsigned int idx, 
+    VectorType ReadMatlabArrayHalfSize(unsigned int idx, 
 				std::string paramName,
 				VectorType def);
 
   template <class VectorValueType, class VectorType, unsigned int VectorSize>
-    VectorType GetArrayHalfSize(unsigned int idx, 
+    VectorType ReadMatlabArrayHalfSize(unsigned int idx, 
 				std::string paramName,
 				VectorType def);
 
@@ -164,7 +164,7 @@ public:
   //
   // idx: parameter index
   // def: value returned by default if argument is empty or not provided
-  std::string GetStringArgument(unsigned int idx,
+  std::string ReadStringFromMatlab(unsigned int idx,
 				std::string paramName,
 				std::string def);
 
@@ -174,7 +174,7 @@ public:
   // idx: parameter index
   // def: value returned by default if argument is empty or not provided
   template <class ParamType>
-  ParamType GetScalarArgument(unsigned int idx, 
+  ParamType ReadScalarFromMatlab(unsigned int idx, 
 			      std::string paramName,
 			      ParamType def);
 
@@ -185,7 +185,7 @@ public:
   // col: matrix column index of the scalar
   // def: value returned by default if argument is empty or not provided
   template <class ParamType>
-  ParamType GetScalarArgument(unsigned int idx,
+  ParamType ReadScalarFromMatlab(unsigned int idx,
 			      mwIndex row,
 			      mwIndex col,
 			      std::string paramName,
@@ -199,22 +199,22 @@ public:
   // row: row index in the input 2D matrix
   // def: value returned by default if argument is empty or not provided
   template <class VectorValueType, class VectorType, unsigned int VectorSize>
-    VectorType GetRowVectorArgument(unsigned int idx, 
+    VectorType ReadRowVectorFromMatlab(unsigned int idx, 
 				   mwIndex row,
 				   std::string paramName,
 				   VectorType def);
   template <class VectorValueType, class VectorType, unsigned int VectorSize>
-    VectorType GetRowVectorArgument(unsigned int idx, 
+    VectorType ReadRowVectorFromMatlab(unsigned int idx, 
 				   std::string paramName,
 				   VectorType def);
 
   template <class VectorValueType, class VectorType>
-    VectorType GetRowVectorArgument(unsigned int idx, 
+    VectorType ReadRowVectorFromMatlab(unsigned int idx, 
 				   mwIndex row,
 				   std::string paramName,
 				   VectorType def);
   template <class VectorValueType, class VectorType>
-    VectorType GetRowVectorArgument(unsigned int idx, 
+    VectorType ReadRowVectorFromMatlab(unsigned int idx, 
 				   std::string paramName,
 				   VectorType def);
 
@@ -234,7 +234,7 @@ public:
   // VectorType      is the type of the "vector" itself
   template <class VectorValueType, class VectorType>
     std::vector<VectorType> 
-    GetMatrixAsVectorOfRowVectorsArgument(unsigned int idx, 
+    ReadVectorOfVectorsFromMatlab(unsigned int idx, 
 					  std::string paramName,
 					  std::vector<VectorType> def);
   
@@ -242,7 +242,7 @@ public:
   // equivalent to A(:) in Matlab
   template <class VectorValueType, class VectorType>
     VectorType
-    GetArrayArgumentAsVector(unsigned int idx, 
+    ReadArrayAsVectorFromMatlab(unsigned int idx, 
 			     std::string paramName,
 			     VectorType def);
   
@@ -254,7 +254,7 @@ public:
   // idx: parameter index
   template <class TPixel, unsigned int VImageDimension>
     typename itk::Image<TPixel, VImageDimension>::Pointer
-    GetImageArgument(unsigned int idx, std::string paramName);
+    GetImagePointerFromMatlab(unsigned int idx, std::string paramName);
 
 };
 

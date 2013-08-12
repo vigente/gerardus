@@ -31,7 +31,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.2
+  * Version: 0.1.3
   * $Rev$
   * $Date$
   *
@@ -148,18 +148,18 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     // get indices of the 3 vertices of each triangle. These indices
     // follow Matlab's convention v0 = 1, 2, ..., n
-    v0 = matlabImport->GetScalarArgument<mwIndex>(0, i, 0, "TRI", mxGetNaN());
-    v1 = matlabImport->GetScalarArgument<mwIndex>(0, i, 1, "TRI", mxGetNaN());
-    v2 = matlabImport->GetScalarArgument<mwIndex>(0, i, 2, "TRI", mxGetNaN());
+    v0 = matlabImport->ReadScalarFromMatlab<mwIndex>(0, i, 0, "TRI", mxGetNaN());
+    v1 = matlabImport->ReadScalarFromMatlab<mwIndex>(0, i, 1, "TRI", mxGetNaN());
+    v2 = matlabImport->ReadScalarFromMatlab<mwIndex>(0, i, 2, "TRI", mxGetNaN());
     if (mxIsNaN(v0) || mxIsNaN(v1) || mxIsNaN(v2)) {
       mexErrMsgTxt("Parameter TRI: Vertex index is NaN");
     }
 
     // get coordinates of the 3 vertices (substracting 1 so that
     // indices follow the C++ convention 0, 1, ..., n-1)
-    x0 = matlabImport->GetRowVectorArgument<K, Point>(1, v0 - 1, "X", def);
-    x1 = matlabImport->GetRowVectorArgument<K, Point>(1, v1 - 1, "X", def);
-    x2 = matlabImport->GetRowVectorArgument<K, Point>(1, v2 - 1, "X", def);
+    x0 = matlabImport->ReadRowVectorFromMatlab<K, Point>(1, v0 - 1, "X", def);
+    x1 = matlabImport->ReadRowVectorFromMatlab<K, Point>(1, v1 - 1, "X", def);
+    x2 = matlabImport->ReadRowVectorFromMatlab<K, Point>(1, v2 - 1, "X", def);
 
     // add triangle to the vector of triangles in the surface
     triangles[i] = Triangle(x0, x1, x2);
