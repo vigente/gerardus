@@ -1,5 +1,17 @@
 2013-08-12  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/MatlabImportFilter.h: (0.6.2)
+	* matlab/MatlabImportFilter.hxx: (0.6.2)
+	* matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp: (0.2.3)
+	* matlab/CgalToolbox/CgalClosestTriFacet.cpp: (0.1.4)
+	* matlab/CgalToolbox/CgalTriFacetArea.cpp: (0.1.1)
+	* matlab/CgalToolbox/CgalFixedAlphaShape3.cpp: (0.1.4)
+	* matlab/CgalToolbox/CgalAlphaShape3.cpp: (0.1.5)
+	* matlab/CgalToolbox/CgalCheckSelfIntersect.cpp: (0.1.3)
+	* matlab/ItkToolbox/ItkImFilter.cpp: (1.4.2)
+
+	- Rename the methods in MatlabImportFilter, as they were very confusing.
+
 	* Add matlab/ItkToolbox/ItkICPRegistration.cpp: (0.0.1)
 	* Add matlab/test/test_itk_icp_registration.m: (0.0.1)
 
