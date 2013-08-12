@@ -17,7 +17,7 @@ function scimat = scimat_closed_surf_to_bw(tri, x, scimat)
 %   been set to 1. Note that these voxels are _added_ to whatever previous
 %   segmentation was present in SCIMAT.
 %
-% See also: delaunay_sphere.
+% See also: delaunay_sphere, cgal_insurftri.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
