@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.6.1
+  * Version: 0.6.2
   * $Rev$
   * $Date$
   *
@@ -75,16 +75,16 @@ void MatlabImportFilter::CheckNumberOfArguments(unsigned int min, unsigned int m
 // to run mxGetNumberOfDimensions() and mxGetDimensions(), and then
 // casting the result into e.g. itk::Size to pass it to ITK
 template <class VectorValueType, class VectorType>
-VectorType MatlabImportFilter::GetArraySize(unsigned int idx, 
+VectorType MatlabImportFilter::ReadMatlabArraySize(unsigned int idx, 
 					    std::string paramName,
 					    VectorType def){
 
-  return MatlabImportFilter::GetArraySize<VectorValueType, VectorType, 0>(idx, paramName, def);
+  return MatlabImportFilter::ReadMatlabArraySize<VectorValueType, VectorType, 0>(idx, paramName, def);
 
 }
 
 template <class VectorValueType, class VectorType, unsigned int VectorSize>
-VectorType MatlabImportFilter::GetArraySize(unsigned int idx, 
+VectorType MatlabImportFilter::ReadMatlabArraySize(unsigned int idx, 
 					    std::string paramName,
 					    VectorType def){
 
@@ -108,16 +108,16 @@ VectorType MatlabImportFilter::GetArraySize(unsigned int idx,
 // with size=[3, 7] has a half-size or radius=[1, 3]. I.e. 
 // size = 2 * halfsize + 1
 template <class VectorValueType, class VectorType>
-VectorType MatlabImportFilter::GetArrayHalfSize(unsigned int idx, 
+VectorType MatlabImportFilter::ReadMatlabArrayHalfSize(unsigned int idx, 
 					    std::string paramName,
 					    VectorType def){
 
-  return MatlabImportFilter::GetArrayHalfSize<VectorValueType, VectorType, 0>(idx, paramName, def);
+  return MatlabImportFilter::ReadMatlabArrayHalfSize<VectorValueType, VectorType, 0>(idx, paramName, def);
 
 }
 
 template <class VectorValueType, class VectorType, unsigned int VectorSize>
-VectorType MatlabImportFilter::GetArrayHalfSize(unsigned int idx, 
+VectorType MatlabImportFilter::ReadMatlabArrayHalfSize(unsigned int idx, 
 					    std::string paramName,
 					    VectorType def){
 
@@ -135,7 +135,7 @@ VectorType MatlabImportFilter::GetArrayHalfSize(unsigned int idx,
 }
 
 // function to get the value of input arguments that are strings
-std::string MatlabImportFilter::GetStringArgument(unsigned int idx,
+std::string MatlabImportFilter::ReadStringFromMatlab(unsigned int idx,
 						       std::string paramName,
 						       std::string def) {
   
@@ -157,10 +157,10 @@ std::string MatlabImportFilter::GetStringArgument(unsigned int idx,
 // function to get the value of input parameters that are numeric
 // scalars from the array of input arguments
 template <class ParamType>
-ParamType MatlabImportFilter::GetScalarArgument(unsigned int idx, 
+ParamType MatlabImportFilter::ReadScalarFromMatlab(unsigned int idx, 
 						std::string paramName,
 						ParamType def) {
-  return MatlabImportFilter::GetScalarArgument<ParamType>(idx, 0, 0, paramName, def);
+  return MatlabImportFilter::ReadScalarFromMatlab<ParamType>(idx, 0, 0, paramName, def);
 }
 
 // function to get one scalar value from an input argument that is a matrix
@@ -170,7 +170,7 @@ ParamType MatlabImportFilter::GetScalarArgument(unsigned int idx,
 // col: matrix column index of the scalar
 // def: value returned by default if argument is empty or not provided
 template <class ParamType>
-ParamType MatlabImportFilter::GetScalarArgument(unsigned int idx,
+ParamType MatlabImportFilter::ReadScalarFromMatlab(unsigned int idx,
 						mwIndex row,
 						mwIndex col,
 						std::string paramName,
@@ -283,17 +283,17 @@ ParamType MatlabImportFilter::GetScalarArgument(unsigned int idx,
 // VectorValueType is the type of each element in the "vector"
 // VectorType      is the type of the "vector" itself
 template <class VectorValueType, class VectorType>
-VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx, 
+VectorType MatlabImportFilter::ReadRowVectorFromMatlab(unsigned int idx, 
 						mwIndex row,
 						std::string paramName,
 						VectorType def) {
 
-  return MatlabImportFilter::GetRowVectorArgument<VectorValueType, VectorType, 0>(idx, row, paramName, def);
+  return MatlabImportFilter::ReadRowVectorFromMatlab<VectorValueType, VectorType, 0>(idx, row, paramName, def);
 
 }
 
 template <class VectorValueType, class VectorType, unsigned int VectorSize>
-VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx, 
+VectorType MatlabImportFilter::ReadRowVectorFromMatlab(unsigned int idx, 
 						mwIndex row,
 						std::string paramName,
 						VectorType def) {
@@ -376,23 +376,23 @@ VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx,
 
   // we should never get here, but we need to provide a return, else
   // the compiler will give a warning
-  mexErrMsgTxt("MatlabImportFilter::GetRowVectorArgument: This function should have returned before getting here");
+  mexErrMsgTxt("MatlabImportFilter::ReadRowVectorFromMatlab: This function should have returned before getting here");
   return def;
 
 }
 
 // particular case in which the input matrix must be a row vector
 template <class VectorValueType, class VectorType>
-VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx, 
+VectorType MatlabImportFilter::ReadRowVectorFromMatlab(unsigned int idx, 
 						std::string paramName,
 						VectorType def) {
 
-  return MatlabImportFilter::GetRowVectorArgument<VectorValueType, VectorType, 0>(idx, paramName, def);
+  return MatlabImportFilter::ReadRowVectorFromMatlab<VectorValueType, VectorType, 0>(idx, paramName, def);
 
 }
 
 template <class VectorValueType, class VectorType, unsigned int VectorSize>
-VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx, 
+VectorType MatlabImportFilter::ReadRowVectorFromMatlab(unsigned int idx, 
 						   std::string paramName,
 						   VectorType def) {
 
@@ -412,7 +412,7 @@ VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx,
   }
 
   // the syntax of this function without specifying a row is the same as specifying row 0
-  return MatlabImportFilter::GetRowVectorArgument<VectorValueType, 
+  return MatlabImportFilter::ReadRowVectorFromMatlab<VectorValueType, 
 						  VectorType, VectorSize>(idx, 0, paramName, def);
 
 }
@@ -433,7 +433,7 @@ VectorType MatlabImportFilter::GetRowVectorArgument(unsigned int idx,
 // VectorType      is the type of the "vector" itself
 template <class VectorValueType, class VectorType>
 std::vector<VectorType> 
-MatlabImportFilter::GetMatrixAsVectorOfRowVectorsArgument(unsigned int idx, 
+MatlabImportFilter::ReadVectorOfVectorsFromMatlab(unsigned int idx, 
 							  std::string paramName,
 							  std::vector<VectorType> def) {
 
@@ -555,7 +555,7 @@ MatlabImportFilter::GetMatrixAsVectorOfRowVectorsArgument(unsigned int idx,
 // equivalent to the linearising operator A(:) in Matlab
 template <class VectorValueType, class VectorType>
 VectorType
-MatlabImportFilter::GetArrayArgumentAsVector(unsigned int idx, 
+MatlabImportFilter::ReadArrayAsVectorFromMatlab(unsigned int idx, 
 					     std::string paramName,
 					     VectorType def) {
   
@@ -633,7 +633,7 @@ MatlabImportFilter::GetArrayArgumentAsVector(unsigned int idx,
 
   // we should never get here, but we need to provide a return, else
   // the compiler will give a warning
-  mexErrMsgTxt("MatlabImportFilter::GetArrayArgumentAsVector: This function should have returned before getting here");
+  mexErrMsgTxt("MatlabImportFilter::ReadArrayAsVectorFromMatlab: This function should have returned before getting here");
   return def;
 
 }
@@ -641,7 +641,7 @@ MatlabImportFilter::GetArrayArgumentAsVector(unsigned int idx,
 // function to get an input argument that is an image
 template <class TPixel, unsigned int VImageDimension>
 typename itk::Image<TPixel, VImageDimension>::Pointer
-MatlabImportFilter::GetImageArgument(unsigned int idx, 
+MatlabImportFilter::GetImagePointerFromMatlab(unsigned int idx, 
 				     std::string paramName) {
   
   // note that:

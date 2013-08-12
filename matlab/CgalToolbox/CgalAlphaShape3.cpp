@@ -49,7 +49,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.4
+  * Version: 0.1.5
   * $Rev$
   * $Date$
   *
@@ -165,7 +165,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     // read i-th row of input matrix as a point
     x[i] = std::make_pair(
-			  matlabImport->GetRowVectorArgument<K, Point>(IN_X, i, "X", xDef),
+			  matlabImport->ReadRowVectorFromMatlab<K, Point>(IN_X, i, "X", xDef),
 			  i+1 // because this will be a row index in Matlab, 1, ..., Nrows
 			  );
 
@@ -188,7 +188,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // }
 
   // read number of components from input
-  mwSize numComponents = matlabImport->GetScalarArgument<mwSize>(IN_NCOMP, "NCOMP", 1);
+  mwSize numComponents = matlabImport->ReadScalarFromMatlab<mwSize>(IN_NCOMP, "NCOMP", 1);
 
   // // DEBUG
   // std::cout << "Computing Delaunay triangulation" << std::endl;
@@ -237,7 +237,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // read vector of alpha values provided by the user
   std::vector<double> alphaDef(1, *alphaOptIt);
   std::vector<double> alpha = matlabImport
-    ->GetArrayArgumentAsVector<double, std::vector<double> >(IN_ALPHA, "ALPHA", alphaDef);
+    ->ReadArrayAsVectorFromMatlab<double, std::vector<double> >(IN_ALPHA, "ALPHA", alphaDef);
 
   // create a cell per surface triangulation that we are going to
   // extract not that each cell is unpopulated, and we would get an

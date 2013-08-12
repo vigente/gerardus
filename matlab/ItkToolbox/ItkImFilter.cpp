@@ -358,7 +358,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011-2012 University of Oxford
-  * Version: 1.4.1
+  * Version: 1.4.2
   * $Rev$
   * $Date$
   *
@@ -496,7 +496,7 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
     
     // The variance for the discrete Gaussian kernel. Sets the
     // variance independently for each dimension. The default is 0.0
@@ -504,7 +504,7 @@ public:
     typename FilterType::ArrayType defVariance;
     defVariance.Fill(0.0);
     filter->SetVariance(matlabImport->
-    			GetRowVectorArgument<typename FilterType::ArrayType::ValueType, 
+    			ReadRowVectorFromMatlab<typename FilterType::ArrayType::ValueType, 
     					     typename FilterType::ArrayType,
     					     VImageDimension>(2, "VAR", defVariance));
 
@@ -516,14 +516,14 @@ public:
     // output.
     // http://homepages.inf.ed.ac.uk/rbf/HIPR2/canny.htm
     filter->SetUpperThreshold(matlabImport->template
-			      GetScalarArgument<TPixelIn>(3, "UPPTHR", std::numeric_limits<TPixelIn>::max()));
+			      ReadScalarFromMatlab<TPixelIn>(3, "UPPTHR", std::numeric_limits<TPixelIn>::max()));
 
     // Threshold is the lowest allowed value in the output image. Its
     // data type is the same as the data type of the output image. Any
     // values below the Threshold level will be replaced with the
     // OutsideValue parameter value, whose default is zero.
     filter->SetLowerThreshold(matlabImport->template
-			      GetScalarArgument<TPixelIn>(4, "LOWTHR", filter->GetUpperThreshold() / 2.0));
+			      ReadScalarFromMatlab<TPixelIn>(4, "LOWTHR", filter->GetUpperThreshold() / 2.0));
 
     // The algorithm will size the discrete kernel so that the error
     // resulting from truncation of the kernel is no greater than
@@ -531,7 +531,7 @@ public:
     typename FilterType::ArrayType defMaximumError;
     defMaximumError.Fill(0.01);
     filter->SetMaximumError(matlabImport->
-			    GetRowVectorArgument<typename FilterType::ArrayType::ValueType, 
+			    ReadRowVectorFromMatlab<typename FilterType::ArrayType::ValueType, 
 						 typename FilterType::ArrayType,
 						 VImageDimension>(5, "MAXERR", defMaximumError));
 
@@ -647,7 +647,7 @@ public:
 
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
 
     // default parameters
     typename InImageType::SizeType radiusDef;
@@ -655,17 +655,17 @@ public:
 
     // filter parameters
     filter->SetRadius(matlabImport->template
-		      GetRowVectorArgument<typename InImageType::SizeValueType,
+		      ReadRowVectorFromMatlab<typename InImageType::SizeValueType,
 					   typename InImageType::SizeType, 
 					   VImageDimension>(2, "RADIUS", radiusDef));
     filter->SetMaximumNumberOfIterations(matlabImport->template
-					 GetScalarArgument<unsigned int>(3, "MAXITER", 1));
+					 ReadScalarFromMatlab<unsigned int>(3, "MAXITER", 1));
     filter->SetMajorityThreshold(matlabImport->template
-				 GetScalarArgument<unsigned int>(4, "THR", 2));
+				 ReadScalarFromMatlab<unsigned int>(4, "THR", 2));
     filter->SetBackgroundValue(matlabImport->template
-			       GetScalarArgument<TPixelIn>(5, "BACKGROUND", 0));
+			       ReadScalarFromMatlab<TPixelIn>(5, "BACKGROUND", 0));
     filter->SetForegroundValue(matlabImport->template
-			       GetScalarArgument<TPixelIn>(6, "FOREGROUND", 1));
+			       ReadScalarFromMatlab<TPixelIn>(6, "FOREGROUND", 1));
 
     // run filter
     filter->Update();
@@ -707,7 +707,7 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
 
     // connect ITK filter outputs to Matlab outputs
 
@@ -747,7 +747,7 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
     
     // set half size of the filter's box
     typedef typename itk::BoxImageFilter<
@@ -756,7 +756,7 @@ public:
     typename BoxFilterType::RadiusType radius;
     radius.Fill(0);
     filter->SetRadius(matlabImport->
-		      GetRowVectorArgument<typename BoxFilterType::RadiusValueType, 
+		      ReadRowVectorFromMatlab<typename BoxFilterType::RadiusValueType, 
 					   typename BoxFilterType::RadiusType,
 					   VImageDimension>
 		      (2, "RADIUS", radius));
@@ -797,17 +797,17 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
     
     // filter parameters
     filter->SetSigmaMin(matlabImport->template
-			GetScalarArgument<double>(2, "SIGMAMIN", 0.2));
+			ReadScalarFromMatlab<double>(2, "SIGMAMIN", 0.2));
     filter->SetSigmaMax(matlabImport->template
-			GetScalarArgument<double>(3, "SIGMAMAX", 2.0));
+			ReadScalarFromMatlab<double>(3, "SIGMAMAX", 2.0));
     filter->SetNumberOfSigmaSteps(matlabImport->template
-			GetScalarArgument<int>(4, "NUMSIGMASTEPS", 10));
+			ReadScalarFromMatlab<int>(4, "NUMSIGMASTEPS", 10));
     filter->SetIsSigmaStepLog(matlabImport->template
-			GetScalarArgument<bool>(5, "ISSIGMASTEPLOG", true));
+			ReadScalarFromMatlab<bool>(5, "ISSIGMASTEPLOG", true));
 
     // connect ITK filter outputs to Matlab outputs
     if (matlabExport->GetNumberOfArguments() >= 1) {
@@ -864,26 +864,26 @@ public:
     typename FilterType::Pointer filter = FilterType::New();
     
     // connect Matlab inputs to ITK filter
-    filter->SetInput(matlabImport->GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+    filter->SetInput(matlabImport->GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
 
     filter->SetSigmaMin(matlabImport->
-		       GetScalarArgument<double>(2,  "SIGMAMIN", 0.2));
+		       ReadScalarFromMatlab<double>(2,  "SIGMAMIN", 0.2));
     filter->SetSigmaMax(matlabImport->
-		       GetScalarArgument<double>(3,  "SIGMAMAX", 2.0));
+		       ReadScalarFromMatlab<double>(3,  "SIGMAMAX", 2.0));
     filter->SetNumberOfSigmaSteps(matlabImport->
-		       GetScalarArgument<int>   (4,  "NUMSIGMASTEPS", 10));
+		       ReadScalarFromMatlab<int>   (4,  "NUMSIGMASTEPS", 10));
     filter->SetIsSigmaStepLog(matlabImport->
-		       GetScalarArgument<bool>  (5,  "ISSIGMASTEPLOG", true));
+		       ReadScalarFromMatlab<bool>  (5,  "ISSIGMASTEPLOG", true));
     filter->SetNumberOfIterations(matlabImport->
-		       GetScalarArgument<int>   (6,  "NUMITERATIONS", 1));
+		       ReadScalarFromMatlab<int>   (6,  "NUMITERATIONS", 1));
     filter->SetWStrength(matlabImport->
-		       GetScalarArgument<double>(7,  "WSTRENGTH", 25.0));
+		       ReadScalarFromMatlab<double>(7,  "WSTRENGTH", 25.0));
     filter->SetSensitivity(matlabImport->
-		       GetScalarArgument<double>(8,  "SENSITIVITY", 5.0));
+		       ReadScalarFromMatlab<double>(8,  "SENSITIVITY", 5.0));
     filter->SetTimeStep(matlabImport->
-		       GetScalarArgument<double>(9,  "TIMESTEP", 1e-3));
+		       ReadScalarFromMatlab<double>(9,  "TIMESTEP", 1e-3));
     filter->SetEpsilon(matlabImport->
-		       GetScalarArgument<double>(10, "EPSILON", 1e-2));
+		       ReadScalarFromMatlab<double>(10, "EPSILON", 1e-2));
     
     // connect ITK filter outputs to Matlab outputs
     if (matlabExport->GetNumberOfArguments() >= 1) {
@@ -941,7 +941,7 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
 
     // connect ITK filter outputs to Matlab outputs
     if (matlabExport->GetNumberOfArguments() >= 1) {
@@ -999,7 +999,7 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
 
     // connect ITK filter outputs to Matlab outputs
 
@@ -1052,7 +1052,7 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
 
     // connect ITK filter outputs to Matlab outputs
 
@@ -1111,7 +1111,7 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
 
     // run filter
     filter->Update();
@@ -1163,13 +1163,13 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
     
     // instantiate structuring element
     // (comp) radius of the ball in voxels
     StructuringElementType structuringElement;
     structuringElement.SetRadius(matlabImport->
-				 GetScalarArgument<unsigned long>(2, "RADIUS", 0));
+				 ReadScalarFromMatlab<unsigned long>(2, "RADIUS", 0));
     structuringElement.CreateStructuringElement();
     filter->SetKernel(structuringElement);
 
@@ -1178,7 +1178,7 @@ public:
     // value of the pixel type (this is the ITK default, so we
     // reproduce it here, even if it "1" would be more convenient)
     filter->SetForegroundValue(matlabImport->template
-			       GetScalarArgument<TPixelIn>(3, "FOREGROUND", std::numeric_limits<TPixelIn>::max()));
+			       ReadScalarFromMatlab<TPixelIn>(3, "FOREGROUND", std::numeric_limits<TPixelIn>::max()));
 
     // connect ITK filter outputs to Matlab outputs
     if (matlabExport->GetNumberOfArguments() >= 1) {
@@ -1218,13 +1218,13 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
     
     // instantiate structuring element
     // (comp) radius of the ball in voxels
     StructuringElementType structuringElement;
     structuringElement.SetRadius(matlabImport->
-				 GetScalarArgument<unsigned long>(2, "RADIUS", 0));
+				 ReadScalarFromMatlab<unsigned long>(2, "RADIUS", 0));
     structuringElement.CreateStructuringElement();
     filter->SetKernel(structuringElement);
 
@@ -1233,7 +1233,7 @@ public:
     // value of the pixel type (this is the ITK default, so we
     // reproduce it here, even if it "1" would be more convenient)
     filter->SetForegroundValue(matlabImport->template
-			       GetScalarArgument<TPixelIn>(3, "FOREGROUND", std::numeric_limits<TPixelIn>::max()));
+			       ReadScalarFromMatlab<TPixelIn>(3, "FOREGROUND", std::numeric_limits<TPixelIn>::max()));
 
     // connect ITK filter outputs to Matlab outputs
     if (matlabExport->GetNumberOfArguments() >= 1) {
@@ -1314,11 +1314,11 @@ public:
     typename ScalarToArrayFilterType::Pointer
       scalarToArrayFilter = ScalarToArrayFilterType::New();
     scalarToArrayFilter->SetInput(matlabImport->
-    				  GetImageArgument<TPixelIn, VImageDimension>(1, "IM"));
+    				  GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
 
     // vector of centroids
     std::vector<TPixelIn> centroid = matlabImport->template
-      GetRowVectorArgument<TPixelIn, std::vector<TPixelIn> >(2, "MU", std::vector<TPixelIn>(0));
+      ReadRowVectorFromMatlab<TPixelIn, std::vector<TPixelIn> >(2, "MU", std::vector<TPixelIn>(0));
     unsigned int numberOfClasses = centroid.size();
 
     // by default, the neighbourhood is a hypercube with 1 voxel to
@@ -1333,22 +1333,22 @@ public:
 
     // read neighbourhood weights provided by the user, but as a vector
     weights = matlabImport->template
-      GetArrayArgumentAsVector<std::vector<double> >(3, "WEIGHT", weights);
+      ReadArrayAsVectorFromMatlab<std::vector<double> >(3, "WEIGHT", weights);
     
     // get size of neighbourhood weights array as provided by the
     // user. We get the half-size, as required by this filter (size =
     // 2 * halfsize + 1)
     neighHalfSize = matlabImport->template
-      GetArrayHalfSize<typename InImageType::SizeValueType, 
+      ReadMatlabArrayHalfSize<typename InImageType::SizeValueType, 
 		       typename InImageType::SizeType,
 		       VImageDimension>(3, "WEIGHT", neighHalfSize);
 
     double smoothingFactor = matlabImport->template
-      GetScalarArgument<double>(4, "SMOOTH", 1e-7);
+      ReadScalarFromMatlab<double>(4, "SMOOTH", 1e-7);
     unsigned int maximumNumberOfIterations = matlabImport->template
-      GetScalarArgument<unsigned int>(5, "NITER", 100);
+      ReadScalarFromMatlab<unsigned int>(5, "NITER", 100);
     double errorTolerance = matlabImport->template
-      GetScalarArgument<double>(6, "TOL", 1e-7);
+      ReadScalarFromMatlab<double>(6, "TOL", 1e-7);
 
     // ITK guide: "number of classes to be used during the
     // classification, the maximum number of iterations to be run in
@@ -1487,7 +1487,7 @@ void parseOutputImageTypeToTemplate(MatlabImportFilter::Pointer matlabImport,
   typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
 
   // name of the filter
-  std::string filterName = matlabImport->GetStringArgument(0, "0", "");
+  std::string filterName = matlabImport->ReadStringFromMatlab(0, "0", "");
 
   // select the output type corresponding to each filter
   if (filterName == "canny" 
