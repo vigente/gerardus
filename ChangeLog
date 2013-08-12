@@ -1,3 +1,16 @@
+2013-08-12  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ItkToolbox/ItkICPRegistration.cpp: (0.0.1)
+	* Add matlab/test/test_itk_icp_registration.m: (0.0.1)
+
+	- Preliminary code for ITK_ICP_REGISTRATION Iterative Closest
+	Point registration.
+
+	Not a full working function, but this code compiles and runs the
+	small examples in the test script. Comit before I start working on
+	reading user choices for transform, optimizer, etc. as well as the
+	parameters for each of them.
+
 2013-08-11  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/MatlabExportFilter.hxx: (0.3.2)
