@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011 University of Oxford
-# Version: 0.6.4
+# Version: 0.6.5
 # $Rev$
 # $Date$
 #
@@ -30,9 +30,14 @@
 
 # add include and linking paths
 include_directories(
+  ..
   ${Boost_INCLUDE_DIRS}
   ${GMP_INCLUDE_DIR}
   ${MPFR_INCLUDE_DIR}
+  ${GERARDUS_SOURCE_DIR}/include
+  ${GERARDUS_CPP_SOURCE_DIR}/third-party/CGAL-4.2/include
+  ${GERARDUS_CPP_SOURCE_DIR}/third-party/IJ-Vessel_Enhancement_Diffusion.1
+  ${GERARDUS_CPP_SOURCE_DIR}/third-party/itkBinaryThinningImageFilter3D/Source
   )
 link_directories(${Boost_LIBRARY_DIRS})
 
@@ -40,18 +45,11 @@ link_directories(${Boost_LIBRARY_DIRS})
 ## itk_imfilter()
 ################################################################
 
-ADD_MEX_FILE(itk_imfilter 
+add_mex_file(itk_imfilter 
   ../MatlabImageHeader.cxx
   ItkImFilter.cpp)
 
-INCLUDE_DIRECTORIES(
-  ..
-  ${GERARDUS_SOURCE_DIR}/include
-  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/include
-  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1
-  ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/itkBinaryThinningImageFilter3D/Source
-  )
-TARGET_LINK_LIBRARIES(itk_imfilter
+target_link_libraries(itk_imfilter
   CGAL
   ${ITK_LIBRARIES})
 
@@ -63,8 +61,16 @@ add_dependencies(itk_imfilter copy_compiler_config.h)
 ## itk_pstransform
 ################################################################
 
-ADD_MEX_FILE(itk_pstransform ItkPSTransform.cpp)
-TARGET_LINK_LIBRARIES(itk_pstransform
+add_mex_file(itk_pstransform ItkPSTransform.cpp)
+target_link_libraries(itk_pstransform
+  ${ITK_LIBRARIES})
+
+################################################################
+## itk_icp_registration
+################################################################
+
+add_mex_file(itk_icp_registration ItkICPRegistration.cpp)
+target_link_libraries(itk_icp_registration
   ${ITK_LIBRARIES})
 
 ################################################################
@@ -75,12 +81,14 @@ IF(WIN32)
   INSTALL(TARGETS
     itk_imfilter
     itk_pstransform
+    itk_icp_registration
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ELSE(WIN32)
   INSTALL(TARGETS
     itk_imfilter
     itk_pstransform
+    itk_icp_registration
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ENDIF(WIN32)

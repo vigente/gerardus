@@ -358,7 +358,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011-2012 University of Oxford
-  * Version: 1.4.2
+  * Version: 1.4.3
   * $Rev$
   * $Date$
   *
@@ -536,7 +536,7 @@ public:
 						 VImageDimension>(5, "MAXERR", defMaximumError));
 
     // graft ITK filter outputs onto Matlab outputs
-    if (matlabExport->GetNumberOfArguments() >= 1) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
     	(filter->GetOutputs()[0], im.size, 0, "0");
     }
@@ -545,7 +545,7 @@ public:
     filter->Update();
 
     // copy ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfArguments() >= 2) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 2) {
       matlabExport->CopyItkImageToMatlab<TPixelOut, VImageDimension>
     	(filter->GetNonMaximumSuppressionImage(), im.size, 1, "1");
     }
@@ -671,7 +671,7 @@ public:
     filter->Update();
 
     // copy ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfArguments() >= 1) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
       matlabExport->CopyItkImageToMatlab<TPixelOut, VImageDimension>
 	(filter->GetOutputs()[0], im.size, 0, "0");
     }
@@ -712,7 +712,7 @@ public:
     // connect ITK filter outputs to Matlab outputs
 
     // distance map
-    if (matlabExport->GetNumberOfArguments() >= 1) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
 	(filter->GetOutputs()[0], im.size, 0, "0");
     }
@@ -762,7 +762,7 @@ public:
 		      (2, "RADIUS", radius));
     
     // graft ITK filter outputs onto Matlab outputs
-    if (matlabExport->GetNumberOfArguments() >= 1) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
 	(filter->GetOutputs()[0], im.size, 0, "0");
     }
@@ -810,7 +810,7 @@ public:
 			ReadScalarFromMatlab<bool>(5, "ISSIGMASTEPLOG", true));
 
     // connect ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfArguments() >= 1) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
 	(filter->GetOutputs()[0], im.size, 0, "0");
     }
@@ -886,7 +886,7 @@ public:
 		       ReadScalarFromMatlab<double>(10, "EPSILON", 1e-2));
     
     // connect ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfArguments() >= 1) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
 	(filter->GetOutputs()[0], im.size, 0, "0");
     }
@@ -944,7 +944,7 @@ public:
 		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
 
     // connect ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfArguments() >= 1) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
 	(filter->GetOutputs()[0], im.size, 0, "0");
     }
@@ -1004,18 +1004,18 @@ public:
     // connect ITK filter outputs to Matlab outputs
 
     // distance map
-    if (matlabExport->GetNumberOfArguments() >= 1) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
 	// (filter->GetOutputs()[0], im.size, 0, "0");
 	(filter->GetOutputs()[0], im.size, 0, "0");
     }
     // Voronoi map
-    if (matlabExport->GetNumberOfArguments() >= 2) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 2) {
       matlabExport->GraftItkImageOntoMatlab<TPixelIn, VImageDimension>
 	(filter->GetOutputs()[1], im.size, 1, "1");
     }
     // vectors pointing to closest foreground voxel
-    if (matlabExport->GetNumberOfArguments() >= 3) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 3) {
       matlabExport->GraftItkImageOntoMatlab<typename InImageType::OffsetType::OffsetValueType,
 					    VImageDimension,
 					    typename InImageType::OffsetType::OffsetType>
@@ -1057,17 +1057,17 @@ public:
     // connect ITK filter outputs to Matlab outputs
 
     // distance map
-    if (matlabExport->GetNumberOfArguments() >= 1) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
 	(filter->GetOutputs()[0], im.size, 0, "0");
     }
     // Voronoi map
-    if (matlabExport->GetNumberOfArguments() >= 2) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 2) {
       matlabExport->GraftItkImageOntoMatlab<TPixelIn, VImageDimension>
 	(filter->GetOutputs()[1], im.size, 1, "1");
     }
     // vectors pointing to closest foreground voxel
-    if (matlabExport->GetNumberOfArguments() >= 3) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 3) {
       matlabExport->GraftItkImageOntoMatlab<typename InImageType::OffsetType::OffsetValueType,
 					    VImageDimension,
 					    typename InImageType::OffsetType::OffsetType>
@@ -1119,7 +1119,7 @@ public:
     // copy ITK filter outputs to Matlab outputs
 
     // distance map
-    if (matlabExport->GetNumberOfArguments() >= 1) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
       matlabExport->CopyItkImageToMatlab<TPixelOut, VImageDimension>
 	(filter->GetOutputs()[0], im.size, 0, "0");
     }
@@ -1181,7 +1181,7 @@ public:
 			       ReadScalarFromMatlab<TPixelIn>(3, "FOREGROUND", std::numeric_limits<TPixelIn>::max()));
 
     // connect ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfArguments() >= 1) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
 	(filter->GetOutputs()[0], im.size, 0, "0");
     }
@@ -1236,7 +1236,7 @@ public:
 			       ReadScalarFromMatlab<TPixelIn>(3, "FOREGROUND", std::numeric_limits<TPixelIn>::max()));
 
     // connect ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfArguments() >= 1) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
 	(filter->GetOutputs()[0], im.size, 0, "0");
     }
@@ -1449,7 +1449,7 @@ public:
     filter->SetInput(scalarToArrayFilter->GetOutput());
     
     // connect ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfArguments() >= 1) {
+    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
   	(filter->GetOutputs()[0], im.size, 0, "0");
     }
@@ -1645,7 +1645,7 @@ void parseInputImageDimensionToTemplate(MatlabImportFilter::Pointer matlabImport
   // the 2nd input argument is the input image. It can be given as an
   // array, or a SCI MAT struct, so it's necessary to pre-process the
   // pointer to do checks and extract the meta information
-  MatlabImageHeader im(matlabImport->GetArg(1), "1");
+  MatlabImageHeader im(matlabImport->GetRegisteredArgument(1), "1");
 
   switch (im.GetNumberOfDimensions()) {
   case 2:
@@ -1672,14 +1672,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
   
   // interface to deal with input arguments from Matlab
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
-  matlabImport->SetMatlabArgumentsPointer(nrhs, prhs);
+  matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
   
   // check that we have at least a filter name and input image
   matlabImport->CheckNumberOfArguments(2, UINT_MAX);
   
   // interface to deal with output arguments from Matlab
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
-  matlabExport->SetMatlabArgumentsPointer(nlhs, plhs);
+  matlabExport->RegisterArrayOfOutputArgumentsToMatlab(nlhs, plhs);
   
   // run filter (this function starts a cascade of functions designed
   // to translate the run-time type variables like inputVoxelClassId

@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.6.2
+  * Version: 0.6.3
   * $Rev$
   * $Date$
   *
@@ -79,53 +79,52 @@ public:
   // run-time type information (and related methods)
   itkTypeMacro(MatlabImportFilter, Object);
 
-  // function to capture the array with the arguments provided by
-  // Matlab
-  void SetMatlabArgumentsPointer(int _nrhs, const mxArray *_prhs[]) {
-    if (_prhs == NULL) {
-      mexErrMsgTxt("Pointer to arguments array is NULL");
-    }
-    for (mwIndex i = 0; i < (mwIndex)_nrhs; i++) {
-      this->args.push_back(_prhs[i]);
-    }
-  }
-
-  // function to register an additional array to import Matlab data
-  // from, but that is not directly a top level input argument. For
-  // example, if we pass the argument {[1 2], [0 -3]}, the
-  // corresponding top level element in the input argument list is a
-  // cell array, but we have no way to access the vectors [1 2] and 
-  // [0 -3]. With this function, we can register these vectors in the
-  // MatlabImport interface, and then access them as if they were
-  // normal top level input arguments.
+  // function to register an array of mxArray input arguments with the
+  // import filter ("input" means arguments that were passed to the
+  // Matlab function). After registration, the Matlab input arguments
+  // are available to the filter. The filter can then be used to read
+  // scalars, strings, vectors, matrices, fields, cells, etc. from the
+  // registered arguments
   //
-  // returns: an index to identify the newly registered input
-  //          array. This index can then be used to access the array, e.g. with
-  //          ReadStringFromMatlab(idx, ...)
-  size_t SetAdditionalMatlabArgumentPointer(const mxArray *mp) {
-    if (mp == NULL) {
-      mexErrMsgTxt("Pointer to argument is NULL");
-    }
-    this->args.push_back(mp);
-    return this->args.size() - 1;
-  }
+  // nargs: number of input arguments to register
+  // args:  array of input arguments
+  //
+  // returns: registration index of the first element that is registered
+  int RegisterArrayOfInputArgumentsFromMatlab(int nargs, const mxArray *args[]);
+
+  // as above with RegisterArrayOfInputArgumentsFromMatlab(), but for
+  // a single input argument
+  int RegisterInputArgumentFromMatlab(const mxArray *arg);
+
+  // as above with RegisterInputArgumentFromMatlab(), but for a single
+  // input argument that is a struct field, e.g. x.alpha.
+  //
+  // if the field doesn't exist, or cannot be registered for whatever
+  // reason, return -1. The reason is that in general, we are not
+  // going to be sure whether the user provided the field or not in a
+  // struct. If we threw an error, the interface with the user becomes
+  // too rigid. The way we do it, if the field is not provided, we
+  // just get an index=-1, that can be easily ignored or replaced by a
+  // default value at a later stage
+  //
+  // arg:   pointer to the input argument struct
+  // index: the input argument can be 
+  int RegisterInputFieldArgumentFromMatlab(const mxArray *arg, 
+					   const char *fieldname);
+  // alternatively, we can use the index for already registered input
+  // arguments
+  int RegisterInputFieldArgumentFromMatlab(int index, 
+					   const char *fieldname);
 
   // get number of elements in the list of arguments
-  unsigned int GetNumberOfArguments() {
+  unsigned int GetNumberOfRegisteredArguments() {
     return this->args.size();
   }
 
   // function to get direct pointers to the Matlab input arguments
   //
   // idx: parameter index
-  const mxArray *GetArg(unsigned int idx) {
-    if ((idx >= 0) && (idx < this->args.size())) {
-      return this->args[idx];
-    } else {
-      mexErrMsgTxt("Index out of range of Matlab input arguments");
-    }
-    return NULL;
-  }
+  const mxArray *GetRegisteredArgument(int idx);
 
   // function to check that number of input arguments is within
   // certain limits
@@ -135,12 +134,12 @@ public:
   // to run mxGetNumberOfDimensions() and mxGetDimensions(), and then
   // casting the result into e.g. itk::Size to pass it to ITK
   template <class VectorValueType, class VectorType>
-    VectorType ReadMatlabArraySize(unsigned int idx, 
+    VectorType ReadMatlabArraySize(int idx, 
 			    std::string paramName,
 			    VectorType def);
 
   template <class VectorValueType, class VectorType, unsigned int VectorSize>
-    VectorType ReadMatlabArraySize(unsigned int idx, 
+    VectorType ReadMatlabArraySize(int idx, 
 			    std::string paramName,
 			    VectorType def);
 
@@ -151,12 +150,12 @@ public:
   // with size=[3, 7] has a half-size or radius=[1, 3]. I.e. 
   // size = 2 * radius + 1
   template <class VectorValueType, class VectorType>
-    VectorType ReadMatlabArrayHalfSize(unsigned int idx, 
+    VectorType ReadMatlabArrayHalfSize(int idx, 
 				std::string paramName,
 				VectorType def);
 
   template <class VectorValueType, class VectorType, unsigned int VectorSize>
-    VectorType ReadMatlabArrayHalfSize(unsigned int idx, 
+    VectorType ReadMatlabArrayHalfSize(int idx, 
 				std::string paramName,
 				VectorType def);
 
@@ -164,7 +163,7 @@ public:
   //
   // idx: parameter index
   // def: value returned by default if argument is empty or not provided
-  std::string ReadStringFromMatlab(unsigned int idx,
+  std::string ReadStringFromMatlab(int idx,
 				std::string paramName,
 				std::string def);
 
@@ -174,7 +173,7 @@ public:
   // idx: parameter index
   // def: value returned by default if argument is empty or not provided
   template <class ParamType>
-  ParamType ReadScalarFromMatlab(unsigned int idx, 
+  ParamType ReadScalarFromMatlab(int idx, 
 			      std::string paramName,
 			      ParamType def);
 
@@ -185,7 +184,7 @@ public:
   // col: matrix column index of the scalar
   // def: value returned by default if argument is empty or not provided
   template <class ParamType>
-  ParamType ReadScalarFromMatlab(unsigned int idx,
+  ParamType ReadScalarFromMatlab(int idx,
 			      mwIndex row,
 			      mwIndex col,
 			      std::string paramName,
@@ -199,22 +198,22 @@ public:
   // row: row index in the input 2D matrix
   // def: value returned by default if argument is empty or not provided
   template <class VectorValueType, class VectorType, unsigned int VectorSize>
-    VectorType ReadRowVectorFromMatlab(unsigned int idx, 
+    VectorType ReadRowVectorFromMatlab(int idx, 
 				   mwIndex row,
 				   std::string paramName,
 				   VectorType def);
   template <class VectorValueType, class VectorType, unsigned int VectorSize>
-    VectorType ReadRowVectorFromMatlab(unsigned int idx, 
+    VectorType ReadRowVectorFromMatlab(int idx, 
 				   std::string paramName,
 				   VectorType def);
 
   template <class VectorValueType, class VectorType>
-    VectorType ReadRowVectorFromMatlab(unsigned int idx, 
+    VectorType ReadRowVectorFromMatlab(int idx, 
 				   mwIndex row,
 				   std::string paramName,
 				   VectorType def);
   template <class VectorValueType, class VectorType>
-    VectorType ReadRowVectorFromMatlab(unsigned int idx, 
+    VectorType ReadRowVectorFromMatlab(int idx, 
 				   std::string paramName,
 				   VectorType def);
 
@@ -234,7 +233,7 @@ public:
   // VectorType      is the type of the "vector" itself
   template <class VectorValueType, class VectorType>
     std::vector<VectorType> 
-    ReadVectorOfVectorsFromMatlab(unsigned int idx, 
+    ReadVectorOfVectorsFromMatlab(int idx, 
 					  std::string paramName,
 					  std::vector<VectorType> def);
   
@@ -242,7 +241,7 @@ public:
   // equivalent to A(:) in Matlab
   template <class VectorValueType, class VectorType>
     VectorType
-    ReadArrayAsVectorFromMatlab(unsigned int idx, 
+    ReadArrayAsVectorFromMatlab(int idx, 
 			     std::string paramName,
 			     VectorType def);
   
@@ -254,7 +253,7 @@ public:
   // idx: parameter index
   template <class TPixel, unsigned int VImageDimension>
     typename itk::Image<TPixel, VImageDimension>::Pointer
-    GetImagePointerFromMatlab(unsigned int idx, std::string paramName);
+    GetImagePointerFromMatlab(int idx, std::string paramName);
 
 };
 
