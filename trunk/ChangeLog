@@ -1,3 +1,45 @@
+2013-08-13  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CgalToolbox/CgalClosestTriFacet.cpp: (0.1.5)
+	* matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp: (0.2.4)
+	* matlab/CgalToolbox/CgalCheckSelfIntersect.cpp: (0.1.4)
+	* matlab/CgalToolbox/CgalTriFacetArea.cpp: (0.1.2)
+	* matlab/CgalToolbox/CgalFixedAlphaShape3.cpp: (0.1.5)
+	* matlab/CgalToolbox/CgalAlphaShape3.cpp: (0.1.6)
+	* matlab/ItkToolbox/ItkImFilter.cpp: (1.4.3)
+	* matlab/ItkToolbox/ItkICPRegistration.cpp: (0.0.2)
+
+	- Renaming of methods according to the changes in
+	MatlabImportFilter and MatlabExportFilter.
+
+	* matlab/MatlabImportFilter.h: (0.6.3)
+	* matlab/MatlabImportFilter.hxx: (0.6.3)
+
+	- Move method definitions from the .h file to the .hxx file.
+
+	- Replace SetMatlabArgumentsPointer() and
+	SetAdditionalMatlabArgumentPointer() by
+	RegisterArrayOfInputArgumentsFromMatlab() and
+	RegisterInputArgumentFromMatlab(), and add
+	RegisterInputFieldArgumentFromMatlab().
+
+	- This is not where we want to be with the code, but we need this
+	intermediate commit that builds to avoid getting a mess that
+	doesn't compile.
+
+	* matlab/MatlabExportFilter.hxx: (0.3.3)
+	* matlab/MatlabExportFilter.h: (0.3.1)
+
+	- Renaming of methods SetMatlabArgumentsPointer() as
+	RegisterArrayOfOutputArgumentsToMatlab() and
+	GetNumberOfArguments() as GetNumberOfRegisteredArguments().
+
+	* matlab/ItkToolbox/CMakeLists.txt: (0.6.5)
+
+	- Add itk_icp_registration.
+
+	- Group the include directories.
+
 2013-08-12  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/MatlabImportFilter.h: (0.6.2)

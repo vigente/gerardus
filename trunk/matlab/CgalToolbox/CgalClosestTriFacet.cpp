@@ -36,7 +36,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.4
+  * Version: 0.1.5
   * $Rev$
   * $Date$
   *
@@ -104,14 +104,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   // interface to deal with input arguments from Matlab
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
-  matlabImport->SetMatlabArgumentsPointer(nrhs, prhs);
+  matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
 
   // check that we have at least a filter name and input image
   matlabImport->CheckNumberOfArguments(3, 3);
 
   // interface to deal with outputs to Matlab
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
-  matlabExport->SetMatlabArgumentsPointer(nlhs, plhs);
+  matlabExport->RegisterArrayOfOutputArgumentsToMatlab(nlhs, plhs);
 
   // check number of outputs the user is asking for
   matlabExport->CheckNumberOfArguments(0, 3);
@@ -190,13 +190,13 @@ void mexFunction(int nlhs, mxArray *plhs[],
   if (plhs[0] == NULL) {
     mexErrMsgTxt("Cannot allocate memory for output 0");
   }
-  if (matlabExport->GetNumberOfArguments() > 1) {
+  if (matlabExport->GetNumberOfRegisteredArguments() > 1) {
     plhs[1] = mxCreateNumericMatrix(nrowsXi, 1, mxDOUBLE_CLASS, mxREAL);
     if (plhs[1] == NULL) {
       mexErrMsgTxt("Cannot allocate memory for output 1");
     }
   }
-  if (matlabExport->GetNumberOfArguments() > 2) {
+  if (matlabExport->GetNumberOfRegisteredArguments() > 2) {
     plhs[2] = mxCreateNumericMatrix(nrowsXi, 3, mxDOUBLE_CLASS, mxREAL);
     if (plhs[2] == NULL) {
       mexErrMsgTxt("Cannot allocate memory for output 2");
@@ -209,14 +209,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mexErrMsgTxt("Cannot get pointer to allocated output 0");
   }
   double *d = NULL;
-  if (matlabExport->GetNumberOfArguments() > 1) {
+  if (matlabExport->GetNumberOfRegisteredArguments() > 1) {
     d = (double *)mxGetData(plhs[1]);
     if (d == NULL) {
       mexErrMsgTxt("Cannot get pointer to allocated output 1");
     }
   }
   double *p = NULL;
-  if (matlabExport->GetNumberOfArguments() > 2) {
+  if (matlabExport->GetNumberOfRegisteredArguments() > 2) {
     p = (double *)mxGetData(plhs[2]);
     if (p == NULL) {
       mexErrMsgTxt("Cannot get pointer to allocated output 2");
@@ -247,7 +247,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // std::cout << "facet mem address: " << &(*pp.second) << std::endl;
 
     // computes distance from query point to closest triangle
-    if (matlabExport->GetNumberOfArguments() > 1) {
+    if (matlabExport->GetNumberOfRegisteredArguments() > 1) {
       d[i] = 0;
       d[i] += (pp.first[0]-xi[0])*(pp.first[0]-xi[0]);
       d[i] += (pp.first[1]-xi[1])*(pp.first[1]-xi[1]);
@@ -256,7 +256,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
 
     // closest point on the surface to the testing point
-    if (matlabExport->GetNumberOfArguments() > 2) {
+    if (matlabExport->GetNumberOfRegisteredArguments() > 2) {
       p[i] = pp.first[0];
       p[i + nrowsXi] = pp.first[1];
       p[i + 2*nrowsXi] = pp.first[2];

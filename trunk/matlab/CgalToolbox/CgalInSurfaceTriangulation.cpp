@@ -72,7 +72,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.2.3
+  * Version: 0.2.4
   * $Rev$
   * $Date$
   *
@@ -180,14 +180,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   // interface to deal with input arguments from Matlab
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
-  matlabImport->SetMatlabArgumentsPointer(nrhs, prhs);
+  matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
 
   // check that we have at least tri, x and xi
   matlabImport->CheckNumberOfArguments(3, 5);
 
   // interface to deal with outputs to Matlab
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
-  matlabExport->SetMatlabArgumentsPointer(nlhs, plhs);
+  matlabExport->RegisterArrayOfOutputArgumentsToMatlab(nlhs, plhs);
 
   // check number of outputs the user is asking for
   matlabExport->CheckNumberOfArguments(0, 1);
@@ -258,18 +258,18 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mexErrMsgTxt("Not enough memory to accelerate distance queries");
   }
 
-  if (mxIsCell(matlabImport->GetArg(2))) { // xi is given by 3 vectors
+  if (mxIsCell(matlabImport->GetRegisteredArgument(2))) { // xi is given by 3 vectors
 					   // that describe a
 					   // rectangular volume we
 					   // want to test
 
     // check that the cell contains three vectors and get pointers to them
-    if (mxGetN(matlabImport->GetArg(2)) != 3) {
+    if (mxGetN(matlabImport->GetRegisteredArgument(2)) != 3) {
       mexErrMsgTxt("CI must be a cell array given as a row with 3 elements");
     }
-    mxArray *pXi = mxGetCell(matlabImport->GetArg(2), 0);
-    mxArray *pYi = mxGetCell(matlabImport->GetArg(2), 1);
-    mxArray *pZi = mxGetCell(matlabImport->GetArg(2), 2);
+    mxArray *pXi = mxGetCell(matlabImport->GetRegisteredArgument(2), 0);
+    mxArray *pYi = mxGetCell(matlabImport->GetRegisteredArgument(2), 1);
+    mxArray *pZi = mxGetCell(matlabImport->GetRegisteredArgument(2), 2);
     if (pXi == NULL || pYi == NULL || pZi == NULL) {
       mexErrMsgTxt("Cannot get pointer to vectors inside cell array CI");
     }
@@ -312,9 +312,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     // register the vectors in the cell array CI with the matlab
     // import interface so that we can access their values
-    size_t idXi = matlabImport->SetAdditionalMatlabArgumentPointer(pXi);
-    size_t idYi = matlabImport->SetAdditionalMatlabArgumentPointer(pYi);
-    size_t idZi = matlabImport->SetAdditionalMatlabArgumentPointer(pZi);
+    size_t idXi = matlabImport->RegisterInputArgumentFromMatlab(pXi);
+    size_t idYi = matlabImport->RegisterInputArgumentFromMatlab(pYi);
+    size_t idZi = matlabImport->RegisterInputArgumentFromMatlab(pZi);
 
     // loop every point that is tested to see whether it's inside or
     // outside the surface

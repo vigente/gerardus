@@ -31,7 +31,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.3
+  * Version: 0.1.4
   * $Rev$
   * $Date$
   *
@@ -105,14 +105,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   // interface to deal with input arguments from Matlab
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
-  matlabImport->SetMatlabArgumentsPointer(nrhs, prhs);
+  matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
 
   // check the number of input arguments
   matlabImport->CheckNumberOfArguments(2, 2);
 
   // interface to deal with outputs to Matlab
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
-  matlabExport->SetMatlabArgumentsPointer(nlhs, plhs);
+  matlabExport->RegisterArrayOfOutputArgumentsToMatlab(nlhs, plhs);
 
   // check number of outputs the user is asking for
   matlabExport->CheckNumberOfArguments(0, 1);
