@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -80,13 +80,13 @@ public:
 
   // function to import into this class the array with the arguments
   // provided by Matlab
-  void SetMatlabArgumentsPointer(int _nlhs, mxArray *_plhs[]) {
+  void RegisterArrayOfOutputArgumentsToMatlab(int _nlhs, mxArray *_plhs[]) {
     this->numArgs = _nlhs;
     this->args = _plhs;
   }
 
   // get number of elements in the list of arguments
-  unsigned int GetNumberOfArguments() {
+  unsigned int GetNumberOfRegisteredArguments() {
     return this->numArgs;
   }
 

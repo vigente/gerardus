@@ -11,7 +11,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.0.1
+  * Version: 0.0.2
   * $Rev$
   * $Date$
   *
@@ -83,14 +83,18 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   // interface to deal with input arguments from Matlab
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
-  matlabImport->SetMatlabArgumentsPointer(nrhs, prhs);
+  matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
 
   // check the number of input arguments
   matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
 
   // interface to deal with outputs to Matlab
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
-  matlabExport->SetMatlabArgumentsPointer(nlhs, plhs);
+
+
+  return;//////////////////////////////////////////
+
+  matlabExport->RegisterArrayOfOutputArgumentsToMatlab(nlhs, plhs);
 
   // check number of outputs the user is asking for
   matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
@@ -120,7 +124,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     // read a point from the input array
     PointType point 
-      = matlabImport->GetRowVectorArgument<PointType::ValueType, PointType, Dimension>(IN_X, i, "X", def);
+      = matlabImport->ReadRowVectorFromMatlab<PointType::ValueType, PointType, Dimension>(IN_X, i, "X", def);
 
     // add the point to the point set
     fixedPointSet->SetPoint(i, point);
@@ -131,7 +135,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     // read a point from the input array
     PointType point 
-      = matlabImport->GetRowVectorArgument<PointType::ValueType, PointType, Dimension>(1, i, "Y", def);
+      = matlabImport->ReadRowVectorFromMatlab<PointType::ValueType, PointType, Dimension>(1, i, "Y", def);
 
     // add the point to the point set
     movingPointSet->SetPoint(i, point);
@@ -246,9 +250,20 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   switch (optimizerLabel) {
   case OPTIMIZER_LevenbergMarquardt:
+    // register the fields from the optimizer struct
+    //    matlabImport->RegisterInputArgumentFromMatlab(mxGetField());
+
+
     optimizerLevenbergMarquardt = LevenbergMarquardtOptimizerType::New();
     optimizerLevenbergMarquardt->SetUseCostFunctionGradient(false);
-    optimizerLevenbergMarquardt->SetNumberOfIterations(100);
+
+
+
+    // optimizerLevenbergMarquardt->SetNumberOfIterations
+    //   (matlabImport->ReadScalarFromMatlab<double>()
+    //    );
+
+
     optimizerLevenbergMarquardt->SetValueTolerance(1e-5);
     optimizerLevenbergMarquardt->SetGradientTolerance(1e-5);
     optimizerLevenbergMarquardt->SetEpsilonFunction(1e-6);

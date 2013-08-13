@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.3.2
+  * Version: 0.3.3
   * $Rev$
   * $Date$
   *
@@ -290,7 +290,7 @@ MatlabExportFilter::CopyVectorOfVectorsToMatlab(unsigned int idx, std::string pa
   // e.g. my_mex_function([1 4.4 2]); we need to allocate memory for an empty
   // matrix, otherwise Matlab will give an "One or more output
   // arguments not assigned during call to..." error
-  if (idx >= this->GetNumberOfArguments()) {
+  if (idx >= this->GetNumberOfRegisteredArguments()) {
     if (idx == 0) {
       this->args[0] = mxCreateDoubleMatrix(0, 0, mxREAL);
     } else {
