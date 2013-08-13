@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.6.3
+  * Version: 0.6.4
   * $Rev$
   * $Date$
   *
@@ -192,7 +192,7 @@ VectorType MatlabImportFilter::ReadMatlabArrayHalfSize(int idx,
 					    VectorType def){
 
   // if user didn't provide a value, or provided an empty array, return the default
-  if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
+  if (idx >= (int)this->args.size() || mxIsEmpty(this->args[idx])) {
     return def;
   }
 
@@ -468,7 +468,7 @@ VectorType MatlabImportFilter::ReadRowVectorFromMatlab(int idx,
 
   // if user didn't provide a value, or provided an empty array,
   // return default
-  if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
+  if (idx >= (int)this->args.size() || mxIsEmpty(this->args[idx])) {
     return def;
   }
 
