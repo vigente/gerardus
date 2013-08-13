@@ -1,5 +1,9 @@
 2013-08-13  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/MatlabImportFilter.hxx: (0.6.4)
+
+	- Remove two warnings due to signed/unsigned comparison.
+
 	* matlab/CgalToolbox/CgalClosestTriFacet.cpp: (0.1.5)
 	* matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp: (0.2.4)
 	* matlab/CgalToolbox/CgalCheckSelfIntersect.cpp: (0.1.4)
