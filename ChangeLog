@@ -1,4 +1,16 @@
+2013-08-15  Ramon Casero  <rcasero@gmail.com>
+
+ 	* matlab/test/test_cgal_closest_trifacet.m: (0.2.3)
+
+	- Add plot to tetrahedron example.
+
 2013-08-13  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/MatlabExportFilter.h: (0.4.0)
+
+	- Rename RegisterArrayOfOutputArgumentsToMatlab() as
+	ConnectToMatlabFunctionOutput(), as this is more descriptive, and
+	we are now going to use register only for specific outputs.
 
 	* matlab/MatlabImportFilter.hxx: (0.6.4)
 
