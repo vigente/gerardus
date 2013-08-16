@@ -49,7 +49,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.6
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -120,11 +120,8 @@ typedef Alpha_shape_3::Facet                         Facet;
 void mexFunction(int nlhs, mxArray *plhs[], 
 		 int nrhs, const mxArray *prhs[]) {
 
-  // indices for inputs and outputs
-  enum InputIndexType {IN_X, IN_ALPHA, IN_NCOMP, InputIndexType_MAX};
-  enum OutputIndexType {OUT_ALPHAINT, OUT_TRI, OutputIndexType_MAX};
-
   // interface to deal with input arguments from Matlab
+  enum InputIndexType {IN_X, IN_ALPHA, IN_NCOMP, InputIndexType_MAX};
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
   matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
 
@@ -132,16 +129,22 @@ void mexFunction(int nlhs, mxArray *plhs[],
   matlabImport->CheckNumberOfArguments(1, InputIndexType_MAX);
 
   // interface to deal with outputs to Matlab
+  enum OutputIndexType {OUT_ALPHAINT, OUT_TRI, OutputIndexType_MAX};
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
-  matlabExport->RegisterArrayOfOutputArgumentsToMatlab(nlhs, plhs);
+  matlabExport->ConnectToMatlabFunctionOutput(nlhs, plhs);
 
   // check number of outputs the user is asking for
   matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
 
+  // register the outputs for this function at the export filter
+  typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+  MatlabOutputPointer outALPHAINT = matlabExport->RegisterOutput(OUT_ALPHAINT, "ALPHAINT");
+  MatlabOutputPointer outTRI = matlabExport->RegisterOutput(OUT_TRI, "TRI");
+
   // if the set of points is empty, the outputs are empty too
   if (mxIsEmpty(prhs[IN_X])) {
-    plhs[0] = mxCreateNumericMatrix(0, 0, mxDOUBLE_CLASS, mxREAL);
-    plhs[1] = mxCreateNumericMatrix(0, 0, mxDOUBLE_CLASS, mxREAL);
+    matlabExport->CopyEmptyArrayToMatlab(outALPHAINT);
+    matlabExport->CopyEmptyArrayToMatlab(outTRI);
     return;
   }
 
@@ -212,17 +215,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // std::cout << "Alpha shape computed in REGULARIZED mode by default"
   //           << std::endl;
 
-  // create output for the alpha interval
-  plhs[OUT_ALPHAINT] = mxCreateNumericMatrix(1, 3, mxDOUBLE_CLASS, mxREAL);
-  if (plhs[OUT_ALPHAINT] == NULL) {
-    mexErrMsgTxt("Cannot allocate memory for output ALPHAINT" );
-  }
-  
-  // pointer to the alpha interval output
-  double *alphaintOut = (double *)mxGetData(plhs[OUT_ALPHAINT]); // triangulation
-  if (alphaintOut == NULL) {
-    mexErrMsgTxt("Memory for output ALPHAINT has been allocated, but I cannot get a pointer to it");
-  }
+  // allocate memory for the outputs and get pointers to the corresponding buffers
+  double *alphaintOut = matlabExport->AllocateRowVectorInMatlab<double>(outALPHAINT, 3);
 
   // write alpha interval output
   Alpha_iterator alphaOptIt = as.find_optimal_alpha(numComponents);
@@ -240,8 +234,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     ->ReadArrayAsVectorFromMatlab<double, std::vector<double> >(IN_ALPHA, "ALPHA", alphaDef);
 
   // create a cell per surface triangulation that we are going to
-  // extract not that each cell is unpopulated, and we would get an
-  // error if we try mxGetCell() before populating them
+  // extract
   const mwSize triDims[2] = {1, alpha.size()};
   plhs[OUT_TRI] = mxCreateCellArray(2, triDims);
   if (plhs[OUT_TRI] == NULL) {
@@ -270,20 +263,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // // DEBUG:
     // std::cout << "Number of facets = " << facets.size() << std::endl;
 
-    // allocate memory in the current cell for the surface triangulation
-    if (facets.size() == 0) {
-      mxSetCell(plhs[OUT_TRI], i, mxCreateNumericMatrix(0, 0, mxDOUBLE_CLASS, mxREAL));
-      continue;
-    } else {
-      mxSetCell(plhs[OUT_TRI], i, mxCreateNumericMatrix(facets.size(), 3, mxDOUBLE_CLASS, mxREAL));
-    }
-
-    // pointer to the triangulation output
-    double *triOut = (double *)mxGetData(mxGetCell(plhs[OUT_TRI], i));
-    if (triOut == NULL) {
-      mexErrMsgTxt("Memory for output TRI has been allocated, but I cannot get a pointer to it");
-    }
-
+    // allocate memory in the current cell for the surface 
+    double *triOut = matlabExport->AllocateMatrixInCellInMatlab<double>(outTRI, i, facets.size(), 3);
+    
     // write facets to Matlab output
     mwSize row = 0; // row index of Matlab output
     for (std::list<Facet>::iterator it = facets.begin(); it != facets.end(); ++it) {

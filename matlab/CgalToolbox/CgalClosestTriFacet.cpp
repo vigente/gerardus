@@ -36,7 +36,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.5
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -103,24 +103,32 @@ void mexFunction(int nlhs, mxArray *plhs[],
 		 int nrhs, const mxArray *prhs[]) {
 
   // interface to deal with input arguments from Matlab
+  enum InputIndexType {IN_TRI, IN_X, IN_XI, InputIndexType_MAX};
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
   matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
 
   // check that we have at least a filter name and input image
-  matlabImport->CheckNumberOfArguments(3, 3);
+  matlabImport->CheckNumberOfArguments(3, InputIndexType_MAX);
 
   // interface to deal with outputs to Matlab
+  enum OutputIndexType {OUT_IDX, OUT_D, OUT_P, OutputIndexType_MAX};
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
-  matlabExport->RegisterArrayOfOutputArgumentsToMatlab(nlhs, plhs);
+  matlabExport->ConnectToMatlabFunctionOutput(nlhs, plhs);
 
   // check number of outputs the user is asking for
-  matlabExport->CheckNumberOfArguments(0, 3);
+  matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
+
+  // register the outputs for this function at the export filter
+  typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+  MatlabOutputPointer outIDX = matlabExport->RegisterOutput(OUT_IDX, "IDX");
+  MatlabOutputPointer outD = matlabExport->RegisterOutput(OUT_D, "D");
+  MatlabOutputPointer outP = matlabExport->RegisterOutput(OUT_P, "P");
 
   // if any of the inputs is empty, the output is empty too
-  if (mxIsEmpty(prhs[0]) || mxIsEmpty(prhs[1]) || mxIsEmpty(prhs[2])) {
-    plhs[0] = mxCreateNumericMatrix(0, 0, mxDOUBLE_CLASS, mxREAL);
-    plhs[1] = mxCreateNumericMatrix(0, 0, mxDOUBLE_CLASS, mxREAL);
-    plhs[2] = mxCreateNumericMatrix(0, 0, mxDOUBLE_CLASS, mxREAL);
+  if (mxIsEmpty(prhs[IN_TRI]) || mxIsEmpty(prhs[IN_X]) || mxIsEmpty(prhs[IN_XI])) {
+    matlabExport->CopyEmptyArrayToMatlab(outIDX);
+    matlabExport->CopyEmptyArrayToMatlab(outD);
+    matlabExport->CopyEmptyArrayToMatlab(outP);
     return;
   }
 
@@ -129,11 +137,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
   Point def(mxGetNaN(), mxGetNaN(), mxGetNaN());
 
   // get size of input matrix
-  mwSize nrowsTri = mxGetM(prhs[0]);
-  mwSize nrowsXi = mxGetM(prhs[2]);
-  mwSize ncolsTri = mxGetN(prhs[0]);
-  mwSize ncolsX = mxGetN(prhs[1]);
-  mwSize ncolsXi = mxGetN(prhs[2]);
+  mwSize nrowsTri = mxGetM(prhs[IN_TRI]);
+  mwSize nrowsXi = mxGetM(prhs[IN_XI]);
+  mwSize ncolsTri = mxGetN(prhs[IN_TRI]);
+  mwSize ncolsX = mxGetN(prhs[IN_X]);
+  mwSize ncolsXi = mxGetN(prhs[IN_XI]);
   if ((ncolsTri != 3) || (ncolsX != 3) || (ncolsXi != 3)) {
     mexErrMsgTxt("All input arguments must have 3 columns");
   }
@@ -151,18 +159,18 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     // get indices of the 3 vertices of each triangle. These indices
     // follow Matlab's convention v0 = 1, 2, ..., n
-    v0 = matlabImport->ReadScalarFromMatlab<mwIndex>(0, i, 0, "TRI", mxGetNaN());
-    v1 = matlabImport->ReadScalarFromMatlab<mwIndex>(0, i, 1, "TRI", mxGetNaN());
-    v2 = matlabImport->ReadScalarFromMatlab<mwIndex>(0, i, 2, "TRI", mxGetNaN());
+    v0 = matlabImport->ReadScalarFromMatlab<mwIndex>(IN_TRI, i, 0, "TRI", mxGetNaN());
+    v1 = matlabImport->ReadScalarFromMatlab<mwIndex>(IN_TRI, i, 1, "TRI", mxGetNaN());
+    v2 = matlabImport->ReadScalarFromMatlab<mwIndex>(IN_TRI, i, 2, "TRI", mxGetNaN());
     if (mxIsNaN(v0) || mxIsNaN(v1) || mxIsNaN(v2)) {
       mexErrMsgTxt("Parameter TRI: Vertex index is NaN");
     }
     
     // get coordinates of the 3 vertices (substracting 1 so that
     // indices follow the C++ convention 0, 1, ..., n-1)
-    x0 = matlabImport->ReadRowVectorFromMatlab<double, Point>(1, v0 - 1, "X", def);
-    x1 = matlabImport->ReadRowVectorFromMatlab<double, Point>(1, v1 - 1, "X", def);
-    x2 = matlabImport->ReadRowVectorFromMatlab<double, Point>(1, v2 - 1, "X", def);
+    x0 = matlabImport->ReadRowVectorFromMatlab<double, Point>(IN_X, v0 - 1, "X", def);
+    x1 = matlabImport->ReadRowVectorFromMatlab<double, Point>(IN_X, v1 - 1, "X", def);
+    x2 = matlabImport->ReadRowVectorFromMatlab<double, Point>(IN_X, v2 - 1, "X", def);
 
     // add triangle to the vector of triangles in the surface
     triangles[i] = Triangle(x0, x1, x2);
@@ -185,44 +193,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mexErrMsgTxt("Not enough memory to accelerate distance queries");
   }
 
-  // initialise outputs
-  plhs[0] = mxCreateNumericMatrix(nrowsXi, 1, mxDOUBLE_CLASS, mxREAL);
-  if (plhs[0] == NULL) {
-    mexErrMsgTxt("Cannot allocate memory for output 0");
-  }
-  if (matlabExport->GetNumberOfRegisteredArguments() > 1) {
-    plhs[1] = mxCreateNumericMatrix(nrowsXi, 1, mxDOUBLE_CLASS, mxREAL);
-    if (plhs[1] == NULL) {
-      mexErrMsgTxt("Cannot allocate memory for output 1");
-    }
-  }
-  if (matlabExport->GetNumberOfRegisteredArguments() > 2) {
-    plhs[2] = mxCreateNumericMatrix(nrowsXi, 3, mxDOUBLE_CLASS, mxREAL);
-    if (plhs[2] == NULL) {
-      mexErrMsgTxt("Cannot allocate memory for output 2");
-    }
-  }
-    
-  // pointer to the outputs
-  double *f = (double *)mxGetData(plhs[0]);
-  if (f == NULL) {
-    mexErrMsgTxt("Cannot get pointer to allocated output 0");
-  }
-  double *d = NULL;
-  if (matlabExport->GetNumberOfRegisteredArguments() > 1) {
-    d = (double *)mxGetData(plhs[1]);
-    if (d == NULL) {
-      mexErrMsgTxt("Cannot get pointer to allocated output 1");
-    }
-  }
-  double *p = NULL;
-  if (matlabExport->GetNumberOfRegisteredArguments() > 2) {
-    p = (double *)mxGetData(plhs[2]);
-    if (p == NULL) {
-      mexErrMsgTxt("Cannot get pointer to allocated output 2");
-    }
-  }
-  
+  // allocate memory for the outputs and get pointers to the corresponding buffers
+  double *f = matlabExport->AllocateColumnVectorInMatlab<double>(outIDX, nrowsXi);
+  double *d = matlabExport->AllocateColumnVectorInMatlab<double>(outD, nrowsXi);
+  double *p = matlabExport->AllocateMatrixInMatlab<double>(outP, nrowsXi, 3);
+
   // loop every point to compute its distance to, intersection with
   // and closest facet of the surface
   Point xi; // test point coordinates
@@ -232,7 +207,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     ctrlcCheckPoint(__FILE__, __LINE__);
     
     // get point coordinates to be tested
-    xi = matlabImport->ReadRowVectorFromMatlab<double, Point>(2, i, "XI", def);
+    xi = matlabImport->ReadRowVectorFromMatlab<double, Point>(IN_XI, i, "XI", def);
 
     // // debug: print coordinates of point being tested
     // std::cout << "point = " << xi << std::endl;
@@ -247,7 +222,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // std::cout << "facet mem address: " << &(*pp.second) << std::endl;
 
     // computes distance from query point to closest triangle
-    if (matlabExport->GetNumberOfRegisteredArguments() > 1) {
+    if (matlabExport->GetNumberOfOutputArguments() > 1) {
       d[i] = 0;
       d[i] += (pp.first[0]-xi[0])*(pp.first[0]-xi[0]);
       d[i] += (pp.first[1]-xi[1])*(pp.first[1]-xi[1]);
@@ -256,7 +231,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
 
     // closest point on the surface to the testing point
-    if (matlabExport->GetNumberOfRegisteredArguments() > 2) {
+    if (matlabExport->GetNumberOfOutputArguments() > 2) {
       p[i] = pp.first[0];
       p[i + nrowsXi] = pp.first[1];
       p[i + 2*nrowsXi] = pp.first[2];

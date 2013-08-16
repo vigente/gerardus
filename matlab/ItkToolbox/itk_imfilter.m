@@ -130,9 +130,7 @@ function im = itk_imfilter(varargin)
 %   RADIUS = 0 and no dilation is performed.
 %
 %   FOREGROUND is a scalar. Voxels with that value will be the only ones
-%   dilated. By default, FOREGROUND is the maximum value allowed for the
-%   type, e.g. FOREGROUND=255 if the image is uint8. This is the default in
-%   ITK, so we respect it.
+%   dilated. By default, FOREGROUND=1.
 %
 % -------------------------------------------------------------------------
 %
@@ -289,7 +287,7 @@ function im = itk_imfilter(varargin)
 %
 %   B is a binary image of the same size and type as A.
 %
-% B = itk_imfilter(..., RADIUS, THR, BACKGROUND, FOREGROUND)
+% B = itk_imfilter(..., RADIUS, MAXITER, THR, BACKGROUND, FOREGROUND)
 %
 %   RADIUS is an array with the same dimension as A. RADIUS gives the
 %   radius of the box around the current voxel in each dimension. Each
@@ -297,8 +295,12 @@ function im = itk_imfilter(varargin)
 %   background voxel should be flipped to foreground. By default RADIUS is
 %   1 in all dimensions, i.e. a box of side = 3.
 %
+%   MAXITER is a scalar with the maximum number of iterations. By default,
+%   MAXITER=1.
+%
 %   THR is the majority threshold, i.e. the number of pixels over 50% that
 %   will decide whether a background pixel will become foreground or not.
+%   By default, THR=2.
 %
 %   BACKGROUND, FOREGROUND are the voxel values for background and
 %   foreground voxels, respectively. By default, BACKGROUND=0,
@@ -354,7 +356,7 @@ function im = itk_imfilter(varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.7.3
+% Version: 0.7.4
 % $Rev$
 % $Date$
 %

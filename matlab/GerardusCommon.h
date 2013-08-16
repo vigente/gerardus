@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011 University of Oxford
-  * Version: 0.10.0
+  * Version: 0.10.1
   * $Rev$
   * $Date$
   *
@@ -175,6 +175,9 @@ void ctrlcErrMsgTxt(std::string sourceFile, int lineNumber) {
  * R, C, S: size of the array in rows, columns and slices, respectively
  * rcs: subindices to be converted
  * r, c, s: subindices to be converted
+ *
+ * Note: This can be done with mxCalcSingleSubscript(), but the MEX
+ * API does not have a function to go the opposite way.
  *
  */
 inline

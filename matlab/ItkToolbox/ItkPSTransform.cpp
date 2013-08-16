@@ -66,7 +66,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011-2013 University of Oxford
-  * Version: 0.3.3
+  * Version: 0.4.0
   * $Rev$
   * $Date$
   *
@@ -124,63 +124,53 @@
 #include "itkBSplineControlPointImageFunction.h"
 #endif
 
-/* Gerardus common functions */
+/* Gerardus headers */
 #include "GerardusCommon.h"
+#include "MatlabImportFilter.h"
+#include "MatlabExportFilter.h"
+
+/* Inputs/outputs interfaces */
+enum InputIndexType {IN_TRANSFORM, IN_X, IN_Y, IN_XI, 
+		     IN_ORDER, IN_LEVELS, InputIndexType_MAX}; // IN_ORDER, IN_LEVELS only for B-spline
+enum OutputIndexType {OUT_YI, OutputIndexType_MAX};
 
 /* Functions */
 
 // runBSplineTransform<TScalarType, Dimension>()
 template <class TScalarType, unsigned int Dimension>
-void runBSplineTransform(int nArgIn, const mxArray** argIn,
-			 mxArray** argOut) {
+void runBSplineTransform(MatlabImportFilter::Pointer matlabImport,
+			 MatlabExportFilter::Pointer matlabExport) {
 
-  // check number of input arguments
-  if (nArgIn > 6) {
-    mexErrMsgTxt("Too many input arguments");
-  }
+  // register the output for this function at the export filter
+  typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+  MatlabOutputPointer outYI = matlabExport->RegisterOutput(OUT_YI, "YI");
 
   // spline order (input argument): default or user-provided
-  unsigned int splineOrder = 3;
-  if ((nArgIn > 4) && !mxIsEmpty(argIn[4])) {
-    if (!mxIsDouble(argIn[4]) 
-	|| mxIsComplex(argIn[4])
-	|| (mxGetM(argIn[4]) != 1) 
-	|| (mxGetN(argIn[4]) != 1)) {
-      mexErrMsgTxt("ORDER must be an integer scalar of type double >= 0");
-    }
-    double *pSplineOrder = mxGetPr(argIn[4]);
-    if ((pSplineOrder[0] < 0) 
-	|| (pSplineOrder[0] != std::floor(pSplineOrder[0] + 0.5))) {
-      mexErrMsgTxt("ORDER must be an integer scalar of type double >= 0");
-    }
-    splineOrder = (unsigned int)pSplineOrder[0];
-  }  
+  unsigned int splineOrder = matlabImport->ReadScalarFromMatlab<unsigned int>(IN_ORDER, "ORDER", 3);
 
   // number of levels (input argument): default or user-provided
-  unsigned int numOfLevels = 5;
-  if ((nArgIn > 5) && !mxIsEmpty(argIn[5])) {
-    if (!mxIsDouble(argIn[5]) 
-	|| mxIsComplex(argIn[5])
-	|| (mxGetM(argIn[5]) != 1) 
-	|| (mxGetN(argIn[5]) != 1)) {
-      mexErrMsgTxt("LEVELS must be an integer scalar of type double >= 1");
-    }
-    double *pNumOfLevels = mxGetPr(argIn[5]);
-    if ((pNumOfLevels[0] < 1) 
-	|| (pNumOfLevels[0] != std::floor(pNumOfLevels[0] + 0.5))) {
-      mexErrMsgTxt("LEVELS must be an integer scalar of type double >= 1");
-    }
-    numOfLevels = (unsigned int)pNumOfLevels[0];
-  }  
+  unsigned int numOfLevels = matlabImport->ReadScalarFromMatlab<unsigned int>(IN_LEVELS, "LEVELS", 5);
 
   // get size of input arguments
-  mwSize Mx = mxGetM(argIn[1]); // number of source points
-  mwSize Mxi = mxGetM(argIn[3]); // number of points to be warped
+  mwSize Mx = mxGetM(matlabImport->GetRegisteredArgument(IN_X)); // number of source points
+  mwSize Mxi = mxGetM(matlabImport->GetRegisteredArgument(IN_XI)); // number of points to be warped
 
   // create pointers to input matrices
-  TScalarType *x = (TScalarType *)mxGetData(argIn[1]); // source points
-  TScalarType *y = (TScalarType *)mxGetData(argIn[2]); // target points
-  TScalarType *xi = (TScalarType *)mxGetData(argIn[3]); // points to be warped
+  TScalarType *x 
+    = (TScalarType *)mxGetData(matlabImport->GetRegisteredArgument(IN_X)); // source points
+  TScalarType *y 
+    = (TScalarType *)mxGetData(matlabImport->GetRegisteredArgument(IN_Y)); // target points
+  TScalarType *xi 
+    = (TScalarType *)mxGetData(matlabImport->GetRegisteredArgument(IN_XI)); // points to be warped
+  if (x == NULL) {
+    mexErrMsgTxt("Cannot get a pointer to input X");
+  }
+  if (y == NULL) {
+    mexErrMsgTxt("Cannot get a pointer to input Y");
+  }
+  if (xi == NULL) {
+    mexErrMsgTxt("Cannot get a pointer to input XI");
+  }
 
   // type definitions for the BSPline transform
   typedef itk::Vector<TScalarType, Dimension> DataType;
@@ -286,17 +276,15 @@ void runBSplineTransform(int nArgIn, const mxArray** argIn,
   // run transform
   transform->Update();
 
-  // number of dimension of points to be warped
-  mwSize ndimxi = mxGetNumberOfDimensions(argIn[3]); 
-  // dimensions vector of array of points to be warped
-  const mwSize *dimsxi = mxGetDimensions(argIn[3]);
-
   // create output vector and pointer to populate it
-  argOut[0] = (mxArray *)mxCreateNumericArray(ndimxi, 
-  					      dimsxi, 
-  					      mxGetClassID(argIn[1]), 
-  					      mxREAL);
-  TScalarType *yi = (TScalarType *)mxGetData(argOut[0]);
+  mwSize ndimxi = mxGetNumberOfDimensions(matlabImport->GetRegisteredArgument(IN_XI)); 
+  const mwSize *dimsxi = mxGetDimensions(matlabImport->GetRegisteredArgument(IN_XI));
+  std::vector<mwSize> size;
+  for (mwIndex i = 0; i < ndimxi; ++i) {
+    size.push_back(dimsxi[i]);
+  }
+  TScalarType *yi 
+    = matlabExport->AllocateNDArrayInMatlab<TScalarType>(outYI, size);
 
   // from ITK v4.x, we need to instantiate a function to evaluate
   // points of the B-spline, as the Evaluate() method has been removed
@@ -341,24 +329,39 @@ void runBSplineTransform(int nArgIn, const mxArray** argIn,
 
 // runKernelTransform<TScalarType, Dimension, TransformType>()
 template <class TScalarType, unsigned int Dimension, class TransformType>
-void runKernelTransform(int nArgIn, const mxArray** argIn,
-			mxArray** argOut) {
+void runKernelTransform(MatlabImportFilter::Pointer matlabImport,
+			MatlabExportFilter::Pointer matlabExport) {
 
-  // check number of input arguments
-  if (nArgIn > 4) {
-    mexErrMsgTxt("Too many input arguments");
-  }
+  // check number of input arguments (the kernel transform syntax
+  // accepts up to 4 arguments only. Thus, we cannot use InputIndexType_MAX)
+  matlabImport->CheckNumberOfArguments(4, 4);
+
+  // register the outputs for this function at the export filter
+  typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+  MatlabOutputPointer outYI = matlabExport->RegisterOutput(OUT_YI, "YI");
 
   // get size of input arguments
-  mwSize Mx = mxGetM(argIn[1]); // number of source points
-  mwSize Mxi = mxGetM(argIn[3]); // number of points to be warped
+  mwSize Mx = mxGetM(matlabImport->GetRegisteredArgument(IN_X)); // number of source points
+  mwSize Mxi = mxGetM(matlabImport->GetRegisteredArgument(IN_XI)); // number of points to be warped
   mwSize ndimxi; // number of dimension of points to be warped
   const mwSize *dimsxi; // dimensions vector of array of points to be warped
 
   // create pointers to input matrices
-  TScalarType *x = (TScalarType *)mxGetData(argIn[1]); // source points
-  TScalarType *y = (TScalarType *)mxGetData(argIn[2]); // target points
-  TScalarType *xi = (TScalarType *)mxGetData(argIn[3]); // points to be warped
+  TScalarType *x 
+    = (TScalarType *)mxGetData(matlabImport->GetRegisteredArgument(IN_X)); // source points
+  TScalarType *y 
+    = (TScalarType *)mxGetData(matlabImport->GetRegisteredArgument(IN_Y)); // target points
+  TScalarType *xi 
+    = (TScalarType *)mxGetData(matlabImport->GetRegisteredArgument(IN_XI)); // points to be warped
+  if (x == NULL) {
+    mexErrMsgTxt("Cannot get a pointer to input X");
+  }
+  if (y == NULL) {
+    mexErrMsgTxt("Cannot get a pointer to input Y");
+  }
+  if (xi == NULL) {
+    mexErrMsgTxt("Cannot get a pointer to input XI");
+  }
 
   // type definitions and variables to store points for the kernel transform
   typedef typename TransformType::PointSetType PointSetType;
@@ -398,13 +401,14 @@ void runKernelTransform(int nArgIn, const mxArray** argIn,
   transform->ComputeWMatrix();
   
   // create output vector and pointer to populate it
-  ndimxi = mxGetNumberOfDimensions(argIn[3]);
-  dimsxi = mxGetDimensions(argIn[3]);
-  argOut[0] = (mxArray *)mxCreateNumericArray(ndimxi, 
-  					      dimsxi, 
-  					      mxGetClassID(argIn[1]), 
-  					      mxREAL);
-  TScalarType *yi = (TScalarType *)mxGetData(argOut[0]);
+  ndimxi = mxGetNumberOfDimensions(matlabImport->GetRegisteredArgument(IN_XI));
+  dimsxi = mxGetDimensions(matlabImport->GetRegisteredArgument(IN_XI));
+  std::vector<mwSize> size;
+  for (mwIndex i = 0; i < ndimxi; ++i) {
+    size.push_back(dimsxi[i]);
+  }
+  TScalarType *yi 
+    = matlabExport->AllocateNDArrayInMatlab<TScalarType>(outYI, size);
 
   // transform points
   for (mwSize row=0; row < Mxi; ++row) {
@@ -424,11 +428,11 @@ void runKernelTransform(int nArgIn, const mxArray** argIn,
 
 // parseTransformType<TScalarType, Dimension>()
 template <class TScalarType, unsigned int Dimension>
-void parseTransformType(int nArgIn, const mxArray** argIn,
-			mxArray** argOut) {
+void parseTransformType(MatlabImportFilter::Pointer matlabImport,
+			MatlabExportFilter::Pointer matlabExport) {
   
   // get type of transform
-  char *transform = mxArrayToString(argIn[0]);
+  char *transform = mxArrayToString(matlabImport->GetRegisteredArgument(IN_TRANSFORM));
   if (transform == NULL) {
     mexErrMsgTxt("Cannot read TRANSFORM string");
   }
@@ -448,21 +452,21 @@ void parseTransformType(int nArgIn, const mxArray** argIn,
   // select transform function
   if (!strcmp(transform, "elastic")) {
     runKernelTransform<TScalarType, Dimension, 
-		       ElasticTransformType>(nArgIn, argIn, argOut);
+		       ElasticTransformType>(matlabImport, matlabExport);
   } else if (!strcmp(transform, "elasticr")) {
     runKernelTransform<TScalarType, Dimension, 
-		       ElasticReciprocalTransformType>(nArgIn, argIn, argOut);
+		       ElasticReciprocalTransformType>(matlabImport, matlabExport);
   } else if (!strcmp(transform, "tps")) {
     runKernelTransform<TScalarType, Dimension, 
-		       TpsTransformType>(nArgIn, argIn, argOut);
+		       TpsTransformType>(matlabImport, matlabExport);
   } else if (!strcmp(transform, "tpsr2")) {
     runKernelTransform<TScalarType, Dimension, 
-		       TpsR2LogRTransformType>(nArgIn, argIn, argOut);
+		       TpsR2LogRTransformType>(matlabImport, matlabExport);
   } else if (!strcmp(transform, "volume")) {
     runKernelTransform<TScalarType, Dimension, 
-		       VolumeTransformType>(nArgIn, argIn, argOut);
+		       VolumeTransformType>(matlabImport, matlabExport);
   } else if (!strcmp(transform, "bspline")) {
-    runBSplineTransform<TScalarType, Dimension>(nArgIn, argIn, argOut);
+    runBSplineTransform<TScalarType, Dimension>(matlabImport, matlabExport);
   } else if (!strcmp(transform, "")) {
     std::cout << 
       "Implemented transform types: elastic, elasticr, tps, tpsr2, volume, bspline" 
@@ -479,19 +483,19 @@ void parseTransformType(int nArgIn, const mxArray** argIn,
 
 // parseDimensionToTemplate<TScalarType>()
 template <class TScalarType>
-void parseDimensionToTemplate(int nArgIn, const mxArray** argIn,
-			      mxArray** argOut) {
+void parseDimensionToTemplate(MatlabImportFilter::Pointer matlabImport,
+			      MatlabExportFilter::Pointer matlabExport) {
 
   // dimension of points
-  mwSize Nx = mxGetN(argIn[1]);
+  mwSize Nx = mxGetN(matlabImport->GetRegisteredArgument(IN_X));
 
   // parse the dimension value
   switch (Nx) {
   case 2:
-    parseTransformType<TScalarType, 2>(nArgIn, argIn, argOut);
+    parseTransformType<TScalarType, 2>(matlabImport, matlabExport);
     break;
   case 3:
-    parseTransformType<TScalarType, 3>(nArgIn, argIn, argOut);
+    parseTransformType<TScalarType, 3>(matlabImport, matlabExport);
     break;
   default:
     mexErrMsgTxt("Input points can only have dimensions 2 or 3");
@@ -504,26 +508,26 @@ void parseDimensionToTemplate(int nArgIn, const mxArray** argIn,
 }
 
 // parseInputTypeToTemplate()
-void parseInputTypeToTemplate(int nArgIn, const mxArray** argIn,
-			      mxArray** argOut) {
+void parseInputTypeToTemplate(MatlabImportFilter::Pointer matlabImport,
+			      MatlabExportFilter::Pointer matlabExport) {
 
   // point coordinate type
-  mxClassID pointCoordClassId = mxGetClassID(argIn[1]);
+  mxClassID pointCoordClassId = mxGetClassID(matlabImport->GetRegisteredArgument(IN_X));
 
   // check that all point coordinates have the same type (it simplifies
   // things with templates)
-  if ((pointCoordClassId != mxGetClassID(argIn[2]))
-      | (pointCoordClassId != mxGetClassID(argIn[3]))) {
+  if ((pointCoordClassId != mxGetClassID(matlabImport->GetRegisteredArgument(IN_Y)))
+      | (pointCoordClassId != mxGetClassID(matlabImport->GetRegisteredArgument(IN_XI)))) {
     mexErrMsgTxt("Input arguments X, Y and XI must have the same type");
   }
   
-  // swith input image type
+  // swith input point type
   switch(pointCoordClassId) {
   case mxDOUBLE_CLASS:
-    parseDimensionToTemplate<double>(nArgIn, argIn, argOut);
+    parseDimensionToTemplate<double>(matlabImport, matlabExport);
     break;
   case mxSINGLE_CLASS:
-    parseDimensionToTemplate<float>(nArgIn, argIn, argOut);
+    parseDimensionToTemplate<float>(matlabImport, matlabExport);
     break;
   case mxUNKNOWN_CLASS:
     mexErrMsgTxt("Point coordinates have unknown type");
@@ -544,35 +548,45 @@ void parseInputTypeToTemplate(int nArgIn, const mxArray** argIn,
 void mexFunction(int nlhs, mxArray *plhs[], 
 		 int nrhs, const mxArray *prhs[]) {
 
-  // check number of input and output arguments
-  if (nrhs < 4) {
-    mexErrMsgTxt("Not enough input arguments");
-  }
-  if (nlhs > 1) {
-    mexErrMsgTxt("Too many output arguments");
-  }
+  // interface to deal with input arguments from Matlab
+  MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
+  matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
+  
+  // interface to deal with output arguments from Matlab
+  MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
+  matlabExport->ConnectToMatlabFunctionOutput(nlhs, plhs);
+    
+  // register the outputs for this function at the export filter
+  typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+  MatlabOutputPointer outYI = matlabExport->RegisterOutput(OUT_YI, "YI");
 
+  // check number of input and output arguments
+  matlabImport->CheckNumberOfArguments(4, InputIndexType_MAX);
+  matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
+    
   // if there are no points to warp, return empty array
-  if (mxIsEmpty(prhs[3])) {
-    plhs[0] = mxCreateDoubleMatrix(0, 0, mxREAL);
+  if (mxIsEmpty(prhs[IN_XI])) {
+    matlabExport->CopyEmptyArrayToMatlab(outYI);
     return;
   }
 
   // check size of input arguments
-  mwSize Mx = mxGetM(prhs[1]); // number of source points
-  mwSize My = mxGetM(prhs[2]); // number of target points
-  mwSize Dimension = mxGetN(prhs[1]); // dimension of source points
-  mwSize dimy = mxGetN(prhs[2]); // dimension of target points
-  mwSize dimxi = mxGetN(prhs[3]); // dimension of points to be warped
+  mwSize Mx = mxGetM(prhs[IN_X]); // number of source points
+  mwSize My = mxGetM(prhs[IN_Y]); // number of target points
+  mwSize Dimension = mxGetN(prhs[IN_X]); // dimension of source points
+  mwSize dimy = mxGetN(prhs[IN_Y]); // dimension of target points
+  mwSize dimxi = mxGetN(prhs[IN_XI]); // dimension of points to be warped
   
   // the landmark arrays must have the same number of points
   // (degenerate case, both are empty)
-  if (Mx != My) mexErrMsgTxt("X and Y must have the same number of points (i.e. rows).");
+  if (Mx != My) {
+    mexErrMsgTxt("X and Y must have the same number of points (i.e. rows).");
+  }
 
   // if there are no landmarks, we apply no transformation to the
   // points to warp
-  if (mxIsEmpty(prhs[1])) {
-    plhs[0] = mxDuplicateArray(prhs[3]);
+  if (mxIsEmpty(prhs[IN_X])) {
+    plhs[OUT_YI] = mxDuplicateArray(prhs[IN_XI]);
     return;
   }
 
@@ -585,7 +599,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // to translate the run-time type variables like inputVoxelClassId
   // to templates, so that we don't need to nest lots of "switch" or
   // "if" statements)
-  parseInputTypeToTemplate(nrhs, prhs, plhs);
+  parseInputTypeToTemplate(matlabImport, matlabExport);
 
   // exit successfully
   return;
