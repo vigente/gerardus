@@ -72,7 +72,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012 University of Oxford
-  * Version: 0.2.4
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -179,22 +179,28 @@ void mexFunction(int nlhs, mxArray *plhs[],
 		 int nrhs, const mxArray *prhs[]) {
 
   // interface to deal with input arguments from Matlab
+  enum InputIndexType {IN_TRI, IN_X, IN_XI, IN_DIRECTIONS, IN_TOL, InputIndexType_MAX};
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
   matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
 
   // check that we have at least tri, x and xi
-  matlabImport->CheckNumberOfArguments(3, 5);
+  matlabImport->CheckNumberOfArguments(3, InputIndexType_MAX);
 
   // interface to deal with outputs to Matlab
+  enum OutputIndexType {OUT_ISIN, OutputIndexType_MAX};
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
-  matlabExport->RegisterArrayOfOutputArgumentsToMatlab(nlhs, plhs);
+  matlabExport->ConnectToMatlabFunctionOutput(nlhs, plhs);
 
   // check number of outputs the user is asking for
-  matlabExport->CheckNumberOfArguments(0, 1);
+  matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
+
+  // register the outputs for this function at the export filter
+  typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+  MatlabOutputPointer outISIN = matlabExport->RegisterOutput(OUT_ISIN, "ISIN");
 
   // if any of the inputs is empty, the output is empty too
-  if (mxIsEmpty(prhs[0]) || mxIsEmpty(prhs[1]) || mxIsEmpty(prhs[2])) {
-    plhs[0] = mxCreateNumericMatrix(0, 0, mxDOUBLE_CLASS, mxREAL);
+  if (mxIsEmpty(prhs[IN_TRI]) || mxIsEmpty(prhs[IN_X]) || mxIsEmpty(prhs[IN_XI])) {
+    matlabExport->CopyEmptyArrayToMatlab(outISIN);
     return;
   }
 
@@ -203,23 +209,23 @@ void mexFunction(int nlhs, mxArray *plhs[],
   direction.push_back(Direction(1.0, 0.0, 0.0));    // default directions if 
   direction.push_back(Direction(-1.0, 1.0, 1.0));   // not provided by the
   direction.push_back(Direction(-1.0, -1.0, -1.0)); // user
-  direction = matlabImport->ReadVectorOfVectorsFromMatlab<double, 
-								  Direction>(3, "DIR", direction);
+  direction = matlabImport->ReadVectorOfVectorsFromMatlab<double, Direction>(IN_DIRECTIONS, "DIR", direction);
 
   // distance tolerance value
-  double tol = matlabImport->ReadScalarFromMatlab<double>(4, "TOL", 1e-15);
+  double tol = matlabImport->ReadScalarFromMatlab<double>(IN_TOL, "TOL", 1e-15);
 
   // point coordinates with NaN values in case there's a problem reading them
   Point def(mxGetNaN(), mxGetNaN(), mxGetNaN());
 
   // get size of input matrix
-  mwSize nrowsTri = mxGetM(prhs[0]);
-  mwSize nrowsXi = mxGetM(prhs[2]);
-  mwSize ncolsTri = mxGetN(prhs[0]);
-  mwSize ncolsX = mxGetN(prhs[1]);
-  mwSize ncolsXi = mxGetN(prhs[2]);
+  mwSize nrowsTri = mxGetM(prhs[IN_TRI]);
+  mwSize nrowsXi = mxGetM(prhs[IN_XI]);
+  mwSize ncolsTri = mxGetN(prhs[IN_TRI]);
+  mwSize ncolsX = mxGetN(prhs[IN_X]);
+  mwSize ncolsXi = mxGetN(prhs[IN_XI]);
   if ((ncolsTri != 3) || (ncolsX != 3) || (ncolsXi != 3)) {
-    mexErrMsgTxt("All input arguments must have 3 columns");
+    mexErrMsgIdAndTxt("Gerardus:CgalInSurfaceTriangulation:WrongInputFormat", 
+		      "All input arguments must have 3 columns");
   }
 
   // read triangular mesh from function
@@ -233,18 +239,19 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     // get indices of the 3 vertices of each triangle. These indices
     // follow Matlab's convention v0 = 1, 2, ..., n
-    v0 = matlabImport->ReadScalarFromMatlab<mwIndex>(0, i, 0, "TRI", mxGetNaN());
-    v1 = matlabImport->ReadScalarFromMatlab<mwIndex>(0, i, 1, "TRI", mxGetNaN());
-    v2 = matlabImport->ReadScalarFromMatlab<mwIndex>(0, i, 2, "TRI", mxGetNaN());
+    v0 = matlabImport->ReadScalarFromMatlab<mwIndex>(IN_TRI, i, 0, "TRI", mxGetNaN());
+    v1 = matlabImport->ReadScalarFromMatlab<mwIndex>(IN_TRI, i, 1, "TRI", mxGetNaN());
+    v2 = matlabImport->ReadScalarFromMatlab<mwIndex>(IN_TRI, i, 2, "TRI", mxGetNaN());
     if (mxIsNaN(v0) || mxIsNaN(v1) || mxIsNaN(v2)) {
-      mexErrMsgTxt("Parameter TRI: Vertex index is NaN");
+      mexErrMsgIdAndTxt("Gerardus:CgalInSurfaceTriangulation:WrongInputFormat", 
+			"Parameter TRI: Vertex index is NaN");
     }
     
     // get coordinates of the 3 vertices (substracting 1 so that
     // indices follow the C++ convention 0, 1, ..., n-1)
-    x0 = matlabImport->ReadRowVectorFromMatlab<double, Point>(1, v0 - 1, "X", def);
-    x1 = matlabImport->ReadRowVectorFromMatlab<double, Point>(1, v1 - 1, "X", def);
-    x2 = matlabImport->ReadRowVectorFromMatlab<double, Point>(1, v2 - 1, "X", def);
+    x0 = matlabImport->ReadRowVectorFromMatlab<double, Point>(IN_X, v0 - 1, "X", def);
+    x1 = matlabImport->ReadRowVectorFromMatlab<double, Point>(IN_X, v1 - 1, "X", def);
+    x2 = matlabImport->ReadRowVectorFromMatlab<double, Point>(IN_X, v2 - 1, "X", def);
 
     // add triangle to the list of triangles in the surface
     triangles.push_back(Triangle(x0, x1, x2));
@@ -276,7 +283,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     // if any of the vectors is empty, we return an empty output
     if (mxIsEmpty(pXi) || mxIsEmpty(pYi) || mxIsEmpty(pZi)) {
-      plhs[0] = mxCreateNumericMatrix(0, 0, mxDOUBLE_CLASS, mxREAL);
+      matlabExport->CopyEmptyArrayToMatlab(outISIN);
       return;
     }
 
@@ -298,17 +305,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     // initialise output (note that rows correspond to Y coordinates,
     // and columns correspond to X coordinates)
-    const mwSize dims[3] = {lenYi, lenXi, lenZi};
-    plhs[0] = mxCreateNumericArray(3, dims, mxLOGICAL_CLASS, mxREAL);
-    if (plhs[0] == NULL) {
-      mexErrMsgTxt("Cannot allocate memory for output");
-    }
-    
-    // pointer to the output
-    bool *isin = (bool *)mxGetData(plhs[0]);
-    if (isin == NULL) {
-      mexErrMsgTxt("Cannot get pointer to allocated output");
-    }
+    std::vector<mwSize> size;
+    size.push_back(lenYi);
+    size.push_back(lenXi);
+    size.push_back(lenZi);
+    bool *isin = matlabExport->AllocateNDArrayInMatlab<bool>(outISIN, size);
 
     // register the vectors in the cell array CI with the matlab
     // import interface so that we can access their values
@@ -342,7 +343,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 								mxGetNaN());
 
 	  // test whether point is inside or outside the surface
-	  isin[sub2ind(dims[0], dims[1], dims[2], r, c, s)] 
+	  isin[sub2ind(size[0], size[1], size[2], r, c, s)] 
 	    = pointIsIn(Point(xi_x, xi_y, xi_z), tree, direction, tol);
 	} // r
       } // c
@@ -351,16 +352,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   } else { // each row of xi is a point to test
     
     // initialise output
-    plhs[0] = mxCreateNumericMatrix(nrowsXi, 1, mxLOGICAL_CLASS, mxREAL);
-    if (plhs[0] == NULL) {
-      mexErrMsgTxt("Cannot allocate memory for output");
-    }
-    
-    // pointer to the output
-    bool *isin = (bool *)mxGetData(plhs[0]);
-    if (isin == NULL) {
-      mexErrMsgTxt("Cannot get pointer to allocated output");
-    }
+    bool *isin = matlabExport->AllocateColumnVectorInMatlab<bool>(outISIN, nrowsXi);
     
     // loop every point that is tested to see whether it's inside or
     // outside the surface
@@ -371,7 +363,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
       ctrlcCheckPoint(__FILE__, __LINE__);
 
       // get point coordinates to be tested
-      xi = matlabImport->ReadRowVectorFromMatlab<double, Point>(2, i, "XI", def);
+      xi = matlabImport->ReadRowVectorFromMatlab<double, Point>(IN_XI, i, "XI", def);
 
       // test whether point is inside or outside the surface
       isin[i] = pointIsIn(xi, tree, direction, tol);

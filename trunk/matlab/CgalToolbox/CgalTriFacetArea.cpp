@@ -18,7 +18,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.2
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -76,48 +76,45 @@ void mexFunction(int nlhs, mxArray *plhs[],
 		 int nrhs, const mxArray *prhs[]) {
 
   // interface to deal with input arguments from Matlab
+  enum InputIndexType {IN_TRI, IN_X, InputIndexType_MAX};
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
   matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
 
   // check that we have at least a filter name and input image
-  matlabImport->CheckNumberOfArguments(2, 2);
+  matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
 
   // interface to deal with outputs to Matlab
+  enum OutputIndexType {OUT_A, OutputIndexType_MAX};
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
-  matlabExport->RegisterArrayOfOutputArgumentsToMatlab(nlhs, plhs);
+  matlabExport->ConnectToMatlabFunctionOutput(nlhs, plhs);
 
   // check number of outputs the user is asking for
-  matlabExport->CheckNumberOfArguments(0, 1);
+  matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
+
+  // register the outputs for this function at the export filter
+  typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+  MatlabOutputPointer outA = matlabExport->RegisterOutput(OUT_A, "A");
 
   // default coordinates are NaN values, so that the user can spot
   // whether there was any problem reading them
   Point def(mxGetNaN(), mxGetNaN(), mxGetNaN());
 
   // if any of the inputs is empty, the output is empty too
-  if (mxIsEmpty(prhs[0]) || mxIsEmpty(prhs[1])) {
-    plhs[0] = mxCreateNumericMatrix(0, 0, mxDOUBLE_CLASS, mxREAL);
+  if (mxIsEmpty(prhs[IN_TRI]) || mxIsEmpty(prhs[IN_X])) {
+    matlabExport->CopyEmptyArrayToMatlab(outA);
     return;
   }
 
   // get size of input matrix
-  mwSize nrowsTri = mxGetM(prhs[0]);
-  mwSize ncolsTri = mxGetN(prhs[0]);
-  mwSize ncolsX = mxGetN(prhs[1]);
+  mwSize nrowsTri = mxGetM(prhs[IN_TRI]);
+  mwSize ncolsTri = mxGetN(prhs[IN_TRI]);
+  mwSize ncolsX = mxGetN(prhs[IN_X]);
   if ((ncolsTri != 3) || (ncolsX != 3)) {
     mexErrMsgTxt("Both input arguments must have 3 columns");
   }
 
   // initialise output
-  plhs[0] = mxCreateNumericMatrix(nrowsTri, 1, mxDOUBLE_CLASS, mxREAL);
-  if (plhs[0] == NULL) {
-    mexErrMsgTxt("Cannot allocate memory for output 0");
-  }
-    
-  // pointer to the outputs
-  double *area = (double *)mxGetData(plhs[0]);
-  if (area == NULL) {
-    mexErrMsgTxt("Cannot get pointer to allocated output 0");
-  }
+  double *area = matlabExport->AllocateColumnVectorInMatlab<double>(outA, nrowsTri);
   
   // read triangular mesh from function
   Triangle tri;
@@ -131,18 +128,18 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     // get indices of the 3 vertices of each triangle. These indices
     // follow Matlab's convention v0 = 1, 2, ..., n
-    v0 = matlabImport->ReadScalarFromMatlab<mwIndex>(0, i, 0, "TRI0", mxGetNaN());
-    v1 = matlabImport->ReadScalarFromMatlab<mwIndex>(0, i, 1, "TRI1", mxGetNaN());
-    v2 = matlabImport->ReadScalarFromMatlab<mwIndex>(0, i, 2, "TRI2", mxGetNaN());
+    v0 = matlabImport->ReadScalarFromMatlab<mwIndex>(IN_TRI, i, 0, "TRI0", mxGetNaN());
+    v1 = matlabImport->ReadScalarFromMatlab<mwIndex>(IN_TRI, i, 1, "TRI1", mxGetNaN());
+    v2 = matlabImport->ReadScalarFromMatlab<mwIndex>(IN_TRI, i, 2, "TRI2", mxGetNaN());
     if (mxIsNaN(v0) || mxIsNaN(v1) || mxIsNaN(v2)) {
       mexErrMsgTxt("Parameter TRI: Vertex index is NaN");
     }
     
     // get coordinates of the 3 vertices (substracting 1 so that
     // indices follow the C++ convention 0, 1, ..., n-1)
-    x0 = matlabImport->ReadRowVectorFromMatlab<double, Point>(1, v0 - 1, "X0", def);
-    x1 = matlabImport->ReadRowVectorFromMatlab<double, Point>(1, v1 - 1, "X1", def);
-    x2 = matlabImport->ReadRowVectorFromMatlab<double, Point>(1, v2 - 1, "X2", def);
+    x0 = matlabImport->ReadRowVectorFromMatlab<double, Point>(IN_X, v0 - 1, "X0", def);
+    x1 = matlabImport->ReadRowVectorFromMatlab<double, Point>(IN_X, v1 - 1, "X1", def);
+    x2 = matlabImport->ReadRowVectorFromMatlab<double, Point>(IN_X, v2 - 1, "X2", def);
 
     // create triangle from the vertices read at the input
     tri = Triangle(x0, x1, x2);

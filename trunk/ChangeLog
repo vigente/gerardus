@@ -1,3 +1,107 @@
+2013-08-17  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/MatlabExportFilter.h: (0.4.0)
+	* matlab/MatlabExportFilter.hxx: (0.4.0)
+
+	- Substantial rewrite.
+
+	- Create MatlabOutput type. It's a struct with a description of a
+	Matlab output (namely, mxArray* pointer to the output, a string
+	with the output name, and several flags about whether the output
+	has been requested by the user, etc.).
+
+	- Add method RegisterOutput so that we can register MatlabOutput
+	objects with the export interface.
+
+	- Rename RegisterArrayOfOutputArgumentsToMatlab() as
+	ConnectToMatlabFunctionOutput(), which makes more sense. We should
+	do the same renaming in MatlabImportFilter.
+
+	- Some methods that used an index to create e.g. a matrix in
+	plhs[index] (the Copy methods) now use a MatlabOutput instead,
+	which gives more flexibility and better ability to e.g. check
+	whether the data actually needs to be copied from C++ to the
+	Matlab output, or can that step can be ignored. But we haven't
+	made this change to the Graft methods yet.
+
+	- Add methods AllocateColumnVectorInMatlab,
+	AllocateRowVectorInMatlab, AllocateMatrixInMatlab,
+	AllocateNDArrayInMatlab to allocate memory for a Matlab output and
+	return a pointer to the output buffer. With this we can remove
+	quite a lot of duplicated code in many functions. It also makes it
+	easier to debug, run checks on the results, etc.
+
+	- Add methods AllocateColumnVectorInCellInMatlab,
+	AllocateRowVectorInCellInMatlab, AllocateMatrixInCellInMatlab,
+	AllocateNDArrayInCellInMatlab. As above, but to create outputs
+	inside of cells.
+
+	- Add method CopyEmptyArrayToMatlab(), to avoid code duplication,
+	as many functions need to return empty matrices in some cases.
+
+	- Use new convertCppDataTypeToMatlabCassId() function to remove
+	a lot of duplicated code.
+
+	- Number of arguments have changed from "unsigned int" to "int" to
+	agree with the nlhs parameter provided by Matlab.
+
+	- Rename the member variables args, nargs as nlhs, plhs, which are
+	the same names used by the Matlab documentation. This should make
+	things clearer to users.
+
+	* matlab/CgalToolbox/CgalClosestTriFacet.cpp: (0.2.0)
+	* matlab/CgalToolbox/CgalTriFacetArea.cpp: (0.2.0)
+	* matlab/CgalToolbox/CgalFixedAlphaShape3.cpp: (0.2.0)
+	* matlab/CgalToolbox/CgalAlphaShape3.cpp: (0.2.0)
+	* matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp: (0.3.0)
+	* matlab/CgalToolbox/CgalCheckSelfIntersect.cpp: (0.2.0)
+
+	- Use our new enum InputIndexType, enum OutputIndexType to keep
+	track of inputs and outputs more clearly.
+
+	- Use the new MatlabExportFilter methods to register outputs, get
+	pointers to Matlab output buffers, etc.
+
+	* matlab/ItkToolbox/ItkICPRegistration.cpp: (0.0.3)
+
+	- Still in alpha state. Debug messages, and execution interrupted
+	after registration of outputs. We are commiting here only because
+	we have adapted it to the new MatlabExportFilter interface, and it
+	compiles.
+
+	* matlab/ItkToolbox/ItkPSTransform.cpp: (0.4.0)
+
+	- Substantial rewrite. This function was very outdated with
+	respect to the state of the art in Gerardus.
+
+	- Replace nArgIn, argIn, argOut by matlabImport, matlabExport.
+
+	- Use our new enum InputIndexType, enum OutputIndexType to keep
+	track of inputs and outputs more clearly.
+
+	* matlab/ItkToolbox/ItkImFilter.cpp: (1.5.0)
+	* matlab/ItkToolbox/itk_imfilter.m: (0.7.4)
+
+	- Substantial update.
+
+	- Use our new enum InputIndexType, enum OutputIndexType to keep
+	track of inputs and outputs more clearly. This also has fixed a
+	couple of related bugs.
+
+	- Use the new MatlabExportFilter methods to register outputs, copy
+	ITK results to Matlab.
+
+	- itk::BinaryDilateImageFilter and itk::BinaryErodeImageFilter:
+	Change the default foreground to 1, as this is a lot more useful.
+
+	* matlab/test/test_itk_imfilter.m: (0.4.2)
+
+	- Give names to two input variables to make them clearer.
+
+	* matlab/GerardusCommon.h: (0.10.1)
+
+	- Minor, add a note to help header of sub2ind.
+
 2013-08-15  Ramon Casero  <rcasero@gmail.com>
 
  	* matlab/test/test_cgal_closest_trifacet.m: (0.2.3)

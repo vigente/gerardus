@@ -11,7 +11,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.0.2
+  * Version: 0.0.3
   * $Rev$
   * $Date$
   *
@@ -76,12 +76,9 @@ typedef PointSetType::PointType PointType;
 void mexFunction(int nlhs, mxArray *plhs[], 
 		 int nrhs, const mxArray *prhs[]) {
 
-  // indices for inputs and outputs
+  // interface to deal with input arguments from Matlab
   enum InputIndexType {IN_X, IN_Y, IN_TRANSFORM, 
 		       IN_NITER, IN_GRADTOL, IN_VALTOL, IN_EPSFUN, InputIndexType_MAX};
-  enum OutputIndexType {OUT_YY, OUT_T, OutputIndexType_MAX};
-
-  // interface to deal with input arguments from Matlab
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
   matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
 
@@ -89,19 +86,22 @@ void mexFunction(int nlhs, mxArray *plhs[],
   matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
 
   // interface to deal with outputs to Matlab
+  enum OutputIndexType {OUT_YY, OUT_T, OutputIndexType_MAX};
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
-
-
-  return;//////////////////////////////////////////
-
-  matlabExport->RegisterArrayOfOutputArgumentsToMatlab(nlhs, plhs);
-
-  // check number of outputs the user is asking for
+  matlabExport->ConnectToMatlabFunctionOutput(nlhs, plhs);
+  
+  // check that the number of outputs the user is asking for is valid
   matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
 
-  // if any input point set is empty, the output is empty too
+  // register the outputs for this function at the export filter
+  typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+  MatlabOutputPointer outYY = matlabExport->RegisterOutput(OUT_YY, "Y2");
+  MatlabOutputPointer outT  = matlabExport->RegisterOutput(OUT_T, "T");
+
+  // if any input point set is empty, the outputs are empty too
   if (mxIsEmpty(prhs[IN_X]) || mxIsEmpty(prhs[IN_Y])) {
-    plhs[OUT_YY] = mxCreateNumericMatrix(0, 0, mxDOUBLE_CLASS, mxREAL);
+    matlabExport->CopyEmptyArrayToMatlab(outYY);
+    matlabExport->CopyEmptyArrayToMatlab(outT);
     return;
   }
 
@@ -308,14 +308,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
   					    const PointType,
   					    const std::vector<PointType> 
 					    >
-    (OUT_YY, "Y2", 
+    (outYY,
      warpedMovingPointSet->GetPoints()->CastToSTLConstContainer(), 
      warpedMovingPointSet->GetNumberOfPoints(), Dimension);
 
   // registration parameters
   matlabExport->CopyVectorOfScalarsToMatlab<CoordinateType, 
 					    GenericTransformType::ParametersType>
-    (OUT_T, "T", 
+    (outT, 
      registration->GetTransform()->GetParameters(), 
      transform->GetNumberOfParameters());
 
