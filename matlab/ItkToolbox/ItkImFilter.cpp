@@ -15,7 +15,7 @@
  *   segmentation. Currently, A can be of any of the following
  *   Matlab classes:
  *
- *     boolean
+ *     boolean 
  *     double
  *     single
  *     int8
@@ -131,9 +131,7 @@
  *   RADIUS = 0 and no dilation is performed.
  *
  *   FOREGROUND is a scalar. Voxels with that value will be the only ones
- *   dilated. By default, FOREGROUND is the maximum value allowed for the
- *   type, e.g. FOREGROUND=255 if the image is uint8. This is the default in
- *   ITK, so we respect it.
+ *   dilated. By default, FOREGROUND=1.
  *
  * -------------------------------------------------------------------------
  *
@@ -290,7 +288,7 @@
  *
  *   B is a binary image of the same size and type as A.
  *
- * B = itk_imfilter(..., RADIUS, THR, BACKGROUND, FOREGROUND)
+ * B = itk_imfilter(..., RADIUS, MAXITER, THR, BACKGROUND, FOREGROUND)
  *
  *   RADIUS is an array with the same dimension as A. RADIUS gives the
  *   radius of the box around the current voxel in each dimension. Each
@@ -298,8 +296,12 @@
  *   background voxel should be flipped to foreground. By default RADIUS is
  *   1 in all dimensions, i.e. a box of side = 3.
  *
+ *   MAXITER is a scalar with the maximum number of iterations. By default,
+ *   MAXITER=1.
+ *
  *   THR is the majority threshold, i.e. the number of pixels over 50% that
  *   will decide whether a background pixel will become foreground or not.
+ *   By default, THR=2.
  *
  *   BACKGROUND, FOREGROUND are the voxel values for background and
  *   foreground voxels, respectively. By default, BACKGROUND=0,
@@ -358,7 +360,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011-2012 University of Oxford
-  * Version: 1.4.3
+  * Version: 1.5.0
   * $Rev$
   * $Date$
   *
@@ -481,10 +483,19 @@ public:
   FilterWrapper(MatlabImportFilter::Pointer matlabImport,
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
+
+    // inputs/outputs interfaces
+    enum InputIndexType {IN_TYPE, IN_A, IN_VAR, IN_UPPTHR, IN_LOWTHR, IN_MAXERR, InputIndexType_MAX};
+    enum OutputIndexType {OUT_B, OUT_C, OutputIndexType_MAX};
     
     // check number of input and output arguments
-    matlabImport->CheckNumberOfArguments(2, 6);
-    matlabExport->CheckNumberOfArguments(0, 2);
+    matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
+    matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
+
+    // register the outputs for this function at the export filter
+    typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+    MatlabOutputPointer outB = matlabExport->RegisterOutput(OUT_B, "B");
+    MatlabOutputPointer outC = matlabExport->RegisterOutput(OUT_C, "C");
     
     // instantiate the filter
     typedef TPixelIn TPixelOut;
@@ -496,7 +507,7 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(IN_A, "A"));
     
     // The variance for the discrete Gaussian kernel. Sets the
     // variance independently for each dimension. The default is 0.0
@@ -506,7 +517,7 @@ public:
     filter->SetVariance(matlabImport->
     			ReadRowVectorFromMatlab<typename FilterType::ArrayType::ValueType, 
     					     typename FilterType::ArrayType,
-    					     VImageDimension>(2, "VAR", defVariance));
+    					     VImageDimension>(IN_VAR, "VAR", defVariance));
 
     // Usually, the upper tracking threshold can be set quite high,
     // and the lower threshold quite low for good results. Setting the
@@ -516,14 +527,16 @@ public:
     // output.
     // http://homepages.inf.ed.ac.uk/rbf/HIPR2/canny.htm
     filter->SetUpperThreshold(matlabImport->template
-			      ReadScalarFromMatlab<TPixelIn>(3, "UPPTHR", std::numeric_limits<TPixelIn>::max()));
+			      ReadScalarFromMatlab<TPixelIn>(IN_UPPTHR, "UPPTHR", 
+							     std::numeric_limits<TPixelIn>::max()));
 
     // Threshold is the lowest allowed value in the output image. Its
     // data type is the same as the data type of the output image. Any
     // values below the Threshold level will be replaced with the
     // OutsideValue parameter value, whose default is zero.
     filter->SetLowerThreshold(matlabImport->template
-			      ReadScalarFromMatlab<TPixelIn>(4, "LOWTHR", filter->GetUpperThreshold() / 2.0));
+			      ReadScalarFromMatlab<TPixelIn>(IN_LOWTHR, "LOWTHR", 
+							     filter->GetUpperThreshold() / 2.0));
 
     // The algorithm will size the discrete kernel so that the error
     // resulting from truncation of the kernel is no greater than
@@ -533,22 +546,18 @@ public:
     filter->SetMaximumError(matlabImport->
 			    ReadRowVectorFromMatlab<typename FilterType::ArrayType::ValueType, 
 						 typename FilterType::ArrayType,
-						 VImageDimension>(5, "MAXERR", defMaximumError));
+						 VImageDimension>(IN_MAXERR, "MAXERR", defMaximumError));
 
     // graft ITK filter outputs onto Matlab outputs
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
-      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-    	(filter->GetOutputs()[0], im.size, 0, "0");
-    }
+    matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+      (filter->GetOutputs()[0], im.size, OUT_B, "B");
 
     // run filter
     filter->Update();
 
     // copy ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 2) {
-      matlabExport->CopyItkImageToMatlab<TPixelOut, VImageDimension>
-    	(filter->GetNonMaximumSuppressionImage(), im.size, 1, "1");
-    }
+    matlabExport->CopyItkImageToMatlab<TPixelOut, VImageDimension>
+      (filter->GetNonMaximumSuppressionImage(), im.size, OUT_C, "C");
 
   }
 };
@@ -634,9 +643,14 @@ public:
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
     
+    // inputs/outputs interfaces
+    enum InputIndexType {IN_TYPE, IN_A, IN_RADIUS, IN_MAXITER, IN_THR, 
+			 IN_BACKGROUND, IN_FOREGROUND, InputIndexType_MAX};
+    enum OutputIndexType {OUT_B, OutputIndexType_MAX};
+    
     // check number of input and output arguments
-    matlabImport->CheckNumberOfArguments(2, 5);
-    matlabExport->CheckNumberOfArguments(0, 1);
+    matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
+    matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
 
     // instantiate the filter
     typedef TPixelIn TPixelOut;
@@ -647,7 +661,7 @@ public:
 
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(IN_A, "A"));
 
     // default parameters
     typename InImageType::SizeType radiusDef;
@@ -657,24 +671,22 @@ public:
     filter->SetRadius(matlabImport->template
 		      ReadRowVectorFromMatlab<typename InImageType::SizeValueType,
 					   typename InImageType::SizeType, 
-					   VImageDimension>(2, "RADIUS", radiusDef));
+					   VImageDimension>(IN_RADIUS, "RADIUS", radiusDef));
     filter->SetMaximumNumberOfIterations(matlabImport->template
-					 ReadScalarFromMatlab<unsigned int>(3, "MAXITER", 1));
+					 ReadScalarFromMatlab<unsigned int>(IN_MAXITER, "MAXITER", 1));
     filter->SetMajorityThreshold(matlabImport->template
-				 ReadScalarFromMatlab<unsigned int>(4, "THR", 2));
+				 ReadScalarFromMatlab<unsigned int>(IN_THR, "THR", 2));
     filter->SetBackgroundValue(matlabImport->template
-			       ReadScalarFromMatlab<TPixelIn>(5, "BACKGROUND", 0));
+			       ReadScalarFromMatlab<TPixelIn>(IN_BACKGROUND, "BACKGROUND", 0));
     filter->SetForegroundValue(matlabImport->template
-			       ReadScalarFromMatlab<TPixelIn>(6, "FOREGROUND", 1));
+			       ReadScalarFromMatlab<TPixelIn>(IN_FOREGROUND, "FOREGROUND", 1));
 
     // run filter
     filter->Update();
 
     // copy ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
-      matlabExport->CopyItkImageToMatlab<TPixelOut, VImageDimension>
-	(filter->GetOutputs()[0], im.size, 0, "0");
-    }
+    matlabExport->CopyItkImageToMatlab<TPixelOut, VImageDimension>
+      (filter->GetOutputs()[0], im.size, OUT_B, "B");
 
   }
 };
@@ -689,10 +701,18 @@ public:
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
     
-    // check number of input and output arguments
-    matlabImport->CheckNumberOfArguments(2, 2);
-    matlabExport->CheckNumberOfArguments(0, 1);
+    // inputs/outputs interfaces
+    enum InputIndexType {IN_TYPE, IN_A, InputIndexType_MAX};
+    enum OutputIndexType {OUT_B, OutputIndexType_MAX};
     
+    // check number of input and output arguments
+    matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
+    matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
+    
+    // register the outputs for this function at the export filter
+    typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+    MatlabOutputPointer outB = matlabExport->RegisterOutput(OUT_B, "B");
+
     // instantiate the filter
     typedef float TPixelOut;
     typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
@@ -707,15 +727,13 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(IN_A, "A"));
 
     // connect ITK filter outputs to Matlab outputs
 
     // distance map
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
-      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-	(filter->GetOutputs()[0], im.size, 0, "0");
-    }
+    matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+      (filter->GetOutputs()[0], im.size, OUT_B, "B");
 
     // run filter
     filter->Update();
@@ -733,10 +751,18 @@ public:
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
     
-    // check number of input and output arguments
-    matlabImport->CheckNumberOfArguments(2, 5);
-    matlabExport->CheckNumberOfArguments(0, 1);
+    // inputs/outputs interfaces
+    enum InputIndexType {IN_TYPE, IN_A, IN_RADIUS, InputIndexType_MAX};
+    enum OutputIndexType {OUT_B, OutputIndexType_MAX};
     
+    // check number of input and output arguments
+    matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
+    matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
+    
+    // register the outputs for this function at the export filter
+    typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+    MatlabOutputPointer outB = matlabExport->RegisterOutput(OUT_B, "B");
+
     // instantiate the filter
     typedef TPixelIn TPixelOut;
     typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
@@ -747,7 +773,7 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(IN_A, "A"));
     
     // set half size of the filter's box
     typedef typename itk::BoxImageFilter<
@@ -759,13 +785,11 @@ public:
 		      ReadRowVectorFromMatlab<typename BoxFilterType::RadiusValueType, 
 					   typename BoxFilterType::RadiusType,
 					   VImageDimension>
-		      (2, "RADIUS", radius));
+		      (IN_RADIUS, "RADIUS", radius));
     
     // graft ITK filter outputs onto Matlab outputs
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
-      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-	(filter->GetOutputs()[0], im.size, 0, "0");
-    }
+    matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+      (filter->GetOutputs()[0], im.size, OUT_B, "B");
 
     // run filter
     filter->Update();
@@ -782,11 +806,22 @@ public:
   FilterWrapper(MatlabImportFilter::Pointer matlabImport,
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
+
+
+    
+    // inputs/outputs interfaces
+    enum InputIndexType {IN_TYPE, IN_A, IN_SIGMAMIN, IN_SIGMAMAX, IN_NUMSIGMASTEPS, 
+			 IN_ISSIGMASTEPLOG, InputIndexType_MAX};
+    enum OutputIndexType {OUT_B, OutputIndexType_MAX};
     
     // check number of input and output arguments
-    matlabImport->CheckNumberOfArguments(2, 6);
-    matlabExport->CheckNumberOfArguments(0, 1);
+    matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
+    matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
     
+    // register the outputs for this function at the export filter
+    typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+    MatlabOutputPointer outB = matlabExport->RegisterOutput(OUT_B, "B");
+
     // instantiate the filter
     typedef double TPixelOut;
     typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
@@ -797,22 +832,22 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(IN_A, "A"));
     
     // filter parameters
     filter->SetSigmaMin(matlabImport->template
-			ReadScalarFromMatlab<double>(2, "SIGMAMIN", 0.2));
+			ReadScalarFromMatlab<double>(IN_SIGMAMIN, "SIGMAMIN", 0.2));
     filter->SetSigmaMax(matlabImport->template
-			ReadScalarFromMatlab<double>(3, "SIGMAMAX", 2.0));
+			ReadScalarFromMatlab<double>(IN_SIGMAMAX, "SIGMAMAX", 2.0));
     filter->SetNumberOfSigmaSteps(matlabImport->template
-			ReadScalarFromMatlab<int>(4, "NUMSIGMASTEPS", 10));
+			ReadScalarFromMatlab<int>(IN_NUMSIGMASTEPS, "NUMSIGMASTEPS", 10));
     filter->SetIsSigmaStepLog(matlabImport->template
-			ReadScalarFromMatlab<bool>(5, "ISSIGMASTEPLOG", true));
+			ReadScalarFromMatlab<bool>(IN_ISSIGMASTEPLOG, "ISSIGMASTEPLOG", true));
 
     // connect ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
+    if (matlabExport->GetNumberOfOutputArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-	(filter->GetOutputs()[0], im.size, 0, "0");
+	(filter->GetOutputs()[0], im.size, OUT_B, "B");
     }
 
     // run filter
@@ -851,9 +886,19 @@ public:
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
     
+    // inputs/outputs interfaces
+    enum InputIndexType {IN_TYPE, IN_A, IN_SIGMAMIN, IN_SIGMAMAX, IN_NUMSIGMASTEPS, 
+			 IN_ISSIGMASTEPLOG, IN_NUMITERATIONS, IN_WSTRENGTH, IN_SENSITIVITY, IN_TIMESTEP, 
+			 IN_EPSILON, InputIndexType_MAX};
+    enum OutputIndexType {OUT_B, OutputIndexType_MAX};
+    
     // check number of input and output arguments
-    matlabImport->CheckNumberOfArguments(2, 11);
-    matlabExport->CheckNumberOfArguments(0, 1);
+    matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
+    matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
+
+    // register the outputs for this function at the export filter
+    typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+    MatlabOutputPointer outB = matlabExport->RegisterOutput(OUT_B, "B");
 
     // instantiate the filter
     typedef TPixelIn TPixelOut;
@@ -864,31 +909,31 @@ public:
     typename FilterType::Pointer filter = FilterType::New();
     
     // connect Matlab inputs to ITK filter
-    filter->SetInput(matlabImport->GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
+    filter->SetInput(matlabImport->GetImagePointerFromMatlab<TPixelIn, VImageDimension>(IN_A, "A"));
 
     filter->SetSigmaMin(matlabImport->
-		       ReadScalarFromMatlab<double>(2,  "SIGMAMIN", 0.2));
+		       ReadScalarFromMatlab<double>(IN_SIGMAMIN,  "SIGMAMIN", 0.2));
     filter->SetSigmaMax(matlabImport->
-		       ReadScalarFromMatlab<double>(3,  "SIGMAMAX", 2.0));
+		       ReadScalarFromMatlab<double>(IN_SIGMAMAX,  "SIGMAMAX", 2.0));
     filter->SetNumberOfSigmaSteps(matlabImport->
-		       ReadScalarFromMatlab<int>   (4,  "NUMSIGMASTEPS", 10));
+		       ReadScalarFromMatlab<int>   (IN_NUMSIGMASTEPS,  "NUMSIGMASTEPS", 10));
     filter->SetIsSigmaStepLog(matlabImport->
-		       ReadScalarFromMatlab<bool>  (5,  "ISSIGMASTEPLOG", true));
+		       ReadScalarFromMatlab<bool>  (IN_ISSIGMASTEPLOG,  "ISSIGMASTEPLOG", true));
     filter->SetNumberOfIterations(matlabImport->
-		       ReadScalarFromMatlab<int>   (6,  "NUMITERATIONS", 1));
+		       ReadScalarFromMatlab<int>   (IN_NUMITERATIONS,  "NUMITERATIONS", 1));
     filter->SetWStrength(matlabImport->
-		       ReadScalarFromMatlab<double>(7,  "WSTRENGTH", 25.0));
+		       ReadScalarFromMatlab<double>(IN_WSTRENGTH,  "WSTRENGTH", 25.0));
     filter->SetSensitivity(matlabImport->
-		       ReadScalarFromMatlab<double>(8,  "SENSITIVITY", 5.0));
+		       ReadScalarFromMatlab<double>(IN_SENSITIVITY,  "SENSITIVITY", 5.0));
     filter->SetTimeStep(matlabImport->
-		       ReadScalarFromMatlab<double>(9,  "TIMESTEP", 1e-3));
+		       ReadScalarFromMatlab<double>(IN_TIMESTEP,  "TIMESTEP", 1e-3));
     filter->SetEpsilon(matlabImport->
-		       ReadScalarFromMatlab<double>(10, "EPSILON", 1e-2));
+		       ReadScalarFromMatlab<double>(IN_EPSILON, "EPSILON", 1e-2));
     
     // connect ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
+    if (matlabExport->GetNumberOfOutputArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-	(filter->GetOutputs()[0], im.size, 0, "0");
+	(filter->GetOutputs()[0], im.size, OUT_B, "B");
     }
 
     // run filter
@@ -927,10 +972,18 @@ public:
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
     
+    // inputs/outputs interfaces
+    enum InputIndexType {IN_TYPE, IN_A, InputIndexType_MAX};
+    enum OutputIndexType {OUT_B, OutputIndexType_MAX};
+
     // check number of input and output arguments
-    matlabImport->CheckNumberOfArguments(2, 2);
-    matlabExport->CheckNumberOfArguments(0, 1);
+    matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
+    matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
     
+    // register the outputs for this function at the export filter
+    typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+    MatlabOutputPointer outB = matlabExport->RegisterOutput(OUT_B, "B");
+
     // instantiate the filter
     typedef TPixelIn TPixelOut;
     typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
@@ -941,13 +994,11 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(IN_A, "A"));
 
     // connect ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
-      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-	(filter->GetOutputs()[0], im.size, 0, "0");
-    }
+    matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+      (filter->GetOutputs()[0], im.size, OUT_B, "B");
 
     // run filter
     filter->Update();
@@ -985,10 +1036,20 @@ public:
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
     
+    // inputs/outputs interfaces
+    enum InputIndexType {IN_TYPE, IN_A, InputIndexType_MAX};
+    enum OutputIndexType {OUT_B, OUT_V, OUT_W, OutputIndexType_MAX};
+
     // check number of input and output arguments
-    matlabImport->CheckNumberOfArguments(2, 2);
-    matlabExport->CheckNumberOfArguments(0, 3);
+    matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
+    matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
     
+    // register the outputs for this function at the export filter
+    typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+    MatlabOutputPointer outB = matlabExport->RegisterOutput(OUT_B, "B");
+    MatlabOutputPointer outV = matlabExport->RegisterOutput(OUT_V, "V");
+    MatlabOutputPointer outW = matlabExport->RegisterOutput(OUT_W, "W");
+
     // instantiate the filter
     typedef float TPixelOut;
     typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
@@ -999,28 +1060,23 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(IN_A, "A"));
 
     // connect ITK filter outputs to Matlab outputs
 
     // distance map
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
-      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-	// (filter->GetOutputs()[0], im.size, 0, "0");
-	(filter->GetOutputs()[0], im.size, 0, "0");
-    }
+    matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+      (filter->GetOutputs()[0], im.size, OUT_B, "B");
+
     // Voronoi map
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 2) {
-      matlabExport->GraftItkImageOntoMatlab<TPixelIn, VImageDimension>
-	(filter->GetOutputs()[1], im.size, 1, "1");
-    }
+    matlabExport->GraftItkImageOntoMatlab<TPixelIn, VImageDimension>
+      (filter->GetOutputs()[1], im.size, OUT_V, "V");
+
     // vectors pointing to closest foreground voxel
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 3) {
-      matlabExport->GraftItkImageOntoMatlab<typename InImageType::OffsetType::OffsetValueType,
-					    VImageDimension,
-					    typename InImageType::OffsetType::OffsetType>
-	(filter->GetOutputs()[2], im.size, 2, "2");
-    }
+    matlabExport->GraftItkImageOntoMatlab<typename InImageType::OffsetType::OffsetValueType,
+					  VImageDimension,
+					  typename InImageType::OffsetType::OffsetType>
+      (filter->GetOutputs()[2], im.size, OUT_W, "W");
 
     // run filter
     filter->Update();
@@ -1038,10 +1094,20 @@ public:
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
     
+    // inputs/outputs interfaces
+    enum InputIndexType {IN_TYPE, IN_A, InputIndexType_MAX};
+    enum OutputIndexType {OUT_B, OUT_V, OUT_W, OutputIndexType_MAX};
+
     // check number of input and output arguments
-    matlabImport->CheckNumberOfArguments(2, 2);
-    matlabExport->CheckNumberOfArguments(0, 3);
+    matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
+    matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
     
+    // register the outputs for this function at the export filter
+    typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+    MatlabOutputPointer outB = matlabExport->RegisterOutput(OUT_B, "B");
+    MatlabOutputPointer outV = matlabExport->RegisterOutput(OUT_V, "V");
+    MatlabOutputPointer outW = matlabExport->RegisterOutput(OUT_W, "W");
+
     // instantiate the filter
     typedef double TPixelOut;
     typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
@@ -1052,27 +1118,23 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(IN_A, "A"));
 
     // connect ITK filter outputs to Matlab outputs
 
     // distance map
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
-      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-	(filter->GetOutputs()[0], im.size, 0, "0");
-    }
+    matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+      (filter->GetOutputs()[0], im.size, OUT_B, "B");
+
     // Voronoi map
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 2) {
-      matlabExport->GraftItkImageOntoMatlab<TPixelIn, VImageDimension>
-	(filter->GetOutputs()[1], im.size, 1, "1");
-    }
+    matlabExport->GraftItkImageOntoMatlab<TPixelIn, VImageDimension>
+      (filter->GetOutputs()[1], im.size, OUT_V, "V");
+
     // vectors pointing to closest foreground voxel
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 3) {
-      matlabExport->GraftItkImageOntoMatlab<typename InImageType::OffsetType::OffsetValueType,
-					    VImageDimension,
-					    typename InImageType::OffsetType::OffsetType>
-	(filter->GetOutputs()[2], im.size, 2, "2");
-    }
+    matlabExport->GraftItkImageOntoMatlab<typename InImageType::OffsetType::OffsetValueType,
+					  VImageDimension,
+					  typename InImageType::OffsetType::OffsetType>
+      (filter->GetOutputs()[2], im.size, OUT_W, "W");
 
     // run filter
     filter->Update();
@@ -1090,9 +1152,17 @@ public:
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
     
+    // inputs/outputs interfaces
+    enum InputIndexType {IN_TYPE, IN_A, InputIndexType_MAX};
+    enum OutputIndexType {OUT_B, OutputIndexType_MAX};
+
     // check number of input and output arguments
-    matlabImport->CheckNumberOfArguments(2, 2);
-    matlabExport->CheckNumberOfArguments(0, 1);
+    matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
+    matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
+    
+    // register the outputs for this function at the export filter
+    typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+    MatlabOutputPointer outB = matlabExport->RegisterOutput(OUT_B, "B");
     
     // instantiate the filter
     typedef float TPixelOut;
@@ -1111,7 +1181,7 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(IN_A, "A"));
 
     // run filter
     filter->Update();
@@ -1119,10 +1189,8 @@ public:
     // copy ITK filter outputs to Matlab outputs
 
     // distance map
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
-      matlabExport->CopyItkImageToMatlab<TPixelOut, VImageDimension>
-	(filter->GetOutputs()[0], im.size, 0, "0");
-    }
+    matlabExport->CopyItkImageToMatlab<TPixelOut, VImageDimension>
+      (filter->GetOutputs()[0], im.size, OUT_B, "B");
 
   }
 };
@@ -1147,9 +1215,17 @@ public:
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
     
+    // inputs/outputs interfaces
+    enum InputIndexType {IN_TYPE, IN_A, IN_RADIUS, IN_FOREGROUND, InputIndexType_MAX};
+    enum OutputIndexType {OUT_B, OutputIndexType_MAX};
+
     // check number of input and output arguments
-    matlabImport->CheckNumberOfArguments(2, 4);
-    matlabExport->CheckNumberOfArguments(0, 1);
+    matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
+    matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
+    
+    // register the outputs for this function at the export filter
+    typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+    MatlabOutputPointer outB = matlabExport->RegisterOutput(OUT_B, "B");
     
     // instantiate the filter
     typedef TPixelIn TPixelOut;
@@ -1163,28 +1239,24 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(IN_A, "A"));
     
     // instantiate structuring element
     // (comp) radius of the ball in voxels
     StructuringElementType structuringElement;
     structuringElement.SetRadius(matlabImport->
-				 ReadScalarFromMatlab<unsigned long>(2, "RADIUS", 0));
+				 ReadScalarFromMatlab<unsigned long>(IN_RADIUS, "RADIUS", 0));
     structuringElement.CreateStructuringElement();
     filter->SetKernel(structuringElement);
-
+    
     // pass other parameters to filter
-    // (opt) voxels with this value will be dilated. Default, maximum
-    // value of the pixel type (this is the ITK default, so we
-    // reproduce it here, even if it "1" would be more convenient)
+    // (opt) voxels with this value will be dilated.
     filter->SetForegroundValue(matlabImport->template
-			       ReadScalarFromMatlab<TPixelIn>(3, "FOREGROUND", std::numeric_limits<TPixelIn>::max()));
-
+			       ReadScalarFromMatlab<TPixelIn>(IN_FOREGROUND, "FOREGROUND", 1));
+    
     // connect ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
-      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-	(filter->GetOutputs()[0], im.size, 0, "0");
-    }
+    matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+      (filter->GetOutputs()[0], im.size, OUT_B, "B");
 
     // run filter
     filter->Update();
@@ -1202,9 +1274,17 @@ public:
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
     
+    // inputs/outputs interfaces
+    enum InputIndexType {IN_TYPE, IN_A, IN_RADIUS, IN_FOREGROUND, InputIndexType_MAX};
+    enum OutputIndexType {OUT_B, OutputIndexType_MAX};
+
     // check number of input and output arguments
-    matlabImport->CheckNumberOfArguments(2, 4);
-    matlabExport->CheckNumberOfArguments(0, 1);
+    matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
+    matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
+    
+    // register the outputs for this function at the export filter
+    typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+    MatlabOutputPointer outB = matlabExport->RegisterOutput(OUT_B, "B");
     
     // instantiate the filter
     typedef TPixelIn TPixelOut;
@@ -1218,13 +1298,13 @@ public:
     
     // connect Matlab inputs to ITK filter
     filter->SetInput(matlabImport->
-		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
+		     GetImagePointerFromMatlab<TPixelIn, VImageDimension>(IN_A, "A"));
     
     // instantiate structuring element
     // (comp) radius of the ball in voxels
     StructuringElementType structuringElement;
     structuringElement.SetRadius(matlabImport->
-				 ReadScalarFromMatlab<unsigned long>(2, "RADIUS", 0));
+				 ReadScalarFromMatlab<unsigned long>(IN_RADIUS, "RADIUS", 0));
     structuringElement.CreateStructuringElement();
     filter->SetKernel(structuringElement);
 
@@ -1233,13 +1313,11 @@ public:
     // value of the pixel type (this is the ITK default, so we
     // reproduce it here, even if it "1" would be more convenient)
     filter->SetForegroundValue(matlabImport->template
-			       ReadScalarFromMatlab<TPixelIn>(3, "FOREGROUND", std::numeric_limits<TPixelIn>::max()));
-
+			       ReadScalarFromMatlab<TPixelIn>(IN_FOREGROUND, "FOREGROUND", 1));
+    
     // connect ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
-      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-	(filter->GetOutputs()[0], im.size, 0, "0");
-    }
+    matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+      (filter->GetOutputs()[0], im.size, OUT_B, "B");
 
     // run filter
     filter->Update();
@@ -1257,10 +1335,19 @@ public:
 		MatlabExportFilter::Pointer matlabExport,
 		MatlabImageHeader &im) {
     
-    // check number of input and output arguments
-    matlabImport->CheckNumberOfArguments(3, 7);
-    matlabExport->CheckNumberOfArguments(0, 1);
+    // inputs/outputs interfaces
+    enum InputIndexType {IN_TYPE, IN_A, IN_MU, IN_WEIGHTS, IN_SMOOTH, 
+			 IN_NITER, IN_TOL, InputIndexType_MAX};
+    enum OutputIndexType {OUT_B, OutputIndexType_MAX};
 
+    // check number of input and output arguments
+    matlabImport->CheckNumberOfArguments(3, InputIndexType_MAX);
+    matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
+    
+    // register the outputs for this function at the export filter
+    typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+    MatlabOutputPointer outB = matlabExport->RegisterOutput(OUT_B, "B");
+    
     /* type definitions */
 
     // input image
@@ -1314,11 +1401,11 @@ public:
     typename ScalarToArrayFilterType::Pointer
       scalarToArrayFilter = ScalarToArrayFilterType::New();
     scalarToArrayFilter->SetInput(matlabImport->
-    				  GetImagePointerFromMatlab<TPixelIn, VImageDimension>(1, "IM"));
+    				  GetImagePointerFromMatlab<TPixelIn, VImageDimension>(IN_A, "A"));
 
     // vector of centroids
     std::vector<TPixelIn> centroid = matlabImport->template
-      ReadRowVectorFromMatlab<TPixelIn, std::vector<TPixelIn> >(2, "MU", std::vector<TPixelIn>(0));
+      ReadRowVectorFromMatlab<TPixelIn, std::vector<TPixelIn> >(IN_MU, "MU", std::vector<TPixelIn>(0));
     unsigned int numberOfClasses = centroid.size();
 
     // by default, the neighbourhood is a hypercube with 1 voxel to
@@ -1333,7 +1420,7 @@ public:
 
     // read neighbourhood weights provided by the user, but as a vector
     weights = matlabImport->template
-      ReadArrayAsVectorFromMatlab<std::vector<double> >(3, "WEIGHT", weights);
+      ReadArrayAsVectorFromMatlab<std::vector<double> >(IN_WEIGHTS, "WEIGHTS", weights);
     
     // get size of neighbourhood weights array as provided by the
     // user. We get the half-size, as required by this filter (size =
@@ -1341,14 +1428,14 @@ public:
     neighHalfSize = matlabImport->template
       ReadMatlabArrayHalfSize<typename InImageType::SizeValueType, 
 		       typename InImageType::SizeType,
-		       VImageDimension>(3, "WEIGHT", neighHalfSize);
+		       VImageDimension>(IN_WEIGHTS, "WEIGHTS", neighHalfSize);
 
     double smoothingFactor = matlabImport->template
-      ReadScalarFromMatlab<double>(4, "SMOOTH", 1e-7);
+      ReadScalarFromMatlab<double>(IN_SMOOTH, "SMOOTH", 1e-7);
     unsigned int maximumNumberOfIterations = matlabImport->template
-      ReadScalarFromMatlab<unsigned int>(5, "NITER", 100);
+      ReadScalarFromMatlab<unsigned int>(IN_NITER, "NITER", 100);
     double errorTolerance = matlabImport->template
-      ReadScalarFromMatlab<double>(6, "TOL", 1e-7);
+      ReadScalarFromMatlab<double>(IN_TOL, "TOL", 1e-7);
 
     // ITK guide: "number of classes to be used during the
     // classification, the maximum number of iterations to be run in
@@ -1449,10 +1536,8 @@ public:
     filter->SetInput(scalarToArrayFilter->GetOutput());
     
     // connect ITK filter outputs to Matlab outputs
-    if (matlabExport->GetNumberOfRegisteredArguments() >= 1) {
-      matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-  	(filter->GetOutputs()[0], im.size, 0, "0");
-    }
+    matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
+      (filter->GetOutputs()[0], im.size, OUT_B, "B");
 
     // run filter
     filter->Update();
@@ -1679,7 +1764,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   
   // interface to deal with output arguments from Matlab
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
-  matlabExport->RegisterArrayOfOutputArgumentsToMatlab(nlhs, plhs);
+  matlabExport->ConnectToMatlabFunctionOutput(nlhs, plhs);
   
   // run filter (this function starts a cascade of functions designed
   // to translate the run-time type variables like inputVoxelClassId

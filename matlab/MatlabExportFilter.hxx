@@ -8,8 +8,8 @@
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
-  * Copyright © 2012 University of Oxford
-  * Version: 0.3.3
+  * Copyright © 2012-2013 University of Oxford
+  * Version: 0.4.0
   * $Rev$
   * $Date$
   *
@@ -41,6 +41,9 @@
 #ifndef MATLABEXPORTFILTER_HXX
 #define MATLABEXPORTFILTER_HXX
 
+/* Boost headers */
+#include <boost/lexical_cast.hpp> // doesn't need linking
+
 /* ITK headers */
 #include "itkImageRegionConstIterator.h"
 
@@ -49,8 +52,8 @@
 
 // constructor
 MatlabExportFilter::MatlabExportFilter() {
-  this->args = NULL;
-  this->numArgs = 0;
+  this->plhs = NULL;
+  this->nlhs = 0;
 }
 
 // destructor
@@ -58,15 +61,292 @@ MatlabExportFilter::MatlabExportFilter() {
 // attempt to delete the argument list provided by Matlab
 MatlabExportFilter::~MatlabExportFilter() {}
 
+// get number of elements in the list of arguments
+int MatlabExportFilter::GetNumberOfOutputArguments() {
+  return this->nlhs;
+}
+
 // function to check that number of input arguments is within
 // certain limits
-void MatlabExportFilter::CheckNumberOfArguments(unsigned int min, unsigned int max) {
-  if (this->numArgs < min) {
+void MatlabExportFilter::CheckNumberOfArguments(int min, int max) {
+  if (this->nlhs < min) {
     mexErrMsgTxt("Not enough output arguments");
   }
-  if (this->numArgs > max) {
+  if (this->nlhs > max) {
     mexErrMsgTxt("Too many output arguments");
   }
+}
+
+// Functions to register an output at the export filter. 
+MatlabExportFilter::MatlabOutputPointer
+MatlabExportFilter::RegisterOutput(int pos, std::string name) {
+  
+  return this->RegisterOutput(this->plhs, pos, name);
+
+}
+MatlabExportFilter::MatlabOutputPointer
+MatlabExportFilter::RegisterOutput(mxArray **base, int pos, std::string name) {
+
+  if (base == NULL) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabExportFilter:NullPointer", 
+		      ("Output " + name + " cannot be registered at a NULL address").c_str());
+  }
+
+  // assign main variables of the output: its name and the memory
+  // address it should be stored at
+  MatlabExportFilter::MatlabOutput out;
+  out.pm = &(base[pos]);
+  out.name = name;
+
+  // assign the flags to the output
+
+  // is this output directly in the Matlab function's plhs output array?
+  out.isTopLevel = (base == this->plhs);
+
+  // if its at the top level, is it also the first output? This output
+  // always needs to be allocated, even if the user didn't request it
+  // (if not requested, we can return an empty matrix, to save time
+  // and memory)
+  out.isTopLevelFirst = out.isTopLevel && (pos == 0);
+
+
+  // outputs that are regular output variables, e.g. y = myfun(x),
+  // are requested if the user put them in the output vector. For
+  // example:
+  // [y,z] = myfun(x); // y and z have been requested
+  // y = myfun(x);     // y has been requested, z has not been requested
+  //
+  // outputs that are not directly in the function output array are
+  // always considered to have been requested by the user. For
+  // example, an output variable is y (x = myfun(x)), and this is a
+  // cell array. Output y is directly in the output array. But
+  // output y{2} is not directly in the function array. So we assume
+  // that as long as y is requested, then y{2} is requested too
+  if (out.isTopLevel) {
+    out.isRequested = (pos < this->GetNumberOfOutputArguments());
+  } else {
+    out.isRequested = true;
+  }
+
+  // insert the new output at the beginning of the list
+  MatlabExportFilter::MatlabOutputPointer it;
+  try {
+    it = this->outputsList.insert(this->outputsList.begin(), out);
+  } catch (std::exception& e) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabExportFilter:InsertionIntoList", 
+		      ("Output " + name + ": Cannot insert into outputs list\n" + e.what()).c_str());
+  }
+  return it;
+
+}
+
+// Function to allocate memory for a column vector in Matlab, and get the
+// data pointer back. 
+template<class TData>
+TData *
+MatlabExportFilter::AllocateColumnVectorInMatlab(MatlabExportFilter::MatlabOutputPointer output, 
+						 mwSize len) {
+  
+  // vector with matrix dimensions
+  std::vector<mwSize> size;
+  size.push_back(len);
+  size.push_back(1);
+
+  return this->AllocateNDArrayInMatlab<TData>(output, size);
+
+}
+
+// Function to allocate memory for a row vector in Matlab, and get the
+// data pointer back. 
+template<class TData>
+TData *
+MatlabExportFilter::AllocateRowVectorInMatlab(MatlabExportFilter::MatlabOutputPointer output, 
+					      mwSize len) {
+
+  // vector with matrix dimensions
+  std::vector<mwSize> size;
+  size.push_back(1);
+  size.push_back(len);
+
+  return this->AllocateNDArrayInMatlab<TData>(output, size);
+
+}
+
+// Function to allocate memory for a matrix in Matlab, and get the
+// data pointer back. 
+template<class TData>
+TData *
+MatlabExportFilter::AllocateMatrixInMatlab(MatlabExportFilter::MatlabOutputPointer output, 
+					   mwSize nrows, mwSize ncols) {
+
+  // vector with matrix dimensions
+  std::vector<mwSize> size;
+  size.push_back(nrows);
+  size.push_back(ncols);
+
+  return this->AllocateNDArrayInMatlab<TData>(output, size);
+
+}
+
+// Function to allocate memory for an N-dimensional array in Matlab, and get the
+// data pointer back. 
+template<class TData>
+TData *
+MatlabExportFilter::AllocateNDArrayInMatlab(MatlabExportFilter::MatlabOutputPointer output, 
+					    std::vector<mwSize> size) {
+
+  // get the Matlab class ID for the element type we need
+  mxClassID outputClassId = convertCppDataTypeToMatlabCassId<TData>();
+
+  // check whether there's already memory allocated in the output, and
+  // in that case, de-allocate it
+  if (*output->pm != NULL) {
+    mxDestroyArray(*output->pm);
+  }
+  // create output matrix for Matlab's result
+  mwSize ndim = size.size();
+  mwSize dims[ndim];
+  for (size_t i = 0; i < ndim; ++i) {
+    dims[i] = size[i];
+  }
+
+  *output->pm = (mxArray *)mxCreateNumericArray(ndim, dims, outputClassId, mxREAL);
+  if (*output->pm == NULL) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabExportFilter:MemoryAllocation", 
+		      ("Cannot allocate memory for output " + output->name).c_str());
+  }
+  
+  // pointer to the Matlab output buffer
+  TData *buffer =  (TData *)mxGetData(*output->pm);
+  if(buffer == NULL && !mxIsEmpty(*output->pm)) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabExportFilter:MemoryAccess", 
+		      ("Cannot get pointer to allocated memory for output " + output->name).c_str());
+  }
+
+  return buffer;
+
+}
+
+// Function to allocate memory for a column vector in Matlab, and get the
+// data pointer back. 
+template<class TData>
+TData *
+MatlabExportFilter::AllocateColumnVectorInCellInMatlab(MatlabExportFilter::MatlabOutputPointer output, 
+						       int pos, mwSize len) {
+  
+  // vector with matrix dimensions
+  std::vector<mwSize> size;
+  size.push_back(len);
+  size.push_back(1);
+
+  return this->AllocateNDArrayInCellInMatlab<TData>(output, pos, size);
+
+}
+
+// Function to allocate memory for a row vector in Matlab, and get the
+// data pointer back. 
+template<class TData>
+TData *
+MatlabExportFilter::AllocateRowVectorInCellInMatlab(MatlabExportFilter::MatlabOutputPointer output, 
+						    int pos, mwSize len) {
+
+  // vector with matrix dimensions
+  std::vector<mwSize> size;
+  size.push_back(1);
+  size.push_back(len);
+
+  return this->AllocateNDArrayInCellInMatlab<TData>(output, pos, size);
+
+}
+
+// Function to allocate memory for a matrix in a cell in Matlab, and
+// get the data pointer back.
+template<class TData>
+TData *
+MatlabExportFilter::AllocateMatrixInCellInMatlab(MatlabExportFilter::MatlabOutputPointer output, 
+						 int pos, mwSize nrows, mwSize ncols) {
+
+  // vector with matrix dimensions
+  std::vector<mwSize> size;
+  size.push_back(nrows);
+  size.push_back(ncols);
+
+  return this->AllocateNDArrayInCellInMatlab<TData>(output, pos, size);
+
+}
+
+// Function to allocate memory for an N-dimensional array in a cell in
+// Matlab, and get the data pointer back.
+template<class TData>
+TData *
+MatlabExportFilter::AllocateNDArrayInCellInMatlab(MatlabExportFilter::MatlabOutputPointer output, 
+						  int pos, std::vector<mwSize> size) {
+
+  // get the Matlab class ID for the element type we need
+  mxClassID outputClassId = convertCppDataTypeToMatlabCassId<TData>();
+
+  // check whether there's already memory allocated in the cell, and
+  // in that case, de-allocate it
+  mxArray *cell = mxGetCell(*output->pm, pos);
+  if (cell != NULL) {
+    mxDestroyArray(cell);
+  }
+
+  // allocate memory for the new array
+  mwSize ndim = size.size();
+  mwSize dims[ndim];
+  for (size_t i = 0; i < ndim; ++i) {
+    dims[i] = size[i];
+  }
+
+  cell = mxCreateNumericArray(ndim, dims, outputClassId, mxREAL);
+  if (cell == NULL) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabExportFilter:MemoryAllocation", 
+		      ("Cannot allocate memory for output " + output->name + "{" 
+		       + boost::lexical_cast<std::string>(pos) + "}").c_str());
+  }
+
+  // place the new array into the cell array
+  mxSetCell(*output->pm, pos, cell);
+
+  // pointer to the Matlab output buffer. If the array created in the
+  // cell is empty, mxGetData will return a NULL pointer. Do not treat
+  // this case as an error
+  TData *buffer =  (TData *)mxGetData(cell);
+  if(buffer == NULL && !mxIsEmpty(cell)) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabExportFilter:MemoryAccess", 
+		      ("Cannot get pointer to allocated memory for output " + output->name + "{" 
+		       + boost::lexical_cast<std::string>(pos) + "}").c_str());
+  }
+
+  return buffer;
+
+}
+
+// Function to create an empty output in Matlab.
+void 
+MatlabExportFilter::CopyEmptyArrayToMatlab(MatlabOutputPointer output) {
+  
+  // if we are asked to copy the data to an output argument that the
+  // user has not requested, we avoid wasting time and memory, and
+  // simply exit. The only exception is for the first output argument,
+  // plhs[0]. Even if the user has not requested any output arguments,
+  // e.g. my_mex_function([1 4.4 2]); we need to allocate memory for
+  // an empty matrix at plhs[0], otherwise Matlab will give an "One or
+  // more output arguments not assigned during call to..." error
+  if (!output->isRequested) {
+    if (output->isTopLevelFirst) {
+      *output->pm = mxCreateDoubleMatrix(0, 0, mxREAL);
+      return;
+    } else {
+      return;
+    }
+  }
+
+  // the output has been requested, so we always have to create the
+  // empty matrix
+  *output->pm = mxCreateDoubleMatrix(0, 0, mxREAL);
+
 }
 
 // function to allocate memory in Matlab and copy an ITK filter
@@ -83,14 +363,14 @@ template <class TPixel, unsigned int VectorDimension, class TVector>
 void
 MatlabExportFilter::GraftItkImageOntoMatlab(typename itk::DataObject::Pointer image,
 					    std::vector<unsigned int> size,
-					    unsigned int idx, std::string paramName) {
+					    int idx, std::string paramName) {
 
   if (size.size() != VectorDimension) {
     mexErrMsgTxt(("MatlabExportFilter: Output image " + paramName 
 		  + ": wrong length for size vector").c_str());
   }
 
-  // convert output data type to output class ID
+  // get the Matlab class ID for the element type we need
   mxClassID outputVoxelClassId = convertCppDataTypeToMatlabCassId<TPixel>();
 
   // dimensions for the output array
@@ -120,18 +400,18 @@ MatlabExportFilter::GraftItkImageOntoMatlab(typename itk::DataObject::Pointer im
 
   // create output matrix for Matlab's result
   if (isEmptyMatrix) {
-    this->args[idx] = mxCreateDoubleMatrix(0, 0, mxREAL);
+    this->plhs[idx] = mxCreateDoubleMatrix(0, 0, mxREAL);
   } else {
-    this->args[idx] = (mxArray *)mxCreateNumericArray(ndim, dims,
+    this->plhs[idx] = (mxArray *)mxCreateNumericArray(ndim, dims,
   						      outputVoxelClassId,
  						      mxREAL);
   }
-  if (this->args[idx] == NULL) {
+  if (this->plhs[idx] == NULL) {
     mexErrMsgTxt("MatlabExportFilter: Cannot allocate memory for output matrix");
   }
   
   // pointer to the Matlab output buffer
-  TVector *buffer =  (TVector *)mxGetData(this->args[idx]);
+  TVector *buffer =  (TVector *)mxGetData(this->plhs[idx]);
   if(buffer == NULL) {
     mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to allocated memory for output matrix");
   }
@@ -149,7 +429,7 @@ MatlabExportFilter::GraftItkImageOntoMatlab(typename itk::DataObject::Pointer im
   }
   const bool filterWillDeleteTheBuffer = false;
   pOutput->GetPixelContainer()->SetImportPointer(buffer,
-  						 mxGetNumberOfElements(this->args[idx]),
+  						 mxGetNumberOfElements(this->plhs[idx]),
   						 filterWillDeleteTheBuffer);
   
   return;
@@ -171,17 +451,14 @@ template <class TPixel, unsigned int VectorDimension, class TVector>
 void
 MatlabExportFilter::CopyItkImageToMatlab(typename itk::DataObject::Pointer image,
 					 std::vector<unsigned int> size,
-					 unsigned int idx, std::string paramName) {
+					 int idx, std::string paramName) {
 
   if (size.size() != VectorDimension) {
     mexErrMsgTxt(("MatlabExportFilter: Output image " + paramName 
 		  + ": wrong length for size vector").c_str());
   }
 
-  // convert output data type to output class ID
-  mxClassID outputVoxelClassId = convertCppDataTypeToMatlabCassId<TPixel>();
-
-  // dimensions for the output array
+  // pointer to the filter output
   typedef typename itk::Image<TVector, VectorDimension> OutputImageType;
   OutputImageType *pOutput = 
     dynamic_cast<OutputImageType *>(image.GetPointer());
@@ -193,6 +470,9 @@ MatlabExportFilter::CopyItkImageToMatlab(typename itk::DataObject::Pointer image
   if (!TypesAreEqual<TPixel, TVector>::value) {
     size.insert(size.begin(), VectorDimension);
   }
+
+  // get the Matlab class ID for the element type we need
+  mxClassID outputVoxelClassId = convertCppDataTypeToMatlabCassId<TPixel>();
 
   mwSize ndim = size.size();
   mwSize *dims;
@@ -208,18 +488,18 @@ MatlabExportFilter::CopyItkImageToMatlab(typename itk::DataObject::Pointer image
 
   // create output matrix for Matlab's result
   if (isEmptyMatrix) {
-    this->args[idx] = mxCreateDoubleMatrix(0, 0, mxREAL);
+    this->plhs[idx] = mxCreateDoubleMatrix(0, 0, mxREAL);
   } else {
-    this->args[idx] = (mxArray *)mxCreateNumericArray(ndim, dims,
+    this->plhs[idx] = (mxArray *)mxCreateNumericArray(ndim, dims,
   						      outputVoxelClassId,
  						      mxREAL);
   }
-  if (this->args[idx] == NULL) {
+  if (this->plhs[idx] == NULL) {
     mexErrMsgTxt("MatlabExportFilter: Cannot allocate memory for output matrix");
   }
   
   // pointer to the Matlab output buffer
-  TVector *buffer =  (TVector *)mxGetData(this->args[idx]);
+  TVector *buffer =  (TVector *)mxGetData(this->plhs[idx]);
   if(buffer == NULL) {
     mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to allocated memory for output matrix");
   }
@@ -243,26 +523,46 @@ MatlabExportFilter::CopyItkImageToMatlab(typename itk::DataObject::Pointer image
 // of scalars from the C++ side.
 template <class TPixel, class TVector>
 void 
-MatlabExportFilter::CopyVectorOfScalarsToMatlab(unsigned int idx, std::string paramName, 
+MatlabExportFilter::CopyVectorOfScalarsToMatlab(MatlabExportFilter::MatlabOutputPointer output,
 						TVector v, mwSize size) {
 
-  // convert output data type to output class ID
+  // if we are asked to copy the data to an output argument that the
+  // user has not requested, we avoid wasting time and memory, and
+  // simply exit. The only exception is for the first output argument,
+  // plhs[0]. Even if the user has not requested any output arguments,
+  // e.g. my_mex_function([1 4.4 2]); we need to allocate memory for
+  // an empty matrix at plhs[0], otherwise Matlab will give an "One or
+  // more output arguments not assigned during call to..." error
+  if (!output->isRequested) {
+    if (output->isTopLevelFirst) {
+      this->CopyEmptyArrayToMatlab(output);
+      return;
+    } else {
+      return;
+    }
+  }
+
+  // the output is requested, so we are going to create it
+
+  // get the Matlab class ID for the element type we need
   mxClassID outputVoxelClassId = convertCppDataTypeToMatlabCassId<TPixel>();
 
   // create output matrix for Matlab's result
   mwSize ndim = 2;
   mwSize dims[2] = {size, 1};
-  this->args[idx] = (mxArray *)mxCreateNumericArray(ndim, dims,
-						    outputVoxelClassId,
-						    mxREAL);
-  if (this->args[idx] == NULL) {
-    mexErrMsgTxt("MatlabExportFilter: Cannot allocate memory for output matrix");
+  *output->pm = (mxArray *)mxCreateNumericArray(ndim, dims,
+						outputVoxelClassId,
+						mxREAL);
+  if (*output->pm == NULL) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabExportFilter:CopyVectorOfScalarsToMatlab:MemoryAllocation", 
+		      ("Cannot allocate memory for output " + output->name).c_str());
   }
   
   // pointer to the Matlab output buffer
-  TPixel *buffer =  (TPixel *)mxGetData(this->args[idx]);
+  TPixel *buffer =  (TPixel *)mxGetData(*output->pm);
   if(buffer == NULL) {
-    mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to allocated memory for output matrix");
+    mexErrMsgIdAndTxt("Gerardus:MatlabExportFilter:CopyVectorOfScalarsToMatlab:MemoryAccess", 
+		      ("Cannot get pointer to allocated memory for output matrix" + output->name).c_str());
   }
 
   // copy vector to the output
@@ -276,43 +576,48 @@ MatlabExportFilter::CopyVectorOfScalarsToMatlab(unsigned int idx, std::string pa
 // of vectors from the C++ side.
 template <class TPixel, class TInsideVector, class TOutsideVector>
 void 
-MatlabExportFilter::CopyVectorOfVectorsToMatlab(unsigned int idx, std::string paramName,
+MatlabExportFilter::CopyVectorOfVectorsToMatlab(MatlabExportFilter::MatlabOutputPointer output,
 						TOutsideVector v, 
 						mwSize outsideSize, mwSize insideSize) {
-
-  // convert output data type to output class ID
-  mxClassID outputVoxelClassId = convertCppDataTypeToMatlabCassId<TPixel>();
 
   // if we are asked to copy the data to an output argument that the
   // user has not requested, we avoid wasting time and memory, and
   // simply exit. The only exception is for the first output argument,
   // plhs[0]. Even if the user has not requested any output arguments,
-  // e.g. my_mex_function([1 4.4 2]); we need to allocate memory for an empty
-  // matrix, otherwise Matlab will give an "One or more output
-  // arguments not assigned during call to..." error
-  if (idx >= this->GetNumberOfRegisteredArguments()) {
-    if (idx == 0) {
-      this->args[0] = mxCreateDoubleMatrix(0, 0, mxREAL);
+  // e.g. my_mex_function([1 4.4 2]); we need to allocate memory for
+  // an empty matrix at plhs[0], otherwise Matlab will give an "One or
+  // more output arguments not assigned during call to..." error
+  if (!output->isRequested) {
+    if (output->isTopLevelFirst) {
+      this->CopyEmptyArrayToMatlab(output);
+      return;
     } else {
       return;
     }
   }
 
+  // the output is requested, so we are going to create it
+
+  // get the Matlab class ID for the element type we need
+  mxClassID outputVoxelClassId = convertCppDataTypeToMatlabCassId<TPixel>();
+
   // allocate memory for the output
   mwSize ndim = 2;
   mwSize dims[2] = {outsideSize, insideSize};
-  this->args[idx] = (mxArray *)mxCreateNumericArray(ndim, dims,
-						    outputVoxelClassId,
-						    mxREAL);
+  *output->pm = (mxArray *)mxCreateNumericArray(ndim, dims,
+						outputVoxelClassId,
+						mxREAL);
 
-  if (this->args[idx] == NULL) {
-    mexErrMsgTxt("MatlabExportFilter: Cannot allocate memory for output matrix");
+  if (*output->pm == NULL) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabExportFilter:MemoryAllocation", 
+		      "Cannot allocate memory for output matrix");
   }
   
   // pointer to the Matlab output buffer
-  TPixel *buffer =  (TPixel *)mxGetData(this->args[idx]);
+  TPixel *buffer =  (TPixel *)mxGetData(*output->pm);
   if(buffer == NULL) {
-    mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to allocated memory for output matrix");
+    mexErrMsgIdAndTxt("Gerardus:MatlabExportFilter:MemoryAccess", 
+		      "Cannot get pointer to allocated memory for output matrix");
   }
 
   // copy vector to the output

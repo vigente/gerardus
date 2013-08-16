@@ -31,7 +31,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.4
+  * Version: 0.2.0
   * $Rev$
   * $Date$
   *
@@ -104,22 +104,28 @@ void mexFunction(int nlhs, mxArray *plhs[],
 		 int nrhs, const mxArray *prhs[]) {
 
   // interface to deal with input arguments from Matlab
+  enum InputIndexType {IN_TRI, IN_X, InputIndexType_MAX};
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
   matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
 
   // check the number of input arguments
-  matlabImport->CheckNumberOfArguments(2, 2);
+  matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
 
   // interface to deal with outputs to Matlab
+  enum OutputIndexType {OUT_C, OutputIndexType_MAX};
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
-  matlabExport->RegisterArrayOfOutputArgumentsToMatlab(nlhs, plhs);
+  matlabExport->ConnectToMatlabFunctionOutput(nlhs, plhs);
 
   // check number of outputs the user is asking for
-  matlabExport->CheckNumberOfArguments(0, 1);
+  matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
+
+  // register the outputs for this function at the export filter
+  typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+  MatlabOutputPointer outC = matlabExport->RegisterOutput(OUT_C, "C");
 
   // if any of the inputs is empty, the output is empty too
-  if (mxIsEmpty(prhs[0]) || mxIsEmpty(prhs[1])) {
-    plhs[0] = mxCreateNumericMatrix(0, 0, mxDOUBLE_CLASS, mxREAL);
+  if (mxIsEmpty(prhs[IN_TRI]) || mxIsEmpty(prhs[IN_X])) {
+    matlabExport->CopyEmptyArrayToMatlab(outC);
     return;
   }
 
@@ -128,9 +134,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
   Point def(mxGetNaN(), mxGetNaN(), mxGetNaN());
 
   // get size of input matrix
-  mwSize nrowsTri = mxGetM(prhs[0]);
-  mwSize ncolsTri = mxGetN(prhs[0]);
-  mwSize ncolsX = mxGetN(prhs[1]);
+  mwSize nrowsTri = mxGetM(prhs[IN_TRI]);
+  mwSize ncolsTri = mxGetN(prhs[IN_TRI]);
+  mwSize ncolsX = mxGetN(prhs[IN_X]);
   if ((ncolsTri != 3) || (ncolsX != 3)) {
     mexErrMsgTxt("All input arguments must have 3 columns");
   }
@@ -178,17 +184,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   Tree tree(triangles.begin(),triangles.end());
 
   // initialise outputs
-  // number of triangles each triangle intersects (without counting itself)
-  plhs[0] = mxCreateNumericMatrix(nrowsTri, 1, mxDOUBLE_CLASS, mxREAL);
-  if (plhs[0] == NULL) {
-    mexErrMsgTxt("Cannot allocate memory for output 1");
-  }
-    
-  // pointer to the outputs
-  double *n = (double *)mxGetData(plhs[0]); // self-intersectiond detected
-  if (n == NULL) {
-    mexErrMsgTxt("Memory for output 1 has been allocated, but I cannot get a pointer to it");
-  }
+  double *n = matlabExport->AllocateColumnVectorInMatlab<double>(outC, nrowsTri);
 
   // // DEBUG:
   // mwSize triNum = 0;

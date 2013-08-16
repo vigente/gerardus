@@ -4,7 +4,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.4.1
+% Version: 0.4.2
 % $Rev$
 % $Date$
 %
@@ -296,7 +296,9 @@ hold off
 imagesc(im)
 
 % run filter to fill in holes
-im2 = itk_imfilter('voteholefill', im, [2 2], 2);
+RAD = [2 2];
+THR = 2;
+im2 = itk_imfilter('voteholefill', im, RAD, THR);
 
 % plot output image
 imagesc(im2)
