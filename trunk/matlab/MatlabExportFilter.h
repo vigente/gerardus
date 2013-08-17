@@ -194,7 +194,7 @@ class MatlabExportFilter: public itk::Object {
   // Function to create an empty output in Matlab.
   void CopyEmptyArrayToMatlab(MatlabOutputPointer output);
 
-  // function to allocate memory in Matlab and hijack it to be used as
+  // Function to allocate memory in Matlab and hijack it to be used as
   // an ITK filter output. This only works with those filters that
   // create their own output. For other filters, you cannot graft the
   // output; instead, use CopyItkImageOntoMatlab() after running the
@@ -203,18 +203,20 @@ class MatlabExportFilter: public itk::Object {
   // size is a vector with the dimensions of the output image in
   // Matlab. For example, for a 256x200x512 image, size = {256, 200, 512}
   //
-  // size is the same for vector or scalar images. 
-  template <class TPixel, unsigned int VectorDimension, class TVector>
-    void GraftItkImageOntoMatlab(typename itk::DataObject::Pointer image, 
-				 std::vector<unsigned int> size,
-				 int idx, std::string paramName);
+  // size is the same for vector or scalar images.
+  //
+  // There are two syntaxes:
+  //
+  // * Syntax for images with plain scalar voxels (as opposed to vector voxels)
+  //
+  // * Syntax for images with vector voxels
   template <class TPixel, unsigned int VectorDimension>
-    void GraftItkImageOntoMatlab(typename itk::DataObject::Pointer image, 
-				 std::vector<unsigned int> size,
-				 int idx, std::string paramName) {
-    GraftItkImageOntoMatlab<TPixel, VectorDimension, TPixel>(image, size, 
-							     idx, paramName);
-  }
+    void GraftItkImageOntoMatlab(MatlabOutputPointer output, 
+				 typename itk::DataObject::Pointer image, std::vector<mwSize> size);
+
+  template <class TPixel, unsigned int VectorDimension, class TVector>
+    void GraftItkImageOntoMatlab(MatlabOutputPointer output, 
+				 typename itk::DataObject::Pointer image, std::vector<mwSize> size);
 
   // function to allocate memory in Matlab and copy an ITK filter
   // output to this buffer. In principle, it's better to use
@@ -227,16 +229,12 @@ class MatlabExportFilter: public itk::Object {
   //
   // size is the same for vector or scalar images. 
   template <class TPixel, unsigned int VectorDimension, class TVector>
-    void CopyItkImageToMatlab(typename itk::DataObject::Pointer image, 
-			      std::vector<unsigned int> size,
-			      int idx, std::string paramName);
+    void CopyItkImageToMatlab(MatlabOutputPointer output, 
+			      typename itk::DataObject::Pointer image, std::vector<mwSize> size);
+
   template <class TPixel, unsigned int VectorDimension>
-    void CopyItkImageToMatlab(typename itk::DataObject::Pointer image, 
-			      std::vector<unsigned int> size,
-			      int idx, std::string paramName) {
-    CopyItkImageToMatlab<TPixel, VectorDimension, TPixel>(image, size, 
-							  idx, paramName);
-  }
+    void CopyItkImageToMatlab(MatlabOutputPointer output, 
+			      typename itk::DataObject::Pointer image, std::vector<mwSize> size);
 
   // function to allocate memory on the Matlab side and copy a vector
   // of scalars from the C++ side. It can export any C++ class that
