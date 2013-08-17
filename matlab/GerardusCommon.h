@@ -6,7 +6,7 @@
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
-  * Copyright © 2011 University of Oxford
+  * Copyright © 2011-2013 University of Oxford
   * Version: 0.10.1
   * $Rev$
   * $Date$
