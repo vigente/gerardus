@@ -71,8 +71,8 @@
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
-  * Copyright © 2012 University of Oxford
-  * Version: 0.3.0
+  * Copyright © 2012-2013 University of Oxford
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -181,7 +181,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // interface to deal with input arguments from Matlab
   enum InputIndexType {IN_TRI, IN_X, IN_XI, IN_DIRECTIONS, IN_TOL, InputIndexType_MAX};
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
-  matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
+  matlabImport->ConnectToMatlabFunctionInput(nrhs, prhs);
 
   // check that we have at least tri, x and xi
   matlabImport->CheckNumberOfArguments(3, InputIndexType_MAX);

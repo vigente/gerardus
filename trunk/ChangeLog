@@ -1,5 +1,23 @@
 2013-08-17  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/MatlabImportFilter.hxx: (0.6.5)
+	* matlab/MatlabImportFilter.h: (0.6.4)
+	* matlab/ItkToolbox/ItkICPRegistration.cpp: (0.0.4)
+	* matlab/ItkToolbox/ItkImFilter.cpp: (1.5.2)
+	* matlab/ItkToolbox/ItkPSTransform.cpp: (0.4.1)
+	* matlab/CgalToolbox/CgalFixedAlphaShape3.cpp: (0.2.1)
+	* matlab/CgalToolbox/CgalAlphaShape3.cpp: (0.2.1)
+	* matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp: (0.3.1)
+	* matlab/CgalToolbox/CgalCheckSelfIntersect.cpp: (0.2.1)
+	* matlab/CgalToolbox/CgalClosestTriFacet.cpp: (0.2.1)
+	* matlab/CgalToolbox/CgalTriFacetArea.cpp: (0.2.1)
+
+	- Rename RegisterArrayOfInputArgumentsFromMatlab() as
+	ConnectToMatlabFunctionInput().
+
+	- Add member variables for prhs, nrhs, although we are not using
+	them for the moment.
+
 	* matlab/MatlabExportFilter.h: (0.5.0)
 	* matlab/MatlabExportFilter.hxx: (0.5.0)
 	* matlab/ItkToolbox/ItkImFilter.cpp: (1.5.1)
