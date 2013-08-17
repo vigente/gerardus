@@ -31,7 +31,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.2.1
   * $Rev$
   * $Date$
   *
@@ -106,7 +106,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // interface to deal with input arguments from Matlab
   enum InputIndexType {IN_TRI, IN_X, InputIndexType_MAX};
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
-  matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
+  matlabImport->ConnectToMatlabFunctionInput(nrhs, prhs);
 
   // check the number of input arguments
   matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
