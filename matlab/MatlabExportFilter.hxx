@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.4.0
+  * Version: 0.5.0
   * $Rev$
   * $Date$
   *
@@ -349,72 +349,49 @@ MatlabExportFilter::CopyEmptyArrayToMatlab(MatlabOutputPointer output) {
 
 }
 
-// function to allocate memory in Matlab and copy an ITK filter
-// output to this buffer. In principle, it's better to use
-// GraftItkImageOntoMatlab() than CopyItkImageToMatlab(), because
-// then ITK and Matlab share the same memory buffer, but the former
-// approach does not work with some filters
-//
-// size is a vector with the dimensions of the output image in
-// Matlab. For example, for a 256x200x512 image, size = {256, 200, 512}
-//
-// size is the same for vector or scalar images. 
+// Function to allocate memory in Matlab and hijack it to be used as
+// an ITK filter output. Syntax for images with vector voxels
 template <class TPixel, unsigned int VectorDimension, class TVector>
 void
-MatlabExportFilter::GraftItkImageOntoMatlab(typename itk::DataObject::Pointer image,
-					    std::vector<unsigned int> size,
-					    int idx, std::string paramName) {
+MatlabExportFilter::GraftItkImageOntoMatlab(MatlabOutputPointer output, 
+					    typename itk::DataObject::Pointer image,
+					    std::vector<mwSize> size) {
 
+  // check that the number of dimensions is the same in the ITK image
+  // and in the Matlab image
   if (size.size() != VectorDimension) {
-    mexErrMsgTxt(("MatlabExportFilter: Output image " + paramName 
-		  + ": wrong length for size vector").c_str());
+    mexErrMsgIdAndTxt("Gerardus:MatlabExportFilter:GraftItkImageOntoMatlab:WrongDataFormat", 
+		      ("Number of dimensions in output image" + output->name
+		       + " and image to graft disagree").c_str());
   }
 
-  // get the Matlab class ID for the element type we need
-  mxClassID outputVoxelClassId = convertCppDataTypeToMatlabCassId<TPixel>();
+  // if the user hasn't requested the output from Matlab, then we
+  // don't need to graft the ITK image onto Matlab. The only exception
+  // is if the output is the first top level output, because if we
+  // don't allocate memory for it, even if the user hasn't requested
+  // it, Matlab gives a "One or more output arguments not assigned
+  // during call to..." error
+  if (!output->isRequested && !output->isTopLevelFirst) {
+    return;
+  }
 
   // dimensions for the output array
   typedef typename itk::Image<TVector, VectorDimension> OutputImageType;
   OutputImageType *pOutput = 
     dynamic_cast<OutputImageType *>(image.GetPointer());
   if (pOutput == NULL) {
-    mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to filter output");
+    mexErrMsgIdAndTxt("Gerardus:MatlabExportFilter:GraftItkImageOntoMatlab:MemoryAccess", 
+  		      ("Cannot get pointer to allocated memory for output image" + output->name).c_str());
   }
 
-  // if the output image is a vector image, extend the size vector
+  // size tells us the size of the image. But if we have vector
+  // voxels, the Matlab output will need to be 4-D
   if (!TypesAreEqual<TPixel, TVector>::value) {
     size.insert(size.begin(), VectorDimension);
   }
 
-  mwSize ndim = size.size();
-  mwSize *dims;
-  dims = (mwSize *)malloc(ndim * sizeof(mwSize));
-  if (dims == NULL) {
-	  mexErrMsgTxt("MatlabExportFilter: Cannot allocate memory for dims vector");
-  }
-  bool isEmptyMatrix = false;
-  for (mwSize i = 0; i < ndim; ++i) {
-    dims[i] = size[i];
-    isEmptyMatrix |= (size[i] == 0);
-  }
-
-  // create output matrix for Matlab's result
-  if (isEmptyMatrix) {
-    this->plhs[idx] = mxCreateDoubleMatrix(0, 0, mxREAL);
-  } else {
-    this->plhs[idx] = (mxArray *)mxCreateNumericArray(ndim, dims,
-  						      outputVoxelClassId,
- 						      mxREAL);
-  }
-  if (this->plhs[idx] == NULL) {
-    mexErrMsgTxt("MatlabExportFilter: Cannot allocate memory for output matrix");
-  }
-  
-  // pointer to the Matlab output buffer
-  TVector *buffer =  (TVector *)mxGetData(this->plhs[idx]);
-  if(buffer == NULL) {
-    mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to allocated memory for output matrix");
-  }
+  // allocate memory for the 3-D or 4-D image in Matlab, and get a pointer to the buffer
+  TVector *buffer =  this->AllocateNDArrayInMatlab<TVector>(output, size);
 
   // impersonate the data buffer in the filter with the Matlab output
   // buffer
@@ -425,15 +402,26 @@ MatlabExportFilter::GraftItkImageOntoMatlab(typename itk::DataObject::Pointer im
   // size>0, which means that the filter will see that this output's
   // memory has been allocated already, and won't need to do it itself
   if (pOutput->GetPixelContainer()->Size() != 0) {
-    mexWarnMsgTxt("Memory leak, ITK output has size>0 before grafting it onto Matlab");
+    mexWarnMsgIdAndTxt("Gerardus:MatlabExportFilter:GraftItkImageOntoMatlab:MemoryLeak",
+		       ("Memory leak, ITK output has size>0 before grafting it onto Matlab output " 
+			+ output->name).c_str());
   }
   const bool filterWillDeleteTheBuffer = false;
   pOutput->GetPixelContainer()->SetImportPointer(buffer,
-  						 mxGetNumberOfElements(this->plhs[idx]),
+  						 mxGetNumberOfElements(*output->pm),
   						 filterWillDeleteTheBuffer);
   
-  return;
+}
 
+// Function to allocate memory in Matlab and hijack it to be used as
+// an ITK filter output. Syntax for images with plain scalar voxels
+// (as opposed to vector voxels)
+template <class TPixel, unsigned int VectorDimension>
+void 
+MatlabExportFilter::GraftItkImageOntoMatlab(MatlabOutputPointer output, 
+					    typename itk::DataObject::Pointer image, 
+					    std::vector<mwSize> size) {
+  GraftItkImageOntoMatlab<TPixel, VectorDimension, TPixel>(output, image, size);
 }
 
 
@@ -447,15 +435,42 @@ MatlabExportFilter::GraftItkImageOntoMatlab(typename itk::DataObject::Pointer im
 // Matlab. For example, for a 256x200x512 image, size = {256, 200, 512}
 //
 // size is the same for vector or scalar images. 
+template <class TPixel, unsigned int VectorDimension>
+void 
+MatlabExportFilter::CopyItkImageToMatlab(MatlabOutputPointer output, 
+					 typename itk::DataObject::Pointer image, 
+					 std::vector<mwSize> size) {
+  CopyItkImageToMatlab<TPixel, VectorDimension, TPixel>(output, image, size);
+}
+
 template <class TPixel, unsigned int VectorDimension, class TVector>
 void
-MatlabExportFilter::CopyItkImageToMatlab(typename itk::DataObject::Pointer image,
-					 std::vector<unsigned int> size,
-					 int idx, std::string paramName) {
+MatlabExportFilter::CopyItkImageToMatlab(MatlabOutputPointer output, 
+					 typename itk::DataObject::Pointer image, 
+					 std::vector<mwSize> size) {
 
+  // check that the number of dimensions is the same in the ITK image
+  // and in the Matlab image
   if (size.size() != VectorDimension) {
-    mexErrMsgTxt(("MatlabExportFilter: Output image " + paramName 
-		  + ": wrong length for size vector").c_str());
+    mexErrMsgIdAndTxt("Gerardus:MatlabExportFilter:GraftItkImageOntoMatlab:WrongDataFormat", 
+		      ("Number of dimensions in output image" + output->name
+		       + " and image to graft disagree").c_str());
+  }
+
+  // if we are asked to copy the data to an output argument that the
+  // user has not requested, we avoid wasting time and memory, and
+  // simply exit. The only exception is for the first output argument,
+  // plhs[0]. Even if the user has not requested any output arguments,
+  // e.g. my_mex_function([1 4.4 2]); we need to allocate memory for
+  // an empty matrix at plhs[0], otherwise Matlab will give a "One or
+  // more output arguments not assigned during call to..." error
+  if (!output->isRequested) {
+    if (output->isTopLevelFirst) {
+      this->CopyEmptyArrayToMatlab(output);
+      return;
+    } else {
+      return;
+    }
   }
 
   // pointer to the filter output
@@ -466,46 +481,16 @@ MatlabExportFilter::CopyItkImageToMatlab(typename itk::DataObject::Pointer image
     mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to filter output");
   }
 
-  // if the output image is a vector image, extend the size vector
+  // size tells us the size of the image. But if we have vector
+  // voxels, the Matlab output will need to be 4-D
   if (!TypesAreEqual<TPixel, TVector>::value) {
     size.insert(size.begin(), VectorDimension);
   }
 
-  // get the Matlab class ID for the element type we need
-  mxClassID outputVoxelClassId = convertCppDataTypeToMatlabCassId<TPixel>();
-
-  mwSize ndim = size.size();
-  mwSize *dims;
-  dims = (mwSize *)malloc(ndim * sizeof(mwSize));
-  if (dims == NULL) {
-	  mexErrMsgTxt("MatlabExportFilter: Cannot allocate memory for dims vector");
-  }
-  bool isEmptyMatrix = false;
-  for (mwSize i = 0; i < ndim; ++i) {
-    dims[i] = size[i];
-    isEmptyMatrix |= (size[i] == 0);
-  }
-
-  // create output matrix for Matlab's result
-  if (isEmptyMatrix) {
-    this->plhs[idx] = mxCreateDoubleMatrix(0, 0, mxREAL);
-  } else {
-    this->plhs[idx] = (mxArray *)mxCreateNumericArray(ndim, dims,
-  						      outputVoxelClassId,
- 						      mxREAL);
-  }
-  if (this->plhs[idx] == NULL) {
-    mexErrMsgTxt("MatlabExportFilter: Cannot allocate memory for output matrix");
-  }
-  
-  // pointer to the Matlab output buffer
-  TVector *buffer =  (TVector *)mxGetData(this->plhs[idx]);
-  if(buffer == NULL) {
-    mexErrMsgTxt("MatlabExportFilter: Cannot get pointer to allocated memory for output matrix");
-  }
+  // allocate memory for the 3-D or 4-D image in Matlab, and get a pointer to the buffer
+  TVector *buffer =  this->AllocateNDArrayInMatlab<TVector>(output, size);
 
   // copy ITK filter output to Matlab buffer
-  // pOutput->GetBufferPointer()
   typedef typename itk::ImageRegionConstIterator<OutputImageType> IteratorType;
   IteratorType it(pOutput, pOutput->GetLargestPossibleRegion());
 
@@ -516,7 +501,6 @@ MatlabExportFilter::CopyItkImageToMatlab(typename itk::DataObject::Pointer image
     ++buffer;
   }
 
-  return;
 }
 
 // function to allocate memory on the Matlab side and copy a vector
@@ -531,7 +515,7 @@ MatlabExportFilter::CopyVectorOfScalarsToMatlab(MatlabExportFilter::MatlabOutput
   // simply exit. The only exception is for the first output argument,
   // plhs[0]. Even if the user has not requested any output arguments,
   // e.g. my_mex_function([1 4.4 2]); we need to allocate memory for
-  // an empty matrix at plhs[0], otherwise Matlab will give an "One or
+  // an empty matrix at plhs[0], otherwise Matlab will give a "One or
   // more output arguments not assigned during call to..." error
   if (!output->isRequested) {
     if (output->isTopLevelFirst) {
@@ -585,7 +569,7 @@ MatlabExportFilter::CopyVectorOfVectorsToMatlab(MatlabExportFilter::MatlabOutput
   // simply exit. The only exception is for the first output argument,
   // plhs[0]. Even if the user has not requested any output arguments,
   // e.g. my_mex_function([1 4.4 2]); we need to allocate memory for
-  // an empty matrix at plhs[0], otherwise Matlab will give an "One or
+  // an empty matrix at plhs[0], otherwise Matlab will give a "One or
   // more output arguments not assigned during call to..." error
   if (!output->isRequested) {
     if (output->isTopLevelFirst) {
