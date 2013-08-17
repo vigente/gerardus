@@ -66,7 +66,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011-2013 University of Oxford
-  * Version: 0.4.0
+  * Version: 0.4.1
   * $Rev$
   * $Date$
   *
@@ -550,7 +550,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   // interface to deal with input arguments from Matlab
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
-  matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
+  matlabImport->ConnectToMatlabFunctionInput(nrhs, prhs);
   
   // interface to deal with output arguments from Matlab
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();

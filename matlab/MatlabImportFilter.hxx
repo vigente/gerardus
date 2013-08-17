@@ -8,8 +8,8 @@
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
-  * Copyright © 2012 University of Oxford
-  * Version: 0.6.4
+  * Copyright © 2012-2013 University of Oxford
+  * Version: 0.6.5
   * $Rev$
   * $Date$
   *
@@ -84,31 +84,35 @@ const mxArray* MatlabImportFilter::GetRegisteredArgument(int idx) {
 // function to register an array of mxArray input arguments with the
 // import filter ("input" means arguments that were passed to the
 // Matlab function).
-int MatlabImportFilter::RegisterArrayOfInputArgumentsFromMatlab(int nargs, const mxArray *args[]) {
+int MatlabImportFilter::ConnectToMatlabFunctionInput(int nrhs, const mxArray *prhs[]) {
   
-  if (args == NULL) {
+  // keep a copy of the input Matlab variables (currently not used)
+  this->nrhs = nrhs;
+  this->prhs = prhs;
+
+  if (prhs == NULL) {
     mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:NullPointer", 
-		      "Cannot register array of input arguments");
+		      "Cannot connect to array of input arguments");
   }
   
   // registration index of the first argument
   int firstIndex = this->GetNumberOfRegisteredArguments();
   
   // loop input arguments
-  for (int i = 0; i < nargs; i++) {
-    if (args[i] == NULL) {
+  for (int i = 0; i < nrhs; i++) {
+    if (prhs[i] == NULL) {
       mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:NullPointer", 
 			"Cannot register input argument");
     }
     
     // register current input argument
-    this->args.push_back(args[i]);
+    this->args.push_back(prhs[i]);
   }
   
   return firstIndex;
 }
 
-// as above with RegisterArrayOfInputArgumentsFromMatlab(), but for
+// as above with ConnectToMatlabFunctionInput(), but for
 // a single input argument
 int MatlabImportFilter::RegisterInputArgumentFromMatlab(const mxArray *arg) {
   
@@ -117,7 +121,7 @@ int MatlabImportFilter::RegisterInputArgumentFromMatlab(const mxArray *arg) {
 		      "Cannot register input argument");
   }
   
-  return this->RegisterArrayOfInputArgumentsFromMatlab(1, &arg);
+  return this->ConnectToMatlabFunctionInput(1, &arg);
 }
 
 // as above with RegisterInputArgumentFromMatlab(), but for a single
@@ -138,7 +142,7 @@ int MatlabImportFilter::RegisterInputFieldArgumentFromMatlab(const mxArray *arg,
   }
   
   // register field input argument
-  return this->RegisterArrayOfInputArgumentsFromMatlab(1, &fieldarg);
+  return this->ConnectToMatlabFunctionInput(1, &fieldarg);
 }
 
 // function to get the size of a Matlab array. It simplifies having

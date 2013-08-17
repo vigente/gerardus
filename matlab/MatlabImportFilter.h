@@ -8,8 +8,8 @@
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
-  * Copyright © 2012 University of Oxford
-  * Version: 0.6.3
+  * Copyright © 2012-2013 University of Oxford
+  * Version: 0.6.4
   * $Rev$
   * $Date$
   *
@@ -58,6 +58,12 @@ class MatlabImportFilter: public itk::Object {
 
 private:
 
+  // these are the variables provided by the MEX API for the input of
+  // the function (not currently used, as until we add a MatlabInput
+  // struct, we are using the vector args below)
+  const mxArray **prhs;
+  int     nrhs;
+
   // input arguments registered with this import interface
   std::vector<const mxArray*> args;
 
@@ -86,13 +92,13 @@ public:
   // scalars, strings, vectors, matrices, fields, cells, etc. from the
   // registered arguments
   //
-  // nargs: number of input arguments to register
-  // args:  array of input arguments
+  // nrhs: number of input arguments to register
+  // prhs: array of input arguments
   //
   // returns: registration index of the first element that is registered
-  int RegisterArrayOfInputArgumentsFromMatlab(int nargs, const mxArray *args[]);
+  int ConnectToMatlabFunctionInput(int nrhs, const mxArray *prhs[]);
 
-  // as above with RegisterArrayOfInputArgumentsFromMatlab(), but for
+  // as above with ConnectToMatlabFunctionInput(), but for
   // a single input argument
   int RegisterInputArgumentFromMatlab(const mxArray *arg);
 

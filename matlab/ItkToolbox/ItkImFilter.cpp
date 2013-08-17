@@ -359,8 +359,8 @@
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
-  * Copyright © 2011-2012 University of Oxford
-  * Version: 1.5.1
+  * Copyright © 2011-2013 University of Oxford
+  * Version: 1.5.2
   * $Rev$
   * $Date$
   *
@@ -1761,7 +1761,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   
   // interface to deal with input arguments from Matlab
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
-  matlabImport->RegisterArrayOfInputArgumentsFromMatlab(nrhs, prhs);
+  matlabImport->ConnectToMatlabFunctionInput(nrhs, prhs);
   
   // check that we have at least a filter name and input image
   matlabImport->CheckNumberOfArguments(2, UINT_MAX);
