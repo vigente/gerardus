@@ -1,5 +1,20 @@
 2013-08-17  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/MatlabExportFilter.h: (0.5.0)
+	* matlab/MatlabExportFilter.hxx: (0.5.0)
+	* matlab/ItkToolbox/ItkImFilter.cpp: (1.5.1)
+
+	- Use new allocation methods inside of Graft and Copy
+	methods. This removes duplicated code and solves potential bugs.
+
+	- Use MatlabOutput in Graft and Copy methods.
+
+	- Ignore grafting or copying for outputs that are not required.
+
+	* matlab/MatlabImageHeader.h: (0.1.1)
+
+	- Change the type of size vectors.
+
 	* matlab/MatlabExportFilter.h: (0.4.0)
 	* matlab/MatlabExportFilter.hxx: (0.4.0)
 

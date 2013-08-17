@@ -9,8 +9,8 @@
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
-  * Copyright © 2012 University of Oxford
-  * Version: 0.1.0
+  * Copyright © 2012-2013 University of Oxford
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -48,7 +48,7 @@ class MatlabImageHeader {
 
   mxArray *data; // pointer to the image voxels
   mxClassID type; // pixel type
-  std::vector<unsigned int> size;
+  std::vector<mwSize> size;
   std::vector<double> spacing, origin;
 
   MatlabImageHeader(const mxArray *arg, std::string paramName);

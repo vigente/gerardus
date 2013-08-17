@@ -360,7 +360,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011-2012 University of Oxford
-  * Version: 1.5.0
+  * Version: 1.5.1
   * $Rev$
   * $Date$
   *
@@ -550,14 +550,14 @@ public:
 
     // graft ITK filter outputs onto Matlab outputs
     matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-      (filter->GetOutputs()[0], im.size, OUT_B, "B");
+      (outB, filter->GetOutputs()[0], im.size);
 
     // run filter
     filter->Update();
 
     // copy ITK filter outputs to Matlab outputs
     matlabExport->CopyItkImageToMatlab<TPixelOut, VImageDimension>
-      (filter->GetNonMaximumSuppressionImage(), im.size, OUT_C, "C");
+      (outC, filter->GetNonMaximumSuppressionImage(), im.size);
 
   }
 };
@@ -652,6 +652,10 @@ public:
     matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
     matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
 
+    // register the outputs for this function at the export filter
+    typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
+    MatlabOutputPointer outB = matlabExport->RegisterOutput(OUT_B, "B");
+
     // instantiate the filter
     typedef TPixelIn TPixelOut;
     typedef typename itk::Image<TPixelIn, VImageDimension> InImageType;
@@ -686,7 +690,7 @@ public:
 
     // copy ITK filter outputs to Matlab outputs
     matlabExport->CopyItkImageToMatlab<TPixelOut, VImageDimension>
-      (filter->GetOutputs()[0], im.size, OUT_B, "B");
+      (outB, filter->GetOutputs()[0], im.size);
 
   }
 };
@@ -733,7 +737,7 @@ public:
 
     // distance map
     matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-      (filter->GetOutputs()[0], im.size, OUT_B, "B");
+      (outB, filter->GetOutputs()[0], im.size);
 
     // run filter
     filter->Update();
@@ -789,7 +793,7 @@ public:
     
     // graft ITK filter outputs onto Matlab outputs
     matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-      (filter->GetOutputs()[0], im.size, OUT_B, "B");
+      (outB, filter->GetOutputs()[0], im.size);
 
     // run filter
     filter->Update();
@@ -847,7 +851,7 @@ public:
     // connect ITK filter outputs to Matlab outputs
     if (matlabExport->GetNumberOfOutputArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-	(filter->GetOutputs()[0], im.size, OUT_B, "B");
+	(outB, filter->GetOutputs()[0], im.size);
     }
 
     // run filter
@@ -933,7 +937,7 @@ public:
     // connect ITK filter outputs to Matlab outputs
     if (matlabExport->GetNumberOfOutputArguments() >= 1) {
       matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-	(filter->GetOutputs()[0], im.size, OUT_B, "B");
+	(outB, filter->GetOutputs()[0], im.size);
     }
 
     // run filter
@@ -998,7 +1002,7 @@ public:
 
     // connect ITK filter outputs to Matlab outputs
     matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-      (filter->GetOutputs()[0], im.size, OUT_B, "B");
+      (outB, filter->GetOutputs()[0], im.size);
 
     // run filter
     filter->Update();
@@ -1066,17 +1070,17 @@ public:
 
     // distance map
     matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-      (filter->GetOutputs()[0], im.size, OUT_B, "B");
+      (outB, filter->GetOutputs()[0], im.size);
 
     // Voronoi map
     matlabExport->GraftItkImageOntoMatlab<TPixelIn, VImageDimension>
-      (filter->GetOutputs()[1], im.size, OUT_V, "V");
+      (outV, filter->GetOutputs()[1], im.size);
 
     // vectors pointing to closest foreground voxel
     matlabExport->GraftItkImageOntoMatlab<typename InImageType::OffsetType::OffsetValueType,
 					  VImageDimension,
 					  typename InImageType::OffsetType::OffsetType>
-      (filter->GetOutputs()[2], im.size, OUT_W, "W");
+      (outW, filter->GetOutputs()[2], im.size);
 
     // run filter
     filter->Update();
@@ -1124,17 +1128,17 @@ public:
 
     // distance map
     matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-      (filter->GetOutputs()[0], im.size, OUT_B, "B");
+      (outB, filter->GetOutputs()[0], im.size);
 
     // Voronoi map
     matlabExport->GraftItkImageOntoMatlab<TPixelIn, VImageDimension>
-      (filter->GetOutputs()[1], im.size, OUT_V, "V");
+      (outV, filter->GetOutputs()[1], im.size);
 
     // vectors pointing to closest foreground voxel
     matlabExport->GraftItkImageOntoMatlab<typename InImageType::OffsetType::OffsetValueType,
 					  VImageDimension,
 					  typename InImageType::OffsetType::OffsetType>
-      (filter->GetOutputs()[2], im.size, OUT_W, "W");
+      (outW, filter->GetOutputs()[2], im.size);
 
     // run filter
     filter->Update();
@@ -1190,7 +1194,7 @@ public:
 
     // distance map
     matlabExport->CopyItkImageToMatlab<TPixelOut, VImageDimension>
-      (filter->GetOutputs()[0], im.size, OUT_B, "B");
+      (outB, filter->GetOutputs()[0], im.size);
 
   }
 };
@@ -1256,7 +1260,7 @@ public:
     
     // connect ITK filter outputs to Matlab outputs
     matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-      (filter->GetOutputs()[0], im.size, OUT_B, "B");
+      (outB, filter->GetOutputs()[0], im.size);
 
     // run filter
     filter->Update();
@@ -1317,7 +1321,7 @@ public:
     
     // connect ITK filter outputs to Matlab outputs
     matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-      (filter->GetOutputs()[0], im.size, OUT_B, "B");
+      (outB, filter->GetOutputs()[0], im.size);
 
     // run filter
     filter->Update();
@@ -1537,7 +1541,7 @@ public:
     
     // connect ITK filter outputs to Matlab outputs
     matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
-      (filter->GetOutputs()[0], im.size, OUT_B, "B");
+      (outB, filter->GetOutputs()[0], im.size);
 
     // run filter
     filter->Update();
