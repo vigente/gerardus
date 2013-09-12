@@ -72,7 +72,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.3.1
+  * Version: 0.4.0
   * $Rev$
   * $Date$
   *
@@ -133,6 +133,8 @@ typedef CGAL::AABB_triangle_primitive<K,Iterator> Primitive;
 typedef CGAL::AABB_traits<K, Primitive>           AABB_triangle_traits;
 typedef CGAL::AABB_tree<AABB_triangle_traits>     Tree;
 
+typedef MatlabImportFilter::MatlabInputPointer    MatlabInputPointer;
+
 /*
  * pointIsIn(): auxiliary function to test whether a point is inside
  * or outside the surface
@@ -186,6 +188,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // check that we have at least tri, x and xi
   matlabImport->CheckNumberOfArguments(3, InputIndexType_MAX);
 
+  // register the outputs for this function at the export filter
+  typedef MatlabImportFilter::MatlabInputPointer MatlabInputPointer;
+  MatlabInputPointer inTRI =        matlabImport->RegisterInput(IN_TRI, "TRI");
+  MatlabInputPointer inX =          matlabImport->RegisterInput(IN_X, "X");
+  MatlabInputPointer inXI =         matlabImport->RegisterInput(IN_XI, "XI");
+  MatlabInputPointer inDIRECTIONS = matlabImport->RegisterInput(IN_DIRECTIONS, "DIRECTIONS");
+  MatlabInputPointer inTOL =        matlabImport->RegisterInput(IN_TOL, "TOL");
+
   // interface to deal with outputs to Matlab
   enum OutputIndexType {OUT_ISIN, OutputIndexType_MAX};
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
@@ -205,14 +215,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
   }
 
   // if user provides the ray directions, read them
-  std::vector<Direction> direction; // ray query directions
-  direction.push_back(Direction(1.0, 0.0, 0.0));    // default directions if 
-  direction.push_back(Direction(-1.0, 1.0, 1.0));   // not provided by the
-  direction.push_back(Direction(-1.0, -1.0, -1.0)); // user
-  direction = matlabImport->ReadVectorOfVectorsFromMatlab<double, Direction>(IN_DIRECTIONS, "DIR", direction);
+  std::vector<Direction> directionDef; // ray query directions
+  directionDef.push_back(Direction(1.0, 0.0, 0.0));    // default directions if 
+  directionDef.push_back(Direction(-1.0, 1.0, 1.0));   // not provided by the
+  directionDef.push_back(Direction(-1.0, -1.0, -1.0)); // user
+
+  // dimensions of the directions matrix
+  std::vector<Direction> direction
+    = matlabImport->ReadVectorOfVectorsFromMatlab<K::RT, Direction>(inDIRECTIONS, directionDef);
 
   // distance tolerance value
-  double tol = matlabImport->ReadScalarFromMatlab<double>(IN_TOL, "TOL", 1e-15);
+  double tol = matlabImport->ReadScalarFromMatlab<double>(inTOL, 1e-15);
 
   // point coordinates with NaN values in case there's a problem reading them
   Point def(mxGetNaN(), mxGetNaN(), mxGetNaN());
@@ -239,9 +252,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     // get indices of the 3 vertices of each triangle. These indices
     // follow Matlab's convention v0 = 1, 2, ..., n
-    v0 = matlabImport->ReadScalarFromMatlab<mwIndex>(IN_TRI, i, 0, "TRI", mxGetNaN());
-    v1 = matlabImport->ReadScalarFromMatlab<mwIndex>(IN_TRI, i, 1, "TRI", mxGetNaN());
-    v2 = matlabImport->ReadScalarFromMatlab<mwIndex>(IN_TRI, i, 2, "TRI", mxGetNaN());
+    v0 = matlabImport->ReadScalarFromMatlab<mwIndex>(inTRI, i, 0, mxGetNaN());
+    v1 = matlabImport->ReadScalarFromMatlab<mwIndex>(inTRI, i, 1, mxGetNaN());
+    v2 = matlabImport->ReadScalarFromMatlab<mwIndex>(inTRI, i, 2, mxGetNaN());
     if (mxIsNaN(v0) || mxIsNaN(v1) || mxIsNaN(v2)) {
       mexErrMsgIdAndTxt("Gerardus:CgalInSurfaceTriangulation:WrongInputFormat", 
 			"Parameter TRI: Vertex index is NaN");
@@ -249,9 +262,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     // get coordinates of the 3 vertices (substracting 1 so that
     // indices follow the C++ convention 0, 1, ..., n-1)
-    x0 = matlabImport->ReadRowVectorFromMatlab<double, Point>(IN_X, v0 - 1, "X", def);
-    x1 = matlabImport->ReadRowVectorFromMatlab<double, Point>(IN_X, v1 - 1, "X", def);
-    x2 = matlabImport->ReadRowVectorFromMatlab<double, Point>(IN_X, v2 - 1, "X", def);
+    x0 = matlabImport->ReadRowVectorFromMatlab<double, Point>(inX, v0 - 1, def);
+    x1 = matlabImport->ReadRowVectorFromMatlab<double, Point>(inX, v1 - 1, def);
+    x2 = matlabImport->ReadRowVectorFromMatlab<double, Point>(inX, v2 - 1, def);
 
     // add triangle to the list of triangles in the surface
     triangles.push_back(Triangle(x0, x1, x2));
@@ -265,18 +278,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mexErrMsgTxt("Not enough memory to accelerate distance queries");
   }
 
-  if (mxIsCell(matlabImport->GetRegisteredArgument(2))) { // xi is given by 3 vectors
-					   // that describe a
-					   // rectangular volume we
-					   // want to test
+  if (mxIsCell(inXI->pm)) { // xi is given by 3 vectors that describe a
+                            // rectangular volume we want to test
 
     // check that the cell contains three vectors and get pointers to them
-    if (mxGetN(matlabImport->GetRegisteredArgument(2)) != 3) {
+    if (mxGetN(prhs[IN_XI]) != 3) {
       mexErrMsgTxt("CI must be a cell array given as a row with 3 elements");
     }
-    mxArray *pXi = mxGetCell(matlabImport->GetRegisteredArgument(2), 0);
-    mxArray *pYi = mxGetCell(matlabImport->GetRegisteredArgument(2), 1);
-    mxArray *pZi = mxGetCell(matlabImport->GetRegisteredArgument(2), 2);
+    
+    mxArray *pXi = mxGetCell(inXI->pm, 0);
+    mxArray *pYi = mxGetCell(inXI->pm, 1);
+    mxArray *pZi = mxGetCell(inXI->pm, 2);
     if (pXi == NULL || pYi == NULL || pZi == NULL) {
       mexErrMsgTxt("Cannot get pointer to vectors inside cell array CI");
     }
@@ -298,6 +310,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
       mexErrMsgTxt("ZI contained in CI must be a row vector");
     }
 
+    // register the three cell components as inputs
+    MatlabInputPointer inCIXI = matlabImport->RegisterInput(pXi, "CI{XI}");
+    MatlabInputPointer inCIYI = matlabImport->RegisterInput(pYi, "CI{YI}");
+    MatlabInputPointer inCIZI = matlabImport->RegisterInput(pZi, "CI{ZI}");
+
     // get length of each vector in CI
     size_t lenXi = std::max(mxGetM(pXi), mxGetN(pXi));
     size_t lenYi = std::max(mxGetM(pYi), mxGetN(pYi));
@@ -311,41 +328,29 @@ void mexFunction(int nlhs, mxArray *plhs[],
     size.push_back(lenZi);
     bool *isin = matlabExport->AllocateNDArrayInMatlab<bool>(outISIN, size);
 
-    // register the vectors in the cell array CI with the matlab
-    // import interface so that we can access their values
-    size_t idXi = matlabImport->RegisterInputArgumentFromMatlab(pXi);
-    size_t idYi = matlabImport->RegisterInputArgumentFromMatlab(pYi);
-    size_t idZi = matlabImport->RegisterInputArgumentFromMatlab(pZi);
-
     // loop every point that is tested to see whether it's inside or
     // outside the surface
     Point xi; // test point coordinates
     for (mwIndex s = 0; s < lenZi; ++s) { // slice (slowest varying)
 
       // z-coordinate of the point to be tested
-      double xi_z = matlabImport->ReadScalarFromMatlab<double>(idZi, 0, s,
-							    "ZI in CI", 
-							    mxGetNaN());
+      double xi_z = matlabImport->ReadScalarFromMatlab<double>(inCIZI, 0, s, mxGetNaN());
       for (mwIndex c = 0; c < lenXi; ++c) { // column
 
-	// x-coordinate of the point to be tested
-	double xi_x = matlabImport->ReadScalarFromMatlab<double>(idXi, 0, c,
-							      "XI in CI", 
-							      mxGetNaN());
-	for (mwIndex r = 0; r < lenYi; ++r) { // row (fastest varying)
+    	// x-coordinate of the point to be tested
+    	double xi_x = matlabImport->ReadScalarFromMatlab<double>(inCIXI, 0, c, mxGetNaN());
+    	for (mwIndex r = 0; r < lenYi; ++r) { // row (fastest varying)
 	  
-	  // exit if user pressed Ctrl+C
-	  ctrlcCheckPoint(__FILE__, __LINE__);
+    	  // exit if user pressed Ctrl+C
+    	  ctrlcCheckPoint(__FILE__, __LINE__);
     
-	  // y-coordinate of the point to be tested
-	  double xi_y = matlabImport->ReadScalarFromMatlab<double>(idYi, 0, r,
-								"YI in CI", 
-								mxGetNaN());
+    	  // y-coordinate of the point to be tested
+    	  double xi_y = matlabImport->ReadScalarFromMatlab<double>(inCIYI, 0, r, mxGetNaN());
 
-	  // test whether point is inside or outside the surface
-	  isin[sub2ind(size[0], size[1], size[2], r, c, s)] 
-	    = pointIsIn(Point(xi_x, xi_y, xi_z), tree, direction, tol);
-	} // r
+    	  // test whether point is inside or outside the surface
+    	  isin[sub2ind(size[0], size[1], size[2], r, c, s)] 
+    	    = pointIsIn(Point(xi_x, xi_y, xi_z), tree, direction, tol);
+    	} // r
       } // c
     } // s
 
@@ -363,7 +368,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
       ctrlcCheckPoint(__FILE__, __LINE__);
 
       // get point coordinates to be tested
-      xi = matlabImport->ReadRowVectorFromMatlab<double, Point>(IN_XI, i, "XI", def);
+      xi = matlabImport->ReadRowVectorFromMatlab<double, Point>(inXI, i, def);
 
       // test whether point is inside or outside the surface
       isin[i] = pointIsIn(xi, tree, direction, tol);

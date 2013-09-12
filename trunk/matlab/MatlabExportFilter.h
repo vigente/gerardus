@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.4.0
+  * Version: 0.5.0
   * $Rev$
   * $Date$
   *
@@ -60,16 +60,18 @@ class MatlabExportFilter: public itk::Object {
 
   // struct to encapsulate each of the outputs to Matlab
   struct MatlabOutput {
-    mxArray **pm;     // pointer to the Matlab output (itself a pointer)
+    // it ain't pretty having an mxArray** here, but having just an
+    // mxArray* won't work. If we have "mxArray *pm" and do
+    //   out->pm = plhs[3];
+    //   out->pm = mxCreateNumericArray(...);
+    // this will allocate memory but not put it in the Matlab output.
+    // For that, we need an "mxArray **ppm" and do
+    //   out->ppm = &(plhs[3]);
+    //   *out->ppm = mxCreateNumericArray(...);
+    // For outputs that don't go in the plhs array, e.g. outputs that go in a cell or struct field, 
+    mxArray **ppm;    // pointer to Matlab MEX output
     std::string name; // name of the output for error/debug messages
     bool isRequested; // flag: has the user requested this output?
-    bool isTopLevel;  // flag: is this output in the plhs array?
-    bool isTopLevelFirst; // flag: is this the first top level output?
-
-    // note: if the output is top level, we need to know whether it's
-    // the first one, because in that case we need to allocate an
-    // empty matrix in Matlab for it, even if the user has not
-    // requested it
   };
   
   typedef std::list<MatlabOutput>::iterator MatlabOutputPointer;
@@ -104,35 +106,34 @@ class MatlabExportFilter: public itk::Object {
 
   // function to import into this class the array with the arguments
   // provided by Matlab
-  void ConnectToMatlabFunctionOutput(int _nlhs, mxArray *_plhs[]) {
-    this->nlhs = _nlhs;
-    this->plhs = _plhs;
-  }
+  void ConnectToMatlabFunctionOutput(int _nlhs, mxArray *_plhs[]);
 
-  // get number of elements in the list of arguments
-  int GetNumberOfOutputArguments();
+  // get number of elements in the list of plhs arguments
+  int GetNumberOfArguments();
 
-  // function to check that number of input arguments is within
+  // function to check that number of plhs arguments is within
   // certain limits
   void CheckNumberOfArguments(int min, int max);
 
   // Function to register an output at the export filter. 
   //
   // Registration basically means "this output in Matlab is going to
-  // correspond to X". Once an output has been registered, it can be
+  // be called X". Once an output has been registered, it can be
   // passed to the Copy or Graft methods to actually allocate the
   // memory, connect to a filter, copy the data over, etc.
   //
-  // We provide two syntaxes. The first one registers the output on
-  // the Matlab output array. The second one registers the output on
-  // any array (e.g. an output argument that is a cell array)
-  //
-  // pos: position index within the base array
-  // base: base array
+  // pos: position index within the base plhs array
   //
   // returns: a class of type MatlabOutput, defined above
   MatlabOutputPointer RegisterOutput(int pos, std::string name);
-  MatlabOutputPointer RegisterOutput(mxArray **base, int pos, std::string name);
+
+  // TODO: RegisterCellInOutput(MatlabOutputPointer output, int pos, std::string name)
+  // TODO: RegisterStructFieldInOutput(MatlabOutputPointer output, std::string field)
+  // So that we can have outputs nested into other outputs. Nested
+  // outputs will inherit the isRequested status of their parent.
+  //
+  // Note that we already have Allocate*InCellInMatlab() methods
+  // below, but we do this directly, without previous registration.
 
   // Functions to allocate memory for vectors, matrices and
   // N-dimensional arrays in Matlab, and get the data pointer back. 
@@ -142,6 +143,22 @@ class MatlabExportFilter: public itk::Object {
   // These functions are necessary because not always are we going to
   // have C++ vectors that we can copy to Matlab. Sometimes, we have
   // to generate the values of the output vector one by one.
+  //
+  // Note: Memory is always allocated, regardless of whether the user
+  // has requested the output or not. It's up to the main program to
+  // check before allocating, e.g.
+  //   if (outYI->isRequested) {
+  //     double *yi = matlabExport->AllocateColumnVectorInMatlab<TScalarType>(outYI, 10);
+  //     for (int i=0; i<10; ++i) {
+  //       yi[i] = i;
+  //     }
+  //   }
+  // Why? Because the alternative is to return NULL if the user has
+  // not requested the output. Then the main program has to check
+  // anyway for a NULL pointer instead of isRequested, and this is
+  // prone to create segfaults. If we always allocate the memory, and
+  // the user forgets to check isRequested, in the worst case we waste
+  // memory and time, but won't get segfaults.
   //
   // output: pointer to a registered output
   //
@@ -279,7 +296,7 @@ class MatlabExportFilter: public itk::Object {
   // do a specialization of this function for every class, as
   // different classes provide their size with different methods,
   // e.g. v.size(), v.Size(), v.length(), etc.
-  template <class TPixel, class TInsideVector, class TOutsideVector>
+  template <class TPixel, class TOutsideVector>
     void CopyVectorOfVectorsToMatlab(MatlabExportFilter::MatlabOutputPointer output,
 				     TOutsideVector v, 
 				     mwSize outsideSize, mwSize insideSize);

@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.6.4
+  * Version: 0.7.0
   * $Rev$
   * $Date$
   *
@@ -56,6 +56,17 @@
 
 class MatlabImportFilter: public itk::Object {
 
+ public:
+
+  // struct to encapsulate each of the inputs to Matlab
+  struct MatlabInput {
+    const mxArray *pm;  // Matlab MEX input
+    std::string name;   // name of the input for error/debug messages
+    bool isProvided;    // flag: has the user provided this input?
+  };
+  
+  typedef std::list<MatlabInput>::iterator MatlabInputPointer;
+
 private:
 
   // these are the variables provided by the MEX API for the input of
@@ -64,9 +75,9 @@ private:
   const mxArray **prhs;
   int     nrhs;
 
-  // input arguments registered with this import interface
-  std::vector<const mxArray*> args;
-
+  // list of the inputs registered at this importer
+  std::list<MatlabInput> inputsList;
+  
 protected:
 
   MatlabImportFilter();
@@ -85,68 +96,86 @@ public:
   // run-time type information (and related methods)
   itkTypeMacro(MatlabImportFilter, Object);
 
-  // function to register an array of mxArray input arguments with the
-  // import filter ("input" means arguments that were passed to the
-  // Matlab function). After registration, the Matlab input arguments
-  // are available to the filter. The filter can then be used to read
-  // scalars, strings, vectors, matrices, fields, cells, etc. from the
-  // registered arguments
-  //
-  // nrhs: number of input arguments to register
-  // prhs: array of input arguments
-  //
-  // returns: registration index of the first element that is registered
-  int ConnectToMatlabFunctionInput(int nrhs, const mxArray *prhs[]);
+  // function to import into this class the array with the arguments
+  // provided by Matlab
+  void ConnectToMatlabFunctionInput(int _nrhs, const mxArray *_prhs[]);
 
-  // as above with ConnectToMatlabFunctionInput(), but for
-  // a single input argument
-  int RegisterInputArgumentFromMatlab(const mxArray *arg);
-
-  // as above with RegisterInputArgumentFromMatlab(), but for a single
-  // input argument that is a struct field, e.g. x.alpha.
-  //
-  // if the field doesn't exist, or cannot be registered for whatever
-  // reason, return -1. The reason is that in general, we are not
-  // going to be sure whether the user provided the field or not in a
-  // struct. If we threw an error, the interface with the user becomes
-  // too rigid. The way we do it, if the field is not provided, we
-  // just get an index=-1, that can be easily ignored or replaced by a
-  // default value at a later stage
-  //
-  // arg:   pointer to the input argument struct
-  // index: the input argument can be 
-  int RegisterInputFieldArgumentFromMatlab(const mxArray *arg, 
-					   const char *fieldname);
-  // alternatively, we can use the index for already registered input
-  // arguments
-  int RegisterInputFieldArgumentFromMatlab(int index, 
-					   const char *fieldname);
-
-  // get number of elements in the list of arguments
-  unsigned int GetNumberOfRegisteredArguments() {
-    return this->args.size();
-  }
+  // get number of elements in the prhs list of input arguments
+  unsigned int GetNumberOfArguments();
 
   // function to get direct pointers to the Matlab input arguments
   //
   // idx: parameter index
-  const mxArray *GetRegisteredArgument(int idx);
+  const mxArray *GetPrhsArgument(int idx);
 
-  // function to check that number of input arguments is within
+  // function to check that number of prhs arguments is within
   // certain limits
-  void CheckNumberOfArguments(unsigned int min, unsigned int max);
+  void CheckNumberOfArguments(int min, int max);
+
+  // Function to register an input at the import filter. 
+  //
+  // Registration basically means "this input in Matlab is going to
+  // correspond to X". Once an input has been registered, it can be
+  // passed to the Read methods to copy the data over, etc.
+  //
+  // pos: 
+  //   position index within the base array prhs
+  //
+  // pm:
+  //   direct pointer to an input. pm == base[pos] in the Matlab
+  //   array, but this syntax allows to register child inputs, e.g. a
+  //   field in a struct
+  //
+  // name:
+  //   name to associate to the input for debugging purposes
+  //
+  // returns:
+  //   a class of type MatlabInput, defined above
+  //
+  // syntax 1: the input is in the Matlab default array, so we only
+  //           need to provide the position of the particular input we want to
+  //           register
+  //
+  // syntax 2: valid for single inputs. This syntax is useful to
+  // register e.g. a struct field or a cell element within a cell array
+  MatlabInputPointer RegisterInput(int pos, std::string name);
+  MatlabInputPointer RegisterInput(const mxArray *pm, std::string name);
+
+  // Function to register a field from a struct input at the import filter.
+  //
+  // structInput:
+  //   pointer to an already registered input, that must be of type struct.
+  //
+  // field:
+  //   name of the field we want to register.
+  //
+  // returns:
+  //   a class of type MatlabInput, defined above
+  MatlabInputPointer RegisterStructFieldInput(MatlabInputPointer structInput,
+					      std::string field);
+
+  // function to get a pointer to a registered Matlab input by
+  // providing its name
+  //
+  // If the user runs this method on a name that has not been
+  // registered, the function will throw an error and exit Matlab
+  MatlabInputPointer GetRegisteredInput(std::string name);
 
   // function to get the size of a Matlab array. It simplifies having
   // to run mxGetNumberOfDimensions() and mxGetDimensions(), and then
   // casting the result into e.g. itk::Size to pass it to ITK
+  //
+  // input:
+  //   pointer to a registered input
+  //
+  // def:
+  //   default value to return if the user has not provided an input
   template <class VectorValueType, class VectorType>
-    VectorType ReadMatlabArraySize(int idx, 
-			    std::string paramName,
-			    VectorType def);
+    VectorType ReadMatlabArraySize(MatlabInputPointer input,
+				   VectorType def);
 
   template <class VectorValueType, class VectorType, unsigned int VectorSize>
-    VectorType ReadMatlabArraySize(int idx, 
-			    std::string paramName,
+    VectorType ReadMatlabArraySize(MatlabInputPointer input,
 			    VectorType def);
 
   // function to get the half-size of a Matlab array. Some ITK filters
@@ -155,73 +184,87 @@ public:
   // the left or right of the central pixel. For example, an array
   // with size=[3, 7] has a half-size or radius=[1, 3]. I.e. 
   // size = 2 * radius + 1
+  //
+  // input:
+  //   pointer to a registered input
+  //
+  // def:
+  //   default value to return if the user has not provided an input
   template <class VectorValueType, class VectorType>
-    VectorType ReadMatlabArrayHalfSize(int idx, 
-				std::string paramName,
+    VectorType ReadMatlabArrayHalfSize(MatlabInputPointer input,
 				VectorType def);
 
   template <class VectorValueType, class VectorType, unsigned int VectorSize>
-    VectorType ReadMatlabArrayHalfSize(int idx, 
-				std::string paramName,
-				VectorType def);
+    VectorType ReadMatlabArrayHalfSize(MatlabInputPointer input,
+				       VectorType def);
 
   // function to get the value of input arguments that are strings
   //
-  // idx: parameter index
-  // def: value returned by default if argument is empty or not provided
-  std::string ReadStringFromMatlab(int idx,
-				std::string paramName,
-				std::string def);
+  // input:
+  //   pointer to a registered input
+  //
+  // def:
+  //   default value to return if the user has not provided an input
+  std::string ReadStringFromMatlab(MatlabInputPointer input,
+				   std::string def);
 
   // function to get the value of an input argument that is a numeric
   // scalar
   //
-  // idx: parameter index
-  // def: value returned by default if argument is empty or not provided
+  // input:
+  //   pointer to a registered input
+  //
+  // def:
+  //   default value to return if the user has not provided an input
   template <class ParamType>
-  ParamType ReadScalarFromMatlab(int idx, 
-			      std::string paramName,
-			      ParamType def);
+  ParamType ReadScalarFromMatlab(MatlabInputPointer input,
+				 ParamType def);
 
   // function to get one scalar value from an input argument that is a matrix
   //
-  // idx: parameter index
-  // row: matrix row index of the scalar
-  // col: matrix column index of the scalar
-  // def: value returned by default if argument is empty or not provided
+  // input:
+  //   pointer to a registered input
+  //
+  // row: 
+  //   matrix row index of the scalar
+  //
+  // col: 
+  //   matrix column index of the scalar
+  //
+  // def:
+  //   default value to return if the user has not provided an input
   template <class ParamType>
-  ParamType ReadScalarFromMatlab(int idx,
-			      mwIndex row,
-			      mwIndex col,
-			      std::string paramName,
-			      ParamType def);
+  ParamType ReadScalarFromMatlab(MatlabInputPointer input,
+				 mwIndex row, mwIndex col, ParamType def);
 
   // function to get an input argument as a vector of scalars. The
   // argument itself can be a row vector, or a 2D matrix. In the latter
   // case, the user has to select one of the rows of the matrix
   //
-  // idx: parameter index within the list of Matlab input arguments
-  // row: row index in the input 2D matrix
-  // def: value returned by default if argument is empty or not provided
+  // input:
+  //   pointer to a registered input
+  //
+  // row: 
+  //   matrix row index of the scalar
+  //
+  // col: 
+  //   matrix column index of the scalar
+  //
+  // def:
+  //   default value to return if the user has not provided an input
   template <class VectorValueType, class VectorType, unsigned int VectorSize>
-    VectorType ReadRowVectorFromMatlab(int idx, 
-				   mwIndex row,
-				   std::string paramName,
-				   VectorType def);
+    VectorType ReadRowVectorFromMatlab(MatlabInputPointer input, 
+				       mwIndex row, VectorType def);
   template <class VectorValueType, class VectorType, unsigned int VectorSize>
-    VectorType ReadRowVectorFromMatlab(int idx, 
-				   std::string paramName,
-				   VectorType def);
+    VectorType ReadRowVectorFromMatlab(MatlabInputPointer input,
+				       VectorType def);
 
   template <class VectorValueType, class VectorType>
-    VectorType ReadRowVectorFromMatlab(int idx, 
-				   mwIndex row,
-				   std::string paramName,
-				   VectorType def);
+    VectorType ReadRowVectorFromMatlab(MatlabInputPointer input,
+				       mwIndex row, VectorType def);
   template <class VectorValueType, class VectorType>
-    VectorType ReadRowVectorFromMatlab(int idx, 
-				   std::string paramName,
-				   VectorType def);
+    VectorType ReadRowVectorFromMatlab(MatlabInputPointer input,
+				       VectorType def);
 
   // function to read a Matlab 2D matrix row by row. It returns the
   // matrix as a vector of rows. Each row is read as a C++ "vector". By
@@ -237,29 +280,42 @@ public:
   //
   // VectorValueType is the type of each element in the "vector".
   // VectorType      is the type of the "vector" itself
+  //
+  // input:
+  //   pointer to a registered input
+  //
+  // def:
+  //   default value to return if the user has not provided an input
   template <class VectorValueType, class VectorType>
     std::vector<VectorType> 
-    ReadVectorOfVectorsFromMatlab(int idx, 
-					  std::string paramName,
-					  std::vector<VectorType> def);
-  
+    ReadVectorOfVectorsFromMatlab(MatlabInputPointer input,
+				  std::vector<VectorType> def);
+
+ public:
+
   // function to read a Matlab array into a vector. This is the
   // equivalent to A(:) in Matlab
+  //
+  // input:
+  //   pointer to a registered input
+  //
+  // def:
+  //   default value to return if the user has not provided an input
   template <class VectorValueType, class VectorType>
     VectorType
-    ReadArrayAsVectorFromMatlab(int idx, 
-			     std::string paramName,
-			     VectorType def);
+    ReadArrayAsVectorFromMatlab(MatlabInputPointer input,
+				VectorType def);
   
   // function to get an input argument that is an image. This function
   // returns an itk::ImportImageFilter, which can be used wherever an
   // itk:Image is required, without having to duplicate the Matlab
   // buffer
   //
-  // idx: parameter index
+  // input:
+  //   pointer to a registered input
   template <class TPixel, unsigned int VImageDimension>
     typename itk::Image<TPixel, VImageDimension>::Pointer
-    GetImagePointerFromMatlab(int idx, std::string paramName);
+    GetImagePointerFromMatlab(MatlabInputPointer input);
 
 };
 

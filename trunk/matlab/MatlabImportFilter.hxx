@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.6.5
+  * Version: 0.7.0
   * $Rev$
   * $Date$
   *
@@ -52,118 +52,183 @@
 
 // constructor
 MatlabImportFilter::MatlabImportFilter() {
-  this->args.clear();
+  // left intentionally empty
 }
 
 // destructor
-// this class is only an interface to handle pointer, so we must not
-// attempt to delete the argument list provided by Matlab
-MatlabImportFilter::~MatlabImportFilter() {}
+MatlabImportFilter::~MatlabImportFilter() {
+  // left intentionally empty
+}
 
-// function to check that number of input arguments is within
-// certain limits
-void MatlabImportFilter::CheckNumberOfArguments(unsigned int min, unsigned int max) {
-  if (this->args.size() < min) {
-    mexErrMsgTxt("Not enough input arguments");
-  }
-  if (this->args.size() > max) {
-    mexErrMsgTxt("Too many input arguments");
-  }
+// function to import into this class the array with the arguments
+// provided by Matlab
+void MatlabImportFilter::ConnectToMatlabFunctionInput(int _nrhs, const mxArray *_prhs[]) {
+  this->nrhs = _nrhs;
+  this->prhs = _prhs;
+}
+
+// get number of elements in the prhs list of input arguments
+unsigned int MatlabImportFilter::GetNumberOfArguments() {
+  return this->nrhs;
 }
 
 // function to get direct pointers to the Matlab input arguments
-const mxArray* MatlabImportFilter::GetRegisteredArgument(int idx) {
-  if ((idx >= 0) && (idx < (int)this->args.size())) {
-    return this->args[idx];
+const mxArray* MatlabImportFilter::GetPrhsArgument(int idx) {
+  if ((idx >= 0) && (idx < this->nrhs)) {
+    return this->prhs[idx];
   } else {
-    mexErrMsgTxt("Index out of range of Matlab input arguments");
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:IndexOutOfRange", 
+		      "Index of prhs argument is out of range");
   }
+
+  // function will never reach this point, but we need to have a
+  // return to avoid a compiler warning
+  mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:AssertionFail", 
+		    "GetPrhsArgument() should have returned before getting here");
   return NULL;
 }
 
-// function to register an array of mxArray input arguments with the
-// import filter ("input" means arguments that were passed to the
-// Matlab function).
-int MatlabImportFilter::ConnectToMatlabFunctionInput(int nrhs, const mxArray *prhs[]) {
-  
-  // keep a copy of the input Matlab variables (currently not used)
-  this->nrhs = nrhs;
-  this->prhs = prhs;
-
-  if (prhs == NULL) {
-    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:NullPointer", 
-		      "Cannot connect to array of input arguments");
+// function to check that number of prhs arguments is within
+// certain limits
+void MatlabImportFilter::CheckNumberOfArguments(int min, int max) {
+  if (this->nrhs < min) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      "Not enough input arguments");
   }
+  if (this->nrhs > max) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      "Too many input arguments");
+  }
+}
+
+// Functions to register an input at the import filter. 
+MatlabImportFilter::MatlabInputPointer
+MatlabImportFilter::RegisterInput(int pos, std::string name) {
   
-  // registration index of the first argument
-  int firstIndex = this->GetNumberOfRegisteredArguments();
+  // if the user has put something in this input, even if it's an
+  // empty array
+  if (pos < this->nrhs) {
+    // then we can register the input with its pointer
+    return this->RegisterInput(this->prhs[pos], name);
+  } else {
+    // there's no pointer for this input, so we pass a NULL
+    // pointer. The input will be registered, but will apear as
+    // input.isProvided=false
+    return this->RegisterInput((mxArray *)NULL, name);
+  }
+
+}
+
+MatlabImportFilter::MatlabInputPointer
+MatlabImportFilter::RegisterInput(const mxArray *pm, std::string name) {
+
+  MatlabImportFilter::MatlabInput input;
+
+  if (pm == NULL) {
+    // the pointer to the input can be NULL. For example, this comes
+    // from a mxGetField() of a non-existent struct field. Throwing an
+    // error here would force the user to always provide all possible
+    // fields. Instead, we just flag the input as unavailable and exit
+    input.pm = NULL;
+    input.name = name;
+    input.isProvided = false;
+  } else {
+    // assign main variables of the input: its name and the memory
+    // address it is stored at
+    input.pm = pm;
+    input.name = name;
+    input.isProvided = (pm != NULL) && !mxIsEmpty(pm);
+  }
+
+  // insert the new input at the beginning of the list of registered inputs
+  MatlabImportFilter::MatlabInputPointer it;
+  try {
+    it = this->inputsList.insert(this->inputsList.begin(), input);
+  } catch (std::exception& e) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:RegisterInput", 
+		      ("Input " + name + ": Cannot insert into list of registered inputs\n" + e.what()).c_str());
+  }
+  return it;
+
+}
+
+// Function to register a field from a struct input at the import
+// filter. Basically, register input.field.
+//
+// structInput:
+//   pointer to an already registered input.
+//
+// field:
+//   name of the field we want to register.
+//
+// returns:
+//   a class of type MatlabInput, defined above
+MatlabImportFilter::MatlabInputPointer 
+MatlabImportFilter::RegisterStructFieldInput(MatlabImportFilter::MatlabInputPointer structInput, 
+					     std::string field) {
+
+  // make sure that input is a struct
+  if (!mxIsStruct(structInput->pm)) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:InputType", 
+		      ("Input " + structInput->name + " must be a struct").c_str());
+  }
+
+  // get pointer to the field argument
+  const mxArray *fieldarg = mxGetField(structInput->pm, 0, field.c_str());
+
+  // register the field argument as an input
+  return RegisterInput(fieldarg, (structInput->name + "." + field).c_str());
   
-  // loop input arguments
-  for (int i = 0; i < nrhs; i++) {
-    if (prhs[i] == NULL) {
-      mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:NullPointer", 
-			"Cannot register input argument");
+}
+
+// function to get a pointer to a registered Matlab input by
+// providing its name
+MatlabImportFilter::MatlabInputPointer 
+MatlabImportFilter::GetRegisteredInput(std::string name) {
+  
+  // iterator to iterate through the list of registered inputs
+  std::list<MatlabInput>::iterator it;
+
+  // look for the requested input
+  for (it = this->inputsList.begin(); it != this->inputsList.end(); ++it) {
+    if (it->name == name) {
+      return it;
     }
-    
-    // register current input argument
-    this->args.push_back(prhs[i]);
   }
-  
-  return firstIndex;
+
+  // if the input has not been found, we throw an error (We make a
+  // mandatory requirement that users only try to GetRegisteredInput()
+  // after RegisterInput())
+  mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:UnregisteredInputRequested", 
+		    ("GetRegisteredInput(): Input " + name 
+		     + " requested, but it has not been registered").c_str());
+
+  // the program will never reach this point, but we need a return
+  // statement to avoid a warning with the compiler
+  return it;
+
 }
 
-// as above with ConnectToMatlabFunctionInput(), but for
-// a single input argument
-int MatlabImportFilter::RegisterInputArgumentFromMatlab(const mxArray *arg) {
-  
-  if (arg == NULL) {
-    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:NullPointer", 
-		      "Cannot register input argument");
-  }
-  
-  return this->ConnectToMatlabFunctionInput(1, &arg);
-}
-
-// as above with RegisterInputArgumentFromMatlab(), but for a single
-// input argument that is a struct field, e.g. x.alpha.
-int MatlabImportFilter::RegisterInputFieldArgumentFromMatlab(const mxArray *arg, 
-							     const char *fieldname) {
-
-  if (arg == NULL) {
-    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:NullPointer", 
-		      "Cannot register input argument");
-  }
-  
-  // get input argument in the field
-  const mxArray *fieldarg = mxGetField(arg, 0, fieldname);
-  
-  if (fieldarg == NULL) {
-    return -1;
-  }
-  
-  // register field input argument
-  return this->ConnectToMatlabFunctionInput(1, &fieldarg);
-}
 
 // function to get the size of a Matlab array. It simplifies having
 // to run mxGetNumberOfDimensions() and mxGetDimensions(), and then
 // casting the result into e.g. itk::Size to pass it to ITK
 template <class VectorValueType, class VectorType>
-VectorType MatlabImportFilter::ReadMatlabArraySize(int idx, 
-					    std::string paramName,
-					    VectorType def){
+VectorType MatlabImportFilter::ReadMatlabArraySize(MatlabImportFilter::MatlabInputPointer input,
+						   VectorType def){
 
-  return MatlabImportFilter::ReadMatlabArraySize<VectorValueType, VectorType, 0>(idx, paramName, def);
+  // template VectorSize will be ignored in this syntax, so we assign
+  // to it an arbitrary value=0
+  return MatlabImportFilter::ReadMatlabArraySize<VectorValueType, VectorType, 0>(input, def);
 
 }
 
 template <class VectorValueType, class VectorType, unsigned int VectorSize>
-VectorType MatlabImportFilter::ReadMatlabArraySize(int idx, 
-					    std::string paramName,
-					    VectorType def){
+VectorType MatlabImportFilter::ReadMatlabArraySize(MatlabImportFilter::MatlabInputPointer input,
+						   VectorType def){
 
   // if user didn't provide a value, or provided an empty array, return the default
-  if (idx >= this->args.size() || mxIsEmpty(this->args[idx])) {
+  if (!input->isProvided) {
     return def;
   }
 
@@ -171,7 +236,7 @@ VectorType MatlabImportFilter::ReadMatlabArraySize(int idx,
   // need to write different code here for each different output
   // vector
   VectorWrapper<VectorValueType, VectorType, void, VectorSize> sizeWrap;
-  return sizeWrap.ReadSize(this->args[idx], paramName);
+  return sizeWrap.ReadSize(input->pm, input->name);
 
 }
 
@@ -182,21 +247,19 @@ VectorType MatlabImportFilter::ReadMatlabArraySize(int idx,
 // with size=[3, 7] has a half-size or radius=[1, 3]. I.e. 
 // size = 2 * halfsize + 1
 template <class VectorValueType, class VectorType>
-VectorType MatlabImportFilter::ReadMatlabArrayHalfSize(int idx, 
-					    std::string paramName,
-					    VectorType def){
+VectorType MatlabImportFilter::ReadMatlabArrayHalfSize(MatlabImportFilter::MatlabInputPointer input,
+						       VectorType def){
 
-  return MatlabImportFilter::ReadMatlabArrayHalfSize<VectorValueType, VectorType, 0>(idx, paramName, def);
+  return MatlabImportFilter::ReadMatlabArrayHalfSize<VectorValueType, VectorType, 0>(input, def);
 
 }
 
 template <class VectorValueType, class VectorType, unsigned int VectorSize>
-VectorType MatlabImportFilter::ReadMatlabArrayHalfSize(int idx, 
-					    std::string paramName,
-					    VectorType def){
+VectorType MatlabImportFilter::ReadMatlabArrayHalfSize(MatlabImportFilter::MatlabInputPointer input,
+						       VectorType def){
 
   // if user didn't provide a value, or provided an empty array, return the default
-  if (idx >= (int)this->args.size() || mxIsEmpty(this->args[idx])) {
+  if (!input->isProvided) {
     return def;
   }
 
@@ -204,95 +267,85 @@ VectorType MatlabImportFilter::ReadMatlabArrayHalfSize(int idx,
   // need to write different code here for each different output
   // vector
   VectorWrapper<VectorValueType, VectorType, void, VectorSize> sizeWrap;
-  return sizeWrap.ReadHalfSize(this->args[idx], paramName);
+  return sizeWrap.ReadHalfSize(input->pm, input->name);
 
 }
 
 // function to get the value of input arguments that are strings
-std::string MatlabImportFilter::ReadStringFromMatlab(int idx,
-						       std::string paramName,
-						       std::string def) {
+std::string MatlabImportFilter::ReadStringFromMatlab(MatlabImportFilter::MatlabInputPointer input,
+						     std::string def) {
   
   // if user didn't provide a value, or provided an empty array, return the default
-  if (idx >= (int)this->args.size() || mxIsEmpty(this->args[idx])) {
+  if (!input->isProvided) {
     return def;
   }
 
   // if user provided a value, check that it's a string
-  if (!mxIsChar(this->args[idx])) {
-    mexErrMsgTxt(("Parameter " + paramName + " must be a string").c_str());
+  if (!mxIsChar(input->pm)) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + " must be a string").c_str());
   }
   
   // import string
-  return mxArrayToString(this->args[idx]);
+  return mxArrayToString(input->pm);
 
 }
 
 // function to get the value of input parameters that are numeric
 // scalars from the array of input arguments
 template <class ParamType>
-ParamType MatlabImportFilter::ReadScalarFromMatlab(int idx, 
-						std::string paramName,
-						ParamType def) {
-  return MatlabImportFilter::ReadScalarFromMatlab<ParamType>(idx, 0, 0, paramName, def);
+ParamType MatlabImportFilter::ReadScalarFromMatlab(MatlabImportFilter::MatlabInputPointer input,
+						   ParamType def) {
+  return MatlabImportFilter::ReadScalarFromMatlab<ParamType>(input, 0, 0, def);
 }
 
 // function to get one scalar value from an input argument that is a matrix
-//
-// idx: argument index
-// row: matrix row index of the scalar
-// col: matrix column index of the scalar
-// def: value returned by default if argument is empty or not provided
 template <class ParamType>
-ParamType MatlabImportFilter::ReadScalarFromMatlab(int idx,
-						mwIndex row,
-						mwIndex col,
-						std::string paramName,
-						ParamType def) {
+ParamType MatlabImportFilter::ReadScalarFromMatlab(MatlabImportFilter::MatlabInputPointer input,
+						   mwIndex row, mwIndex col, ParamType def) {
 
   // if user didn't provide a value, or provided an empty array, return the default
-  if (idx >= (int)this->args.size() || mxIsEmpty(this->args[idx])) {
+  if (!input->isProvided) {
     return def;
   }
   
   // check for null pointer
-  if (this->args[idx] == NULL) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + " provided, but pointer is NULL.").c_str());
+  if (input->pm == NULL) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:AssertionFail", 
+		      ("Input " + input->name + " flagged as provided, but pointer to input is NULL").c_str());
   }
 
   // if user provided a parameter, check that it's a scalar, whether
   // in numeric or logical form
-  if (!mxIsNumeric(this->args[idx])
-       && !mxIsLogical(this->args[idx])) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + " must be of scalar or logical type").c_str());
+  if (!mxIsNumeric(input->pm) && !mxIsLogical(input->pm)) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + " must be of scalar or logical type").c_str());
   }
   
   // get size of input matrix
-  mwSize nrows = mxGetM(this->args[idx]);
-  mwSize ncols = mxGetN(this->args[idx]);
+  mwSize nrows = mxGetM(input->pm);
+  mwSize ncols = mxGetN(input->pm);
 
   // check that requested row and column are within the matrix range
   if (row < 0 || row >= nrows) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + ": row index out of bounds").c_str());
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + ": row index out of bounds").c_str());
   }
   if (col < 0 || col >= ncols) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + ": column index out of bounds").c_str());
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + ": column index out of bounds").c_str());
   }
 
   // output
   ParamType value = 0;
   
   // input image type
-  mxClassID inputVoxelClassId = mxGetClassID(this->args[idx]);
+  mxClassID inputVoxelClassId = mxGetClassID(input->pm);
   
   // macro to make the code in the switch statement cleaner
 #define GETVALUE(Tx)						\
   {								\
-    Tx *valuep = (Tx *)mxGetData(this->args[idx]);		\
+    Tx *valuep = (Tx *)mxGetData(input->pm);		\
     value = (ParamType)valuep[col * nrows + row];		\
   }
   
@@ -331,10 +384,12 @@ ParamType MatlabImportFilter::ReadScalarFromMatlab(int idx,
     // case mxUINT64_CLASS:
     //   break;
   case mxUNKNOWN_CLASS:
-    mexErrMsgTxt(("Parameter " + paramName + " has unknown type.").c_str());
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + " has unknown type").c_str());
     break;
   default:
-    mexErrMsgTxt(("Parameter " + paramName + " has invalid type.").c_str());
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + " has invalid type").c_str());
     break;
   }
   
@@ -353,148 +408,143 @@ ParamType MatlabImportFilter::ReadScalarFromMatlab(int idx,
 // Note that you don't need to worry about the type of the scalars in
 // Matlab. The type will be automatically detected and cast to the
 // vector element type.
-//
-// VectorValueType is the type of each element in the "vector"
-// VectorType      is the type of the "vector" itself
 template <class VectorValueType, class VectorType>
-VectorType MatlabImportFilter::ReadRowVectorFromMatlab(int idx, 
-						mwIndex row,
-						std::string paramName,
-						VectorType def) {
-
-  return MatlabImportFilter::ReadRowVectorFromMatlab<VectorValueType, VectorType, 0>(idx, row, paramName, def);
-
+VectorType MatlabImportFilter::ReadRowVectorFromMatlab(MatlabImportFilter::MatlabInputPointer input, 
+						       mwIndex row, VectorType def) {
+  
+  return MatlabImportFilter::ReadRowVectorFromMatlab<VectorValueType, VectorType, 0>(input, row, def);
+  
 }
 
 template <class VectorValueType, class VectorType, unsigned int VectorSize>
-VectorType MatlabImportFilter::ReadRowVectorFromMatlab(int idx, 
-						mwIndex row,
-						std::string paramName,
-						VectorType def) {
-
+VectorType MatlabImportFilter::ReadRowVectorFromMatlab(MatlabImportFilter::MatlabInputPointer input, 
+						       mwIndex row, VectorType def) {
+  
   // if user didn't provide a value, or provided an empty array,
   // return default
-  if (idx >= (int)this->args.size() || mxIsEmpty(this->args[idx])) {
+  if (!input->isProvided) {
     return def;
   }
   
   // check for null pointer
-  if (this->args[idx] == NULL) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + " provided, but pointer is NULL").c_str());
+  if (input->pm == NULL) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:AssertionFail", 
+		      ("Input " + input->name + " flagged as provided, but pointer to input is NULL").c_str());
   }
 
   // check that we have a 2D matrix, numeric or boolean
-  if (mxGetNumberOfDimensions(this->args[idx]) > 2) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + " must be a 2D matrix").c_str());
+  if (mxGetNumberOfDimensions(input->pm) > 2) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + " cannot have more than 2 dimensions").c_str());
   }
-  if (!mxIsNumeric(this->args[idx]) && !mxIsLogical(this->args[idx])) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + " must be numeric or logical").c_str());
+  if (!mxIsNumeric(input->pm) && !mxIsLogical(input->pm)) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + " must be numeric or logical").c_str());
   }
 
   // input matrix type
-  mxClassID inputVoxelClassId = mxGetClassID(this->args[idx]);
+  mxClassID inputVoxelClassId = mxGetClassID(input->pm);
   
   // cast the class type provided by Matlab to the type requested by
   // the user
   switch(inputVoxelClassId)  { 
   case mxLOGICAL_CLASS:
     {VectorWrapper<VectorValueType, VectorType, mxLogical, VectorSize> paramWrap;
-      return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
+      return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
   case mxDOUBLE_CLASS:
     {VectorWrapper<VectorValueType, VectorType, double, VectorSize> paramWrap;
-      return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
+      return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
   case mxSINGLE_CLASS:
     {VectorWrapper<VectorValueType, VectorType, float, VectorSize> paramWrap;
-      return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
+      return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
   case mxINT8_CLASS:
     {VectorWrapper<VectorValueType, VectorType, int8_T, VectorSize> paramWrap;
-      return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
+      return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
   case mxUINT8_CLASS:
     {VectorWrapper<VectorValueType, VectorType, uint8_T, VectorSize> paramWrap;
-      return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
+      return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
   case mxINT16_CLASS:
     {VectorWrapper<VectorValueType, VectorType, int16_T, VectorSize> paramWrap;
-      return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
+      return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
   case mxUINT16_CLASS:
     {VectorWrapper<VectorValueType, VectorType, uint16_T, VectorSize> paramWrap;
-      return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
+      return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
   case mxINT32_CLASS:
     {VectorWrapper<VectorValueType, VectorType, int32_T, VectorSize> paramWrap;
-      return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
+      return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
     // case mxUINT32_CLASS:
     //   break;
   case mxINT64_CLASS:
     {VectorWrapper<VectorValueType, VectorType, int64_T, VectorSize> paramWrap;
-      return paramWrap.ReadRowVector(this->args[idx], row, paramName);}
+      return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
     // case mxUINT64_CLASS:
     //   break;
   case mxUNKNOWN_CLASS:
-    mexErrMsgTxt(("Parameter " + paramName + " has unknown type.").c_str());
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + " has unknown type").c_str());
     break;
   default:
-    mexErrMsgTxt(("Parameter " + paramName + " has invalid type.").c_str());
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + " has invalid type").c_str());
     break;
   }
-
+  
   // we should never get here, but we need to provide a return, else
   // the compiler will give a warning
-  mexErrMsgTxt("MatlabImportFilter::ReadRowVectorFromMatlab: This function should have returned before getting here");
+  mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:AssertionFail", 
+		    "ReadRowVectorFromMatlab() should have returned before getting here");
   return def;
 
 }
 
 // particular case in which the input matrix must be a row vector
 template <class VectorValueType, class VectorType>
-VectorType MatlabImportFilter::ReadRowVectorFromMatlab(int idx, 
-						std::string paramName,
-						VectorType def) {
-
-  return MatlabImportFilter::ReadRowVectorFromMatlab<VectorValueType, VectorType, 0>(idx, paramName, def);
-
+VectorType MatlabImportFilter::ReadRowVectorFromMatlab(MatlabImportFilter::MatlabInputPointer input,
+						       VectorType def) {
+  
+  return MatlabImportFilter::ReadRowVectorFromMatlab<VectorValueType, VectorType, 0>(input, def);
+  
 }
 
 template <class VectorValueType, class VectorType, unsigned int VectorSize>
-VectorType MatlabImportFilter::ReadRowVectorFromMatlab(int idx, 
-						   std::string paramName,
-						   VectorType def) {
+VectorType MatlabImportFilter::ReadRowVectorFromMatlab(MatlabImportFilter::MatlabInputPointer input,
+						       VectorType def) {
 
   // if user didn't provide a value, or provided an empty array,
   // return default
-  if (idx >= (int)this->args.size() || mxIsEmpty(this->args[idx])) {
+  if (!input->isProvided) {
     return def;
   }
 
   // check that we have a numeric or boolean row vector
-  if (mxGetM(this->args[idx]) != 1) {
-    mexErrMsgTxt(("Parameter " + paramName + " must be a row vector.").c_str());
+  if (mxGetM(input->pm) != 1) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + " must be a row vector").c_str());
   }
-  if (!mxIsNumeric(this->args[idx]) && !mxIsLogical(this->args[idx])) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + " must be a numeric or logical vector.").c_str());
+  if (!mxIsNumeric(input->pm) && !mxIsLogical(input->pm)) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + " must be a numeric or logical vector").c_str());
   }
 
   // the syntax of this function without specifying a row is the same as specifying row 0
   return MatlabImportFilter::ReadRowVectorFromMatlab<VectorValueType, 
-						  VectorType, VectorSize>(idx, 0, paramName, def);
+						  VectorType, VectorSize>(input, 0, def);
 
 }
 
 // function to read a Matlab 2D matrix row by row. It returns the
-// matrix as a vector of rows. Each row is read as a C++ "vector". By
-// "vector" we mean a C++ class that is vector-like, e.g. std::vector,
-// CGAL::Point_3 or ITK::Size.
+// matrix as an std::vector of rows. Each row is read as a C++
+// "vector". By "vector" we mean a C++ class that is vector-like,
+// e.g. std::vector, CGAL::Point_3 or ITK::Size.
 //
 // Read the help of the VectorWrapper class defined in VectorWrapper.h for
 // a list of supported vector-like types.
@@ -507,40 +557,39 @@ VectorType MatlabImportFilter::ReadRowVectorFromMatlab(int idx,
 // VectorType      is the type of the "vector" itself
 template <class VectorValueType, class VectorType>
 std::vector<VectorType> 
-MatlabImportFilter::ReadVectorOfVectorsFromMatlab(int idx, 
-							  std::string paramName,
-							  std::vector<VectorType> def) {
+MatlabImportFilter::ReadVectorOfVectorsFromMatlab(MatlabImportFilter::MatlabInputPointer input,
+						  std::vector<VectorType> def) {
 
   // if user didn't provide a value, or provided an empty array,
   // return default
-  if (idx >= (int)this->args.size() || mxIsEmpty(this->args[idx])) {
+  if (!input->isProvided) {
     return def;
   }
   
   // check for null pointer
-  if (this->args[idx] == NULL) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + " provided, but pointer is NULL").c_str());
+  if (input->pm == NULL) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:AssertionFail", 
+		      ("Input " + input->name + " flagged as provided, but pointer to input is NULL").c_str());
   }
 
   // check that we have a 2D matrix, numeric or boolean
-  if (mxGetNumberOfDimensions(this->args[idx]) > 2) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + " must be a 2D matrix").c_str());
+  if (mxGetNumberOfDimensions(input->pm) > 2) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + " cannot have more than 2 dimensions").c_str());
   }
-  if (!mxIsNumeric(this->args[idx]) && !mxIsLogical(this->args[idx])) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + " must be numeric or logical").c_str());
+  if (!mxIsNumeric(input->pm) && !mxIsLogical(input->pm)) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + " must be numeric or logical").c_str());
   }
 
   // number of rows in the matrix
-  mwSize nrows = mxGetM(this->args[idx]);
+  mwSize nrows = mxGetM(input->pm);
 
   // output vector where we are going to put all the rows from the matrix
   std::vector<VectorType> v(nrows);
 
   // input matrix type
-  mxClassID inputVoxelClassId = mxGetClassID(this->args[idx]);
+  mxClassID inputVoxelClassId = mxGetClassID(input->pm);
   
   // cast the class type provided by Matlab to the type requested by
   // the user
@@ -548,56 +597,56 @@ MatlabImportFilter::ReadVectorOfVectorsFromMatlab(int idx,
   case mxLOGICAL_CLASS:
     {VectorWrapper<VectorValueType, VectorType, mxLogical> paramWrap;
       for (mwIndex row = 0; row < nrows; ++row) {
-	v[row] = paramWrap.ReadRowVector(this->args[idx], row, paramName);
+	v[row] = paramWrap.ReadRowVector(input->pm, row, input->name);
       }
     }
     break;
   case mxDOUBLE_CLASS:
     {VectorWrapper<VectorValueType, VectorType, double> paramWrap;
       for (mwIndex row = 0; row < nrows; ++row) {
-	v[row] = paramWrap.ReadRowVector(this->args[idx], row, paramName);
+	v[row] = paramWrap.ReadRowVector(input->pm, row, input->name);
       }
     }
     break;
   case mxSINGLE_CLASS:
     {VectorWrapper<VectorValueType, VectorType, float> paramWrap;
       for (mwIndex row = 0; row < nrows; ++row) {
-	v[row] = paramWrap.ReadRowVector(this->args[idx], row, paramName);
+	v[row] = paramWrap.ReadRowVector(input->pm, row, input->name);
       }
     }
     break;
   case mxINT8_CLASS:
     {VectorWrapper<VectorValueType, VectorType, int8_T> paramWrap;
       for (mwIndex row = 0; row < nrows; ++row) {
-	v[row] = paramWrap.ReadRowVector(this->args[idx], row, paramName);
+	v[row] = paramWrap.ReadRowVector(input->pm, row, input->name);
       }
     }
     break;
   case mxUINT8_CLASS:
     {VectorWrapper<VectorValueType, VectorType, uint8_T> paramWrap;
       for (mwIndex row = 0; row < nrows; ++row) {
-	v[row] = paramWrap.ReadRowVector(this->args[idx], row, paramName);
+	v[row] = paramWrap.ReadRowVector(input->pm, row, input->name);
       }
     }
     break;
   case mxINT16_CLASS:
     {VectorWrapper<VectorValueType, VectorType, int16_T> paramWrap;
       for (mwIndex row = 0; row < nrows; ++row) {
-	v[row] = paramWrap.ReadRowVector(this->args[idx], row, paramName);
+	v[row] = paramWrap.ReadRowVector(input->pm, row, input->name);
       }
     }
     break;
   case mxUINT16_CLASS:
     {VectorWrapper<VectorValueType, VectorType, uint16_T> paramWrap;
       for (mwIndex row = 0; row < nrows; ++row) {
-	v[row] = paramWrap.ReadRowVector(this->args[idx], row, paramName);
+	v[row] = paramWrap.ReadRowVector(input->pm, row, input->name);
       }
     }
     break;
   case mxINT32_CLASS:
     {VectorWrapper<VectorValueType, VectorType, int32_T> paramWrap;
       for (mwIndex row = 0; row < nrows; ++row) {
-	v[row] = paramWrap.ReadRowVector(this->args[idx], row, paramName);
+	v[row] = paramWrap.ReadRowVector(input->pm, row, input->name);
       }
     }
     break;
@@ -606,17 +655,19 @@ MatlabImportFilter::ReadVectorOfVectorsFromMatlab(int idx,
   case mxINT64_CLASS:
     {VectorWrapper<VectorValueType, VectorType, int64_T> paramWrap;
       for (mwIndex row = 0; row < nrows; ++row) {
-	v[row] = paramWrap.ReadRowVector(this->args[idx], row, paramName);
+	v[row] = paramWrap.ReadRowVector(input->pm, row, input->name);
       }
     }
     break;
     // case mxUINT64_CLASS:
     //   break;
   case mxUNKNOWN_CLASS:
-    mexErrMsgTxt(("Parameter " + paramName + " has unknown type.").c_str());
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + " has unknown type").c_str());
     break;
   default:
-    mexErrMsgTxt(("Parameter " + paramName + " has invalid type.").c_str());
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:BadInputFormat", 
+		      ("Input " + input->name + " has invalid type").c_str());
     break;
   }
 
@@ -629,79 +680,78 @@ MatlabImportFilter::ReadVectorOfVectorsFromMatlab(int idx,
 // equivalent to the linearising operator A(:) in Matlab
 template <class VectorValueType, class VectorType>
 VectorType
-MatlabImportFilter::ReadArrayAsVectorFromMatlab(int idx, 
-					     std::string paramName,
-					     VectorType def) {
+MatlabImportFilter::ReadArrayAsVectorFromMatlab(MatlabImportFilter::MatlabInputPointer input,
+						VectorType def) {
   
   // if user didn't provide a value, or provided an empty array,
   // return default
-  if (idx >= (int)this->args.size() || mxIsEmpty(this->args[idx])) {
+  if (!input->isProvided) {
     return def;
   }
   
   // check for null pointer
-  if (this->args[idx] == NULL) {
-    mexErrMsgTxt(("Parameter " + paramName 
-		  + " provided, but pointer is NULL").c_str());
+  if (input->pm == NULL) {
+    mexErrMsgIdAndTxt("Gerardus:MatlabImportFilter:AssertionFail", 
+		      ("Input " + input->name + " flagged as provided, but pointer to input is NULL").c_str());
   }
 
   // check that we have a numerical or logical array
-  if (!mxIsNumeric(this->args[idx]) && !mxIsLogical(this->args[idx])) {
-    mexErrMsgTxt(("Parameter " + paramName 
+  if (!mxIsNumeric(input->pm) && !mxIsLogical(input->pm)) {
+    mexErrMsgTxt(("Parameter " + input->name 
 		  + " must be a numeric or logical array.").c_str());
   }
 
   // input matrix type
-  mxClassID inputVoxelClassId = mxGetClassID(this->args[idx]);
+  mxClassID inputVoxelClassId = mxGetClassID(input->pm);
   
   // cast the class type provided by Matlab to the type requested by
   // the user
   switch(inputVoxelClassId)  { 
   case mxLOGICAL_CLASS:
     {VectorWrapper<VectorValueType, VectorType, mxLogical> paramWrap;
-      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+      return paramWrap.ReadArrayAsVector(input->pm, input->name);}
     break;
   case mxDOUBLE_CLASS:
     {VectorWrapper<VectorValueType, VectorType, double> paramWrap;
-      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+      return paramWrap.ReadArrayAsVector(input->pm, input->name);}
     break;
   case mxSINGLE_CLASS:
     {VectorWrapper<VectorValueType, VectorType, float> paramWrap;
-      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+      return paramWrap.ReadArrayAsVector(input->pm, input->name);}
     break;
   case mxINT8_CLASS:
     {VectorWrapper<VectorValueType, VectorType, int8_T> paramWrap;
-      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+      return paramWrap.ReadArrayAsVector(input->pm, input->name);}
     break;
   case mxUINT8_CLASS:
     {VectorWrapper<VectorValueType, VectorType, uint8_T> paramWrap;
-      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+      return paramWrap.ReadArrayAsVector(input->pm, input->name);}
     break;
   case mxINT16_CLASS:
     {VectorWrapper<VectorValueType, VectorType, int16_T> paramWrap;
-      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+      return paramWrap.ReadArrayAsVector(input->pm, input->name);}
     break;
   case mxUINT16_CLASS:
     {VectorWrapper<VectorValueType, VectorType, uint16_T> paramWrap;
-      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+      return paramWrap.ReadArrayAsVector(input->pm, input->name);}
     break;
   case mxINT32_CLASS:
     {VectorWrapper<VectorValueType, VectorType, int32_T> paramWrap;
-      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+      return paramWrap.ReadArrayAsVector(input->pm, input->name);}
     break;
     // case mxUINT32_CLASS:
     //   break;
   case mxINT64_CLASS:
     {VectorWrapper<VectorValueType, VectorType, int64_T> paramWrap;
-      return paramWrap.ReadArrayAsVector(this->args[idx], paramName);}
+      return paramWrap.ReadArrayAsVector(input->pm, input->name);}
     break;
     // case mxUINT64_CLASS:
     //   break;
   case mxUNKNOWN_CLASS:
-    mexErrMsgTxt(("Parameter " + paramName + " has unknown type.").c_str());
+    mexErrMsgTxt(("Parameter " + input->name + " has unknown type.").c_str());
     break;
   default:
-    mexErrMsgTxt(("Parameter " + paramName + " has invalid type.").c_str());
+    mexErrMsgTxt(("Parameter " + input->name + " has invalid type.").c_str());
     break;
   }
 
@@ -715,8 +765,7 @@ MatlabImportFilter::ReadArrayAsVectorFromMatlab(int idx,
 // function to get an input argument that is an image
 template <class TPixel, unsigned int VImageDimension>
 typename itk::Image<TPixel, VImageDimension>::Pointer
-MatlabImportFilter::GetImagePointerFromMatlab(int idx, 
-				     std::string paramName) {
+MatlabImportFilter::GetImagePointerFromMatlab(MatlabImportFilter::MatlabInputPointer input) {
   
   // note that:
   //
@@ -768,7 +817,7 @@ MatlabImportFilter::GetImagePointerFromMatlab(int idx,
   typename ImportImageFilterType::Pointer importFilter = ImportImageFilterType::New();
 
   // create a header for the image
-  MatlabImageHeader imageHeader(this->args[idx], paramName);
+  MatlabImageHeader imageHeader(input->pm, input->name);
 
   // convert image header parameters to a format that can be passed to
   // the import filter
@@ -795,7 +844,7 @@ MatlabImportFilter::GetImagePointerFromMatlab(int idx,
   // live in Matlab's memory after running the filter
   const bool importFilterWillOwnTheBuffer = false;
   importFilter->SetImportPointer(const_cast<TPixel *>(im),
-				 mxGetNumberOfElements(this->args[idx]),
+				 mxGetNumberOfElements(input->pm),
 				 importFilterWillOwnTheBuffer);
 
   // actually import the image
