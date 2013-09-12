@@ -1,5 +1,10 @@
 2013-09-12  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/ItkICPRegistration.cpp: (0.0.5)
+
+	- Still in alpha. Adapt to new Matlab import and export filters
+	API.
+
 	* matlab/MatlabImportFilter.hxx: (0.7.0)
 	* matlab/MatlabImportFilter.h: (0.7.0)
 
