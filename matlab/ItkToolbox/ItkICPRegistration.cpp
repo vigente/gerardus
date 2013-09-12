@@ -11,7 +11,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.0.4
+  * Version: 0.0.5
   * $Rev$
   * $Date$
   *
@@ -85,6 +85,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // check the number of input arguments
   matlabImport->CheckNumberOfArguments(2, InputIndexType_MAX);
 
+  // register the inputs for this function at the import filter
+  typedef MatlabImportFilter::MatlabInputPointer MatlabInputPointer;
+  MatlabInputPointer inX = matlabImport->RegisterInput(IN_X, "X");
+  MatlabInputPointer inY = matlabImport->RegisterInput(IN_Y, "Y");
+  MatlabInputPointer inTRANSFORM = matlabImport->RegisterInput(IN_TRANSFORM, "TRANSFORM");
+  MatlabInputPointer inNITER = matlabImport->RegisterInput(IN_NITER, "NITER");
+  MatlabInputPointer inGRADTOL = matlabImport->RegisterInput(IN_GRADTOL, "GRADTOL");
+  MatlabInputPointer inVALTOL = matlabImport->RegisterInput(IN_VALTOL, "VALTOL");
+  MatlabInputPointer inEPSFUN = matlabImport->RegisterInput(IN_EPSFUN, "EPSFUN");
+
+
   // interface to deal with outputs to Matlab
   enum OutputIndexType {OUT_YY, OUT_T, OutputIndexType_MAX};
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
@@ -116,30 +127,26 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   // if there's some problem reading the point, default is NaN
   PointType def;
-  def[0] = mxGetNaN();
+  def.Fill(mxGetNaN());
 
   // read point sets
   PointSetType::Pointer fixedPointSet = PointSetType::New();
-  for (mwIndex i = 0; i < nrowsX; ++i) {
-    
-    // read a point from the input array
-    PointType point 
-      = matlabImport->ReadRowVectorFromMatlab<PointType::ValueType, PointType, Dimension>(IN_X, i, "X", def);
-
-    // add the point to the point set
-    fixedPointSet->SetPoint(i, point);
-  }
+  // fixedPointSet->GetPoints()->CastToSTLContainer().resize(nrowsX);
+  PointSetType::Pointer xDef = PointSetType::New();
+  // fixedPointSet->GetPoints()->CastToSTLContainer()
+  //   = matlabImport->ReadVectorOfVectorsFromMatlab<PointType::ValueType, PointType>
+  //   (IN_X, "X", xDef->CastToSTLContainer());
+  //@@
+  // matlabImport->ReadMatrixFromMatlabIntoVectorOfVectors<PointType::ValueType, std::vector<PointType> >
+  //   (IN_X, "X", 
+  //    fixedPointSet->GetPoints()->CastToSTLContainer(), fixedPointSet->GetNumberOfPoints(), Dimension);
 
   PointSetType::Pointer movingPointSet = PointSetType::New();
-  for (mwIndex i = 0; i < nrowsY; ++i) {
-    
-    // read a point from the input array
-    PointType point 
-      = matlabImport->ReadRowVectorFromMatlab<PointType::ValueType, PointType, Dimension>(1, i, "Y", def);
-
-    // add the point to the point set
-    movingPointSet->SetPoint(i, point);
-  }
+  movingPointSet->GetPoints()->CastToSTLContainer().resize(nrowsY);
+  //@@
+  // matlabImport->ReadMatrixFromMatlabIntoVectorOfVectors<PointType::ValueType, std::vector<PointType> >
+  //   (IN_Y, "Y", 
+  //    movingPointSet->GetPoints()->CastToSTLContainer(), movingPointSet->GetNumberOfPoints(), Dimension);
 
 #ifdef DEBUG
   // debug
@@ -305,7 +312,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   // copy to Matlab the moving points after warping
   matlabExport->CopyVectorOfVectorsToMatlab<CoordinateType, 
-  					    const PointType,
   					    const std::vector<PointType> 
 					    >
     (outYY,
