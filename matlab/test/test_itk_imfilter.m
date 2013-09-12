@@ -3,8 +3,8 @@
 % Script to test the filters provided by itk_imfilter.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011 University of Oxford
-% Version: 0.4.2
+% Copyright © 2011-2013 University of Oxford
+% Version: 0.4.3
 % $Rev$
 % $Date$
 %
@@ -52,6 +52,15 @@ imagesc(im(:, :, 3))
 
 
 %% itk::DanielssonDistanceMapImageFilter (dandist) filter
+
+% very simple 3x3 matrix with only central pixel = 1
+im = zeros(3);
+im(2, 2) = 1;
+nrrd = scinrrd_im2nrrd(im, [.5 .5 .5], [0 0 0]);
+[im2, v, w] = itk_imfilter('dandist', nrrd);
+
+% vector is given in voxel coordinates as (r, c, s) instead of (x, y, z)
+w()
 
 % load test data
 nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');

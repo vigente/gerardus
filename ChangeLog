@@ -1,3 +1,21 @@
+2013-09-12  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/itk_imfilter.m: (0.7.6)
+
+	- Add note on coordinates of W output for dandist filter.
+
+	* matlab/test/test_itk_imfilter.m: (0.4.3)
+
+	- Add small simple 3x3 matrix test to dandist filter.
+
+	* matlab/test/test_itk_pstransform.m: (0.1.3)
+
+	- Fix bug, wrong data directory.
+
+	* matlab/GerardusCommon.h: (0.10.2)
+
+	- Fix minor bug, text of error messages.
+
 2013-08-17  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/MatlabImportFilter.hxx: (0.6.5)
