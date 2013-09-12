@@ -1,5 +1,50 @@
 2013-09-12  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/MatlabImportFilter.hxx: (0.7.0)
+	* matlab/MatlabImportFilter.h: (0.7.0)
+
+	- Change API substantially. As an overview, we have created a
+	struct to represent an "input" (a pointer to the data, a string
+	with its name and a flag to mark whether it has been
+	provided). Inputs can be "registered", that is, we say that the
+	third argument of prhs corresponds to input "XI". Once registered,
+	their data can be read into C++ types (scalars, vectors, vectors
+	of vectors) with the Read*FromMatlab() methods in the class.
+
+	- Add struct MatlabInput; ConnectToMatlabFunctionInput();
+	RegisterInput(); RegisterStructFieldInput();
+	GetRegisteredInput(). Rename some other methods. Now all
+	Read*FromMatlab() methods take a MatlabInputPointer instead of a
+	position and string with the name of the input. This allows to use
+	them to read fields and cells too.
+
+	* matlab/MatlabExportFilter.h: (0.5.0)
+	* matlab/MatlabExportFilter.hxx: (0.6.0)
+
+	- Change API a bit. Rename some methods.
+
+	- Remove from MatlabOutput flags isTopLevel, isTopLevelFirst. We
+	were wrong thinking that the first output needs to be allocated
+	with an empty matrix even if the user doesn't request it, or
+	otherwise Matlab throws an error. It can be treated like every
+	other output.
+
+	- Remove in RegisterOutput() the syntax with base and
+	pos. Currently we only support outputs directly in plhs. If we
+	need to support child outputs (e.g. fields or cells), we should
+	add a MatlabOutputPointer syntax.
+
+	* matlab/ItkToolbox/ItkPSTransform.cpp: (0.5.0)
+	* matlab/ItkToolbox/ItkImFilter.cpp: (1.6.0)
+	* matlab/CgalToolbox/CgalInSurfaceTriangulation.cpp: (0.4.0)
+	* matlab/CgalToolbox/CgalClosestTriFacet.cpp: (0.3.0)
+	* matlab/CgalToolbox/CgalTriFacetArea.cpp: (0.3.0)
+	* matlab/CgalToolbox/CgalFixedAlphaShape3.cpp: (0.3.0)
+	* matlab/CgalToolbox/CgalAlphaShape3.cpp: (0.3.0)
+	* matlab/CgalToolbox/CgalCheckSelfIntersect.cpp: (0.3.0)
+
+	- Adapt to new Matlab import and export filters API.
+
 	* matlab/ItkToolbox/itk_imfilter.m: (0.7.6)
 
 	- Add note on coordinates of W output for dandist filter.
