@@ -3,8 +3,8 @@
 % Script to test MEX function itk_pstransform().
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011 University of Oxford
-% Version: 0.1.2
+% Copyright © 2011-2013 University of Oxford
+% Version: 0.1.3
 % $Rev$
 % $Date: 2013-02-07 01:06:10 +0000 (Thu, 07 Feb 2013)$
 %
@@ -86,7 +86,7 @@ end
 
 % load segmentation points 'xi', skeleton points 'x', and skeleton
 % parameterization 't'
-load('test/ps-bent-vessel-3d-3.mat')
+load('data/ps-bent-vessel-3d-3.mat')
 
 % choose by hand a few points in the segmentation, and use them as source
 % landmarks
