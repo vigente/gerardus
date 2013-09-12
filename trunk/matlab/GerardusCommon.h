@@ -7,7 +7,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011-2013 University of Oxford
-  * Version: 0.10.1
+  * Version: 0.10.2
   * $Rev$
   * $Date$
   *
@@ -330,7 +330,7 @@ mxClassID convertCppDataTypeToMatlabCassId() {
     } else if (sizeof(signed long) == 8) {
       outputVoxelClassId = mxINT64_CLASS;
     } else {
-      mexErrMsgTxt("MatlabExportFilter: signed long is neither 4 or 8 byte in this architecture");
+      mexErrMsgTxt("convertCppDataTypeToMatlabCassId(): signed long is neither 4 or 8 byte in this architecture");
     }
     outputVoxelClassId = mxINT64_CLASS;
   } else if (TypeIsFloat<TPixel>::value) {
@@ -338,7 +338,7 @@ mxClassID convertCppDataTypeToMatlabCassId() {
   } else if (TypeIsDouble<TPixel>::value) {
     outputVoxelClassId = mxDOUBLE_CLASS;
   } else {
-    mexErrMsgTxt("MatlabExportFilter: Assertion fail: Unrecognised output data type");
+    mexErrMsgTxt("convertCppDataTypeToMatlabCassId(): Unrecognised output data type");
   }
   
   // provide result and exit

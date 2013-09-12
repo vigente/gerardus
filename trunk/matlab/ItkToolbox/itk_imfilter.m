@@ -80,7 +80,8 @@ function im = itk_imfilter(varargin)
 %
 %   W has size (3,R,C,S) if A has size (R,C,S), and type int64. Each
 %   3-vector W(:,i,j,k) is a vector pointing to the closest
-%   foreground voxel from A(i,j,k).
+%   foreground voxel from A(i,j,k). The vector coordinates are given
+%   in voxel units, and as (R,C,S), instead of (x,y,z).
 %
 % -------------------------------------------------------------------------
 %
@@ -355,8 +356,8 @@ function im = itk_imfilter(varargin)
 %   MAXERR(i)=0.01 for all i.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011 University of Oxford
-% Version: 0.7.4
+% Copyright © 2011-2013 University of Oxford
+% Version: 0.7.6
 % $Rev$
 % $Date$
 %
