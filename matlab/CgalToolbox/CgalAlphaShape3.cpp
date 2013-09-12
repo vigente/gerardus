@@ -49,7 +49,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.2.1
+  * Version: 0.3.0
   * $Rev$
   * $Date$
   *
@@ -128,6 +128,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // check the number of input arguments
   matlabImport->CheckNumberOfArguments(1, InputIndexType_MAX);
 
+  // register the inputs for this function at the import filter
+  typedef MatlabImportFilter::MatlabInputPointer MatlabInputPointer;
+  MatlabInputPointer inX = matlabImport->RegisterInput(IN_X, "X");
+  MatlabInputPointer inALPHA = matlabImport->RegisterInput(IN_ALPHA, "ALPHA");
+  MatlabInputPointer inNCOMP = matlabImport->RegisterInput(IN_NCOMP, "NCOMP");
+
   // interface to deal with outputs to Matlab
   enum OutputIndexType {OUT_ALPHAINT, OUT_TRI, OutputIndexType_MAX};
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
@@ -168,7 +174,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     // read i-th row of input matrix as a point
     x[i] = std::make_pair(
-			  matlabImport->ReadRowVectorFromMatlab<K, Point>(IN_X, i, "X", xDef),
+			  matlabImport->ReadRowVectorFromMatlab<K, Point>(inX, i, xDef),
 			  i+1 // because this will be a row index in Matlab, 1, ..., Nrows
 			  );
 
@@ -191,7 +197,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // }
 
   // read number of components from input
-  mwSize numComponents = matlabImport->ReadScalarFromMatlab<mwSize>(IN_NCOMP, "NCOMP", 1);
+  mwSize numComponents = matlabImport->ReadScalarFromMatlab<mwSize>(inNCOMP, 1);
 
   // // DEBUG
   // std::cout << "Computing Delaunay triangulation" << std::endl;
@@ -231,7 +237,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // read vector of alpha values provided by the user
   std::vector<double> alphaDef(1, *alphaOptIt);
   std::vector<double> alpha = matlabImport
-    ->ReadArrayAsVectorFromMatlab<double, std::vector<double> >(IN_ALPHA, "ALPHA", alphaDef);
+    ->ReadArrayAsVectorFromMatlab<double, std::vector<double> >(inALPHA, alphaDef);
 
   // create a cell per surface triangulation that we are going to
   // extract

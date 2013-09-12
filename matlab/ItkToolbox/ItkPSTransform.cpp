@@ -66,7 +66,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011-2013 University of Oxford
-  * Version: 0.4.1
+  * Version: 0.5.0
   * $Rev$
   * $Date$
   *
@@ -141,27 +141,35 @@ template <class TScalarType, unsigned int Dimension>
 void runBSplineTransform(MatlabImportFilter::Pointer matlabImport,
 			 MatlabExportFilter::Pointer matlabExport) {
 
+  // retrieve pointers to the inputs that we are going to need here
+  typedef MatlabImportFilter::MatlabInputPointer MatlabInputPointer; 
+  MatlabInputPointer inX         = matlabImport->GetRegisteredInput("X");
+  MatlabInputPointer inY         = matlabImport->GetRegisteredInput("Y");
+  MatlabInputPointer inXI        = matlabImport->GetRegisteredInput("XI");
+  MatlabInputPointer inORDER     = matlabImport->GetRegisteredInput("ORDER");
+  MatlabInputPointer inLEVELS    = matlabImport->GetRegisteredInput("LEVELS");
+
   // register the output for this function at the export filter
   typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
   MatlabOutputPointer outYI = matlabExport->RegisterOutput(OUT_YI, "YI");
 
   // spline order (input argument): default or user-provided
-  unsigned int splineOrder = matlabImport->ReadScalarFromMatlab<unsigned int>(IN_ORDER, "ORDER", 3);
+  unsigned int splineOrder = matlabImport->ReadScalarFromMatlab<unsigned int>(inORDER, 3);
 
   // number of levels (input argument): default or user-provided
-  unsigned int numOfLevels = matlabImport->ReadScalarFromMatlab<unsigned int>(IN_LEVELS, "LEVELS", 5);
+  unsigned int numOfLevels = matlabImport->ReadScalarFromMatlab<unsigned int>(inLEVELS, 5);
 
   // get size of input arguments
-  mwSize Mx = mxGetM(matlabImport->GetRegisteredArgument(IN_X)); // number of source points
-  mwSize Mxi = mxGetM(matlabImport->GetRegisteredArgument(IN_XI)); // number of points to be warped
+  mwSize Mx = mxGetM(inX->pm); // number of source points
+  mwSize Mxi = mxGetM(inXI->pm); // number of points to be warped
 
-  // create pointers to input matrices
+  // pointers to input matrices
   TScalarType *x 
-    = (TScalarType *)mxGetData(matlabImport->GetRegisteredArgument(IN_X)); // source points
+    = (TScalarType *)mxGetData(inX->pm); // source points
   TScalarType *y 
-    = (TScalarType *)mxGetData(matlabImport->GetRegisteredArgument(IN_Y)); // target points
+    = (TScalarType *)mxGetData(inY->pm); // target points
   TScalarType *xi 
-    = (TScalarType *)mxGetData(matlabImport->GetRegisteredArgument(IN_XI)); // points to be warped
+    = (TScalarType *)mxGetData(inXI->pm); // points to be warped
   if (x == NULL) {
     mexErrMsgTxt("Cannot get a pointer to input X");
   }
@@ -277,8 +285,8 @@ void runBSplineTransform(MatlabImportFilter::Pointer matlabImport,
   transform->Update();
 
   // create output vector and pointer to populate it
-  mwSize ndimxi = mxGetNumberOfDimensions(matlabImport->GetRegisteredArgument(IN_XI)); 
-  const mwSize *dimsxi = mxGetDimensions(matlabImport->GetRegisteredArgument(IN_XI));
+  mwSize ndimxi = mxGetNumberOfDimensions(inXI->pm); 
+  const mwSize *dimsxi = mxGetDimensions(inXI->pm);
   std::vector<mwSize> size;
   for (mwIndex i = 0; i < ndimxi; ++i) {
     size.push_back(dimsxi[i]);
@@ -336,23 +344,29 @@ void runKernelTransform(MatlabImportFilter::Pointer matlabImport,
   // accepts up to 4 arguments only. Thus, we cannot use InputIndexType_MAX)
   matlabImport->CheckNumberOfArguments(4, 4);
 
+  // retrieve pointers to the inputs that we are going to need here
+  typedef MatlabImportFilter::MatlabInputPointer MatlabInputPointer; 
+  MatlabInputPointer inX         = matlabImport->GetRegisteredInput("X");
+  MatlabInputPointer inY         = matlabImport->GetRegisteredInput("Y");
+  MatlabInputPointer inXI        = matlabImport->GetRegisteredInput("XI");
+
   // register the outputs for this function at the export filter
   typedef MatlabExportFilter::MatlabOutputPointer MatlabOutputPointer;
   MatlabOutputPointer outYI = matlabExport->RegisterOutput(OUT_YI, "YI");
 
   // get size of input arguments
-  mwSize Mx = mxGetM(matlabImport->GetRegisteredArgument(IN_X)); // number of source points
-  mwSize Mxi = mxGetM(matlabImport->GetRegisteredArgument(IN_XI)); // number of points to be warped
+  mwSize Mx = mxGetM(inX->pm); // number of source points
+  mwSize Mxi = mxGetM(inXI->pm); // number of points to be warped
   mwSize ndimxi; // number of dimension of points to be warped
   const mwSize *dimsxi; // dimensions vector of array of points to be warped
 
   // create pointers to input matrices
   TScalarType *x 
-    = (TScalarType *)mxGetData(matlabImport->GetRegisteredArgument(IN_X)); // source points
+    = (TScalarType *)mxGetData(inX->pm); // source points
   TScalarType *y 
-    = (TScalarType *)mxGetData(matlabImport->GetRegisteredArgument(IN_Y)); // target points
+    = (TScalarType *)mxGetData(inY->pm); // target points
   TScalarType *xi 
-    = (TScalarType *)mxGetData(matlabImport->GetRegisteredArgument(IN_XI)); // points to be warped
+    = (TScalarType *)mxGetData(inXI->pm); // points to be warped
   if (x == NULL) {
     mexErrMsgTxt("Cannot get a pointer to input X");
   }
@@ -401,12 +415,13 @@ void runKernelTransform(MatlabImportFilter::Pointer matlabImport,
   transform->ComputeWMatrix();
   
   // create output vector and pointer to populate it
-  ndimxi = mxGetNumberOfDimensions(matlabImport->GetRegisteredArgument(IN_XI));
-  dimsxi = mxGetDimensions(matlabImport->GetRegisteredArgument(IN_XI));
+  ndimxi = mxGetNumberOfDimensions(inXI->pm);
+  dimsxi = mxGetDimensions(inXI->pm);
   std::vector<mwSize> size;
   for (mwIndex i = 0; i < ndimxi; ++i) {
     size.push_back(dimsxi[i]);
   }
+
   TScalarType *yi 
     = matlabExport->AllocateNDArrayInMatlab<TScalarType>(outYI, size);
 
@@ -430,9 +445,14 @@ void runKernelTransform(MatlabImportFilter::Pointer matlabImport,
 template <class TScalarType, unsigned int Dimension>
 void parseTransformType(MatlabImportFilter::Pointer matlabImport,
 			MatlabExportFilter::Pointer matlabExport) {
-  
+
+
+  // retrieve pointers to the inputs that we are going to need here
+  typedef MatlabImportFilter::MatlabInputPointer MatlabInputPointer; 
+  MatlabInputPointer inTRANSFORM = matlabImport->GetRegisteredInput("TRANSFORM");
+
   // get type of transform
-  char *transform = mxArrayToString(matlabImport->GetRegisteredArgument(IN_TRANSFORM));
+  char *transform = mxArrayToString(inTRANSFORM->pm);
   if (transform == NULL) {
     mexErrMsgTxt("Cannot read TRANSFORM string");
   }
@@ -486,8 +506,12 @@ template <class TScalarType>
 void parseDimensionToTemplate(MatlabImportFilter::Pointer matlabImport,
 			      MatlabExportFilter::Pointer matlabExport) {
 
+  // retrieve pointers to the inputs that we are going to need here
+  typedef MatlabImportFilter::MatlabInputPointer MatlabInputPointer; 
+  MatlabInputPointer inX         = matlabImport->GetRegisteredInput("X");
+
   // dimension of points
-  mwSize Nx = mxGetN(matlabImport->GetRegisteredArgument(IN_X));
+  mwSize Nx = mxGetN(inX->pm);
 
   // parse the dimension value
   switch (Nx) {
@@ -511,13 +535,19 @@ void parseDimensionToTemplate(MatlabImportFilter::Pointer matlabImport,
 void parseInputTypeToTemplate(MatlabImportFilter::Pointer matlabImport,
 			      MatlabExportFilter::Pointer matlabExport) {
 
+  // retrieve pointers to the inputs that we are going to need here
+  typedef MatlabImportFilter::MatlabInputPointer MatlabInputPointer; 
+  MatlabInputPointer inX         = matlabImport->GetRegisteredInput("X");
+  MatlabInputPointer inY         = matlabImport->GetRegisteredInput("Y");
+  MatlabInputPointer inXI        = matlabImport->GetRegisteredInput("XI");
+
   // point coordinate type
-  mxClassID pointCoordClassId = mxGetClassID(matlabImport->GetRegisteredArgument(IN_X));
+  mxClassID pointCoordClassId = mxGetClassID(inX->pm);
 
   // check that all point coordinates have the same type (it simplifies
   // things with templates)
-  if ((pointCoordClassId != mxGetClassID(matlabImport->GetRegisteredArgument(IN_Y)))
-      | (pointCoordClassId != mxGetClassID(matlabImport->GetRegisteredArgument(IN_XI)))) {
+  if ((pointCoordClassId != mxGetClassID(inY->pm))
+      | (pointCoordClassId != mxGetClassID(inXI->pm))) {
     mexErrMsgTxt("Input arguments X, Y and XI must have the same type");
   }
   
@@ -551,7 +581,16 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // interface to deal with input arguments from Matlab
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
   matlabImport->ConnectToMatlabFunctionInput(nrhs, prhs);
-  
+
+  // register all possible inputs for this function at the import filter
+  typedef MatlabImportFilter::MatlabInputPointer MatlabInputPointer;
+  MatlabInputPointer inTRANSFORM = matlabImport->RegisterInput(IN_TRANSFORM, "TRANSFORM");
+  MatlabInputPointer inX         = matlabImport->RegisterInput(IN_X, "X");
+  MatlabInputPointer inY         = matlabImport->RegisterInput(IN_Y, "Y");
+  MatlabInputPointer inXI        = matlabImport->RegisterInput(IN_XI, "XI");
+  MatlabInputPointer inORDER     = matlabImport->RegisterInput(IN_ORDER, "ORDER");
+  MatlabInputPointer inLEVELS    = matlabImport->RegisterInput(IN_LEVELS, "LEVELS");
+
   // interface to deal with output arguments from Matlab
   MatlabExportFilter::Pointer matlabExport = MatlabExportFilter::New();
   matlabExport->ConnectToMatlabFunctionOutput(nlhs, plhs);
@@ -565,17 +604,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
   matlabExport->CheckNumberOfArguments(0, OutputIndexType_MAX);
     
   // if there are no points to warp, return empty array
-  if (mxIsEmpty(prhs[IN_XI])) {
+  if (mxIsEmpty(inXI->pm)) {
     matlabExport->CopyEmptyArrayToMatlab(outYI);
     return;
   }
 
   // check size of input arguments
-  mwSize Mx = mxGetM(prhs[IN_X]); // number of source points
-  mwSize My = mxGetM(prhs[IN_Y]); // number of target points
-  mwSize Dimension = mxGetN(prhs[IN_X]); // dimension of source points
-  mwSize dimy = mxGetN(prhs[IN_Y]); // dimension of target points
-  mwSize dimxi = mxGetN(prhs[IN_XI]); // dimension of points to be warped
+  mwSize Mx = mxGetM(inX->pm); // number of source points
+  mwSize My = mxGetM(inY->pm); // number of target points
+  mwSize Dimension = mxGetN(inX->pm); // dimension of source points
+  mwSize dimy = mxGetN(inY->pm); // dimension of target points
+  mwSize dimxi = mxGetN(inXI->pm); // dimension of points to be warped
   
   // the landmark arrays must have the same number of points
   // (degenerate case, both are empty)
@@ -585,8 +624,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   // if there are no landmarks, we apply no transformation to the
   // points to warp
-  if (mxIsEmpty(prhs[IN_X])) {
-    plhs[OUT_YI] = mxDuplicateArray(prhs[IN_XI]);
+  if (mxIsEmpty(inX->pm)) {
+    *outYI->ppm = mxDuplicateArray(inXI->pm);
     return;
   }
 
