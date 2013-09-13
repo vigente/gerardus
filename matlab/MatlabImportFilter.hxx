@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.7.0
+  * Version: 0.7.1
   * $Rev$
   * $Date$
   *
@@ -235,7 +235,7 @@ VectorType MatlabImportFilter::ReadMatlabArraySize(MatlabImportFilter::MatlabInp
   // wrap VectorType output into a VectorWrapper, so that we don't
   // need to write different code here for each different output
   // vector
-  VectorWrapper<VectorValueType, VectorType, void, VectorSize> sizeWrap;
+  VectorWrapper<VectorValueType, VectorType, void> sizeWrap;
   return sizeWrap.ReadSize(input->pm, input->name);
 
 }
@@ -266,7 +266,7 @@ VectorType MatlabImportFilter::ReadMatlabArrayHalfSize(MatlabImportFilter::Matla
   // wrap VectorType output into a VectorWrapper, so that we don't
   // need to write different code here for each different output
   // vector
-  VectorWrapper<VectorValueType, VectorType, void, VectorSize> sizeWrap;
+  VectorWrapper<VectorValueType, VectorType, void> sizeWrap;
   return sizeWrap.ReadHalfSize(input->pm, input->name);
 
 }
@@ -412,14 +412,6 @@ template <class VectorValueType, class VectorType>
 VectorType MatlabImportFilter::ReadRowVectorFromMatlab(MatlabImportFilter::MatlabInputPointer input, 
 						       mwIndex row, VectorType def) {
   
-  return MatlabImportFilter::ReadRowVectorFromMatlab<VectorValueType, VectorType, 0>(input, row, def);
-  
-}
-
-template <class VectorValueType, class VectorType, unsigned int VectorSize>
-VectorType MatlabImportFilter::ReadRowVectorFromMatlab(MatlabImportFilter::MatlabInputPointer input, 
-						       mwIndex row, VectorType def) {
-  
   // if user didn't provide a value, or provided an empty array,
   // return default
   if (!input->isProvided) {
@@ -449,41 +441,41 @@ VectorType MatlabImportFilter::ReadRowVectorFromMatlab(MatlabImportFilter::Matla
   // the user
   switch(inputVoxelClassId)  { 
   case mxLOGICAL_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, mxLogical, VectorSize> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, mxLogical> paramWrap;
       return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
   case mxDOUBLE_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, double, VectorSize> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, double> paramWrap;
       return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
   case mxSINGLE_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, float, VectorSize> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, float> paramWrap;
       return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
   case mxINT8_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, int8_T, VectorSize> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, int8_T> paramWrap;
       return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
   case mxUINT8_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, uint8_T, VectorSize> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, uint8_T> paramWrap;
       return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
   case mxINT16_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, int16_T, VectorSize> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, int16_T> paramWrap;
       return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
   case mxUINT16_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, uint16_T, VectorSize> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, uint16_T> paramWrap;
       return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
   case mxINT32_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, int32_T, VectorSize> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, int32_T> paramWrap;
       return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
     // case mxUINT32_CLASS:
     //   break;
   case mxINT64_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, int64_T, VectorSize> paramWrap;
+    {VectorWrapper<VectorValueType, VectorType, int64_T> paramWrap;
       return paramWrap.ReadRowVector(input->pm, row, input->name);}
     break;
     // case mxUINT64_CLASS:
@@ -510,14 +502,6 @@ VectorType MatlabImportFilter::ReadRowVectorFromMatlab(MatlabImportFilter::Matla
 template <class VectorValueType, class VectorType>
 VectorType MatlabImportFilter::ReadRowVectorFromMatlab(MatlabImportFilter::MatlabInputPointer input,
 						       VectorType def) {
-  
-  return MatlabImportFilter::ReadRowVectorFromMatlab<VectorValueType, VectorType, 0>(input, def);
-  
-}
-
-template <class VectorValueType, class VectorType, unsigned int VectorSize>
-VectorType MatlabImportFilter::ReadRowVectorFromMatlab(MatlabImportFilter::MatlabInputPointer input,
-						       VectorType def) {
 
   // if user didn't provide a value, or provided an empty array,
   // return default
@@ -536,8 +520,7 @@ VectorType MatlabImportFilter::ReadRowVectorFromMatlab(MatlabImportFilter::Matla
   }
 
   // the syntax of this function without specifying a row is the same as specifying row 0
-  return MatlabImportFilter::ReadRowVectorFromMatlab<VectorValueType, 
-						  VectorType, VectorSize>(input, 0, def);
+  return MatlabImportFilter::ReadRowVectorFromMatlab<VectorValueType, VectorType>(input, 0, def);
 
 }
 

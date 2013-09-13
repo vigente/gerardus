@@ -29,8 +29,8 @@
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
-  * Copyright © 2012 University of Oxford
-  * Version: 0.5.4
+  * Copyright © 2012-2013 University of Oxford
+  * Version: 0.6.0
   * $Rev$
   * $Date$
   *
@@ -98,10 +98,7 @@
  * that we can do a partial specialisation like
  * itk::FixedArray<VectorValueType, VectorSize>.
  */
-template<class VectorValueType, class VectorType, class MatlabValueType, unsigned int VectorSize = 0>
-  class VectorWrapper;
-
-template<class VectorValueType, class VectorType, class MatlabValueType, unsigned int VectorSize>
+template<class VectorValueType, class VectorType, class MatlabValueType>
   class VectorWrapper{
 
  public:
@@ -144,94 +141,89 @@ template <class VectorValueType, class VectorType, class MatlabValueType>
 VectorType
 ReadItkHalfSize(const mxArray *pm, mwIndex row, std::string paramName);
 
-
-// partial specialisation for itk::Size<VectorSize>
-template<class VectorValueType, class MatlabValueType, unsigned int VectorSize>
-  class VectorWrapper<VectorValueType, typename itk::Size<VectorSize>, 
-  MatlabValueType, VectorSize>{
-  
- public:
-
-  VectorWrapper() {}
-
-  typename itk::Size<VectorSize>
-    ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    return ReadItkRowVector<VectorValueType, 
-      typename itk::Size<VectorSize>, MatlabValueType>(pm, row, paramName);
+#define MethodsVectorWrapperItk						\
+  public:								\
+  VectorWrapper() {}							\
+  VectorType								\
+  ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) { \
+    return ReadItkRowVector<VectorValueType, VectorType, MatlabValueType>(pm, row, paramName); \
+  }									\
+  VectorType								\
+  ReadSize(const mxArray *pm, std::string paramName) {			\
+    return ReadItkSize<VectorValueType, VectorType, MatlabValueType>(pm, paramName); \
+  }									\
+  VectorType								\
+  ReadHalfSize(const mxArray *pm, std::string paramName) {		\
+    return ReadItkHalfSize<VectorValueType, VectorType, MatlabValueType>(pm, paramName); \
   }
 
-  typename itk::Size<VectorSize>
-    ReadSize(const mxArray *pm, std::string paramName) {
-    return ReadItkSize<VectorValueType, 
-      typename itk::Size<VectorSize>, MatlabValueType>(pm, paramName);
-  }
-
-  typename itk::Size<VectorSize>
-    ReadHalfSize(const mxArray *pm, std::string paramName) {
-    return ReadItkHalfSize<VectorValueType, 
-      typename itk::Size<VectorSize>, MatlabValueType>(pm, paramName);
-  }
-
+// partial specialisations itk::Size<VectorSize>
+template<class VectorValueType, class MatlabValueType>
+  class VectorWrapper<VectorValueType, typename itk::Size<2>, MatlabValueType>{
+ private:
+  typedef typename itk::Size<2> VectorType;
+  MethodsVectorWrapperItk
 };
 
-// partial specialisation for itk::FixedArray<VectorValueType, VectorSize>
-template<class VectorValueType, class MatlabValueType, unsigned int VectorSize>
-  class VectorWrapper<VectorValueType, typename itk::FixedArray<VectorValueType, VectorSize>,
-  MatlabValueType, VectorSize>{
-
- public:
-
-  VectorWrapper() {}
-
-  typename itk::FixedArray<VectorValueType, VectorSize>
-    ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    return ReadItkRowVector<VectorValueType,
-      typename itk::FixedArray<VectorValueType, VectorSize>, MatlabValueType>(pm, row, paramName);
-  }
-
-  typename itk::FixedArray<VectorValueType, VectorSize>
-    ReadSize(const mxArray *pm, std::string paramName) {
-    return ReadItkSize<VectorValueType,
-      typename itk::FixedArray<VectorValueType, VectorSize>, MatlabValueType>(pm, paramName);
-  }
-
-  typename itk::FixedArray<VectorValueType, VectorSize>
-    ReadHalfSize(const mxArray *pm, std::string paramName) {
-    return ReadItkHalfSize<VectorValueType,
-      typename itk::FixedArray<VectorValueType, VectorSize>, MatlabValueType>(pm, paramName);
-  }
-
+template<class VectorValueType, class MatlabValueType>
+  class VectorWrapper<VectorValueType, typename itk::Size<3>, MatlabValueType>{
+ private:
+  typedef typename itk::Size<3> VectorType;
+  MethodsVectorWrapperItk
 };
 
-// partial specialisation for itk::Point<VectorValueType, VectorSize>
-template<class VectorValueType, class MatlabValueType, unsigned int VectorSize>
-  class VectorWrapper<VectorValueType, typename itk::Point<VectorValueType, VectorSize>,
-  MatlabValueType, VectorSize>{
-
- public:
-
-  VectorWrapper() {}
-
-  typename itk::Point<VectorValueType, VectorSize>
-    ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    return ReadItkRowVector<VectorValueType,
-      typename itk::Point<VectorValueType, VectorSize>, MatlabValueType>(pm, row, paramName);
-  }
-
-  typename itk::Point<VectorValueType, VectorSize>
-    ReadSize(const mxArray *pm, std::string paramName) {
-    return ReadItkSize<VectorValueType,
-      typename itk::Point<VectorValueType, VectorSize>, MatlabValueType>(pm, paramName);
-  }
-
-  typename itk::Point<VectorValueType, VectorSize>
-    ReadHalfSize(const mxArray *pm, std::string paramName) {
-    return ReadItkHalfSize<VectorValueType,
-      typename itk::Point<VectorValueType, VectorSize>, MatlabValueType>(pm, paramName);
-  }
-
+template<class VectorValueType, class MatlabValueType>
+  class VectorWrapper<VectorValueType, typename itk::Size<4>, MatlabValueType>{
+ private:
+  typedef typename itk::Size<4> VectorType;
+  MethodsVectorWrapperItk
 };
 
+// partial specialisations itk::FixedArray<VectorValueType, 2>
+template<class VectorValueType, class MatlabValueType>
+  class VectorWrapper<VectorValueType, itk::FixedArray<VectorValueType, 2>, MatlabValueType>{
+ private:
+  typedef itk::FixedArray<VectorValueType, 2> VectorType;
+  MethodsVectorWrapperItk
+};
+
+template<class VectorValueType, class MatlabValueType>
+  class VectorWrapper<VectorValueType, itk::FixedArray<VectorValueType, 3>, MatlabValueType>{
+ private:
+  typedef itk::FixedArray<VectorValueType, 3> VectorType;
+  MethodsVectorWrapperItk
+};
+
+template<class VectorValueType, class MatlabValueType>
+  class VectorWrapper<VectorValueType, itk::FixedArray<VectorValueType, 4>, MatlabValueType>{
+ private:
+  typedef itk::FixedArray<VectorValueType, 4> VectorType;
+  MethodsVectorWrapperItk
+};
+
+// partial specialisations itk::Point<VectorValueType, 2>
+template<class VectorValueType, class MatlabValueType>
+  class VectorWrapper<VectorValueType, itk::Point<VectorValueType, 2>, MatlabValueType>{
+ private:
+  typedef itk::Point<VectorValueType, 2> VectorType;
+  MethodsVectorWrapperItk
+};
+
+template<class VectorValueType, class MatlabValueType>
+  class VectorWrapper<VectorValueType, itk::Point<VectorValueType, 3>, MatlabValueType>{
+ private:
+  typedef itk::Point<VectorValueType, 3> VectorType;
+  MethodsVectorWrapperItk
+};
+
+template<class VectorValueType, class MatlabValueType>
+  class VectorWrapper<VectorValueType, itk::Point<VectorValueType, 4>, MatlabValueType>{
+ private:
+  typedef itk::Point<VectorValueType, 4> VectorType;
+  MethodsVectorWrapperItk
+};
+
+#undef MethodsVectorWrapperItk
 
 /*
  * Partial specialisation if we want to put Matlab's row data into a
@@ -247,78 +239,31 @@ template<class VectorValueType, class MatlabValueType, unsigned int VectorSize>
 // auxiliary function so that we don't need to rewrite this code in
 // every partial specialization
 template <class VectorValueType, class VectorType, class MatlabValueType>
-VectorType
-ReadCgalRowVector(const mxArray *pm, mwIndex row, std::string paramName);
+  VectorType
+  ReadCgalRowVector(const mxArray *pm, mwIndex row, std::string paramName);
 
-// partial specialisation for CGAL::Point_3<CGAL::Simple_cartesian<double> >
-template<class MatlabValueType, unsigned int VectorSize>
-class VectorWrapper<double, typename CGAL::Point_3<CGAL::Simple_cartesian<double> >, 
-  MatlabValueType, VectorSize>{
+#define VectorWrapperCgal(VECTORVALUETYPE, VECTORTYPE)			\
+  template<class MatlabValueType>					\
+  class VectorWrapper<VECTORVALUETYPE, VECTORTYPE, MatlabValueType>{	\
+  private:								\
+    typedef VECTORTYPE VectorType;					\
+  public:								\
+    VectorWrapper() {}							\
+    VectorType								\
+      ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) { \
+      return ReadCgalRowVector<VECTORVALUETYPE, VectorType, MatlabValueType>(pm, row, paramName); \
+    }									\
+  };
 
- public:
+// partial specialisations
+VectorWrapperCgal(double, typename CGAL::Point_3<CGAL::Simple_cartesian<double> >)
+VectorWrapperCgal(double, typename CGAL::Direction_3<CGAL::Simple_cartesian<double> >)
+VectorWrapperCgal(CGAL::Exact_predicates_exact_constructions_kernel,
+		  typename CGAL::Point_3<CGAL::Exact_predicates_exact_constructions_kernel >)
+VectorWrapperCgal(CGAL::Exact_predicates_inexact_constructions_kernel,
+		  typename CGAL::Point_3<CGAL::Exact_predicates_inexact_constructions_kernel >)
 
-  VectorWrapper() {}
-
-  typename CGAL::Point_3<CGAL::Simple_cartesian<double> >
-    ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    return ReadCgalRowVector<double, 
-      typename CGAL::Point_3<CGAL::Simple_cartesian<double> >,
-      MatlabValueType>(pm, row, paramName);
-  }
-};
-
-// partial specialisation for CGAL::Direction_3<CGAL::Simple_cartesian<double> >
-template<class MatlabValueType, unsigned int VectorSize>
-class VectorWrapper<double, typename CGAL::Direction_3<CGAL::Simple_cartesian<double> >, 
-  MatlabValueType, VectorSize>{
-
- public:
-
-  VectorWrapper() {}
-
-  typename CGAL::Direction_3<CGAL::Simple_cartesian<double> >
-    ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    return ReadCgalRowVector<double, 
-      typename CGAL::Direction_3<CGAL::Simple_cartesian<double> >,
-      MatlabValueType>(pm, row, paramName);
-  }
-};
-
-// partial specialisation for CGAL::Point_3<CGAL::Exact_predicates_exact_constructions_kernel >
-template<class MatlabValueType, unsigned int VectorSize>
-class VectorWrapper<CGAL::Exact_predicates_exact_constructions_kernel, 
-  typename CGAL::Point_3<CGAL::Exact_predicates_exact_constructions_kernel >, 
-  MatlabValueType, VectorSize>{
-
- public:
-
-  VectorWrapper() {}
-
-  typename CGAL::Point_3<CGAL::Exact_predicates_exact_constructions_kernel >
-    ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    return ReadCgalRowVector<double, 
-      typename CGAL::Point_3<CGAL::Exact_predicates_exact_constructions_kernel >,
-      MatlabValueType>(pm, row, paramName);
-  }
-};
-
-// partial specialisation for CGAL::Point_3<CGAL::Exact_predicates_inexact_constructions_kernel >
-template<class MatlabValueType, unsigned int VectorSize>
-class VectorWrapper<CGAL::Exact_predicates_inexact_constructions_kernel, 
-  typename CGAL::Point_3<CGAL::Exact_predicates_inexact_constructions_kernel >, 
-  MatlabValueType, VectorSize>{
-
- public:
-
-  VectorWrapper() {}
-
-  typename CGAL::Point_3<CGAL::Exact_predicates_inexact_constructions_kernel >
-    ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
-    return ReadCgalRowVector<double, 
-      typename CGAL::Point_3<CGAL::Exact_predicates_inexact_constructions_kernel >,
-      MatlabValueType>(pm, row, paramName);
-  }
-};
+#undef VectorWrapperCgal
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "VectorWrapper.hxx"
