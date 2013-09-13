@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.7.0
+  * Version: 0.7.1
   * $Rev$
   * $Date$
   *
@@ -252,13 +252,6 @@ public:
   //
   // def:
   //   default value to return if the user has not provided an input
-  template <class VectorValueType, class VectorType, unsigned int VectorSize>
-    VectorType ReadRowVectorFromMatlab(MatlabInputPointer input, 
-				       mwIndex row, VectorType def);
-  template <class VectorValueType, class VectorType, unsigned int VectorSize>
-    VectorType ReadRowVectorFromMatlab(MatlabInputPointer input,
-				       VectorType def);
-
   template <class VectorValueType, class VectorType>
     VectorType ReadRowVectorFromMatlab(MatlabInputPointer input,
 				       mwIndex row, VectorType def);

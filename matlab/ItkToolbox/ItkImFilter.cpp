@@ -361,7 +361,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2011-2013 University of Oxford
-  * Version: 1.6.0
+  * Version: 1.6.1
   * $Rev$
   * $Date$
   *
@@ -530,8 +530,7 @@ public:
     defVariance.Fill(0.0);
     filter->SetVariance(matlabImport->
     			ReadRowVectorFromMatlab<typename FilterType::ArrayType::ValueType, 
-    					     typename FilterType::ArrayType,
-    					     VImageDimension>(inVAR, defVariance));
+    					     typename FilterType::ArrayType>(inVAR, defVariance));
 
     // Usually, the upper tracking threshold can be set quite high,
     // and the lower threshold quite low for good results. Setting the
@@ -559,8 +558,7 @@ public:
     defMaximumError.Fill(0.01);
     filter->SetMaximumError(matlabImport->
 			    ReadRowVectorFromMatlab<typename FilterType::ArrayType::ValueType, 
-						 typename FilterType::ArrayType,
-						 VImageDimension>(inMAXERR, defMaximumError));
+						 typename FilterType::ArrayType>(inMAXERR, defMaximumError));
 
     // graft ITK filter outputs onto Matlab outputs
     matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
@@ -698,8 +696,7 @@ public:
     // filter parameters
     filter->SetRadius(matlabImport->template
 		      ReadRowVectorFromMatlab<typename InImageType::SizeValueType,
-					   typename InImageType::SizeType, 
-					   VImageDimension>(inRADIUS, radiusDef));
+					   typename InImageType::SizeType>(inRADIUS, radiusDef));
     filter->SetMaximumNumberOfIterations(matlabImport->template
 					 ReadScalarFromMatlab<unsigned int>(inMAXITER, 1));
     filter->SetMajorityThreshold(matlabImport->template
@@ -820,9 +817,7 @@ public:
     radius.Fill(0);
     filter->SetRadius(matlabImport->
 		      ReadRowVectorFromMatlab<typename BoxFilterType::RadiusValueType, 
-					   typename BoxFilterType::RadiusType,
-					   VImageDimension>
-		      (inRADIUS, radius));
+					      typename BoxFilterType::RadiusType>(inRADIUS, radius));
     
     // graft ITK filter outputs onto Matlab outputs
     matlabExport->GraftItkImageOntoMatlab<TPixelOut, VImageDimension>
