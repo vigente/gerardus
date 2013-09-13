@@ -1,3 +1,31 @@
+2013-09-13  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/VectorWrapper.h: (0.6.0)
+	* matlab/VectorWrapper.hxx: (0.5.0)
+
+	- API change to fix bug. Remove template VectorSize. It is not
+	used anyway by methods in the class, and it was creating a problem
+	with MatlabImportFilter. In paticular,
+	MatlabImportFilter::ReadVectorOfVectorsFromMatlab does not take a
+	VectorSize template argument. So when it instantiated a
+	VectorWrapper, it did so without the VectorSize argument, which
+	means that by default VectorSize=0, which then made some partial
+	specializations in VectorWrapper.h fail. For example,
+	VectorType=itk::Size<3> but VectorSize=0.
+
+	- The rationale for VectorSize was to be able to use a single
+	partial specialisation for all vector sizes,
+	e.g. itk::Size<VectorSize>. But now it seemed simpler to remove
+	VectorSize and just do partial specialisations of itk::Size<2>,
+	itk::Size<3> and itk::Size<4>, adding two macros to make the code
+	cleaner.
+
+	* matlab/MatlabImportFilter.h: (0.7.1)
+	* matlab/MatlabImportFilter.hxx: (0.7.1)
+	* matlab/ItkToolbox/ItkImFilter.cpp: (1.6.1)
+
+	- Follow API change in VectorWrapper.
+
 2013-09-12  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/ItkICPRegistration.cpp: (0.0.5)
