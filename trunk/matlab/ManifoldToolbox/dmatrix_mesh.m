@@ -37,7 +37,7 @@ function [d, dtot] = dmatrix_mesh(tri, x, totmethod)
 %   Both Dijkstra and Fast Marching use similar Fibonacci heap
 %   implementations, and have the same computational complexity. That said,
 %   the Fast Marching implementation we have needs to loop for each vertex,
-%   and is 2 times slower (7.2 min vs. 4.7 min) in a mesh with 5381 nodes
+%   and is 1.5 times slower (7.2 min vs. 4.7 min) in a mesh with 5381 nodes
 %   and 10758 elements. However, Dijkstra's method suffers greatly from
 %   metrication errors in regular meshes.
 %
