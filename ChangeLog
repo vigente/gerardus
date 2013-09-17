@@ -6,7 +6,7 @@
 	Kimmel and Sethian (1998), that uses Fibonacci heaps implemented
 	by John-Mark Gurney.
 
-	- Fast Marching is ~20 times slower than Dijkstra's algorithm, but
+	- Fast Marching is ~2 times slower than Dijkstra's algorithm, but
 	it suffers a lot less from metrication errors on structured
 	regular meshes.
 
