@@ -1,3 +1,15 @@
+2013-09-17  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/dmatrix_mesh.m: (0.3.0)
+
+	- Add Fast Marching method. Gabriel Peyre’s implementation of
+	Kimmel and Sethian (1998), that uses Fibonacci heaps implemented
+	by John-Mark Gurney.
+
+	- Fast Marching is ~20 times slower than Dijkstra's algorithm, but
+	it suffers a lot less from metrication errors on structured
+	regular meshes.
+
 2013-09-13  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/VectorWrapper.h: (0.6.0)
