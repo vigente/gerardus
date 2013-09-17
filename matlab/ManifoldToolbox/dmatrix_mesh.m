@@ -1,9 +1,9 @@
-function [d, dtot] = dmatrix_mesh(tri, x)
+function [d, dtot] = dmatrix_mesh(tri, x, totmethod)
 % DMATRIX_MESH  Sparse distance and shortest-path distance matrices between
 % the nodes of a mesh
 %
-% [D, DTOT] = dmatrix_mesh(TRI)
-% [D, DTOT] = dmatrix_mesh(TRI, X)
+% D = dmatrix_mesh(TRI)
+% D = dmatrix_mesh(TRI, X)
 %
 %   TRI is a matrix where each row contains the indices of the nodes that
 %   form an element in the mesh. Thus, for a triangulation, TRI has 3
@@ -20,16 +20,42 @@ function [d, dtot] = dmatrix_mesh(tri, x)
 %   technically means D(i,j)=0, by convention in function dijkstra(), this
 %   means for us D(i,j)=Inf.
 %
-%   DTOT is a full matrix. DTOT(i,j) is the shortest-path length between
-%   nodes i and j, using Dijkstra's algorithm. Note that if node j cannot
-%   be reached from node i at all, then DTOT(i,j)=Inf. For nodes connected
-%   by edges, D(i,j)=DTOT(i,j).
+% [D, DTOT] = dmatrix_mesh(TRI, X, TOTMETHOD)
 %
-% See also: dmatrix_con, dmatrix_sphmesh, dmatrix.
+%   DTOT is a full matrix. DTOT(i,j) is the shortest-path length between
+%   nodes i and j. Note that if node j cannot be reached from node i at
+%   all, then DTOT(i,j)=Inf. For nodes directly connected by edges,
+%   D(i,j)=DTOT(i,j).
+%
+%   TOTMETHOD is a string with the name of the method used to compute DTOT
+%   from D. By default, TOTMETHOD='dijkstra', and Dijkstra's shortest-path
+%   algorithm is used. With TOTMETHOD='fastmarching' (only valid for
+%   triangular meshes), distances are computed as the solution to an
+%   Eikonal equation by propagating a front with uniform speed using the
+%   Fast Marching method.
+%
+%   Both Dijkstra and Fast Marching use similar Fibonacci heap
+%   implementations, and have the same computational complexity. That said,
+%   the Fast Marching implementation we have needs to loop for each vertex,
+%   and is 20 times slower (7.3 min vs. 21.2 sec) in a mesh with 5381 nodes
+%   and 10758 elements. However, Dijkstra's method suffers greatly from
+%   metrication errors in regular meshes.
+%
+%   For Dijkstra's algorithm, we use our own modification of Joshua
+%   Tenenbaum’s implementation (http://isomap.stanford.edu/), that uses
+%   Fibonacci heaps implemented in C by John Boyer. For the Fast Marching
+%   method, we use Gabriel Peyre’s implementation of Kimmel and Sethian
+%   (1998), that uses Fibonacci heaps implemented by John-Mark Gurney.
+%
+% R. Kimmel and J. A. Sethian, “Computing geodesic paths on manifolds,”
+% Proceedings of the National Academy of Sciences, vol. 95, no. 15, pp.
+% 8431–8435, 1998.
+%
+% See also: dmatrix_con, dmatrix_sphmesh, dmatrix, dijkstra, perform_fast_marching_mesh
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.2.0
+% Version: 0.3.0
 % $Rev$
 % $Date$
 %
@@ -58,8 +84,13 @@ function [d, dtot] = dmatrix_mesh(tri, x)
 % <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(1, 2);
+narginchk(1, 3);
 nargoutchk(0, 2);
+
+% defaults
+if (nargin < 3 || isempty(totmethod))
+    totmethod = 'dijkstra';
+end
 
 % count the number of edges in the mesh
 Nedge = size(tri, 1) * (size(tri, 2) - 1);
@@ -90,8 +121,19 @@ end
 % create a sparse matrix with the distances (and make it symmetric)
 d = sparse([e(:, 1); e(:, 2)], [e(:, 2); e(:, 1)], [d; d]);
 
-% if requested by the user, compute the full distance matrix using
-% Dijkstra's shortest path algorithm
+% if requested by the user, compute the full distance matrix
 if (nargout > 1)
-    dtot = dijkstra(d, 1:length(d));
+    switch totmethod
+        case 'dijkstra'
+            dtot = dijkstra(d, 1:length(d));
+            
+        case 'fastmarching'
+            dtot = zeros(size(d));
+            for I = 1:length(d)
+                dtot(:, I) = perform_fast_marching_mesh(x, tri, I);
+            end
+            
+        otherwise
+            error('Total distance method not implemented')
+    end
 end
