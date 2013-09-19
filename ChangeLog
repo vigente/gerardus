@@ -1,3 +1,15 @@
+2013-09-19  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CgalToolbox/CgalCheckSelfIntersect.cpp: (0.3.1)
+
+	- Fix bug. If the triangle is degenerated, trying to find
+	intersections produced a segfault. To avoid it, we just count one
+	intersection for this triangle and skip to the next one.
+
+	- To avoid potential pointer problems, the output with the count
+	of intersections is now accessed as n[idx] += 1; instead of *n +=
+	1; n++.
+
 2013-09-17  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/dmatrix_mesh.m: (0.3.0)
