@@ -375,8 +375,6 @@ while isempty(stopCondition)
         err.medalpha(end+1) = median(abs(alpha));
     end
     
-    % check 
-        
     % check stop conditions (more than one may be true)
     if (isfield(opt, 'MaxIter') && (niter >= opt.MaxIter))
         stopCondition{end+1} = 'MaxIter';
