@@ -31,7 +31,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -201,11 +201,32 @@ void mexFunction(int nlhs, mxArray *plhs[],
   // loop every facet to see whether it intersects the mesh
   for (Iterator it = triangles.begin(); it != triangles.end(); ++it) {
 
+    // triangle index
+    mwIndex idx = std::distance(triangles.begin(), it);
+
     // // DEBUG:
     // std::cout << ++triNum << ": Triangle = " << *it << std::endl;
 
     // exit if user pressed Ctrl+C
     ctrlcCheckPoint(__FILE__, __LINE__);
+
+    // if the triangle is degenerated, trying to find intersections
+    // will produce a segfault. To avoid it, we just count one
+    // intersection for this triangle and skip to the next one
+    if (
+	(it->vertex(0) == it->vertex(1))
+	|| (it->vertex(0) == it->vertex(2))
+	|| (it->vertex(1) == it->vertex(2))
+	) {
+      // // DEBUG:
+      // mexWarnMsgTxt("Degenerate triangle found, skipping:");
+      // std::cerr << it->vertex(0) << ", " << it->vertex(1) << ", " << it->vertex(2) << std::endl;
+
+      // add one to the count of self intersections
+      n[idx] += 1;
+
+      continue;
+    }
 
     // computes all intersections with segment query (as pairs object - primitive_id)
     intersections.clear();
@@ -250,7 +271,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
       if(CGAL::assign(triangle, object)) {
 
 	// add one to the count of self intersections
-	*n += 1;
+	n[idx] += 1;
 
 	// // DEBUG:
 	// std::cout << "\tTriangle: " << triangle << std::endl;
@@ -298,7 +319,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 	//   std::cout << "\t\tMesh self-intersection detected" << std::endl;
 
 	  // add one to the count of self intersections
-	  *n += 1;
+	  n[idx] += 1;
 	}
 	
       } // end: segment intersection
@@ -337,7 +358,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 	//   std::cout << "\t\tMesh self-intersection detected" << std::endl;
 
 	  // add one to the count of self intersections
-	  *n += 1;
+	  n[idx] += 1;
 	}
 
       } // end: point intersection
@@ -345,10 +366,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     } // end: loop all intersections
     
     // substract one intersection, because each triangle will intersect itself
-    *n -= 1;
-
-    // move output pointer to next triangle we are going to check for
-    n++;
+    n[idx] -= 1;
 
   }
   
