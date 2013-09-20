@@ -1,5 +1,13 @@
 2013-09-20  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/PointsToolbox/pca_align.m: (0.1.0)
+	* matlab/PointsToolbox/pca_normalize.m: (0.1.1)
+
+	- Move the part of the code in pca_normalize() that aligns the
+	point set principal components with the Cartesian axes to new
+	function pca_align(), so that we can use it without having to
+	normalize the points too.
+
 	* Add matlab/FileFormatToolbox/parsave.m: (0.1.0)
 
 	- parsave Save workspace variables to file within a parfor loop.
