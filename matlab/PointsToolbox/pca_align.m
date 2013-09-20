@@ -1,19 +1,17 @@
-function [x, xm, v, d] = pca_normalize(x)
-% PCA_NORMALIZE  Normalize a set of points so that its centroid is zero,the
-% Principal Components correspond to the Cartesian axes, and the variance
-% (eigenvalue) along each Principal Component is one
+function [x, xm, v, d] = pca_align(x)
+% PCA_ALIGN  Align a set of points so that its centroid is zero, and the
+% Principal Components correspond to the Cartesian axes
 %
-% Y = pca_normalize(X)
+% Y = pca_align(X)
 %
 %   X is a matrix where each row corresponds to a point and each column to
 %   a coordinate.
 %
-%   Y is a matrix that corresponds to X normalized in a PCA sense. That is,
-%   X is centered on zero, rotated so that its Principal Components
-%   coincide with the Cartesian axes, and scaled so that the variance along
-%   each axis is one.
+%   Y is a matrix that corresponds to X aligned in a PCA sense. That is,
+%   X is centered on zero, and rotated so that its Principal Components
+%   coincide with the Cartesian axes.
 %
-% [Y, XM, V, D] = pca_normalize(X)
+% [Y, XM, V, D] = pca_align(X)
 %
 %   XM is the centroid of X.
 %
@@ -24,15 +22,14 @@ function [x, xm, v, d] = pca_normalize(x)
 %
 %   Note that you can recover the original data set running
 %
-%     y = y .* repmat(sqrt(d)', size(x, 1), 1);  % unscale
 %     y = y * v';                                % undo rotation
 %     y = y + repmat(xm, size(x, 1), 1);         % undo centering
 %
-% See also: pts_cn, pca_align.
+% See also: pts_cn, pca_normalize.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.0
 % $Rev$
 % $Date$
 %
@@ -64,9 +61,13 @@ function [x, xm, v, d] = pca_normalize(x)
 narginchk(1, 1);
 nargoutchk(0, 4);
 
-% center the points and align the principal components of the points with
-% the Cartesian axes
-[x, xm, v, d] = pca_align(x);
+% compute PCA on the points so that we get the main axes of the data
+[v, d] = pts_pca(x');
 
-% equalise the axes so that the new eigenvalues are all one
-x = x ./ repmat(sqrt(d)', size(x, 1), 1);
+% center the points
+xm = mean(x);
+x = x - repmat(xm, size(x, 1), 1);
+
+% rotate the points to align their eigenvectors with the XYZ axes (the main
+% eigenvectors with the X axis, the second with Y, and the third with Z)
+x = x * v;
