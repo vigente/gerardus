@@ -1,3 +1,14 @@
+2013-09-23  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/MatlabImageHeader.h: (0.2.0)
+	* Delete matlab/MatlabImageHeader.cxx:
+	* matlab/ItkToolbox/CMakeLists.txt: (0.6.6)
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.13)
+
+	- Combine MatlabImageHeader.cxx and MatlabImageHeader.h into
+	MatlabImageHeader.h. This simplifies it when we have to use this
+	class into other programs.
+
 2013-09-20  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/PointsToolbox/pca_align.m: (0.1.0)
