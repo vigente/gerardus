@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2012 University of Oxford
-# Version: 0.2.12
+# Copyright © 2012-2013 University of Oxford
+# Version: 0.2.13
 # $Rev$
 # $Date$
 #
@@ -133,6 +133,22 @@ target_link_libraries(cgal_fixed_alpha_shape3
 add_dependencies(cgal_fixed_alpha_shape3 copy_compiler_config.h)
 
 ################################################################
+## cgal_meshseg()
+################################################################
+
+# add_mex_file(cgal_meshseg
+#   CgalMeshSegmentation.cpp
+#   )
+
+# target_link_libraries(cgal_meshseg
+#   CGAL
+#   CGAL_ImageIO
+#   ${ITK_LIBRARIES})
+# # we need this dependency to make sure that the CGAL library is built
+# # before we try to build the mex function
+# add_dependencies(cgal_meshseg copy_compiler_config.h)
+
+################################################################
 ## installation of targets
 ################################################################
 
@@ -144,6 +160,7 @@ IF(WIN32)
     cgal_check_self_intersect
     cgal_alpha_shape3
     cgal_fixed_alpha_shape3
+#    cgal_meshseg
     RUNTIME
     DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}")
 ELSE(WIN32)
@@ -154,6 +171,7 @@ ELSE(WIN32)
     cgal_check_self_intersect
     cgal_alpha_shape3
     cgal_fixed_alpha_shape3
+#    cgal_meshseg
     LIBRARY
     DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}")
 ENDIF(WIN32)

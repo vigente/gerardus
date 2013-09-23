@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011-2013 University of Oxford
-# Version: 0.6.5
+# Version: 0.6.6
 # $Rev$
 # $Date$
 #
@@ -46,7 +46,6 @@ link_directories(${Boost_LIBRARY_DIRS})
 ################################################################
 
 add_mex_file(itk_imfilter 
-  ../MatlabImageHeader.cxx
   ItkImFilter.cpp)
 
 target_link_libraries(itk_imfilter
