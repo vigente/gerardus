@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.7.1
+  * Version: 0.7.2
   * $Rev$
   * $Date$
   *
@@ -41,8 +41,13 @@
 #ifndef MATLABIMPORTFILTER_HXX
 #define MATLABIMPORTFILTER_HXX
 
+/* C++ headers */
+
 /* ITK headers */
 #include "itkImportImageFilter.h"
+
+/* CGAL headers */
+#include <CGAL/Simple_cartesian.h>
 
 /* Gerardus headers */
 #include "GerardusCommon.h"
@@ -680,7 +685,7 @@ MatlabImportFilter::ReadArrayAsVectorFromMatlab(MatlabImportFilter::MatlabInputP
 
   // check that we have a numerical or logical array
   if (!mxIsNumeric(input->pm) && !mxIsLogical(input->pm)) {
-    mexErrMsgTxt(("Parameter " + input->name 
+    mexErrMsgTxt(("Input " + input->name 
 		  + " must be a numeric or logical array.").c_str());
   }
 
@@ -731,10 +736,10 @@ MatlabImportFilter::ReadArrayAsVectorFromMatlab(MatlabImportFilter::MatlabInputP
     // case mxUINT64_CLASS:
     //   break;
   case mxUNKNOWN_CLASS:
-    mexErrMsgTxt(("Parameter " + input->name + " has unknown type.").c_str());
+    mexErrMsgTxt(("Input " + input->name + " has unknown type.").c_str());
     break;
   default:
-    mexErrMsgTxt(("Parameter " + input->name + " has invalid type.").c_str());
+    mexErrMsgTxt(("Input " + input->name + " has invalid type.").c_str());
     break;
   }
 
@@ -835,6 +840,239 @@ MatlabImportFilter::GetImagePointerFromMatlab(MatlabImportFilter::MatlabInputPoi
 
   // succesful exit
   return importFilter->GetOutput();
+
+}
+
+// function to get a pointer to a Matlab image, and the
+// metainformation, in a CGAL::_image format
+_image*
+MatlabImportFilter::ReadCgalImageFromMatlab(MatlabInputPointer input) {
+
+  // get metainformation of the input image
+  MatlabImageHeader imHeader(input->pm, input->name);
+  
+  if (imHeader.size.size() != 3) {
+    mexErrMsgTxt(("Input " + input->name + " must be a 3D image.").c_str());
+  }
+
+  // to create an image, CGAL requires as input arguments "word size",
+  // "kind of image word" and "image word sign"
+  int wordSize = 0;
+  WORD_KIND wordKind = WK_UNKNOWN;
+  SIGN wordSign = SGN_UNKNOWN;
+  switch (imHeader.type) {
+  case mxLOGICAL_CLASS:
+    wordSize = sizeof(mxLogical);
+    wordKind = WK_FLOAT;
+    wordSign = SGN_SIGNED;
+    break;
+  case mxDOUBLE_CLASS:
+    wordSize = sizeof(double);
+    wordKind = WK_FLOAT;
+    wordSign = SGN_UNKNOWN;
+    break;
+  case mxSINGLE_CLASS:
+    wordSize = sizeof(float);
+    wordKind = WK_FLOAT;
+    wordSign = SGN_UNKNOWN;
+    break;
+  case mxINT8_CLASS:
+    wordSize = sizeof(int8_T);
+    wordKind = WK_FIXED;
+    wordSign = SGN_SIGNED;
+    break;
+  case mxUINT8_CLASS:
+    wordSize = sizeof(uint8_T);
+    wordKind = WK_FIXED;
+    wordSign = SGN_UNSIGNED;
+    break;
+  case mxINT16_CLASS:
+    wordSize = sizeof(int16_T);
+    wordKind = WK_FIXED;
+    wordSign = SGN_SIGNED;
+    break;
+  case mxUINT16_CLASS:
+    wordSize = sizeof(uint16_T);
+    wordKind = WK_FIXED;
+    wordSign = SGN_UNSIGNED;
+    break;
+  case mxINT32_CLASS:
+    wordSize = sizeof(int32_T);
+    wordKind = WK_FIXED;
+    wordSign = SGN_SIGNED;
+    break;
+  // case mxUINT32_CLASS:
+  //   wordSize = sizeof();
+  //   wordKind = WK_FIXED;
+  //   wordSign = SGN_UNSIGNED;
+  //   break;
+  case mxINT64_CLASS:
+    wordSize = sizeof(int64_T);
+    wordKind = WK_FIXED;
+    wordSign = SGN_SIGNED;
+    break;
+  // case mxUINT64_CLASS:
+  //   wordSize = sizeof();
+  //   wordKind = WK_FIXED;
+  //   wordSign = SGN_UNSIGNED;
+  //   break;
+  default:
+    mexErrMsgTxt(("Input " + input->name + " has invalid type.").c_str());
+  }
+
+  // convert image header from Gerardus to CGAL format
+  // _createImage in include/CGAL/ImageIO.h
+  //
+  // Important: While in Matlab x->cols, y->rows, in CGAL y->cols,
+  // x->rows, so we need to swap the row, col dimensions stored in
+  // imHeader. That is why below we have e.g. x <-> imHeader.size[0],
+  // y <-> imHeader.size[1]
+  _image *im = _createImage(
+			    imHeader.size[0],     // number of rows, image x dimension
+			    imHeader.size[1],     // number of cols, image y dimension
+			    imHeader.size[2],     // number of slices, image z dimension
+			    1,                    // image vectorial dimension (1 = scalar voxels)
+			    imHeader.spacing[0],  // image voxel size in x dimension
+			    imHeader.spacing[1],  // image voxel size in y dimension
+			    imHeader.spacing[2],  // image voxel size in z dimension
+			    wordSize,             // image word size in bytes
+			    wordKind,             // image word kind
+			    wordSign              // image word sign
+			    );
+
+  // set image offset
+  im->tx = imHeader.origin[0];
+  im->ty = imHeader.origin[1];
+  im->tz = imHeader.origin[2];
+
+  // duplicate the input Matlab buffer with the image. The reason for
+  // this is that when a variable "_image im" is wrapped by
+  // Image_3(im), the program will attempt to free im when all
+  // references to im have disappeared. This can be seen in file
+  // src/CGAL_ImageIO/Image_3.cpp, function
+  // Image_3::private_read(_image* im). im becomes a shared pointer
+  //
+  // image_ptr = Image_shared_ptr(im, Image_deleter());
+  //
+  // so when all references to im disappear, then Image_deleter() will
+  // try to free up the memory, including im->data. This causes Matlab
+  // to crash, because im->data now points to a const array managed by
+  // Matlab
+  switch (imHeader.type) {
+  case mxLOGICAL_CLASS:
+    {
+      bool *p = (bool *)mxGetData(input->pm);
+      im->data = new bool [mxGetNumberOfElements(input->pm)];
+      std::copy(p, p + mxGetNumberOfElements(input->pm), (bool *)im->data);
+      break;
+    }
+  case mxDOUBLE_CLASS:
+    {
+      double *p = (double *)mxGetData(input->pm);
+      im->data = new double [mxGetNumberOfElements(input->pm)];
+      std::copy(p, p + mxGetNumberOfElements(input->pm), (double *)im->data);
+      break;
+    }
+  case mxSINGLE_CLASS:
+    {
+      float *p = (float *)mxGetData(input->pm);
+      im->data = new float [mxGetNumberOfElements(input->pm)];
+      std::copy(p, p + mxGetNumberOfElements(input->pm), (float *)im->data);
+      break;
+    }
+  case mxINT8_CLASS:
+    {
+      int8_T *p = (int8_T *)mxGetData(input->pm);
+      im->data = new int8_T [mxGetNumberOfElements(input->pm)];
+      std::copy(p, p + mxGetNumberOfElements(input->pm), (int8_T *)im->data);
+      break;
+    }
+  case mxUINT8_CLASS:
+    {
+      uint8_T *p = (uint8_T *)mxGetData(input->pm);
+      im->data = new uint8_T [mxGetNumberOfElements(input->pm)];
+      std::copy(p, p + mxGetNumberOfElements(input->pm), (uint8_T *)im->data);
+      break;
+    }
+  case mxINT16_CLASS:
+    {
+      int16_T *p = (int16_T *)mxGetData(input->pm);
+      im->data = new int16_T [mxGetNumberOfElements(input->pm)];
+      std::copy(p, p + mxGetNumberOfElements(input->pm), (int16_T *)im->data);
+      break;
+    }
+  case mxUINT16_CLASS:
+    {
+      uint16_T *p = (uint16_T *)mxGetData(input->pm);
+      im->data = new uint16_T [mxGetNumberOfElements(input->pm)];
+      std::copy(p, p + mxGetNumberOfElements(input->pm), (uint16_T *)im->data);
+      break;
+    }
+  case mxINT32_CLASS:
+    {
+      int32_T *p = (int32_T *)mxGetData(input->pm);
+      im->data = new int32_T [mxGetNumberOfElements(input->pm)];
+      std::copy(p, p + mxGetNumberOfElements(input->pm), (int32_T *)im->data);
+      break;
+    }
+  // case mxUINT32_CLASS:
+  //   break;
+  case mxINT64_CLASS:
+    {
+      int64_T *p = (int64_T *)mxGetData(input->pm);
+      im->data = new int64_T [mxGetNumberOfElements(input->pm)];
+      std::copy(p, p + mxGetNumberOfElements(input->pm), (int64_T *)im->data);
+      break;
+    }
+  // case mxUINT64_CLASS:
+  //   break;
+  default:
+    mexErrMsgTxt(("Input " + input->name + " has invalid type.").c_str());
+  }
+
+  // not sure what these variables do, but if we don't initialize
+  // them, they'll have random values. They don't seem to do anything,
+  // but it'd better to get a consistent error anyway that can be
+  // debugged rather than one that will happen now and then
+  im->spm_offset = 0;
+  im->spm_scale = 0;
+
+  // // DEBUG:
+  // std::cout << "---------------------------" << std::endl;
+  // std::cout << "Metainformation for _image:" << std::endl;
+  // std::cout << "---------------------------" << std::endl;
+  // std::cout << "Within this block, x <-> rows, y <-> cols, z <-> slices" << std::endl;
+  // std::cout << "while in Matlab,   x <-> cols, y <-> rows, z <-> slices" << std::endl;
+  // std::cout << "*data = " << im->data << std::endl;
+  // std::cout << "xdim = " << im->xdim << std::endl;
+  // std::cout << "ydim = " << im->ydim << std::endl;
+  // std::cout << "zdim = " << im->zdim << std::endl;
+  // std::cout << "vectorial dimension = " << im->vdim << std::endl;
+  // std::cout << "voxel size in x = " << im->vx << std::endl;
+  // std::cout << "voxel size in y = " << im->vy << std::endl;
+  // std::cout << "voxel size in z = " << im->vz << std::endl;
+  // std::cout << "offset in x = " << im->tx << std::endl;
+  // std::cout << "offset in y = " << im->ty << std::endl;
+  // std::cout << "offset in z = " << im->tz << std::endl;
+  // std::cout << "rotation in x = " << im->rx << std::endl;
+  // std::cout << "rotation in y = " << im->ry << std::endl;
+  // std::cout << "rotation in z = " << im->rz << std::endl;
+  // std::cout << "centre in x = " << im->cx << std::endl;
+  // std::cout << "centre in y = " << im->cy << std::endl;
+  // std::cout << "centre in z = " << im->cz << std::endl;
+  // std::cout << "spm offset = " << im->spm_offset << std::endl;
+  // std::cout << "spm scale = " << im->spm_scale << std::endl;
+  // std::cout << "word size = " << im->wdim << " bytes" << std::endl;
+  // std::cout << "image format to use for I/0 = " << im->imageFormat << std::endl;
+  // std::cout << "data buffer vectors are interlaced or non interlaced = " << im->vectMode << std::endl;
+  // std::cout << "image words kind = " << im->wordKind << std::endl;
+  // std::cout << "image words sign = " << im->sign << std::endl;
+  // std::cout << "kind of image file descriptor = " << im->openMode << std::endl;
+  // std::cout << "written words endianness = " << im->endianness << std::endl;
+  // std::cout << "kind of image data encoding = " << im->dataMode << std::endl;
+  // std::cout << "---------------------------" << std::endl;
+
+  return im;
 
 }
 

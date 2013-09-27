@@ -10,7 +10,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.2.0
+  * Version: 0.2.1
   * $Rev$
   * $Date$
   *
@@ -54,10 +54,11 @@ class MatlabImageHeader {
 
  public:
 
-  mxArray *data; // pointer to the image voxels
-  mxClassID type; // pixel type
-  std::vector<mwSize> size;
-  std::vector<double> spacing, origin;
+  mxArray *data;               // pointer to the image voxels
+  mxClassID type;              // pixel type
+  std::vector<mwSize> size;    // number of voxels (row, col, slice)
+  std::vector<double> spacing; // voxel size (row, col, slice)
+  std::vector<double> origin;  // coordinates of centre of first voxel (row, col, slice)
 
   MatlabImageHeader(const mxArray *arg, std::string paramName);
 
