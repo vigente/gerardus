@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012-2013 University of Oxford
-# Version: 0.2.13
+# Version: 0.2.14
 # $Rev$
 # $Date$
 #
@@ -45,6 +45,7 @@ ADD_MEX_FILE(cgal_insurftri
 
 TARGET_LINK_LIBRARIES(cgal_insurftri
   CGAL
+  CGAL_ImageIO
   ${ITK_LIBRARIES})
 # we need this dependency to make sure that the CGAL library is built
 # before we try to build the mex function
@@ -60,6 +61,7 @@ ADD_MEX_FILE(cgal_closest_trifacet
 
 TARGET_LINK_LIBRARIES(cgal_closest_trifacet
   CGAL
+  CGAL_ImageIO
   ${ITK_LIBRARIES})
 # we need this dependency to make sure that the CGAL library is built
 # before we try to build the mex function
@@ -75,6 +77,7 @@ ADD_MEX_FILE(cgal_trifacet_area
 
 TARGET_LINK_LIBRARIES(cgal_trifacet_area
   CGAL
+  CGAL_ImageIO
   ${ITK_LIBRARIES})
 # we need this dependency to make sure that the CGAL library is built
 # before we try to build the mex function
@@ -91,11 +94,13 @@ add_mex_file(cgal_check_self_intersect
 if(WIN32)
   target_link_libraries(cgal_check_self_intersect
     CGAL
+    CGAL_ImageIO
     ${ITK_LIBRARIES})
 else()
   target_link_libraries(cgal_check_self_intersect
     ${Boost_THREAD_LIBRARY}
     CGAL
+    CGAL_ImageIO
     ${ITK_LIBRARIES})
 endif()
 # we need this dependency to make sure that the CGAL library is built
@@ -112,6 +117,7 @@ add_mex_file(cgal_alpha_shape3
 
 target_link_libraries(cgal_alpha_shape3
   CGAL
+  CGAL_ImageIO
   ${ITK_LIBRARIES})
 # we need this dependency to make sure that the CGAL library is built
 # before we try to build the mex function
@@ -127,6 +133,7 @@ add_mex_file(cgal_fixed_alpha_shape3
 
 target_link_libraries(cgal_fixed_alpha_shape3
   CGAL
+  CGAL_ImageIO
   ${ITK_LIBRARIES})
 # we need this dependency to make sure that the CGAL library is built
 # before we try to build the mex function
@@ -136,17 +143,17 @@ add_dependencies(cgal_fixed_alpha_shape3 copy_compiler_config.h)
 ## cgal_meshseg()
 ################################################################
 
-# add_mex_file(cgal_meshseg
-#   CgalMeshSegmentation.cpp
-#   )
+add_mex_file(cgal_meshseg
+  CgalMeshSegmentation.cpp
+  )
 
-# target_link_libraries(cgal_meshseg
-#   CGAL
-#   CGAL_ImageIO
-#   ${ITK_LIBRARIES})
-# # we need this dependency to make sure that the CGAL library is built
-# # before we try to build the mex function
-# add_dependencies(cgal_meshseg copy_compiler_config.h)
+target_link_libraries(cgal_meshseg
+  CGAL
+  CGAL_ImageIO
+  ${ITK_LIBRARIES})
+# we need this dependency to make sure that the CGAL library is built
+# before we try to build the mex function
+add_dependencies(cgal_meshseg copy_compiler_config.h)
 
 ################################################################
 ## installation of targets
@@ -160,7 +167,7 @@ IF(WIN32)
     cgal_check_self_intersect
     cgal_alpha_shape3
     cgal_fixed_alpha_shape3
-#    cgal_meshseg
+    cgal_meshseg
     RUNTIME
     DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}")
 ELSE(WIN32)
@@ -171,7 +178,7 @@ ELSE(WIN32)
     cgal_check_self_intersect
     cgal_alpha_shape3
     cgal_fixed_alpha_shape3
-#    cgal_meshseg
+    cgal_meshseg
     LIBRARY
     DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}")
 ENDIF(WIN32)

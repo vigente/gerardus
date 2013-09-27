@@ -30,7 +30,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.6.0
+  * Version: 0.6.1
   * $Rev$
   * $Date$
   *
@@ -253,6 +253,10 @@ template <class VectorValueType, class VectorType, class MatlabValueType>
       ReadRowVector(const mxArray *pm, mwIndex row, std::string paramName) { \
       return ReadCgalRowVector<VECTORVALUETYPE, VectorType, MatlabValueType>(pm, row, paramName); \
     }									\
+    VectorType								\
+      ReadRowVector(const mxArray *pm, std::string paramName) {		\
+      return ReadCgalRowVector<VECTORVALUETYPE, VectorType, MatlabValueType>(pm, 0, paramName); \
+    }									\
   };
 
 // partial specialisations
@@ -260,6 +264,8 @@ VectorWrapperCgal(double, typename CGAL::Point_3<CGAL::Simple_cartesian<double> 
 VectorWrapperCgal(double, typename CGAL::Direction_3<CGAL::Simple_cartesian<double> >)
 VectorWrapperCgal(CGAL::Exact_predicates_exact_constructions_kernel,
 		  typename CGAL::Point_3<CGAL::Exact_predicates_exact_constructions_kernel >)
+VectorWrapperCgal(double,
+		  typename CGAL::Point_3<CGAL::Exact_predicates_inexact_constructions_kernel >)
 VectorWrapperCgal(CGAL::Exact_predicates_inexact_constructions_kernel,
 		  typename CGAL::Point_3<CGAL::Exact_predicates_inexact_constructions_kernel >)
 

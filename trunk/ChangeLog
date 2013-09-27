@@ -1,3 +1,35 @@
+2013-09-27  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/CgalToolbox/CgalMeshSegmentation.cpp: (0.1.0)
+	* matlab/CgalToolbox/cgal_meshseg.m: (0.1.0)
+	* matlab/VectorWrapper.h: (0.6.1)
+
+	- CGAL_MESHSEG Surface meshing of an isosurface from a
+	segmentation or grayscale image.
+
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.14)
+
+	- Add cgal_meshseg.
+
+	- Now targets depend on the CGAL ImageIO library, because
+	MatlabImportFilter uses type _image.
+
+	* matlab/ItkToolbox/CMakeLists.txt: (0.6.7)
+
+	- Now targets depend on the CGAL ImageIO library, because
+	MatlabImportFilter uses type _image.
+
+	* matlab/MatlabImportFilter.h: (0.7.2)
+	* matlab/MatlabImportFilter.hxx: (0.7.2)
+
+	- Add method ReadCgalImageFromMatlab() to duplicate a Matlab
+	buffer with a 3D image and encapsulate it in a CGAL::_image type.
+
+	* matlab/MatlabImageHeader.h: (0.2.1)
+
+	- Minor. Add some comments to member variables to make clearer
+	what they contain.
+
 2013-09-23  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/MatlabImageHeader.h: (0.2.0)

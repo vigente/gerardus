@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.7.1
+  * Version: 0.7.2
   * $Rev$
   * $Date$
   *
@@ -52,7 +52,8 @@
 #include "itkImportImageFilter.h"
 
 /* CGAL headers */
-#include <CGAL/Simple_cartesian.h>
+//#include <CGAL/Image_3.h>
+#include <CGAL/ImageIO.h>
 
 class MatlabImportFilter: public itk::Object {
 
@@ -90,20 +91,20 @@ public:
   typedef itk::SmartPointer<Self>           Pointer;
   typedef itk::SmartPointer<const Self>     ConstPointer;
 
-  // method for creation through the object factory
+  // method for creation through the object factory.
   itkNewMacro(Self);
 
   // run-time type information (and related methods)
   itkTypeMacro(MatlabImportFilter, Object);
 
   // function to import into this class the array with the arguments
-  // provided by Matlab
+  // provided by Matlab.
   void ConnectToMatlabFunctionInput(int _nrhs, const mxArray *_prhs[]);
 
   // get number of elements in the prhs list of input arguments
   unsigned int GetNumberOfArguments();
 
-  // function to get direct pointers to the Matlab input arguments
+  // function to get direct pointers to the Matlab input arguments.
   //
   // idx: parameter index
   const mxArray *GetPrhsArgument(int idx);
@@ -112,7 +113,7 @@ public:
   // certain limits
   void CheckNumberOfArguments(int min, int max);
 
-  // Function to register an input at the import filter. 
+  // Function to register an input at the import filter.
   //
   // Registration basically means "this input in Matlab is going to
   // correspond to X". Once an input has been registered, it can be
@@ -134,10 +135,10 @@ public:
   //
   // syntax 1: the input is in the Matlab default array, so we only
   //           need to provide the position of the particular input we want to
-  //           register
+  //           register.
   //
   // syntax 2: valid for single inputs. This syntax is useful to
-  // register e.g. a struct field or a cell element within a cell array
+  // register e.g. a struct field or a cell element within a cell array.
   MatlabInputPointer RegisterInput(int pos, std::string name);
   MatlabInputPointer RegisterInput(const mxArray *pm, std::string name);
 
@@ -155,15 +156,15 @@ public:
 					      std::string field);
 
   // function to get a pointer to a registered Matlab input by
-  // providing its name
+  // providing its name.
   //
   // If the user runs this method on a name that has not been
-  // registered, the function will throw an error and exit Matlab
+  // registered, the function will throw an error and exit Matlab.
   MatlabInputPointer GetRegisteredInput(std::string name);
 
   // function to get the size of a Matlab array. It simplifies having
   // to run mxGetNumberOfDimensions() and mxGetDimensions(), and then
-  // casting the result into e.g. itk::Size to pass it to ITK
+  // casting the result into e.g. itk::Size to pass it to ITK.
   //
   // input:
   //   pointer to a registered input
@@ -183,7 +184,7 @@ public:
   // instead of its size. By "half-size" we mean the length of the side to
   // the left or right of the central pixel. For example, an array
   // with size=[3, 7] has a half-size or radius=[1, 3]. I.e. 
-  // size = 2 * radius + 1
+  // size = 2 * radius + 1.
   //
   // input:
   //   pointer to a registered input
@@ -198,7 +199,7 @@ public:
     VectorType ReadMatlabArrayHalfSize(MatlabInputPointer input,
 				       VectorType def);
 
-  // function to get the value of input arguments that are strings
+  // function to get the value of input arguments that are strings.
   //
   // input:
   //   pointer to a registered input
@@ -209,7 +210,7 @@ public:
 				   std::string def);
 
   // function to get the value of an input argument that is a numeric
-  // scalar
+  // scalar.
   //
   // input:
   //   pointer to a registered input
@@ -220,7 +221,7 @@ public:
   ParamType ReadScalarFromMatlab(MatlabInputPointer input,
 				 ParamType def);
 
-  // function to get one scalar value from an input argument that is a matrix
+  // function to get one scalar value from an input argument that is a matrix.
   //
   // input:
   //   pointer to a registered input
@@ -239,7 +240,7 @@ public:
 
   // function to get an input argument as a vector of scalars. The
   // argument itself can be a row vector, or a 2D matrix. In the latter
-  // case, the user has to select one of the rows of the matrix
+  // case, the user has to select one of the rows of the matrix.
   //
   // input:
   //   pointer to a registered input
@@ -287,7 +288,7 @@ public:
  public:
 
   // function to read a Matlab array into a vector. This is the
-  // equivalent to A(:) in Matlab
+  // equivalent to A(:) in Matlab.
   //
   // input:
   //   pointer to a registered input
@@ -298,17 +299,37 @@ public:
     VectorType
     ReadArrayAsVectorFromMatlab(MatlabInputPointer input,
 				VectorType def);
-  
+
   // function to get an input argument that is an image. This function
   // returns an itk::ImportImageFilter, which can be used wherever an
   // itk:Image is required, without having to duplicate the Matlab
-  // buffer
+  // buffer.
   //
   // input:
   //   pointer to a registered input
   template <class TPixel, unsigned int VImageDimension>
     typename itk::Image<TPixel, VImageDimension>::Pointer
     GetImagePointerFromMatlab(MatlabInputPointer input);
+
+  // function to read a Matlab 3D array into a CGAL::_image*.
+  //
+  // Because CGAL will try to free() the array memory, Matlab would
+  // crash if we make the CGAL::_image* image point directly to the
+  // Matlab buffer. Thus, unfortunately, this function needs to make a
+  // duplicate of the Matlab array with the image, and feed that
+  // duplicate to CGAL::_image*.
+  //
+  // Note: While in Matlab x->cols, y->rows, in CGAL y->cols,
+  // x->rows, so we need to swap the row, col dimensions stored in
+  // data objects designed for Matlab, e.g. MatlabImageHeader. That's
+  // why the implementation of this function has e.g. x <-> imHeader.size[0],
+  // y <-> imHeader.size[1]. Normally, when we deal with Matlab code,
+  // we would swap that relationship.
+  // 
+  // input:
+  //   pointer to a registered input
+  _image*
+    ReadCgalImageFromMatlab(MatlabInputPointer input);
 
 };
 
