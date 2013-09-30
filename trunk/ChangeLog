@@ -1,5 +1,10 @@
 2013-09-30  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CgalToolbox/CgalMeshSegmentation.cpp: (0.1.2)
+
+	- Fix bug. Actually, it seems that we need to pass the centre of
+	the boundary sphere with the offset.
+
 	* matlab/PointsToolbox/bwmesh.m: (0.1.6)
 
 	- Minor. Add a note that this function is superseded by
