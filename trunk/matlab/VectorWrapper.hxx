@@ -8,7 +8,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.5.0
+  * Version: 0.5.1
   * $Rev$
   * $Date$
   *
@@ -288,20 +288,11 @@ VectorType ReadItkHalfSize(const mxArray *pm, std::string paramName) {
 
 }
 
-/*
- * Partial specialisation if we want to put Matlab's row data into a
- * CGAL::Point_3<CGAL::Simple_cartesian<type> >
- * CGAL::Direction_3<CGAL::Simple_cartesian<type> > 
- * CGAL::Point_3<CGAL::Exact_predicates_exact_constructions_kernel > 
- * CGAL::Point_3<CGAL::Exact_predicates_inexact_constructions_kernel > 
- * vector-like class
- */
-
 // ReadCgalRowVector
 //
 // auxiliary function so that we don't need to rewrite this code in
 // every partial specialization
-template<class VectorValueType, class VectorType, class MatlabValueType>
+template<class VectorType, class MatlabValueType>
 VectorType ReadCgalRowVector(const mxArray *pm, mwIndex row, std::string paramName) {
     
     // check that the pointer is valid

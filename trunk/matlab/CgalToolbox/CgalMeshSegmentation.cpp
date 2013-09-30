@@ -82,7 +82,7 @@
 /*
  * Author: Ramon Casero <rcasero@gmail.com>
  * Copyright © 2013 University of Oxford
- * Version: 0.1.2
+ * Version: 0.1.3
  * $Rev$
  * $Date$
  *
@@ -313,7 +313,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
   // put them together
   GT::Point_3 defCentroid(yc, xc, zc); // *swap to Matlab convention*
-  GT::Point_3 centroid = matlabImport->ReadRowVectorFromMatlab<double, GT::Point_3>
+  GT::Point_3 centroid = matlabImport->ReadRowVectorFromMatlab<void, GT::Point_3>
     (inC, defCentroid); // *centroid read with Matlab x/col, y/row convention*
 
   // // DEBUG
