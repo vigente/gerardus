@@ -82,7 +82,7 @@
 /*
  * Author: Ramon Casero <rcasero@gmail.com>
  * Copyright © 2013 University of Oxford
- * Version: 0.1.0
+ * Version: 0.1.1
  * $Rev$
  * $Date$
  *
@@ -300,11 +300,16 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     yc /= (double)nnz;
     zc /= (double)nnz;
   }
-
- // add image offset
-  xc += im->tx;
-  yc += im->ty;
-  zc += im->tz;
+  
+  // DO NOT add image offset to the coordinates of the centre. CGAL
+  // seems to do the computations ignoring the image offset and
+  // referring everything to an offset of (0,0,0). The code that adds
+  // the image offset is commented out in the next lines instead of
+  // deleted, so that we have it for future reference.
+  //
+  // xc += im->tx;
+  // yc += im->ty;
+  // zc += im->tz;
 
   // put them together
   GT::Point_3 defCentroid(yc, xc, zc); // *swap to Matlab convention*
@@ -313,10 +318,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
   // // DEBUG
   // // note that centroid follows Matlab convention
-  // std::cout << "Segmentation centre of mass (x/col, y/row, z/slice) = (" 
+  // std::cout << "Segmentation centre of mass (x/col, y/row, z/slice) without image offset = (" 
   // 	    << centroid.x() << ", " << centroid.y() << ", " << centroid.z() << ")" << std::endl;
   // // note that ymin, xmin follow CGAL convention
-  // std::cout << "Segmentation box boundary (x/col, y/row, z/slice) = (" 
+  // std::cout << "Segmentation box boundary (x/col, y/row, z/slice) without image offset = (" 
   // 	    << ymin << ", " << xmin << ", " << zmin << ")"
   // 	    << " to (" << ymax << ", " << xmax << ", " << zmax << ")"
   // 	    << std::endl;
@@ -404,9 +409,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     //
     // x(:, 1)          <--> columns
     // x(:, 2)          <--> rows
-    x[inum] = vit->point().y();
-    x[inum + numOfVertices] = vit->point().x();
-    x[inum + 2*numOfVertices] = vit->point().z();
+    //
+    // Note also that the output of vit->point().[xyz]() ignores the
+    // image offset, and is referred to an offset of (0,0,0)
+    x[inum] = vit->point().y() + im->ty;
+    x[inum + numOfVertices] = vit->point().x() + im->tx;
+    x[inum + 2*numOfVertices] = vit->point().z() + im->tz;
 
     // save to internal list of vertices
     V[vit] = inum++;
