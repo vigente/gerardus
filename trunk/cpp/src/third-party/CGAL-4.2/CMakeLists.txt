@@ -7,7 +7,7 @@
 # Modified by Ramon Casero for project Gerardus (see section "Gerardus
 # modifications" and comments headed by "gerardus:").
 #
-# Version: 0.1.1
+# Version: 0.1.2
 # $Rev$
 # $Date$
 
@@ -48,10 +48,13 @@ if (UNIX OR CYGWIN)
   set(ENV{MPFR_LIB_DIR} ${CGAL_SOURCE_DIR}/../mpfr-3.1.2/output/lib)
 endif()
 
+# build libraries that we need
+set(WITH_CGAL_ImageIO ON CACHE BOOL "Whether library CGAL_ImageIO is selected")
+
 # don't build libraries that we don't need
 set(WITH_CGAL_Qt3 OFF CACHE BOOL "Whether library CGAL_Qt3 is selected")
 set(WITH_CGAL_Qt4 OFF CACHE BOOL "Whether library CGAL_Qt4 is selected")
-set(WITH_CGAL_ImageIO OFF CACHE BOOL "Whether library CGAL_ImageIO is selected")
+
 
 # don't install files that we don't need
 set(CGAL_INSTALL_DOC_DIR FALSE)
