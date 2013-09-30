@@ -1,5 +1,10 @@
 2013-09-30  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/PointsToolbox/bwmesh.m: (0.1.6)
+
+	- Minor. Add a note that this function is superseded by
+	cgal_meshseg.
+
 	* matlab/CgalToolbox/CgalMeshSegmentation.cpp: (0.1.1)
 
 	- Fix bug. CGAL internally seems to be ignoring the image

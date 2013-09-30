@@ -2,6 +2,9 @@ function [tri, triboundary] = bwmesh(im, res)
 % BWMESH  Tetrahedral volumetric and triangular surface mesh of a binary
 % segmentation
 %
+% This is a very basic function for toy examples. For a much more
+% sophisticated surface mesher, see cgal_meshseg, also in Gerardus.
+%
 % [TRI, TRIBOUNDARY] = BWMESH(IM, RES)
 %
 %   IM is a 3D array with a binary segmentation.
@@ -45,11 +48,11 @@ function [tri, triboundary] = bwmesh(im, res)
 %     >> idx = unique(triboundary(:));
 %
 %
-% See also: pts_mesh, TriRep, delaunay
+% See also: cgal_meshseg, pts_mesh, TriRep, delaunay.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011 University of Oxford
-% Version: 0.1.5
+% Copyright © 2011-2013 University of Oxford
+% Version: 0.1.6
 % $Rev$
 % $Date$
 %
