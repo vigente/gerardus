@@ -70,6 +70,8 @@
  *   Compute unsigned/signed distance map for a binary mask. Distance values are
  *   given in voxel coordinates.
  *
+ *   This function is an order of magnitude slower than 'maudist'.
+ *
  *   A is a segmentation.
  *
  *   B has the same size as A and type float. Each element in B
@@ -92,6 +94,9 @@
  *   Compute signed distance map for a binary mask. Distance values are
  *   given in real world coordinates, if the input image is given as a SCI
  *   MAT struct, or in voxel units, if the input image is a normal array. 
+ *
+ *   This function is an order of magnitude faster than 'dandist' and
+ *   'signdandist'.
  *
  *   A is a segmentation.
  *
