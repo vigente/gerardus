@@ -36,7 +36,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -174,9 +174,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     // get coordinates of the 3 vertices (substracting 1 so that
     // indices follow the C++ convention 0, 1, ..., n-1)
-    x0 = matlabImport->ReadRowVectorFromMatlab<double, Point>(inX, v0 - 1, def);
-    x1 = matlabImport->ReadRowVectorFromMatlab<double, Point>(inX, v1 - 1, def);
-    x2 = matlabImport->ReadRowVectorFromMatlab<double, Point>(inX, v2 - 1, def);
+    x0 = matlabImport->ReadRowVectorFromMatlab<void, Point>(inX, v0 - 1, def);
+    x1 = matlabImport->ReadRowVectorFromMatlab<void, Point>(inX, v1 - 1, def);
+    x2 = matlabImport->ReadRowVectorFromMatlab<void, Point>(inX, v2 - 1, def);
 
     // add triangle to the vector of triangles in the surface
     triangles[i] = Triangle(x0, x1, x2);
@@ -222,7 +222,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     ctrlcCheckPoint(__FILE__, __LINE__);
     
     // get point coordinates to be tested
-    xi = matlabImport->ReadRowVectorFromMatlab<double, Point>(inXI, i, def);
+    xi = matlabImport->ReadRowVectorFromMatlab<void, Point>(inXI, i, def);
 
     // // debug: print coordinates of point being tested
     // std::cout << "point = " << xi << std::endl;
