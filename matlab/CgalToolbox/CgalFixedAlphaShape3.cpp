@@ -36,7 +36,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.3.0
+  * Version: 0.3.1
   * $Rev$
   * $Date$
   *
@@ -168,7 +168,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     // read i-th row of input matrix as a point
     x[i] = std::make_pair(
-			  matlabImport->ReadRowVectorFromMatlab<K, Point>(inX, i, xDef),
+			  matlabImport->ReadRowVectorFromMatlab<void, Point>(inX, i, xDef),
 			  i+1 // because this will be a row index in Matlab, 1, ..., Nrows
 			  );
 
