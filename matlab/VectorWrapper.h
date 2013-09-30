@@ -232,6 +232,10 @@ template<class VectorValueType, class MatlabValueType>
  * CGAL::Point_3<CGAL::Exact_predicates_exact_constructions_kernel> 
  * CGAL::Point_3<CGAL::Exact_predicates_inexact_constructions_kernel> 
  * vector-like class
+ *
+ * Note that in these partial specializations, the template
+ * VectorValueType is ignored, so when calling ReadRowVector, it can
+ * be set to e.g. "void". For example, ReadRowVectorFromMatlab<void, Point>.
  */
 
 // ReadCgalRowVector
