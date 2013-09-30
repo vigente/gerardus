@@ -1,5 +1,12 @@
 2013-09-30  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CgalToolbox/CgalMeshSegmentation.cpp: (0.1.1)
+
+	- Fix bug. CGAL internally seems to be ignoring the image
+	coordinates offset. Now (1) we DO NOT add the offset when
+	computing the boundary sphere's centre and (2) we DO add the
+	offset in the X output coordinates.
+
 	* matlab/MatlabImportFilter.hxx: (0.7.3)
 
 	- Fix bug in ReadCgalImageFromMatlab(). We were using a pointer to
