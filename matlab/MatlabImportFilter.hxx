@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.7.2
+  * Version: 0.7.3
   * $Rev$
   * $Date$
   *
@@ -961,67 +961,67 @@ MatlabImportFilter::ReadCgalImageFromMatlab(MatlabInputPointer input) {
   switch (imHeader.type) {
   case mxLOGICAL_CLASS:
     {
-      bool *p = (bool *)mxGetData(input->pm);
-      im->data = new bool [mxGetNumberOfElements(input->pm)];
-      std::copy(p, p + mxGetNumberOfElements(input->pm), (bool *)im->data);
+      bool *p = (bool *)mxGetData(imHeader.data);
+      im->data = new bool [mxGetNumberOfElements(imHeader.data)];
+      std::copy(p, p + mxGetNumberOfElements(imHeader.data), (bool *)im->data);
       break;
     }
   case mxDOUBLE_CLASS:
     {
-      double *p = (double *)mxGetData(input->pm);
-      im->data = new double [mxGetNumberOfElements(input->pm)];
-      std::copy(p, p + mxGetNumberOfElements(input->pm), (double *)im->data);
+      double *p = (double *)mxGetData(imHeader.data);
+      im->data = new double [mxGetNumberOfElements(imHeader.data)];
+      std::copy(p, p + mxGetNumberOfElements(imHeader.data), (double *)im->data);
       break;
     }
   case mxSINGLE_CLASS:
     {
-      float *p = (float *)mxGetData(input->pm);
-      im->data = new float [mxGetNumberOfElements(input->pm)];
-      std::copy(p, p + mxGetNumberOfElements(input->pm), (float *)im->data);
+      float *p = (float *)mxGetData(imHeader.data);
+      im->data = new float [mxGetNumberOfElements(imHeader.data)];
+      std::copy(p, p + mxGetNumberOfElements(imHeader.data), (float *)im->data);
       break;
     }
   case mxINT8_CLASS:
     {
-      int8_T *p = (int8_T *)mxGetData(input->pm);
-      im->data = new int8_T [mxGetNumberOfElements(input->pm)];
-      std::copy(p, p + mxGetNumberOfElements(input->pm), (int8_T *)im->data);
+      int8_T *p = (int8_T *)mxGetData(imHeader.data);
+      im->data = new int8_T [mxGetNumberOfElements(imHeader.data)];
+      std::copy(p, p + mxGetNumberOfElements(imHeader.data), (int8_T *)im->data);
       break;
     }
   case mxUINT8_CLASS:
     {
-      uint8_T *p = (uint8_T *)mxGetData(input->pm);
-      im->data = new uint8_T [mxGetNumberOfElements(input->pm)];
-      std::copy(p, p + mxGetNumberOfElements(input->pm), (uint8_T *)im->data);
+      uint8_T *p = (uint8_T *)mxGetData(imHeader.data);
+      im->data = new uint8_T [mxGetNumberOfElements(imHeader.data)];
+      std::copy(p, p + mxGetNumberOfElements(imHeader.data), (uint8_T *)im->data);
       break;
     }
   case mxINT16_CLASS:
     {
-      int16_T *p = (int16_T *)mxGetData(input->pm);
-      im->data = new int16_T [mxGetNumberOfElements(input->pm)];
-      std::copy(p, p + mxGetNumberOfElements(input->pm), (int16_T *)im->data);
+      int16_T *p = (int16_T *)mxGetData(imHeader.data);
+      im->data = new int16_T [mxGetNumberOfElements(imHeader.data)];
+      std::copy(p, p + mxGetNumberOfElements(imHeader.data), (int16_T *)im->data);
       break;
     }
   case mxUINT16_CLASS:
     {
-      uint16_T *p = (uint16_T *)mxGetData(input->pm);
-      im->data = new uint16_T [mxGetNumberOfElements(input->pm)];
-      std::copy(p, p + mxGetNumberOfElements(input->pm), (uint16_T *)im->data);
+      uint16_T *p = (uint16_T *)mxGetData(imHeader.data);
+      im->data = new uint16_T [mxGetNumberOfElements(imHeader.data)];
+      std::copy(p, p + mxGetNumberOfElements(imHeader.data), (uint16_T *)im->data);
       break;
     }
   case mxINT32_CLASS:
     {
-      int32_T *p = (int32_T *)mxGetData(input->pm);
-      im->data = new int32_T [mxGetNumberOfElements(input->pm)];
-      std::copy(p, p + mxGetNumberOfElements(input->pm), (int32_T *)im->data);
+      int32_T *p = (int32_T *)mxGetData(imHeader.data);
+      im->data = new int32_T [mxGetNumberOfElements(imHeader.data)];
+      std::copy(p, p + mxGetNumberOfElements(imHeader.data), (int32_T *)im->data);
       break;
     }
   // case mxUINT32_CLASS:
   //   break;
   case mxINT64_CLASS:
     {
-      int64_T *p = (int64_T *)mxGetData(input->pm);
-      im->data = new int64_T [mxGetNumberOfElements(input->pm)];
-      std::copy(p, p + mxGetNumberOfElements(input->pm), (int64_T *)im->data);
+      int64_T *p = (int64_T *)mxGetData(imHeader.data);
+      im->data = new int64_T [mxGetNumberOfElements(imHeader.data)];
+      std::copy(p, p + mxGetNumberOfElements(imHeader.data), (int64_T *)im->data);
       break;
     }
   // case mxUINT64_CLASS:

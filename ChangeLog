@@ -1,3 +1,18 @@
+2013-09-30  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/MatlabImportFilter.hxx: (0.7.3)
+
+	- Fix bug in ReadCgalImageFromMatlab(). We were using a pointer to
+	the Matlab input instead of to the image data. When the input is a
+	plain array, they are both the same, but when the image is given
+	as a scimat struct, they are different. This was causing sefaults
+	and Matlab to crash.
+
+	* cpp/src/third-party/CGAL-4.2/CMakeLists.txt: (0.1.2)
+
+	- I had forgotten to commit this file. Now CGAL ImageIO has to be
+	linked to, so we add it to the build in CGAL.
+
 2013-09-27  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/CgalToolbox/CgalMeshSegmentation.cpp: (0.1.0)
