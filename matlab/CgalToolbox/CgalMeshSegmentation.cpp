@@ -82,7 +82,7 @@
 /*
  * Author: Ramon Casero <rcasero@gmail.com>
  * Copyright © 2013 University of Oxford
- * Version: 0.1.1
+ * Version: 0.1.2
  * $Rev$
  * $Date$
  *
@@ -307,9 +307,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   // the image offset is commented out in the next lines instead of
   // deleted, so that we have it for future reference.
   //
-  // xc += im->tx;
-  // yc += im->ty;
-  // zc += im->tz;
+  xc += im->tx;
+  yc += im->ty;
+  zc += im->tz;
 
   // put them together
   GT::Point_3 defCentroid(yc, xc, zc); // *swap to Matlab convention*
