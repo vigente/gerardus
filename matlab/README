@@ -109,6 +109,10 @@ cgal_meshseg.m
 	 CGAL_MESHSEG  Surface meshing of an isosurface from a segmentation or
 	 grayscale image
 	
+cgal_surfsubdivision.m
+
+	 CGAL_SURFSUBDIVISION  3D Surface Approximating Subdivision Methods
+	
 cgal_trifacet_area.m
 
 	 CGAL_TRIFACET_AREA  Area of the facets in a triangular mesh
