@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012-2013 University of Oxford
-# Version: 0.2.14
+# Version: 0.2.15
 # $Rev$
 # $Date$
 #
@@ -31,6 +31,7 @@
 include_directories(
   "${Boost_INCLUDE_DIR}"
   "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/include"
+  "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/CGAL-4.2/demo/Polyhedron/include"
   "${GMP_INCLUDE_DIR}"
   "${MPFR_INCLUDE_DIR}"
   ..
@@ -156,6 +157,22 @@ target_link_libraries(cgal_meshseg
 add_dependencies(cgal_meshseg copy_compiler_config.h)
 
 ################################################################
+## cgal_surfsubdivision()
+################################################################
+
+add_mex_file(cgal_surfsubdivision
+  CgalSurfaceSubdivision.cpp
+  )
+
+target_link_libraries(cgal_surfsubdivision
+  CGAL
+  CGAL_ImageIO
+  ${ITK_LIBRARIES})
+# we need this dependency to make sure that the CGAL library is built
+# before we try to build the mex function
+add_dependencies(cgal_surfsubdivision copy_compiler_config.h)
+
+################################################################
 ## installation of targets
 ################################################################
 
@@ -168,6 +185,7 @@ IF(WIN32)
     cgal_alpha_shape3
     cgal_fixed_alpha_shape3
     cgal_meshseg
+    cgal_surfsubdivision
     RUNTIME
     DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}")
 ELSE(WIN32)
@@ -179,6 +197,7 @@ ELSE(WIN32)
     cgal_alpha_shape3
     cgal_fixed_alpha_shape3
     cgal_meshseg
+    cgal_surfsubdivision
     LIBRARY
     DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}")
 ENDIF(WIN32)

@@ -1,5 +1,18 @@
 2013-10-01  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/CgalToolbox/CgalSurfaceSubdivision.cpp: (0.1.0)
+	* Add cpp/src/third-party/CGAL-4.2/demo:
+	* Add matlab/CgalToolbox/cgal_surfsubdivision.m: (0.1.0)
+	* Add matlab/test/test_cgal_surfsubdivision.m: (0.1.0)
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.15)
+
+	- CGAL_SURFSUBDIVISION 3D Surface Approximating Subdivision
+	Methods.
+
+	- The demo directory has been added because
+	demo/Polyhedron/include contains a class to triangulate a
+	polyhedron, that we use in cgal_surfsubdivision().
+
 	* Add matlab/test/test_cgal_meshseg.m: (0.1.0)
 
 	- Tests for cgal_meshseg().
