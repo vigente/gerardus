@@ -1,3 +1,9 @@
+2013-10-01  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/test/test_cgal_meshseg.m: (0.1.0)
+
+	- Tests for cgal_meshseg().
+
 2013-09-30  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/VectorWrapper.h: (0.6.2)
