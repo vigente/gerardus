@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.7.2
+  * Version: 0.8.0
   * $Rev$
   * $Date$
   *
@@ -285,8 +285,6 @@ public:
     ReadVectorOfVectorsFromMatlab(MatlabInputPointer input,
 				  std::vector<VectorType> def);
 
- public:
-
   // function to read a Matlab array into a vector. This is the
   // equivalent to A(:) in Matlab.
   //
@@ -330,6 +328,35 @@ public:
   //   pointer to a registered input
   _image*
     ReadCgalImageFromMatlab(MatlabInputPointer input);
+
+  // function to swap the values of X and Y in a vector of vectors. That is,
+  //
+  // [1 4 7]     [4 1 7]
+  // [2 5 8]  -> [5 2 8]
+  // [3 6 9]     [6 3 9]
+  //
+  // Matlab stores matrices as (rows <-> y, cols <-> x), while ITK
+  // uses (rows <-> x, cols <-> y). Often, this is not a problem
+  // because when we read from Matlab what happens is that ITK
+  // receives the image transposed in X and Y, it processes the image
+  // and transposes it back to Matlab. However, if we import a list of
+  // point coordinates, [x y z], to apply to the image, after
+  // importing from Matlab into ITK we'll need to swap the coordinates
+  // as [y x z] before we can apply them correctly to the image.
+  //
+  // Note that we only need to swap if the data has the [x y z]
+  // format, not if it has the [r c s] format.
+  //
+  // @param vv: Vector of vectors, e.g. std::vector<itk::Point>
+  // @param len: length of the outside vector
+  template <class ValueType, class OutsideVectorType>
+    void SwapXYInVectorOfVectors(OutsideVectorType &vv, mwSize len);
+
+  // function to swap the values of X and Y in a vector.
+  //
+  // See the description above in SwapXYInVectorOfVectors().
+  template <class ValueType, class VectorType>
+    void SwapXYInVector(VectorType &v);
 
 };
 
