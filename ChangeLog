@@ -1,3 +1,25 @@
+2013-10-04  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ItkToolbox/ItkTriRasterization.cpp: (0.1.0)
+	* Add matlab/test/test_itk_tri_rasterization.m: (0.1.0)
+	* Add matlab/ItkToolbox/itk_tri_rasterization.m: (0.1.0)
+	* matlab/ItkToolbox/CMakeLists.txt: (0.6.8)
+
+	- ITK_TRI_RASTERIZATION Rasterization of triangular mesh to binary
+	segmentation.
+
+	* matlab/MatlabImportFilter.hxx: (0.8.0)
+	* matlab/MatlabImportFilter.h: (0.8.0)
+
+	- Add SwapXYInVectorOfVectors() and SwapXYInVector(). This is to
+	adapt Matlab point sets given as a list of (x, y, z) to ITK images
+	convention, that requires them to be (y, x, z).
+
+	* matlab/VectorWrapper.h: (0.6.3)
+
+	- Add partial specialization for itk::Vector<VectorValueType,
+	Dimension> (including itk::Image::SpacingType).
+
 2013-10-01  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/CgalToolbox/CgalSurfaceSubdivision.cpp: (0.1.0)
@@ -9,8 +31,7 @@
 	- CGAL_SURFSUBDIVISION 3D Surface Approximating Subdivision
 	Methods.
 
-	- The demo directory has been added because
-	demo/Polyhedron/include contains a class to triangulate a
+	- The demo/Polyhedron/include contains a class to triangulate a
 	polyhedron, that we use in cgal_surfsubdivision().
 
 	* Add matlab/test/test_cgal_meshseg.m: (0.1.0)

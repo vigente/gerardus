@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011-2013 University of Oxford
-# Version: 0.6.7
+# Version: 0.6.8
 # $Rev$
 # $Date$
 #
@@ -78,6 +78,16 @@ target_link_libraries(itk_icp_registration
   ${ITK_LIBRARIES})
 
 ################################################################
+## itk_tri_rasterization
+################################################################
+
+add_mex_file(itk_tri_rasterization ItkTriRasterization.cpp)
+target_link_libraries(itk_tri_rasterization
+  CGAL
+  CGAL_ImageIO
+  ${ITK_LIBRARIES})
+
+################################################################
 ## installation of targets
 ################################################################
 
@@ -86,6 +96,7 @@ IF(WIN32)
     itk_imfilter
     itk_pstransform
     itk_icp_registration
+    itk_tri_rasterization
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ELSE(WIN32)
@@ -93,6 +104,7 @@ ELSE(WIN32)
     itk_imfilter
     itk_pstransform
     itk_icp_registration
+    itk_tri_rasterization
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ENDIF(WIN32)

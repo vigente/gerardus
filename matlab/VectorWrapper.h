@@ -30,7 +30,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.6.2
+  * Version: 0.6.3
   * $Rev$
   * $Date$
   *
@@ -122,6 +122,7 @@ template<class VectorValueType, class VectorType, class MatlabValueType>
  * itk::Size<VectorSize> 
  * itk::FixedArray<VectorSize>
  * itk::PointType
+ * itk::Vector<VectorValueType, Dimension> (including itk::Image::SpacingType)
  */
 
 // ReadItkRowVector
@@ -220,6 +221,29 @@ template<class VectorValueType, class MatlabValueType>
   class VectorWrapper<VectorValueType, itk::Point<VectorValueType, 4>, MatlabValueType>{
  private:
   typedef itk::Point<VectorValueType, 4> VectorType;
+  MethodsVectorWrapperItk
+};
+
+// partial specialisations itk::Vector<VectorValueType, Dimension>
+// This includes itk::Image::SpacingType
+template<class VectorValueType, class MatlabValueType>
+  class VectorWrapper<VectorValueType, itk::Vector<VectorValueType, 2>, MatlabValueType>{
+ private:
+  typedef itk::Vector<VectorValueType, 2> VectorType;
+  MethodsVectorWrapperItk
+};
+
+template<class VectorValueType, class MatlabValueType>
+  class VectorWrapper<VectorValueType, itk::Vector<VectorValueType, 3>, MatlabValueType>{
+ private:
+  typedef itk::Vector<VectorValueType, 3> VectorType;
+  MethodsVectorWrapperItk
+};
+
+template<class VectorValueType, class MatlabValueType>
+  class VectorWrapper<VectorValueType, itk::Vector<VectorValueType, 4>, MatlabValueType>{
+ private:
+  typedef itk::Vector<VectorValueType, 4> VectorType;
   MethodsVectorWrapperItk
 };
 
