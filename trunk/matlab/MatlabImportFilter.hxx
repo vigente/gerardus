@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.7.3
+  * Version: 0.8.0
   * $Rev$
   * $Date$
   *
@@ -1074,6 +1074,29 @@ MatlabImportFilter::ReadCgalImageFromMatlab(MatlabInputPointer input) {
 
   return im;
 
+}
+
+// function to swap the values of X and Y in a vector of vectors.
+template <class ValueType, class OutsideVectorType>
+void 
+MatlabImportFilter::SwapXYInVectorOfVectors(OutsideVectorType &vv, mwSize len) {
+  
+  // loop the outside vector
+  for (mwIndex i = 0; i < len; ++i) {
+    ValueType temp = vv[i][0];
+    vv[i][0] = vv[i][1];
+    vv[i][1] = temp;
+  }
+}
+
+// function to swap the values of X and Y in a vector.
+template <class ValueType, class VectorType>
+void 
+MatlabImportFilter::SwapXYInVector(VectorType &v) {
+  
+  ValueType temp = v[0];
+  v[0] = v[1];
+  v[1] = temp;
 }
 
 #endif /* MATLABIMPORTFILTER_HXX */

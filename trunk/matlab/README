@@ -388,6 +388,11 @@ itk_pstransform.m
 	 ITK_PSTRANSFORM: Spatial transformation (i.e. warp) of a set of points,
 	 defined from a known landmark correspondence
 	
+itk_tri_rasterization.m
+
+	 ITK_TRI_RASTERIZATION  Rasterization of triangular mesh to binary
+	 segmentation
+	
 
 ManifoldToolbox
 -------------------------------------------------------------
