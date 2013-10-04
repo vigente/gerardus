@@ -1,4 +1,4 @@
-function scimat = scimat_lconvhull_smoothing(scimat, rad)
+function [scimat, tri, x] = scimat_lconvhull_smoothing(scimat, rad)
 % SCIMAT_LCONVHULL_SMOOTHING  Smoothing of a binary image using a local
 % convex hull.
 %
@@ -22,14 +22,16 @@ function scimat = scimat_lconvhull_smoothing(scimat, rad)
 %
 %   SCIMAT2 is the local convex hull of SCIMAT.
 %
-% This function uses alphavol() by Jonas Lundgren.
+% This function uses alphavol() by Jonas Lundgren, which is faster than the
+% alpha shape functions in the CGAL library because the latter need to use
+% a rather slow Delaunay triangulation first.
 %
 % See also: itk_tri_rasterization, cgal_insurftri, cgal_alpha_shape3,
 % cgal_fixed_alpha_shape3, scimat_closed_surf_to_bw.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % $Rev$
 % $Date$
 % 
@@ -58,7 +60,7 @@ function scimat = scimat_lconvhull_smoothing(scimat, rad)
 
 % check arguments
 narginchk(2, 2);
-nargoutchk(0, 1);
+nargoutchk(0, 3);
 
 % if the image has all voxels == 1, then the smoothed local convex hull is
 % the image itself and we don't need to waste time doing other computations
