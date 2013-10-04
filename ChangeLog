@@ -1,5 +1,18 @@
 2013-10-04  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.4.0)
+
+	- Speed up function from ~20 min to ~30 sec for a high res left
+	ventricle of rat 008.
+
+	- We use itk_tri_rasterization() instead of cgal_insurftri() to
+	rasterize the inside of the mesh. This is much faster, although
+	sometimes a few voxels can be mislabelled. To avoid it, we make an
+	auxiliary duplicate of the rasterization, dilate by 1, and then
+	find voxels in the dilated but not in the original
+	rasterization. These voxels are candidates to be artifacts, and we
+	process them with cgal_insurftri(), slower but more accurate.
+
 	* Add matlab/ItkToolbox/ItkTriRasterization.cpp: (0.1.0)
 	* Add matlab/test/test_itk_tri_rasterization.m: (0.1.0)
 	* Add matlab/ItkToolbox/itk_tri_rasterization.m: (0.1.0)

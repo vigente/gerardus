@@ -1,6 +1,6 @@
 function scimat = scimat_lconvhull_smoothing(scimat, rad)
 % SCIMAT_LCONVHULL_SMOOTHING  Smoothing of a binary image using a local
-% convex hull
+% convex hull.
 %
 % SCIMAT2 = scimat_lconvhull_smoothing(SCIMAT, RAD)
 %
@@ -18,18 +18,18 @@ function scimat = scimat_lconvhull_smoothing(scimat, rad)
 %   cgal_fixed_alpha_shape3(), ALPHA=RAD^2.
 %
 %   The inside of the triangulation is converted to voxels using
-%   cgal_insurftri().
+%   itk_tri_rasterization(), and corrected using cgal_insurftri().
 %
 %   SCIMAT2 is the local convex hull of SCIMAT.
 %
 % This function uses alphavol() by Jonas Lundgren.
 %
-% See also: cgal_insurftri, cgal_alpha_shape3, cgal_fixed_alpha_shape3,
-% scimat_closed_surf_to_bw
+% See also: itk_tri_rasterization, cgal_insurftri, cgal_alpha_shape3,
+% cgal_fixed_alpha_shape3, scimat_closed_surf_to_bw.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2012 University of Oxford
-% Version: 0.3.6
+% Copyright © 2012-2013 University of Oxford
+% Version: 0.4.0
 % $Rev$
 % $Date$
 % 
@@ -129,6 +129,26 @@ end
 % ylabel('y (mm)')
 % zlabel('z (mm)')
 
-% convert mesh to segmentation
-scimat.data(scimat.data~=0) = 0;
-scimat = scimat_closed_surf_to_bw(tri, x, scimat);
+% rasterize mesh to binary segmentation
+res = [scimat.axis.spacing]; % (r, c, s) format
+sz = size(scimat.data); % (r, c, s) format
+origin = scinrrd_index2world([1, 1, 1], scimat.axis);
+scimat.data = itk_tri_rasterization(tri, x, res, sz, origin);
+
+%% section to correct artifacts. Sometimes, itk_tri_rasterization fails to 
+%% identify inside voxels and set them to 1
+
+% dilate the segmentation (using itk_imfilter is faster than imdilate) with
+% a ball of radius 1
+aux = itk_imfilter('bwdilate', scimat.data, 1);
+
+% find voxels that are not in the segmentation but are in the dilated
+% segmentation. Those voxels are potentially artifacts that have been
+% mislabelled by itk_tri_rasterization
+idx = find(xor(aux, scimat.data));
+
+% we classify those voxels using cgal_insurftri, that is much slower but
+% much more accurate
+[r, c, s] = ind2sub(size(aux), idx);
+xi = scinrrd_index2world([r c s], scimat.axis);
+scimat.data(idx) = cgal_insurftri(tri, x, xi, rand(3));
