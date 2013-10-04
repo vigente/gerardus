@@ -1,5 +1,10 @@
 2013-10-04  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.4.1)
+
+	- Give the alpha shape mesh computed internally as an output
+	(given as TRI, X).
+
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.4.0)
 
 	- Speed up function from ~20 min to ~30 sec for a high res left
