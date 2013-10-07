@@ -31,7 +31,7 @@ function [scimat, tri, x] = scimat_lconvhull_smoothing(scimat, rad)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.4.1
+% Version: 0.4.2
 % $Rev$
 % $Date$
 % 
@@ -103,6 +103,9 @@ end
 % keep only the mesh surface
 tri = s.bnd;
 clear s
+
+% remove vertices that are not connected to any triangle
+[tri, x] = tri_squeeze(tri, x);
 
 % % compute alpha shape (alternative mode using CGAL functions): this method
 % % is slower because of the CGAL Delaunay triangulation
