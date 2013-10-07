@@ -1,5 +1,11 @@
 2013-10-07  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/dmatrix_mesh.m: (0.4.0)
+
+	- Add input argument "options" for 'fastmarching' method, so that
+	we can pass a local neighbourhood radius for every voxel in
+	OPTIONS.constraint_map.
+
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.4.2)
 
 	- The alpha shape function returns a surface mesh where lots of
