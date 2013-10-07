@@ -1,4 +1,4 @@
-function [d, dtot] = dmatrix_mesh(tri, x, totmethod)
+function [d, dtot] = dmatrix_mesh(tri, x, totmethod, options)
 % DMATRIX_MESH  Sparse distance and shortest-path distance matrices between
 % the nodes of a mesh
 %
@@ -20,19 +20,29 @@ function [d, dtot] = dmatrix_mesh(tri, x, totmethod)
 %   technically means D(i,j)=0, by convention in function dijkstra(), this
 %   means for us D(i,j)=Inf.
 %
-% [D, DTOT] = dmatrix_mesh(TRI, X, TOTMETHOD)
+% [D, DTOT] = dmatrix_mesh(TRI, X, 'dijkstra')
+% [D, DTOT] = dmatrix_mesh(TRI, X, 'fastmarching', OPTIONS)
 %
 %   DTOT is a full matrix. DTOT(i,j) is the shortest-path length between
 %   nodes i and j. Note that if node j cannot be reached from node i at
 %   all, then DTOT(i,j)=Inf. For nodes directly connected by edges,
 %   D(i,j)=DTOT(i,j).
 %
-%   TOTMETHOD is a string with the name of the method used to compute DTOT
-%   from D. By default, TOTMETHOD='dijkstra', and Dijkstra's shortest-path
-%   algorithm is used. With TOTMETHOD='fastmarching' (only valid for
-%   triangular meshes), distances are computed as the solution to an
-%   Eikonal equation by propagating a front with uniform speed using the
-%   Fast Marching method.
+%   'dijkstra': Dijkstra's shortest-path algorithm is used. 
+%
+%   'fastmarching': (only valid for triangular meshes), distances are
+%   computed as the solution to an Eikonal equation by propagating a front
+%   with uniform speed using the Fast Marching method. OPTIONS is a struct
+%   with parameters for the Fast Marching method. From the help of
+%   perform_fast_marching_mesh():
+%
+%       OPTIONS.end_points:  stop when these points are reached
+%       OPTIONS.nb_iter_max: stop when a given number of iterations is
+%       reached.
+%       OPTIONS.constraint_map: A column vector with size(X,1) elements to
+%       reduce the set of explored points. Only points with current
+%       distance smaller than L will be expanded. Set some entries of L to
+%       -Inf to avoid any exploration of these points.
 %
 %   Both Dijkstra and Fast Marching use similar Fibonacci heap
 %   implementations, and have the same computational complexity. That said,
@@ -51,11 +61,12 @@ function [d, dtot] = dmatrix_mesh(tri, x, totmethod)
 % Proceedings of the National Academy of Sciences, vol. 95, no. 15, pp.
 % 8431–8435, 1998.
 %
-% See also: dmatrix_con, dmatrix_sphmesh, dmatrix, dijkstra, perform_fast_marching_mesh
+% See also: dmatrix_con, dmatrix_sphmesh, dmatrix, dijkstra,
+% perform_fast_marching_mesh.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.3.0
+% Version: 0.4.0
 % $Rev$
 % $Date$
 %
@@ -84,12 +95,15 @@ function [d, dtot] = dmatrix_mesh(tri, x, totmethod)
 % <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(1, 3);
+narginchk(1, 4);
 nargoutchk(0, 2);
 
 % defaults
 if (nargin < 3 || isempty(totmethod))
     totmethod = 'dijkstra';
+end
+if (nargin < 4)
+    options = [];
 end
 
 % count the number of edges in the mesh
@@ -125,12 +139,36 @@ d = sparse([e(:, 1); e(:, 2)], [e(:, 2); e(:, 1)], [d; d]);
 if (nargout > 1)
     switch totmethod
         case 'dijkstra'
+            narginchk(1, 3); % this syntax does not accept options input variable
             dtot = dijkstra(d, 1:length(d));
             
         case 'fastmarching'
-            dtot = zeros(size(d));
-            for I = 1:length(d)
-                dtot(:, I) = perform_fast_marching_mesh(x, tri, I);
+            
+            if (isfield(options, 'constraint_map'))
+                % if the user limits the size of the neighbourhood, we are
+                % going to assume that it's more efficient to store the
+                % distance matrix in sparse form. This of course will not
+                % be true if the neighbourhood is quite close to the size
+                % of the mesh
+                dtot = sparse(d);
+            else
+                dtot = zeros(size(d));
+            end
+                        
+            if isempty(options)
+                for I = 1:length(d)
+                    
+                    dtot(I, :) = perform_fast_marching_mesh(x, tri, I)';
+                    
+                end
+            else
+                for I = 1:length(d)
+                    
+                    aux = perform_fast_marching_mesh(x, tri, I, options)';
+                    auxidx = ~isinf(aux) & (aux ~= 0);
+                    dtot(I, auxidx) = aux(auxidx);
+                    
+                end
             end
             
         otherwise
