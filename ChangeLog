@@ -1,3 +1,11 @@
+2013-10-07  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.4.2)
+
+	- The alpha shape function returns a surface mesh where lots of
+	the vertices are not used. We now "squeeze" the list of vertices
+	to leave only those that belong to the surface.
+
 2013-10-04  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.4.1)
