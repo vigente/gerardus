@@ -27,7 +27,7 @@
  *   the centres of the background and segmented voxels. The latter is
  *   usually the desired result.
  *
- *   TRI is a 3-column matrix. Each row represents the indices of the tree
+ *   TRI is a 3-column matrix. Each row represents the indices of the three
  *   vertices that form a triangle. TRI as a whole represents the closed
  *   surface.
  *

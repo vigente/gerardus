@@ -9,7 +9,7 @@
  *
  *   TRI, X describe a triangular mesh.
  *
- *   TRI is a 3-column matrix. Each row represents the indices of the tree
+ *   TRI is a 3-column matrix. Each row represents the indices of the three
  *   vertices that form a triangle. TRI as a whole represents the closed
  *   surface.
  *

@@ -8,7 +8,7 @@ function varargout = cgal_surfsubdivision(varargin)
 %
 % [TRI2, X2] = cgal_surfsubdivision(TRI, X, METHOD, ITER)
 %
-%   TRI is a 3-column matrix. Each row represents the indices of the tree
+%   TRI is a 3-column matrix. Each row represents the indices of the three
 %   vertices that form a triangle. TRI as a whole represents the closed
 %   surface.
 %
