@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012-2013 University of Oxford
-# Version: 0.2.15
+# Version: 0.2.16
 # $Rev$
 # $Date$
 #
@@ -35,6 +35,7 @@ include_directories(
   "${GMP_INCLUDE_DIR}"
   "${MPFR_INCLUDE_DIR}"
   ..
+  .
   )
 
 ################################################################
