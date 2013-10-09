@@ -13,6 +13,11 @@
  *   vertices that form a triangle. TRI as a whole represents the closed
  *   surface.
  *
+ *   Note that this function requires that the triangles in TRI have a
+ *   manifold orientation. This can be achieved pre-processing with
+ *
+ *     [x, tri] = meshcheckrepair(x, tri, 'deep'); % correct orientation
+ *
  *   X is a 3-column matrix. Each row represents the Cartesian coordinates
  *   of a vertex on the surface, indexed by TRI values.
  *
@@ -20,12 +25,14 @@
  *
  *   N is a scalar with the number of holes that have been filled. N <=
  *   number of triangles added to TRI2.
+ *
+ * See also: meshcheckrepair.
  */
 
 /*
  * Author: Ramon Casero <rcasero@gmail.com>
  * Copyright © 2013 University of Oxford
- * Version: 0.1.0
+ * Version: 0.1.1
  * $Rev$
  * $Date$
  *
