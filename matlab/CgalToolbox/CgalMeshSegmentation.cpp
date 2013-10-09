@@ -77,12 +77,25 @@
  *     MANIFOLD=true, the mesher uses CGAL::Manifold_tag: "When instantiated
  *     with the tag Manifold_tag the function template make_surface_mesh
  *     ensures that the output mesh is a manifold surface without boundary".
+ *
+ * Important!
+ *
+ * Note that this function can produce meshes with (1) stray vertices that
+ * belong to no triangle, (2) triangles not oriented with respect to the
+ * manifold, and (3) holes in the surface. These problems can be solved with
+ * the following functions available in Gerardus:
+ *
+ *   [tri, x] = tri_squeeze(tri, x); % remove stray vertices
+ *   [x, tri] = meshcheckrepair(x, tri, 'deep'); % correct orientation
+ *   tri = cgal_tri_fillholes(tri, x); % fill holes in the surface
+ *
+ * See also: bwmesh, tri_squeeze, meshcheckrepair, cgal_tri_fillholes.
  */
 
 /*
  * Author: Ramon Casero <rcasero@gmail.com>
  * Copyright © 2013 University of Oxford
- * Version: 0.1.3
+ * Version: 0.1.4
  * $Rev$
  * $Date$
  *
