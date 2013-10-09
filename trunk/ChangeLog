@@ -1,3 +1,13 @@
+2013-10-09  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/CgalToolbox/PolyhedronBuilder.h: (0.1.0)
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.16)
+	* matlab/CgalToolbox/CgalSurfaceSubdivision.cpp: (0.1.1)
+
+	- Move class PolyhedronBuilder out of CgalSurfaceSubdivision.cpp
+	into its own new file PolyhedronBuilder.h. This way we can reuse
+	it in other cgal MEX Matlab functions.
+
 2013-10-07  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/dmatrix_mesh.m: (0.4.0)

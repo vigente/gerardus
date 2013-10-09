@@ -40,7 +40,7 @@
 /*
  * Author: Ramon Casero <rcasero@gmail.com>
  * Copyright © 2013 University of Oxford
- * Version: 0.1.0
+ * Version: 0.1.1
  * $Rev$
  * $Date$
  *
@@ -89,106 +89,18 @@
 #include <CGAL/Polyhedron_incremental_builder_3.h>
 #include <CGAL/Polyhedron_3.h>
 #include <CGAL/triangulate_polyhedron.h>
+#include "PolyhedronBuilder.h"
 
-typedef MatlabImportFilter::MatlabInputPointer        MatlabInputPointer;
+typedef MatlabImportFilter::MatlabInputPointer               MatlabInputPointer;
 
-// typedef CGAL::Simple_cartesian<double>                Kernel;
-typedef CGAL::Exact_predicates_inexact_constructions_kernel                Kernel;
-typedef CGAL::Polyhedron_3<Kernel>                    Polyhedron;
-typedef CGAL::Point_3<Kernel>                         Point;
-typedef Polyhedron::Facet                             Facet;
-typedef Polyhedron::Facet_iterator                    Facet_iterator;
-typedef Polyhedron::Vertex_handle                     Vertex_handle;
-typedef Polyhedron::Vertex_iterator                   Vertex_iterator;
-typedef Polyhedron::Halfedge_around_facet_circulator  Halfedge_around_facet_circulator;
-typedef Polyhedron::HalfedgeDS                        HalfedgeDS;
-
-/*
- * PolyhedronBuilder: class to build a polyhedron with the incremental
- * builder from the Matlab TRI and X inputs
- */
-template <class HDS>
-class PolyhedronBuilder : public CGAL::Modifier_base<HDS> {
-public:
-  MatlabImportFilter::Pointer matlabImport;
-  MatlabInputPointer inTri;
-  MatlabInputPointer inX;
-
-  PolyhedronBuilder(MatlabImportFilter::Pointer _matlabImport, 
-		    MatlabInputPointer _inTri, MatlabInputPointer _inX) 
-    : matlabImport(_matlabImport), inTri(_inTri), inX(_inX) { }
-  void operator()( HDS& hds) {
-
-    typedef typename HDS::Vertex   Vertex;
-    typedef typename Vertex::Point Point;
-
-    // instantiate incremental builder
-    CGAL::Polyhedron_incremental_builder_3<HalfedgeDS> builder(hds, true);
-
-    // get size of input matrix with the points
-    mwSize nrowsTri = mxGetM(inTri->pm);
-    mwSize ncolsTri = mxGetN(inTri->pm);
-    mwSize nrowsX = mxGetM(inX->pm);
-    mwSize ncolsX = mxGetN(inX->pm);
-    if ((ncolsTri != 3) || (ncolsX != 3)) {
-      mexErrMsgTxt("TRI and X inputs must have 3 columns");
-    }
-
-    // allocate space in the polyhedron
-    builder.begin_surface(nrowsX, nrowsTri);
-
-    // default coordinates are NaN values, so that the user can spot
-    // whether there was any problem reading them
-    Point xDef(mxGetNaN(), mxGetNaN(), mxGetNaN());
-
-    // add mesh vertices
-    for (mwIndex i = 0; i < nrowsX; ++i) {
-
-      // exit if user pressed Ctrl+C
-      ctrlcCheckPoint(__FILE__, __LINE__);
-      
-      // get coordinates of the vertex
-      Point x = matlabImport->ReadRowVectorFromMatlab<void, Point>(inX, i, xDef);
-
-      if (mxIsNaN(x.x()) || mxIsNaN(x.y()) || mxIsNaN(x.z())) {
-	mexErrMsgTxt(("Input " + inX->name + ": Vertex coordinates are NaN").c_str());
-      }
-      
-      // add vertex to the mesh
-      builder.add_vertex(x);
-    }
-    
-    // add mesh triangles
-    for (mwIndex i = 0; i < nrowsTri; ++i) {
-      
-      // exit if user pressed Ctrl+C
-      ctrlcCheckPoint(__FILE__, __LINE__);
-      
-      // get indices of the 3 vertices of each triangle. These indices
-      // follow Matlab's convention v0 = 1, 2, ..., n
-      mwIndex v0 = matlabImport->ReadScalarFromMatlab<mwIndex>(inTri, i, 0, mxGetNaN());
-      mwIndex v1 = matlabImport->ReadScalarFromMatlab<mwIndex>(inTri, i, 1, mxGetNaN());
-      mwIndex v2 = matlabImport->ReadScalarFromMatlab<mwIndex>(inTri, i, 2, mxGetNaN());
-      if (mxIsNaN(v0) || mxIsNaN(v1) || mxIsNaN(v2)) {
-	mexErrMsgTxt(("Input " + inTri->name + ": Triangle indices are NaN").c_str());
-      }
-
-      // add triangle. Note that we have to substract 1 from the index
-      // to change from Matlab index convention (1, 2, 3, ...) to C++
-      // index convention (0, 1, 2, ...)
-      builder.begin_facet();
-      builder.add_vertex_to_facet(v0-1);
-      builder.add_vertex_to_facet(v1-1);
-      builder.add_vertex_to_facet(v2-1);
-      builder.end_facet();
-
-      // finish up surface
-      builder.end_surface();
-
-    }
-      
-  }
-};
+typedef CGAL::Exact_predicates_inexact_constructions_kernel  Kernel;
+typedef CGAL::Polyhedron_3<Kernel>                           Polyhedron;
+typedef CGAL::Point_3<Kernel>                                Point;
+typedef Polyhedron::Facet                                    Facet;
+typedef Polyhedron::Facet_iterator                           Facet_iterator;
+typedef Polyhedron::Vertex_handle                            Vertex_handle;
+typedef Polyhedron::Vertex_iterator                          Vertex_iterator;
+typedef Polyhedron::Halfedge_around_facet_circulator         Halfedge_around_facet_circulator;
 
 /*
  * mexFunction(): entry point for the mex function
@@ -232,7 +144,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   // polyhedron to contain the input mesh
   Polyhedron mesh;
-  PolyhedronBuilder<HalfedgeDS> builder(matlabImport, inTRI, inX);
+  PolyhedronBuilder<Polyhedron> builder(matlabImport, inTRI, inX);
   mesh.delegate(builder);
 
   // get size of input matrix with the points
