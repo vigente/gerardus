@@ -1,5 +1,9 @@
 2013-10-09  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/ItkTriRasterization.cpp: (0.1.1)
+
+	- Minor, remove unused variables.
+
 	* Add matlab/CgalToolbox/PolyhedronBuilder.h: (0.1.0)
 	* matlab/CgalToolbox/CMakeLists.txt: (0.2.16)
 	* matlab/CgalToolbox/CgalSurfaceSubdivision.cpp: (0.1.1)
