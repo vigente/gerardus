@@ -1,5 +1,12 @@
 2013-10-09  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/CgalToolbox/CgalTriFillHoles.cpp: (0.1.0)
+	* Add matlab/CgalToolbox/cgal_tri_fillholes.m: (0.1.0)
+	* Add matlab/test/test_cgal_tri_fillholes.m: (0.1.0)
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.17)
+
+	- CGAL_TRI_FILLHOLES  Fill holes in a triangular mesh, with triangles.
+
 	* matlab/ItkToolbox/ItkTriRasterization.cpp: (0.1.1)
 
 	- Minor, remove unused variables.
