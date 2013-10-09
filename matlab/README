@@ -107,7 +107,7 @@ cgal_insurftri.m
 cgal_meshseg.m
 
 	 CGAL_MESHSEG  Surface meshing of an isosurface from a segmentation or
-	 grayscale image
+	 grayscale image.
 	
 cgal_surfsubdivision.m
 
