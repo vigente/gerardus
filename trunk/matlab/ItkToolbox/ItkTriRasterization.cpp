@@ -55,7 +55,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.0
+  * Version: 0.1.1
   * $Rev$
   * $Date$
   *
@@ -155,11 +155,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     return;
   }
 
-  // get and check dimensions of inputs X and TRI
+  // get number of rows in inputs X and TRI
   mwSize nrowsX = mxGetM(inX->pm);
-  mwSize ncolsX = mxGetN(inX->pm);
   mwSize nrowsTRI = mxGetM(inTRI->pm);
-  mwSize ncolsTRI = mxGetN(inTRI->pm);
 
   // instantiate mesh
   MeshType::Pointer mesh = MeshType::New();
