@@ -55,7 +55,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.1.1
+  * Version: 0.1.2
   * $Rev$
   * $Date$
   *
@@ -220,11 +220,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		  + ": Number of triangles read different from number of triangles provided by user").c_str()); 
   }
 
-  // get bounding box that contains mesh
-  for (mwIndex i = 0; i < mesh->GetNumberOfPoints(); ++i) {
-    // TODO @@
-  }
-
   // get user input parameters for the output rasterization
   ImageType::SpacingType spacingDef;
   spacingDef.Fill(1.0);
@@ -246,12 +241,18 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   // instantiate rasterization filter
   MeshFilterType::Pointer meshFilter = MeshFilterType::New();
 
+  // smallest voxel side length
+  ImageType::SpacingValueType minSpacing = spacing[0];
+  for (mwIndex i = 1; i < Dimension; ++i) {
+    minSpacing = std::min(minSpacing, spacing[i]);
+  }
+
   // pass input parameters to the filter
   meshFilter->SetInput(mesh);
   meshFilter->SetSpacing(spacing);
   meshFilter->SetSize(size);
   meshFilter->SetOrigin(origin);
-  meshFilter->SetTolerance(1.0);
+  meshFilter->SetTolerance(minSpacing / 10.0);
   meshFilter->SetInsideValue(1);
   meshFilter->SetOutsideValue(0);
 
@@ -266,7 +267,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     sizeStdVector[i] = size[i];
   }
 
-  // graft ITK filter outputs onto Matlab outputs
+  // graft ITK filter output onto Matlab output
   matlabExport->GraftItkImageOntoMatlab<PixelType, Dimension>
     (outIM, meshFilter->GetOutput(), sizeStdVector);
 
