@@ -1,4 +1,19 @@
+2013-10-10  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/ItkTriRasterization.cpp: (0.1.2)
+
+	- Instead of using tolerance=1.0, we get the voxel size in the
+	smallest dimension, and divide it by 10.0.
+
+	- Remove loop that was not doing anything.
+
 2013-10-09  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CgalToolbox/CgalTriFillHoles.cpp: (0.1.1)
+	* Add matlab/CgalToolbox/cgal_tri_fillholes.m: (0.1.1)
+
+	- Note that the triangles in the input need to have a manifold
+	orientation.
 
 	* matlab/CgalToolbox/CgalMeshSegmentation.cpp: (0.1.4)
 	* matlab/CgalToolbox/cgal_meshseg.m: (0.1.1)
