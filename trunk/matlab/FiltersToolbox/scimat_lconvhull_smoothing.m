@@ -4,11 +4,20 @@ function [scimat, tri, x] = scimat_lconvhull_smoothing(scimat, rad)
 %
 % SCIMAT2 = scimat_lconvhull_smoothing(SCIMAT, RAD)
 %
-%   SCIMAT is a SCI MAT volume with a binary image.
+%   SCIMAT is a SCI MAT volume with a binary image. This binary image is
+%   assumed to not have holes. It can consist of several non-connected
+%   components, but none of them can have any holes.
 %
 %   The perimeter voxels of the image are selected. The alpha-shape of
 %   their coordinates produces a mesh triangulation with the local convex
 %   hull.
+%
+%   The inside of the triangulation is converted to voxels using
+%   itk_tri_rasterization(). As this function can misclassify quite a few
+%   voxels that should be labelled as 1, we run it three times permuting
+%   the coordinates of the mesh and the resulting image, and combining the
+%   results with an OR. Finally, we run a hole filling algorithm in case
+%   any voxels within the mesh were missed.
 %
 %   RAD is a scalar with the radius of the alpha shape, i.e. the size of
 %   the convex hull neighbourhood. When the convex hull is computed, only
@@ -16,9 +25,6 @@ function [scimat, tri, x] = scimat_lconvhull_smoothing(scimat, rad)
 %   convex hull is obtained. Note that if you want to compare to other
 %   alpha shape functions, e.g. cgal_alpha_shape3() or
 %   cgal_fixed_alpha_shape3(), ALPHA=RAD^2.
-%
-%   The inside of the triangulation is converted to voxels using
-%   itk_tri_rasterization(), and corrected using cgal_insurftri().
 %
 %   SCIMAT2 is the local convex hull of SCIMAT.
 %
@@ -31,7 +37,7 @@ function [scimat, tri, x] = scimat_lconvhull_smoothing(scimat, rad)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.4.2
+% Version: 0.4.3
 % $Rev$
 % $Date$
 % 
@@ -104,8 +110,11 @@ end
 tri = s.bnd;
 clear s
 
-% remove vertices that are not connected to any triangle
+% correct non-manifold orientation of triangles, non-connected
+% vertices, etc
 [tri, x] = tri_squeeze(tri, x);
+[x, tri] = meshcheckrepair(x, tri, 'deep'); % correct orientation
+tri = cgal_tri_fillholes(tri, x); % fill holes in the surface
 
 % % compute alpha shape (alternative mode using CGAL functions): this method
 % % is slower because of the CGAL Delaunay triangulation
@@ -134,26 +143,33 @@ end
 % ylabel('y (mm)')
 % zlabel('z (mm)')
 
-% rasterize mesh to binary segmentation
+% rasterize mesh to binary segmentation. This is fast, but quite often
+% voxels that should be labelled as 1 get labelled as 0
 res = [scimat.axis.spacing]; % (r, c, s) format
 sz = size(scimat.data); % (r, c, s) format
 origin = scinrrd_index2world([1, 1, 1], scimat.axis);
 scimat.data = itk_tri_rasterization(tri, x, res, sz, origin);
 
-%% section to correct artifacts. Sometimes, itk_tri_rasterization fails to 
-%% identify inside voxels and set them to 1
+% that's why we re-compute the rasterization by permuting x and y
+% dimensions, and add the voxels found here to the voxels found before
+aux = itk_tri_rasterization(...
+    tri, ...
+    x(:, [2 1 3]), ...
+    res([2 1 3]), ...
+    sz([2 1 3]), ...
+    origin([2 1 3]));
+aux = permute(aux, [2 1 3]);
+scimat.data = scimat.data | aux;
 
-% dilate the segmentation (using itk_imfilter is faster than imdilate) with
-% a ball of radius 1
-aux = itk_imfilter('bwdilate', scimat.data, 1);
+% and again, permuting x <-> z
+aux = itk_tri_rasterization(...
+    tri, ...
+    x(:, [2 3 1]), ...
+    res([3 1 2]), ...
+    sz([3 1 2]), ...
+    origin([2 3 1]));
+aux = permute(aux, [2 3 1]);
+scimat.data = uint8(scimat.data | aux);
 
-% find voxels that are not in the segmentation but are in the dilated
-% segmentation. Those voxels are potentially artifacts that have been
-% mislabelled by itk_tri_rasterization
-idx = find(xor(aux, scimat.data));
-
-% we classify those voxels using cgal_insurftri, that is much slower but
-% much more accurate
-[r, c, s] = ind2sub(size(aux), idx);
-xi = scinrrd_index2world([r c s], scimat.axis);
-scimat.data(idx) = cgal_insurftri(tri, x, xi, rand(3));
+% fill holes in the segmentation
+scimat.data = imfill(scimat.data, 'holes');
