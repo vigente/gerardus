@@ -1,3 +1,25 @@
+2013-10-11  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.4.3)
+
+	- Fix bug. itk_tri_rasterization() can miss quite a bit of voxels
+	that should be labelled 1. It seems this is due to the way
+	itk::TriangleMeshToBinaryImageFilter is
+	implemented. cgal_insurftri() is more accurate, although it's much
+	slower, and apparently sometimes can also forget to label a few
+	voxels within the mesh, so we don't gain much. So for the moment,
+	the best solution seems to be to run itk_tri_rasterization() 3
+	times, permuting the coordinates, and adding the results with an
+	OR. As it runs quickly, this is not too much of a problem. This
+	seems to get most of the segmentation right, except for a few
+	voxels within. To fix that, we run a fill holes algorithm, that is
+	also quite fast.
+
+	- Correct non-manifold orientation of triangles. It's not clear
+	whether this is absolutely necessary, but it doesn't hurt, and
+	allows us to fill potential holes in the surface (again, not clear
+	whether alphavol can have this problem).
+
 2013-10-10  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/ItkTriRasterization.cpp: (0.1.2)
