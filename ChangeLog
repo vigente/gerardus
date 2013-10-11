@@ -1,5 +1,12 @@
 2013-10-11  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.5.0)
+
+	- Fix bug. Even overlapping results from itk_tri_rasterization()
+	in 3 orientations miss voxels within the mesh. Add a correction
+	stage, where we dilate the segmentation, fill holes, and then
+	check the extra voxels with cgal_insurftri().
+
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.4.3)
 
 	- Fix bug. itk_tri_rasterization() can miss quite a bit of voxels

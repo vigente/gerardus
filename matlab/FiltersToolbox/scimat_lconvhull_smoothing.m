@@ -1,4 +1,4 @@
-function [scimat, tri, x] = scimat_lconvhull_smoothing(scimat, rad)
+function [scimat, tri, x] = scimat_lconvhull_smoothing(scimat, rad, dilrad)
 % SCIMAT_LCONVHULL_SMOOTHING  Smoothing of a binary image using a local
 % convex hull.
 %
@@ -28,6 +28,14 @@ function [scimat, tri, x] = scimat_lconvhull_smoothing(scimat, rad)
 %
 %   SCIMAT2 is the local convex hull of SCIMAT.
 %
+% SCIMAT2 = scimat_lconvhull_smoothing(SCIMAT, RAD, DILRAD)
+%
+%   DILRAD is the radius of the dilation algorithm that is used internally
+%   to fix artifacts by itk_tri_rasterization(). Larger values of DILRAD
+%   are a safer bet that artifacts are removed, but it also makes the
+%   function slower. By default DILRAD=10.
+%
+%
 % This function uses alphavol() by Jonas Lundgren, which is faster than the
 % alpha shape functions in the CGAL library because the latter need to use
 % a rather slow Delaunay triangulation first.
@@ -37,7 +45,7 @@ function [scimat, tri, x] = scimat_lconvhull_smoothing(scimat, rad)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.4.3
+% Version: 0.5.0
 % $Rev$
 % $Date$
 % 
@@ -65,7 +73,7 @@ function [scimat, tri, x] = scimat_lconvhull_smoothing(scimat, rad)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(2, 2);
+narginchk(2, 3);
 nargoutchk(0, 3);
 
 % if the image has all voxels == 1, then the smoothed local convex hull is
@@ -80,6 +88,11 @@ end
 % will give an error
 if (nnz(scimat.data) < 4)
     return
+end
+
+% defaults
+if (nargin < 3 || isempty(dilrad))
+    dilrad = 10;
 end
 
 % compute perimeter voxels
@@ -171,5 +184,22 @@ aux = itk_tri_rasterization(...
 aux = permute(aux, [2 3 1]);
 scimat.data = uint8(scimat.data | aux);
 
+%% correct segmentation
+
+% the approach above is fast, but it fails to set to 1 voxels within the
+% mesh. What we do is dilate the segmentation, fill holes, and then
+% re-check all the resulting extra voxels
+
+% dilate segmentation
+aux = itk_imfilter('bwdilate', scimat.data, dilrad, 1);
+
 % fill holes in the segmentation
-scimat.data = imfill(scimat.data, 'holes');
+aux = imfill(aux, 'holes');
+
+% get list of voxels that the dilation has added and their coordinates
+idx = find(xor(aux, scimat.data));
+[r, c, s] = ind2sub(size(aux), idx);
+xi = scinrrd_index2world([r, c, s], scimat.axis);
+
+% check those extra voxels with 
+scimat.data(idx) = cgal_insurftri(tri, x, xi, rand(3));
