@@ -1,5 +1,9 @@
 2013-10-14  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.6.1)
+
+	- Fix bug. Remove debugging code.
+
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.6.0)
 
 	- As using itk_tri_rasterization() is proving quite unreliable, we
