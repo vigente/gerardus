@@ -1,3 +1,13 @@
+2013-10-14  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.6.0)
+
+	- As using itk_tri_rasterization() is proving quite unreliable, we
+	are allowing two syntaxes: One that uses simply cgal_insurftri(),
+	even if it's slower, and an "unsafe" mode that uses
+	itk_tri_rasterization() followed by dilation and then checking
+	with cgal_insurftri().
+
 2013-10-11  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.5.0)
