@@ -55,7 +55,7 @@ function [scimat, tri, x] = scimat_lconvhull_smoothing(scimat, rad, SAFE, dilrad
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.6.0
+% Version: 0.6.1
 % $Rev$
 % $Date$
 % 
@@ -193,12 +193,10 @@ if (SAFE)
     cz = linspace(xmin(3), xmax(3), idxmax(3) - idxmin(3) + 1);
     
     % check whether voxels are inside or outside
-    tic
     scimat.data(idxmin(1):idxmax(1), ...
         idxmin(2):idxmax(2), ...
         idxmin(3):idxmax(3)) ...
         = cgal_insurftri(tri, x, {cx, cy, cz});
-    toc
     
 else
     
