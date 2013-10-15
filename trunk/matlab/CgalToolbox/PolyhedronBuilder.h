@@ -40,7 +40,7 @@
 /*
  * Author: Ramon Casero <rcasero@gmail.com>
  * Copyright © 2013 University of Oxford
- * Version: 0.1.0
+ * Version: 0.1.1
  * $Rev$
  * $Date$
  *
@@ -74,6 +74,9 @@
 
 /* Gerardus headers */
 #include "MatlabImportFilter.h"
+
+/* C++ headers */
+#include <exception>
 
 /* CGAL headers */
 #include <CGAL/Polyhedron_incremental_builder_3.h>
@@ -155,12 +158,20 @@ public:
       builder.add_vertex_to_facet(v1-1);
       builder.add_vertex_to_facet(v2-1);
       builder.end_facet();
-
-      // finish up surface
-      builder.end_surface();
-
-    }
       
+      // if the facet couldn't be added successfully, we exit with an
+      // error. Otherwise, when we try builder.end_surface(), Matlab
+      // will throw a segmentation error
+      if (builder.error()) {
+	mexErrMsgTxt(("Inputs " + inTri->name + " and " + inX->name 
+		      + " do not form a valid polyhedron").c_str());
+      }
+ 
+    }
+     
+    // finish up surface
+    builder.end_surface();
+
   }
 };
 

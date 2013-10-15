@@ -1,4 +1,17 @@
+2013-10-15  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CgalToolbox/PolyhedronBuilder.h: (0.1.1)
+
+	- Fix bug. If a facet creates a non-manifold polyhedron,
+	builder.end_surface() with make Matlab throw a segfault.
+
 2013-10-14  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.6.2)
+
+	- Using the default directions (the cartesian axes) for the rays
+	in cgal_insurftri() causes similar problems to using
+	itk_tri_rasterization().
 
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.6.1)
 
