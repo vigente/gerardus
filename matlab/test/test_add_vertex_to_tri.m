@@ -1,8 +1,8 @@
-% test_addpoint2tri.m
+% test_add_vertex_to_tri.m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -62,13 +62,13 @@ hold on
 plot3(xi(:, 1), xi(:, 2), xi(:, 3), 'r*')
 
 % add only one point to the mesh
-[tri, x2] = addpoint2tri(as.bnd, x, [.6 .6 .6]);
+[tri, x2] = add_vertex_to_tri(as.bnd, x, [.6 .6 .6]);
 
 % plot new mesh
 trisurf(tri, x2(:, 1), x2(:, 2), x2(:, 3), 'FaceColor', 'red', 'FaceAlpha', .5)
 
 % add all the points to the mesh creating new triangles
-[tri, x2] = addpoint2tri(as.bnd, x, xi);
+[tri, x2] = add_vertex_to_tri(as.bnd, x, xi);
 
 % plot new mesh
 hold off
