@@ -1,12 +1,12 @@
-function [tri, x] = addpoint2tri(tri, x, xi)
-% ADDPOINT2TRI  Add one or more nodes to a triangular mesh
+function [tri, x] = add_vertex_to_tri(tri, x, xi)
+% ADD_VERTEX_TO_TRI  Add vertices to a triangular mesh
 %
 % This is a not very sophisticated function that allows to add new points
 % to an exisiting triangular mesh. Note that it doesn't deal with the case
 % when an inserted point is identical to an existing node, or with the case
 % when an inserted point is equally closest to more than one facet.
 %
-% [TRI2, X2] = ADDPOINT2TRI(TRI, X, XI)
+% [TRI2, X2] = add_vertex_to_tri(TRI, X, XI)
 %
 %   TRI is a 3-column matrix describing a triangular mesh. TRI(i,:) are the
 %   indices of the 3 nodes that form the i-th triangle of the mesh.
@@ -21,10 +21,12 @@ function [tri, x] = addpoint2tri(tri, x, xi)
 %
 %   TRI2, X2 describe the new triangular mesh, after all the points in XI
 %   have been added.
+%
+% See also: remove_vertex_from_tri.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %

@@ -1,3 +1,16 @@
+2013-10-16  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ManifoldToolbox/remove_vertex_from_tri.m: (0.1.0)
+	* Add matlab/test/test_remove_vertex_from_tri.m: (0.1.0)
+
+	- REMOVE_VERTEX_FROM_TRI Remove vertices from a triangular mesh.
+
+	* Rename matlab/ManifoldToolbox/addpoint2tri.m as
+	matlab/ManifoldToolbox/add_vertex_to_tri.m: (0.2.0)
+
+	* Rename matlab/test/test_addpoint2tri.m as
+	matlab/test/test_add_vertex_to_tri.m: (0.2.0)
+
 2013-10-15  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/CgalToolbox/PolyhedronBuilder.h: (0.1.1)
