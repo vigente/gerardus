@@ -401,9 +401,9 @@ itk_tri_rasterization.m
 ManifoldToolbox
 -------------------------------------------------------------
 
-addpoint2tri.m
+add_vertex_to_tri.m
 
-	 ADDPOINT2TRI  Add one or more nodes to a triangular mesh
+	 ADD_VERTEX_TO_TRI  Add vertices to a triangular mesh
 	
 closest_trifacet.m
 
@@ -444,6 +444,10 @@ proj_on_sphere.m
 quadsurf.m
 
 	 QUADSURF  Quadrangular mesh surface plot
+	
+remove_vertex_from_tri.m
+
+	 REMOVE_VERTEX_FROM_TRI  Remove vertices from a triangular mesh
 	
 scimat_closed_surf_to_bw.m
 
