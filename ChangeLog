@@ -1,5 +1,10 @@
 2013-10-17  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/scinrrd_im2nrrd.m: (0.1.1)
+
+	- Update the two lines that check the number of input/output
+	arguments to more modern syntax.
+
 	* Add matlab/ManifoldToolbox/triconncomp.m: (0.1.0)
 
 	- TRICONNCOMP  Find connected components in mesh.
