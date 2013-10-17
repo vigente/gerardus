@@ -1,5 +1,10 @@
 2013-10-17  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/tri_find_nonmanifold_vertex.m: (0.1.0)
+
+	- TRI_FIND_NONMANIFOLD_VERTEX Find indices of non-manifold
+	vertices in a triangular mesh.
+
 	* matlab/FileFormatToolbox/scinrrd_im2nrrd.m: (0.1.1)
 
 	- Update the two lines that check the number of input/output

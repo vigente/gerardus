@@ -468,6 +468,11 @@ triconncomp.m
 
 	 TRICONNCOMP  Find connected components in mesh
 	
+tri_find_nonmanifold_vertex.m
+
+	 TRI_FIND_NONMANIFOLD_VERTEX  Find indices of non-manifold vertices in a
+	 triangular mesh
+	
 trihemisphere.m
 
 	 TRIHEMISPHERE  Triangular mesh on hemisphere with roughly uniformly
