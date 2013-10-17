@@ -24,8 +24,8 @@ function nrrd = scinrrd_im2nrrd(im, res, offset)
 %   slices as for RES applies.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Copyright © 2011-2013 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -53,8 +53,8 @@ function nrrd = scinrrd_im2nrrd(im, res, offset)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 3, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
+narginchk(1, 3);
+nargoutchk(0, 1);
 
 if (ndims(im) > 3)
     error('Input image cannot have more than 3 dimensions')
