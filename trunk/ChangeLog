@@ -1,3 +1,9 @@
+2013-10-17  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ManifoldToolbox/triconncomp.m: (0.1.0)
+
+	- TRICONNCOMP  Find connected components in mesh.
+
 2013-10-16  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ManifoldToolbox/remove_vertex_from_tri.m: (0.1.0)
