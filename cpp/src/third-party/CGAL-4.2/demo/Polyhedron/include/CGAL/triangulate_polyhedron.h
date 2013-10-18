@@ -65,6 +65,8 @@ class Triangulate_modifier
 
   typedef CGAL::Constrained_triangulation_face_base_2<P_traits, Fb1>   Fb;
   typedef CGAL::Triangulation_data_structure_2<Vb,Fb>                  TDS;
+  //  typedef CGAL::Exact_intersections_tag                                Itag;
+  //  typedef CGAL::Exact_predicates_tag                                   Itag;
   typedef CGAL::No_intersection_tag                                    Itag;
   typedef CGAL::Constrained_Delaunay_triangulation_2<P_traits,
                                                      TDS,
