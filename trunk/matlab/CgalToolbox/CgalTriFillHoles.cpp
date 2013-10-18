@@ -75,7 +75,6 @@
 
 /* CGAL headers */
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
-#include <CGAL/Subdivision_method_3.h>
 #include <CGAL/Polyhedron_3.h>
 #include <CGAL/triangulate_polyhedron.h>
 #include "PolyhedronBuilder.h"
@@ -190,7 +189,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   }
 
-  // the subdivision mesh may have non-triangular facets. Split all facets to triangles
+  // split all facets to triangles
   CGAL::triangulate_polyhedron<Polyhedron>(mesh);
 
   // copy output with number of holes filled
