@@ -28,7 +28,7 @@ function [tri, x] = delaunay_sphere(N, xi)
 %
 %     surf(xi(:, :, 1), xi(:, :, 2), xi(:, :, 3))
 %
-% See also: scimat_closed_surf_to_bw
+% See also: scimat_tri_to_raster.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford

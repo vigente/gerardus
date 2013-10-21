@@ -1,3 +1,25 @@
+2013-10-21  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.7.0)
+
+	- Move rasterization code to scimat_tri_to_raster().
+
+	- Change order of output arguments. Now we provide the option of
+	computing only the alpha-shape mesh. And then, if the user has
+	requested the rasterization, this is computed too.
+
+	- The rasterization method is now controlled by the string RASTER,
+	rather than the previous boolean SAFE.
+
+	* matlab/ManifoldToolbox/scimat_tri_to_raster.m: (0.2.0)
+
+	- Replace previous code by quite similar code we had in
+	scimat_lconvhull_smoothing.m().
+
+	* Rename matlab/ManifoldToolbox/scimat_closed_surf_to_bw.m as
+	matlab/ManifoldToolbox/scimat_tri_to_raster.m: (0.2.0)
+	* matlab/ManifoldToolbox/delaunay_sphere.m:
+
 2013-10-17  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/tri_find_nonmanifold_vertex.m: (0.1.0)

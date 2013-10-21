@@ -281,8 +281,8 @@ scimat_blockproc3.m
 	
 scimat_lconvhull_smoothing.m
 
-	 SCIMAT_LCONVHULL_SMOOTHING  Smoothing of a binary image using a local
-	 convex hull.
+	 SCIMAT_LCONVHULL_SMOOTHING  Mesh and rasterization of the smoothing of a
+	 binary image using a local convex hull.
 	
 scinrrd_box.m
 
@@ -449,10 +449,9 @@ remove_vertex_from_tri.m
 
 	 REMOVE_VERTEX_FROM_TRI  Remove vertices from a triangular mesh
 	
-scimat_closed_surf_to_bw.m
+scimat_tri_to_raster.m
 
-	 SCIMAT_CLOSED_SURF_TO_BW  Segment the inside of the triangulation of a
-	 closed surface
+	 SCIMAT_TRI_TO_RASTER  Rasterize a closed triangular mesh
 	
 smdscale.m
 
