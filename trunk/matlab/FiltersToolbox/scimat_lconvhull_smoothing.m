@@ -1,22 +1,21 @@
-function [scimat, tri, x] = scimat_lconvhull_smoothing(scimat, rad, SAFE, dilrad)
-% SCIMAT_LCONVHULL_SMOOTHING  Smoothing of a binary image using a local
-% convex hull.
+function [tri, x, scimat] = scimat_lconvhull_smoothing(scimat, rad, raster)
+% SCIMAT_LCONVHULL_SMOOTHING  Mesh and rasterization of the smoothing of a
+% binary image using a local convex hull.
 %
-% SCIMAT2 = scimat_lconvhull_smoothing(SCIMAT, RAD)
+% [TRI, X] = scimat_lconvhull_smoothing(SCIMAT, RAD)
 %
 %   SCIMAT is a SCI MAT volume with a binary image. This binary image is
-%   assumed to not have holes. It can consist of several non-connected
-%   components, but none of them can have any holes.
+%   assumed to have one closed surface only.
 %
-%   The perimeter voxels of the image are selected. The alpha-shape of
-%   their coordinates produces a mesh triangulation with the local convex
-%   hull.
+%   An alpha-shape of the coordinates of all perimeter voxels is computed.
+%   The boundary of the alpha-shape is a triangular mesh. Non-manifold
+%   vertices are identified and removed iteratively, until all vertices are
+%   manifold.
 %
-%   Then, rays are traced from the centre of each voxel within the bounding
-%   box of the mesh. The number of intersections with the mesh allows to
-%   know whether the voxel is inside or outside of it. This part uses
-%   cgal_insurftri(), which is very precise but can be a bit slow for very
-%   large images.
+%   All vertices that were identified as non-manifold are removed from the
+%   list of perimeter voxels, and the alpha-shape is recomputed. This
+%   process is repeated iteratively until the result is an alpha-shape with
+%   only manifold vertices.
 %
 %   RAD is a scalar with the radius of the alpha shape, i.e. the size of
 %   the convex hull neighbourhood. When the convex hull is computed, only
@@ -25,37 +24,39 @@ function [scimat, tri, x] = scimat_lconvhull_smoothing(scimat, rad, SAFE, dilrad
 %   alpha shape functions, e.g. cgal_alpha_shape3() or
 %   cgal_fixed_alpha_shape3(), ALPHA=RAD^2.
 %
-%   SCIMAT2 is the local convex hull of SCIMAT.
+%   The output is a triangular mesh described by TRI, X.
 %
-% SCIMAT2 = scimat_lconvhull_smoothing(SCIMAT, RAD, false, DILRAD)
+%   TRI is a 3-column matrix. Each row represents the indices of the three
+%   vertices that form a triangle. TRI as a whole represents the closed
+%   surface.
 %
-%   To allow for faster processing when the above method using
-%   cgal_insurftri() is too slow, we allow an "unsafe" mode. This method
-%   uses itk_tri_rasterization(), which is faster but less reliable.
+%   X is a 3-column matrix. Each row represents the Cartesian coordinates
+%   of a vertex on the surface, indexed by TRI values.
 %
-%   The inside of the triangulation is converted to voxels using
-%   itk_tri_rasterization(). As this function can misclassify quite a few
-%   voxels that should be labelled as 1, we run it three times permuting
-%   the coordinates of the mesh and the resulting image, and combining the
-%   results with an OR. Finally, we run a hole filling algorithm in case
-%   any voxels within the mesh were missed.
+% [TRI, X, SCIMAT2] = scimat_lconvhull_smoothing(SCIMAT, RAD, RASTER)
 %
-%   DILRAD is the radius of the dilation algorithm that is used internally
-%   to fix artifacts by itk_tri_rasterization(). Larger values of DILRAD
-%   are a safer bet that artifacts are removed, but it also makes the
-%   function slower. By default DILRAD=10.
+%   This syntax computes a binary rasterization of the mesh too. Note that
+%   these voxels are _added_ to whatever previous segmentation was present
+%   in SCIMAT.
+%
+%   RASTER is a string with the rasterization method:
+%
+%     'cgal_insurftri' (default): More reliable, although much slower.
+%
+%     'itk_tri_rasterization': Fast, although sometimes lines or regions of
+%     voxels that should be set to 1 are set to 0.
 %
 %
 % This function uses alphavol() by Jonas Lundgren, which is faster than the
 % alpha shape functions in the CGAL library because the latter need to use
 % a rather slow Delaunay triangulation first.
 %
-% See also: cgal_insurftri, alphavol, itk_tri_rasterization,
-% cgal_alpha_shape3, cgal_fixed_alpha_shape3, scimat_closed_surf_to_bw.
+% See also: alphavol, cgal_insurftri, itk_tri_rasterization,
+% cgal_alpha_shape3, cgal_fixed_alpha_shape3, scimat_tri_to_raster.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.6.1
+% Version: 0.7.0
 % $Rev$
 % $Date$
 % 
@@ -83,7 +84,7 @@ function [scimat, tri, x] = scimat_lconvhull_smoothing(scimat, rad, SAFE, dilrad
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(2, 4);
+narginchk(2, 3);
 nargoutchk(0, 3);
 
 % if the image has all voxels == 1, then the smoothed local convex hull is
@@ -101,11 +102,8 @@ if (nnz(scimat.data) < 4)
 end
 
 % defaults
-if (nargin < 3 || isempty(SAFE))
-    SAFE = true;
-end
-if (nargin < 4 || isempty(dilrad))
-    dilrad = 10;
+if (nargin < 3 || isempty(raster))
+    raster = 'cgal_insurftri';
 end
 
 % compute perimeter voxels
@@ -116,44 +114,102 @@ scimat.data = bwperim(scimat.data);
 x = scinrrd_index2world([r c s], scimat.axis);
 clear r c s
 
-% compute alpha shape
-try
-    [~, s] = alphavol(x, rad);
-catch err
-    % "Error computing the Delaunay triangulation. The points may be
-    % coplanar or collinear"
-    %
-    % Just exit the function leaving the input segmentation untouched
-    if (strcmp(err.identifier,'MATLAB:delaunay:EmptyDelaunay3DErrId'))
-        return
-   else
-       % display any other errors as usual
-      rethrow(err);
+% matrix to keep track of the non-manifold vertices that we are going
+% to remove
+xremoved = [];
+
+% loop to remove potential troublesome vertices
+while (true)
+    
+    % coordinates of segmented voxels
+    [r, c, s] = ind2sub(size(scimat.data), find(scimat.data));
+    x = scinrrd_index2world([r c s], scimat.axis);
+    clear r c s
+    
+    % remove vertices that have been found to be non-manifold in the
+    % past
+    if ~isempty(xremoved)
+        x = setdiff(x, xremoved, 'rows');
     end
+    
+    % compute alpha shape
+    try
+        [~, s] = alphavol(x, rad);
+    catch err
+        % "Error computing the Delaunay triangulation. The points may be
+        % coplanar or collinear"
+        %
+        % Just exit the function leaving the input segmentation untouched
+        if (strcmp(err.identifier,'MATLAB:delaunay:EmptyDelaunay3DErrId'))
+            return
+        else
+            % display any other errors as usual
+            rethrow(err);
+        end
+    end
+    tri = s.bnd;
+    clear s
+    
+    % remove vertices that are not connected to any triangles
+    [tri, x] = tri_squeeze(tri, x);
+    
+    % number of non-manifold vertices so far
+    nnonmani = size(xremoved, 1);
+    
+    % remove vertices until there are no non-manifold vertices
+    while (true)
+        
+        % find non-manifold vertices
+        idx = tri_find_nonmanifold_vertex(tri, x, scimat.axis);
+        
+        % stop if all vertices are now manifold
+        if isempty(idx)
+            break
+        end
+        
+        % keep track of removed vertices
+        xremoved = [xremoved; x(idx, :)];
+        
+        % remove non-manifold vertices
+        [tri, x] = remove_vertex_from_tri(tri, x, idx);
+        
+    end
+    
+    % if no more non-manifold vertices have been found with respect to
+    % the previous iteration, we have finished cleaning up the mesh
+    if (nnonmani == size(xremoved, 1))
+        break
+    end
+    
+    
 end
 
-% keep only the mesh surface
-tri = s.bnd;
-clear s
+% DEBUG
+% disp(['Number of non-manifoled vertices removed: ' num2str(nnonmani)])
 
-% correct non-manifold orientation of triangles, non-connected
-% vertices, etc
-[tri, x] = tri_squeeze(tri, x);
-[x, tri] = meshcheckrepair(x, tri, 'deep'); % correct orientation
-tri = cgal_tri_fillholes(tri, x); % fill holes in the surface
+% label connected components
+[ncomp, trilab, xlab] = triconncomp(tri, x);
 
-% % compute alpha shape (alternative mode using CGAL functions): this method
-% % is slower because of the CGAL Delaunay triangulation
-% tic
-% tri = cgal_fixed_alpha_shape3(x, rad.^2);
-% tri = tri{1};
-% toc
+% DEBUG
+% plot the mesh colouring triangles according to their label
+% hold off
+% trisurf(tri, x(:, 1), x(:, 2), x(:, 3), trilab)
+% axis equal
 
-% very small segmentations can produce degenerated surfaces. In that case,
-% there's nothing to smooth and we can just exit without modifying the
-% input segmentation
-if (size(tri, 1) < 4)
-    return
+% largest connected component
+nbin = hist(xlab, 1:ncomp);
+[~, idx] = max(nbin);
+
+% vertices to remove
+idx = find(xlab ~= idx);
+
+% delete smaller components
+[tri, x] = remove_vertex_from_tri(tri, x, idx);
+
+% double-check that there aren't any non-manifold vertices
+idx = tri_find_nonmanifold_vertex(tri, x, scimat.axis);
+if ~isempty(idx)
+    warning(['Assertion fail. Non-manifold vertices: ' num2str(length(idx))])
 end
 
 % % DEBUG: plot alpha shape's surface
@@ -169,109 +225,11 @@ end
 % ylabel('y (mm)')
 % zlabel('z (mm)')
 
-if (SAFE)
-    
-    % the safe way to rasterize the mesh interior is by using the CGAL
-    % function. This is quite slow, though
-
-    % init output
-    scimat.data(:) = 0;
-    
-    % bounding box obtained from the mesh, rounded up outwards to the
-    % closest voxel centres
-    xmin = min(x);
-    xmax = max(x);
-    idxmin = floor(scinrrd_world2index(xmin, scimat.axis));
-    idxmax = ceil(scinrrd_world2index(xmax, scimat.axis));
-    xmin = scinrrd_index2world(idxmin, scimat.axis);
-    xmax = scinrrd_index2world(idxmax, scimat.axis);
-    
-    % vectors of voxel centres to check whether they are inside or outside
-    % the mesh
-    cx = linspace(xmin(1), xmax(1), idxmax(2) - idxmin(2) + 1);
-    cy = linspace(xmin(2), xmax(2), idxmax(1) - idxmin(1) + 1);
-    cz = linspace(xmin(3), xmax(3), idxmax(3) - idxmin(3) + 1);
-    
-    % check whether voxels are inside or outside
-    scimat.data(idxmin(1):idxmax(1), ...
-        idxmin(2):idxmax(2), ...
-        idxmin(3):idxmax(3)) ...
-        = cgal_insurftri(tri, x, {cx, cy, cz});
-    
-else
-    
-    % rasterize mesh to binary segmentation. This is fast, but quite often
-    % voxels that should be labelled as 1 get labelled as 0
-    res = [scimat.axis.spacing]; % (r, c, s) format
-    sz = size(scimat.data); % (r, c, s) format
-    origin = scinrrd_index2world([1, 1, 1], scimat.axis);
-    scimat.data = itk_tri_rasterization(tri, x, res, sz, origin);
-    
-    % that's why we re-compute the rasterization by permuting x and y
-    % dimensions, and add the voxels found here to the voxels found before
-    aux = itk_tri_rasterization(...
-        tri, ...
-        x(:, [2 1 3]), ...
-        res([2 1 3]), ...
-        sz([2 1 3]), ...
-        origin([2 1 3]));
-    aux = permute(aux, [2 1 3]);
-    scimat.data = scimat.data | aux;
-    
-    % and again, permuting x <-> z
-    aux = itk_tri_rasterization(...
-        tri, ...
-        x(:, [2 3 1]), ...
-        res([3 1 2]), ...
-        sz([3 1 2]), ...
-        origin([2 3 1]));
-    aux = permute(aux, [2 3 1]);
-    scimat.data = uint8(scimat.data | aux);
-    
-    %% correct segmentation
-    
-    if (dilrad == 0)
-        return
-    end
-    
-    % the approach above is fast, but it often fails to set to 1 voxels within
-    % the mesh. What we do is dilate the segmentation, fill holes, and then
-    % re-check all the resulting extra voxels
-    
-    % dilate segmentation
-    aux = itk_imfilter('bwdilate', scimat.data, dilrad, 1);
-    [r, c, s] = ind2sub(size(aux), find(aux));
-    if (any(r == 1) || any(r == size(aux, 1)) ...
-            || any(c == 1) || any(c == size(aux, 2)) ...
-            || any(s == 1) || any(s == size(aux, 3)) ...
-            )
-        warning('Gerardus:ImageOverflow', 'Dilation radius too large for image boundaries')
-    end
-    
-    % bounding box obtained from the mesh
-    xmin = min(x);
-    xmax = max(x);
-    idxmin = floor(scinrrd_world2index(xmin, scimat.axis));
-    idxmax = ceil(scinrrd_world2index(xmax, scimat.axis));
-    
-    % remove voxels outside the bounding box, as we know for sure they are
-    % part of the background
-    aux(1:idxmin(1), :, :) = 0;
-    aux(idxmax(1):end, :, :) = 0;
-    aux(:, 1:idxmin(2), :) = 0;
-    aux(:, idxmax(2):end, :) = 0;
-    aux(:, :, 1:idxmin(3)) = 0;
-    aux(:, :, idxmax(3):end) = 0;
-    
-    % fill holes in the segmentation
-    aux = imfill(aux, 'holes');
-    
-    % get list of voxels that the dilation has added and their coordinates
-    idx = find(xor(aux, scimat.data));
-    [r, c, s] = ind2sub(size(aux), idx);
-    xi = scinrrd_index2world([r, c, s], scimat.axis);
-    
-    % check those extra voxels with
-    scimat.data(idx) = cgal_insurftri(tri, x, xi, rand(3));
-
+% if the user hasn't asked for the rasterization, we don't waste time
+% computing it
+if (nargout < 3)
+    return
 end
+
+% rasterize the mesh
+scimat = scimat_tri_to_raster(tri, x, scimat, raster);
