@@ -1,5 +1,9 @@
 2013-10-25  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/dmatrix_mesh.m: (0.4.1)
+
+	- Small, compute distances by column instead of by row.
+
 	* matlab/PointsToolbox/surface_param.m: (0.4.0)
 	* matlab/test/test_surface_param.m: (0.4.0)
 
