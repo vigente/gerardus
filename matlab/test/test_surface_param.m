@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.4.0
+% Version: 0.5.0
 % $Rev$
 % $Date$
 %
@@ -117,7 +117,7 @@ gplot(con, uv, 'r')
 %% Open classic MDSmap on the same triangular mesh
 clear param
 param.type = 'cmdsmap';
-param.options.constraint_map = 0.4 * ones(1, size(x, 1)); % trigger warning
+param.options.constraint_map = 0.4 * ones(size(x, 1), 1); % trigger warning
 param.options.end_points = [1 2 3]; % trigger warning
 param.options.nb_iter_max = 4; % trigger warning
 param.tri = tri;
@@ -148,8 +148,34 @@ uv = surface_param(x, param);
 hold on
 gplot(con, uv, 'k')
 
+%% lmdscale (MDSmap with local neighbourhood)
+clear param
+param.type = 'lmdscale';
+param.tri = tri;
+param.options.constraint_map = 0.4 * ones(size(x, 1), 1);
+param.options2.MaxIter = 100;
+param.options2.MaxInc = .01;
+[uv, out] = surface_param(x, param);
+out.stopCondition
 
+% rigid registration to overlap the solution with the original data
+[~, uv] = procrustes(x, uv, 'Scaling',false);
 
+% add parametrization to the plot
+% it is expected that this perfectly overlaps the Isomap result computed
+% above
+hold on
+gplot(con, uv, 'c')
+
+% plot error
+figure
+plot(out.err.maxinc)
+hold on
+plot(out.err.medinc)
+
+% plot stress
+hold off
+plot(out.err.stress1)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Closed surface from scattered point set

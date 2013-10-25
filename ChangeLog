@@ -1,5 +1,15 @@
 2013-10-25  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/PointsToolbox/surface_param.m: (0.5.0)
+	* matlab/test/test_surface_param.m: (0.5.0)
+
+	- Rewrite method 'lmdscale', that was non-functional. Also, now
+	parameters for fast marching are passed in param.options, and
+	parameters for local neighbourhood MDS are passed in
+	param.options2.
+
+	- Correct help for 'cmdsmap'.
+
 	* matlab/ManifoldToolbox/dmatrix_mesh.m: (0.4.1)
 
 	- Small, compute distances by column instead of by row.
