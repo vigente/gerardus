@@ -1,6 +1,6 @@
 function [uv, out] = surface_param(x, param)
-% SURFACE_PARAM  Parametrization of a scattered set of points that belong
-% to a surface
+% SURFACE_PARAM  2D parametrization of a scattered set of 3D points or of
+% the vertices of a triangular mesh, for open and closed surfaces.
 %
 %   This function takes a scattered data set X in 3D that is supposed to
 %   represent a sampling of a surface, and finds a 2D parameterisation U, V
@@ -29,22 +29,28 @@ function [uv, out] = surface_param(x, param)
 %     Parametrizations summary:
 %
 %     XY plane:
-%                 'xy' [default]
-%                 'pca'
-%                 'isomap'
+%                 'xy' [default]: Simple projection on XY.
+%                 'pca': Projection on main PCA plane.
+%                 'isomap': Isomap (with Dijkstra's shortest path).
+%                 'cmdsmap': MDSmap, global neighbourhood, classical MDS.
+%                 'lmdscale': MDSmap, local neighbourhood, local MDS.
 %
 %     Unit sphere:
-%                 'sphproj
+%                 'sphproj': Simple projection on sphere around centroid.
 %                 'cald'
 %                 'sphisomap'
 %
-%     Parametrizations details:
+%=========================== OPEN SURFACES ================================
 %
 %   * 'xy' (default): Projection on the xy-plane, i.e. xy-coordinates of
 %     the points in X.
 %
+%--------------------------------------------------------------------------
+%
 %   * 'pca': Projection on the plane defined by the two eigenvectors with
 %     the largest eigenvalues.
+%
+%--------------------------------------------------------------------------
 %
 %   * 'isomap': Isometric mapping (Tenenbaum et al. [1][2]). This is a
 %     non-linear method that can be applied to complex open surfaces that
@@ -192,13 +198,14 @@ function [uv, out] = surface_param(x, param)
 %     OUT.err:  struct with several error measures at each algorithm
 %     iteration. See help to lmdscale() for details.
 %
-%--------------------------------------------------------------------------
+%
+%========================== CLOSED SURFACES ===============================
 %
 %   * 'sphproj':   Direct projection on unit sphere centered on point set
 %     centroid.
 %
-%     OUT.rmed:    Median value of the radii of all points in the point
-%                    set.
+%     OUT.medrad:  Median value of the radii of all points in the point
+%       set.
 %
 %--------------------------------------------------------------------------
 %
@@ -291,7 +298,7 @@ function [uv, out] = surface_param(x, param)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.5.0
+% Version: 0.5.1
 % $Rev$
 % $Date$
 % 
@@ -342,11 +349,15 @@ end
 % obtain a 2D parameterisation for the input 3D points
 switch param.type
     
+%--------------------------------------------------------------------------
+
     case 'xy'
         
         % (u,v) is simply (x,y)
         uv = x(:, 1:2);
         
+%--------------------------------------------------------------------------
+
     case 'pca'
         
         % rotate valve points to make the valve surface as horizontal as
@@ -357,6 +368,8 @@ switch param.type
         uv = uv * eigv;
         uv = uv(:, 1:2);
         
+%--------------------------------------------------------------------------
+
     case 'isomap'
         
         % IsomapII takes the following distance matrices:
@@ -394,6 +407,8 @@ switch param.type
             error('The neighbourhood size (param.size) is too small to connect all points')
         end
         
+%--------------------------------------------------------------------------
+
     case 'cmdsmap'
         
         % if distance matrix is not provided we need to compute it from the
@@ -450,6 +465,8 @@ switch param.type
         % the output parametrization is 2D
         uv = uv(:, 1:2);
             
+%--------------------------------------------------------------------------
+
     case 'lmdscale'
         
         % if distance matrix is not provided we need to compute it from the
@@ -489,6 +506,8 @@ switch param.type
             = lmdscale(param.d, [], [], param.options2);
         uv = [u, v];
 
+%--------------------------------------------------------------------------
+
     case 'sphproj'
         
         % init output
@@ -503,8 +522,10 @@ switch param.type
         
         % we use the median radius of the points in the configuration as the radius
         % of the sphere that best can contains their projections
-        out.rmed = median(r);
+        out.medrad = median(r);
         
+%--------------------------------------------------------------------------
+
     case 'sphisomap'
 
         % if distance matrix is not provided by the user, it is computed
@@ -631,6 +652,8 @@ switch param.type
         % lon = em(2, :)
         uv = [lat lon];
         
+%--------------------------------------------------------------------------
+
     case 'cald'
         
         confs.vars = {'MeshGridSize', 'MaxSPHARMDegree', 'Tolerance', ...
