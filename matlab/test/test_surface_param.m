@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.3.0
+% Version: 0.4.0
 % $Rev$
 % $Date$
 %
@@ -31,7 +31,7 @@
 % <http://www.gnu.org/licenses/>.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Open surface
+%% Open surface for 4 cardiac valves
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 load('data/valve-annula-points-009.mat');
@@ -80,6 +80,75 @@ hold off
 plot(uv(:, 1), uv(:, 2), '.')
 axis equal
 title('Isomap')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Open planar triangular mesh to compare isomap and MDS map
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% quadrangular mesh split into asymmetric triangles
+
+% create rectangle with triangular mesh
+[tri, x] = surface_tridomain('rect', 'step', 1/10, [0 0], [1 1/5*3]);
+x(:, end+1) = 0;
+
+% plot original mesh and parametrization
+con = dmatrix_mesh(tri);
+hold off
+gplot(con, x(:, 1:2))
+
+%% Isomap on a triangular mesh
+% note that we need to compute the local distances on the mesh, and then
+% apply Dijkstra. If we don't provide the distance matrix, by default
+% surface_param() will compute distances between all pairs of vertices
+clear param
+param.type = 'isomap';
+param.d = dmatrix_mesh(tri, x);
+param.d = dijkstra(param.d, 1:length(param.d));
+uv = surface_param(x, param);
+
+% rigid registration to overlap the solution with the original data
+[~, uv] = procrustes(x, uv, 'Scaling',false);
+
+% add parametrization to the plot
+hold on
+gplot(con, uv, 'r')
+
+
+%% Open classic MDSmap on the same triangular mesh
+clear param
+param.type = 'cmdsmap';
+param.options.constraint_map = 0.4 * ones(1, size(x, 1)); % trigger warning
+param.options.end_points = [1 2 3]; % trigger warning
+param.options.nb_iter_max = 4; % trigger warning
+param.tri = tri;
+uv = surface_param(x, param);
+
+% rigid registration to overlap the solution with the original data
+[~, uv] = procrustes(x, uv, 'Scaling',false);
+
+% add parametrization to the plot
+hold on
+gplot(con, uv, 'g')
+
+%% check that MDSmap with Dijkstra is the same as Isomap
+clear param
+param.type = 'cmdsmap';
+param.options.constraint_map = 0.4 * ones(1, size(x, 1)); % trigger warning
+param.options.end_points = [1 2 3]; % trigger warning
+param.options.nb_iter_max = 4; % trigger warning
+[~, param.d] = dmatrix_mesh(tri, x, 'dijkstra');
+uv = surface_param(x, param);
+
+% rigid registration to overlap the solution with the original data
+[~, uv] = procrustes(x, uv, 'Scaling',false);
+
+% add parametrization to the plot
+% it is expected that this perfectly overlaps the Isomap result computed
+% above
+hold on
+gplot(con, uv, 'k')
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
