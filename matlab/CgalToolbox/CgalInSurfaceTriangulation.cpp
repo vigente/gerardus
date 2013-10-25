@@ -1,7 +1,7 @@
 /* CgalInSurfaceTriangulation.cpp
  *
- * CGAL_INSURFACETRIANGULATION  Find whether a point is inside or outside a
- * closed surface
+ * CGAL_INSURFTRI  Find whether a point is inside or outside a closed
+ * surface.
  *
  *   This function evaluates whether one or more points belong inside a
  *   closed surface. First, we check whether the point is on the surface
