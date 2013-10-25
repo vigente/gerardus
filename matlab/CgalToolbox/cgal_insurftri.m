@@ -1,6 +1,6 @@
 function varargout = cgal_insurftri(varargin)
-% CGAL_INSURFACETRIANGULATION  Find whether a point is inside or outside a
-% closed surface
+% CGAL_INSURFTRI  Find whether a point is inside or outside a closed
+% surface.
 %
 %   This function evaluates whether one or more points belong inside a
 %   closed surface. First, we check whether the point is on the surface
@@ -67,7 +67,7 @@ function varargout = cgal_insurftri(varargin)
 %   TOL=1e-15.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2012 University of Oxford
+% Copyright © 2012-2013 University of Oxford
 % Version: 0.2.0
 % $Rev$
 % $Date$
