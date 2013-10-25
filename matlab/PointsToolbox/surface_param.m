@@ -92,6 +92,8 @@ function [uv, out] = surface_param(x, param)
 %     PARAM.options: [Opt] Extra arguments passed to IsomapII. Most users
 %       won't need to change this. For details, see help to IsomapII().
 %
+%--------------------------------------------------------------------------
+%
 %   * 'cmdsmap': Open surface classical MDS mapping improved with a Fast
 %     Marching method (Zigelman et al. [3]). The fast marching algorithm
 %     doesn't suffer from metrication errors on regular meshes as badly as
@@ -113,11 +115,55 @@ function [uv, out] = surface_param(x, param)
 %         [~, param.d] = dmatrix_mesh(param.tri, x, 'dijkstra');
 %       The latter is equivalent to the 'isomap' method above.
 %
+%     If PARAM.d is not provided:
+%
 %     PARAM.tri: [Req/Opt] 3-column matrix. Each row contains the 3 nodes
 %       that form one triangular facet in the mesh.
 %
+%     PARAM.dmethod: [Opt] String with the method to compute distances
+%       between non-neighbours: 'fastmarching' (default) or 'dijkstra'. The
+%       latter is faster, but suffers much more from metrication errors.
+%
 %     PARAM.options: [Opt] Extra arguments passed to the fast marching
-%       method:
+%       method. From the help to perform_fast_marching_mesh():
+%       - options.W: non-uniform speed.
+%       - options.heuristic: heuristic that tries to guess the distance
+%         that remains from a given node to a given target. This is an
+%         array of same size as W.
+%       - parameters that create a local neighbourhood are ignored with a
+%         warning.
+%
+%--------------------------------------------------------------------------
+%
+%   * 'lmdscale': Open surface local neighbourhood MDS mapping (Schwartz,
+%     Wolfson and Shaw [4, 5]), improved with a Fast Marching method
+%     (Zigelman et al. [3]). This is like 'cmdsmap' above, but with local
+%     neighbourhoods. Local neighbourhoods were already proposed in the
+%     first publications [4, 5] on what we are calling MDSmap. We use our
+%     own implementation of this idea, lmdscale().
+%
+%     PARAM.d or PARAM.tri must be provided. If PARAM.d is provided,
+%     PARAM.tri and PARAM.options are ignored. Otherwise, PARAM.d is
+%     computed from PARAM.tri and PARAM.options.
+%
+%     PARAM.d: [Req/Opt] Can be a sparse or full distance matrix. Distances
+%       greater than 0 reflect that two vertices are within a common local
+%       neighbourhood.
+%         [~, param.d] = dmatrix_mesh(param.tri, x, 'fastmarching');
+%
+%     If PARAM.d is not provided:
+%
+%     PARAM.tri: [Req/Opt] 3-column matrix. Each row contains the 3 nodes
+%       that form one triangular facet in the mesh.
+%
+%     PARAM.dmethod: [Opt] String with the method to compute distances
+%       between non-neighbours: 'fastmarching' (default) or 'dijkstra'. The
+%       latter is faster, but suffers much more from metrication errors,
+%       and produces only full matrices in the current implementation, so
+%       it's not valid for local neighbourhoods.
+%
+%     PARAM.options: [Opt] Extra arguments passed to the fast marching
+%       method. From the help to perform_fast_marching_mesh():
 %       - options.constraint_map: Exploration radius to reduce the set of
 %         explored points. Only points with current distance smaller than L
 %         will be expanded. Set some entries of L to -Inf to avoid any
@@ -130,6 +176,23 @@ function [uv, out] = surface_param(x, param)
 %         that remains from a given node to a given target. This is an
 %         array of same size as W.
 %
+%     PARAM.options2: [Opt] Extra arguments passed to the local
+%       neighbourhood MDS algorithm. See help to lmdscale().
+%       - opt.MaxIter: (default = 20) maximum number of iterations we allow
+%                      the optimisation algorithm. Each iteration consists
+%                      of an entire sweep of all points on the sphere.
+%  
+%       - opt.MaxInc:  inc is the Euclidean distance that each output point
+%                      is moved in an iteration. The algorithm will stop if
+%                      no point has been moved more than MaxInc.
+%
+%     OUT.stopCondition: cell-array with the condition/s that made the
+%       algorithm stop, in string form.
+%
+%     OUT.err:  struct with several error measures at each algorithm
+%     iteration. See help to lmdscale() for details.
+%
+%--------------------------------------------------------------------------
 %
 %   * 'sphproj':   Direct projection on unit sphere centered on point set
 %     centroid.
@@ -137,8 +200,10 @@ function [uv, out] = surface_param(x, param)
 %     OUT.rmed:    Median value of the radii of all points in the point
 %                    set.
 %
+%--------------------------------------------------------------------------
+%
 %   * 'cald':      Li Shen's Control Area and Length Distortions (CALD)
-%     spherical parametrization [4][5].
+%     spherical parametrization [6, 7].
 %
 %     PARAM.MeshGridSize: The interpolation mesh used to smooth the
 %                  spherical parametrization has length
@@ -194,6 +259,7 @@ function [uv, out] = surface_param(x, param)
 %      OUT.err:     Frobenius norm of the distance matrix error
 %                   D_xy - D_uv at each step of the optimisation
 %                   algorithm (moving each point counts as a step).
+%--------------------------------------------------------------------------
 %
 %
 %
@@ -208,16 +274,24 @@ function [uv, out] = surface_param(x, param)
 % Computer Graphics, IEEE Transactions on, vol. 8, no. 2, pp. 198–207,
 % 2002.
 %
-% [4] Shen and Makedon, "Spherical mapping for processing of 3D closed
+% [4] E. Wolfson and E.L. Schwartz, "Computing minimal distances on
+% polyhedral surfaces", IEEE Pattern Analysis and Machine Intelligence,
+% 11(9):1001-1005, 1989.
+%
+% [5] E.L. Schwartz, A. Shaw, E. Wolfson, "A numerical solution to the
+% generalized mapmaker’s problem: flattening nonconvex polyhedral", IEEE
+% Pattern Analysis and Machine Intelligence, 11(9):1005-1008, 1989.
+%
+% [6] Shen and Makedon, "Spherical mapping for processing of 3D closed
 % surfaces", Image and Vision Computing, 24(7):743–761, 2006.
 % http://www.sciencedirect.com/science/article/pii/S0262885606000485
 %
-% [5] CALD and SPHARM-MAT homepage,
+% [7] CALD and SPHARM-MAT homepage,
 % http://www.iupui.edu/~shenlab/software.html
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.4.0
+% Version: 0.5.0
 % $Rev$
 % $Date$
 % 
@@ -322,19 +396,24 @@ switch param.type
         
     case 'cmdsmap'
         
-        % if distance matrix is not provided
+        % if distance matrix is not provided we need to compute it from the
+        % mesh description
         if (~isfield(param, 'd') || isempty(param.d))
             
-            % the user hasn't provided the mesh triangulation either
+            % but if the user hasn't provided the mesh triangulation
+            % either, we cannot, so we give an error
             if (~isfield(param, 'tri') || isempty(param.tri))
                 error('Either PARAM.d or PARAM.tri must be provided')
             end
             
             % default for fast marching method options
+            if (~isfield(param, 'dmethod') || isempty(param.dmethod))
+                param.dmethod = 'fastmarching';
+            end
             if (~isfield(param, 'options') || isempty(param.options))
                 param.options = [];
             end
-
+            
             % remove fast marching options that don't apply to this method
             if (isfield(param.options, 'constraint_map'))
                 warning('Gerardus:InvalidInputArg', 'PARAM.options.constraint_map ignored, this method only works with a full distance matrix')
@@ -350,7 +429,12 @@ switch param.type
             end
             
             % compute full distance matrix from the mesh
-            [~, param.d] = dmatrix_mesh(param.tri, x, 'fastmarching', param.options);
+            [~, param.d] ...
+                = dmatrix_mesh(param.tri, x, param.dmethod, param.options);
+            
+            if (issparse(param.d))
+                error('Assertion fail: param.d should be a ');
+            end
             
         end
         
@@ -368,57 +452,42 @@ switch param.type
             
     case 'lmdscale'
         
-        % extract parameters for the fast marching algorithm
-        options = [];
-        if (~isfield(param, 'W') || isempty(param.W))
-            % do nothing
-        else
-            options.W = param.W;
-        end
-        if (~isfield(param, 'end_points') || isempty(param.end_points))
-            % do nothing
-        else
-            options.end_points = param.end_points;
-        end
-        if (~isfield(param, 'nb_iter_max') || isempty(param.nb_iter_max))
-            % do nothing
-        else
-            options.nb_iter_max = param.nb_iter_max;
-        end
-        if (~isfield(param, 'heuristic') || isempty(param.heuristic))
-            % do nothing
-        else
-            options.heuristic = param.heuristic;
-        end
-        if (~isfield(param, 'constraint_map') || isempty(param.constraint_map))
-            % do nothing
-        else
-            options.constraint_map = param.constraint_map;
-        end
-        
-        % local neighbourhoods can be used in two ways:
-        %
-        % * the user provides a distance matrix (typically, sparse) with 0
-        % values for vertices outside the local neighbourhood.
-        %
-        % * the user does not provide a distance matrix, but specifies
-        %   the neighbourhood size with param.size
-        %
-        % if distance matrix is not provided by the user, it is computed
-        % extract parameters
+        % if distance matrix is not provided we need to compute it from the
+        % mesh description
         if (~isfield(param, 'd') || isempty(param.d))
             
-            % number of vertices in the mesh
-            N = size(x, 1);
-            
-            % compute full distance matrix from the mesh
-            d = zeros(N);
-            for I = 1:N
-                d(:, I) = perform_fast_marching_mesh(x, param.tri, I, options);
+            % but if the user hasn't provided the mesh triangulation
+            % either, we cannot, so we give an error
+            if (~isfield(param, 'tri') || isempty(param.tri))
+                error('Either PARAM.d or PARAM.tri must be provided')
             end
+            
+            % default for distance method
+            if (~isfield(param, 'options') || isempty(param.options))
+                param.options = [];
+            end
+            
+            % default for fast marching method options
+            if (~isfield(param, 'dmethod') || isempty(param.dmethod))
+                param.dmethod = 'fastmarching';
+            end
+            if (~isfield(param, 'options') || isempty(param.options))
+                param.options = [];
+            end
+            
+            % compute neighbourhood distance matrix from the mesh
+            [~, param.d] ...
+                = dmatrix_mesh(param.tri, x, param.dmethod, param.options);
             
         end
         
+        % at this point, the distance matrix can be full or sparse, both
+        % are valid, unlike in the cases above, where it had to be full
+        
+        % compute parameterization using local neighbourhood method
+        [u, v, out.stopCondition, out.err] ...
+            = lmdscale(param.d, [], [], param.options2);
+        uv = [u, v];
 
     case 'sphproj'
         
