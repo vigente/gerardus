@@ -66,7 +66,7 @@ function [d, dtot] = dmatrix_mesh(tri, x, totmethod, options)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % $Rev$
 % $Date$
 %
@@ -157,17 +157,13 @@ if (nargout > 1)
                         
             if isempty(options)
                 for I = 1:length(d)
-                    
-                    dtot(I, :) = perform_fast_marching_mesh(x, tri, I)';
-                    
+                    dtot(:, I) = perform_fast_marching_mesh(x, tri, I);
                 end
             else
                 for I = 1:length(d)
-                    
-                    aux = perform_fast_marching_mesh(x, tri, I, options)';
+                    aux = perform_fast_marching_mesh(x, tri, I, options);
                     auxidx = ~isinf(aux) & (aux ~= 0);
-                    dtot(I, auxidx) = aux(auxidx);
-                    
+                    dtot(auxidx, I) = aux(auxidx);
                 end
             end
             
