@@ -59,7 +59,7 @@ function [u, v, stopCondition, err, dout] = lmdscale(d, u, v, opt)
 %   DOUT is the matrix of Euclidean distances between the points given by
 %   U, V.
 %
-% [...] = smdscale(D, U0, V0, OPT)
+% [...] = lmdscale(D, U0, V0, OPT)
 %
 %   U0, V0 are the user's initial guess for the point parametrization. By
 %   default, a configuration of points randomly distributed on a
