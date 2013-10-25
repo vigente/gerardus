@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.5.0
+% Version: 0.5.1
 % $Rev$
 % $Date$
 %
@@ -197,10 +197,42 @@ axis equal
 [~, s] = alphavol(x, 0.002);
 tri = s.bnd;
 
+% check that we don't have non-manifold vertices
+idx = tri_find_nonmanifold_vertex(tri, x, scimat.axis);
+if (nnz(idx))
+    error('Assertion fail: mesh has non-manifold vertices')
+end
+
 % plot mesh
 subplot(2, 2, 2)
 hold off
 trisurf(tri, x(:, 1), x(:, 2), x(:, 3));
+axis equal
+
+% PCA-normalization of mesh
+x = pca_normalize(x);
+
+% plot mesh
+subplot(2, 2, 3)
+hold off
+trisurf(tri, x(:, 1), x(:, 2), x(:, 3));
+axis equal
+
+
+%% sphproj: simple projection on a sphere around the centroid
+clear param
+param.type = 'sphproj';
+[latlon, out] = surface_param(x, param);
+
+% plot result
+subplot(1, 2, 1)
+hold off
+trisurf(tri, x(:, 1), x(:, 2), x(:, 3));
+axis equal
+subplot(1, 2, 2)
+hold off
+[xx, yy, zz] = sph2cart(latlon(:, 2), latlon(:, 1), out.sphrad);
+trisurf(tri, xx, yy, zz)
 axis equal
 
 %% spherical Isomap

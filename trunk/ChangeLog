@@ -1,5 +1,12 @@
 2013-10-25  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/PointsToolbox/surface_param.m: (0.5.1)
+	* matlab/test/test_surface_param.m: (0.5.1)
+
+	- Rewrite help of 'sphproj' and write test for it. Rename
+	estimated sphere radius as sphrad for uniformity with the other
+	methods.
+
 	* matlab/PointsToolbox/surface_param.m: (0.5.0)
 	* matlab/test/test_surface_param.m: (0.5.0)
 
