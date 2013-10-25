@@ -1,3 +1,16 @@
+2013-10-25  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/surface_param.m: (0.4.0)
+	* matlab/test/test_surface_param.m: (0.4.0)
+
+	- Rewrite of methods 'isomap' and 'cmdsmap'. The first one now has
+	an input syntax congruent with the method. The second one is the
+	open surface classic MDS, that is, only valid for full distance
+	matrices, using classic MDS to solve the parameterization.
+
+	- Add 'lmdscale' for open surface with local neighbourhoods. But
+	still needs correcting.
+
 2013-10-21  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.7.0)
