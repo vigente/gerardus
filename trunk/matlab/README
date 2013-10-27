@@ -101,8 +101,8 @@ cgal_fixed_alpha_shape3.m
 	
 cgal_insurftri.m
 
-	 CGAL_INSURFACETRIANGULATION  Find whether a point is inside or outside a
-	 closed surface
+	 CGAL_INSURFTRI  Find whether a point is inside or outside a closed
+	 surface.
 	
 cgal_meshseg.m
 
@@ -681,8 +681,8 @@ surface_interpolation.m
 	
 surface_param.m
 
-	 SURFACE_PARAM  Parametrization of a scattered set of points that belong
-	 to a surface
+	 SURFACE_PARAM  2D parametrization of a scattered set of 3D points or of
+	 the vertices of a triangular mesh, for open and closed surfaces.
 	
 thickslice_collate_sax_la.m
 

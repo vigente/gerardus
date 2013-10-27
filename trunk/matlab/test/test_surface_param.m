@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.5.1
+% Version: 0.5.2
 % $Rev$
 % $Date$
 %
@@ -181,11 +181,24 @@ plot(out.err.stress1)
 %% Closed surface from scattered point set
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% load discrete point set
-scimat = scinrrd_load('data/thick-slice-points-seg.mat');
+%% create a closed surface triangular mesh of a left ventricle
+
+% seed the random generator so that we always get the same points
+rng(0)
+
+% load low resolution segmentation of LV, with detail removed
+scimat = scinrrd_load('data/008-lv-resampled-0_31.mha');
+
+% keep perimeter only
+scimat.data = bwperim(scimat.data);
+
+% coordinates of perimeter points
 idx = find(scimat.data);
 [r, c, s] = ind2sub(size(scimat.data), idx);
 x = scinrrd_index2world([r c s], scimat.axis);
+
+% subsample boundary points
+x = x(randi(size(x, 1), round(size(x, 1)/5), 1), :);
 
 % plot point set
 subplot(2, 2, 1)
@@ -194,7 +207,7 @@ plot3(x(:, 1), x(:, 2), x(:, 3), '.')
 axis equal
 
 % mesh the points using an alpha-shape
-[~, s] = alphavol(x, 0.002);
+[~, s] = alphavol(x, scimat.axis(1).spacing * 40);
 tri = s.bnd;
 
 % check that we don't have non-manifold vertices
@@ -202,6 +215,9 @@ idx = tri_find_nonmanifold_vertex(tri, x, scimat.axis);
 if (nnz(idx))
     error('Assertion fail: mesh has non-manifold vertices')
 end
+
+% remove points not connected to any triangle
+[tri, x] = tri_squeeze(tri, x);
 
 % plot mesh
 subplot(2, 2, 2)
@@ -218,11 +234,18 @@ hold off
 trisurf(tri, x(:, 1), x(:, 2), x(:, 3));
 axis equal
 
+% median radius of the points
+sphrad = median(sqrt(sum(x.^2, 2)))
 
 %% sphproj: simple projection on a sphere around the centroid
 clear param
 param.type = 'sphproj';
 [latlon, out] = surface_param(x, param);
+out.medrad
+
+% rigid registration to overlap the solution with the original data
+[xx, yy, zz] = sph2cart(latlon(:, 2), latlon(:, 1), sphrad);
+[~, x1] = procrustes(x, [xx, yy, zz], 'Scaling',false);
 
 % plot result
 subplot(1, 2, 1)
@@ -231,8 +254,39 @@ trisurf(tri, x(:, 1), x(:, 2), x(:, 3));
 axis equal
 subplot(1, 2, 2)
 hold off
-[xx, yy, zz] = sph2cart(latlon(:, 2), latlon(:, 1), out.sphrad);
-trisurf(tri, xx, yy, zz)
+trisurf(tri, x1(:, 1), x1(:, 2), x1(:, 3))
+title('sphproj')
+axis equal
+
+%% CALD
+
+% % using the SPHARM-MAT toolbox GUI
+% faces = tri;
+% vertices = x;
+% save('/tmp/bar_obj.mat', 'faces', 'vertices')
+% SPHARM_MAT
+% load('/tmp/bar_CALD_smo.mat')
+
+clear param
+param.type = 'cald';
+param.tri = tri;
+param.options.MeshGridSize = 50;
+param.options.MaxSPHARMDegree = 6;
+param.options.Tolerance = 2;
+param.options.Smoothing = 2;
+param.options.Iteration = 100;
+param.options.LocalIteration = 10;
+[latlon, out] = surface_param(x, param);
+
+% rigid registration to overlap the solution with the original data
+[xx, yy, zz] = sph2cart(latlon(:, 2), latlon(:, 1), sphrad);
+[~, x1] = procrustes(x, [xx, yy, zz], 'Scaling',false);
+
+% plot parametrization
+subplot(1, 2, 2)
+hold off
+trisurf(tri, x1(:, 1), x1(:, 2), x1(:, 3))
+title('CALD')
 axis equal
 
 %% spherical Isomap
