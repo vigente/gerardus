@@ -1,5 +1,16 @@
 2013-10-27  Ramon Casero  <rcasero@gmail.com>
 
+	* ManifoldToolbox/dmatrix_mesh.m: (0.4.2)
+
+	- Fix bug. constraint_map' can create distance matrices slightly
+	asymmetric. We take the mean to make it symmetric.
+
+	* matlab/ManifoldToolbox/lmdscale.m: (0.1.1)
+
+	- Fix bug. When I copied the code from smdscale, I forgot to
+	remove the references to latitude and longiture. In this function,
+	we work on the UV plane, not on the sphere.
+
 	* matlab/PointsToolbox/surface_param.m: (0.5.3)
 
 	- Fix help header for 'cald'.
