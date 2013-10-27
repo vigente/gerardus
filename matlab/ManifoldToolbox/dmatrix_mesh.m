@@ -66,7 +66,7 @@ function [d, dtot] = dmatrix_mesh(tri, x, totmethod, options)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.4.1
+% Version: 0.4.2
 % $Rev$
 % $Date$
 %
@@ -165,6 +165,10 @@ if (nargout > 1)
                     auxidx = ~isinf(aux) & (aux ~= 0);
                     dtot(auxidx, I) = aux(auxidx);
                 end
+                
+                % 'constraint_map' can create distance matrices slightly
+                % asymmetric. We take the mean to make it symmetric
+                dtot = (dtot + dtot') / 2;
             end
             
         otherwise
