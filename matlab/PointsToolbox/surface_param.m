@@ -239,6 +239,8 @@ function [uv, out] = surface_param(x, param)
 %     PARAM.LocalIteration: Number of smoothing iteration in the local
 %               smoothing algorithm. By default, PARAM.LocalIteration = 10.
 %
+%--------------------------------------------------------------------------
+%
 %   * 'sphisomap': Our extension to the Isomap method for closed
 %     surfaces. The result is a parametrization on the unit sphere.
 %
@@ -298,7 +300,7 @@ function [uv, out] = surface_param(x, param)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.5.1
+% Version: 0.5.2
 % $Rev$
 % $Date$
 % 
@@ -526,6 +528,75 @@ switch param.type
         
 %--------------------------------------------------------------------------
 
+    case 'cald'
+        
+        param.options.vars = {'MeshGridSize', 'MaxSPHARMDegree', 'Tolerance', ...
+            'Smoothing', 'Iteration', 'LocalIteration', 't_major', ...
+            'SelectDiagonal', 'OutDirectory'};
+        param.options.args = [1 1 1 1 1 1 10 10 200];
+        param.options.inFilter = {
+            '*_bim.mat;*_fix.mat;*_obj.mat' 'Binary and Mesh Objects (*_bim.mat;*_fix.mat;*_obj.mat)'
+            '*_obj.mat'                     'Mesh Objects (*_obj.mat)'
+            '*_bim.mat;*_fix.mat'           'Binary Objects (*_bim.mat, *_fix.mat)'
+            '*.mat'                         'All Objects (*.mat)'
+            };
+        param.options.default = {'50'  '6'  '2'  '2'  '100'  '10'  ''  ''  './'};
+        if (~isfield(param.options, 'MeshGridSize') || isempty(param.options.MeshGridSize))
+            param.options.MeshGridSize = 50;
+        end
+        if (~isfield(param.options, 'MaxSPHARMDegree') || isempty(param.options.MaxSPHARMDegree))
+            param.options.MaxSPHARMDegree = 6;
+        end
+        if (~isfield(param.options, 'Tolerance') || isempty(param.options.Tolerance))
+            param.options.Tolerance = 2;
+        end
+        if (~isfield(param.options, 'Smoothing') || isempty(param.options.Smoothing))
+            param.options.Smoothing = 2;
+        end
+        if (~isfield(param.options, 'Iteration') || isempty(param.options.Iteration))
+            param.options.Iteration = 100;
+        end
+        if (~isfield(param.options, 'LocalIteration') || isempty(param.options.LocalIteration))
+            param.options.LocalIteration = 10;
+        end
+        param.options.t_major = 'x';
+        param.options.SelectDiagonal = 'ShortDiag';
+        param.options.OutDirectory = '.';
+        param.options = orderfields(param.options, ...
+            {'vars', 'args', 'inFilter', 'default', ...
+            'MeshGridSize', 'MaxSPHARMDegree', 'Tolerance', ...
+            'Smoothing', 'Iteration', 'LocalIteration', 't_major', ...
+            'SelectDiagonal', 'OutDirectory'});
+        
+        % initial parametrization
+        [sph_verts, name3] ...
+            = initParamCALD(x, param.tri, '', param.options);
+        
+        if (any(isnan(sph_verts)))
+            error('Initial parameterization produced NaN values')
+        end
+        
+        % smooth the parameterization
+        [~, ~, sph_verts, new_name] ...
+            = smootheCALD(x, param.tri, sph_verts, name3, param.options);
+        
+        % convert xyz coordinates to spherical coordinates
+        [lon, lat] ...
+            = cart2sph(sph_verts(:, 1), sph_verts(:, 2), sph_verts(:, 3));
+        
+        % delete files created by the SPHARM functions
+        if exist(new_name, 'file')
+            delete(new_name) % CALD_smo.mat
+        end
+        if exist('initParamCALD', 'file')
+            rmdir('initParamCALD', 's')
+        end
+        
+        % create output
+        uv = [lat lon];
+        
+%--------------------------------------------------------------------------
+
     case 'sphisomap'
 
         % if distance matrix is not provided by the user, it is computed
@@ -654,73 +725,6 @@ switch param.type
         
 %--------------------------------------------------------------------------
 
-    case 'cald'
-        
-        confs.vars = {'MeshGridSize', 'MaxSPHARMDegree', 'Tolerance', ...
-            'Smoothing', 'Iteration', 'LocalIteration', 't_major', ...
-            'SelectDiagonal', 'OutDirectory'};
-        confs.args = [1 1 1 1 1 1 10 10 200];
-        confs.inFilter = {
-            '*_bim.mat;*_fix.mat;*_obj.mat' 'Binary and Mesh Objects (*_bim.mat;*_fix.mat;*_obj.mat)'
-            '*_obj.mat'                     'Mesh Objects (*_obj.mat)'
-            '*_bim.mat;*_fix.mat'           'Binary Objects (*_bim.mat, *_fix.mat)'
-            '*.mat'                         'All Objects (*.mat)'
-            };
-        confs.default = {'50'  '6'  '2'  '2'  '100'  '10'  ''  ''  './'};
-        if (~isfield(param, 'MeshGridSize') || isempty(param.MeshGridSize))
-            confs.MeshGridSize = 50;
-        else
-            confs.MeshGridSize = param.MeshGridSize;
-        end
-        if (~isfield(param, 'MaxSPHARMDegree') || isempty(param.MaxSPHARMDegree))
-            confs.MaxSPHARMDegree = 6;
-        else
-            confs.MaxSPHARMDegree = param.MaxSPHARMDegree;
-        end
-        if (~isfield(param, 'Tolerance') || isempty(param.Tolerance))
-            confs.Tolerance = 2;
-        else
-            confs.Tolerance = param.Tolerance;
-        end
-        if (~isfield(param, 'Smoothing') || isempty(param.Smoothing))
-            confs.Smoothing = 2;
-        else
-            confs.Smoothing = param.Smoothing;
-        end
-        if (~isfield(param, 'Iteration') || isempty(param.Iteration))
-            confs.Iteration = 100;
-        else
-            confs.Iteration = param.Iteration;
-        end
-        if (~isfield(param, 'LocalIteration') || isempty(param.LocalIteration))
-            confs.LocalIteration = 10;
-        else
-            confs.LocalIteration = param.LocalIteration;
-        end
-        confs.t_major = 'x';
-        confs.SelectDiagonal = 'ShortDiag';
-        confs.OutDirectory = '.';
-        
-        % initial parametrization
-        [sph_verts, name3] = initParamCALD(x, param.tri, '', confs);
-        
-        % smooth the parameterization
-        [~, ~, sph_verts, new_name] = smootheCALD(x, param.tri, sph_verts, name3, confs);
-        
-        % convert xyz coordinates to spherical coordinates
-        [lon, lat] = cart2sph(sph_verts(:, 1), sph_verts(:, 2), sph_verts(:, 3));
-        
-        % delete files created by the SPHARM functions
-        if exist(new_name, 'file')
-            delete(new_name) % CALD_smo.mat
-        end
-        if exist('initParamCALD', 'file')
-            rmdir('initParamCALD', 's')
-        end
-        
-        % create output
-        uv = [lat lon];
-        
     otherwise
         
         error('Parametrization method not implemented')
