@@ -1,5 +1,20 @@
 2013-10-27  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/PointsToolbox/surface_param.m: (0.6.0)
+	* matlab/test/test_surface_param.m: (0.6.0)
+
+	- Rewrite 'smdscale', previously called 'sphisomap'. We no longer
+	use Dijkstra, so it's not Isomap. We use Fast Marching to compute
+	distances instead by default (although Dijkstra can still be
+	used). Parameters to the distance algorithm and to the MDS
+	algorithm are passed with param.options and param.options2, as
+	with previous methods.
+
+	- In 'cald', add missing help for param.tri.
+
+	- Check number of output arguments within each parameterization
+	case. They have 1 or 2.
+
 	* ManifoldToolbox/dmatrix_mesh.m: (0.4.2)
 
 	- Fix bug. constraint_map' can create distance matrices slightly

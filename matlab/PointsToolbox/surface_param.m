@@ -211,6 +211,9 @@ function [uv, out] = surface_param(x, param)
 %   * 'cald': Li Shen's Control Area and Length Distortions (CALD)
 %     spherical parametrization [6, 7].
 %
+%     PARAM.tri: [Req] 3-column matrix. Each row contains the 3 nodes that
+%       form one triangular facet in the mesh.
+%
 %     PARAM.options: [Opt] Extra arguments passed to CALD:
 %       - options.MeshGridSize: The interpolation mesh used to smooth the
 %         spherical parametrization has length 2*PARAM.MeshGridSize+1. By
@@ -234,33 +237,77 @@ function [uv, out] = surface_param(x, param)
 %
 %--------------------------------------------------------------------------
 %
-%   * 'sphisomap': Our extension to the Isomap method for closed
-%     surfaces. The result is a parametrization on the unit sphere.
+%   * 'smdscale': Local neighbourhood Multidimensional scaling on a sphere.
+%     Our extension to lmdscale() 
 %
-%     PARAM.d:     See 'isomap' above.
-%     PARAM.neigh: See 'isomap' above.
-%     PARAM.size:  See 'isomap' above.
+%     PARAM.d or PARAM.tri must be provided. If PARAM.d is provided,
+%     PARAM.tri and PARAM.options are ignored. Otherwise, PARAM.d is
+%     computed from PARAM.tri and PARAM.options.
 %
-%     PARAM.init:   Initial parametrization. It can be a 2-column matrix,
-%                   in which case those are the coordinates directly
-%                   used, or a string:
+%     PARAM.d: [Req/Opt] Can be a sparse or full distance matrix. Distances
+%       greater than 0 reflect that two vertices are within a common local
+%       neighbourhood.
+%         [~, param.d] = dmatrix_mesh(param.tri, x, 'fastmarching');
 %
-%                   'sphproj': (default) Surface points are projected
-%                   onto the sphere along the radii to their centroid.
+%     If PARAM.d is not provided:
 %
-%                   'random': Uniformly random distribution of points on
-%                   the sphere. Counter-intuitively, this can work better
-%                   than sphproj, because it may prevent MDS from getting
-%                   trapped in local minima.
+%     PARAM.tri: [Req/Opt] 3-column matrix. Each row contains the 3 nodes
+%       that form one triangular facet in the mesh.
 %
-%      PARAM.*:     Any other fields are passed to function
-%                   smdscale(...,OPT=PARAM). This allows to pass e.g.
-%                   stopping conditions to the spherical MDS algorithm.
-%                   See "help smdscale" for all options.
+%     PARAM.dmethod: [Opt] String with the method to compute distances
+%       between non-neighbours: 'fastmarching' (default) or 'dijkstra'. The
+%       latter is faster, but suffers much more from metrication errors,
+%       and produces only full matrices in the current implementation, so
+%       it's not valid for local neighbourhoods.
 %
-%      OUT.err:     Frobenius norm of the distance matrix error
-%                   D_xy - D_uv at each step of the optimisation
-%                   algorithm (moving each point counts as a step).
+%     PARAM.options: [Opt] Extra arguments passed to the fast marching
+%       method. From the help to perform_fast_marching_mesh():
+%       - options.constraint_map: Exploration radius to reduce the set of
+%         explored points. Only points with current distance smaller than L
+%         will be expanded. Set some entries of L to -Inf to avoid any
+%         exploration of these points.
+%       - options.W: non-uniform speed.
+%       - options.end_points: stop when these points are reached.
+%       - options.nb_iter_max: stop when a given number of iterations is
+%         reached.
+%       - options.heuristic: heuristic that tries to guess the distance
+%         that remains from a given node to a given target. This is an
+%         array of same size as W.
+%
+%     PARAM.init: [Opt] Parameterization initialisation:
+%       - 'sphproj' (default): Direct projection on unit sphere centered on
+%         point set centroid, as the option above.
+%       - 'random': Random distribution of points on the sphere. This is
+%         useful if 'sphproj' produces a fold-over of points that
+%         corresponds to a local minimum.
+%       - [lat lon]: A 2-column matrix with the initial latitude and
+%         longitude coordinates of the parameterization.
+%
+%     PARAM.sphrad: [Opt] Parameterization sphere's radius. If not
+%       provided, it is computed as the median of the distance of the
+%       points in X to their centroid.
+%
+%     PARAM.options2: [Opt] Extra arguments passed to the spherical local
+%       neighbourhood MDS algorithm. See help to smdscale().
+%       - opt.MaxIter: (default = 20) maximum number of iterations we allow
+%         the optimisation algorithm. Each iteration consists of an entire
+%         sweep of all points on the sphere.
+%       - opt.MaxAlpha:  inc is the angular distance in radians that each
+%         output point is moved in an iteration. The algorithm will stop if
+%         no point has been moved more than MaxAlpha.
+%
+%     OUT.stopCondition: cell-array with the condition/s that made the
+%       algorithm stop, in string form.
+%
+%     OUT.err: Error measures vs. iterations:
+%       - err.rawstress: Raw stress (sigma_r), as defined above.
+%       - err.stress1:   Stress-1 (sigma_1).
+%         sigma_1 = sqrt(sigma_r / sum_{i,j} (d_ij)^2)
+%       - err.maxalpha:  Maximum angular displacement of any point in each
+%         iteration.
+%       - err.medalpha:  Median angular displacement of all points in each
+%         iteration.
+%
 %--------------------------------------------------------------------------
 %
 %
@@ -293,7 +340,7 @@ function [uv, out] = surface_param(x, param)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.5.3
+% Version: 0.6.0
 % $Rev$
 % $Date$
 % 
@@ -322,7 +369,6 @@ function [uv, out] = surface_param(x, param)
 
 % check arguments
 narginchk(2, 2);
-nargoutchk(0, 2);
 
 if (size(x, 2) ~= 3)
     error('X must be a 3-column matrix')
@@ -348,12 +394,18 @@ switch param.type
 
     case 'xy'
         
+        % check arguments
+        nargoutchk(0, 1);
+        
         % (u,v) is simply (x,y)
         uv = x(:, 1:2);
         
 %--------------------------------------------------------------------------
 
     case 'pca'
+        
+        % this function doesn't provide the "out" output
+        nargoutchk(0, 1);
         
         % rotate valve points to make the valve surface as horizontal as
         % possible
@@ -367,6 +419,9 @@ switch param.type
 
     case 'isomap'
         
+        % check arguments
+        nargoutchk(0, 1);
+
         % IsomapII takes the following distance matrices:
         %  (1) a full N x N matrix (as in isomap.m)  
         %  (2) a sparse N x N matrix (missing entries are treated as INF)
@@ -406,6 +461,9 @@ switch param.type
 
     case 'cmdsmap'
         
+        % check arguments
+        nargoutchk(0, 1);
+
         % if distance matrix is not provided we need to compute it from the
         % mesh description
         if (~isfield(param, 'd') || isempty(param.d))
@@ -464,6 +522,9 @@ switch param.type
 
     case 'lmdscale'
         
+        % check arguments
+        nargoutchk(0, 2);
+
         % if distance matrix is not provided we need to compute it from the
         % mesh description
         if (~isfield(param, 'd') || isempty(param.d))
@@ -505,6 +566,9 @@ switch param.type
 
     case 'sphproj'
         
+        % check arguments
+        nargoutchk(0, 2);
+
         % init output
         uv = zeros(size(x, 1), 1);
         
@@ -523,6 +587,17 @@ switch param.type
 
     case 'cald'
         
+        % check arguments
+        nargoutchk(0, 1);
+
+        % required parameters
+        if (~isfield(param, 'tri') || isempty(param.tri))
+            error('PARAM.tri must be provided')
+        end
+
+        % set up parameters for the CALD algorithm. We have to create a
+        % structure with the right format. We can then replace default
+        % values by values provided by the user
         param.options.vars = {'MeshGridSize', 'MaxSPHARMDegree', 'Tolerance', ...
             'Smoothing', 'Iteration', 'LocalIteration', 't_major', ...
             'SelectDiagonal', 'OutDirectory'};
@@ -590,78 +665,65 @@ switch param.type
         
 %--------------------------------------------------------------------------
 
-    case 'sphisomap'
+    case 'smdscale'
 
-        % if distance matrix is not provided by the user, it is computed
-        % internally as the full Euclidean distance matrix. Note that we
-        % can still define local neighbourdhoods with the size parameter
-        if (~isfield(param, 'd') || isempty(param.d))
-            param.d = dmatrix(x', x', 'euclidean');
-        end
-        
+        % check arguments
+        nargoutchk(0, 2);
+
         % number of points to embed
         N = size(x, 1);
         
-        % reduce the fully connected matrix of Euclidean distances to a
-        % sparse local neighbourhood matrix
-        if (param.size < Inf)
-            switch param.neigh
-                
-                case 'epsilon'
-                    
-                    param.d(param.d > param.size) = 0;
-                    
-                case 'k'
-                    
-                    % the code here reproduces the behaviour of the
-                    % equivalent in IsomapII, only here by columns instead
-                    % of by rows. The symmetrization step makes the result
-                    % the same
-                    
-                    % column by column, sort neighbours in oder of
-                    % increasing distance
-                    [~, idx] = sort(param.d, 1, 'ascend');
-                    
-                    % we want to keep only the k+1 nearest neighbours (k
-                    % neighbours + the point itself)
-                    idx = idx(1:param.size+1, :);
-                    
-                    % all the indices just computed refer to their
-                    % corresponding column, i.e., they are all from 1 to N.
-                    % Make the indines refer to the whole matrix
-                    idx = idx + repmat((0:N-1)*N, param.size+1, 1);
-                    
-                    % keep only the k-nearest neighbour distances
-                    aux = zeros(size(param.d));
-                    aux(idx) = param.d(idx);
-                    param.d = aux;
-                    
-                    % make sure the distance matrix is symmetric
-                    param.d = min(param.d, param.d');
-                    
-                otherwise
-                    error('Invalid neighbourhood type')
+        % if distance matrix is not provided we need to compute it from the
+        % mesh description
+        if (~isfield(param, 'd') || isempty(param.d))
+            
+            % but if the user hasn't provided the mesh triangulation
+            % either, we cannot, so we give an error
+            if (~isfield(param, 'tri') || isempty(param.tri))
+                error('Either PARAM.d or PARAM.tri must be provided')
             end
+            
+            % if no options are provided for fastmarching, we need to have
+            % at least an empty field
+            if (~isfield(param, 'options') || isempty(param.options))
+                param.options = [];
+            end
+            
+            % default for fast marching method options
+            if (~isfield(param, 'dmethod') || isempty(param.dmethod))
+                param.dmethod = 'fastmarching';
+            end
+            if (~isfield(param, 'options') || isempty(param.options))
+                param.options = [];
+            end
+            
+            % compute neighbourhood distance matrix from the mesh
+            [~, param.d] ...
+                = dmatrix_mesh(param.tri, x, param.dmethod, param.options);
+            
         end
-        param.d = sparse(param.d);
-        
+  
         % defaults
-        if (~isfield(param, 'maxiter') || isempty(param.maxiter))
-            param.maxiter = 50;
-        end
         if (~isfield(param, 'init') || isempty(param.init))
             param.init = 'sphproj';
         end
 
         % sMDS initialisation
         if ischar(param.init) % initial parametrization as a string
+            
             switch param.init
                 case 'sphproj'
                     
                     % initial guess for the sphere embedding by simply
                     % projecting each point along the radius to the
                     % centroid
-                    [lat, lon] = proj_on_sphere(x);
+                    [lat, lon, sphrad] = proj_on_sphere(x);
+                    
+                    % if the user didn't provide an estimate for the
+                    % parameterization sphere's radius, we can use sphrad
+                    if (~isfield(param, 'sphrad') || isempty(param.sphrad))
+                        param.sphrad = sphrad;
+                    end
                     
                 case 'random'
                     
@@ -673,43 +735,33 @@ switch param.type
                 otherwise
                     error('Not valid initialisation for spherical Isomap parameterisation')
             end
+            
         else % initial parametrization as a point set
+            
             if (size(param.init, 1) ~= N || size(param.init, 1) ~= 2)
                 error('Initial parametrization provided, but it is not a 2-column matrix with the same number of points as X')
             end
             
             lat = param.init(:, 1);
             lon = param.init(:, 2);
+            
         end
         
-        % compute the full matrix of distances from the local neighbourhood
-        % one
-        param.d = dijkstra(param.d, 1:N);
+        % if the user has not provided an estimate for the parameterization
+        % sphere's radius, we have to compute it internally
+        if (~isfield(param, 'sphrad') || isempty(param.sphrad))
+            [~, ~, param.sphrad] = proj_on_sphere(x);
+        end
         
-        % estimate the size of the sphere so that it can accommodate the
-        % distance matrix
-        %
-        % first, we find the furthest point from each point. The median of
-        % the corresponding distances give an estimate of the half
-        % circumference of the sphere. The radius = half_circumference/pi
-        % because circumference = 2*pi*radius
-        sphrad = median(max(param.d)) / pi;
+        % if no options are provided for the MDS algorithm, we need to have
+        % at least an empty field
+        if (~isfield(param, 'options2') || isempty(param.options2))
+            param.options = [];
+        end
         
         % compute the parametrization that optimises isometry
-        [lat, lon, out.err, out.stopCondition, out.dsph, out.sphrad] = ...
-            smdscale(param.d, sphrad, lat, lon, rmfield(param, 'd'));
-        
-%         % DEBUG: plot parametrization
-%         [xsph, ysph, zsph] = sph2cart(lon, lat, sphrad);
-%         [~, xyzsph] = procrustes(x, [xsph ysph zsph], 'Scaling', false);
-%         tri = DelaunayTri(xyzsph);
-%         tri = freeBoundary(tri);
-%         trisurf(tri, x(:, 1), x(:, 2), x(:, 3));
-%         axis equal
-%         
-%         % DEBUG: plot cloud of points for parameterisation
-%         plot3(xsph, ysph, zsph, '.')
-%         axis equal
+        [lat, lon, out.stopCondition, out.err] = ...
+            smdscale(param.d, param.sphrad, lat, lon, param.options2);
         
         % create output with the parameterisation values for each point
         % lat = em(1, :)
