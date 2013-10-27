@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.5.2
+% Version: 0.6.0
 % $Rev$
 % $Date$
 %
@@ -200,6 +200,9 @@ x = scinrrd_index2world([r c s], scimat.axis);
 % subsample boundary points
 x = x(randi(size(x, 1), round(size(x, 1)/5), 1), :);
 
+% order a bit the vertices, so that nearby vertices are close
+x = sortrows(x);
+
 % plot point set
 subplot(2, 2, 1)
 hold off
@@ -276,7 +279,7 @@ param.options.Tolerance = 2;
 param.options.Smoothing = 2;
 param.options.Iteration = 100;
 param.options.LocalIteration = 10;
-[latlon, out] = surface_param(x, param);
+latlon = surface_param(x, param);
 
 % rigid registration to overlap the solution with the original data
 [xx, yy, zz] = sph2cart(latlon(:, 2), latlon(:, 1), sphrad);
@@ -289,181 +292,81 @@ trisurf(tri, x1(:, 1), x1(:, 2), x1(:, 3))
 title('CALD')
 axis equal
 
-%% spherical Isomap
+%% smdscale
 
 % compute spherical Isomap parametrization, no need the constrain the
 % distance matrix more
-param.d = dmatrix_mesh(x, tri);
-param.type = 'sphisomap';
-param.neigh = 'epsilon';
-param.size = Inf;
+clear param
+param.type = 'smdscale';
+param.tri = tri;
+param.dmethod = 'fastmarching';
+% param.options.constraint_map = .2 * sphrad * ones(size(x, 1), 1);
+param.sphrad = sqrt(sum(cgal_trifacet_area(tri, x))/4/pi);
 param.init = 'random';
+param.options2.MaxIter = 15;
+param.options2.MaxAlpha = .01 / 180 * pi;
 [uv, out] = surface_param(x, param);
+out.stopCondition
 lat = uv(:, 1);
 lon = uv(:, 2);
-
-% plot parametrization
-subplot(2, 2, 3)
-hold off
-[xsph, ysph, zsph] = sph2cart(lon, lat, 1);
-[~, xyzsph] = procrustes(x, [xsph ysph zsph], 'Scaling', false);
-trisurf(tri, xsph, ysph, zsph);
-axis equal
-
-% plot error
-subplot(2, 2, 4)
-hold off
-plot(out.err)
-ylabel('||D-D_{param}||_{Frob}')
-xlabel('Iteration (each point movement)')
-title('Isometry error')
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Closed surface from segmentation mesh
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% load segmentation
-scimat = scinrrd_load('data/008-lvhull-downsampled-4.mha');
-scimat = scinrrd_load('data/008-rvhull-downsampled-4.mha');
-
-% compute surface mesh from segmentation
-opt = .004;
-method = 'simplify';
-
-tic
-[x, tri] = v2s(single(scimat.data), 1, opt, method);
-tri = tri(:, 1:3);
-toc
-
-% plot mesh
-subplot(1, 2, 1)
-hold off
-plotmesh(x, tri)
-axis equal
-
-% normalize the mesh so that it's more spherical (CALD does not need this,
-% but this way the comparison is fairer)
-x = pca_normalize(x);
-
-%% Direct sphere projection
-[uv, out] = surface_param(x, 'sphproj');
 
 % plot parametrization
 subplot(1, 2, 2)
 hold off
-lat = uv(:, 1);
-lon = uv(:, 2);
-[xsph, ysph, zsph] = sph2cart(lon, lat, 1);
-[~, xyzsph] = procrustes(x, [xsph, ysph, zsph], 'Scaling', false);
-trisurf(tri, xyzsph(:, 1), xyzsph(:, 2), xyzsph(:, 3));
-title('Projection on sphere')
+[xx, yy, zz] = sph2cart(lon, lat, param.sphrad);
+[~, x1] = procrustes(x, [xx, yy, zz], 'Scaling', false);
+trisurf(param.tri, x1(:, 1), x1(:, 2), x1(:, 3));
+title('smdscale')
 axis equal
 
-% note the severe overlapping in the RV case
-
-%% CALD (Control Area and Length Distortions)
-
-% % first using the SPHARM-MAT toolbox GUI
-% faces = tri;
-% vertices = x;
-% save('/tmp/bar_obj.mat', 'faces', 'vertices')
-% SPHARM_MAT
-% load('/tmp/bar_CALD_smo.mat')
-% 
-% % plot parametrization
-% subplot(2, 2, 3)
-% hold off
-% [~, xyzsph] = procrustes(x, sph_verts, 'Scaling', false);
-% trisurf(tri, xyzsph(:, 1), xyzsph(:, 2), xyzsph(:, 3));
-% title('CALD')
-% axis equal
-
-% compute CALD parametrization using our surface_param() function
-param.type = 'cald';
-param.tri = tri;
-[uv, out] = surface_param(x, param);
-latCALD = uv(:, 1);
-lonCALD = uv(:, 2);
-
-% plot parametrization
-subplot(2, 2, 3)
-hold off
-lat = uv(:, 1);
-lon = uv(:, 2);
-[xsph, ysph, zsph] = sph2cart(lon, lat, 1);
-[~, xyzsph] = procrustes(x, [xsph, ysph, zsph], 'Scaling', false);
-trisurf(tri, xyzsph(:, 1), xyzsph(:, 2), xyzsph(:, 3));
-title('CALD')
-axis equal
-
-%% spherical Isomap
-
-% compute spherical Isomap parametrization
-param.d = dmatrix_mesh(x, tri);
-param.type = 'sphisomap';
-param.neigh = 'epsilon';
-param.size = Inf;
-param.init = 'random';
-param.maxiter = 50;
-[uv, out] = surface_param(x, param);
-latIso = uv(:, 1);
-lonIso = uv(:, 2);
-
-% plot parametrization
-subplot(2, 2, 4)
-hold off
-[xsph, ysph, zsph] = sph2cart(lonIso, latIso, 1);
-[~, xyzsph] = procrustes(x, [xsph ysph zsph], 'Scaling', false);
-trisurf(tri, xsph, ysph, zsph);
-title('Spherical Isomap')
-axis equal
+% check for self-intersections
+bad = cgal_check_self_intersect(param.tri, x1);
+nnz(bad>0)
 
 % plot error
-subplot(1, 1, 1)
+figure
+subplot(2, 2, 1)
 hold off
-plot(out.err)
-ylabel('||D-D_{param}||_{Frob}')
-xlabel('Iteration (each point movement)')
-title('Isometry error')
-
-% plot distances to optimize vs spherical distances
-d = dijkstra(sparse(param.d), 1:length(param.d));
+plot(out.err.rawstress)
+title('Raw stress')
+subplot(2, 2, 2)
+hold off
+plot(out.err.stress1)
+title('Stress1')
 subplot(2, 1, 2)
 hold off
-plot(d(:), out.dsph(:), '.')
+plot(out.err.maxalpha)
 hold on
-plot([0 max(d(:))], [0 max(d(:))], 'r', 'LineWidth', 2)
-title('Spherical Isomap')
-xlabel('Distance on the mesh')
-ylabel('Distance on the spherical parametrization')
-axis equal
+plot(out.err.medalpha)
+title('Alpha')
 
-%% compare spherical Isomap and CALD
-
-% compute great circle distances for CALD
-dsphCALD = zeros(size(out.dsph));
-for I = 1:length(dsphCALD)
-    dsphCALD(:, I) = distance(latCALD(I), lonCALD(I), latCALD, lonCALD, ...
-        [out.sphrad 0], 'radians');
-end
-
-% plot distances to optimize vs spherical distances for CALD
-subplot(2, 1, 1)
-hold off
-plot(d(:), dsphCALD(:), '.')
-hold on
-plot([0 max(d(:))], [0 max(d(:))], 'r', 'LineWidth', 2)
-title('CALD')
-xlabel('Distance on the mesh')
-ylabel('Distance on the spherical parametrization')
-axis equal
-
-
-% plot boxplots with the distance ratios
-N = numel(d);
-subplot(1, 1, 1)
-hold off
-boxplot([d(:)-dsphCALD(:) ; d(:)-out.dsph(:)], ...
-    [ones(N, 1); 2*ones(N, 1)], 'labels', {'CALD', 'Sph Isomap'}, ...
-    'notch', 'on')
-title('Target distance - distance on spherical parametrization')
+% TODO:
+% %% compare spherical Isomap and CALD
+% 
+% % compute great circle distances for CALD
+% dsphCALD = zeros(size(out.dsph));
+% for I = 1:length(dsphCALD)
+%     dsphCALD(:, I) = distance(latCALD(I), lonCALD(I), latCALD, lonCALD, ...
+%         [out.sphrad 0], 'radians');
+% end
+% 
+% % plot distances to optimize vs spherical distances for CALD
+% subplot(2, 1, 1)
+% hold off
+% plot(d(:), dsphCALD(:), '.')
+% hold on
+% plot([0 max(d(:))], [0 max(d(:))], 'r', 'LineWidth', 2)
+% title('CALD')
+% xlabel('Distance on the mesh')
+% ylabel('Distance on the spherical parametrization')
+% axis equal
+% 
+% 
+% % plot boxplots with the distance ratios
+% N = numel(d);
+% subplot(1, 1, 1)
+% hold off
+% boxplot([d(:)-dsphCALD(:) ; d(:)-out.dsph(:)], ...
+%     [ones(N, 1); 2*ones(N, 1)], 'labels', {'CALD', 'Sph Isomap'}, ...
+%     'notch', 'on')
+% title('Target distance - distance on spherical parametrization')
