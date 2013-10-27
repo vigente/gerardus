@@ -87,7 +87,7 @@ function [u, v, stopCondition, err, dout] = lmdscale(d, u, v, opt)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -167,13 +167,15 @@ if (nargout >= 4)
         % list of connected points
         [Icon, Jcon] = find(d ~= 0);
         
-        % angular distance between points
-        dout = distanceang(lat(Icon), lon(Icon), lat(Jcon), lon(Jcon));
+        % distance between points
+        dout = sqrt(sum((u(Icon) - u(Jcon)).^2 ...
+            + (v(Icon) - v(Jcon)).^2, 2));
         
         % compute different types of stress
-        err.rawstress = norm(dout - d(d ~= 0));
-        normdcon = norm(d(d ~= 0)); % no need to repeat this computation
-        err.stress1 = sqrt(norm(dout - d(d ~= 0))/normdcon);
+        idx0 = (d ~= 0);
+        err.rawstress = norm(dout - d(idx0));
+        normdcon = norm(d(idx0)); % no need to repeat this computation
+        err.stress1 = sqrt(norm(dout - d(idx0))/normdcon);
     
     else % fully connected graphs
         
@@ -231,12 +233,13 @@ while isempty(stopCondition)
         
         if issparse(d) % local neighbourhoods
             
-            % angular distance between points
-            dout = distanceang(lat(Icon), lon(Icon), lat(Jcon), lon(Jcon));
+            % distance between points
+            dout = sqrt(sum((u(Icon) - u(Jcon)).^2 ...
+                + (v(Icon) - v(Jcon)).^2, 2));
             
             % compute different types of stress
-            err.rawstress(end+1) = norm(dout - d(d ~= 0));
-            err.stress1(end+1) = sqrt(norm(dout - d(d ~= 0))/normdcon);
+            err.rawstress(end+1) = norm(dout - d(idx0));
+            err.stress1(end+1) = sqrt(norm(dout - d(idx0))/normdcon);
             
         else % fully connected graphs
             
