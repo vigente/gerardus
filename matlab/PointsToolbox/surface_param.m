@@ -185,12 +185,11 @@ function [uv, out] = surface_param(x, param)
 %     PARAM.options2: [Opt] Extra arguments passed to the local
 %       neighbourhood MDS algorithm. See help to lmdscale().
 %       - opt.MaxIter: (default = 20) maximum number of iterations we allow
-%                      the optimisation algorithm. Each iteration consists
-%                      of an entire sweep of all points on the sphere.
-%  
+%         the optimisation algorithm. Each iteration consists of an entire
+%         sweep of all points on the sphere.
 %       - opt.MaxInc:  inc is the Euclidean distance that each output point
-%                      is moved in an iteration. The algorithm will stop if
-%                      no point has been moved more than MaxInc.
+%         is moved in an iteration. The algorithm will stop if no point has
+%         been moved more than MaxInc.
 %
 %     OUT.stopCondition: cell-array with the condition/s that made the
 %       algorithm stop, in string form.
@@ -209,35 +208,29 @@ function [uv, out] = surface_param(x, param)
 %
 %--------------------------------------------------------------------------
 %
-%   * 'cald':      Li Shen's Control Area and Length Distortions (CALD)
+%   * 'cald': Li Shen's Control Area and Length Distortions (CALD)
 %     spherical parametrization [6, 7].
 %
-%     PARAM.MeshGridSize: The interpolation mesh used to smooth the
-%                  spherical parametrization has length
-%                  2*PARAM.MeshGridSize+1. By default,
-%                  PARAM.MeshGridSize = 50.
-%
-%     PARAM.MaxSPHARMDegree: Degree of the spherical harmonics used for
-%                 interpolation to smooth the spherical parametrization.
-%                 By default, PARAM.MaxSPHARMDegree = 6.
-%
-%     PARAM.Tolerance: Scalar. In the interpolation smoothing, grid
-%                 points with a height larger than PARAM.Tolerance*gmin,
-%                 where gmin is the lowest point in the grid, will be
-%                 truncated. By default, PARAM.Tolerance = 2.
-%
-%     PARAM.Smoothing: Scalar. Before parametrization smoothing,
-%                parametrization triangle areas relative to triangular
-%                mesh areas are smoothed by elevating to
-%                (1/PARAM.Smoothing). By default, PARAM.Smoothing = 2.
-%
-%     PARAM.Iteration: Maximum number of smoothing iterations. Smoothing
-%                will stop before reaching PARAM.Iteration if the
-%                algorithm converges to a solution. By default,
-%                PARAM.Iteration = 100.
-%
-%     PARAM.LocalIteration: Number of smoothing iteration in the local
-%               smoothing algorithm. By default, PARAM.LocalIteration = 10.
+%     PARAM.options: [Opt] Extra arguments passed to CALD:
+%       - options.MeshGridSize: The interpolation mesh used to smooth the
+%         spherical parametrization has length 2*PARAM.MeshGridSize+1. By
+%         default, MeshGridSize = 50.
+%       - options.MaxSPHARMDegree: Degree of the spherical harmonics used
+%         for interpolation to smooth the spherical parametrization. By
+%         default, MaxSPHARMDegree = 6.
+%       - options.Tolerance: Scalar. In the interpolation smoothing, grid
+%         points with a height larger than PARAM.Tolerance*gmin, where gmin
+%         is the lowest point in the grid, will be truncated. By default,
+%         Tolerance = 2.
+%       - options.Smoothing: Scalar. Before parametrization smoothing,
+%         parametrization triangle areas relative to triangular mesh areas
+%         are smoothed by elevating to (1/PARAM.Smoothing). By default,
+%         Smoothing = 2.
+%       - options.Iteration: Maximum number of smoothing iterations.
+%         Smoothing will stop before reaching Iteration if the algorithm
+%         converges to a solution. By default, Iteration = 100.
+%       - options.LocalIteration: Number of smoothing iteration in the
+%         local smoothing algorithm. By default, LocalIteration = 10.
 %
 %--------------------------------------------------------------------------
 %
@@ -300,7 +293,7 @@ function [uv, out] = surface_param(x, param)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.5.2
+% Version: 0.5.3
 % $Rev$
 % $Date$
 % 
