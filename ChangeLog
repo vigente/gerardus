@@ -1,6 +1,20 @@
 2013-11-03  Ramon Casero  <rcasero@gmail.com>
 
-	* PointsToolbox/coords_from_dist_gower.m: (0.2.1)
+	* matlab/ManifoldToolbox/dmatrix_mesh.m: (0.4.3)
+
+	- In 'fastmarching', symmetrize distance matrix by throwing away
+	the bottom half of the distance matrix, and replacing it by the
+	top half. We cannot compute only the top half, because if we use
+	options.constraint_map, the algorithm will stop sometimes before
+	reaching vertices it should reach. Maybe that's because it has
+	already reached all vertices that correspond to the bottom half,
+	I'm not sure.
+
+	- In 'fastmarching', simplify code by always having an
+	options.constraint_map, even if it's empty because the user didn't
+	provide one.
+
+	* matlab/PointsToolbox/coords_from_dist_gower.m: (0.2.1)
 
 	- Update syntax that checks the number of input/output arguments
 	as it will be deprecated by Matlab.
