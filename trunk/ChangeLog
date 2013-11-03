@@ -1,3 +1,10 @@
+2013-11-03  Ramon Casero  <rcasero@gmail.com>
+
+	* PointsToolbox/coords_from_dist_gower.m: (0.2.1)
+
+	- Update syntax that checks the number of input/output arguments
+	as it will be deprecated by Matlab.
+
 2013-10-27  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/surface_param.m: (0.6.0)
