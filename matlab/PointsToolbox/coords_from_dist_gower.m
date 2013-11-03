@@ -24,8 +24,8 @@ function z = coords_from_dist_gower(x, d, tol)
 % Biometrika, 55(3):582–585, 1968.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010-2011 University of Oxford
-% Version: 0.2.0
+% Copyright © 2010-2013 University of Oxford
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -53,8 +53,8 @@ function z = coords_from_dist_gower(x, d, tol)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 3, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
+narginchk(2, 3);
+nargoutchk(0, 1);
 
 if (size(d, 1) ~= size(x, 2))
     error('Vertical distance vector d must have a value for each landmark')
