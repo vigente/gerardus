@@ -164,13 +164,11 @@ if (nargout > 1)
             N = length(d);
             
             % loop the columns of the distance matrix
-            tic
             for I = 1:N
                 aux = perform_fast_marching_mesh(x, tri, I, options);
                 auxidx = ~isinf(aux) & (aux ~= 0);
                 dtot(auxidx, I) = aux(auxidx);
             end
-            toc
             
             % symmetrize the distance matrix by replacing the bottom
             % triangular half with the top half
