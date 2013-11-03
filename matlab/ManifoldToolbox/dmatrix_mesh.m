@@ -66,7 +66,7 @@ function [d, dtot] = dmatrix_mesh(tri, x, totmethod, options)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.4.2
+% Version: 0.4.3
 % $Rev$
 % $Date$
 %
@@ -139,37 +139,43 @@ d = sparse([e(:, 1); e(:, 2)], [e(:, 2); e(:, 1)], [d; d]);
 if (nargout > 1)
     switch totmethod
         case 'dijkstra'
+            
             narginchk(1, 3); % this syntax does not accept options input variable
             dtot = dijkstra(d, 1:length(d));
             
         case 'fastmarching'
             
-            if (isfield(options, 'constraint_map'))
+            if (~isfield(options, 'constraint_map') ...
+                    || isempty(options.constraint_map))
+                % if the user doesn't limit the neighbourhood, we assume a
+                % full distance matrix
+                dtot = zeros(size(d));
+                options.constraint_map = [];
+            else
                 % if the user limits the size of the neighbourhood, we are
                 % going to assume that it's more efficient to store the
                 % distance matrix in sparse form. This of course will not
                 % be true if the neighbourhood is quite close to the size
                 % of the mesh
                 dtot = sparse(d);
-            else
-                dtot = zeros(size(d));
             end
-                        
-            if isempty(options)
-                for I = 1:length(d)
-                    dtot(:, I) = perform_fast_marching_mesh(x, tri, I);
-                end
-            else
-                for I = 1:length(d)
-                    aux = perform_fast_marching_mesh(x, tri, I, options);
-                    auxidx = ~isinf(aux) & (aux ~= 0);
-                    dtot(auxidx, I) = aux(auxidx);
-                end
-                
-                % 'constraint_map' can create distance matrices slightly
-                % asymmetric. We take the mean to make it symmetric
-                dtot = (dtot + dtot') / 2;
+            
+            % number of vertices
+            N = length(d);
+            
+            % loop the columns of the distance matrix
+            tic
+            for I = 1:N
+                aux = perform_fast_marching_mesh(x, tri, I, options);
+                auxidx = ~isinf(aux) & (aux ~= 0);
+                dtot(auxidx, I) = aux(auxidx);
             end
+            toc
+            
+            % symmetrize the distance matrix by replacing the bottom
+            % triangular half with the top half
+            dtot = triu(dtot);
+            dtot = dtot + dtot';
             
         otherwise
             error('Total distance method not implemented')
