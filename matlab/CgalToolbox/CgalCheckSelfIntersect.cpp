@@ -31,7 +31,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2013 University of Oxford
-  * Version: 0.3.2
+  * Version: 0.4.0
   * $Rev$
   * $Date$
   *
@@ -104,7 +104,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 		 int nrhs, const mxArray *prhs[]) {
 
   // interface to deal with input arguments from Matlab
-  enum InputIndexType {IN_TRI, IN_X, InputIndexType_MAX};
+  enum InputIndexType {IN_TRI, IN_X, IN_ITRI, InputIndexType_MAX};
   MatlabImportFilter::Pointer matlabImport = MatlabImportFilter::New();
   matlabImport->ConnectToMatlabFunctionInput(nrhs, prhs);
 
@@ -115,6 +115,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   typedef MatlabImportFilter::MatlabInputPointer MatlabInputPointer;
   MatlabInputPointer inTRI = matlabImport->RegisterInput(IN_TRI, "TRI");
   MatlabInputPointer inX = matlabImport->RegisterInput(IN_X, "X");
+  MatlabInputPointer inITRI = matlabImport->RegisterInput(IN_ITRI, "ITRI");
 
   // interface to deal with outputs to Matlab
   enum OutputIndexType {OUT_C, OutputIndexType_MAX};
@@ -145,6 +146,15 @@ void mexFunction(int nlhs, mxArray *plhs[],
   if ((ncolsTri != 3) || (ncolsX != 3)) {
     mexErrMsgTxt("All input arguments must have 3 columns");
   }
+
+  // get list of triangle indices the user wants to check
+  // intersections for. By default, we check all triangles
+  std::vector<mwIndex> itriDef(nrowsTri);
+  for (mwSize i = 0; i < nrowsTri; ++i) {
+    itriDef[i] = i + 1;
+  }
+  std::vector<mwIndex> itri = matlabImport->
+    ReadRowVectorFromMatlab<mwIndex, std::vector<mwIndex> >(inITRI, itriDef);
 
   // read triangular mesh from function
   std::vector<Triangle> triangles(nrowsTri);
@@ -199,10 +209,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
   std::list<Object_and_primitive_id> intersections;
 
   // loop every facet to see whether it intersects the mesh
-  for (Iterator it = triangles.begin(); it != triangles.end(); ++it) {
+  for (std::vector<mwIndex>::iterator itri_it = itri.begin(); itri_it != itri.end(); ++itri_it) {
 
-    // triangle index
-    mwIndex idx = std::distance(triangles.begin(), it);
+    // triangle index (converting Matlab index convention 1, 2, 3,... to C++ 0, 1, 2,...
+    mwIndex idx = *itri_it - 1;
+
+    // iterator pointer to the triangle
+    Iterator it = triangles.begin();
+    it += idx;
 
     // // DEBUG:
     // std::cout << ++triNum << ": Triangle = " << *it << std::endl;

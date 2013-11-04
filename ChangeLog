@@ -1,5 +1,13 @@
 2013-11-04  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CgalToolbox/CgalCheckSelfIntersect.cpp: (0.4.0)
+	* matlab/CgalToolbox/cgal_check_self_intersect.m: (0.2.0)
+
+	- Add input argument ITRI. Row vector of triangle indices. Only
+	the triangles in ITRI will be checked for intersections. Checking
+	for all triangles is quite slow, so when we are only interested in
+	one triangle, this saves a lot of time.
+
 	* matlab/ManifoldToolbox/smdscale.m: (0.5.3)
 	* matlab/ManifoldToolbox/lmdscale.m: (0.1.2)
 
