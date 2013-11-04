@@ -87,7 +87,7 @@ function [u, v, stopCondition, err, dout] = lmdscale(d, u, v, opt)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 %
@@ -171,11 +171,14 @@ if (nargout >= 4)
         dout = sqrt(sum((u(Icon) - u(Jcon)).^2 ...
             + (v(Icon) - v(Jcon)).^2, 2));
         
+        % auxiliary computations that we don't want to repeat at each
+        % iteration, as d doesn't change
+        dv = d(d ~= 0);
+        normdcon = norm(dv);
+        
         % compute different types of stress
-        idx0 = (d ~= 0);
-        err.rawstress = norm(dout - d(idx0));
-        normdcon = norm(d(idx0)); % no need to repeat this computation
-        err.stress1 = sqrt(norm(dout - d(idx0))/normdcon);
+        err.rawstress = sum((dout - dv).^2)/2;
+        err.stress1 = sqrt(err.rawstress) / normdcon;
     
     else % fully connected graphs
         
@@ -185,10 +188,13 @@ if (nargout >= 4)
         % keep only distances between connected points
         dout(d == 0) = 0;
         
+        % auxiliary computation that we don't want to repeat at each
+        % iteration, as d doesn't change
+        normdcon = sqrt(sum(sum(d.^2))/2);
+        
         % compute different types of stress
-        err.rawstress = norm(dout - d);
-        normdcon = norm(d); % no need to repeat this computation
-        err.stress1 = sqrt(norm(dout - d)/normdcon);
+        err.rawstress = sum(sum((dout - d).^2))/2;
+        err.stress1 = sqrt(err.rawstress) / normdcon;
     
     end
     
@@ -238,8 +244,8 @@ while isempty(stopCondition)
                 + (v(Icon) - v(Jcon)).^2, 2));
             
             % compute different types of stress
-            err.rawstress(end+1) = norm(dout - d(idx0));
-            err.stress1(end+1) = sqrt(norm(dout - d(idx0))/normdcon);
+            err.rawstress(end+1) = sum((dout - dv).^2)/2;
+            err.stress1(end+1) = sqrt(err.rawstress(end)) / normdcon;
             
         else % fully connected graphs
             
@@ -250,8 +256,8 @@ while isempty(stopCondition)
             dout(d == 0) = 0;
             
             % compute different types of stress
-            err.rawstress(end+1) = norm(dout - d);
-            err.stress1(end+1) = sqrt(norm(dout - d)/normdcon);
+            err.rawstress(end+1) = sum(sum((dout - d).^2))/2;
+            err.stress1(end+1) = sqrt(err.rawstress(end)) / normdcon;
         end
         
         err.maxinc(end+1) = max(abs(inc));

@@ -1,3 +1,13 @@
+2013-11-04  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/smdscale.m: (0.5.3)
+	* matlab/ManifoldToolbox/lmdscale.m: (0.1.2)
+
+	 - Fix bug. For full distance matrices, we were using the norm of
+	the matrix instead of the sum of squared terms to compute the
+	stress values. The norm of a matrix is the largest single
+	eigenvalue of the matrix, not the sum of squared elements.
+
 2013-11-03  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/dmatrix_mesh.m: (0.4.3)
