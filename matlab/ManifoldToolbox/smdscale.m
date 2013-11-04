@@ -120,7 +120,7 @@ function [lat, lon, stopCondition, err, dout, sphrad] = smdscale(d, sphrad, lat,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2013 University of Oxford
-% Version: 0.5.2
+% Version: 0.5.3
 % $Rev$
 % $Date$
 %
@@ -225,23 +225,31 @@ if (nargout >= 4)
         % angular distance between points
         dout = distanceang(lat(Icon), lon(Icon), lat(Jcon), lon(Jcon));
         
+        % auxiliary computations that we don't want to repeat at each
+        % iteration, as d doesn't change
+        dv = d(d ~= 0);
+        normdcon = sphrad * norm(dv);
+        
         % compute different types of stress
-        err.rawstress = sphrad * norm(dout - d(d ~= 0));
-        normdcon = norm(d(d ~= 0)); % no need to repeat this computation
-        err.stress1 = sqrt(norm(dout - d(d ~= 0))/normdcon);
+        err.rawstress = sphrad^2 * sum((dout - dv).^2)/2;
+        err.stress1 = sqrt(err.rawstress) / normdcon;
     
     else % fully connected graphs
         
         % angular distance between points
         dout = dmatrix_ang(lat, lon);
         
-        % keep only distances between connected points
+        % only distances between connected points contribute to the error
+        % measure
         dout(d == 0) = 0;
         
+        % auxiliary computation that we don't want to repeat at each
+        % iteration, as d doesn't change
+        normdcon = sphrad * sqrt(sum(sum(d.^2))/2);
+        
         % compute different types of stress
-        err.rawstress = sphrad * norm(dout - d);
-        normdcon = norm(d); % no need to repeat this computation
-        err.stress1 = sqrt(norm(dout - d)/normdcon);
+        err.rawstress = sphrad^2 * sum(sum((dout - d).^2))/2;
+        err.stress1 = sqrt(err.rawstress) / normdcon;
     
     end
     
@@ -254,6 +262,9 @@ end
 
 % keep track of how much each point gets moved in an iteration
 alpha = zeros(N, 1);
+
+% maximum number of relocation attempts for a point before we give up
+NMAXRELOC = 50;
 
 % iterate points. Each point is rearranged to try to get as close as
 % possible to the target distance of the points it's connected to
@@ -269,19 +280,22 @@ while isempty(stopCondition)
         lat0 = lat(I);
         lon0 = lon(I);
         
-        while (1) % relocation of current point
+        % neighbours of current point. These indices are obviously
+        % necessary in the case of a sparse matrix. In the case of a
+        % full matrix, it is more difficult to justify. First, this
+        % prevents each point from being its own neighbour. Second, the
+        % user may have provided a full matrix, but missing some
+        % connections
+        neigh = d(:, I) ~= 0;
+            
+        % relocation of current point. To avoid infinite loops, that happen
+        % when the relocation of a point oscillates between two positions,
+        % we limit the maximum number of relocation attempts to 100
+        for J = 1:NMAXRELOC
             
             % position of current point (target of the displacements)
             lat2 = lat(I);
             lon2 = lon(I);
-            
-            % neighbours of current point. These indices are obviously
-            % necessary in the case of a sparse matrix. In the case of a
-            % full matrix, it is more difficult to justify. First, this
-            % prevents each point from being its own neighbour. Second, the
-            % user may have provided a full matrix, but missing some
-            % connections
-            neigh = d(:, I) ~= 0;
             
             % position of neighbours (origin of the displacements)
             lat1 = lat(neigh);
@@ -338,12 +352,19 @@ while isempty(stopCondition)
                 break
             end
             
-        end % while loop for relocation of current point
+        end % loop for relocation of current point
+        
+        % warning when the relocation of a point doesn't converge
+        if (J == NMAXRELOC)
+            warning('Gerardus:NoConvergence', ...
+                ['Relocation of single point did not converge after ' ...
+                num2str(NMAXRELOC) ' iterations... giving up'])
+        end
         
         % once we have stopped moving the current point around, we save the
         % total angular distance it has moved
         alpha(I) = distanceang(lat0, lon0, lat(I), lon(I));
-        
+    
     end % end loop of N points
     
     % note that distances will be in radians
@@ -355,8 +376,8 @@ while isempty(stopCondition)
             dout = distanceang(lat(Icon), lon(Icon), lat(Jcon), lon(Jcon));
             
             % compute different types of stress
-            err.rawstress(end+1) = sphrad * norm(dout - d(d ~= 0));
-            err.stress1(end+1) = sqrt(norm(dout - d(d ~= 0))/normdcon);
+            err.rawstress(end+1) = sphrad^2 * sum((dout - dv).^2)/2;
+            err.stress1(end+1) = sqrt(err.rawstress(end)) / normdcon;
             
         else % fully connected graphs
             
@@ -367,8 +388,9 @@ while isempty(stopCondition)
             dout(d == 0) = 0;
             
             % compute different types of stress
-            err.rawstress(end+1) = sphrad * norm(dout - d);
-            err.stress1(end+1) = sqrt(norm(dout - d)/normdcon);
+            err.rawstress(end+1) = sphrad^2 * sum(sum((dout - d).^2))/2;
+            err.stress1(end+1) = sqrt(err.rawstress(end)) / normdcon;
+            
         end
         
         err.maxalpha(end+1) = max(abs(alpha));
