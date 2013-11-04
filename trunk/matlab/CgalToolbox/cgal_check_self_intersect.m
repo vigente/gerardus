@@ -1,4 +1,4 @@
-function c = cgal_check_self_intersect(tri, x)
+function varargout = cgal_check_self_intersect(varargin)
 % CGAL_CHECK_SELF_INTERSECT Check for self-intersections in a triangular
 % mesh
 %
@@ -17,6 +17,13 @@ function c = cgal_check_self_intersect(tri, x)
 %   C is a vector with one element per triangle in TRI. It gives a count of
 %   the number of times TRI(I,:) causes a self-intersection in the mesh.
 %
+% C = cgal_check_self_intersect(TRI, X, ITRI)
+%
+%   ITRI is a row vector of triangle indices. Only the triangles in ITRI
+%   will be checked for intersections. Note that C will still be an output
+%   vector with length number of triangles in TRI. Intersections for the
+%   checked triangles can be obtained as C(ITRI).
+%
 % This function uses an AABB tree component [1] to efficiently perform the
 % intersection queries. However, as the CGAL documentation notes, "this
 % component is not suited to the problem of finding all intersecting pairs
@@ -26,7 +33,7 @@ function c = cgal_check_self_intersect(tri, x)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
