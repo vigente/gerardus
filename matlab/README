@@ -457,8 +457,6 @@ smdscale.m
 
 	 SMDSCALE  Local neighbourhood Multidimensional scaling on a sphere
 	
-sphtri_N2len.m
-
 surface_tridomain.m
 
 	 SURFACE_TRIDOMAIN  Triangular mesh to cover a planar or spherical domain
@@ -480,6 +478,11 @@ trihemisphere.m
 tri_squeeze.m
 
 	 TRI_SQUEEZE  Remove disconnected vertices from triangular mesh
+	
+vertex_untangle.m
+
+	 VERTEX_UNTANGLE  Location of a 2D vertex at the centre of a closed fan
+	 triangular mesh so that we avoid edge overlapping.
 	
 
 PointsToolbox
@@ -742,6 +745,8 @@ pointTriangleDistance.m
 	 POINTTRIANGLEDISTANCE  Calculate distance between a point and a triangle
 	 in 3D
 	
+polygeom.m
+
 
 ThirdPartyToolbox/FastMarchingToolbox
 -------------------------------------------------------------
