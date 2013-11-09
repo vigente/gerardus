@@ -1,3 +1,11 @@
+2013-11-09  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ManifoldToolbox/vertex_untangle.m: (0.1.0)
+	* Add matlab/test/test_vertex_untangle.m: (0.1.0)
+
+	- VERTEX_UNTANGLE Location of a 2D vertex at the centre of a
+	closed fan triangular mesh so that we avoid edge overlapping.
+
 2013-11-04  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/CgalToolbox/CgalCheckSelfIntersect.cpp: (0.4.0)
