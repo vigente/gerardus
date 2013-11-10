@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -34,9 +34,26 @@
 %% Create data neighbourhoods
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% Untangled vertex, to check that function will not try to untangle it
+
+x = [
+    0 0
+    1 0
+    1 1
+    0 1
+    0.25 0.25 % central vertex
+    ];
+
+tri = [
+    1 2 5
+    2 3 5
+    3 4 5
+    4 1 5
+    ];
+
+
 %% Very basic square neighbourhood
 
-% create mesh
 x = [
     0 0
     1 0
@@ -82,6 +99,27 @@ x = [
     -0.0144   -0.0174
     0.0111    0.0251
     0.0247    0.1172
+    ];
+
+tri = [
+    6     4     3
+    3     7     6
+    5     7     3
+    4     2     3
+    3     1     5
+    2     1     3
+    ];
+
+%% Knife shape, folded over to create fixed point overlap: No solution exists
+
+x = [
+    -0.0113   -0.0679
+    -0.0093   -0.0465
+    -0.0046   -0.0083
+    -0.0006   -0.0103
+    -0.0144   -0.0174
+    0.0111    0.0251
+    0.0247    -0.02
     ];
 
 tri = [
@@ -146,6 +184,8 @@ gplot(d(idxn, idxn), x(idxn, :), 'r')
 
 % untangle vertex
 [x(idx0, :), exitflag] = vertex_untangle(tri, x);
+exitflag
+
 % plot untangled neighbourhood
 subplot(1, 2, 2)
 hold off
@@ -154,6 +194,6 @@ hold on
 plot(x(idx0, 1), x(idx0, 2), 'ro')
 gplot(d(idxn, idxn), x(idxn, :), 'r')
 
-if (exitflag ~= 1)
+if (exitflag < 1)
     error('Assertion error: A valid solution expected, but the algorithm did not converge')
 end
