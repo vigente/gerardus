@@ -1,3 +1,17 @@
+2013-11-10  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ManifoldToolbox/vertex_untangle.m: (0.1.1)
+	* Add matlab/test/test_vertex_untangle.m: (0.1.1)
+
+	- Check whether the free vertex is already untangled. In that
+	case, we do not relocate it (this is an untangling algorithm, not
+	a mesh improvement or mesh smoothing algorithm).
+
+	- Improvement. Replace computing triangle areas using determinants
+	by the formula that results from expanding the determinant. This
+	produces more accurate results, and allows us to compute all areas
+	in one go, without having to use a loop.
+
 2013-11-09  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ManifoldToolbox/vertex_untangle.m: (0.1.0)
