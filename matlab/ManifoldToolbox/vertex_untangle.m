@@ -4,7 +4,8 @@ function [x0, exitflag] = vertex_untangle(tri, x)
 %
 % This function is an enhanced implementation of the 2D case (i.e. each
 % simplex is a triangle) of the "Optimization-based mesh untangling"
-% solution proposed by Freitag and Plassmann (2000). The differences are:
+% method proposed by Freitag and Plassmann (2000). The differences with the
+% paper, and some notes:
 %
 %   - The original paper contains an error in the sign of "c" in the linear
 %     programming inequalities. The correct problem formulation is
@@ -22,6 +23,10 @@ function [x0, exitflag] = vertex_untangle(tri, x)
 %     solutions for one orientation of the perimeter vertices and the
 %     opposite, and chooses whichever solution is correct. If both are
 %     correct, the one with the largest minimum area is chosen.
+%
+%   - We check whether the free vertex is already untangled. In that case,
+%     we do not relocate it (this is an untangling algorithm, not a mesh
+%     improvement or mesh smoothing algorithm).
 %
 % Let TRI, X describe a closed fan triangular mesh. That is, we have a
 % central or free vertex connected to N neighbours. The neighbours are
@@ -49,9 +54,11 @@ function [x0, exitflag] = vertex_untangle(tri, x)
 %
 %   EXITFLAG is the exit condition of the algorithm.
 %
-%     1: The algorithm has converged.
-%     0: Maximum number of iterations reached.
-%    -1: No valid solution.
+%     2: Free vertex was not tangled, no relocation performed.
+%     1: Linear programming algorithm converged to a relocation solution.
+%     0: Linear programming algorithm stopped because of maximum number of
+%        iterations reached.
+%    -1: Linear programming algorithm found no valid solution exists.
 %
 % L. A. Freitag and P. Plassmann, "Local optimization-based simplicial mesh
 % untangling and improvement", International Journal for Numerical Methods
@@ -61,7 +68,7 @@ function [x0, exitflag] = vertex_untangle(tri, x)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -140,11 +147,11 @@ v = sort_perim_vertices(d, idx0);
 
 % compute the optimal coordinates  for perimeter with current orientation
 [x1, triarea1, exitflag1, output1] ...
-    = linear_programming_coordinates(x, v, lb, ub);
+    = linear_programming_coordinates(x, idx0, v, lb, ub);
 
 % compute the optimal coordinates  for perimeter with opposite orientation
 [x2, triarea2, exitflag2, output2] ...
-    = linear_programming_coordinates(x, v(end:-1:1), lb, ub);
+    = linear_programming_coordinates(x, idx0, v(end:-1:1), lb, ub);
 
 % % DEBUG: plot solution of current orientation
 % subplot(2, 2, 2)
@@ -249,8 +256,13 @@ end
 
 % set up the Freitag and Plassmann (2000) linear programming problem and
 % compute the solution
+%
+% x: 2D vertex coordinates
+% v0: index of the free vertex
+% v: indices of the perimeter vertices, sorted
+% lb, ub: lower and upper bounds for the linear programming algorithm
 function [x0, triarea, exitflag, output] ...
-    = linear_programming_coordinates(x, v, lb, ub)
+    = linear_programming_coordinates(x, v0, v, lb, ub)
 
 % for convenience, express the boundary as a list of edges
 e = [v(1:end)' v([2:end 1])'];
@@ -268,19 +280,27 @@ ay = xj - xi;
 c = xi .* yj - xj .* yi;
 A = [ax'; ay'; ones(1, Ntri)];
 
-% solve linear programming problem
+% compute triangle areas (this formula comes from expanding the determinant
+% form of a triangle's area)
+triarea = 0.5 * (ax * x(v0, 1) + ay * x(v0, 2) + c);
+
+% if all the areas are either positive or negative, then there's no
+% tangling, and we won't relocate the free vertex (this is not a smoothing
+% algorithm, thus the free vertex will only be moved if it's tangled)
+if all(sign(triarea)==1) || all(sign(triarea)==-1)
+    x0 = x(v0, :);
+    exitflag = 2;
+    output = [];
+    return
+end
+
+% otherwise, we solve linear programming problem to try to untangle the
+% free vertex
 options = optimset('Display', 'off');
 [x0, ~, exitflag, output] = linprog(-[0 0 1]', A', -c, [], [], lb, ub, [], ...
     options);
 
 % the two first elements are the target coordinates of the central vertex
 x0 = x0(1:2)';
-
-% compute triangle areas
-triarea = zeros(1, Ntri);
-for I = 1:Ntri
-    m = [[x(e(I, :), :); x0] ones(3, 1)];
-    triarea(I) = 0.5 * det(m);
-end
 
 end
