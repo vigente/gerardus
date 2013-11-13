@@ -465,6 +465,10 @@ triconncomp.m
 
 	 TRICONNCOMP  Find connected components in mesh
 	
+trifacet_signed_area.m
+
+	 TRIFACET_SIGNED_AREA  Signed area of the facets in a 2D triangulation
+	
 tri_find_nonmanifold_vertex.m
 
 	 TRI_FIND_NONMANIFOLD_VERTEX  Find indices of non-manifold vertices in a
