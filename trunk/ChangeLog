@@ -1,3 +1,11 @@
+2013-11-13  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ManifoldToolbox/trifacet_signed_area.m: (0.1.0)
+	* Add matlab/test/test_trifacet_signed_area.m: (0.1.0)
+
+	- TRIFACET_SIGNED_AREA Signed area of the facets in a 2D
+	triangulation.
+
 2013-11-10  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ManifoldToolbox/vertex_untangle.m: (0.1.1)
