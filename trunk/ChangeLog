@@ -1,3 +1,16 @@
+2013-11-20  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/CMakeLists.txt: (0.6.9)
+
+	- Fix bug reported by Gary Mirams. Targets in this toolbox were
+	missing a dependency to copy_compiler_config.h, which is a dummy
+	target we made to make sure that CGAL gets compiled before any ITK
+	or CGAL toolbox. The reason is that when CGAL compiles, it
+	generates a file called compiler_config.h that dependent targets
+	need.
+
+	https://groups.google.com/forum/#!topic/gerardus-users/piPD9MgXqv0
+
 2013-11-13  Ramon Casero  <rcasero@gmail.com>
 
 	* Add ManifoldToolbox/sphtri_vertex_istangled.m: (0.1.0)
