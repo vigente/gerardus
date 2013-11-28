@@ -1,3 +1,10 @@
+2013-11-28  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/CgalToolbox/CgalTriSimplify.cpp: (0.1.0)
+
+	- CGAL_TRI_SIMPLIFY Reduce number of faces in triangular mesh
+	using edge collapse.
+
 2013-11-20  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/CMakeLists.txt: (0.6.9)
