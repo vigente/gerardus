@@ -134,6 +134,14 @@ $ cd bin
 $ cmake ..
 $ make install
 }}}
+ # If the `matlab` command is not in the path, Gerardus will not know where to find Matlab. In that case, it's necessary to provide the path to the root Matlab directory, e.g.
+{{{
+$ cd gerardus
+$ mkdir bin
+$ cd bin
+$ cmake -DMATLAB_ROOT=/usr/local/MATLAB/R2012a/ ..
+$ make install
+}}}
  # Open Matlab from the `matlab` directory and run script `add_gerardus_paths.m` to add the Gerardus toolboxes to the Matlab path
 {{{
 # from the linux command line
