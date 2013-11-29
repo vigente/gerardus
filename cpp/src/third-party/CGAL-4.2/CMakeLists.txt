@@ -40,7 +40,7 @@ set(CMAKE_SOURCE_DIR ${CGAL_SOURCE_DIR})
 set(CGAL_INSTALLATION_PACKAGE_DIR ${CGAL_SOURCE_DIR})
 
 # so that CGAL can find GMP and MPFR for the Unix-like builds (in the
-# Windows builds, we use a precompiled library in a different location
+# Windows builds, we use a precompiled library in a different location)
 if (UNIX OR CYGWIN)
   set(ENV{GMP_INC_DIR} ${CGAL_SOURCE_DIR}/../gmp-5.1.2/output/include)
   set(ENV{GMP_LIB_DIR} ${CGAL_SOURCE_DIR}/../gmp-5.1.2/output/lib)
