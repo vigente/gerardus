@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2011 University of Oxford
-# Version: 0.5.8
+# Copyright © 2011-2013 University of Oxford
+# Version: 0.6.0
 # $Rev$
 # $Date$
 #
@@ -82,6 +82,8 @@ endif(WIN32)
 find_package(Matlab REQUIRED)
 if(MATLAB_FOUND)
   message(STATUS "Matlab " ${MATLAB_VERSION} ": " ${MATLAB_ROOT})
+else()
+  message(FATAL_ERROR "Matlab not found")
 endif(MATLAB_FOUND)
 
 # some versions of Matlab or some libraries are not compatible with
@@ -94,65 +96,74 @@ endif(MATLAB_FOUND)
 # setting MAKE_C_COMPILER, CMAKE_CXX_COMPILER. For example, if we set these
 # variables after project(), this creates an infinite loop.
 if(NOT WIN32)
-  if(BUILD_WITH_CUDA OR ${MATLAB_VERSION} MATCHES "R2012a")
 
-    # if the user has provided environmental variables with the
-    # compilers, we are going to check that they have the correct
-    # version
-    if(DEFINED ENV{CC})
-      message(STATUS "User wants to use the compiler binary: $ENV{CC}")
+  if("${MATLAB_VERSION}" MATCHES "R2012a")
+    set(GCC_VERSION_REQUIRED_BY_MATLAB "4.4")
+  elseif("${MATLAB_VERSION}" MATCHES "R2012b")
+    set(GCC_VERSION_REQUIRED_BY_MATLAB "4.4")
+  else()
+    message(FATAL_ERROR 
+      "I do not know which version of gcc/g++ is needed for Matlab ${MATLAB_VERSION}.\nPlease update gerardus/CMakeLists.txt with this information.")
+  endif()
+  message(STATUS "Matlab ${MATLAB_VERSION} requires gcc/g++ ${GCC_VERSION_REQUIRED_BY_MATLAB}")
 
-      # get version of the C compiler
-      exec_program(
-	$ENV{CC}
-	ARGS                    --version
-	OUTPUT_VARIABLE _compiler_output)
-      string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
-        gcc_compiler_version ${_compiler_output})
-      message(STATUS "This binary corresponds to version: ${gcc_compiler_version}")
-      string(REGEX MATCH "[0-9]\\.[0-9]"
-        gcc_compiler_version ${gcc_compiler_version})
-
-      if(NOT gcc_compiler_version VERSION_EQUAL "4.4")
-	message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires gcc 4.4")
-      else()
-	message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
-      endif()
-
+  # if the user has provided environmental variables with the
+  # compilers, we are going to check that they have the correct
+  # version
+  if(DEFINED ENV{CC})
+    message(STATUS "User wants to use the compiler binary: $ENV{CC}")
+    
+    # get version of the C compiler
+    exec_program(
+      $ENV{CC}
+      ARGS                    --version
+      OUTPUT_VARIABLE _compiler_output)
+    string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
+      gcc_compiler_version ${_compiler_output})
+    message(STATUS "This binary corresponds to version: ${gcc_compiler_version}")
+    string(REGEX MATCH "[0-9]\\.[0-9]"
+      gcc_compiler_version ${gcc_compiler_version})
+    
+    if(NOT gcc_compiler_version VERSION_EQUAL "${GCC_VERSION_REQUIRED_BY_MATLAB}")
+      message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires gcc ${GCC_VERSION_REQUIRED_BY_MATLAB}")
+      
     else()
-      # if the user does not provide an environmental variable with
-      # the compiler, we set it up
-      set(ENV{CC} gcc-4.4)
+      message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
+    endif()
+    
+  else()
+    # if the user does not provide an environmental variable with
+    # the compiler, we set it up
+    set(ENV{CC} "gcc-${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  endif()
+  
+  if(DEFINED ENV{CXX})
+    message(STATUS "User wants to use the compiler binary : $ENV{CXX}")
+    
+    # get version of the C++ compiler
+    exec_program(
+      $ENV{CXX}
+      ARGS                    --version
+      OUTPUT_VARIABLE _compiler_output)
+    
+    string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
+      gxx_compiler_version ${_compiler_output})
+    message(STATUS "This binary corresponds to version: ${gxx_compiler_version}")
+    string(REGEX MATCH "[0-9]\\.[0-9]"
+      gxx_compiler_version ${gxx_compiler_version})
+    
+    if(NOT gxx_compiler_version VERSION_EQUAL "${GCC_VERSION_REQUIRED_BY_MATLAB}")
+      message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires g++ ${GCC_VERSION_REQUIRED_BY_MATLAB}")
+    else()
+      message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
     endif()
 
-    if(DEFINED ENV{CXX})
-      message(STATUS "User wants to use the compiler binary : $ENV{CXX}")
+  else()
+    # if the user does not provide an environmental variable with
+    # the compiler, we set it up
+    set(ENV{CXX} "g++-${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  endif()
 
-      # get version of the C++ compiler
-      exec_program(
-	$ENV{CXX}
-	ARGS                    --version
-	OUTPUT_VARIABLE _compiler_output)
-
-      string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
-        gxx_compiler_version ${_compiler_output})
-      message(STATUS "This binary corresponds to version: ${gxx_compiler_version}")
-      string(REGEX MATCH "[0-9]\\.[0-9]"
-        gxx_compiler_version ${gxx_compiler_version})
-
-      if(NOT gxx_compiler_version VERSION_EQUAL "4.4")
-	message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires g++ 4.4")
-      else()
-	message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
-      endif()
-
-    else()
-      # if the user does not provide an environmental variable with
-      # the compiler, we set it up
-      set(ENV{CXX} g++-4.4)
-    endif()
-
-  endif(BUILD_WITH_CUDA OR ${MATLAB_VERSION} MATCHES "R2012a")
 endif(NOT WIN32)
 
 #############################################################################################
