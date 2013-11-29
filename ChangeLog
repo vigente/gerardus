@@ -1,3 +1,28 @@
+2013-11-29  Ramon Casero  <rcasero@gmail.com>
+
+	* CMakeLists.txt: (0.6.0)
+
+	- Generalize the configuration so it's not limited to Matlab
+	R2012a. For linux/mac, we will hardcode for each Matlab version
+	which gcc/g++ version is needed. For the moment, we have R2012a
+	and R2012b (both use 4.4). If the script doesn't know which
+	gcc/g++ version is needed for the detect Matlab version, it gives
+	a clear error asking for the information to be added to this
+	script.
+
+	* matlab/FindMatlab.cmake: (0.2.9)
+
+	- Fix bug. In Linux/MacOS X systems, we need to either have been
+	provided by the user with the MATLAB_ROOT variable, or that the
+	'matlab' command is in the path. But if neither were available, we
+	were allowing the configuration to continue. Now we give a fatal
+	error, because if Matlab cannot be found, gerardus cannot build
+	and it doesn't make sense to let the configuration continue, and
+	get down the line errors that will be difficult to interpret.
+
+	- Fix bug. If the user provides MATLAB_ROOT, we have to look for
+	the matlab binary because it may not be in the path.
+
 2013-11-28  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/CgalToolbox/CgalTriSimplify.cpp: (0.1.0)

@@ -17,7 +17,7 @@
 # (Note that the original file does work for Ubuntu Natty)
 #
 # Author: Ramon Casero <rcasero@gmail.com>, Tom Doel
-# Version: 0.2.8
+# Version: 0.2.9
 # $Rev$
 # $Date$
 #
@@ -114,8 +114,17 @@ ELSE(WIN32)
 
   IF((NOT DEFINED MATLAB_ROOT) 
       OR ("${MATLAB_ROOT}" STREQUAL ""))
+    # check that command "matlab" is in the path
+    execute_process(
+      COMMAND which matlab
+      OUTPUT_VARIABLE MATLAB_ROOT
+      )
+    if("${MATLAB_ROOT}" STREQUAL "")
+      message(FATAL_ERROR "MATLAB_ROOT variable not provider by the user, and 'matlab' command not in the path either. I do not know where to search for Matlab.")
+    endif()
+
     # get path to the Matlab root directory
-    EXECUTE_PROCESS(
+    execute_process(
       COMMAND which matlab
       COMMAND xargs readlink -m
       COMMAND xargs dirname
@@ -123,12 +132,21 @@ ELSE(WIN32)
       COMMAND xargs echo -n
       OUTPUT_VARIABLE MATLAB_ROOT
       )
-  ENDIF((NOT DEFINED MATLAB_ROOT) 
-    OR ("${MATLAB_ROOT}" STREQUAL ""))
+  ENDIF((NOT DEFINED MATLAB_ROOT) OR ("${MATLAB_ROOT}" STREQUAL ""))
 
+  # search for the Matlab binary in the Matlab root directory
+  find_program(
+    MATLAB_BINARY
+    matlab
+    PATHS "${MATLAB_ROOT}/bin"
+    )
+  if(NOT MATLAB_BINARY)
+    message(FATAL_ERROR "Matlab binary 'matlab' is not in the path, and I could not find it in ${MATLAB_ROOT}/bin either")
+  endif(NOT MATLAB_BINARY)
+    
   # Get Matlab version
   EXECUTE_PROCESS(
-    COMMAND matlab -nosplash -nodesktop -nojvm -r "version, exit"
+    COMMAND "${MATLAB_BINARY}" -nosplash -nodesktop -nojvm -r "version, exit"
     COMMAND grep ans -A 2
     COMMAND tail -n 1
     COMMAND awk "{print $2}"
