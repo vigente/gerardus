@@ -33,10 +33,12 @@ function varargout = cgal_surfsubdivision(varargin)
 %   mesh is a triangulation. This function runs internally a triangulation
 %   process to convert the generalized output polyhedron into a triangular
 %   mesh.
+%
+% See also: cgal_tri_simplify.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %

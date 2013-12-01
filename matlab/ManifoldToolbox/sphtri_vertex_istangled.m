@@ -22,7 +22,7 @@ function isTangled = sphtri_vertex_istangled(tri, latlon, vidx)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -72,6 +72,10 @@ end
 % initialize output
 isTangled = false(size(vidx));
 
+% compute Cartesian coordinates of the sphere points
+x = zeros(size(latlon, 1), 3);
+[x(:, 1), x(:, 2), x(:, 3)] = sph2cart(latlon(:, 2), latlon(:, 1), 1);
+
 % iterate vertices to check whether they are tangled or not
 for I = 1:numel(vidx)
     
@@ -79,18 +83,23 @@ for I = 1:numel(vidx)
     [triidx, ~] = find(ismember(tri, vidx(I)));
     
     % extract local neighbourhood from the whole mesh
-    [triloc, latlonloc] = tri_squeeze(tri(triidx, :), latlon);
+    [triloc, xloc] = tri_squeeze(tri(triidx, :), x);
     
-    % centroid of the local neighbourhood
-    latlonm = meanm(latlonloc(:, 1), latlonloc(:, 1), 'radians');
+    % axis-angle representation of rotation that takes the current vertex
+    % to [1, 0, 0]
+    r = [cross(x(vidx(I), :), [1 0 0]) -acos(dot(x(vidx(I), :), [1 0 0]))];
     
-    % center local neighbourhood around (lat=0, lon=0). This will avoid
-    % wrap-around problems around lon=pi
-    latlonloc(:, 1) = latlonloc(:, 1) - latlonm(1);
-    latlonloc(:, 2) = latlonloc(:, 2) - latlonm(2);
+    % 3D-rotation matrix representation of the axis-angle
+    R = vrrotvec2mat(r);
     
+    % rotate local neighbourhood so that the central voxel is on [1, 0, 0]
+    xloc = xloc * R;
+    
+    % convert to latitude/longitude the centered local neighbourhood
+    [lonloc, latloc] = cart2sph(xloc(:, 1), xloc(:, 2), xloc(:, 3));
+
     % compute signed area of each triangle in the local neighbourhood
-    a = trifacet_signed_area(triloc, latlonloc);
+    a = trifacet_signed_area(triloc, [latloc lonloc]);
     
     % the vertex is entangled if any of its adjacent triangles has a
     % negative area
@@ -98,8 +107,8 @@ for I = 1:numel(vidx)
     
     % DEBUG: plot local neighbourhood
     if (DEBUG)
-        trisurf(triloc, latlonloc(:, 1), latlonloc(:, 2), ...
-            zeros(size(latlonloc, 1), 1), uint8(a > 0));
+        trisurf(triloc, lonloc, latloc, ...
+            zeros(size(latloc, 1), 1), uint8(a > 0));
         view(2)
     end
     
