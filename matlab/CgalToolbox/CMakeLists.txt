@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012-2013 University of Oxford
-# Version: 0.2.17
+# Version: 0.2.18
 # $Rev$
 # $Date$
 #
@@ -190,6 +190,22 @@ target_link_libraries(cgal_tri_fillholes
 add_dependencies(cgal_tri_fillholes copy_compiler_config.h)
 
 ################################################################
+## cgal_tri_simplify()
+################################################################
+
+add_mex_file(cgal_tri_simplify
+  CgalTriSimplify.cpp
+  )
+
+target_link_libraries(cgal_tri_simplify
+  CGAL
+  CGAL_ImageIO
+  ${ITK_LIBRARIES})
+# we need this dependency to make sure that the CGAL library is built
+# before we try to build the mex function
+add_dependencies(cgal_tri_simplify copy_compiler_config.h)
+
+################################################################
 ## installation of targets
 ################################################################
 
@@ -204,6 +220,7 @@ IF(WIN32)
     cgal_meshseg
     cgal_surfsubdivision
     cgal_tri_fillholes
+    cgal_tri_simplify
     RUNTIME
     DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}")
 ELSE(WIN32)
@@ -217,6 +234,7 @@ ELSE(WIN32)
     cgal_meshseg
     cgal_surfsubdivision
     cgal_tri_fillholes
+    cgal_tri_simplify
     LIBRARY
     DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}")
 ENDIF(WIN32)
