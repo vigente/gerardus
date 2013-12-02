@@ -150,6 +150,20 @@ $ ./matlab &
 # from the Matlab command line
 >> add_gerardus_paths.m
 }}}
+ # If you get an error message similar to this when running a MEX file
+{{{
+Invalid MEX-file
+'/home/jdoe/workspace/gerardus/matlab/CgalToolbox/cgal_meshseg.mexa64':
+/usr/local/MATLAB/R2012b/bin/glnxa64/../../sys/os/glnxa64/libstdc++.so.6:
+version `GLIBCXX_3.4.15' not found (required by
+/home/jdoe/workspace/gerardus/matlab/CgalToolbox/cgal_meshseg.mexa64)
+}}}
+ the problem is that your system `libstdc++.so` (linked to by the ITK libraries) is [https://groups.google.com/forum/#!topic/gerardus-users/48vhO1TWhkg slightly different from Matlab `libstdc++.so`] (linked to by the `libmex.so` library). Even if both `libstdc++.so` correspond to e.g. g++ v4.4, they have different minor versions, and that's were the error comes from. The solution is to delete the soft link in Matlab that points to Matlab's version of the library, and replace it by a soft link to the system's library. Library locations and names will vary between Linux distributions and Matlab versions, but for example, for Matlab R2012b with a default install:
+{{{
+cd /usr/local/MATLAB/R2012b/sys/os/glnxa64/
+sudo rm libstdc++.so.6
+sudo ln -s /usr/lib/gcc/x86_64-linux-gnu/4.4/libstdc++.so
+}}}
 
 == Instructions for Windows users ==
 
