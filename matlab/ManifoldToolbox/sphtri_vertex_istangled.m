@@ -1,8 +1,8 @@
-function isTangled = sphtri_vertex_istangled(tri, latlon, vidx)
+function nTangled = sphtri_vertex_istangled(tri, latlon, vidx)
 % SPHTRI_VERTEX_ISTANGLED Find tangled vertices in a spherical triangular
 % mesh.
 %
-% ISTANGLED = sphtri_vertex_istangled(TRI, LATLON)
+% NTANGLED = sphtri_vertex_istangled(TRI, LATLON)
 %
 %   TRI is a 3-column matrix. Each row represents the indices of the three
 %   vertices that form a triangle. TRI as a whole represents the closed
@@ -15,14 +15,14 @@ function isTangled = sphtri_vertex_istangled(tri, latlon, vidx)
 %   LATLON is a 2-column matrix with the latitude and longitude coordinates
 %   of the vertices' coordinates.
 %
-%   ISTANGLED is a boolean vector with one element per vertex in LATLON.
-%   ISTANGLED(i)==true means that the corresponding vertex is tangled. We
-%   define a vertex as tangled if any of its incident triangles has a
-%   negative area (i.e. if the triangle normal points inwards).
+%   NTANGLED is a count vector with one element per vertex in LATLON.
+%   NTANGLED(i) is the number of adjacent triangles with an inward pointing
+%   normal, i.e. triangles that contribute to the tanglement. NTANGLED(i)>0
+%   means that the vertex is tangled.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -65,12 +65,12 @@ if (nargin < 3)
 end
 
 if (isempty(vidx))
-    isTangled = [];
+    nTangled = [];
     return;
 end
 
 % initialize output
-isTangled = false(size(vidx));
+nTangled = zeros(size(vidx));
 
 % compute Cartesian coordinates of the sphere points
 x = zeros(size(latlon, 1), 3);
@@ -99,17 +99,17 @@ for I = 1:numel(vidx)
     [lonloc, latloc] = cart2sph(xloc(:, 1), xloc(:, 2), xloc(:, 3));
 
     % compute signed area of each triangle in the local neighbourhood
-    a = trifacet_signed_area(triloc, [latloc lonloc]);
+    a = trifacet_signed_area(triloc, [lonloc latloc]);
     
     % the vertex is entangled if any of its adjacent triangles has a
-    % negative area
-    isTangled(I) = any(a<0);
+    % negative area. Count the number of adjacent negative areas as a
+    % measure of entanglement
+    nTangled(I) = nnz(a<0);
     
     % DEBUG: plot local neighbourhood
     if (DEBUG)
-        trisurf(triloc, lonloc, latloc, ...
-            zeros(size(latloc, 1), 1), uint8(a > 0));
-        view(2)
+        d = dmatrix_mesh(triloc);
+        gplot(d, [lonloc, latloc])
     end
     
 end
