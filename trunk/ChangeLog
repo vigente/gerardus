@@ -1,3 +1,32 @@
+2013-12-09  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/sphtri_vertex_istangled.m: (0.2.0)
+
+	- Now the output is a count of adjacent triangles with inward
+	pointing normal, instead of boolean. A count > 0 means that the
+	vertex is tangled.
+
+	- Fix bug. Longitude has to be mapped to X and latitude to Y, or
+	else the areas change sign.
+
+2013-12-01  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/sphtri_vertex_istangled.m: (0.1.0)
+
+	- Fix bug. Centering the local neighbourhood using meanm() doesn't
+	work to avoid wrap-arounds. Instead, what we do now is to compute
+	the 3D Cartesian coordinates of the points, and find a spherical
+	rotation that will translate the central vertex of the local
+	neighbourhood to [1, 0, 0]. The reason for [1, 0, 0] is that it
+	corresponds to lat=0, lon=0, so it minimizes the risk of
+	wrap-arounds.
+
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.18)
+	* matlab/CgalToolbox/cgal_surfsubdivision.m: (0.1.0)
+
+	- I had forgotten to commit the changes needed to add
+	cgal_tri_simplify.
+
 2013-11-30  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ThirdPartyToolbox/sphereFit.m:
