@@ -1,3 +1,26 @@
+2013-12-11  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/vertex_untangle.m: (0.2.0)
+
+	- Fix bug. The original formulation of the linear programming
+	problem in Freitag and Plassmann (2000) has some errors, but so
+	did our implementation. Hopefully fixed now.
+
+	- Use simplex method (as in original paper), instead of
+	interior-point. Simplex is faster for small problems, which will
+	usually be the case with closed fans.
+
+	- Assume that perimeter vertices are counter-clockwise oriented in
+	TRI, as in the paper. This is easy to enforce with third-party
+	function surfreorient() from iso2mesh.
+
+	- To sort vertices in the perimeter as a polygonal line, now we
+	don't need to compute one branch to the antipodes, and another
+	one. Instead, we create an adjacency matrix that is
+	non-symmetrical (i.e., it contains the orientation of the
+	connections from TRI). This allows the Dijkstra algorithm to sort
+	the vertices in one sweep.
+
 2013-12-09  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/sphtri_vertex_istangled.m: (0.2.0)

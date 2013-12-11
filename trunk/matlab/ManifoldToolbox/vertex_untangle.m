@@ -1,43 +1,36 @@
-function [x0, exitflag] = vertex_untangle(tri, x)
+function [x0, exitflag] = vertex_untangle(tri, x, idx0)
 % VERTEX_UNTANGLE  Location of a 2D vertex at the centre of a closed fan
 % triangular mesh so that we avoid edge overlapping.
 %
 % This function is an enhanced implementation of the 2D case (i.e. each
 % simplex is a triangle) of the "Optimization-based mesh untangling"
-% method proposed by Freitag and Plassmann (2000). The differences with the
-% paper, and some notes:
+% method proposed by Freitag and Plassmann (2000).
 %
-%   - The original paper contains an error in the sign of "c" in the linear
-%     programming inequalities. The correct problem formulation is
+% Note that the original paper contains some errors in the formulation of
+% the linear programming problem. The correct problem formulation is
 %
-%       max b^T \pi (equivalenty: min -b^T \pi)
-%       such that A^T \pi <= -c
+%     max b^T \pi (equivalenty: min -b^T \pi)
+%     such that -A^T \pi <= c
 %
-%   - Instead of the simplex method, we use Matlab's linprog default,
-%   'interior-point'
-%   (http://www.mathworks.co.uk/help/optim/ug/linprog.html).
+% where b = [0 0 1], A^T = [ax ay -2*ones(N, 1)], N=number of
+% triangles, and ax, ay, c as given in the paper.
 %
-%   - The paper assumes that the triangles are correctly oriented such that
-%     the correct position of the central voxel makes all areas positive.
-%     In practice, we don't know that. Thus, this function computes 
-%     solutions for one orientation of the perimeter vertices and the
-%     opposite, and chooses whichever solution is correct. If both are
-%     correct, the one with the largest minimum area is chosen.
-%
-%   - We check whether the free vertex is already untangled. In that case,
-%     we do not relocate it (this is an untangling algorithm, not a mesh
-%     improvement or mesh smoothing algorithm).
-%
-% Let TRI, X describe a closed fan triangular mesh. That is, we have a
-% central or free vertex connected to N neighbours. The neighbours are
-% connected between them to form a closed perimeter.
-%
-% We want to find the coordinates X0 for the free vertex, such that the
-% edges that connect vertices don't overlap. The N neighbours remain fixed.
-% If the free vertex was already producing any overlaps (i.e. the mesh was
-% entangled), this can be seen as an untangling algorithm.
+% We check whether the free vertex is already untangled. In that case, we
+% do not relocate it (this is an untangling algorithm, not a mesh
+% improvement or mesh smoothing algorithm).
 %
 % X0 = vertex_untangle(TRI, X);
+%
+%   Let TRI, X describe a closed fan triangular mesh. That is, we have a
+%   central or free vertex connected to N neighbours. The neighbours are
+%   connected between them to form a closed perimeter. The perimeter is
+%   assumed to be oriented in counter-clockwise orientation (that is, if a
+%   solution exists, the areas of the triangles will all be positive).
+%
+%   We want to find the coordinates X0 for the free vertex, such that the
+%   edges that connect vertices don't overlap. The N neighbours remain
+%   fixed. If the free vertex was already producing any overlaps (i.e. the
+%   mesh was entangled), this can be seen as an untangling algorithm.
 %
 %   TRI is a 3-column matrix. Each row contains the 3 nodes that form one
 %   triangular facet in the mesh.
@@ -64,11 +57,11 @@ function [x0, exitflag] = vertex_untangle(tri, x)
 % untangling and improvement", International Journal for Numerical Methods
 % in Engineering, 49(1):109-125, 2000.
 %
-% See also: sphtri_untangle, linprog.
+% See also: sphtri_untangle, linprog, surfreorient.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -97,7 +90,7 @@ function [x0, exitflag] = vertex_untangle(tri, x)
 % <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(2, 2);
+narginchk(3, 3);
 nargoutchk(0, 3);
 
 if (size(tri, 2) ~= 3)
@@ -106,32 +99,35 @@ end
 if (size(x, 2) ~= 2)
     error('X must have 2 columns')
 end
-
-% adjacency/distance matrix for the mesh
-d = dmatrix_mesh(tri);
-
-% number of neighbours for each vertex
-nn = full(sum(d ~= 0));
-
-% the central vertex must be connected to every other vertex. Find which
-% one it is
-idx0 = find(nn == size(d, 1)-1);
-if (length(idx0) ~= 1)
-    error('This neighbourhood does not have a unique central vertex that is adjacent to all other vertices')
+if (~isscalar(idx0))
+    error('IDX must be a scalar')
 end
 
-% the solution cannot be outside the convex hull of the boundary vertices.
-% Thus, it cannot be outside of a rectangular box containing the boundary
-% vertices. We can use this as the lower and upper bounds for the linear
-% programming solution
-idxn = [1:idx0-1 idx0+1:size(d, 1)];
-lb = min(x(idxn, :));
-ub = max(x(idxn, :));
+% number of vertices in the neighbourhood
+N = size(x, 1);
 
-% we don't give bounds to the third component of the vector, that is the
-% minimum area. We need to turn the bound vectors to column format
-lb = [lb 0]';
-ub = [ub Inf]';
+% adjacency matrix for the mesh. Edges are directed, thus the matrix is not
+% symmetric. We do it this way to preserve the counter-clockwise
+% orientation of the neighbourhood, i.e. the positive sign of the areas
+d = sparse(N, N);
+d(sub2ind([N, N], tri(:, 1), tri(:, 2))) = 1;
+d(sub2ind([N, N], tri(:, 2), tri(:, 3))) = 1;
+d(sub2ind([N, N], tri(:, 3), tri(:, 1))) = 1;
+
+% number of neighbours for each vertex
+nn = full(sum((d | d') ~= 0));
+
+% valid neighbourhood check: the central vertex is connected to every other
+% vertex
+if (nn(idx0) ~= size(x, 1)-1)
+    error(['Invalid neighbourhood: central vertex connected to ' ...
+        num2str(nn(idx0)) ' vertices instead of ' num2str(size(x, 1) - 1)])
+end
+% valid neighbourhood check: non-central vertices must be connected to the
+% central vertex, and to another two vertices each
+if (any(nn([1:idx0-1 idx0+1:end]) ~= 3))
+    error('Invalid neighbourhood: at least one boundary vertex not connected to another 3 vertices')
+end
 
 % get sorted list of vertices that form the perimeter
 v = sort_perim_vertices(d, idx0);
@@ -145,13 +141,10 @@ v = sort_perim_vertices(d, idx0);
 % plot(x(v(1), 1), x(v(1), 2), 'ro')
 % plot(x(v(2), 1), x(v(2), 2), 'rp')
 
-% compute the optimal coordinates  for perimeter with current orientation
-[x1, triarea1, exitflag1, output1] ...
-    = linear_programming_coordinates(x, idx0, v, lb, ub);
-
-% compute the optimal coordinates  for perimeter with opposite orientation
-[x2, triarea2, exitflag2, output2] ...
-    = linear_programming_coordinates(x, idx0, v(end:-1:1), lb, ub);
+% compute the optimal coordinates
+% [x1, triarea, exitflag, output] ...
+[x1, ~, exitflag] ...
+    = linear_programming_coordinates(x, idx0, v);
 
 % % DEBUG: plot solution of current orientation
 % subplot(2, 2, 2)
@@ -177,34 +170,16 @@ v = sort_perim_vertices(d, idx0);
 
 %% choose the best solution
 
-% if both orientations were unsuccessful, we return NaN as a solution
-if ((exitflag1 < 0) && (exitflag2 < 0))
+% if unsuccessful, we return NaN as a solution
+if (exitflag < 0)
     
     x0 = nan(1, 2);
     exitflag = -1;
 
-% if both were successful, we choose the solution that has the largest min
-% triangle area
-elseif ((exitflag1 >= 0) && (exitflag2 >= 0))
-
-    if (min(triarea1) > min(triarea2))
-        x0 = x1;
-        exitflag = exitflag1;
-    else
-        x0 = x2;
-        exitflag = exitflag2;
-    end
-
-% if only one orientation was successful
-elseif (exitflag1 >= 0)
+% else, we return the new location
+else
     
     x0 = x1;
-    exitflag = exitflag1;
-    
-elseif (exitflag2 >= 0)
-    
-    x0 = x2;
-    exitflag = exitflag2;
     
 end
 
@@ -213,10 +188,13 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Auxiliary functions
 
-% d is the sparse adjacency matrix with the connections between the
+% d: the sparse adjacency matrix with the directed connections between the
 % perimeter vertices
 %
-% v is a list of the 
+% idx0: index of the central vertex
+%
+% v: ordered list of perimeter vertices in counter-clockwise orientation
+% (so that the signed area is positive)
 function v = sort_perim_vertices(d, idx0)
 
 % clear up the connections from the perimeter to the central vertex
@@ -225,44 +203,39 @@ d(:, idx0) = 0;
 
 % Dijkstra's shortest paths from one arbitrary vertex in the perimeter to
 % all the others
-if (idx0 == 1) va = 2; else va = 1; end
+if (idx0 == 1) 
+    va = 2; 
+else
+    va = 1; 
+end
 [l, p] = dijkstra(d, va);
 
-% arbitrarily choose one vertex at the antipodes in the perimeter 
+% furtherst vertex from origin vertex
 l(isinf(l)) = 0;
 [~, vb] = max(l);
 
 % path from va to vb
-branch1 = graphpred2path(p, vb);
+v = graphpred2path(p, vb);
 
-% remove the connections in branch1, so that we can find the other branch
-V = size(d, 1);
-d(sub2ind([V V], branch1(1:end-1)', branch1(2:end)')) = 0;
-d(sub2ind([V V], branch1(2:end)', branch1(1:end-1)')) = 0;
+% invert path
+v = v(end:-1:1);
 
-% recompute Dijkstra's shortest path
-[~, p] = dijkstra(d, va);
-if (isinf(d(vb)))
-    error('Gerardus:Assertion', 'Assertion fail: Antipode vertex only reachable through one branch')
-end
-
-% 2nd path from va to vb
-branch2 = graphpred2path(p, vb);
-
-% combine both branches into final solution
-v = [branch1 branch2(end-1:-1:2)];
-    
 end
 
 % set up the Freitag and Plassmann (2000) linear programming problem and
-% compute the solution
+% compute the solution. Note that the formulation in the original paper is
+% wrong, as has been corrected here.
 %
 % x: 2D vertex coordinates
+%
 % v0: index of the free vertex
-% v: indices of the perimeter vertices, sorted
+%
+% v: indices of the perimeter vertices, sorted in counter-clockwise
+% orientation (so that the signed area is positive)
+%
 % lb, ub: lower and upper bounds for the linear programming algorithm
 function [x0, triarea, exitflag, output] ...
-    = linear_programming_coordinates(x, v0, v, lb, ub)
+    = linear_programming_coordinates(x, v0, v)
 
 % for convenience, express the boundary as a list of edges
 e = [v(1:end)' v([2:end 1])'];
@@ -278,27 +251,41 @@ yj = x(e(:, 2), 2);
 ax = yi - yj;
 ay = xj - xi;
 c = xi .* yj - xj .* yi;
-A = [ax'; ay'; ones(1, Ntri)];
+A = [ax'; ay'; -2*ones(1, Ntri)];
 
 % compute triangle areas (this formula comes from expanding the determinant
 % form of a triangle's area)
 triarea = 0.5 * (ax * x(v0, 1) + ay * x(v0, 2) + c);
 
-% if all the areas are either positive or negative, then there's no
-% tangling, and we won't relocate the free vertex (this is not a smoothing
-% algorithm, thus the free vertex will only be moved if it's tangled)
-if all(sign(triarea)==1) || all(sign(triarea)==-1)
+% if all the areas are positive, then there's no tangling, and we won't
+% relocate the free vertex (this is not a smoothing algorithm, thus the
+% free vertex will only be moved if it's tangled)
+if all(triarea > 0)
     x0 = x(v0, :);
     exitflag = 2;
     output = [];
     return
 end
 
+% the solution cannot be outside the convex hull of the boundary vertices.
+% Thus, it cannot be outside of a rectangular box containing the boundary
+% vertices. We can use this as the lower and upper bounds for the linear
+% programming solution
+lb = min(x(v, :));
+ub = max(x(v, :));
+
+% the third component of the linear programming solution vector = minimum
+% area. We bound the area value between 0 and infinite. We could use as the
+% upper bound the convex hull's area, but it's not worth wasting time
+% computing it.
+lb = [lb 0]';
+ub = [ub Inf]';
+
 % otherwise, we solve linear programming problem to try to untangle the
 % free vertex
-options = optimset('Display', 'off');
-[x0, ~, exitflag, output] = linprog(-[0 0 1]', A', -c, [], [], lb, ub, [], ...
-    options);
+options = optimset('Display', 'off', 'Simplex', 'on', 'LargeScale', 'off');
+[x0, ~, exitflag, output] = linprog([0 0 -1]', -A', c, [], [], ...
+    lb, ub, [], options);
 
 % the two first elements are the target coordinates of the central vertex
 x0 = x0(1:2)';
