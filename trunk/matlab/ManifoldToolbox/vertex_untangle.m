@@ -61,7 +61,7 @@ function [x0, exitflag] = vertex_untangle(tri, x, idx0)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 %
@@ -251,7 +251,7 @@ yj = x(e(:, 2), 2);
 ax = yi - yj;
 ay = xj - xi;
 c = xi .* yj - xj .* yi;
-A = [ax'; ay'; -2*ones(1, Ntri)];
+A = [ax'; ay'; -ones(1, Ntri)];
 
 % compute triangle areas (this formula comes from expanding the determinant
 % form of a triangle's area)

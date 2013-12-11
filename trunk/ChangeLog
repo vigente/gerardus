@@ -1,5 +1,9 @@
 2013-12-11  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/vertex_untangle.m: (0.2.1)
+
+	- Fix small bug. Linear program formulation typo.
+
 	* matlab/ManifoldToolbox/vertex_untangle.m: (0.2.0)
 
 	- Fix bug. The original formulation of the linear programming
