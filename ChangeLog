@@ -1,3 +1,12 @@
+2013-12-12  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/vertex_untangle.m: (0.2.2)
+
+	- Actually, (0.2.0) was correct. It's Freitag and Plassmann (2000)
+	that had another error. It's just a constant value that shouldn't
+	change the result, but we'd rather have the right formulation in
+	the implementation.
+
 2013-12-11  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/vertex_untangle.m: (0.2.1)
