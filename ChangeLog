@@ -1,3 +1,16 @@
+2013-12-14  Ramon Casero  <rcasero@gmail.com>
+
+	* Add cpp/src/third-party/scipoptsuite-3.0.2:
+
+	- Solving Constraint Integer Programs library, Konrad-Zuse-Zentrum
+	für Informationstechnik Berlin, Division Scientific Computing,
+	Department Optimization.
+
+	- This is SCIP Optimization Suite, that includes SCIP, SoPlex,
+	ZIMPL, GCG, and UG with an easy-to-use Makefile.
+
+	http://scip.zib.de/
+
 2013-12-13  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ThirdPartyToolbox/OptiToolbox:
