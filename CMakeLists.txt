@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011-2013 University of Oxford
-# Version: 0.6.0
+# Version: 0.7.0
 # $Rev$
 # $Date$
 #
@@ -59,8 +59,10 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 # display type of build (e.g. Release)
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-# directories with ad hoc Findxxx.cmake files
-SET(CMAKE_MODULE_PATH
+# make directory with FindMatlab.cmake module visible to cmake. This
+# makes FindMatlab.cmake available to be used in the next line to find
+# and configure Matlab
+set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/matlab)
 
 #############################################################################################
@@ -207,7 +209,7 @@ if(WIN32 AND NOT CYGWIN)
   set(MPFR_LIBRARIES_DIR "${MPFR_LIBRARY_DIR}"
     CACHE PATH "Path to MPFR library")
 
-else(WIN32 AND NOT CYGWIN)
+else(WIN32 AND NOT CYGWIN) # linux builds
 
   # for Unix-like builds, we have to build the GMP and MPFR libraries from the source code
   set(GMP_SOURCE_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/gmp-5.1.2)
@@ -282,6 +284,37 @@ else(WIN32 AND NOT CYGWIN)
   set(MPFR_LIBRARIES "${MPFR_SOURCE_DIR}/output/lib/libmpfr.so")
 
 endif(WIN32 AND NOT CYGWIN)
+
+#############################################################################################
+## Third-party library: SCIP
+#############################################################################################
+
+set(SCIP_SOURCE_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2)
+
+set(GERARDUSLDFLAGS_SCIP "-L${GMP_SOURCE_DIR}/output/lib -L${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2/zimpl-3.3.1/lib")
+
+# build SCIP
+include(ExternalProject)
+ExternalProject_Add(SCIP_GERARDUS
+  PREFIX "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2"
+  STAMP_DIR "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2/output"
+  SOURCE_DIR "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2"
+  DOWNLOAD_COMMAND ""
+  CONFIGURE_COMMAND ""
+  BINARY_DIR "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2"
+  BUILD_COMMAND make CC=$ENV{CC} CXX=$ENV{CXX} LINKCC=$ENV{CC} LINKCXX=$ENV{CXX} GERARDUSLDFLAGS=${GERARDUSLDFLAGS_SCIP} GERARDUSCXXFLAGS=-I${GMP_SOURCE_DIR} READLINE=false
+  TEST_BEFORE_INSTALL 1
+  TEST_COMMAND make check
+  INSTALL_DIR "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2/output"
+  INSTALL_COMMAND ""
+  LOG_CONFIGURE 1
+  LOG_BUILD 1
+  LOG_TEST 1
+  LOG_INSTALL 1
+  )
+add_dependencies(SCIP_GERARDUS GMP)
+add_library(scip STATIC IMPORTED GLOBAL)
+set_property(TARGET scip PROPERTY IMPORTED_LOCATION ${SCIP_SOURCE_DIR}/scip-3.0.2/lib/libscip.a)
 
 #############################################################################################
 ## Third-party library: ITK

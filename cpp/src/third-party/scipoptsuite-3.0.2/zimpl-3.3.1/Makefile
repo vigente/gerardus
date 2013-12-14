@@ -1,3 +1,6 @@
+# Modified for project Gerardus
+# by Ramon Casero <rcasero@gmail.com> 14 Dec 2013
+
 # $Id: Makefile,v 1.84 2012/11/23 13:03:38 bzfkocht Exp $
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 #*                                                                           *
@@ -161,7 +164,7 @@ $(BINLINK) $(BINSHORTLINK):	$(BINARY)
 
 $(BINARY):	$(OBJDIR) $(BINDIR) $(OBJXXX) $(LIBRARY) 
 		@echo "-> linking $@"
-		$(CC) $(CFLAGS) $(OBJXXX) -L$(LIBDIR) -l$(LIBNAME) $(LDFLAGS) -o $@
+		$(CC) $(GERARDUSCPPFLAGS) $(CFLAGS) $(OBJXXX) -l$(LIBNAME) $(LDFLAGS) -o $@
 
 $(BINARYDBL):	$(OBJDIR) $(BINDIR) $(OBJXXX) $(LIBRARYDBL) 
 		@echo "-> linking $@"
@@ -241,6 +244,6 @@ depend:
 
 $(OBJDIR)/%.o:	$(SRCDIR)/%.c
 		@echo "-> compiling $@"
-		$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+		$(CC) $(GERARDUSCXXFLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 # --- EOF ---------------------------------------------------------------------
