@@ -1,5 +1,18 @@
 2013-12-14  Ramon Casero  <rcasero@gmail.com>
 
+	* Add cpp/src/third-party/metis-4.0.3:
+
+	- METIS: A Software Package for Partitioning Unstructured Graphs,
+	Partitioning Meshes, and Computing Fill-Reducing Orderings of
+	Sparse Matrices. By George Karypis.
+
+	- A dependency of MUMPS, that is a dependency of SCIP, that is a
+	dependency of OptiToolbox.
+
+	- Version 4.0.3 is the last version compatible with MUMPS.
+
+	- http://glaros.dtc.umn.edu/gkhome/fsroot/sw/metis/OLD
+
 	* cpp/src/third-party/scipoptsuite-3.0.2/zimpl-3.3.1/Makefile:
 	* cpp/src/third-party/scipoptsuite-3.0.2/zimpl-3.3.1/make/make.linux.x86_64.gnu.opt:
 	* cpp/src/third-party/scipoptsuite-3.0.2/scip-3.0.2/Makefile:
