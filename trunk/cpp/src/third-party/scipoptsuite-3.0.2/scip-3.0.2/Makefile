@@ -1,3 +1,6 @@
+# Modified for project Gerardus
+# by Ramon Casero <rcasero@gmail.com> 14 Dec 2013
+
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 #*                                                                           *
 #*                  This file is part of the program and library             *
@@ -1031,12 +1034,12 @@ $(MAINFILE):	$(BINDIR) $(BINOBJDIR) $(LIBOBJSUBDIRS) $(SCIPLIBOBJFILES) $(LPILIB
 ifeq ($(LINKER),C)
 		$(LINKCC) $(MAINOBJFILES) \
 		$(LINKCC_L)$(LIBDIR) $(SCIPLIBOBJFILES) $(LPILIBOBJFILES) $(NLPILIBOBJFILES) \
-		$(OFLAGS) $(LPSLDFLAGS) $(LDFLAGS) $(LINKCC_o)$@
+		$(OFLAGS) $(LPSLDFLAGS) $(GERARDUSLDFLAGS) $(LDFLAGS) $(LINKCC_o)$@
 endif
 ifeq ($(LINKER),CPP)
 		$(LINKCXX) $(MAINOBJFILES) \
 		$(LINKCXX_L)$(LIBDIR) $(SCIPLIBOBJFILES) $(LPILIBOBJFILES) $(NLPILIBOBJFILES) \
-		$(OFLAGS) $(LPSLDFLAGS) $(LDFLAGS) $(LINKCXX_o)$@
+		$(OFLAGS) $(LPSLDFLAGS) $(GERARDUSLDFLAGS) $(LDFLAGS) $(LINKCXX_o)$@
 endif
 
 $(SCIPLIBFILE):	checklpsdefine $(LIBDIR) $(LIBOBJSUBDIRS) touchexternal $(SCIPLIBOBJFILES)
@@ -1081,7 +1084,7 @@ $(BINOBJDIR)/%.o:	$(SRCDIR)/%.cpp $(BINOBJDIR)
 
 $(LIBOBJDIR)/%.o:	$(SRCDIR)/%.c $(LIBOBJDIR) 
 		@echo "-> compiling $@"
-		$(CC) $(FLAGS) $(OFLAGS) $(LIBOFLAGS) $(CFLAGS) $(CC_c)$< $(CC_o)$@
+		$(CC) $(FLAGS) $(OFLAGS) $(LIBOFLAGS) $(GERARDUSCXXFLAGS) $(CFLAGS) $(CC_c)$< $(CC_o)$@
 
 $(LIBOBJDIR)/%.o:	$(SRCDIR)/%.cpp $(LIBOBJDIR)
 		@echo "-> compiling $@"

@@ -1,5 +1,13 @@
 2013-12-14  Ramon Casero  <rcasero@gmail.com>
 
+	* cpp/src/third-party/scipoptsuite-3.0.2/zimpl-3.3.1/Makefile:
+	* cpp/src/third-party/scipoptsuite-3.0.2/zimpl-3.3.1/make/make.linux.x86_64.gnu.opt:
+	* cpp/src/third-party/scipoptsuite-3.0.2/scip-3.0.2/Makefile:
+	* CMakeLists.txt: (0.7.0)
+
+	- Modifications to SCIP so that it can build under linux as part
+	of Gerardus.
+
 	* cpp/src/third-party/scipoptsuite-3.0.2:
 
 	Untar the packages distributed with SCIP so that we can manually
