@@ -1,0 +1,4 @@
+#--- $Id: make.darwin.ppc.gnu.dbg,v 1.2 2008/09/22 07:49:23 bzfkocht Exp $
+CPPFLAGS	+=	-DFREEMEM -D__NO_MATH_INLINES 
+CFLAGS		=	-O -g $(GCCWARN)
+LDFLAGS		=	-lgmp -lz -lm 

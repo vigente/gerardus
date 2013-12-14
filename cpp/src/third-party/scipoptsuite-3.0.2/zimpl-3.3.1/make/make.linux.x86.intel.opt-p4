@@ -1,0 +1,6 @@
+# $Id: make.linux.x86.intel.opt-p4,v 1.11 2010/06/10 19:42:42 bzfkocht Exp $
+CC              =       icc
+CPPFLAGS        +=      -DNDEBUG -DNO_MSHELL
+CFLAGS          =       -O3 -ip -mp -mcpu=pentium4 -march=pentium4 -w1 \
+			-par_report0 -vec_report0 -wd1173
+LDFLAGS         =       -lgmp -lz -lm -static

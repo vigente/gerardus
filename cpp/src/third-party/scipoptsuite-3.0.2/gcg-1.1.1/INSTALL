@@ -1,0 +1,37 @@
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                                                                           *
+*                  This file is part of the program                         *
+*          GCG --- Generic Column Generation                                *
+*                  a Dantzig-Wolfe decomposition based extension            *
+*                  of the branch-cut-and-price framework                    *
+*         SCIP --- Solving Constraint Integer Programs                      *
+*                                                                           *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+In order to use GCG, you need a running version of SCIP and you need
+to create a (soft-)link "scip" in the lib/ directory pointing to the
+main directory of your SCIP version (e.g., "../../scip").
+
+If you do not create the soft link yourself, the Makefile will ask you
+where SCIP is located. You need a recent version of SCIP (for GCG 1.0.0
+this is SCIP 3.0.0).
+
+The Makefile options are the same as in SCIP, for a detailed description
+of those, have a look at the INSTALL file in your SCIP directory.
+
+The compilation only works if SCIP was previously compiled with exactly
+the same options. For example, if you want to compile in optimized
+compilation mode and use Soplex as LP solver, you should first compile SCIP
+via "make OPT=opt LPS=spx", then switch to the GCG directory and compile
+GCG with "make OPT=opt LPS=spx", too.
+The GCG makefile also provides the possibility to compile SCIP from your
+GCG directory via the "SCIP" target, e.g., "make OPT=opt LPS=spx scip".
+
+GCG is currently only tested on GNU/Linux and may not compile under
+Microsoft Windows.
+
+You can create the documentation via "make doc". Please visit
+doc/html/index.html with your favorite web browser. You need doxygen 1.8.0
+to build the documentation.
+
+Bugs can be reported via email to gcg-bugs AT or.rwth-aachen.de

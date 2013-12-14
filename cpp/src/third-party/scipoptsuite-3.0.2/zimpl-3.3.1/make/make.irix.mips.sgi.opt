@@ -1,0 +1,6 @@
+#--- $Id: make.irix.mips.sgi.opt,v 1.6 2010/06/10 19:42:42 bzfkocht Exp $
+CC		=	cc
+CPPFLAGS	+=	-DNDEBUG -Dinline=""
+CFLAGS		=	-O2 -mips4 -IPA
+LDFLAGS		=	-Bstatic -lgmp -lz -lm
+
