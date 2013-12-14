@@ -1,0 +1,4 @@
+*** Error 188: Index tuple <0> has wrong dimension 1, expected 2
+*** File: e188_4.zpl Line 2
+*** set I[{0..100}*{"a","b"}] := subsets({1..10},2);
+***                                                ^^^

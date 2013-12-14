@@ -1,0 +1,145 @@
+$(OBJDIR)/zimpl.o: src/zimpl.c src/lint.h src/bool.h src/mshell.h src/stkchk.h \
+  src/random.h src/blkmem.h src/ratlptypes.h src/numb.h src/elem.h \
+  src/tuple.h src/mme.h src/set.h src/symbol.h src/define.h src/bound.h \
+  src/mono.h src/term.h src/stmt.h src/local.h src/list.h src/entry.h \
+  src/conname.h src/xlpglue.h src/zlpglue.h src/prog.h src/metaio.h \
+  src/strstore.h src/zimpllib.h
+$(OBJDIR)/xlpglue.o: src/xlpglue.c src/bool.h src/mshell.h src/ratlptypes.h \
+  src/numb.h src/elem.h src/tuple.h src/mme.h src/bound.h src/mono.h \
+  src/term.h src/ratlp.h src/gmpmisc.h src/conname.h src/stmt.h \
+  src/hash.h src/xlpglue.h
+$(OBJDIR)/zlpglue.o: src/zlpglue.c src/bool.h src/mshell.h src/ratlptypes.h \
+  src/numb.h src/elem.h src/tuple.h src/mme.h src/bound.h src/mono.h \
+  src/term.h src/ratlp.h src/zlpglue.h
+$(OBJDIR)/ratlpstore.o: src/ratlpstore.c src/lint.h src/bool.h src/mshell.h \
+  src/gmpmisc.h src/ratlptypes.h src/numb.h src/bound.h src/mme.h \
+  src/mono.h src/term.h src/ratlp.h src/ratlpstore.h
+$(OBJDIR)/ratlpfwrite.o: src/ratlpfwrite.c src/lint.h src/mshell.h src/bool.h \
+  src/gmpmisc.h src/ratlptypes.h src/numb.h src/bound.h src/mme.h \
+  src/mono.h src/term.h src/ratlp.h src/ratlpstore.h src/random.h
+$(OBJDIR)/ratmpswrite.o: src/ratmpswrite.c src/lint.h src/mshell.h src/bool.h \
+  src/gmpmisc.h src/ratlptypes.h src/numb.h src/bound.h src/mme.h \
+  src/mono.h src/term.h src/ratlp.h src/ratlpstore.h
+$(OBJDIR)/ratmstwrite.o: src/ratmstwrite.c src/lint.h src/mshell.h src/bool.h \
+  src/gmpmisc.h src/ratlptypes.h src/numb.h src/bound.h src/mme.h \
+  src/mono.h src/term.h src/ratlp.h src/ratlpstore.h
+$(OBJDIR)/ratordwrite.o: src/ratordwrite.c src/lint.h src/mshell.h src/bool.h \
+  src/gmpmisc.h src/ratlptypes.h src/numb.h src/bound.h src/mme.h \
+  src/mono.h src/term.h src/ratlp.h src/ratlpstore.h
+$(OBJDIR)/ratpresolve.o: src/ratpresolve.c
+$(OBJDIR)/blkmem.o: src/blkmem.c src/mshell.h src/blkmem.h
+$(OBJDIR)/bound.o: src/bound.c src/bool.h src/mshell.h src/mme.h src/numb.h \
+  src/bound.h
+$(OBJDIR)/code.o: src/code.c src/bool.h src/mshell.h src/stkchk.h src/ratlptypes.h \
+  src/numb.h src/elem.h src/tuple.h src/mme.h src/set.h src/symbol.h \
+  src/entry.h src/idxset.h src/rdefpar.h src/bound.h src/define.h \
+  src/mono.h src/term.h src/list.h src/stmt.h src/local.h src/code.h \
+  src/inst.h
+$(OBJDIR)/conname.o: src/conname.c src/bool.h src/mshell.h src/ratlptypes.h \
+  src/numb.h src/mme.h src/bound.h src/mono.h src/term.h src/elem.h \
+  src/tuple.h src/local.h src/stmt.h src/prog.h src/xlpglue.h \
+  src/conname.h
+$(OBJDIR)/define.o: src/define.c src/bool.h src/mshell.h src/numb.h src/elem.h \
+  src/tuple.h src/mme.h src/define.h
+$(OBJDIR)/elem.o: src/elem.c src/lint.h src/bool.h src/mshell.h src/numb.h \
+  src/elem.h src/mme.h src/strstore.h
+$(OBJDIR)/entry.o: src/entry.c src/bool.h src/mshell.h src/ratlptypes.h src/numb.h \
+  src/elem.h src/tuple.h src/mme.h src/set.h src/symbol.h src/entry.h \
+  src/zimpllib.h
+$(OBJDIR)/gmpmisc.o: src/gmpmisc.c src/bool.h src/mshell.h src/gmpmisc.h
+$(OBJDIR)/hash.o: src/hash.c src/bool.h src/mshell.h src/blkmem.h src/ratlptypes.h \
+  src/numb.h src/elem.h src/tuple.h src/mme.h src/set.h src/symbol.h \
+  src/entry.h src/hash.h
+$(OBJDIR)/heap.o: src/heap.c src/bool.h src/mshell.h src/ratlptypes.h src/numb.h \
+  src/elem.h src/tuple.h src/mme.h src/set.h src/symbol.h src/entry.h \
+  src/heap.h
+$(OBJDIR)/idxset.o: src/idxset.c src/bool.h src/mshell.h src/numb.h src/elem.h \
+  src/tuple.h src/mme.h src/set.h src/idxset.h
+$(OBJDIR)/inst.o: src/inst.c src/bool.h src/mshell.h src/ratlptypes.h src/numb.h \
+  src/elem.h src/tuple.h src/mme.h src/set.h src/symbol.h src/define.h \
+  src/bound.h src/idxset.h src/mono.h src/term.h src/rdefpar.h \
+  src/conname.h src/stmt.h src/local.h src/list.h src/entry.h src/heap.h \
+  src/code.h src/inst.h src/prog.h src/xlpglue.h src/strstore.h
+$(OBJDIR)/iread.o: src/iread.c src/bool.h src/mshell.h src/ratlptypes.h src/numb.h \
+  src/elem.h src/tuple.h src/mme.h src/set.h src/symbol.h src/define.h \
+  src/bound.h src/idxset.h src/mono.h src/term.h src/rdefpar.h \
+  src/conname.h src/stmt.h src/local.h src/list.h src/entry.h src/heap.h \
+  src/code.h src/inst.h src/xlpglue.h src/metaio.h src/strstore.h
+$(OBJDIR)/list.o: src/list.c src/bool.h src/mshell.h src/blkmem.h src/ratlptypes.h \
+  src/numb.h src/elem.h src/tuple.h src/mme.h src/entry.h src/list.h
+$(OBJDIR)/load.o: src/load.c src/lint.h src/bool.h src/mshell.h src/mme.h \
+  src/stmt.h src/prog.h src/metaio.h
+$(OBJDIR)/local.o: src/local.c src/bool.h src/mshell.h src/numb.h src/elem.h \
+  src/tuple.h src/mme.h src/local.h
+$(OBJDIR)/metaio.o: src/metaio.c src/bool.h src/mshell.h src/mme.h src/metaio.h
+$(OBJDIR)/mmlparse2.o: src/mmlparse2.c src/bool.h src/mshell.h src/ratlptypes.h \
+  src/numb.h src/elem.h src/tuple.h src/mme.h src/set.h src/symbol.h \
+  src/entry.h src/idxset.h src/rdefpar.h src/bound.h src/define.h \
+  src/mono.h src/term.h src/list.h src/stmt.h src/local.h src/code.h \
+  src/inst.h
+$(OBJDIR)/mmlscan.o: src/mmlscan.c src/bool.h src/mshell.h src/ratlptypes.h \
+  src/numb.h src/elem.h src/tuple.h src/mme.h src/set.h src/symbol.h \
+  src/define.h src/stmt.h src/strstore.h src/mmlparse2.h
+$(OBJDIR)/mono.o: src/mono.c src/bool.h src/mshell.h src/ratlptypes.h src/numb.h \
+  src/elem.h src/tuple.h src/mme.h src/entry.h src/mono.h
+$(OBJDIR)/mshell.o: src/mshell.c src/lint.h src/mshell.h
+$(OBJDIR)/numbgmp.o: src/numbgmp.c src/bool.h src/lint.h src/mshell.h src/random.h \
+  src/gmpmisc.h src/mme.h src/numb.h
+$(OBJDIR)/prog.o: src/prog.c src/lint.h src/bool.h src/mshell.h src/ratlptypes.h \
+  src/numb.h src/elem.h src/tuple.h src/mme.h src/set.h src/symbol.h \
+  src/entry.h src/idxset.h src/rdefpar.h src/bound.h src/define.h \
+  src/mono.h src/term.h src/list.h src/local.h src/code.h src/stmt.h \
+  src/prog.h
+$(OBJDIR)/random.o: src/random.c src/lint.h src/mshell.h src/random.h
+$(OBJDIR)/rdefpar.o: src/rdefpar.c src/bool.h src/mshell.h src/mme.h src/strstore.h \
+  src/rdefpar.h
+$(OBJDIR)/source.o: src/source.c src/bool.h src/mshell.h src/ratlptypes.h \
+  src/numb.h src/elem.h src/tuple.h src/mme.h
+$(OBJDIR)/setempty.o: src/setempty.c src/bool.h src/mshell.h src/numb.h src/elem.h \
+  src/tuple.h src/mme.h src/hash.h src/set.h src/set4.h
+$(OBJDIR)/setpseudo.o: src/setpseudo.c src/bool.h src/mshell.h src/numb.h \
+  src/elem.h src/tuple.h src/mme.h src/hash.h src/set.h src/set4.h
+$(OBJDIR)/setlist.o: src/setlist.c src/bool.h src/mshell.h src/ratlptypes.h \
+  src/numb.h src/elem.h src/tuple.h src/mme.h src/entry.h src/hash.h \
+  src/list.h src/stmt.h src/set.h src/set4.h
+$(OBJDIR)/setrange.o: src/setrange.c src/bool.h src/mshell.h src/numb.h src/elem.h \
+  src/tuple.h src/mme.h src/hash.h src/stmt.h src/set.h src/set4.h
+$(OBJDIR)/setprod.o: src/setprod.c src/bool.h src/mshell.h src/numb.h src/elem.h \
+  src/tuple.h src/mme.h src/hash.h src/set.h src/set4.h
+$(OBJDIR)/setmulti.o: src/setmulti.c src/bool.h src/mshell.h src/ratlptypes.h \
+  src/numb.h src/elem.h src/tuple.h src/mme.h src/entry.h src/list.h \
+  src/hash.h src/stmt.h src/set.h src/set4.h
+$(OBJDIR)/set4.o: src/set4.c src/bool.h src/mshell.h src/ratlptypes.h src/numb.h \
+  src/elem.h src/tuple.h src/mme.h src/entry.h src/list.h src/hash.h \
+  src/stmt.h src/set.h src/set4.h
+$(OBJDIR)/stmt.o: src/stmt.c src/lint.h src/bool.h src/mshell.h src/stkchk.h \
+  src/ratlptypes.h src/numb.h src/elem.h src/tuple.h src/mme.h src/set.h \
+  src/symbol.h src/entry.h src/idxset.h src/rdefpar.h src/bound.h \
+  src/define.h src/mono.h src/term.h src/list.h src/local.h src/code.h \
+  src/inst.h src/stmt.h
+$(OBJDIR)/stkchk.o: src/stkchk.c src/stkchk.h
+$(OBJDIR)/strstore2.o: src/strstore2.c src/lint.h src/mshell.h src/strstore.h \
+  src/mme.h
+$(OBJDIR)/symbol.o: src/symbol.c src/bool.h src/mshell.h src/ratlptypes.h \
+  src/numb.h src/elem.h src/tuple.h src/mme.h src/entry.h src/set.h \
+  src/hash.h src/stmt.h src/symbol.h
+$(OBJDIR)/term2.o: src/term2.c src/bool.h src/mshell.h src/ratlptypes.h src/numb.h \
+  src/elem.h src/tuple.h src/mme.h src/bound.h src/entry.h src/mono.h \
+  src/term.h src/stmt.h src/prog.h src/xlpglue.h
+$(OBJDIR)/tuple.o: src/tuple.c src/bool.h src/mshell.h src/blkmem.h src/numb.h \
+  src/elem.h src/mme.h src/stmt.h src/tuple.h
+$(OBJDIR)/vinst.o: src/vinst.c src/lint.h src/bool.h src/mshell.h src/ratlptypes.h \
+  src/numb.h src/elem.h src/tuple.h src/mme.h src/set.h src/symbol.h \
+  src/define.h src/bound.h src/idxset.h src/mono.h src/term.h \
+  src/rdefpar.h src/conname.h src/stmt.h src/prog.h src/local.h \
+  src/list.h src/entry.h src/heap.h src/code.h src/inst.h src/xlpglue.h \
+  src/strstore.h
+$(OBJDIR)/zimpllib.o: src/zimpllib.c src/lint.h src/bool.h src/mshell.h \
+  src/stkchk.h src/blkmem.h src/random.h src/ratlptypes.h src/numb.h \
+  src/elem.h src/tuple.h src/mme.h src/set.h src/symbol.h src/define.h \
+  src/bound.h src/mono.h src/term.h src/stmt.h src/local.h src/list.h \
+  src/entry.h src/xlpglue.h src/prog.h src/metaio.h src/strstore.h \
+  src/zimpllib.h
+$(OBJDIR)/gmpmisc.o: src/gmpmisc.c src/bool.h src/mshell.h src/gmpmisc.h
+$(OBJDIR)/numbgmp.o: src/numbgmp.c src/bool.h src/lint.h src/mshell.h src/random.h \
+  src/gmpmisc.h src/mme.h src/numb.h

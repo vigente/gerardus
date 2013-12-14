@@ -1,0 +1,4 @@
+#--- $Id: make.sunos.x86_64.gnu.dbg,v 1.1 2010/09/30 09:27:36 bzfkocht Exp $
+CPPFLAGS	+=	-DFREEMEM -D__NO_MATH_INLINES 
+CFLAGS		=	-O0 -m64 -g -fident $(GCCWARN)
+LDFLAGS		=	-Bstatic -lgmp -lz -lm
