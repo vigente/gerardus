@@ -1,0 +1,51 @@
+#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
+#*                                                                           *#
+#*                  This file is part of the class library                   *#
+#*       SoPlex --- the Sequential object-oriented simPlex.                  *#
+#*                                                                           *#
+#*    Copyright (C) 1996      Roland Wunderling                              *#
+#*                  1996-2011 Konrad-Zuse-Zentrum                            *#
+#*                            fuer Informationstechnik Berlin                *#
+#*                                                                           *#
+#*  SoPlex is distributed under the terms of the ZIB Academic Licence.       *#
+#*                                                                           *#
+#*  You should have received a copy of the ZIB Academic License              *#
+#*  along with SoPlex; see the file COPYING. If not email to soplex@zib.de.  *#
+#*                                                                           *#
+#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
+
+#@file    make.install
+#@brief   Makefile targets for installing and SoPlex
+#@author  Stefan Heinz
+
+# installs headers, libraries, and binary
+.PHONY: install
+install:	installheader installlibs installbinary 
+
+
+# installs the headers into the INSTALL directory
+.PHONY: installheader
+installheader: 
+ifneq ($(INSTALLDIR),)
+		@echo "-> install SoPlex headers into INSTALLDIR <$(INSTALLDIR)>"
+		@-install -m 755 -d $(INSTALLDIR)/$(INCLUDEDIR)/
+		@-install -m 644 -p -t $(INSTALLDIR)/$(INCLUDEDIR)/ $(SRCDIR)/$(LIBSRCHEADER) 
+endif
+
+# installs the libraries into the INSTALL directory
+.PHONY: installlibs
+installlibs:	all
+ifneq ($(INSTALLDIR),)
+		@echo "-> install SoPlex libraries into INSTALLDIR <$(INSTALLDIR)>"
+		@-install -m 755 -d $(INSTALLDIR)/$(LIBDIR)/
+		@-install -m 644 -p -t $(INSTALLDIR)/$(LIBDIR)/ $(LIBFILE) $(LIBLINK) $(LIBSHORTLINK)
+endif
+
+# installs the binary into the INSTALL directory
+.PHONY: installbinary
+installbinary:	all
+ifneq ($(INSTALLDIR),)
+		@echo "-> install SoPlex binary into INSTALLDIR <$(INSTALLDIR)>"
+		@-install -m 755 -d $(INSTALLDIR)/$(BINDIR)/
+		@-install -m 755 -p -t $(INSTALLDIR)/$(BINDIR)/ $(BINFILE) $(BINLINK) $(BINSHORTLINK)
+endif

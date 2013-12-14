@@ -1,5 +1,11 @@
 2013-12-14  Ramon Casero  <rcasero@gmail.com>
 
+	* cpp/src/third-party/scipoptsuite-3.0.2:
+
+	Untar the packages distributed with SCIP so that we can manually
+	tell it to use Gerardus GMP, instead of trying to use a
+	system-installed version.
+
 	* Add cpp/src/third-party/scipoptsuite-3.0.2:
 
 	- Solving Constraint Integer Programs library, Konrad-Zuse-Zentrum

@@ -1,0 +1,4 @@
+*** Error 221: The objective function has to be linear
+*** File: e221.zpl Line 3
+*** maximize a: x * x;
+***                  ^^^

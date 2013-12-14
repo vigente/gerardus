@@ -1,0 +1,5 @@
+#--- $Id: make.win.x86.mingw-cross.opt,v 1.6 2010/09/30 09:27:36 bzfkocht Exp $
+CPPFLAGS	+=	-DNDEBUG -DNO_MSHELL -D__NO_MATH_INLINES -DWITH_PCRE -DPCRE_STATIC
+CFLAGS		=	-O6 -march=pentiumpro -g
+LDFLAGS		=	-lpcreposix -lpcre -lgmp -lz -lm -static
+BINARY		=	$(BINDIR)/$(TARGET).exe

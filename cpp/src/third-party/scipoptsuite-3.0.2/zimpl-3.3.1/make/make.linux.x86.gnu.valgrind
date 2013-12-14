@@ -1,0 +1,17 @@
+#--- $Id: make.linux.x86.gnu.valgrind,v 1.10 2011/10/31 08:48:56 bzfkocht Exp $
+CPPFLAGS	+=	-DNDEBUG -DNO_MSHELL -DFREEMEM -D__NO_MATH_INLINES 
+CFLAGS		=	-O6 -m32 -march=pentiumpro -g
+LDFLAGS		=	-lgmp -lz -lm
+
+ifeq ($(LINK),shared)
+LIBRARY		=	$(LIBDIR)/lib$(LIBNAME).so
+LIBLINK		=	$(LIBDIR)/lib$(NAME).$(BASE).so
+CFLAGS		+=	-fPIC
+AR		=	gcc -m32 -shared -o # the trailing space is important
+ARFLAGS		=       $(LDFLAGS)
+RANLIB		=	true
+endif
+
+ifeq ($(LINK),static)
+LDFLAGS		+=	-static
+endif
