@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@/coin/ThirdParty
+
+Name: HSL
+Description: Harwell Subroutines Library
+URL: https://projects.coin-or.org/BuildTools
+Version: @PACKAGE_VERSION@
+Cflags: -I${includedir}
+Libs: -L${libdir} -lcoinhsl @HSL_PCLIBS@
+Requires: @HSL_PCREQUIRES@

@@ -1,0 +1,374 @@
+This file contain the log of changes for Ipopt.
+More detailed information about incremental changes can be found in the
+history management of subversion.
+
+2013-11-16 releases/3.11.6
+        - updates to Matlab Interface build system (by T. Kelman)
+        - fix to updates of R Interface [r2416, #223]
+        - fixed SHAREDLIBEXT in v8-ifort's config.h [r2426, #224]
+        - minor fixes to the buildsystem
+
+2013-10-26 releases/3.11.5
+        - added method IpoptApplication::RethrowNonIpoptException() to enable
+          rethrowing of non-ipopt and non-bad_alloc exceptions catched in
+          the *Optimize() and Initialization() methods; default is still to
+          return with NonIpopt_Exception_Thrown status
+        - minor fixes to the buildsystem [#215, #222]
+
+2013-09-12 releases/3.11.4
+        - hopefully fixed non-working linear solver loader in DLLs build with
+          MSVS/v8-ifort project files [r2365]
+        - allow MC19 to be loaded via linear solver loader (by J. Currie) [r2366]
+        - fixed new point flag when running dependendency detector [r2368]
+        - experimental: adapt Pardiso interface to work with MKL Pardiso
+          (by J. Currie, T. Kelman) [r2369, #216]:
+          - in a few tests it has been found that Pardiso from Intel MKL nowadays
+            seems to work fine with Ipopt
+          - to use Intel MKL with Ipopt 3.11, one has to specify the MKL libs via
+            --with-pardiso and add -DHAVE_PARDISO_MKL -DHAVE_PARDISO_PARALLEL
+            to the compiler flags
+          - note that this is still an experimental feature (and thus not enabled
+            by default)
+        - updated Ipopt/R interface to version 0.8.4 [r2373]
+          - additional variables have been included in the object returned from ipoptr:
+            z_L : final values for the lower bound multipliers
+            z_U : final values for the upper bound multipliers
+            constraints : final values for the constraints
+            lambda : final values for the Lagrange multipliers
+          - removed ipoptr_environment as argument in ipoptr (see also r2372)
+        - fixed bug in penalty term for centrality in quality function (not used by
+          default) [#219, r2374]
+        - minor bugfixes in AMPL interface, debug print statements, and compound matrix
+          (by G. Hackebeil) [#218, r2371, r2377, r2378, r2379]
+        - download scripts for ASL, Blas, and Lapack now first try to download tarball
+          copies from the COIN-OR server
+
+2013-08-08 releases/3.11.3
+        - get.* scripts for ThirdParty/{ASL,Blas,Lapack} now work around broken
+          ftp access to www.netlib.org.
+
+2013-07-01 releases/3.11.2
+        - changed default for option option_file_name to ipopt.opt; specifying an
+          empty string for this option now disables reading of an option file [r2339]
+        - missing initial values are now set to 0.0, projected onto variable bounds,
+          in AMPL interface [r2340, #205]
+        - fixed missing variable initialization in MA97 interface [r2341, #206]
+
+2013-06-14 releases/3.11.1
+        - the setup for the v8-ifort MSVS project changed to use dynamic runtime
+          DLLs instead of static linking, which caused crashes in debug mode
+          (by M. Roelofs) [r2301]
+        - fixed memory leaks in Java Interface (by javier) [#200, r2312]
+        - updates and fixes to MA77 and MA87 interfaces, adding support of
+          HSL 2013 codes (by J. Hogg);
+          HSL 2012 still supported when compiled with Ipopt, but the linear solver
+          loader to dynamically load a HSL library at runtime now assumes HSL 2013
+        - added option ma97_solve_blas3 (by J. Hogg) [r2329]
+        - changed default for option ma27_meminc_factor from 10.0 to 2.0 [r2330]
+        - fixed bug in ipopt_auxdata of MATLAB Interface related to iterfunc [r2325]
+
+2013-05-07 releases/3.11.0
+        - update and extension of Ipopt documentation
+        - updated build of doxygen documentation to comply with other COIN-OR projects
+        - localized global variables in TaggedObject and RegisteredOption,
+          so that Ipopt should now be threadsafe as long as Ipopt objects
+          (esp. SmartPtr's) are not shared between threads and a threadsafe
+          linear solver is used (e.g., MA27) [#167]
+        - no more need for whitespace character at end of options file
+        - added options print_frequency_iter and print_frequency_time to regulate
+          which iteration summary lines should be printed [#161]
+        - function evaluation timings are now available in OrigIpoptNLP [#86]
+        - some fixes to uncommon issues with the Ipopt SmartPtr [#162]
+
+        - new build system for Harwell codes (ThirdParty/HSL), which requires
+          the coin-hsl archives from http://www.hsl.rl.ac.uk/ipopt/;
+          previously downloaded HSL sources can still be used by placing them
+          into ThirdParty/HSLold, but this option may be removed in a future
+          Ipopt version
+        - new interfaces for Harwell codes HSL_MA77, HSL_MA86, and HSL_MA97;
+          see http://www.hsl.rl.ac.uk/ipopt/ about help on when to use which solver;
+          especially MA57 and HSL_MA97 should be considered as replacement for MA27;
+          however, MA27 is still the default for now
+        - changed default of ma57_automatic_scaling to no (faster in general,
+          but for higher reliability, you may want to set this option to yes)
+
+        - major improvements for building the MATLAB interface (see documentation)
+        - MATLAB interface now returns number of function evaluations, too
+        - the MA57 interface can now be used with the MA57 library that comes with
+          MATLAB (configure option --enable-matlab-ma57; cannot use Metis)
+        - auxdata is now handled by a wrapper function ipopt_auxdata.m instead
+          of internally within the mex code (replace Matlab call to ipopt with
+          ipopt_auxdata if using auxiliary data in any callbacks) [r2282]
+        - exposed more intermediate Ipopt information to iterfunc callback [r2283]
+        
+        - fixes to JIpopt buildsystem (now may work on windows and uses libtool)
+        - JIpopt now reads options file ipopt.opt by default, if present
+        - removed predefined KEY_ strings in JIpopt
+        - renamed API functions that retrieve solution values in JIpopt
+        
+        - simplified installation of R interface
+
+2013-05-05 releases/3.10.4
+        - fixed sign of dual values in AMPL solution again (with help of Gabe)
+          [r2169, r2170, r2184, #183]
+        - fixed bugs with reoptimizing a TNLP with all variables fixed [r2172, r2173, #179]
+        - fixed more issues with sparse data structures and non-double numbers
+          in Matlab interface (by T. Kelman) [r2191]
+        - added missing final int for Ipopt return code Maximum_CpuTime_Exceeded
+          in Java interface [r2216]
+        - fixed bug when trying to warmstart Ipopt in Java interface [r2253]
+        - fixed wrong use of SmartPtr's in Java interface [r2255, r2263]
+        - fixed bug in returning final solution in Java interface [r2258]
+        - included patch in ThirdParty/Mumps to work around bugs in Mumps
+          matrix ordering routines AMF and QAMD (now give preference to AMD and METIS)
+
+2012-11-19 releases/3.10.3
+        - minor fixes in MA86 interface (by Jonathan Hogg) [r2069, r2086]
+        - fix in IpTripletToCSRConverter for CSR forms with
+          extra entries (by Jonathan Hogg) [r2087]
+        - workaround problems with MacOSX-Lion's blas library
+          (by Frederic Hetch) [r2102, #181]
+        - the C interface now catches also Ipopt exceptions thrown
+          within the OptimizeTNLP call and returns Ipopt::Unrecoverable_Exception
+          as status [r2094, #144]
+        - fixed segmentation fault in adaptive barrier parameter update rule
+          when using the mehrotra option on unconstrained problems [r2114, #114]
+        - fixed segmentation fault in case no iterate is available in case of
+          catastrophic failure in restoration phase [r2115]
+        - fixed default for mumps_dep_tol to work with current Mumps versions [r2116]
+        - fixed sign of dual values in AMPL solution [r2123, #183]
+        - fixed issue with sparse gradients in Matlab interface
+          (by T. Kelman) [r2133, #187]
+        - sIPOPT (by H. Pirnay):
+          - starting values in C++ version of parametric example now
+            match AMPL version [r2098]
+          - numerical values in parametric example now match publication [r2099]
+          - added options n_sens_steps and sens_boundcheck as AMPL options [r2099]
+          - any non-zero suffix value is now accepted for sens_init_constr [r2100]
+          - fix typo in AMPL interface (by Weifeng Chen) [r2110]
+          - fix bug when compiling without AMPL interface [r2113]
+        - build system:
+          - updated instruction on using nowadays HSL sources (by T. Kelman)
+          - fixed issue with libdir being <prefix>/lib64
+        - other minor fixes
+
+2012-02-12 releases/3.10.2
+        - updates to HSL interface (by Jonathan Hogg):
+          - MC68 can now be loaded dynamically, too
+          - MA86 exploits built-in scaling
+          - MA86 can choose best ordering from AMD and Metis
+          - fix for return code of MA86 for singular matrices
+        - corrected computation of Upsilon (norm of step SQUARED)
+        - updates to MSVS v8-ifort project files and addition of vc10
+          project files (using vc8-generated IpoptFSS.dll) (by Marcel Roelofs)
+        - minor bugfixes, include updates in BuildTools
+
+2011-09-20 releases/3.10.1
+        - include updates in BuildTools, including new ThirdParty/Metis
+           (fix for URL to download Metis 4.0.3 release)
+        - linear solver loader prints error code when failing to load
+          library under Windows
+        - message on failure when reallocating memory in Mumps now includes
+          size of memory that was tried to be allocated
+        - added missing include of cstdio/stdio.h to IpJournalist.hpp
+        - minor fixes to build system
+
+2011-06-20 releases/3.10.0
+        - move to new COIN-OR configuration and installation convention
+        - primal infeasibility output is now true infeasibility in original
+          problem formulation
+
+2011-04-07 releases/3.9.3
+        - include updates in BuildTools, including new ThirdParty/Metis
+           (required to work with current metis release)
+
+2010-12-22 releases/3.9.2
+        - converted from Common Public License to Eclipse Public License
+        - some bugfixes from BuildTools
+
+2010-11-26 releases/3.9.1
+        - improved Hessian update for restoration phase
+        - added intermediate callback feature to C and Fortran interface
+
+2010-11-05 releases/3.9.0
+        - switching to new BuildTools system
+        - added R interface (contributed by Jelmer Ypma)
+        - updates in AsNMPC (by Hans Pirnay)
+
+2010-06-29 releases/3.8.3
+        - restated SolveStatistics::TotalCPUTime method for backward
+          compatibility
+
+2010-06-16 releases/3.8.2
+        - uses MUMPS version 4.9 and Lapack version 3.2.1
+        - added AsNMPC contribution made by Hans Pirnay
+        - enhanced MA57 options
+        - several bug fixes and minor additions
+
+2009-10-30 releases/3.8.1
+        - Bugfix in NLP function evaluation timing measurement.  The
+          time for the objective function gradient had been forgotten.
+
+2009-10-29 releases/3.8.0
+        - Added MSVC solution with Intel Fortran compiler to generate DLLs
+          (contributed by Marcel Roelofs).  To make this work, a lot of methods
+          in exported headers have been made virtual
+        - changed default convergence tolerance in restoration phase (now same
+          as regular tolerance)
+        - output is flushed after each iteration
+
+2009-10-06 releases/3.7.1
+        - bugfix for square problems
+        - correct timinig information (obj gradient was forgotten)
+        - flush output buffer after each iteration
+        - first code for iterative WSMP version (experimental and undocumented)
+
+2009-07-16 releases/3.7.0
+        - a number of fixes (including those from 2009 COIN Bug Squashing
+          Party)
+        - changes in some exposed header files to provide access to internal
+          data structures for specific applications
+
+2009-05-01 releases/3.6.1
+        - minor corrections in tutorial files
+
+2009-04-29 releases/3.6.0
+        - new Matlab interface
+        - added new option to limit cpu time (max_cpu_time)
+        - added ThirdParty directory for Metis to be used with MUMPS or MA57
+        - updated CUTEr Makefile to make it work with CUTEr2
+        - added files for a tutorial (including coding exercise)
+
+2009-01-13 releases/3.5.5
+        - minor fixes regarding compilation
+        - undocumented version of inexact method
+
+2008-09-29 releases/3.5.4
+        - changed to MUMPS version 4.8.3 in externals (Mumps developers
+          seem to have removed 4.8.1).
+
+2008-09-19 releases/3.5.3
+        - changed back to MUMPS version 4.8.1 since there seem to be issues
+          on Windows
+
+2008-09-18 releases/3.5.2
+        - changed to latest version of MUMPS (4.8.2)
+        - some bugfixes (linear algebra objects, automatic problem scaling)
+        - made sure the subversion revision number is correct in all files
+        - allowed general additional data and cq in IpData and IpCq
+
+2008-08-26 releases/3.5.1
+        - changed to latest version of MUMPS (4.8.1)
+
+2008-08-25 releases/3.5.0
+        - added ComputeRowAMax and ComputeColAMax methods to Matrix base class
+        - changed externals for MUMPS to stable/1.1
+        - call finalize solution in more failure cases
+          (this means that AMPL writes .sol file in more situations)
+        - added IpTNLPReducer as simple way to exclude constraints from problem
+        - several fixes, also from COIN Bug Squashing Party 2008
+
+2008-07-18 releases/3.4.2
+        - some bug fixes
+        - added wallclock time routine
+        - penalty function version does not longer crash if it
+          wants to go to restoration phase (not that this really helps
+          converence though)
+
+2008-05-30 releases/3.4.1
+        - some bug fixes
+        - deleted v9 MSVC files again (since v8 works fine for v9)
+        - print Ipopt version in default print level
+        - added option that allows to change name of options file
+          (option_file_name)
+
+2008-04-25 releases/3.4.0
+        - added support to dynamically load HSL or Pardiso:
+          If Ipopt has been compiled without some HSL or Pardiso solver,
+          it can now load those solvers from a shared library at runtime
+          without recompilation.  This will make ditribution of binaries
+          easier.  Does not work on all platforms yet.
+        - several bugfixes
+        - ensured compilation of MSVS project files (v8 and v9)
+        - new special return code for square problems
+          (Feasible_Point_Found returned if dual inf not small)
+        - new initialization option for bound multipliers
+          (see option bound_mult_init_method)
+        - added simple penalty function line search option
+          (line_search_method=penalty) - not guaranteed to converge, see
+          Ipopt implementation paper (in MathProg)
+        - some very basic method to approximate constraint Jacobian by
+          finite differences (not efficient, but will hopefully be extended)
+
+2008-02-28 releases/3.3.5
+        - corrected links for Ipopt mailing list
+        - added missing Makefile.in for Matlab interface
+        - the addlibs* files are now installed in share/doc/coin/Ipopt
+          instead of lib
+        - updates in Matlab interface
+        - bugfix for ticket #56
+
+2007-12-27 releases/3.3.4
+        - headers are now installed in include/coin
+            (no longer in include/ipopt)
+        - default for dual_inf_tol is now 1 (instead of 1e-4)
+        - In matlab interface, here the text from Peter Carbonetto:
+          There have been several significant changes made to the MATLAB interface since the last release. The most important two changes are: 1) Following the "warm start" feature of IPOPT, you may pass in initial estimates for the Lagrange multipliers. 2) Callback routines for computing the objective, gradient (etc.) are now specified using function handles instead of strings. (Thanks to Marcus Brubaker at the University of Toronto for the initial suggestion.) 
+
+2007-09-25 releases/3.3.3
+        - minor changes, bug fixes
+
+2007-06-20 releases/3.3.1
+        synchronized with all changes in trunk; probably more than to be
+        remembered.  In the following a few:
+        - support for Mumps linear solver (contributed by Damian Hocking)
+        - --print-options flag for ipopt ASL solver executable to see all
+          Ipopt options (available through ipopt.opt file)
+        - added Matlab interface (contributed by Peter Carbonetto)
+        - added support for f2c compiler to compiler Fortran code with
+          MSVC++ compiler
+        - new MSVisualStudio support (now within MSVisualStudio project
+          and also with f2c)
+        - a number of small changes/bug fixes/improvements
+        - small change in interface (e.g., FinalizeSolution method)
+
+2007-04-24 releases/3.2.4
+        - updated download script for Blas to fit netlib's
+          recent changes
+        - using a more recent version of BuildTools
+
+2006-11-29 release/3.2.3
+        - updated download script for Lapack to fit to netlib's
+          recent changes
+
+2006-10-11 stable/3.2 r795
+        - Bugfix in L-BFGS update
+        - fix in configure with detection of sizeof(int *) on Cygwin
+
+2006-07-14 - version 3.2.1 - dev release number 764
+        - Bugfix in least square multiplier estimate.
+          It mainly showed up in LBFGS with restoration phase as seg fault
+
+2006-07-07 - version 3.2.0 - dev 757
+        - changed installation procedure and directory structure to
+          conform with new COIN-OR convention
+
+2006-04-08 - version 3.1.0 - dev release number 714
+        Several bug-fixes, improvements and additions. In particular:
+        - new quasi-Newton approximation using L-BFGS
+        - interfaces to linear solver MA57, WSMP, Pardiso
+          (MUMPS and TAUCS not yet completed)
+        - derivative checker
+        - unit test
+        - configure supports compilation under Cygwin with native
+          Windows compilers
+        - ScalableExample
+        - user call-back method in TNLP
+
+2005-12-04 - version 3.0.1 - fixes independent of dev
+        (already taken care of there)
+        Several corrections to Windows files
+        Fix termination if number of iterations is exceeded in restoration phase
+2005-08-26 - version 3.0.0 - dev release number 510
+        First official release of the new C++ implementation of Ipopt.
+
