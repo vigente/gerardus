@@ -1,0 +1,10 @@
+prefix=@prefix@
+libdir=@ABSBUILDDIR@
+
+Name: HSL
+Description: Harwell Subroutines Library
+URL: https://projects.coin-or.org/BuildTools
+Version: @PACKAGE_VERSION@
+Cflags: -I@abs_source_dir@ -I@ABSBUILDDIR@
+Libs: ${libdir}/libcoinhsl.la @HSL_PCLIBS@
+Requires: @HSL_PCREQUIRES@

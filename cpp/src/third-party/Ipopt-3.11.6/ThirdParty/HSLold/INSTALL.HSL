@@ -1,0 +1,180 @@
+Installation of certain Harwell subroutines for IPOPT.
+
+*********************************************************************
+Note: It is YOUR RESPONSIBILITY to ensure that you are entitled to
+      download and use this third party package.
+*********************************************************************
+
+Information on the Harwell Subroutine Library (HSL) is available at
+
+http://www.cse.clrc.ac.uk/nag/hsl/
+
+Some of the required HSL routines are available in the HSL Archive.
+The subroutines in the HSL Archive are free for non-commercial
+purposes (make sure you read the license).
+
+The sparse symmetric linear solvers that you can use in Ipopt are MA57
+(if you have access for a commercial copy of the HSL library or are an
+academic who wants to use the "HSL 2007 for Researchers" library)
+and/or MA27 (if you have only access to the HSL Archive).  In
+addition, you should get MC19 (from the ASL archive).
+
+Different ways to use the HSL routines in Ipopt:
+------------------------------------------------
+
+1. If you download the HSL sources when you configure and compile
+   Ipopt, those files will be compiled and included into the Ipopt
+   library and executable.
+
+2. You can also compile Ipopt without the HSL source files.  In this
+   case, Ipopt will be built without the HSL routines, but it will be
+   possible to load a shared library at runtime that contains the HSL
+   routines.  For this, you need to provide this shared library.  You
+   can use the Makefiles in this ThirdParty/HSL directory to generate
+   this shared library.  For details, please look at the
+
+   "Compiling a shared library with HSL" 
+
+   below in this file.
+
+Instructions on how to download files from the HSL Archive or HSL 2007:
+-----------------------------------------------------------------------
+
+If you need to download subroutines from the HSL Archive or from the
+HSL2007 for Researchers website, this is how it goes:
+
+In order to download the HSL Archive subroutines (like ma27 and mc19),
+you need to register at the HSL 2011 catalogue website:
+
+http://www.hsl.rl.ac.uk/catalogue/
+
+After that you can log in and go to the page that lists all the
+available HSL packages for download. There, follow the instructions
+on how to download the desired routines.
+After downloading a routine, the source files need to be extracted
+and possibly renamed or rearranged as following:
+
+MA27:
+- get ma27d.f from the zip/tar file, src subdirectory
+- rename ma27d.f to ma27ad.f
+
+MA28:
+- get ma28d.f and ddeps.f from the zip/tar file, src subdirectory
+- rename ma28d.f to ma28ad.f
+- take the contents of ddeps.f and create the following new files:
+  - ma30ad.f (including MA30AD, MA30BD, MA30CD, and MA30DD subroutines)
+  - mc13dd.f (including MC13DD and MC13ED subroutines)
+  - mc20ad.f (including MC20AD and MC20BD subroutines)
+  - mc21ad.f (including MC21AD and MC21BD subroutines)
+  - mc22ad.f (MC22AD subroutine)
+  - mc23ad.f (MC23AD subroutine)
+  - mc24ad.f (MC24AD subroutine)
+- don't worry about the FA01AD, FA01BD, FA01CD, FA01DD, and FA01FD
+  subroutines in ddeps.f, they appear to never get used
+- if you are also compiling ma57, open mc21ad.f and replace
+  "SUBROUTINE MC21AD" -> "SUBROUTINE MC21AD2", and
+  "SUBROUTINE MC21BD" -> "SUBROUTINE MC21BD2"
+  (MC21AD and MC21BD are included in ma57's ddeps.f, they will
+   conflict if you don't rename or delete one of the copies)
+
+MA57:
+- note: you want MA57 (the Fortran 77 version), NOT HSL_MA57 (which is Fortran 95)
+- get ma57d.f and ddeps.f from the zip/tar file, src subdirectory
+- rename ma57d.f to ma57ad.f
+- add the contents of ddeps.f to the end of the new ma57ad.f file
+- get the dummy file (metis.f) for METIS; however, it is strongly suggested
+  that you use METIS (look at the ThirdParty/Metis directory for instructions)
+
+MA77:
+- get hsl_ma77d.f90, hsl_ma77d_ciface.f90, ddeps90.f90, common90.f90, and common.f
+  from the zip/tar file, src subdirectory
+- rename ddeps90.f90 to hsl_ma77d.deps90.f90
+- rename common.f to hsl_ma77d.deps77.f
+- copy the contents of hsl_ma77d_ciface.f90 to the end of hsl_ma77d.f90
+- copy the contents of common90.f90 to the end of hsl_ma77d.deps90.f90
+
+MC19:
+- get mc19d.f from the zip/tar file, src subdirectory
+- rename mc19d.f to mc19ad.f
+- don't worry about ddeps.f from the src directory, it is only FA01AD,
+  FA01BD, FA01CD, FA01DD, and FA01FD, which appear to never get used
+
+
+Instructions on where to put the source code:
+---------------------------------------------
+
+Copy the source files for the required HSL routines into this
+directory before running the `configure' script.  The configuration
+script will detect which source files you have and prepare the
+Makefile accordingly.
+
+
+Compiling a shared library with HSL
+===================================
+
+Note: This has not yet been successfully tested on all platforms.  It
+      should work on most UNIX systems (including Linux), and also on
+      Cygwin and MSys.  So far, it does not seem to work on AIX.
+
+If you already built an Ipopt executable or library, you can still add
+the functionality of the HSL routines without recompiling Ipopt.  The
+following describes the mechanism that Ipopt uses to use a Harwell
+Subroutine:
+
+1. If the Ipopt binary/library had been compiled with HSL files
+   present, those subroutines are always available.
+
+2. If you are selecting a Harwell subroutine (such as MA27 or MA57 as
+   argument to the "linear_solver" option) which has not been available
+   when Ipopt had been compiled, Ipopt will attempt to load a shared
+   library containing this routine.  The name of the shared library
+   depends on the operating system:
+
+   - Windows (Cygwin/MSys/MSVC): libhsl.dll
+   - Darwin: libhsl.dylib
+   - UNIX (including Linux): libhsl.so
+
+   If this library is not found, or the selected routine is not
+   available in this shared library, Ipopt will abort with an error
+   message.
+
+An easy way to generate this shared library is to use the "configure"
+script in this directory, using the following instructions:
+
+1. Put the HSL routines that are available to you into this directory
+   (see above for the proper names, and how to get them).
+
+2. Run the configure script of ThirdParty/HSL (not the one in the
+   Ipopt base directory!).  As arguments, you would essentially
+   provide the same flags as you would usually when you compile Ipopt,
+   but you need to add the flag "--enable-loadable-library".  Since
+   you are compiling a shared library, you cannot specify the
+   "--disable-shared" flag.
+
+3. Then just run "make install".  If it works, this should give you
+   the shared library in the "lib" subdirectory in the directory where
+   you run the ThirdParty/HSL/configure script.
+
+4. To use the shared library, you need to make sure that Ipopt will
+   find it when it is looking for it.  On most UNIX systems, you need
+   to put the shared library into a directory in the LD_LIBRARY_PATH
+   search path, and on Windows it needs to be in the PATH.
+
+
+Possible issues when compiling MA77
+===================================
+
+If you encounter errors such as:
+"Error: Attribute at (1) is not allowed in a TYPE definition" referring to
+"allocatable",
+or "Error: '<variable>' at (1) is not a member of the 'of01_data_private'
+structure",
+or "Error: Syntax error in DATA statement at (1)", or "Error: Symbol 'array'
+at (1) has
+no IMPLICIT type", or "Error: 'array' argument of 'size' intrinsic at (1)
+must be an array",
+these are Fortran 90 issues with gfortran versions pre-4.2.0. Try a
+different Fortran 90 compiler or a newer version of gfortran.
+
+Similarly, you may encounter "Error: Stat-variable at (1) shall not be
+DEALLOCATEd within the same DEALLOCATE statement" if you are using gfortran 4.5.0 or 4.5.1.
