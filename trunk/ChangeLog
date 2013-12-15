@@ -1,3 +1,18 @@
+2013-12-15  Ramon Casero  <rcasero@gmail.com>
+
+	* Add cpp/src/third-party/Ipopt-3.11.6:
+
+	- Ipopt is an open-source solver for large-scale nonlinear
+	continuous optimization. It can be used from modeling
+	environments, such as AIMMS, AMPL, GAMS, or Matlab, and it is also
+	available as callable library with interfaces to C++, C, Fortran,
+	Java, and R. Ipopt uses an interior point method, together with a
+	filter linear search procedure. Project manager Andreas Waechter.
+
+	- A dependency of SCIP, that is a dependency of OptiToolbox.
+
+	- http://www.coin-or.org/download/source/Ipopt/
+
 2013-12-14  Ramon Casero  <rcasero@gmail.com>
 
 	* Add cpp/src/third-party/metis-4.0.3:
