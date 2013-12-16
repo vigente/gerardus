@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011-2013 University of Oxford
-# Version: 0.7.0
+# Version: 0.8.0
 # $Rev$
 # $Date$
 #
@@ -107,13 +107,15 @@ if(NOT WIN32)
     message(FATAL_ERROR 
       "I do not know which version of gcc/g++ is needed for Matlab ${MATLAB_VERSION}.\nPlease update gerardus/CMakeLists.txt with this information.")
   endif()
-  message(STATUS "Matlab ${MATLAB_VERSION} requires gcc/g++ ${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  message(STATUS "Matlab ${MATLAB_VERSION} requires gcc, g++ and gfortran version: ${GCC_VERSION_REQUIRED_BY_MATLAB}")
+
+################# gcc version
 
   # if the user has provided environmental variables with the
   # compilers, we are going to check that they have the correct
   # version
   if(DEFINED ENV{CC})
-    message(STATUS "User wants to use the compiler binary: $ENV{CC}")
+    message(STATUS "User wants to use as gcc the following binary: $ENV{CC}")
     
     # get version of the C compiler
     exec_program(
@@ -139,8 +141,10 @@ if(NOT WIN32)
     set(ENV{CC} "gcc-${GCC_VERSION_REQUIRED_BY_MATLAB}")
   endif()
   
+################# g++ version
+
   if(DEFINED ENV{CXX})
-    message(STATUS "User wants to use the compiler binary : $ENV{CXX}")
+    message(STATUS "User wants to use as g++ the following binary: $ENV{CXX}")
     
     # get version of the C++ compiler
     exec_program(
@@ -164,6 +168,35 @@ if(NOT WIN32)
     # if the user does not provide an environmental variable with
     # the compiler, we set it up
     set(ENV{CXX} "g++-${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  endif()
+
+################# gfortran version
+
+  if(DEFINED ENV{F77})
+    message(STATUS "User wants to use as gfortran the following binary: $ENV{F77}")
+    
+    # get version of the Fortran compiler
+    exec_program(
+      $ENV{F77}
+      ARGS                    --version
+      OUTPUT_VARIABLE _compiler_output)
+    
+    string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
+      gfortran_compiler_version ${_compiler_output})
+    message(STATUS "This binary corresponds to version: ${gfortran_compiler_version}")
+    string(REGEX MATCH "[0-9]\\.[0-9]"
+      gfortran_compiler_version ${gfortran_compiler_version})
+    
+    if(NOT gfortran_compiler_version VERSION_EQUAL "${GCC_VERSION_REQUIRED_BY_MATLAB}")
+      message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires gfortran ${GCC_VERSION_REQUIRED_BY_MATLAB}")
+    else()
+      message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
+    endif()
+
+  else()
+    # if the user does not provide an environmental variable with
+    # the compiler, we set it up
+    set(ENV{F77} "gfortran-${GCC_VERSION_REQUIRED_BY_MATLAB}")
   endif()
 
 endif(NOT WIN32)
@@ -286,35 +319,80 @@ else(WIN32 AND NOT CYGWIN) # linux builds
 endif(WIN32 AND NOT CYGWIN)
 
 #############################################################################################
+## Third-party library: IPOPT
+#############################################################################################
+
+# currently, only linux build available in Gerardus
+if(NOT WIN32)
+  enable_language(Fortran)
+  
+  set(IPOPT_SOURCE_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/Ipopt-3.11.6)
+  
+  # build IPOPT
+  include(ExternalProject)
+  ExternalProject_Add(IPOPT_GERARDUS
+    PREFIX "${IPOPT_SOURCE_DIR}"
+    STAMP_DIR "${IPOPT_SOURCE_DIR}/output"
+    SOURCE_DIR "${IPOPT_SOURCE_DIR}"
+    DOWNLOAD_COMMAND ""
+    CONFIGURE_COMMAND ./configure CC=$ENV{CC} CXX=$ENV{CXX} F77=$ENV{F77} --prefix=${IPOPT_SOURCE_DIR}/output
+    BINARY_DIR "${IPOPT_SOURCE_DIR}"
+    BUILD_COMMAND make
+    TEST_BEFORE_INSTALL 1
+    # we don't run the test, because tests for any of the linear solvers
+    #  that we don't use will fail, as they won't be installed in the
+    #  system, and this will make cmake stop with an error
+    #
+    # TEST_COMMAND make test
+    TEST_COMMAND ""
+    INSTALL_DIR "${IPOPT_SOURCE_DIR}/output"
+    INSTALL_COMMAND ""
+    LOG_CONFIGURE 0
+    LOG_BUILD 0
+    LOG_TEST 0
+    LOG_INSTALL 0
+    )
+endif(NOT WIN32)
+
+#############################################################################################
 ## Third-party library: SCIP
 #############################################################################################
 
-set(SCIP_SOURCE_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2)
+# currently, only linux build available in Gerardus
+if(NOT WIN32)
+  set(SCIPLIB_SOURCE_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2)
+  
+  set(GERARDUSLDFLAGS_SCIPLIB "-L${GMP_SOURCE_DIR}/output/lib -L${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2/zimpl-3.3.1/lib")
+  
+  # build SCIP
+  include(ExternalProject)
+  ExternalProject_Add(SCIP_GERARDUS
+    PREFIX "${SCIPLIB_SOURCE_DIR}"
+    STAMP_DIR "${SCIPLIB_SOURCE_DIR}/output"
+    SOURCE_DIR "${SCIPLIB_SOURCE_DIR}"
+    DOWNLOAD_COMMAND ""
+    CONFIGURE_COMMAND ""
+    BINARY_DIR "${SCIPLIB_SOURCE_DIR}"
+    BUILD_COMMAND make CC=$ENV{CC} CXX=$ENV{CXX} LINKCC=$ENV{CC} LINKCXX=$ENV{CXX} GERARDUSLDFLAGS=${GERARDUSLDFLAGS_SCIPLIB} GERARDUSCXXFLAGS=-I${GMP_SOURCE_DIR} READLINE=false
+    TEST_BEFORE_INSTALL 1
+    TEST_COMMAND make check
+    INSTALL_DIR "${SCIPLIB_SOURCE_DIR}/output"
+    INSTALL_COMMAND ""
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_TEST 1
+    LOG_INSTALL 1
+    )
+  add_dependencies(SCIP_GERARDUS GMP IPOPT)
 
-set(GERARDUSLDFLAGS_SCIP "-L${GMP_SOURCE_DIR}/output/lib -L${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2/zimpl-3.3.1/lib")
-
-# build SCIP
-include(ExternalProject)
-ExternalProject_Add(SCIP_GERARDUS
-  PREFIX "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2"
-  STAMP_DIR "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2/output"
-  SOURCE_DIR "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2"
-  DOWNLOAD_COMMAND ""
-  CONFIGURE_COMMAND ""
-  BINARY_DIR "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2"
-  BUILD_COMMAND make CC=$ENV{CC} CXX=$ENV{CXX} LINKCC=$ENV{CC} LINKCXX=$ENV{CXX} GERARDUSLDFLAGS=${GERARDUSLDFLAGS_SCIP} GERARDUSCXXFLAGS=-I${GMP_SOURCE_DIR} READLINE=false
-  TEST_BEFORE_INSTALL 1
-  TEST_COMMAND make check
-  INSTALL_DIR "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2/output"
-  INSTALL_COMMAND ""
-  LOG_CONFIGURE 1
-  LOG_BUILD 1
-  LOG_TEST 1
-  LOG_INSTALL 1
-  )
-add_dependencies(SCIP_GERARDUS GMP)
-add_library(scip STATIC IMPORTED GLOBAL)
-set_property(TARGET scip PROPERTY IMPORTED_LOCATION ${SCIP_SOURCE_DIR}/scip-3.0.2/lib/libscip.a)
+  # contrary to custom in the rest of Gerardus, we are calling the scip
+  # library "sciplib", instead of "scip". The reason is that the actual
+  # MEX Matlab function file will be called scip.mexa64, so that it has
+  # the same name as OptiToolbox gives it in Windows
+  add_library(sciplib STATIC IMPORTED GLOBAL)
+  set_property(TARGET sciplib PROPERTY IMPORTED_LOCATION ${SCIP_SOURCE_DIR}/scip-3.0.2/lib/libscip.a)
+  
+endif(NOT WIN32)
 
 #############################################################################################
 ## Third-party library: ITK
