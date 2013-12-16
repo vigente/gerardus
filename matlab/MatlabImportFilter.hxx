@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.8.0
+  * Version: 0.8.1
   * $Rev$
   * $Date$
   *
@@ -480,9 +480,10 @@ VectorType MatlabImportFilter::ReadRowVectorFromMatlab(MatlabImportFilter::Matla
     // case mxUINT32_CLASS:
     //   break;
   case mxINT64_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, int64_T> paramWrap;
-      return paramWrap.ReadRowVector(input->pm, row, input->name);}
-    break;
+    // Note: mxINT64_CLASS causes compilation errors in Windows 64 bit, even though it's fine in linux
+    //{VectorWrapper<VectorValueType, VectorType, int64_T> paramWrap;
+    //  return paramWrap.ReadRowVector(input->pm, row, input->name);}
+    //break;
     // case mxUINT64_CLASS:
     //   break;
   case mxUNKNOWN_CLASS:
@@ -730,9 +731,10 @@ MatlabImportFilter::ReadArrayAsVectorFromMatlab(MatlabImportFilter::MatlabInputP
     // case mxUINT32_CLASS:
     //   break;
   case mxINT64_CLASS:
-    {VectorWrapper<VectorValueType, VectorType, int64_T> paramWrap;
-      return paramWrap.ReadArrayAsVector(input->pm, input->name);}
-    break;
+    // Note: mxINT64_CLASS causes compilation errors in Windows 64 bit, even though it's fine in linux
+    //{VectorWrapper<VectorValueType, VectorType, int64_T> paramWrap;
+    //  return paramWrap.ReadArrayAsVector(input->pm, input->name);}
+    //break;
     // case mxUINT64_CLASS:
     //   break;
   case mxUNKNOWN_CLASS:
