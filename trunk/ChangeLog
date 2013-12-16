@@ -1,5 +1,24 @@
 2013-12-16  Ramon Casero  <rcasero@gmail.com>
 
+	* At this point, Gerardus builds under Windows 64 bit.
+
+	* matlab/MatlabImportFilter.hxx: (0.8.1)
+
+	- Fix bug. Windows gives a compilation error for mxINT64_CLASS in Cgal. It's too complicated trying
+	to fix that. Instead, we just disable that type as a valid input type. It's not likely that it will
+	be used anyway.
+
+	* matlab/MatlabExportFilter.hxx: (0.6.1)
+
+	- Fix bug. Windows doesn't accept the declaration of an array variable with length 0, e.g. dims[0].
+	It doesn't allow either to declare an array with a variable length, so we have to use the 
+	mwSize *dims = new mwSize[ndims] for that.
+
+	* CMakeLists.txt: (0.8.1)
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.19)
+
+	- Fix bug. On Windows, cgal_check_self_intersect needs to be linked to the boost serialize library.
+
 	* CMakeLists.txt: (0.8.0)
 
 	- Add linux build of library IPOPT, a dependency of OptiToolbox.

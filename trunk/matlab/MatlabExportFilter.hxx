@@ -9,7 +9,7 @@
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
   * Copyright © 2012-2013 University of Oxford
-  * Version: 0.6.0
+  * Version: 0.6.1
   * $Rev$
   * $Date$
   *
@@ -178,12 +178,16 @@ MatlabExportFilter::AllocateNDArrayInMatlab(MatlabExportFilter::MatlabOutputPoin
   }
   // create output matrix for Matlab's result
   mwSize ndim = size.size();
-  mwSize dims[ndim];
-  for (size_t i = 0; i < ndim; ++i) {
-    dims[i] = size[i];
-  }
+  if (ndim > 0) { // non-empty matrix
+    mwSize *dims = new mwSize[ndim];
+    for (size_t i = 0; i < ndim; ++i) {
+      dims[i] = size[i];
+    }
 
-  *output->ppm = (mxArray *)mxCreateNumericArray(ndim, dims, outputClassId, mxREAL);
+    *output->ppm = (mxArray *)mxCreateNumericArray(ndim, dims, outputClassId, mxREAL);
+  } else { // empty matrix
+	*output->ppm = (mxArray *)mxCreateDoubleMatrix(0, 0, mxREAL);
+  }
   if (*output->ppm == NULL) {
     mexErrMsgIdAndTxt("Gerardus:MatlabExportFilter:MemoryAllocation", 
 		      ("Cannot allocate memory for output " + output->name).c_str());
@@ -267,12 +271,16 @@ MatlabExportFilter::AllocateNDArrayInCellInMatlab(MatlabExportFilter::MatlabOutp
 
   // allocate memory for the new array
   mwSize ndim = size.size();
-  mwSize dims[ndim];
-  for (size_t i = 0; i < ndim; ++i) {
-    dims[i] = size[i];
-  }
+  if (ndim > 0) {
+	mwSize *dims = new mwSize[ndim];
+    for (size_t i = 0; i < ndim; ++i) {
+      dims[i] = size[i];
+    }
 
-  cell = mxCreateNumericArray(ndim, dims, outputClassId, mxREAL);
+    cell = mxCreateNumericArray(ndim, dims, outputClassId, mxREAL);
+  } else {
+	cell = mxCreateDoubleMatrix(0, 0, mxREAL);
+  }
   if (cell == NULL) {
     mexErrMsgIdAndTxt("Gerardus:MatlabExportFilter:MemoryAllocation", 
 		      ("Cannot allocate memory for output " + output->name + "{" 

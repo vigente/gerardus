@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011-2013 University of Oxford
-# Version: 0.8.0
+# Version: 0.8.1
 # $Rev$
 # $Date$
 #
@@ -646,7 +646,7 @@ if(WIN32)
 
   # in Windows, we can just look for the library files
   find_package(Boost ${AUX_BOOST_VERSION}
-    COMPONENTS date_time filesystem system thread)
+    COMPONENTS date_time filesystem serialization system thread)
 
 else()
 
