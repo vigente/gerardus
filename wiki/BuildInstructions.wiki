@@ -16,7 +16,8 @@ If you want to use also the Matlab MEX functions and C++ programs, then you need
 == Summary ==
 
  * Subversion client
- * C++ compiler
+ * g++ compiler
+ * gfortran compiler (Linux and MacOS X only)
  * CMake (currently tested with v2.8)
  * m4
  * Insight Toolkit (currently tested with v4.3.1)
@@ -36,10 +37,15 @@ $ sudo apt-get install subversion
 /Applications/Xcode.app/Contents/Developer/usr/bin
 }}} 
   * Note for other users: See the [http://subversion.apache.org/packages.html subversion package download page] for more options
- * C++ Compiler
-   * Linux users will probably already have g++ installed. If not, e.g. Ubuntu users can install it with
+ * g++ Compiler
+   * Linux users must install both g++ and the version required by Matlab, e.g. g++-4.4 for Matlab2012a or Matlab2012b. E.g. Ubuntu/Debian users can install it with
 {{{
-$ sudo apt-get install g++
+$ sudo apt-get install g++ g++-4.4
+}}}
+ * gfortran compiler
+   * Linux users must install both gfortran and the version required by Matlab, e.g. gfortran-4.4 for Matlab2012a or Matlab2012b. E.g. Ubuntu/Debian users can install it with
+{{{
+$ sudo apt-get install gfortran gfortran-4.4
 }}}
    * Mac users can install [https://developer.apple.com/xcode/ Xcode] free from Apple's App Store. This includes gcc and Subversion. After installing Xcode you need to install the command-line tools - to do this open the preferences window in Xcode (start Xcode, open the Xcode menu and choose Preferences). Then click the Downloads tab and click the install button next to the `Command Line Tools` in the Components list.
    * For windows users, [http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express Visual C++ Express] is available free from Microsoft and includes C++ compilers.
