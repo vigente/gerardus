@@ -1,6 +1,7 @@
 function [x0, exitflag] = vertex_untangle(tri, x, idx0)
-% VERTEX_UNTANGLE  Location of a 2D vertex at the centre of a closed fan
-% triangular mesh so that we avoid edge overlapping.
+% VERTEX_UNTANGLE  Find 2D coordinates for a free vertex surrounded
+% by a polygon of fixed counter-clockwise sorted vertices such that the
+% free vertex is untangled.
 %
 % This function is an enhanced implementation of the 2D case (i.e. each
 % simplex is a triangle) of the "Optimization-based mesh untangling"
@@ -33,7 +34,10 @@ function [x0, exitflag] = vertex_untangle(tri, x, idx0)
 %   mesh was entangled), this can be seen as an untangling algorithm.
 %
 %   TRI is a 3-column matrix. Each row contains the 3 nodes that form one
-%   triangular facet in the mesh.
+%   triangular facet in the mesh. The orientation provided by the triangles
+%   will be assumed by the algorithm to the counter-clockwise, i.e. the
+%   algorithm will produce a solution where all triangles have positive
+%   signed areas.
 %
 %   X is a 2-column matrix. X(i, :) contains the xy-coordinates of the
 %   i-th node in the mesh. Note that Freitag and Plassmann (2000) also
@@ -61,7 +65,7 @@ function [x0, exitflag] = vertex_untangle(tri, x, idx0)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.2.2
+% Version: 0.2.3
 % $Rev$
 % $Date$
 %
