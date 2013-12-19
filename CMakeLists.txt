@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011-2013 University of Oxford
-# Version: 0.8.1
+# Version: 0.8.2
 # $Rev$
 # $Date$
 #
@@ -583,7 +583,7 @@ if(NOT Boost_version_hpp)
         --prefix=${GERARDUS_SOURCE_DIR}
         --build-dir=./bin address-model=${Boost_address_model}
         --build-type=complete
-        --with-system --with-filesystem --with-thread --with-date_time
+        --with-system --with-filesystem --with-thread --with-date_time --with-serialization
       WORKING_DIRECTORY ${BOOST_SOURCE_DIR}
       RESULT_VARIABLE COMMAND_RESULT)
     if(${COMMAND_RESULT} MATCHES 0)
