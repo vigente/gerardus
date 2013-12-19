@@ -1,6 +1,5 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012-2013 University of Oxford
-# Version: 0.2.19
 # $Rev$
 # $Date$
 #
@@ -93,19 +92,10 @@ add_mex_file(cgal_check_self_intersect
   CgalCheckSelfIntersect.cpp
   )
 
-if(WIN32)
-  target_link_libraries(cgal_check_self_intersect
-    ${Boost_SERIALIZATION_LIBRARY}
-    CGAL
-    CGAL_ImageIO
-    ${ITK_LIBRARIES})
-else()
-  target_link_libraries(cgal_check_self_intersect
-    ${Boost_THREAD_LIBRARY}
-    CGAL
-    CGAL_ImageIO
-    ${ITK_LIBRARIES})
-endif()
+target_link_libraries(cgal_check_self_intersect
+  CGAL
+  CGAL_ImageIO
+  ${ITK_LIBRARIES})
 # we need this dependency to make sure that the CGAL library is built
 # before we try to build the mex function
 add_dependencies(cgal_check_self_intersect copy_compiler_config.h)

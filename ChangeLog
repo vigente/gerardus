@@ -1,5 +1,14 @@
 2013-12-19  Ramon Casero  <rcasero@gmail.com>
 
+	* CMakeLists.txt: (0.8.2)
+	- Fix bug. Now the Windows build requires library boost-serialization. This has to be set at configuration
+	time of boost as an external project.
+
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.20)
+
+	- Fix bug. The last change (0.2.19) was unnecessary. We don't need to tell cmake explicitely to link against
+	boost serialization. It suffices that boost-serialization is built from the root CMakeLists.txt of gerardus.
+
 	* matlab/ManifoldToolbox/vertex_untangle.m: (0.2.3)
 
 	- Small edit help header.
