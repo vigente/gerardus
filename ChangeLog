@@ -1,3 +1,9 @@
+2013-12-19  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/vertex_untangle.m: (0.2.3)
+
+	- Small edit help header.
+
 2013-12-16  Ramon Casero  <rcasero@gmail.com>
 
 	* At this point, Gerardus builds under Windows 64 bit.
