@@ -1,7 +1,7 @@
-function [tri, x] = tri_squeeze(tri, x)
+function [tri, x, map] = tri_squeeze(tri, x)
 % TRI_SQUEEZE  Remove disconnected vertices from triangular mesh
 %
-% [TRI2, X2] = tri_squeeze(TRI, X)
+% [TRI2, X2, I] = tri_squeeze(TRI, X)
 %
 %   TRI is a 3-column matrix. Each row contains the 3 nodes that form one
 %   triangular facet in the mesh.
@@ -13,10 +13,13 @@ function [tri, x] = tri_squeeze(tri, x)
 %   vertices in X are not part of any triangle in TRI, this function
 %   returns TRI2, X2, that represent the same mesh, but with the
 %   disconnected vertices removed.
+%
+%   I is the mapping of preserved vertices such that X2 = X(I), given as a
+%   list of indices.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2012-2013 University of Oxford
-% Version: 0.1.0
+% Copyright © 2012-2014 University of Oxford
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -46,7 +49,7 @@ function [tri, x] = tri_squeeze(tri, x)
 
 % check arguments
 narginchk(2, 2);
-nargoutchk(0, 2);
+nargoutchk(0, 3);
 
 % number of vertices
 N = size(x, 1);
@@ -63,3 +66,9 @@ tri = map(tri);
 
 % delete disconnected vertices
 x(~map, :) = [];
+
+if (nargout > 2)
+    % format the mapping of preserved vertices as indices instead of a
+    % boolean vector
+    map = find(map);
+end
