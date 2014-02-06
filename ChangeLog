@@ -1,3 +1,14 @@
+2014-02-06  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ThirdPartyToolbox/tiff_read_header.m:
+	* Add matlab/ThirdPartyToolbox/licence-tiff_read_header.m:
+
+	- By Dirk-Jan Kroon. This function tiff_read_header can be used to
+	read the header(s) of complex Tiff files. It implements a part of
+	the Tiff version 5 and 6 specifications.
+
+	http://www.mathworks.co.uk/matlabcentral/fileexchange/36958-tiff-tag-reader
+
 2014-01-17  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/tri_squeeze.m: (0.2.0)
