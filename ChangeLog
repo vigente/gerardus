@@ -1,3 +1,11 @@
+2014-02-10  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/PointsToolbox/smacof.m:
+	* Add matlab/test/test_smacof.m:
+
+	- SMACOF  Classic implementation of SMACOF (Scaling by MAjorizing 
+	a COnvex Function) algorithm for MDS (Multidimensional Scaling).
+
 2014-02-06  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ThirdPartyToolbox/tiff_read_header.m:
