@@ -64,7 +64,7 @@ function [y, stopCondition, sigma] = smacof(dx, y, w, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.0.1
+% Version: 0.0.2
 % $Rev$
 % $Date$
 %
@@ -117,6 +117,10 @@ if (nargin < 3 || isempty(w))
         error('Assertion error: W matrix has diagonal elements that are non-zero')
     end
 end
+if (any(size(w) ~= [N N]))
+    error('W must be a square matrix with the same size as D')
+end
+
 if (nargin < 4 || isempty(opts) || ~isfield(opts, 'MaxIter'))
     opts.MaxIter = 100;
 end

@@ -1,7 +1,19 @@
+2014-02-11  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/smacof.m: (0.0.2)
+
+	- Add missing check for size of weight matrix.
+
+	- Add missing svn properties.
+
+	* matlab/test/test_smacof.m: (0.0.1)
+
+	- Add missing svn properties.
+
 2014-02-10  Ramon Casero  <rcasero@gmail.com>
 
-	* Add matlab/PointsToolbox/smacof.m:
-	* Add matlab/test/test_smacof.m:
+	* Add matlab/PointsToolbox/smacof.m: (0.0.1)
+	* Add matlab/test/test_smacof.m: (0.0.1)
 
 	- SMACOF  Classic implementation of SMACOF (Scaling by MAjorizing 
 	a COnvex Function) algorithm for MDS (Multidimensional Scaling).
