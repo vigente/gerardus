@@ -1,4 +1,4 @@
-function [y, stopCondition, sigma] = smacof(dx, y, w, opts)
+function [y, stopCondition, sigma, t] = smacof(dx, y, w, opts)
 % SMACOF  Classic implementation of SMACOF (Scaling by MAjorizing a COnvex
 % Function) algorithm for MDS (Multidimensional Scaling)
 %
@@ -13,7 +13,7 @@ function [y, stopCondition, sigma] = smacof(dx, y, w, opts)
 % Y = smacof(D, Y0)
 %
 %   D is an (N, N)-distance matrix, with distances between the points in an
-%   N-point configuration.
+%   N-point configuration. D can be full or sparse.
 %
 %   Y0 is an initial guess of the solution, given as an (N, P)-matrix,
 %   where P is the dimensionality of the output points. Y0 can be generated
@@ -36,13 +36,19 @@ function [y, stopCondition, sigma] = smacof(dx, y, w, opts)
 %   where W is a weight matrix the same size as D. W_ij = 0 means that the
 %   distance between points i and j does not affect the stress measure.
 %
-%   OPTS is a struct with algorithm parameters:
+%   OPTS is a struct with parameters for the algorithm:
 %
-%     'MaxIter': (default = 0) maximum number of majorization iterations we
+%     'MaxIter': (default = 0) Maximum number of majorization iterations we
 %                allow the optimisation algorithm.
 %
-%     'Epsilon': (default = Inf) the algorithm will stop if
+%     'Epsilon': (default = Inf) The algorithm will stop if
 %                (SIGMA(I+1)-SIGMA(I))/SIGMA(I) < OPTS.Epsilon.
+%
+%     'Display': (default = 'off') Do not display any internal information.
+%                'iter': display internal information at every iteration.
+%
+%     'TolFun':  (default = 1e-12) Termination tolerance of the stress
+%                value.
 %
 %
 % [1] J. De Leeuw, "Applications of convex analysis to multidimensional
@@ -64,7 +70,7 @@ function [y, stopCondition, sigma] = smacof(dx, y, w, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.0.2
+% Version: 0.0.3
 % $Rev$
 % $Date$
 %
@@ -94,7 +100,7 @@ function [y, stopCondition, sigma] = smacof(dx, y, w, opts)
 
 % check arguments
 narginchk(2, 4);
-nargoutchk(0, 3);
+nargoutchk(0, 4);
 
 % number of points
 N = size(dx, 1);
@@ -127,6 +133,12 @@ end
 if (nargin < 4 || isempty(opts) || ~isfield(opts, 'Epsilon'))
     opts.Epsilon = 0;
 end
+if (nargin < 4 || isempty(opts) || ~isfield(opts, 'Display'))
+    opts.Display = 'off';
+end
+if (nargin < 4 || isempty(opts) || ~isfield(opts, 'TolFun'))
+    opts.TolFun = 1e-12;
+end
 
 % pre-compute the weighted Laplacian matrix
 V = -w;
@@ -148,6 +160,15 @@ dy = dmatrix_con(dx, y);
 % initial stress
 sigma = zeros(1, opts.MaxIter+1);
 sigma(1) = sum(sum(w .* (dx - dy).^2));
+
+% display algorithm's evolution
+t = zeros(1, opts.MaxIter+1); % time past from 0th iteration
+tic
+if (strcmp(opts.Display, 'iter'))
+    fprintf('Iter\tSigma\t\t\tTime (sec)\n')
+    fprintf('===================================================\n')
+    fprintf('%d\t\t%.4e\t\t%.4e\n', 0, sigma(1), 0.0)
+end
 
 % auxiliary intermediate result
 mwdx = -w .* dx;
@@ -171,18 +192,37 @@ for I = 1:opts.MaxIter
     % compute stress with the current solution
     sigma(I+1) = sum(sum(w .* (dx - dy).^2));
     
+    % display algorithm's evolution
+    t(I+1) = toc;
+    if (strcmp(opts.Display, 'iter'))
+        fprintf('%d\t\t%.4e\t\t%.4e\n', I, sigma(I+1), t(I+1))
+    end
+    
+    % check whether the stress is under the tolerance level requested by
+    % the user
+    if (sigma(I+1) < opts.TolFun)
+        stopCondition{end+1} = 'TolFun';
+    end
+    
     % check whether the improvement in stress is below the user's request
     if ((sigma(I)-sigma(I+1))/sigma(I) < opts.Epsilon)
         stopCondition{end+1} = 'Epsilon';
+    end
+    
+    % stop if any stop condition has been met
+    if (~isempty(stopCondition))
         break;
     end
     
 end
 
+% check whether the "maximum number of iterations" stop condition has been
+% met
 if (I == opts.MaxIter)
     stopCondition{end+1} = 'MaxIter';
 end
 
-% prune stress vector if convergence was reached before the maximum number
-% of iterations
+% prune stress and time vectors if convergence was reached before the
+% maximum number of iterations
 sigma(I+2:end) = [];
+t(I+2:end) = [];
