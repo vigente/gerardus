@@ -59,7 +59,7 @@ function [y, stopCondition, sigma, t] ...
 %   constraints.
 %
 %   QC is a struct with the quadratic constraints for the SCIP quadratic
-%   program. It fields are (compare with constraint formula above)
+%   program. Its fields are (compare with constraint formula above):
 %
 %     'Q': cell vector. Each cell contains the Q matrix for a quadratic
 %           constraint.
