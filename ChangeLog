@@ -1,3 +1,16 @@
+2014-02-13  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ManifoldToolbox/tri_qcqp_smacof_nofold_2d.m: (0.0.1)
+	* Add matlab/test/test_tri_qcqp_smacof_nofold_2d.m: (0.0.1)
+
+	- TRI_QCQP_SMACOF_NOFOLD_2D  Constraints for QCQP-SMACOF to ensure 
+	that a 2D triangular mesh has no fold-overs.
+
+	* Add matlab/test/test_qcqp_smacof.m: (0.0.2)
+
+	- Add test of a mesh without an untangled solution where we use 
+	tri_qcqp_smacof_nofold_2d constraints to find an untangled solution.
+
 2014-02-12  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/PointsToolbox/qcqp_smacof.m: (0.0.1)
