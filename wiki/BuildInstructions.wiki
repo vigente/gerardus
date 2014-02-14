@@ -23,6 +23,11 @@ If you want to use also the Matlab MEX functions and C++ programs, then you need
  * Insight Toolkit (currently tested with v4.3.1)
  * Matlab (currently tested with R2012a)
 
+ * One-liner for linux (for everything except ITK and Matlab)
+{{{
+sudo apt-get install subversion  cmake g++ g++-4.4 gfortran gfortran-4.4 m4 
+}}}
+
 == In detail ==
 
  * [http://subversion.apache.org/ Subversion client]
