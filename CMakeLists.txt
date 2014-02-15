@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011-2013 University of Oxford
-# Version: 0.8.2
+# Version: 0.9.0
 # $Rev$
 # $Date$
 #
@@ -107,7 +107,8 @@ if(NOT WIN32)
     message(FATAL_ERROR 
       "I do not know which version of gcc/g++ is needed for Matlab ${MATLAB_VERSION}.\nPlease update gerardus/CMakeLists.txt with this information.")
   endif()
-  message(STATUS "Matlab ${MATLAB_VERSION} requires gcc, g++ and gfortran version: ${GCC_VERSION_REQUIRED_BY_MATLAB}")
+#  message(STATUS "Matlab ${MATLAB_VERSION} requires gcc, g++ and gfortran version: ${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  message(STATUS "Matlab ${MATLAB_VERSION} requires gcc and g++ version: ${GCC_VERSION_REQUIRED_BY_MATLAB}")
 
 ################# gcc version
 
@@ -172,32 +173,32 @@ if(NOT WIN32)
 
 ################# gfortran version
 
-  if(DEFINED ENV{F77})
-    message(STATUS "User wants to use as gfortran the following binary: $ENV{F77}")
+  # if(DEFINED ENV{F77})
+  #   message(STATUS "User wants to use as gfortran the following binary: $ENV{F77}")
     
-    # get version of the Fortran compiler
-    exec_program(
-      $ENV{F77}
-      ARGS                    --version
-      OUTPUT_VARIABLE _compiler_output)
+  #   # get version of the Fortran compiler
+  #   exec_program(
+  #     $ENV{F77}
+  #     ARGS                    --version
+  #     OUTPUT_VARIABLE _compiler_output)
     
-    string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
-      gfortran_compiler_version ${_compiler_output})
-    message(STATUS "This binary corresponds to version: ${gfortran_compiler_version}")
-    string(REGEX MATCH "[0-9]\\.[0-9]"
-      gfortran_compiler_version ${gfortran_compiler_version})
+  #   string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
+  #     gfortran_compiler_version ${_compiler_output})
+  #   message(STATUS "This binary corresponds to version: ${gfortran_compiler_version}")
+  #   string(REGEX MATCH "[0-9]\\.[0-9]"
+  #     gfortran_compiler_version ${gfortran_compiler_version})
     
-    if(NOT gfortran_compiler_version VERSION_EQUAL "${GCC_VERSION_REQUIRED_BY_MATLAB}")
-      message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires gfortran ${GCC_VERSION_REQUIRED_BY_MATLAB}")
-    else()
-      message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
-    endif()
+  #   if(NOT gfortran_compiler_version VERSION_EQUAL "${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  #     message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires gfortran ${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  #   else()
+  #     message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
+  #   endif()
 
-  else()
-    # if the user does not provide an environmental variable with
-    # the compiler, we set it up
-    set(ENV{F77} "gfortran-${GCC_VERSION_REQUIRED_BY_MATLAB}")
-  endif()
+  # else()
+  #   # if the user does not provide an environmental variable with
+  #   # the compiler, we set it up
+  #   set(ENV{F77} "gfortran-${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  # endif()
 
 endif(NOT WIN32)
 
@@ -255,7 +256,8 @@ else(WIN32 AND NOT CYGWIN) # linux builds
     STAMP_DIR ${GMP_SOURCE_DIR}/output
     SOURCE_DIR ${GMP_SOURCE_DIR}
     DOWNLOAD_COMMAND ""
-    CONFIGURE_COMMAND ./configure --prefix=${GMP_SOURCE_DIR}/output
+    CONFIGURE_COMMAND ./configure --prefix=${GMP_SOURCE_DIR}/output 
+           CC=gcc-${GCC_VERSION_REQUIRED_BY_MATLAB} CXX=g++-${GCC_VERSION_REQUIRED_BY_MATLAB}
     BINARY_DIR ${GMP_SOURCE_DIR}
     BUILD_COMMAND make
     TEST_BEFORE_INSTALL 1
@@ -289,7 +291,8 @@ else(WIN32 AND NOT CYGWIN) # linux builds
     SOURCE_DIR ${MPFR_SOURCE_DIR}
     DOWNLOAD_COMMAND ""
     CONFIGURE_COMMAND ./configure --prefix=${MPFR_SOURCE_DIR}/output 
-	--with-gmp-include=${GMP_SOURCE_DIR}/output/include --with-gmp-lib=${GMP_SOURCE_DIR}/output/lib
+           --with-gmp-include=${GMP_SOURCE_DIR}/output/include --with-gmp-lib=${GMP_SOURCE_DIR}/output/lib
+           CC=gcc-${GCC_VERSION_REQUIRED_BY_MATLAB} CXX=g++-${GCC_VERSION_REQUIRED_BY_MATLAB}
     BINARY_DIR ${MPFR_SOURCE_DIR}
     BUILD_COMMAND make
     TEST_BEFORE_INSTALL 1
@@ -322,77 +325,77 @@ endif(WIN32 AND NOT CYGWIN)
 ## Third-party library: IPOPT
 #############################################################################################
 
-# currently, only linux build available in Gerardus
-if(NOT WIN32)
-  enable_language(Fortran)
+# # currently, only linux build available in Gerardus
+# if(NOT WIN32)
+#   enable_language(Fortran)
   
-  set(IPOPT_SOURCE_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/Ipopt-3.11.6)
+#   set(IPOPT_SOURCE_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/Ipopt-3.11.6)
   
-  # build IPOPT
-  include(ExternalProject)
-  ExternalProject_Add(IPOPT_GERARDUS
-    PREFIX "${IPOPT_SOURCE_DIR}"
-    STAMP_DIR "${IPOPT_SOURCE_DIR}/output"
-    SOURCE_DIR "${IPOPT_SOURCE_DIR}"
-    DOWNLOAD_COMMAND ""
-    CONFIGURE_COMMAND ./configure CC=$ENV{CC} CXX=$ENV{CXX} F77=$ENV{F77} --prefix=${IPOPT_SOURCE_DIR}/output
-    BINARY_DIR "${IPOPT_SOURCE_DIR}"
-    BUILD_COMMAND make
-    TEST_BEFORE_INSTALL 1
-    # we don't run the test, because tests for any of the linear solvers
-    #  that we don't use will fail, as they won't be installed in the
-    #  system, and this will make cmake stop with an error
-    #
-    # TEST_COMMAND make test
-    TEST_COMMAND ""
-    INSTALL_DIR "${IPOPT_SOURCE_DIR}/output"
-    INSTALL_COMMAND ""
-    LOG_CONFIGURE 0
-    LOG_BUILD 0
-    LOG_TEST 0
-    LOG_INSTALL 0
-    )
-endif(NOT WIN32)
+#   # build IPOPT
+#   include(ExternalProject)
+#   ExternalProject_Add(IPOPT_GERARDUS
+#     PREFIX "${IPOPT_SOURCE_DIR}"
+#     STAMP_DIR "${IPOPT_SOURCE_DIR}/output"
+#     SOURCE_DIR "${IPOPT_SOURCE_DIR}"
+#     DOWNLOAD_COMMAND ""
+#     CONFIGURE_COMMAND ./configure CC=$ENV{CC} CXX=$ENV{CXX} F77=$ENV{F77} --prefix=${IPOPT_SOURCE_DIR}/output
+#     BINARY_DIR "${IPOPT_SOURCE_DIR}"
+#     BUILD_COMMAND make
+#     TEST_BEFORE_INSTALL 1
+#     # we don't run the test, because tests for any of the linear solvers
+#     #  that we don't use will fail, as they won't be installed in the
+#     #  system, and this will make cmake stop with an error
+#     #
+#     # TEST_COMMAND make test
+#     TEST_COMMAND ""
+#     INSTALL_DIR "${IPOPT_SOURCE_DIR}/output"
+#     INSTALL_COMMAND ""
+#     LOG_CONFIGURE 0
+#     LOG_BUILD 0
+#     LOG_TEST 0
+#     LOG_INSTALL 0
+#     )
+# endif(NOT WIN32)
 
 #############################################################################################
 ## Third-party library: SCIP
 #############################################################################################
 
-# currently, only linux build available in Gerardus
-if(NOT WIN32)
-  set(SCIPLIB_SOURCE_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2)
+# # currently, only linux build available in Gerardus
+# if(NOT WIN32)
+#   set(SCIPLIB_SOURCE_DIR ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2)
   
-  set(GERARDUSLDFLAGS_SCIPLIB "-L${GMP_SOURCE_DIR}/output/lib -L${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2/zimpl-3.3.1/lib")
+#   set(GERARDUSLDFLAGS_SCIPLIB "-L${GMP_SOURCE_DIR}/output/lib -L${GERARDUS_SOURCE_DIR}/cpp/src/third-party/scipoptsuite-3.0.2/zimpl-3.3.1/lib")
   
-  # build SCIP
-  include(ExternalProject)
-  ExternalProject_Add(SCIP_GERARDUS
-    PREFIX "${SCIPLIB_SOURCE_DIR}"
-    STAMP_DIR "${SCIPLIB_SOURCE_DIR}/output"
-    SOURCE_DIR "${SCIPLIB_SOURCE_DIR}"
-    DOWNLOAD_COMMAND ""
-    CONFIGURE_COMMAND ""
-    BINARY_DIR "${SCIPLIB_SOURCE_DIR}"
-    BUILD_COMMAND make CC=$ENV{CC} CXX=$ENV{CXX} LINKCC=$ENV{CC} LINKCXX=$ENV{CXX} GERARDUSLDFLAGS=${GERARDUSLDFLAGS_SCIPLIB} GERARDUSCXXFLAGS=-I${GMP_SOURCE_DIR} READLINE=false
-    TEST_BEFORE_INSTALL 1
-    TEST_COMMAND make check
-    INSTALL_DIR "${SCIPLIB_SOURCE_DIR}/output"
-    INSTALL_COMMAND ""
-    LOG_CONFIGURE 1
-    LOG_BUILD 1
-    LOG_TEST 1
-    LOG_INSTALL 1
-    )
-  add_dependencies(SCIP_GERARDUS GMP IPOPT)
+#   # build SCIP
+#   include(ExternalProject)
+#   ExternalProject_Add(SCIP_GERARDUS
+#     PREFIX "${SCIPLIB_SOURCE_DIR}"
+#     STAMP_DIR "${SCIPLIB_SOURCE_DIR}/output"
+#     SOURCE_DIR "${SCIPLIB_SOURCE_DIR}"
+#     DOWNLOAD_COMMAND ""
+#     CONFIGURE_COMMAND ""
+#     BINARY_DIR "${SCIPLIB_SOURCE_DIR}"
+#     BUILD_COMMAND make CC=$ENV{CC} CXX=$ENV{CXX} LINKCC=$ENV{CC} LINKCXX=$ENV{CXX} GERARDUSLDFLAGS=${GERARDUSLDFLAGS_SCIPLIB} GERARDUSCXXFLAGS=-I${GMP_SOURCE_DIR} READLINE=false
+#     TEST_BEFORE_INSTALL 1
+#     TEST_COMMAND make check
+#     INSTALL_DIR "${SCIPLIB_SOURCE_DIR}/output"
+#     INSTALL_COMMAND ""
+#     LOG_CONFIGURE 1
+#     LOG_BUILD 1
+#     LOG_TEST 1
+#     LOG_INSTALL 1
+#     )
+#   add_dependencies(SCIP_GERARDUS GMP IPOPT)
 
-  # contrary to custom in the rest of Gerardus, we are calling the scip
-  # library "sciplib", instead of "scip". The reason is that the actual
-  # MEX Matlab function file will be called scip.mexa64, so that it has
-  # the same name as OptiToolbox gives it in Windows
-  add_library(sciplib STATIC IMPORTED GLOBAL)
-  set_property(TARGET sciplib PROPERTY IMPORTED_LOCATION ${SCIP_SOURCE_DIR}/scip-3.0.2/lib/libscip.a)
+#   # contrary to custom in the rest of Gerardus, we are calling the scip
+#   # library "sciplib", instead of "scip". The reason is that the actual
+#   # MEX Matlab function file will be called scip.mexa64, so that it has
+#   # the same name as OptiToolbox gives it in Windows
+#   add_library(sciplib STATIC IMPORTED GLOBAL)
+#   set_property(TARGET sciplib PROPERTY IMPORTED_LOCATION ${SCIP_SOURCE_DIR}/scip-3.0.2/lib/libscip.a)
   
-endif(NOT WIN32)
+# endif(NOT WIN32)
 
 #############################################################################################
 ## Third-party library: ITK
@@ -402,11 +405,106 @@ endif(NOT WIN32)
 if(WIN32)
   set(ITK_DIR "C:/Program Files/ITK/lib/cmake/ITK-4.3")
 endif()
-FIND_PACKAGE(ITK REQUIRED)
-IF(ITK_FOUND)
-  INCLUDE(${ITK_USE_FILE})
-  MESSAGE(STATUS "ITK v" ${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR}.${ITK_VERSION_PATCH})
-ENDIF(ITK_FOUND)
+find_package(ITK)
+if(NOT ITK_FOUND)
+  if (WIN32)
+    message(FATAL_ERROR "You need to download and install ITK v4.3.1: http://downloads.sourceforge.net/sourceforge/itk/InsightApplications-4.3.0.zip")
+  else(WIN32)
+    # to make things easier for the user, we are going to build ITK
+    
+    set(ITK_TARBALL_URL "http://sourceforge.net/projects/itk/files/itk/4.3/InsightToolkit-4.3.1.tar.gz/download")
+    set(ITK_TARBALL_FILENAME "${CMAKE_BINARY_DIR}/InsightToolkit-4.3.1.tar.gz")
+    set(ITK_SOURCE_DIR "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/InsightToolkit-4.3.1")
+
+    if(EXISTS ${ITK_TARBALL_FILENAME})
+      
+      message(STATUS "ITK source code previously downloaded: ${ITK_TARBALL_FILENAME}")
+      
+    else(EXISTS ${ITK_TARBALL_FILENAME})
+
+      # download the tarball with the ITK source code
+      message(STATUS "Downloading ${ITK_TARBALL_URL}\nto ${ITK_TARBALL_FILENAME}")
+      file(DOWNLOAD
+	${ITK_TARBALL_URL}
+	${ITK_TARBALL_FILENAME}
+	SHOW_PROGRESS
+	STATUS ITK_DOWNLOAD_STATUS)
+    
+      if ((ITK_DOWNLOAD_STATUS MATCHES "0;\"No error\"") 
+          OR (ITK_DOWNLOAD_STATUS MATCHES "0;\"no error\""))
+	message(STATUS "ITK source tarball downloaded: ${ITK_TARBALL_FILENAME}")
+      else()
+	message(FATAL_ERROR "${ITK_DOWNLOAD_STATUS}\nCould not download ITK source code from\n${ITK_TARBALL_URL}")
+      endif()
+    endif(EXISTS ${ITK_TARBALL_FILENAME})
+  
+    # uncompress the Boost tarball if necessary
+    if(NOT EXISTS "${ITK_SOURCE_DIR}")
+      execute_process(
+	COMMAND ${CMAKE_COMMAND} -E tar xzf ${ITK_TARBALL_FILENAME}
+	WORKING_DIRECTORY "${GERARDUS_SOURCE_DIR}/cpp/src/third-party"
+	RESULT_VARIABLE ITK_UNTAR_ERROR)
+      
+      # it is possible that the download seems correct, but the
+      # tarball is an empty file. We need to detect these cases, and
+      # exit the build with an error. In those cases, the user should
+      # just download the tarball, e.g. with wget from Linux, copy it
+      # to the expected ${ITK_TARBALL_FILENAME}, and re-run cmake
+      if(ITK_UNTAR_ERROR)
+	message(FATAL_ERROR "ITK tarball cannot be uncompressed: ${ITK_TARBALL_FILENAME}")
+      endif()
+      
+    endif(NOT EXISTS "${ITK_SOURCE_DIR}")
+
+    # configure ITK
+    message(STATUS "Configuring ITK")
+    set(ITK_CMAKE_COMMAND_FLAGS -DBUILD_TESTING:BOOL=OFF -DBUILD_SHARED_LIBS:BOOL=ON -DBUILD_DOCUMENTATION:BOOL=OFF -DBUILD_EXAMPLES:BOOL=OFF -DITK_USE_REVIEW=ON -DCMAKE_BUILD_TYPE=Release -DITK_LEGACY_REMOVE=ON -DCMAKE_C_COMPILER=/usr/bin/gcc-${GCC_VERSION_REQUIRED_BY_MATLAB} -DCMAKE_CXX_COMPILER=/usr/bin/g++-${GCC_VERSION_REQUIRED_BY_MATLAB})
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E make_directory "bin"
+      WORKING_DIRECTORY "${ITK_SOURCE_DIR}"
+      RESULT_VARIABLE ITK_MKDIR_ERROR)
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} ${ITK_CMAKE_COMMAND_FLAGS} ..
+      WORKING_DIRECTORY "${ITK_SOURCE_DIR}/bin"
+      RESULT_VARIABLE ITK_CMAKE_ERROR)
+    if(ITK_CMAKE_ERROR)
+      message(FATAL_ERROR "Running cmake to configure the ITK source code failed")
+    endif()
+
+    # build ITK
+    message(STATUS "Building ITK")
+    execute_process(
+      COMMAND make -j6
+      WORKING_DIRECTORY "${ITK_SOURCE_DIR}/bin"
+      RESULT_VARIABLE ITK_MAKE_ERROR)
+    if(ITK_MAKE_ERROR)
+      message(FATAL_ERROR "Running make to build the ITK source code failed")
+    endif()
+
+    # it's better if ITK gets installed in the system, but this means
+    # that we need superuser privileges. We don't want the user to
+    # enter his password in the script, so until we find a better
+    # solution, we are just going to ask the user to go to the ITK bin
+    # directory to run "sudo make install", and the exit the script
+    message(STATUS "******************************************************************************")
+    message(STATUS "ITK built successfully. Now you need to install it manually. For that, run")
+    message(STATUS "   pushd \"${ITK_SOURCE_DIR}/bin\"")
+    message(STATUS "   sudo make install; popd")
+    message(STATUS "If ITK installed successfully, you can then run")
+    message(STATUS "   cmake ..")
+    message(STATUS "again to finish configuring Gerardus.")
+    message(STATUS "******************************************************************************")
+    return()
+
+  endif(WIN32)
+
+else(NOT ITK_FOUND)
+
+  # ITK has been found, so we add the include directory and display its version
+  include(${ITK_USE_FILE})
+  message(STATUS "ITK v" ${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR}.${ITK_VERSION_PATCH})
+
+endif(NOT ITK_FOUND)
 
 
 ## flags for all targets
