@@ -1,23 +1,41 @@
+2014-02-15  Ramon Casero  <rcasero@gmail.com>
+
+	* CMakeLists.txt: (0.9.0)
+
+	- Add section to download the source code of ITK 3.4.1 and build
+	it. This will make users' life easier. The user still has to
+	manually install with "sudo make install".
+
+	- Fix bug: ./configure for GMP and MPFR has to be told to use
+	gcc-4.4. Otherwise, several of the tests fail to build.
+
+	- Comment out blocks for IPOPT and SCIP in linux. We didn't really
+	get SCIP from OptiTools to build for Matlab, so they are not used
+	for anything, and they introduce a dependency on gfortran, that
+	seems to introduce a dependency on BLAS, and maybe others. It's
+	pain we can live without.
+
 2014-02-13  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ManifoldToolbox/tri_qcqp_smacof_nofold_2d.m: (0.0.1)
 	* Add matlab/test/test_tri_qcqp_smacof_nofold_2d.m: (0.0.1)
 
-	- TRI_QCQP_SMACOF_NOFOLD_2D  Constraints for QCQP-SMACOF to ensure 
+	- TRI_QCQP_SMACOF_NOFOLD_2D Constraints for QCQP-SMACOF to ensure
 	that a 2D triangular mesh has no fold-overs.
 
 	* Add matlab/test/test_qcqp_smacof.m: (0.0.2)
 
-	- Add test of a mesh without an untangled solution where we use 
-	tri_qcqp_smacof_nofold_2d constraints to find an untangled solution.
+	- Add test of a mesh without an untangled solution where we use
+	tri_qcqp_smacof_nofold_2d constraints to find an untangled
+	solution.
 
 2014-02-12  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/PointsToolbox/qcqp_smacof.m: (0.0.1)
 	* Add matlab/test/test_qcqp_smacof.m: (0.0.1)
 
-	- QCQP_SMACOF  Scaling by MAjorizing a COnvex Function (SMACOF) 
-	algorithm posed as a Quadratic Program with Quadratic Constraints 
+	- QCQP_SMACOF Scaling by MAjorizing a COnvex Function (SMACOF)
+	algorithm posed as a Quadratic Program with Quadratic Constraints
 	(QPQC).
 
 	* matlab/PointsToolbox/smacof.m: (0.0.3)
@@ -28,10 +46,10 @@
 
 	* matlab/test/test_smacof.m: (0.0.1)
 
-	- Make a separate block for algorithm parameters. 
-	
-	- Write some comments about whether the solution obtained 
-	is a local or global minimum and why.
+	- Make a separate block for algorithm parameters.
+
+	- Write some comments about whether the solution obtained is a
+	local or global minimum and why.
 
 	- In the plots, replace the iteration number by the actual time.
 
@@ -52,8 +70,8 @@
 	* Add matlab/PointsToolbox/smacof.m: (0.0.1)
 	* Add matlab/test/test_smacof.m: (0.0.1)
 
-	- SMACOF  Classic implementation of SMACOF (Scaling by MAjorizing 
-	a COnvex Function) algorithm for MDS (Multidimensional Scaling).
+	- SMACOF Classic implementation of SMACOF (Scaling by MAjorizing a
+	COnvex Function) algorithm for MDS (Multidimensional Scaling).
 
 2014-02-06  Ramon Casero  <rcasero@gmail.com>
 
