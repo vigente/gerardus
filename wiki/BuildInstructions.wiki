@@ -17,15 +17,14 @@ If you want to use also the Matlab MEX functions and C++ programs, then you need
 
  * Subversion client
  * g++ compiler
- * gfortran compiler (Linux and MacOS X only)
  * CMake (currently tested with v2.8)
  * m4
- * Insight Toolkit (currently tested with v4.3.1)
+ * Insight Toolkit v4.3.1 (Windows only)
  * Matlab (currently tested with R2012a)
 
- * One-liner for linux (for everything except ITK and Matlab)
+ * One-liner for linux that installs everything except ITK and Matlab. ITK will be downloaded and built by the Gerardus CMakeLists.txt script, and Matlab has to be installed separately
 {{{
-sudo apt-get install subversion  cmake g++ g++-4.4 gfortran gfortran-4.4 m4 
+sudo apt-get install subversion  cmake g++ g++-4.4 m4 
 }}}
 
 == In detail ==
@@ -46,11 +45,6 @@ $ sudo apt-get install subversion
    * Linux users must install both g++ and the version required by Matlab, e.g. g++-4.4 for Matlab2012a or Matlab2012b. E.g. Ubuntu/Debian users can install it with
 {{{
 $ sudo apt-get install g++ g++-4.4
-}}}
- * gfortran compiler
-   * Linux users must install both gfortran and the version required by Matlab, e.g. gfortran-4.4 for Matlab2012a or Matlab2012b. E.g. Ubuntu/Debian users can install it with
-{{{
-$ sudo apt-get install gfortran gfortran-4.4
 }}}
    * Mac users can install [https://developer.apple.com/xcode/ Xcode] free from Apple's App Store. This includes gcc and Subversion. After installing Xcode you need to install the command-line tools - to do this open the preferences window in Xcode (start Xcode, open the Xcode menu and choose Preferences). Then click the Downloads tab and click the install button next to the `Command Line Tools` in the Components list.
    * For windows users, [http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express Visual C++ Express] is available free from Microsoft and includes C++ compilers.
@@ -75,10 +69,10 @@ $ sudo apt-get update
 $ sudo apt-get install m4
 }}}
  * [http://www.itk.org/itkindex.html Insight Toolkit] (Gerardus tested with version 4.3.1)
-  # [http://www.itk.org/ITK/resources/software.html Download the Insight Toolkit (ITK)]
-  # Build and install ITK using CMake (see the [http://www.itk.org/ItkSoftwareGuide.pdf ITK Software Guide] for details)
-  * Note for MacOS X users: [http://worldwidepenguin.com/2010/05/how-to-install-itk-on-a-mac-cmake-macports/ this site] has instructions for building ITK using the CMake application (although they forget to mention that you click "Generate" at the end)
-  * Note for everyone: You need to set the following variables in your CMake build of ITK
+  * Linux users: Starting from `gerardus/CMakeLists.txt` v0.9.0, ITK is automatically downloaded and built as part of the Gerardus building process, so it doesn't need to be installed separately. This may also work for MacOS X users, but I have not tested it.
+  * Windows users: Download the [[http://www.itk.org/ITK/resources/software.html Insight Toolkit (ITK) v4.3.1 source code]. Follow the instructions to build and install ITK using CMake (see the [http://www.itk.org/ItkSoftwareGuide.pdf ITK Software Guide] for details)
+  * MacOS X users: In case the Gerardus build system fails to automatically download and build ITK, then [http://worldwidepenguin.com/2010/05/how-to-install-itk-on-a-mac-cmake-macports/ this site] has instructions for building ITK separately (although they forget to mention that you click "Generate" on the CMake GUI at the end)
+  * If you build ITK separately, you need to set the following variables in your CMake build of ITK
 {{{
 CMAKE_BUILD_TYPE   Release (this one ignored by Windows)
 BUILD_SHARED_LIBS  ON
@@ -133,26 +127,20 @@ $ svn co https://gerardus.googlecode.com/svn/trunk/ gerardus
 
 == Instructions for Linux and Mac users ==
 
- # Run from the command line the following code. If everything works, this will create and install the corresponding MEX files to directory `gerardus/matlab/ItkToolkit` with an extension appropriate to the architecture, e.g.
-  * `itk_pstransform.mexa64`, `itk_imfilter.mexa64` (Linux 64-bit)
-  * `itk_pstransform.mexw32`, `itk_imfilter.mexw32` (Windows 32-bit)
-  * `itk_pstransform.mexmac`, `itk_imfilter.mexmaci` (Mac 32-bit Intel)
-  * `itk_pstransform.mexmaci64`, `itk_imfilter.mexmaci64` (Mac 64-bit Intel)
+ # Run from the command line
 {{{
+# Create a build directory for Gerardus
 $ cd gerardus
 $ mkdir bin
 $ cd bin
+# First configuration run (this will download and build ITK)
 $ cmake ..
+# Second configuration run (this will configure all Gerardus)
+$ cmake ..
+# Build and install Gerardus code (add e.g. flag -j6 to use 6 processors)
 $ make install
 }}}
- # If the `matlab` command is not in the path, Gerardus will not know where to find Matlab. In that case, it's necessary to provide the path to the root Matlab directory, e.g.
-{{{
-$ cd gerardus
-$ mkdir bin
-$ cd bin
-$ cmake -DMATLAB_ROOT=/usr/local/MATLAB/R2012a/ ..
-$ make install
-}}}
+ # If the `matlab` command is not in the path, Gerardus will not know where to find Matlab. In that case, it's necessary to provide to the cmake lines above a flag with the path to the Matlab root directory, e.g. `-DMATLAB_ROOT=/usr/local/MATLAB/R2012a/`
  # Open Matlab from the `matlab` directory and run script `add_gerardus_paths.m` to add the Gerardus toolboxes to the Matlab path
 {{{
 # from the linux command line
