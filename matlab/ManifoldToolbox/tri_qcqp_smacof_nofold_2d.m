@@ -62,7 +62,7 @@ function [lb, ub, w, A, rl, ru, qc] = tri_qcqp_smacof_nofold_2d(tri, ymin, ymax,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.0.1
+% Version: 0.0.2
 % $Rev$
 % $Date$
 %
@@ -104,6 +104,9 @@ if (~isvector(ymin) || (length(ymin) ~= 2))
 end
 if (~isvector(ymax) || (length(ymax) ~= 2))
     error('YMAX must be a 2-vector')
+end
+if (~isscalar(amin))
+    error('AMIN must be a scalar')
 end
 if (~isscalar(amax))
     error('AMAX must be a scalar')
@@ -150,6 +153,8 @@ w = dmatrix_mesh(tri);
 %% Upper and lower bounds for the objective function variables
 
 % variables bounds, lb<=nu<=ub
+% Note: they must have the same dimensions as the initial solution matrix,
+% because of how we have implemented qcqp_smacof()
 lb = zeros(Nfree, 2);
 ub = zeros(Nfree, 2);
 
