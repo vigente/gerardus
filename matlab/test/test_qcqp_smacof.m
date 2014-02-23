@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.0.2
+% Version: 0.0.3
 % $Rev$
 % $Date$
 %
@@ -84,7 +84,7 @@ scip_opts.warnings = 'off';
 scip_opts.maxiter = 1500;
 scip_opts.maxnodes = 10000;
 scip_opts.maxtime = 100;
-%opts.gamsfile = 'rcasero-problem.gams';
+%scip_opts.gamsfile = 'rcasero-problem.gams';
 
 % solve MDS problem with QCQP-SMACOF without constraints
 lb = [-4 * ones(N, 1), -4 * ones(N, 1)];
@@ -124,7 +124,21 @@ ymax = [5 5] - 3;
 
 % matrices and vectors for QCQP (assuming all vertices are free)
 [lb, ub, w, A, rl, ru, qc] ...
-    = tri_scip_nofold_cons_2d(tri, ymin, ymax, 1.5 * amax);
+    =  tri_qcqp_smacof_nofold_2d(tri, ymin, ymax, 0.25, 1.5 * amax);
+
+% SMACOF algorithm parameters
+smacof_opts.MaxIter = 100;
+smacof_opts.Epsilon = 1e-2;
+smacof_opts.Display = 'iter';
+smacof_opts.TolFun = 1e-6;
+
+% SCIP algorithm parameters
+scip_opts.display = 'off';
+scip_opts.warnings = 'off';
+scip_opts.maxiter = 1500;
+scip_opts.maxnodes = 10000;
+scip_opts.maxtime = 5000;
+%opts.gamsfile = 'rcasero-problem.gams';
 
 % solve MDS problem with QCQP-SMACOF with constraints
 [y, stopCondition, sigma, t] ...

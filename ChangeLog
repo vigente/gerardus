@@ -1,3 +1,14 @@
+2014-02-24  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ManifoldToolbox/tri_qcqp_smacof_nofold_2d.m: (0.0.2)
+
+	- I had forgotten to check for AMIN type.
+
+	* matlab/test/test_qcqp_smacof.m: (0.0.3)
+
+	- Fix bug. Missing input argument in call to function, and missing the
+	definition of algorithm parameters for QCQP-SMACOF and SCIP.
+
 2014-02-15  Ramon Casero  <rcasero@gmail.com>
 
 	* CMakeLists.txt: (0.9.0)
