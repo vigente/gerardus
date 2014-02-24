@@ -11,7 +11,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.2.1
+% Version: 0.3.0
 % $Rev$
 % $Date$
 %
@@ -109,5 +109,19 @@ if ~isempty(strfind(getenv('OS'), 'Windows'))
     setenv('PATH', systemPath);
 end
 
+%% Add to the system path the gerardus/programs directory, so that binaries
+%% can be found by system() or !
+
+% programs directory path
+programsdir = [matdirpath filesep '..' filesep 'programs'];
+
+% current system path
+syspath = getenv('PATH');
+
+% if the programs directory is not in the system path, add it to it
+if isempty(strfind(syspath, programsdir))
+    setenv('PATH', [programsdir ':' syspath]);
+end
+
 % clear up after running
-clear I matdirpath pathsToDlls pth str systemPath toolboxes
+clear I matdirpath pathsToDlls pth str systemPath toolboxes syspath
