@@ -1,3 +1,19 @@
+2014-02-25  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/PointsToolbox/qcqp_smacof_pip.m: (0.0.1)
+	* Add matlab/test/test_qcqp_smacof_pip.m: (0.0.1)
+
+	- QCQP_SMACOF_PIP SMACOF algorithm posed as a Quadratic Program
+	with Quadratic Constraints (QPQC). Problem formulation using PIP
+	file format.
+
+	* Add matlab/ManifoldToolbox/tri_qcqp_smacof_nofold_2d_pip.m: (0.0.1)
+	* Add matlab/test/test_tri_qcqp_smacof_nofold_2d_pip.m: (0.0.1)
+
+	- TRI_QCQP_SMACOF_NOFOLD_2D_PIP Constraints in PIP format for
+	QCQP-SMACOF to ensure that 2D triangules preserve positive
+	orientation.
+
 2014-02-24  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/add_gerardus_paths.m: (0.3.0)
