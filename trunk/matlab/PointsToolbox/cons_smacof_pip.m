@@ -1,7 +1,7 @@
 function [y, stopCondition, sigma, t] ...
-    = qcqp_smacof_pip(dx, y, bnd, w, con, smacof_opts, scip_opts)
-% QCQP_SMACOF_PIP  SMACOF algorithm posed as a Quadratic Program with
-% Quadratic Constraints (QPQC). Problem formulation using PIP file format.
+    = cons_smacof_pip(dx, y, bnd, w, con, smacof_opts, scip_opts)
+% CONS_SMACOF_PIP  SMACOF algorithm with polynomial constraints (PIP file
+% format)
 %
 % Scaling by MAjorizing a COnvex Function (SMACOF) is an iterative solution
 % to the Multidimensional Scaling (MDS) problem (see de Leeuw and Mair [1]
@@ -10,12 +10,12 @@ function [y, stopCondition, sigma, t] ...
 % The classic implementation of SMACOF uses an iterative algorithm that
 % relies on the Guttman transform update. Our function here implements a
 % different approach, where the Guttman transform update is replaced by
-% solving a Quadratic Program with Quadratic Constraints (QPQC), as
-% proposed by Dwyer et al [2].
+% solving a Quadratic Program (QP) (as proposed by Dwyer et al [2]) with
+% polynomial constraints.
 %
-% In this implementation, we use the SCIP binary to solve the QPQC. This
-% binary can be downloaded for Linux, MacOS X and Windows from the Zuse
-% Institute Berlin (ZIB) website
+% In this implementation, we use the SCIP binary to solve the constrained
+% QP. This binary can be downloaded for Linux, MacOS X and Windows from the
+% Zuse Institute Berlin (ZIB) website
 %
 %   http://scip.zib.de/#download
 %
@@ -25,13 +25,13 @@ function [y, stopCondition, sigma, t] ...
 %
 % subject to the constraints and bounds provided by the user.
 %
-% We use the PIP file format to formulate the QCQP problem and pass it to
+% We use the PIP file format to formulate the constrained QP and pass it to
 % SCIP.
 %
 %   http://polip.zib.de/pipformat.php
 %
 %
-% Y = qcqp_smacof(D, Y0, BND, [], CON)
+% Y = cons_smacof_pip(D, Y0, BND, [], CON)
 %
 %   D is an (N, N)-distance matrix, with distances between the points in an
 %   N-point configuration. D can be full or sparse. D(i,j)=0 means that
@@ -56,7 +56,7 @@ function [y, stopCondition, sigma, t] ...
 %   Y is the solution computed by SMACOF. Y is a point configuration with
 %   the same size as Y0.
 %
-% Y = qcqp_smacof(..., SMACOF_OPTS, SCIP_OPTS)
+% Y = cons_smacof_pip(..., SMACOF_OPTS, SCIP_OPTS)
 %
 %   SMACOF_OPTS is a struct with tweaking parameters for the SMACOF
 %   algorithm.
