@@ -1,4 +1,4 @@
-% test_qcqp_smacof_pip.m
+% test_cons_smacof_pip.m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
@@ -92,9 +92,9 @@ scip_opts.limits_time = 100;
 %scip_opts.limits_solutions = 5;
 scip_opts.display_verblevel = 4;
 
-% solve MDS problem with QCQP-SMACOF with constraints
+% solve MDS problem with constrained SMACOF
 [y, stopCondition, sigma, t] ...
-    = qcqp_smacof_pip(dtot, x, bnd, [], con, ...
+    = cons_smacof_pip(dtot, x, bnd, [], con, ...
     smacof_opts, scip_opts);
 
 % check that this is a valid solution
@@ -149,9 +149,9 @@ scip_opts.limits_time = 100;
 scip_opts.limits_solutions = 1;
 scip_opts.display_verblevel = 0;
 
-% solve MDS problem with QCQP-SMACOF with constraints
+% solve MDS problem with constrained SMACOF
 [y, stopCondition, sigma, t] ...
-    = qcqp_smacof_pip(dtot, y0, bnd, [], con, ...
+    = cons_smacof_pip(dtot, y0, bnd, [], con, ...
     smacof_opts, scip_opts);
 
 % check that this is a valid solution
@@ -186,7 +186,7 @@ ylabel('stress')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Same as before, but now we move some vertices and recompute the distance
 %% matrix. Our goal is to create an MDS solution that creates fold-overs.
-%% Then, we can test whether the constraints protect the QCQP-SMACOF
+%% Then, we can test whether the constraints protect the constrained SMACOF
 %% solution from those fold-overs
 
 rng(0);
@@ -210,10 +210,10 @@ scip_opts.limits_time = 100;
 scip_opts.limits_solutions = 1;
 scip_opts.display_verblevel = 0;
 
-% solve MDS problem with QCQP-SMACOF with constraints
+% solve MDS problem with constrained SMACOF
 tic
 [y, stopCondition, sigma, t] ...
-    = qcqp_smacof_pip(dtot, x, bnd, [], con, ...
+    = cons_smacof_pip(dtot, x, bnd, [], con, ...
     smacof_opts, scip_opts);
 toc
 
