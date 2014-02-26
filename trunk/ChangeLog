@@ -1,5 +1,10 @@
 2014-02-26  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/test/test_cons_smacof_pip.m: (0.2.1)
+
+	- New toy example for the sphere, where the MDS solution produces
+	fold-over, and the CCQP-SMACOF removes the fold-over.
+
 	* Add matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m: (0.1.0)
 
 	- TRI_CCQP_SMACOF_NOFOLD_SPH_PIP Constraints in PIP format for
