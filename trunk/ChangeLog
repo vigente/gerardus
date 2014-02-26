@@ -1,3 +1,23 @@
+2014-02-26  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m: (0.1.0)
+
+	- TRI_CCQP_SMACOF_NOFOLD_SPH_PIP Constraints in PIP format for
+	CCQP-SMACOF to ensure that 2D triangules on the sphere preserve
+	positive orientation.
+
+	* matlab/PointsToolbox/cons_smacof_pip.m: (0.2.0)
+
+	- Extend so that it can deal with 3D outputs as well as 2D.
+
+	* matlab/test/test_cons_smacof_pip.m: (0.2.0)
+
+	- Add tests for the sphere problem.
+
+	* matlab/ManifoldToolbox/tri_qcqp_smacof_nofold_2d_pip.m: (0.1.1)
+
+	- Small change. Remove unused computation of weights matrix.
+
 2014-02-25  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/PointsToolbox/cons_smacof_pip.m: (0.0.1)
