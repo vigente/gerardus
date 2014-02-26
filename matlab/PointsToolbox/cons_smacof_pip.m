@@ -38,8 +38,8 @@ function [y, stopCondition, sigma, t] ...
 %   vertices i and j are not directly connected.
 %
 %   Y0 is an initial guess of the solution, given as an (N, P)-matrix,
-%   where P is the dimensionality of the output points. Y0 can be generated
-%   randomly.
+%   where P is the dimensionality of the output points. Currently, P must
+%   be either 2 or 3.
 %
 %   BND is a cell array with the variable bounds in PIP format, and cannot
 %   be empty (otherwise SCIP doesn't return a solution). E.g.
@@ -110,7 +110,7 @@ function [y, stopCondition, sigma, t] ...
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.0.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -149,7 +149,7 @@ N = size(dx, 1);
 
 % dimensionality of the points
 D = size(y, 2);
-if (D ~= 2)
+if ((D ~= 2) && (D ~= 3))
     error('Only implemented for 2D output')
 end
         
@@ -258,9 +258,17 @@ objfunq = cell(1, N);
 % main diagonal terms
 for I = 1:N
     
-    objfunq{I} = sprintf(...
-        '+%.6g x%d x%d + %.6g y%d y%d', ...
-        full(V(I, I)), I, I, full(V(I, I)), I, I);
+    if (D == 2)
+        objfunq{I} = sprintf(...
+            '+%.6g x%d x%d + %.6g y%d y%d', ...
+            full(V(I, I)), I, I, full(V(I, I)), I, I);
+    elseif (D == 3)
+        objfunq{I} = sprintf(...
+            '+%.6g x%d x%d + %.6g y%d y%d + %.6g z%d z%d', ...
+            full(V(I, I)), I, I, full(V(I, I)), I, I, full(V(I, I)), I, I);
+    else
+        error('Assertion fail: D is not 2 or 3')
+    end
         
 end
 objfunq{1} = [' obj: ' objfunq{1}];
@@ -274,9 +282,18 @@ for I = 1:N
         if (V(I, J))
             
             % main diagonal terms
-            objfunq{end+1} = sprintf(...
-                '+%.6g x%d x%d + %.6g y%d y%d', ...
-                2*full(V(I, J)), I, J, 2*full(V(I, J)), I, J);
+            if (D == 2)
+                objfunq{end+1} = sprintf(...
+                    '+%.6g x%d x%d + %.6g y%d y%d', ...
+                    2*full(V(I, J)), I, J, 2*full(V(I, J)), I, J);
+            elseif (D == 3)
+                objfunq{end+1} = sprintf(...
+                    '+%.6g x%d x%d + %.6g y%d y%d + %.6g z%d z%d', ...
+                    2*full(V(I, J)), I, J, 2*full(V(I, J)), I, J, ...
+                    2*full(V(I, J)), I, J);
+            else
+                error('Assertion fail: D is not 2 or 3')
+            end
             
         end
         
@@ -332,9 +349,19 @@ for I = 1:smacof_opts.MaxIter
     % convert linear term to PIP format
     objfunl = cell(1, N);
     for J = 1:N
-        objfunl{J} = sprintf(...
-            '+%.6g x%d +%.6g y%d', ...
-            f(J, 1), J, f(J, 2), J);
+
+        if (D == 2)
+            objfunl{J} = sprintf(...
+                '+%.6g x%d +%.6g y%d', ...
+                f(J, 1), J, f(J, 2), J);
+        elseif (D == 3)
+            objfunl{J} = sprintf(...
+                '+%.6g x%d +%.6g y%d +%.6g z%d', ...
+                f(J, 1), J, f(J, 2), J, f(J, 3), J);
+        else
+            error('Assertion fail: D is not 2 or 3')
+        end
+        
     end
     
     % create PIP file to describe problem
@@ -426,8 +453,8 @@ end
 %    point)
 function y = read_solution(file, sz)
 
-if (sz ~= 2)
-    error('We only know how to read solutions that are sets of 2D points')
+if ((sz(2) ~= 2) && (sz(2) ~= 3))
+    error('We only know how to read solutions that are sets of 2D or 3D points')
 end
 
 fid = fopen(file, 'r');
@@ -457,11 +484,8 @@ end
 c = textscan(fid, '%s%f%s', 'Headerlines', 2, 'Delimiter', ' ', 'MultipleDelimsAsOne', true);
 fclose(fid);
 
-% if our initial guess was the optimum, then SCIP is going to create a
-% solution file with only the two header lines. This means
 if isempty(c{1})
-    y = nan;
-    return;
+    error('SCIP did not return any solution')
 end
 
 % if SCIP has found a solution, read it from the file into the output
@@ -479,6 +503,8 @@ for I = 1:length(c{1})-1
         y(idx, 1) = c{2}(I);
     elseif (c{1}{I}(1) == 'y') % this is a y-coordinate
         y(idx, 2) = c{2}(I);
+    elseif (c{1}{I}(1) == 'z') % this is a z-coordinate
+        y(idx, 3) = c{2}(I);
     end
     
 end

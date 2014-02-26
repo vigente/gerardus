@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.0.1
+% Version: 0.0.2
 % $Rev$
 % $Date$
 %
@@ -235,6 +235,221 @@ stopCondition
 % plot stress evolution
 subplot(2, 1, 2)
 hold off
+plot(t, sigma)
+xlabel('Time (sec)')
+ylabel('stress')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Toy example for the sphere. Sanity check: The initialization is the 
+%% optimal solution
+
+% uniform sampling of the sphere
+[x, tri] = ParticleSampleSphere('N', 20);
+
+% plot mesh
+hold off
+trisurf(tri, x(:, 1), x(:, 2), x(:, 3))
+
+% compute volume of each tetrahedron
+vol = zeros(size(tri, 1), 1);
+for I = 1:size(tri, 1)
+    vol(I) = det(x(tri(I, :), :))/6;
+end
+if (all(vol >= 0))
+    disp('Valid solution')
+else
+    error('Invalid solution')
+end
+vmin = .05;
+vmax = .15;
+R = 1;
+
+% compute bounds and constraints for the spherical problem
+[con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax);
+
+% matrix of distances between the points on the sphere
+dtot = dmatrix(x');
+
+% SMACOF algorithm parameters
+clear smacof_opts
+smacof_opts.MaxIter = 1000;
+smacof_opts.Epsilon = 1e-2;
+smacof_opts.Display = 'iter';
+smacof_opts.TolFun = 1e-6;
+
+% SCIP algorithm parameters
+clear scip_opts
+% scip_opts.limits_time = 100;
+scip_opts.limits_solutions = 1;
+scip_opts.display_verblevel = 4;
+
+% solve MDS problem with constrained SMACOF
+[y, stopCondition, sigma, t] ...
+    = cons_smacof_pip(dtot, x, bnd, [], con, ...
+    smacof_opts, scip_opts);
+
+sum(y.^2, 2)'
+
+% check that this is a valid solution
+vol = zeros(size(tri, 1), 1);
+for I = 1:size(tri, 1)
+    vol(I) = det(y(tri(I, :), :))/6;
+end
+if (all(vol >= 0))
+    disp('Valid solution')
+else
+    error('Invalid solution')
+end
+
+% plot points
+subplot(2, 1, 1)
+hold off
+trisurf(tri, y(:, 1), y(:, 2), y(:, 3))
+axis equal
+
+stopCondition
+
+% plot stress evolution
+subplot(2, 1, 2)
+plot(t, sigma)
+xlabel('Time (sec)')
+ylabel('stress')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Same sphere toy example. Start with the optimal solution, save for some
+%% vertices that have been perturbed to produce fold-overs
+
+% create some overlaps
+y0 = x;
+y0(1:5, :) = rand(5, 3);
+y0(1:5, :) = y0(1:5, :) ./ repmat(sqrt(sum(y0(1:5, :).^2, 2)), 1, 3);
+
+% compute volume of each tetrahedron
+vol0 = zeros(size(tri, 1), 1);
+for I = 1:size(tri, 1)
+    vol0(I) = det(y0(tri(I, :), :))/6;
+end
+if (all(vol0 >= 0))
+    disp('Valid solution')
+else
+    disp('Invalid solution')
+end
+
+% SMACOF algorithm parameters
+clear smacof_opts
+smacof_opts.MaxIter = 10;
+smacof_opts.Epsilon = 1e-2;
+smacof_opts.Display = 'iter';
+smacof_opts.TolFun = 1e-6;
+
+% SCIP algorithm parameters
+clear scip_opts
+% scip_opts.limits_time = 100;
+scip_opts.limits_solutions = 1;
+scip_opts.display_verblevel = 0;
+
+% solve MDS problem with constrained SMACOF
+[y, stopCondition, sigma, t] ...
+    = cons_smacof_pip(dtot, y0, bnd, [], con, ...
+    smacof_opts, scip_opts);
+
+sum(y.^2, 2)'
+
+% check that this is a valid solution
+vol = zeros(size(tri, 1), 1);
+for I = 1:size(tri, 1)
+    vol(I) = det(y(tri(I, :), :))/6;
+end
+if (all(vol >= 0))
+    disp('Valid solution')
+else
+    error('Invalid solution')
+end
+
+% plot points
+subplot(2, 1, 1)
+hold off
+trisurf(tri, y(:, 1), y(:, 2), y(:, 3))
+axis equal
+
+% plot points
+subplot(2, 1, 2)
+hold off
+trisurf(tri, y0(:, 1), y0(:, 2), y0(:, 3))
+axis equal
+
+stopCondition
+
+% plot stress evolution
+subplot(2, 1, 2)
+plot(t, sigma)
+xlabel('Time (sec)')
+ylabel('stress')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Same as previous one, but now we assume that we know which vertices are
+%% fixed
+
+% free vertices
+isFree = false(size(x, 1), 1);
+isFree(1:5) = true;
+
+% we create a separate initialization vector with the fixed vertices
+% coordinates, and we delete the coordinates of the free vertices, just to
+% make sure that the function cannot use the ground truth for the solution
+x0 = x;
+x0(1:5, :) = 0;
+
+% recompute bounds and constraints for the spherical problem
+[con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree, x0);
+
+% SMACOF algorithm parameters
+clear smacof_opts
+smacof_opts.MaxIter = 10;
+smacof_opts.Epsilon = 1e-2;
+smacof_opts.Display = 'iter';
+smacof_opts.TolFun = 1e-6;
+
+% SCIP algorithm parameters
+clear scip_opts
+% scip_opts.limits_time = 100;
+scip_opts.limits_solutions = 1;
+scip_opts.display_verblevel = 0;
+
+% solve MDS problem with constrained SMACOF
+[y, stopCondition, sigma, t] ...
+    = cons_smacof_pip(dtot, y0, bnd, [], con, ...
+    smacof_opts, scip_opts);
+
+sum(y.^2, 2)'
+
+% check that this is a valid solution
+vol = zeros(size(tri, 1), 1);
+for I = 1:size(tri, 1)
+    vol(I) = det(y(tri(I, :), :))/6;
+end
+if (all(vol >= 0))
+    disp('Valid solution')
+else
+    error('Invalid solution')
+end
+
+% plot points
+subplot(2, 1, 1)
+hold off
+trisurf(tri, y(:, 1), y(:, 2), y(:, 3))
+axis equal
+
+% plot points
+subplot(2, 1, 2)
+hold off
+trisurf(tri, y0(:, 1), y0(:, 2), y0(:, 3))
+axis equal
+
+stopCondition
+
+% plot stress evolution
+subplot(2, 1, 2)
 plot(t, sigma)
 xlabel('Time (sec)')
 ylabel('stress')
