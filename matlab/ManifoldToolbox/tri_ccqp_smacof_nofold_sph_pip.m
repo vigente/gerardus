@@ -1,13 +1,13 @@
-function [con, bnd] = tri_qcqp_smacof_nofold_2d_pip(tri, ymin, ymax, amin, amax, isFree, y)
-% TRI_QCQP_SMACOF_NOFOLD_2D_PIP  Constraints in PIP format for QCQP-SMACOF
-% to ensure that 2D triangules preserve positive orientation.
+function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree, y)
+% TRI_CCQP_SMACOF_NOFOLD_SPH_PIP  Constraints in PIP format for CCQP-SMACOF
+% to ensure that 2D triangules on the sphere preserve positive orientation.
 %
-% This function generates the linear and quadratic constraints that can be
-% passed to cons_smacof_pip() to map a triangular mesh onto 2D without
-% fold-overs or, equivalently, untangle a projection of an open mesh on the
-% 2D XY plane.
+% This function generates the linear, quadratic and cubic constraints that
+% can be passed to cons_smacof_pip() to map a triangular mesh onto 2D
+% without fold-overs or, equivalently, untangle a projection of a mesh on a
+% sphere.
 %
-% [CON, BND] = tri_qcqp_smacof_nofold_2d_pip(TRI, YMIN, YMAX, AMIN, AMAX)
+% [CON, BND] = tri_qcqp_smacof_nofold_2d_pip(TRI, R, VMIN, VMAX)
 %
 %   TRI is a 3-column matrix with a surface mesh triangulation. Each row
 %   gives the indices of one triangle. The mesh needs to be a 2D manifold,
@@ -15,11 +15,10 @@ function [con, bnd] = tri_qcqp_smacof_nofold_2d_pip(tri, ymin, ymax, amin, amax,
 %   counter-clockwise (2D space) or with the normals pointing outwards (3D
 %   space).
 %
-%   YMIN, YMAX are 2-vectors that bound the output variables in a box with
-%   bottom-left and top-right coordinates YMIN and YMAX, respectively.
+%   R is a scalar with the sphere radius.
 %
-%   AMIN, AMAX are scalars with the minimum and maximum area allowed for
-%   each output triangle, respectively.
+%   VMIN, VMAX are scalars with the minimum and maximum volume allowed for
+%   each output tetrahedron, respectively.
 %
 %   BND is a cell array with the variable bounds in PIP format. E.g.
 %
@@ -39,14 +38,14 @@ function [con, bnd] = tri_qcqp_smacof_nofold_2d_pip(tri, ymin, ymax, amin, amax,
 %   vertex is a fixed vertex (i.e. with known constant coordinates). By
 %   default, all vertices are assumed to be free.
 %
-%   Y is an (N, 2)-matrix that provides the coordinates of the fixed
+%   Y is an (N, 3)-matrix that provides the coordinates of the fixed
 %   vertices as Y(ISFREE, :). The values Y(~ISFREE, :) are simply ignored.
 %   Thus, Y doesn't need to be provided if all vertices are free. If
 %   there's at least a fixed vertex, then Y must be provided.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.0.1
 % $Rev$
 % $Date$
 %
@@ -75,7 +74,7 @@ function [con, bnd] = tri_qcqp_smacof_nofold_2d_pip(tri, ymin, ymax, amin, amax,
 % <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(5, 7);
+narginchk(4, 6);
 nargoutchk(0, 2);
 
 %% Input arguments
@@ -83,23 +82,20 @@ nargoutchk(0, 2);
 if (size(tri, 2) ~= 3)
     error('TRI must have 3 columns')
 end
-if (~isvector(ymin) || (length(ymin) ~= 2))
-    error('YMIN must be a 2-vector')
+if (~isscalar(R))
+    error('R must be a scalar')
 end
-if (~isvector(ymax) || (length(ymax) ~= 2))
-    error('YMAX must be a 2-vector')
+if (~isscalar(vmin))
+    error('VMIN must be a scalar')
 end
-if (~isscalar(amin))
-    error('AMIN must be a scalar')
-end
-if (~isscalar(amax))
-    error('AMAX must be a scalar')
+if (~isscalar(vmax))
+    error('VMAX must be a scalar')
 end
 
 % number of vertices
 N = length(unique(tri(:)));
 
-if (nargin < 6 || isempty(isFree))
+if (nargin < 5 || isempty(isFree))
     % if the user doesn't specify which vertices are free and which ones
     % are fixed, we assume that all vertices are free
     isFree = true(N, 1);
@@ -112,17 +108,14 @@ end
 % number of triangles
 Ntri = size(tri, 1);
 
-% number of free vertices
-Nfree = nnz(isFree);
-
 if (any(~isFree))
     
-    if (nargin < 7)
+    if (nargin < 6)
         error('If any vertices are non-free, then initial configuration Y must be provided')
     end
     
     % check dimensions of initial configuration
-    if ((size(y, 1) ~= N) || (size(y, 2) ~= 2))
+    if ((size(y, 1) ~= N) || (size(y, 2) ~= 3))
         error('User says there is at least one fixed vertex, but initial configuration Y0 either has not been provided or has wrong dimensions')
     end
     
@@ -140,23 +133,24 @@ bnd{1} = 'Bounds';
 for I = 1:N
 
     % bounds for x-coordinate
-    bnd{2*I} = sprintf(...
+    bnd{3*I-1} = sprintf(...
         ' %.6g <= x%d <= %.6g', ...
-        ymin(1), I, ymax(1));
+        -R, I, R);
 
     % bounds for y-coordinate
-    bnd{2*I+1} = sprintf(...
+    bnd{3*I} = sprintf(...
         ' %.6g <= y%d <= %.6g', ...
-        ymin(2), I, ymax(2));
+        -R, I, R);
+    
+    % bounds for z-coordinate
+    bnd{3*I+1} = sprintf(...
+        ' %.6g <= z%d <= %.6g', ...
+        -R, I, R);
     
 end
 
-%% Quadratic constraints (each triangle produces a constraint)
+%% Tetrahedron constraints (each tetrahedron produces a constraint)
 
-% each triangle contributes a quadratic constraint of one of these forms:
-%   Amin <=            l'*nu + c < Amax     (1 free vertex)
-%   Amin <= nu'*Q*nu + l'*nu     < Amax     (2 free vertices)
-%   Amin <= nu'*Q*nu             < Amax     (3 free vertices)
 for I = 1:Ntri
     
     % coordinates of the three vertices in the triangle
@@ -191,22 +185,26 @@ for I = 1:Ntri
             % auxiliary variables to make the code more readable
             xi = yloc(1, 1); % x-coordinate of 1st fixed vertex
             yi = yloc(1, 2); % y-coordinate of 1st fixed vertex
+            zi = yloc(1, 3); % z-coordinate of 1st fixed vertex
             xj = yloc(2, 1); % x-coordinate of 2nd fixed vertex
             yj = yloc(2, 2); % y-coordinate of 2nd fixed vertex
+            zj = yloc(2, 3); % y-coordinate of 2nd fixed vertex
             
             k = triloc(3);   % index of free vertex
             
             % constraint with lower bound. Example:
             % c1: -2 x1 +3.23 x4 +1 x2 * x3 >= -1
             con{2*I} = sprintf( ...
-                ' c%d: %.6g x%d + %.6g y%d + %.6g >= %.6g', ...
-                2*I-1, 0.5*(yi-yj), k, 0.5*(xj-xi), k, 0.5*(xi*yj-xj*yi), amin);
+                ' c%d: %.6g x%d + %.6g y%d + %.6g z%d >= %.6g', ...
+                2*I-1, (-yj*zi+yi*zj)/6, k, (xj*zi-xi*zj)/6, k, ...
+                (-xj*yi+xi*yj)/6, k, vmin);
             
             % constraint with upper bound. Example:
             % c1: -2 x1 +3.23 x4 +1 x2 * x3 <= 2
             con{2*I+1} = sprintf( ...
-                ' c%d: %.6g x%d + %.6g y%d + %.6g <= %.6g', ...
-                2*I, 0.5*(yi-yj), k, 0.5*(xj-xi), k, 0.5*(xi*yj-xj*yi), amax);
+                ' c%d: %.6g x%d + %.6g y%d + %.6g z%d <= %.6g', ...
+                2*I, (-yj*zi+yi*zj)/6, k, (xj*zi-xi*zj)/6, k, ...
+                (-xj*yi+xi*yj)/6, k, vmax);
             
         case 2 % 2 free vertices, 1 fixed vertex
             
@@ -227,19 +225,34 @@ for I = 1:Ntri
             % auxiliary variables to make the code more readable
             xi = yloc(1, 1); % x-coordinate of fixed vertex
             yi = yloc(1, 2); % y-coordinate of fixed vertex
+            zi = yloc(1, 3); % z-coordinate of fixed vertex
             
             j = triloc(2);   % index of free vertex
             k = triloc(3);   % index of free vertex
             
             % constraint with lower bound
             con{2*I} = sprintf( ...
-                ' c%d: 0.5 x%d y%d - 0.5 x%d y%d - %.6g x%d + %.6g x%d + %.6g y%d - %.6g y%d >= %.6g', ...
-                2*I-1, j, k, k, j, 0.5*yi, j, 0.5*yi, k, 0.5*xi, j, 0.5*xi, k, amin);
+                ' c%d: %.6g x%d y%d + %.6g x%d y%d + %.6g x%d z%d + %.6g y%d z%d + %.6g x%d z%d + %.6g y%d z%d >= %.6g', ...
+                2*I-1, ...
+                -zi/6, k, j, ...
+                zi/6, j, k, ...
+                yi/6, k, j, ...
+                -xi/6, k, j, ...
+                -yi/6, j, k, ...
+                xi/6, j, k, ...
+                vmin);
             
             % constraint with upper bound
             con{2*I+1} = sprintf( ...
-                ' c%d: 0.5 x%d y%d - 0.5 x%d y%d - %.6g x%d + %.6g x%d + %.6g y%d - %.6g y%d <= %.6g', ...
-                2*I, j, k, k, j, 0.5*yi, j, 0.5*yi, k, 0.5*xi, j, 0.5*xi, k, amax);
+                ' c%d: %.6g x%d y%d + %.6g x%d y%d + %.6g x%d z%d + %.6g y%d z%d + %.6g x%d z%d + %.6g y%d z%d <= %.6g', ...
+                2*I, ...
+                -zi/6, k, j, ...
+                zi/6, j, k, ...
+                yi/6, k, j, ...
+                -xi/6, k, j, ...
+                -yi/6, j, k, ...
+                xi/6, j, k, ...
+                vmax);
             
         case 3 % three free vertices
             
@@ -251,13 +264,27 @@ for I = 1:Ntri
             
             % constraint with lower bound
             con{2*I} = sprintf( ...
-                ' c%d: -0.5 x%d y%d +0.5 x%d y%d +0.5 x%d y%d -0.5 x%d y%d -0.5 x%d y%d +0.5 x%d y%d >= %.6g', ...
-                2*I-1, j, i, k, i, i, j, k, j, i, k, j, k, amin);
+                ' c%d: %.6g x%d y%d z%d + %.6g x%d y%d z%d + %.6g x%d y%d z%d + %.6g x%d y%d z%d + %.6g x%d y%d z%d + %.6g x%d y%d z%d >= %.6g', ...
+                2*I-1, ...
+                -1/6, k, j, i, ...
+                 1/6, j, k, i, ...
+                 1/6, k, i, j, ...
+                -1/6, i, k, j, ...
+                -1/6, j, i, k, ...
+                 1/6, i, j, k, ...
+                vmin);
             
             % constraint with upper bound
             con{2*I+1} = sprintf( ...
-                ' c%d: -0.5 x%d y%d +0.5 x%d y%d +0.5 x%d y%d -0.5 x%d y%d -0.5 x%d y%d +0.5 x%d y%d <= %.6g', ...
-                2*I, j, i, k, i, i, j, k, j, i, k, j, k, amax);
+                ' c%d: %.6g x%d y%d z%d + %.6g x%d y%d z%d + %.6g x%d y%d z%d + %.6g x%d y%d z%d + %.6g x%d y%d z%d + %.6g x%d y%d z%d <= %.6g', ...
+                2*I, ...
+                -1/6, k, j, i, ...
+                 1/6, j, k, i, ...
+                 1/6, k, i, j, ...
+                -1/6, i, k, j, ...
+                -1/6, j, i, k, ...
+                 1/6, i, j, k, ...
+                vmax);
             
         otherwise
             
@@ -267,3 +294,16 @@ for I = 1:Ntri
     
 end
 
+%% Radius constraints
+
+% number of constraints so far
+NCON = length(con) - 1;
+
+% add one radius constraint per vertex
+for I = 1:N
+    
+    con{end+1} = sprintf( ...
+                ' c%d: x%d x%d + y%d y%d + z%d z%d = %.6g', ...
+                NCON+I, I, I, I, I, I, I, R);
+    
+end
