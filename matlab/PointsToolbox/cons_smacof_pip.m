@@ -83,6 +83,12 @@ function [y, stopCondition, sigma, t] ...
 %                gerardus/programs. The binaries/executable can be
 %                downloaded from http://scip.zib.de/#download.
 %
+%     'display_verblevel': (default 4) verbosity level of output (0: SCIP
+%                quiet mode).
+%
+%     'display_freq': (default 100) frequency for displaying node
+%                information lines.
+%
 %     'limits_absgap': (default 0.0) solving stops, if the absolute 
 %                gap = |primalbound - dualbound| is below the given value.
 %
@@ -95,8 +101,8 @@ function [y, stopCondition, sigma, t] ...
 %     'limits_solutions': (default -1) solving stops, if the given number
 %                of solutions were found (-1: no limit).
 %
-%     'display_verblevel': (default 4) verbosity level of output (0: SCIP
-%                quiet mode).
+%     'lp_threads': (default 0: automatic) number of threads used for
+%                solving the LP
 %
 %
 % [1] J de Leeuw, P Mair, "Multidimensional scaling using majorization:
@@ -212,6 +218,20 @@ if (nargin >= 7 && ~isempty(scip_opts))
         SCIPBIN = scip_opts.scipbin;
     end
     
+    % display options
+    QUIETFLAG = [];
+    if isfield(scip_opts, 'display_verblevel')
+        if (scip_opts.display_verblevel == 0)
+            QUIETFLAG = ' -q ';
+        end
+        scip_opts_comm{end+1} = [' -c "set display verblevel ' num2str(scip_opts.display_verblevel) '"'];
+    end
+    
+    % frequency for displaying node information lines [100]
+    if (isfield(scip_opts, 'display_freq'))
+        scip_opts_comm{end+1} = [' -c "set display freq ' num2str(scip_opts.display_freq) '"'];
+    end
+    
     % limits options
     
     % solving stops, if the absolute gap = |primalbound - dualbound| is below the given value [0.0]
@@ -234,15 +254,12 @@ if (nargin >= 7 && ~isempty(scip_opts))
         scip_opts_comm{end+1} = [' -c "set limits solutions ' num2str(scip_opts.limits_solutions) '"'];
     end
     
-    % display options
-    QUIETFLAG = [];
-    if isfield(scip_opts, 'display_verblevel')
-        if (scip_opts.display_verblevel == 0)
-            QUIETFLAG = ' -q ';
-        end
-        scip_opts_comm{end+1} = [' -c "set display verblevel ' num2str(scip_opts.display_verblevel) '"'];
-    end
+    % lp options
     
+    % number of threads used for solving the LP (0: automatic)
+    if (isfield(scip_opts, 'lp_threads'))
+        scip_opts_comm{end+1} = [' -c "set lp advanced threads ' num2str(scip_opts.lp_threads) '"'];
+    end
     
 end
 
@@ -253,52 +270,49 @@ V = -w;
 V(1:N+1:end) = sum(w, 2);
 
 % quadratic terms of the objective function
-objfunq = cell(1, N);
+
+% upper triangular matrix terms
+[I, J] = find(dx);
+idx = I > J;
+I(idx) = [];
+J(idx) = [];
+Nterms = length(I);
+objfunq = cell(1, N + Nterms);
+for idx = 1:Nterms
+    % main diagonal terms
+    if (D == 2)
+        objfunq{idx} = sprintf(...
+            '+%.16g x%d x%d + %.16g y%d y%d', ...
+            2*full(V(I(idx), J(idx))), I(idx), J(idx), ...
+            2*full(V(I(idx), J(idx))), I(idx), J(idx));
+    elseif (D == 3)
+        objfunq{idx} = sprintf(...
+            '+%.16g x%d x%d + %.16g y%d y%d + %.16g z%d z%d', ...
+            2*full(V(I(idx), J(idx))), I(idx), J(idx), ...
+            2*full(V(I(idx), J(idx))), I(idx), J(idx), ...
+            2*full(V(I(idx), J(idx))), I(idx), J(idx));
+    else
+        error('Assertion fail: D is not 2 or 3')
+    end
+end
 
 % main diagonal terms
 for I = 1:N
     
     if (D == 2)
-        objfunq{I} = sprintf(...
-            '+%.6g x%d x%d + %.6g y%d y%d', ...
-            full(V(I, I)), I, I, full(V(I, I)), I, I);
+        objfunq{Nterms + I} = sprintf(...
+            '+%.16g x%d^2 + %.16g y%d^2', ...
+            full(V(I, I)), I, full(V(I, I)), I);
     elseif (D == 3)
-        objfunq{I} = sprintf(...
-            '+%.6g x%d x%d + %.6g y%d y%d + %.6g z%d z%d', ...
-            full(V(I, I)), I, I, full(V(I, I)), I, I, full(V(I, I)), I, I);
+        objfunq{Nterms + I} = sprintf(...
+            '+%.16g x%d^2 + %.16g y%d^2 + %.16g z%d^2', ...
+            full(V(I, I)), I, full(V(I, I)), I, full(V(I, I)), I);
     else
         error('Assertion fail: D is not 2 or 3')
     end
         
 end
 objfunq{1} = [' obj: ' objfunq{1}];
-
-% upper triangular matrix terms
-for I = 1:N
-    for J = I+1:N
-        
-        % V is sparse, so we don't add terms that are going to be
-        % multiplied by 0 anyway
-        if (V(I, J))
-            
-            % main diagonal terms
-            if (D == 2)
-                objfunq{end+1} = sprintf(...
-                    '+%.6g x%d x%d + %.6g y%d y%d', ...
-                    2*full(V(I, J)), I, J, 2*full(V(I, J)), I, J);
-            elseif (D == 3)
-                objfunq{end+1} = sprintf(...
-                    '+%.6g x%d x%d + %.6g y%d y%d + %.6g z%d z%d', ...
-                    2*full(V(I, J)), I, J, 2*full(V(I, J)), I, J, ...
-                    2*full(V(I, J)), I, J);
-            else
-                error('Assertion fail: D is not 2 or 3')
-            end
-            
-        end
-        
-    end
-end
 
 % the linear term of the objective function (f) has to be computed at each
 % iteration of the QPQC-SMACOF algorithm. Thus, it is not computed here
@@ -352,11 +366,11 @@ for I = 1:smacof_opts.MaxIter
 
         if (D == 2)
             objfunl{J} = sprintf(...
-                '+%.6g x%d +%.6g y%d', ...
+                '+%.16g x%d +%.16g y%d', ...
                 f(J, 1), J, f(J, 2), J);
         elseif (D == 3)
             objfunl{J} = sprintf(...
-                '+%.6g x%d +%.6g y%d +%.6g z%d', ...
+                '+%.16g x%d +%.16g y%d +%.16g z%d', ...
                 f(J, 1), J, f(J, 2), J, f(J, 3), J);
         else
             error('Assertion fail: D is not 2 or 3')
@@ -489,8 +503,9 @@ if isempty(c{1})
 end
 
 % if SCIP has found a solution, read it from the file into the output
-% matrix
-y = nan(sz);
+% matrix. Note that if a variable = 0, SCIP will not put it in the output
+% file
+y = zeros(sz);
 for I = 1:length(c{1})-1
     
     % variable name
