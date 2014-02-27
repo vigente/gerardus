@@ -1,3 +1,26 @@
+2014-02-27  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/cons_smacof_pip.m: (0.2.1)
+
+	- Fix bug. We were creating objfunq with space for the whole upper
+	triangular matrix of distance terms. So when we had a sparse
+	distance matrix, we ended up with lots of empty cells, that
+	translated into lots of empty lines in the PIP file.
+
+	- Add SCIP option 'lp_threads', 'display_freq'.
+
+	- Increase precision of scalars written to the PIP file to 16
+	places, to make the most of the double type.
+
+	* matlab/ManifoldToolbox/tri_qcqp_smacof_nofold_2d_pip.m: (0.1.2)
+	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m: (0.1.1)
+
+	- PIP allows exponentials, so simplify terms like x * x to x^2 in
+	the output to the PIP file.
+
+	- Increase precision of scalars written to the PIP file to 16
+	places, to make the most of the double type.
+
 2014-02-26  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/test/test_cons_smacof_pip.m: (0.2.1)
