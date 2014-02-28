@@ -45,7 +45,7 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 %
@@ -101,9 +101,25 @@ if (nargin < 5 || isempty(isFree))
     isFree = true(N, 1);
 end
 
-if (~islogical(isFree))
-    error('ISFREE must be of type logical (boolean)')
+% number of free vertices
+Nfree = nnz(isFree);
+
+if (~islogical(isFree) || ~isvector(isFree))
+    error('ISFREE must be a vector of type logical (boolean)')
 end
+
+% convert to column vector
+isFree = isFree(:);
+if (length(isFree) ~= N)
+    error('ISFREE must have one element per point in vertex in the mesh')
+end
+
+% vector to map vertex indices in the mesh to vertex indices in the CCQP
+% problem. The reason is that we pass to SMACOF d(isFree,isFree),
+% y(isFree,:), so when we write the constraints, we need to rename the
+% vertices
+map = nan(N, 1);
+map(isFree) = 1:Nfree;
 
 % number of triangles
 Ntri = size(tri, 1);
@@ -121,37 +137,45 @@ if (any(~isFree))
     
 end
 
-% init outputs
-con = cell(1, 2*Ntri+1);
-con{1} = 'Subject to';
-bnd = cell(1, 2*N+1);
-bnd{1} = 'Bounds';
-
 %% Upper and lower bounds for the objective function variables
 
+% init output
+bnd = cell(1, 2*Nfree+1);
+bnd{1} = 'Bounds';
+
 % variables bounds, lb<=nu<=ub
-for I = 1:N
+for I = 1:Nfree
 
     % bounds for x-coordinate
     bnd{3*I-1} = sprintf(...
-        ' %.16g <= x%d <= %.16g', ...
+        ' %.15g <= x%d <= %.15g', ...
         -R, I, R);
 
     % bounds for y-coordinate
     bnd{3*I} = sprintf(...
-        ' %.16g <= y%d <= %.16g', ...
+        ' %.15g <= y%d <= %.15g', ...
         -R, I, R);
     
     % bounds for z-coordinate
     bnd{3*I+1} = sprintf(...
-        ' %.16g <= z%d <= %.16g', ...
+        ' %.15g <= z%d <= %.15g', ...
         -R, I, R);
     
 end
 
 %% Tetrahedron constraints (each tetrahedron produces a constraint)
 
-for I = 1:Ntri
+% find triangles that produce constraints (i.e. those with at least one
+% free vertex)
+idxtricon = find(sum(isFree(tri), 2) > 0)';
+Ntricon = length(idxtricon);
+
+% init output
+con = cell(1, 2*Ntricon+1 + Nfree);
+con{1} = 'Subject to';
+
+count = 2; % index of the constraint element to fill up
+for I = idxtricon
     
     % coordinates of the three vertices in the triangle
     triloc = tri(I, :);
@@ -165,6 +189,7 @@ for I = 1:Ntri
             
             % this case doesn't contribute any constraints to the quadratic
             % program, as the fixed vertices cannot be moved
+            error('Assertion fail: This triangle has 3 fixed vertices and should have been skipped')
             
         case 1 % 1 free vertex, 2 fixed vertices
     
@@ -190,21 +215,33 @@ for I = 1:Ntri
             yj = yloc(2, 2); % y-coordinate of 2nd fixed vertex
             zj = yloc(2, 3); % y-coordinate of 2nd fixed vertex
             
-            k = triloc(3);   % index of free vertex
+            k = triloc(3);   % index of free vertex in the mesh
+            k = map(k);      % index of free vertex for the SMACOF problem
+            if (isnan(k))
+                error('Assertion fail: Free vertex index mapped to NaN')
+            end
             
             % constraint with lower bound. Example:
             % c1: -2 x1 +3.23 x4 +1 x2 * x3 >= -1
-            con{2*I} = sprintf( ...
-                ' c%d: %.16g x%d + %.16g y%d + %.16g z%d >= %.16g', ...
-                2*I-1, (-yj*zi+yi*zj)/6, k, (xj*zi-xi*zj)/6, k, ...
-                (-xj*yi+xi*yj)/6, k, vmin);
+            con{count} = sprintf( ...
+                ' c%d: %.15g x%d + %.15g y%d + %.15g z%d >= %.15g', ...
+                count-1, ...
+                (-yj*zi+yi*zj)/6, k, ...
+                 (xj*zi-xi*zj)/6, k, ...
+                (-xj*yi+xi*yj)/6, k, ...
+                vmin);
+            count = count + 1;
             
             % constraint with upper bound. Example:
             % c1: -2 x1 +3.23 x4 +1 x2 * x3 <= 2
-            con{2*I+1} = sprintf( ...
-                ' c%d: %.16g x%d + %.16g y%d + %.16g z%d <= %.16g', ...
-                2*I, (-yj*zi+yi*zj)/6, k, (xj*zi-xi*zj)/6, k, ...
-                (-xj*yi+xi*yj)/6, k, vmax);
+            con{count} = sprintf( ...
+                ' c%d: %.15g x%d + %.15g y%d + %.15g z%d <= %.15g', ...
+                count-1, ...
+                (-yj*zi+yi*zj)/6, k, ...
+                 (xj*zi-xi*zj)/6, k, ...
+                (-xj*yi+xi*yj)/6, k, ...
+                vmax);
+            count = count + 1;
             
         case 2 % 2 free vertices, 1 fixed vertex
             
@@ -227,25 +264,32 @@ for I = 1:Ntri
             yi = yloc(1, 2); % y-coordinate of fixed vertex
             zi = yloc(1, 3); % z-coordinate of fixed vertex
             
-            j = triloc(2);   % index of free vertex
-            k = triloc(3);   % index of free vertex
+            j = triloc(2);   % index of free vertex in the mesh
+            k = triloc(3);   % index of free vertex in the mesh
+
+            j = map(j);      % index of free vertex for the SMACOF problem
+            k = map(k);      % index of free vertex for the SMACOF problem
+            if (isnan(j) || isnan(k))
+                error('Assertion fail: Free vertex index mapped to NaN')
+            end
             
             % constraint with lower bound
-            con{2*I} = sprintf( ...
-                ' c%d: %.16g x%d y%d + %.16g x%d y%d + %.16g x%d z%d + %.16g y%d z%d + %.16g x%d z%d + %.16g y%d z%d >= %.16g', ...
-                2*I-1, ...
+            con{count} = sprintf( ...
+                ' c%d: %.15g x%d y%d + %.15g x%d y%d + %.15g x%d z%d + %.15g y%d z%d + %.15g x%d z%d + %.15g y%d z%d >= %.15g', ...
+                count-1, ...
                 -zi/6, k, j, ...
-                zi/6, j, k, ...
-                yi/6, k, j, ...
+                 zi/6, j, k, ...
+                 yi/6, k, j, ...
                 -xi/6, k, j, ...
                 -yi/6, j, k, ...
-                xi/6, j, k, ...
+                 xi/6, j, k, ...
                 vmin);
+            count = count + 1;
             
             % constraint with upper bound
-            con{2*I+1} = sprintf( ...
-                ' c%d: %.16g x%d y%d + %.16g x%d y%d + %.16g x%d z%d + %.16g y%d z%d + %.16g x%d z%d + %.16g y%d z%d <= %.16g', ...
-                2*I, ...
+            con{count} = sprintf( ...
+                ' c%d: %.15g x%d y%d + %.15g x%d y%d + %.15g x%d z%d + %.15g y%d z%d + %.15g x%d z%d + %.15g y%d z%d <= %.15g', ...
+                count-1, ...
                 -zi/6, k, j, ...
                 zi/6, j, k, ...
                 yi/6, k, j, ...
@@ -253,19 +297,27 @@ for I = 1:Ntri
                 -yi/6, j, k, ...
                 xi/6, j, k, ...
                 vmax);
+            count = count + 1;
             
         case 3 % three free vertices
             
             % auxiliary variables to make the code more readable
 
-            i = triloc(1);   % index of free vertex
-            j = triloc(2);   % index of free vertex
-            k = triloc(3);   % index of free vertex
+            i = triloc(1);   % index of free vertex in the mesh
+            j = triloc(2);   % index of free vertex in the mesh
+            k = triloc(3);   % index of free vertex in the mesh
+            
+            i = map(i);      % index of free vertex for the SMACOF problem
+            j = map(j);      % index of free vertex for the SMACOF problem
+            k = map(k);      % index of free vertex for the SMACOF problem
+            if (isnan(i) || isnan(j) || isnan(k))
+                error('Assertion fail: Free vertex index mapped to NaN')
+            end
             
             % constraint with lower bound
-            con{2*I} = sprintf( ...
-                ' c%d: %.16g x%d y%d z%d + %.16g x%d y%d z%d + %.16g x%d y%d z%d + %.16g x%d y%d z%d + %.16g x%d y%d z%d + %.16g x%d y%d z%d >= %.16g', ...
-                2*I-1, ...
+            con{count} = sprintf( ...
+                ' c%d: %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d >= %.15g', ...
+                count-1, ...
                 -1/6, k, j, i, ...
                  1/6, j, k, i, ...
                  1/6, k, i, j, ...
@@ -273,11 +325,12 @@ for I = 1:Ntri
                 -1/6, j, i, k, ...
                  1/6, i, j, k, ...
                 vmin);
+            count = count + 1;
             
             % constraint with upper bound
-            con{2*I+1} = sprintf( ...
-                ' c%d: %.16g x%d y%d z%d + %.16g x%d y%d z%d + %.16g x%d y%d z%d + %.16g x%d y%d z%d + %.16g x%d y%d z%d + %.16g x%d y%d z%d <= %.16g', ...
-                2*I, ...
+            con{count} = sprintf( ...
+                ' c%d: %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d <= %.15g', ...
+                count-1, ...
                 -1/6, k, j, i, ...
                  1/6, j, k, i, ...
                  1/6, k, i, j, ...
@@ -285,6 +338,7 @@ for I = 1:Ntri
                 -1/6, j, i, k, ...
                  1/6, i, j, k, ...
                 vmax);
+            count = count + 1;
             
         otherwise
             
@@ -296,14 +350,12 @@ end
 
 %% Radius constraints
 
-% number of constraints so far
-NCON = length(con) - 1;
-
-% add one radius constraint per vertex
-for I = 1:N
+% add one radius constraint per free vertex
+for I = 1:Nfree
     
-    con{end+1} = sprintf( ...
-                ' c%d: x%d^2 + y%d^2 + z%d^2 = %.16g', ...
-                NCON+I, I, I, I, R);
+    con{count} = sprintf( ...
+        ' c%d: x%d^2 + y%d^2 + z%d^2 = %.15g', ...
+        count, I, I, I, R^2);
+    count = count + 1;
     
 end
