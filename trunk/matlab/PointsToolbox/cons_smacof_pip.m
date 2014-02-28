@@ -116,7 +116,7 @@ function [y, stopCondition, sigma, t] ...
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 %
@@ -319,9 +319,12 @@ objfunq{1} = [' obj: ' objfunq{1}];
 
 %% SMACOF algorithm
 
-% file name and path to save PIP model and solutions
-pipfilename = [tempdir 'model.pip'];
-solfilename = [tempdir 'model-sol.txt'];
+% file name and path to save PIP model and solutions (generate unique names
+% so that it is possible to run several instances of this function in
+% parallel)
+[~, aux] = fileparts(tempname);
+pipfilename = [tempdir 'model-' aux '.pip'];
+solfilename = [tempdir 'model-' aux '-sol.txt'];
 
 % init stopCondition
 stopCondition = [];

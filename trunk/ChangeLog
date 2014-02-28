@@ -1,3 +1,43 @@
+2014-02-28  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m: (0.1.2)
+
+	- Fix bug. The function didn't work correctly for the case when we
+	had fixed vertices. Fixed vertices are not variables in the
+	problem, so variables need to be relabelled in the
+	constraints. Also, the loop for generation of constraints was very
+	slow for big matrices.
+
+	- Decrease precision of scalars written to the PIP file to 15, as
+	this seems to be the actual precision for Matlab doubles.
+
+	* matlab/ManifoldToolbox/tri_qcqp_smacof_nofold_2d_pip.m: (0.1.3)
+
+	- Decrease precision of scalars written to the PIP file to 15, as
+	this seems to be the actual precision for Matlab doubles.
+
+	* matlab/test/test_cons_smacof_pip.m: (0.2.2)
+
+	- Change test so that we can test the sphere case with fixed
+	vertices.
+
+	* matlab/PointsToolbox/cons_smacof_pip.m: (0.2.1)
+
+	- Give unique names to the temporal files that are used to store
+	the PIP model, and the solution output, so that we can run several
+	instances of this function in parallel.
+
+	- Decrease precision of scalars written to the PIP file to 15, as
+	this seems to be the actual precision for Matlab doubles.
+
+	* Add matlab/ThirdPartyToolbox/inhull.m:
+	* Add matlab/ThirdPartyToolbox/license-inhull.txt:
+
+	- tests if a set of points are inside a convex hull. By John
+	D'Errico,
+	http://www.mathworks.co.uk/matlabcentral/fileexchange/10226-inhull
+
+
 2014-02-27  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/cons_smacof_pip.m: (0.2.1)
