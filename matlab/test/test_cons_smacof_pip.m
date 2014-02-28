@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 %
@@ -245,6 +245,7 @@ ylabel('stress')
 
 % uniform sampling of the sphere
 [x, tri] = ParticleSampleSphere('N', 20);
+N = size(x, 1);
 
 % plot mesh
 hold off
@@ -321,8 +322,8 @@ ylabel('stress')
 
 % create some overlaps
 y0 = x;
-y0(1:5, :) = rand(5, 3);
-y0(1:5, :) = y0(1:5, :) ./ repmat(sqrt(sum(y0(1:5, :).^2, 2)), 1, 3);
+y0(16:20, :) = rand(5, 3);
+y0(16:20, :) = y0(16:20, :) ./ repmat(sqrt(sum(y0(16:20, :).^2, 2)), 1, 3);
 
 % compute volume of each tetrahedron
 vol0 = zeros(size(tri, 1), 1);
@@ -392,13 +393,13 @@ ylabel('stress')
 
 % free vertices
 isFree = false(size(x, 1), 1);
-isFree(1:5) = true;
+isFree(16:20) = true;
 
 % we create a separate initialization vector with the fixed vertices
 % coordinates, and we delete the coordinates of the free vertices, just to
 % make sure that the function cannot use the ground truth for the solution
 x0 = x;
-x0(1:5, :) = 0;
+x0(isFree, :) = 0;
 
 % recompute bounds and constraints for the spherical problem
 [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree, x0);
@@ -417,8 +418,9 @@ scip_opts.limits_solutions = 1;
 scip_opts.display_verblevel = 0;
 
 % solve MDS problem with constrained SMACOF
-[y, stopCondition, sigma, t] ...
-    = cons_smacof_pip(dtot, y0, bnd, [], con, ...
+y = y0;
+[y(isFree, :), stopCondition, sigma, t] ...
+    = cons_smacof_pip(dtot(isFree, isFree), y0(isFree, :), bnd, [], con, ...
     smacof_opts, scip_opts);
 
 sum(y.^2, 2)'
