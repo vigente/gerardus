@@ -1,3 +1,19 @@
+2014-03-06  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/cons_smacof_pip.m: (0.3.0)
+	* matlab/ManifoldToolbox/tri_qcqp_smacof_nofold_2d_pip.m: (0.1.4)
+	* matlab/test/test_cons_smacof_pip.m: (0.2.3)
+
+	- Fix bug for 2D with fixed vertices. Add input argument isFree to
+	cons_smacof_pip(). We were doing it wrong when we had fixed
+	vertices. We were expecting the distance matrix to be d(isFree,
+	isFree). However, we need distance values from the free to the
+	fixed vertices too. Also, the objective function needs to have
+	terms that will be xi * c, where xi is a free vertex, and c a
+	constant that includes xj, a coordinate of a fixed vertex. Also,
+	at each SMACOF step, we have to update only the coordinates of the
+	free vertices. Fixed vertices don't change.
+
 2014-02-28  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m: (0.1.2)

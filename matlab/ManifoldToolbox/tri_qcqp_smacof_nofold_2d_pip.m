@@ -46,7 +46,7 @@ function [con, bnd] = tri_qcqp_smacof_nofold_2d_pip(tri, ymin, ymax, amin, amax,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.3
+% Version: 0.1.4
 % $Rev$
 % $Date$
 %
@@ -131,23 +131,24 @@ end
 % init outputs
 con = cell(1, 2*Ntri+1);
 con{1} = 'Subject to';
-bnd = cell(1, 2*N+1);
+bnd = cell(1, 2*Nfree+1);
 bnd{1} = 'Bounds';
 
 %% Upper and lower bounds for the objective function variables
 
 % variables bounds, lb<=nu<=ub
-for I = 1:N
+idx = find(isFree);
+for I = 1:length(idx)
 
     % bounds for x-coordinate
     bnd{2*I} = sprintf(...
         ' %.15g <= x%d <= %.15g', ...
-        ymin(1), I, ymax(1));
+        ymin(1), idx(I), ymax(1));
 
     % bounds for y-coordinate
     bnd{2*I+1} = sprintf(...
         ' %.15g <= y%d <= %.15g', ...
-        ymin(2), I, ymax(2));
+        ymin(2), idx(I), ymax(2));
     
 end
 
