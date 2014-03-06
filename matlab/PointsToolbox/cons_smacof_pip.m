@@ -1,5 +1,5 @@
 function [y, stopCondition, sigma, t] ...
-    = cons_smacof_pip(dx, y, bnd, w, con, smacof_opts, scip_opts)
+    = cons_smacof_pip(dx, y, isFree, bnd, w, con, smacof_opts, scip_opts)
 % CONS_SMACOF_PIP  SMACOF algorithm with polynomial constraints (PIP file
 % format)
 %
@@ -31,7 +31,7 @@ function [y, stopCondition, sigma, t] ...
 %   http://polip.zib.de/pipformat.php
 %
 %
-% Y = cons_smacof_pip(D, Y0, BND, [], CON)
+% Y = cons_smacof_pip(D, Y0, ISFREE, BND, [], CON)
 %
 %   D is an (N, N)-distance matrix, with distances between the points in an
 %   N-point configuration. D can be full or sparse. D(i,j)=0 means that
@@ -116,7 +116,7 @@ function [y, stopCondition, sigma, t] ...
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.1
+% Version: 0.3.0
 % $Rev$
 % $Date$
 %
@@ -147,7 +147,7 @@ function [y, stopCondition, sigma, t] ...
 %% Input arguments
 
 % check arguments
-narginchk(5, 7);
+narginchk(6, 8);
 nargoutchk(0, 4);
 
 % number of points
@@ -169,7 +169,11 @@ if (N ~= size(y, 1))
 end
 
 % defaults
-if (nargin < 4 || isempty(w))
+if (nargin < 3 || isempty(isFree))
+    isFree = true(N, 1);
+end
+Nfree = nnz(isFree);
+if (isempty(w))
     % if the user doesn't provide a weight matrix, we simply assign 1 if
     % two vertices are connected, and 0 if not
     w = double(dx ~= 0);
@@ -182,21 +186,21 @@ if (any(size(w) ~= [N N]))
 end
 
 % SMACOF_OPTS defaults
-if (nargin < 6 || isempty(smacof_opts) || ~isfield(smacof_opts, 'MaxIter'))
+if (nargin < 7 || isempty(smacof_opts) || ~isfield(smacof_opts, 'MaxIter'))
     smacof_opts.MaxIter = 100;
 end
-if (nargin < 6 || isempty(smacof_opts) || ~isfield(smacof_opts, 'Epsilon'))
+if (nargin < 7 || isempty(smacof_opts) || ~isfield(smacof_opts, 'Epsilon'))
     smacof_opts.Epsilon = 0;
 end
-if (nargin < 6 || isempty(smacof_opts) || ~isfield(smacof_opts, 'Display'))
+if (nargin < 7 || isempty(smacof_opts) || ~isfield(smacof_opts, 'Display'))
     smacof_opts.Display = 'off';
 end
-if (nargin < 6 || isempty(smacof_opts) || ~isfield(smacof_opts, 'TolFun'))
+if (nargin < 7 || isempty(smacof_opts) || ~isfield(smacof_opts, 'TolFun'))
     smacof_opts.TolFun = 1e-12;
 end
 
 % SCIP_OPTS
-if (nargin < 7 || isempty(scip_opts) || ~isfield(scip_opts, 'scipbin'))
+if (nargin < 8 || isempty(scip_opts) || ~isfield(scip_opts, 'scipbin'))
     
     % default name of the SCIP binary depending on the architecture
     if (isunix)
@@ -211,7 +215,7 @@ if (nargin < 7 || isempty(scip_opts) || ~isfield(scip_opts, 'scipbin'))
 end
 
 scip_opts_comm = {};
-if (nargin >= 7 && ~isempty(scip_opts))
+if (nargin >= 8 && ~isempty(scip_opts))
     
     % SCIP binary
     if (isfield(scip_opts, 'scipbin'))
@@ -276,39 +280,97 @@ V(1:N+1:end) = sum(w, 2);
 idx = I > J;
 I(idx) = [];
 J(idx) = [];
+
+% remove pairs where both vertices are fixed, as those only contribute a
+% constant to the objective function and can be ignored in the optimization
+idx = ~isFree(I) & ~isFree(J);
+I(idx) = [];
+J(idx) = [];
+
 Nterms = length(I);
-objfunq = cell(1, N + Nterms);
+objfunq = cell(1, Nterms + Nfree);
 for idx = 1:Nterms
     % main diagonal terms
+    
+    % 2D outputs
     if (D == 2)
-        objfunq{idx} = sprintf(...
-            '+%.16g x%d x%d + %.16g y%d y%d', ...
-            2*full(V(I(idx), J(idx))), I(idx), J(idx), ...
-            2*full(V(I(idx), J(idx))), I(idx), J(idx));
+        
+        % xi (free), xj (free)
+        if (isFree(I(idx)) && isFree(J(idx)))
+            objfunq{idx} = sprintf(...
+                '+%.16g x%d x%d + %.16g y%d y%d', ...
+                2*full(V(I(idx), J(idx))), I(idx), J(idx), ...
+                2*full(V(I(idx), J(idx))), I(idx), J(idx));
+        % xi (free), xj (fixed)
+        elseif (isFree(I(idx)) && ~isFree(J(idx)))
+            objfunq{idx} = sprintf(...
+                '+%.16g x%d + %.16g y%d', ...
+                2*full(V(I(idx), J(idx))) * y(J(idx), 1), I(idx), ...
+                2*full(V(I(idx), J(idx))) * y(J(idx), 2), I(idx));
+        % xi (fixed), xj (free)
+        elseif (~isFree(I(idx)) && isFree(J(idx)))
+            objfunq{idx} = sprintf(...
+                '+%.16g x%d + %.16g y%d', ...
+                2*full(V(I(idx), J(idx))) * y(I(idx), 1), J(idx), ...
+                2*full(V(I(idx), J(idx))) * y(I(idx), 2), J(idx));
+        end
+        
+    % 3D outputs
     elseif (D == 3)
-        objfunq{idx} = sprintf(...
-            '+%.16g x%d x%d + %.16g y%d y%d + %.16g z%d z%d', ...
-            2*full(V(I(idx), J(idx))), I(idx), J(idx), ...
-            2*full(V(I(idx), J(idx))), I(idx), J(idx), ...
-            2*full(V(I(idx), J(idx))), I(idx), J(idx));
+        
+        % xi (free), xj (free)
+        if (isFree(I(idx)) && isFree(J(idx)))
+            objfunq{idx} = sprintf(...
+                '+%.16g x%d x%d + %.16g y%d y%d + %.16g z%d z%d', ...
+                2*full(V(I(idx), J(idx))), I(idx), J(idx), ...
+                2*full(V(I(idx), J(idx))), I(idx), J(idx), ...
+                2*full(V(I(idx), J(idx))), I(idx), J(idx));
+        % xi (free), xj (fixed)
+        elseif (isFree(I(idx)) && ~isFree(J(idx)))
+            objfunq{idx} = sprintf(...
+                '+%.16g x%d + %.16g y%d + %.16g z%d', ...
+                2*full(V(I(idx), J(idx))) * y(J(idx), 1), I(idx), ...
+                2*full(V(I(idx), J(idx))) * y(J(idx), 1), I(idx), ...
+                2*full(V(I(idx), J(idx))) * y(J(idx), 2), I(idx));
+        % xi (fixed), xj (free)
+        elseif (~isFree(I(idx)) && isFree(J(idx)))
+            objfunq{idx} = sprintf(...
+                '+%.16g x%d + %.16g y%d + %.16g z%d', ...
+                2*full(V(I(idx), J(idx))) * y(I(idx), 1), J(idx), ...
+                2*full(V(I(idx), J(idx))) * y(I(idx), 1), J(idx), ...
+                2*full(V(I(idx), J(idx))) * y(I(idx), 2), J(idx));
+        end
+        
     else
-        error('Assertion fail: D is not 2 or 3')
+        error('Assertion fail: Output dimension D is not 2 or 3')
     end
 end
 
 % main diagonal terms
-for I = 1:N
+I = find(isFree);
+for idx = 1:length(I)
     
+    % 2D outputs
     if (D == 2)
-        objfunq{Nterms + I} = sprintf(...
+
+        % only free vertices contribute to the objective function
+        objfunq{Nterms + idx} = sprintf(...
             '+%.16g x%d^2 + %.16g y%d^2', ...
-            full(V(I, I)), I, full(V(I, I)), I);
+            full(V(I(idx), I(idx))), I(idx), ...
+            full(V(I(idx), I(idx))), I(idx));
+        
+    % 3D outputs
     elseif (D == 3)
-        objfunq{Nterms + I} = sprintf(...
+        
+        % only free vertices contribute to the objective function
+        objfunq{Nterms + idx} = sprintf(...
             '+%.16g x%d^2 + %.16g y%d^2 + %.16g z%d^2', ...
-            full(V(I, I)), I, full(V(I, I)), I, full(V(I, I)), I);
+            full(V(I(idx), I(idx))), I(idx), ...
+            full(V(I(idx), I(idx))), I(idx), ...
+            full(V(I(idx), I(idx))), I(idx));
+        
     else
-        error('Assertion fail: D is not 2 or 3')
+        error('Assertion fail: Output dimension D is not 2 or 3')
     end
         
 end
@@ -364,19 +426,27 @@ for I = 1:smacof_opts.MaxIter
     f = -2 * B * y;
     
     % convert linear term to PIP format
-    objfunl = cell(1, N);
-    for J = 1:N
+    objfunl = cell(1, Nfree);
+    J = find(isFree);
+    for idx = 1:length(J)
 
+        % 2D output
         if (D == 2)
-            objfunl{J} = sprintf(...
+            
+            objfunl{idx} = sprintf(...
                 '+%.16g x%d +%.16g y%d', ...
-                f(J, 1), J, f(J, 2), J);
+                f(J(idx), 1), J(idx), f(J(idx), 2), J(idx));
+            
+        % 3D output
         elseif (D == 3)
-            objfunl{J} = sprintf(...
+            
+            objfunl{idx} = sprintf(...
                 '+%.16g x%d +%.16g y%d +%.16g z%d', ...
-                f(J, 1), J, f(J, 2), J, f(J, 3), J);
+                f(J(idx), 1), J(idx), f(J(idx), 2), J(idx), ...
+                f(J(idx), 3), J(idx));
+            
         else
-            error('Assertion fail: D is not 2 or 3')
+            error('Assertion fail: Output dimension D is not 2 or 3')
         end
         
     end
@@ -410,7 +480,7 @@ for I = 1:smacof_opts.MaxIter
         % keep the solution from the previous step
         stopCondition{end+1} = 'SCIPDidNotUpdateSolution';
     else
-        y = aux;
+        y(isFree, :) = aux(isFree, :);
     end
     
     % recompute distances between vertices in the current solution
