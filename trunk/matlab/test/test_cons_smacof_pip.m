@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.2
+% Version: 0.2.3
 % $Rev$
 % $Date$
 %
@@ -29,6 +29,13 @@
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see
 % <http://www.gnu.org/licenses/>.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%     PLANE   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Toy example, small triangulated rectangular grid. This is a basic sanity
@@ -94,7 +101,7 @@ scip_opts.display_verblevel = 4;
 
 % solve MDS problem with constrained SMACOF
 [y, stopCondition, sigma, t] ...
-    = cons_smacof_pip(dtot, x, bnd, [], con, ...
+    = cons_smacof_pip(dtot, x, [], bnd, [], con, ...
     smacof_opts, scip_opts);
 
 % check that this is a valid solution
@@ -131,7 +138,15 @@ ylabel('\sigma')
 %% Same toy example, but now we start from a random distribution of points
 
 rng(0); % this initialization produces a very good solution
-rng(1); % this initialization produces a poor solution with fold-overs
+rng(1); % this initialization produces a poor solution with fold-overs,
+        % that at the same time has all areas positive
+
+% boundaries: maximum area of all the triangles in the mesh
+amin = 0.1;
+amax = 0.4;
+
+% constraints and boundaries for QCQP (assuming all vertices are free)
+[con, bnd] = tri_qcqp_smacof_nofold_2d_pip(tri, ymin, ymax, amin, amax);
 
 % random initialization
 y0 = rand(N, 2);
@@ -151,7 +166,7 @@ scip_opts.display_verblevel = 0;
 
 % solve MDS problem with constrained SMACOF
 [y, stopCondition, sigma, t] ...
-    = cons_smacof_pip(dtot, y0, bnd, [], con, ...
+    = cons_smacof_pip(dtot, y0, [], bnd, [], con, ...
     smacof_opts, scip_opts);
 
 % check that this is a valid solution
@@ -213,7 +228,7 @@ scip_opts.display_verblevel = 0;
 % solve MDS problem with constrained SMACOF
 tic
 [y, stopCondition, sigma, t] ...
-    = cons_smacof_pip(dtot, x, bnd, [], con, ...
+    = cons_smacof_pip(dtot, x, isFree, bnd, [], con, ...
     smacof_opts, scip_opts);
 toc
 
@@ -238,6 +253,117 @@ hold off
 plot(t, sigma)
 xlabel('Time (sec)')
 ylabel('stress')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Same toy example, using fixed points
+
+x = [
+    0 0
+    1 0
+    2 0 
+    3 0
+    0 0.5
+    1 0.5
+    2 0.5
+    3 0.5
+    0 1
+    1 1
+    2 1 
+    3 1
+    0 1.5
+    1 1.5
+    2 1.5
+    3 1.5
+    ];
+
+N = size(x, 1);
+tri = delaunay(x);
+w = dmatrix_mesh(tri);
+
+% areas of the triangles
+trifacet_signed_area(tri, x)
+
+% select free vertices
+isFree = true(size(x, 1), 1);
+isFree([1 4 7 14 15]) = false;
+
+% plot triangulation
+hold off
+gplot(w, x)
+hold on
+plot(x(~isFree, 1), x(~isFree, 2), 'ro')
+
+% compute full matrix of true distances
+dtot = dmatrix(x');
+
+% boundaries: maximum area of all the triangles in the mesh
+amin = 0.1;
+amax = 0.4;
+
+% boundaries: box within which coordinates must be located
+ymin = [-1 -1];
+ymax = [4 2.5];
+
+% initialize
+y0 = x;
+y0(isFree, :) = y0(isFree, :) + rand(nnz(isFree), 2);
+
+% constraints and boundaries for QCQP (assuming all vertices are free)
+[con, bnd] = tri_qcqp_smacof_nofold_2d_pip(tri, ymin, ymax, amin, amax, ...
+    isFree, y0);
+
+% SMACOF algorithm parameters
+smacof_opts.MaxIter = 100;
+smacof_opts.Epsilon = 1e-3;
+smacof_opts.Display = 'iter';
+smacof_opts.TolFun = 1e-6;
+
+% SCIP algorithm parameters
+scip_opts.limits_time = 100;
+%scip_opts.limits_gap = 8/100;
+scip_opts.limits_solutions = 1;
+scip_opts.display_verblevel = 0;
+
+% solve MDS problem with constrained SMACOF
+[y, stopCondition, sigma, t] ...
+    = cons_smacof_pip(dtot, y0, isFree, bnd, [], con, ...
+    smacof_opts, scip_opts);
+
+% check that this is a valid solution
+if (all(trifacet_signed_area(tri, y) >= 0))
+    disp('Valid solution')
+else
+    error('Invalid solution')
+end
+
+% rigid registration with true solution
+[~, y] = procrustes(x, y, 'Scaling', false);
+
+% plot points
+subplot(2, 1, 1)
+hold off
+gplot(w, x)
+hold on
+plot(x(:, 1), x(:, 2), 'o')
+
+% plot solution
+gplot(w, y, 'r')
+plot(y(:, 1), y(:, 2), 'xr')
+
+stopCondition
+
+% plot stress evolution
+subplot(2, 1, 2)
+hold off
+plot(t, sigma)
+xlabel('Time (sec)')
+ylabel('stress')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%    SPHERE   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Toy example for the sphere. Sanity check: The initialization is the 
