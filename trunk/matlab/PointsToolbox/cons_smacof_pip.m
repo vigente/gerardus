@@ -116,7 +116,7 @@ function [y, stopCondition, sigma, t] ...
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % $Rev$
 % $Date$
 %
@@ -290,7 +290,7 @@ J(idx) = [];
 Nterms = length(I);
 objfunq = cell(1, Nterms + Nfree);
 for idx = 1:Nterms
-    % main diagonal terms
+    % upper triangular terms
     
     % 2D outputs
     if (D == 2)
@@ -330,15 +330,15 @@ for idx = 1:Nterms
             objfunq{idx} = sprintf(...
                 '+%.16g x%d + %.16g y%d + %.16g z%d', ...
                 2*full(V(I(idx), J(idx))) * y(J(idx), 1), I(idx), ...
-                2*full(V(I(idx), J(idx))) * y(J(idx), 1), I(idx), ...
-                2*full(V(I(idx), J(idx))) * y(J(idx), 2), I(idx));
+                2*full(V(I(idx), J(idx))) * y(J(idx), 2), I(idx), ...
+                2*full(V(I(idx), J(idx))) * y(J(idx), 3), I(idx));
         % xi (fixed), xj (free)
         elseif (~isFree(I(idx)) && isFree(J(idx)))
             objfunq{idx} = sprintf(...
                 '+%.16g x%d + %.16g y%d + %.16g z%d', ...
                 2*full(V(I(idx), J(idx))) * y(I(idx), 1), J(idx), ...
-                2*full(V(I(idx), J(idx))) * y(I(idx), 1), J(idx), ...
-                2*full(V(I(idx), J(idx))) * y(I(idx), 2), J(idx));
+                2*full(V(I(idx), J(idx))) * y(I(idx), 2), J(idx), ...
+                2*full(V(I(idx), J(idx))) * y(I(idx), 3), J(idx));
         end
         
     else
@@ -402,7 +402,7 @@ sigma(1) = sum(sum(w .* (dx - dy).^2));
 t = zeros(1, smacof_opts.MaxIter+1); % time past from 0th iteration
 tic
 if (strcmp(smacof_opts.Display, 'iter'))
-    fprintf('Iter\tSigma\t\t\tTime (sec)\n')
+    fprintf('Iter\t\tSigma\t\t\tTime (sec)\n')
     fprintf('===================================================\n')
     fprintf('%d\t\t%.4e\t\t%.4e\n', 0, sigma(1), 0.0)
 end

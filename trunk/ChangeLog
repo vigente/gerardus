@@ -1,3 +1,21 @@
+2014-03-07  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/test/test_cons_smacof_pip.m: (0.2.4)
+
+	- For the sphere, update calls to cons_smacof_pip() to new
+	syntax. We now pass isFree as a vector, and we pass the whole
+	distance matrix.
+
+	- For the sphere with the vertices pertubed to produce fold-over,
+	make not specific to a sphere sampling of 10 vertices.
+
+	- Remove last test for the sphere, that was redundant.
+
+	* matlab/PointsToolbox/cons_smacof_pip.m: (0.3.1)
+
+	- Fix bug. Wrong index writting the upper triangular terms of the
+	objective function in the 3D case.
+
 2014-03-06  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/cons_smacof_pip.m: (0.3.0)
