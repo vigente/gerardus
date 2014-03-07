@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.3
+% Version: 0.2.4
 % $Rev$
 % $Date$
 %
@@ -376,6 +376,7 @@ N = size(x, 1);
 % plot mesh
 hold off
 trisurf(tri, x(:, 1), x(:, 2), x(:, 3))
+axis equal
 
 % compute volume of each tetrahedron
 vol = zeros(size(tri, 1), 1);
@@ -412,7 +413,7 @@ scip_opts.display_verblevel = 4;
 
 % solve MDS problem with constrained SMACOF
 [y, stopCondition, sigma, t] ...
-    = cons_smacof_pip(dtot, x, bnd, [], con, ...
+    = cons_smacof_pip(dtot, x, [], bnd, [], con, ...
     smacof_opts, scip_opts);
 
 sum(y.^2, 2)'
@@ -443,13 +444,17 @@ xlabel('Time (sec)')
 ylabel('stress')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Same sphere toy example. Start with the optimal solution, save for some
-%% vertices that have been perturbed to produce fold-overs
+%% Same sphere toy example. Start with the optimal solution, except for
+%% some vertices that have been perturbed to produce fold-overs. We don't
+%% know which vertices are the ones with overlap, so we consider all of
+%% them to be free
+
+rng(0)
 
 % create some overlaps
 y0 = x;
-y0(16:20, :) = rand(5, 3);
-y0(16:20, :) = y0(16:20, :) ./ repmat(sqrt(sum(y0(16:20, :).^2, 2)), 1, 3);
+y0(end-4:end, :) = y0(end-4:end, :) + 2*rand(5, 3);
+y0(end-4:end, :) = y0(end-4:end, :) ./ repmat(sqrt(sum(y0(end-4:end, :).^2, 2)), 1, 3);
 
 % compute volume of each tetrahedron
 vol0 = zeros(size(tri, 1), 1);
@@ -462,9 +467,14 @@ else
     disp('Invalid solution')
 end
 
+% plot initialization
+subplot(2, 1, 1)
+trisurf(tri, y0(:, 1), y0(:, 2), y0(:, 3))
+axis equal
+
 % SMACOF algorithm parameters
 clear smacof_opts
-smacof_opts.MaxIter = 10;
+smacof_opts.MaxIter = 50;
 smacof_opts.Epsilon = 1e-2;
 smacof_opts.Display = 'iter';
 smacof_opts.TolFun = 1e-6;
@@ -477,7 +487,7 @@ scip_opts.display_verblevel = 0;
 
 % solve MDS problem with constrained SMACOF
 [y, stopCondition, sigma, t] ...
-    = cons_smacof_pip(dtot, y0, bnd, [], con, ...
+    = cons_smacof_pip(dtot, y0, [], bnd, [], con, ...
     smacof_opts, scip_opts);
 
 sum(y.^2, 2)'
@@ -519,20 +529,14 @@ ylabel('stress')
 
 % free vertices
 isFree = false(size(x, 1), 1);
-isFree(16:20) = true;
-
-% we create a separate initialization vector with the fixed vertices
-% coordinates, and we delete the coordinates of the free vertices, just to
-% make sure that the function cannot use the ground truth for the solution
-x0 = x;
-x0(isFree, :) = 0;
+isFree(end-4:end) = true;
 
 % recompute bounds and constraints for the spherical problem
-[con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree, x0);
+[con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree, x);
 
 % SMACOF algorithm parameters
 clear smacof_opts
-smacof_opts.MaxIter = 10;
+smacof_opts.MaxIter = 100;
 smacof_opts.Epsilon = 1e-2;
 smacof_opts.Display = 'iter';
 smacof_opts.TolFun = 1e-6;
@@ -541,102 +545,11 @@ smacof_opts.TolFun = 1e-6;
 clear scip_opts
 % scip_opts.limits_time = 100;
 scip_opts.limits_solutions = 1;
-scip_opts.display_verblevel = 0;
-
-% solve MDS problem with constrained SMACOF
-y = y0;
-[y(isFree, :), stopCondition, sigma, t] ...
-    = cons_smacof_pip(dtot(isFree, isFree), y0(isFree, :), bnd, [], con, ...
-    smacof_opts, scip_opts);
-
-sum(y.^2, 2)'
-
-% check that this is a valid solution
-vol = zeros(size(tri, 1), 1);
-for I = 1:size(tri, 1)
-    vol(I) = det(y(tri(I, :), :))/6;
-end
-if (all(vol >= 0))
-    disp('Valid solution')
-else
-    error('Invalid solution')
-end
-
-% plot points
-subplot(2, 1, 1)
-hold off
-trisurf(tri, y(:, 1), y(:, 2), y(:, 3))
-axis equal
-
-% plot points
-subplot(2, 1, 2)
-hold off
-trisurf(tri, y0(:, 1), y0(:, 2), y0(:, 3))
-axis equal
-
-stopCondition
-
-% plot stress evolution
-subplot(2, 1, 2)
-plot(t, sigma)
-xlabel('Time (sec)')
-ylabel('stress')
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% New toy example for the sphere, where the MDS solution produces 
-%% fold-over, and the CCQP-SMACOF removes the fold-over
-
-rng(0)
-
-% uniform sampling of the sphere
-[x, tri] = ParticleSampleSphere('N', 20);
-
-% create some overlaps
-x(1:5, :) = rand(5, 3);
-x(1:5, :) = x(1:5, :) ./ repmat(sqrt(sum(x(1:5, :).^2, 2)), 1, 3);
-
-% plot mesh
-hold off
-trisurf(tri, x(:, 1), x(:, 2), x(:, 3))
-axis equal
-view(154, -8)
-
-% compute distance matrix of the mesh with the fold-overs
-dtot = dmatrix(x');
-
-% check that the MDS solution gives the fold-overs
-aux = cmdscale(dtot);
-
-% plot mesh
-hold off
-trisurf(tri, aux(:, 1), aux(:, 2), aux(:, 3))
-axis equal
-view(-96, -16)
-
-% constraints and bounds parameters
-vmin = .05;
-vmax = .15;
-R = 1;
-
-% recompute bounds and constraints for the spherical problem
-[con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax);
-
-% SMACOF algorithm parameters
-clear smacof_opts
-smacof_opts.MaxIter = 10;
-smacof_opts.Epsilon = 1e-2;
-smacof_opts.Display = 'iter';
-smacof_opts.TolFun = 1e-6;
-
-% SCIP algorithm parameters
-clear scip_opts
-% scip_opts.limits_time = 100;
-scip_opts.limits_solutions = 1;
-scip_opts.display_verblevel = 0;
+scip_opts.display_verblevel = 4;
 
 % solve MDS problem with constrained SMACOF
 [y, stopCondition, sigma, t] ...
-    = cons_smacof_pip(dtot, aux, bnd, [], con, ...
+    = cons_smacof_pip(dtot, y0, isFree, bnd, [], con, ...
     smacof_opts, scip_opts);
 
 sum(y.^2, 2)'
