@@ -1,3 +1,15 @@
+2014-03-09  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/cons_smacof_pip.m: (0.3.2)
+
+	- Now instead of giving an error when SCIP cannot find a solution,
+	we deal with this gracefully. For instance, the constraints we
+	have given may define an unfeasible problem. In that case, instead
+	of exiting with error(), what we want to do is that the algorithm
+	exits normally, but saying that the stopCondition is e.g. 'SCIP:
+	unfeasible'. This could be used, for example to then relax the
+	constraints and re-run the algorithm.
+
 2014-03-07  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/test/test_cons_smacof_pip.m: (0.2.4)
