@@ -116,7 +116,7 @@ function [y, stopCondition, sigma, t] ...
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.1
+% Version: 0.3.2
 % $Rev$
 % $Date$
 %
@@ -473,15 +473,15 @@ for I = 1:smacof_opts.MaxIter
         ' -c "quit"']);
     
     % read solution
-    aux = read_solution(solfilename, size(y));
-    if (isscalar(aux) && isnan(aux))
-        % maybe we were already at the optimum or something else happened.
-        % But for some reason, SCIP did not return a solution. Thus, we
-        % keep the solution from the previous step
-        stopCondition{end+1} = 'SCIPDidNotUpdateSolution';
-    else
-        y(isFree, :) = aux(isFree, :);
+    [aux, status] = read_solution(solfilename, size(y));
+    if (isempty(aux))
+        stopCondition{end+1} = ['SCIP: ' status];
+        break;
     end
+
+    % we only have to update the positions of the free vertices. The values
+    % for fixed vertices in aux are all 0, so they need to be ignored
+    y(isFree, :) = aux(isFree, :);
     
     % recompute distances between vertices in the current solution
     dy = dmatrix_con(dx, y);
@@ -538,7 +538,7 @@ end
 %
 % y: matrix with the solution as a point configuration (each row is a
 %    point)
-function y = read_solution(file, sz)
+function [y, status] = read_solution(file, sz)
 
 if ((sz(2) ~= 2) && (sz(2) ~= 3))
     error('We only know how to read solutions that are sets of 2D or 3D points')
@@ -547,6 +547,30 @@ end
 fid = fopen(file, 'r');
 if (fid == -1)
     error(['Cannot open file ' file ' to read solution'])
+end
+
+% read status of the solution
+status = fgetl(fid);
+if (~strcmp(status(1:16), 'solution status:'))
+    error(['Assertion fail: File with SCIP solution does not start with string ''solution status:''. File ' file])
+end
+status = status(18:end);
+
+% unless we obtained a valid solution, we don't bother with the rest of the
+% file (which should be empty anyway), we exit, and the main function
+% should detect the empty solution y, and create a stopCondition with the
+% status returned by SCIP
+if (~strcmp(status, 'optimal solution found') ...
+        && ~strcmp(status, 'solution limit reached'))
+    fclose(fid);
+    y = [];
+    return;
+end
+
+% the second line in the file should be the value of the objective function
+aux = fgetl(fid);
+if (~strcmp(aux(1:16), 'objective value:'))
+    error(['Assertion fail: Second line in file with SCIP solution does not start with string ''objective value:''. File ' file])
 end
 
 % read contents of the file. Example result:
@@ -568,7 +592,7 @@ end
 % x7                                     1.643412276563 	(obj:0)
 % y7                                  -3.72674560989634 	(obj:0)
 % quadobjvar                           468.345678663118 	(obj:1)
-c = textscan(fid, '%s%f%s', 'Headerlines', 2, 'Delimiter', ' ', 'MultipleDelimsAsOne', true);
+c = textscan(fid, '%s%f%s', 'Delimiter', ' ', 'MultipleDelimsAsOne', true);
 fclose(fid);
 
 if isempty(c{1})
@@ -583,6 +607,11 @@ for I = 1:length(c{1})-1
     
     % variable name
     varname = c{1}{I};
+    
+    % if list of output variables has finished, we can exit the loop
+    if (strcmp(varname, 'quadobjvar'))
+        break;
+    end
     
     % vertex index
     idx = str2double(varname(2:end));
