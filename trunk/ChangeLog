@@ -1,5 +1,10 @@
 2014-03-09  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/ManifoldToolbox/sphtri_signed_vol.m: (0.1.0)
+
+	- SPHTRI_SIGNED_VOL Signed volume of the elements of a sphere
+	partitioned into tetrahedra.
+
 	* matlab/PointsToolbox/cons_smacof_pip.m: (0.3.2)
 
 	- Now instead of giving an error when SCIP cannot find a solution,
