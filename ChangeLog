@@ -1,5 +1,9 @@
 2014-03-09  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/ManifoldToolbox/graphcc.m: (0.1.0)
+
+	- GRAPHCC  Split a graph into connected components.
+
 	* Add matlab/ManifoldToolbox/sphtri_signed_vol.m: (0.1.0)
 
 	- SPHTRI_SIGNED_VOL Signed volume of the elements of a sphere
