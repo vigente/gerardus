@@ -60,7 +60,7 @@ while ~isempty(idx)
     dv = dijkstra(g, v);
     
     % put all the connected vertices in a connected component
-    cc{end+1} = [find(~isinf(dv))];
+    cc{end+1} = find(~isinf(dv));
     
     % remove those vertices from the list of vertices
     idx = setdiff(idx, cc{end});
