@@ -1,3 +1,10 @@
+2014-03-13  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ManifoldToolbox/tri_sphparam_cons_smacof.m: (0.1.0)
+
+	- TRI_SPHPARAM_CONS_SMACOF Pseudo-isometric parametrization of
+	closed triangular mesh using constrained SMACOF.
+
 2014-03-09  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ManifoldToolbox/graphcc.m: (0.1.0)
