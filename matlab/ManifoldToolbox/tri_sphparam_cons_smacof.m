@@ -42,6 +42,11 @@ function [y, t] = tri_sphparam_cons_smacof(tri, x, d, sphparam_opts, smacof_opts
 %     'Display': (default = 'off') Do not display any internal information.
 %                'iter': display internal information at every iteration.
 %
+%     'LocalConvexHull': (default true) When a local neighbourhood is
+%                tangled, untangle the convex hull that contains it. The
+%                reason is that untangling a convex domain is simpler, and
+%                it produces better quality solutions.
+%
 %     'FinalRefinement': (default = false) Run constrained SMACOF on the
 %                whole mesh after the initial untangling, to try to further
 %                reduce the stress measure. This is a very slow process.
@@ -56,7 +61,7 @@ function [y, t] = tri_sphparam_cons_smacof(tri, x, d, sphparam_opts, smacof_opts
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -104,6 +109,7 @@ if (nargin < 4 || isempty(sphparam_opts))
     sphparam_opts.volmin = 0;
     sphparam_opts.volmax = Inf;
     sphparam_opts.Display = 'none';
+    sphparam_opts.LocalConvexHull = true;
     sphparam_opts.FinalRefinement = false;
     
 end    
@@ -245,33 +251,34 @@ for C = 1:Ncomp
     % by graphcc()
     nn = full(isFreenn' | (sum(dcon(isFreenn, :), 1) > 0))';
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%% Convex hull %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Local Convex Hull block:
     % This code snippet converts the local neighbourhood to the convex hull
     % of the local neighbourhood. Untangling a convex local neighbourhood
-    % should be easier than a non-convex. However, with out data, this step
-    % doesn't seem necessary. Thus, we have commented it out. Maybe it'll
-    % be useful in future 
-    
-%     % mean point of the local neighbourhood
-%     [latnnm, lonnnm] = meanm(lat(nn), lon(nn), 'radians');
-%     ynnm = [0 0 0]';
-%     [ynnm(1), ynnm(2), ynnm(3)] = sph2cart(lonnnm, latnnm, sphrad);
-%     
-%     % rotation matrix to take the centroid to lat=0, lon=0
-%     rot = vrrotvec2mat([cross(ynnm, [1 0 0]'); ...
-%         acos(dot(ynnm/norm(ynnm), [1 0 0]'))]);
-%     
-%     % rotate all vertices so that the local neighbourhood is centered
-%     % around (0,0)
-%     yrot = (rot * y')';
-%     
-%     % convert to spherical coordinates
-%     [lonrot, latrot] = cart2sph(yrot(:, 1), yrot(:, 2), yrot(:, 3));
-%     
-%     % update the local neighbourhood so that the local neighbourhood is
-%     % the convex hull
-%     nn = nn | inhull([lonrot, latrot], [lonrot(nn), latrot(nn)]);
-    %%%%%%%%%%%%%%%%%% end of Convex hull block %%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % should be easier than a non-convex, but it also involves more
+    % vertices
+    if (sphparam_opts.FinalRefinement)
+        
+        % mean point of the local neighbourhood
+        [latnnm, lonnnm] = meanm(lat(nn), lon(nn), 'radians');
+        ynnm = [0 0 0]';
+        [ynnm(1), ynnm(2), ynnm(3)] = sph2cart(lonnnm, latnnm, sphrad);
+        
+        % rotation matrix to take the centroid to lat=0, lon=0
+        rot = vrrotvec2mat([cross(ynnm, [1 0 0]'); ...
+            acos(dot(ynnm/norm(ynnm), [1 0 0]'))]);
+        
+        % rotate all vertices so that the local neighbourhood is centered
+        % around (0,0)
+        yrot = (rot * y')';
+        
+        % convert to spherical coordinates
+        [lonrot, latrot] = cart2sph(yrot(:, 1), yrot(:, 2), yrot(:, 3));
+        
+        % update the local neighbourhood so that the local neighbourhood is
+        % the convex hull
+        nn = nn | inhull([lonrot, latrot], [lonrot(nn), latrot(nn)]);
+        
+    end
     
     % triangles that triangulate the local neighbourhood
     idxtrinn = sum(ismember(tri, find(nn)), 2) == 3;
@@ -311,7 +318,7 @@ for C = 1:Ncomp
     % assertion check: after untangling, the local neighbourhood cannot
     % produce self-intersections
     if any(cgal_check_self_intersect(trinn, y(nn,:)))
-        error(['Assertion fail: Component ' num2str(C) 
+        warning(['Assertion fail: Component ' num2str(C) ...
             ' contains self-intersections after untangling'])
     end
     
@@ -319,7 +326,7 @@ for C = 1:Ncomp
     % local neighbourhood must be positive
     aux = sphtri_signed_vol(trinn,  y(nn, :));
     if any(aux < sphparam_opts.volmin | aux > sphparam_opts.volmax)
-        error(['Assertion fail: Component ' num2str(C) 
+        warning(['Assertion fail: Component ' num2str(C) ...
             ' contains tetrahedra with volumes outside the constraint values'])
     end
     

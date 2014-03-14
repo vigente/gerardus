@@ -1,3 +1,13 @@
+2014-03-14  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_sphparam_cons_smacof.m: (0.2.0)
+
+	- Uncomment the block to convert local neighbourhoods to convex
+	hull of local neighbourhoods. Now this is run by default, and can
+	be deactivated by the user.
+
+	- Fix bug: Bad syntax in warning messages crashed function.
+
 2014-03-13  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ManifoldToolbox/tri_sphparam_cons_smacof.m: (0.1.0)
