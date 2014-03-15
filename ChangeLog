@@ -1,5 +1,20 @@
 2014-03-15  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/ManifoldToolbox/tri_sphparam.m: (0.1.0)
+	* Add matlab/test/test_tri_sphparam.m: (0.1.0)
+
+	- Spherical parametrization of closed triangular mesh.
+
+	* Delete matlab/ManifoldToolbox/tri_sphparam_cons_smacof.m:
+
+	- This function has been rewritten as tri_sphparam, to make it
+	more modular. Instead of forcing a series of parametrizations
+	(namely CMDS followed by constrained SMACOF with local
+	neighbourhoods, followed by global constrained SMACOF), we want to
+	have a function where we can call individual methods, and that
+	it's not limited to the SMACOF approach (we'll want to add the
+	spherical harmonics method too).
+
 	* Add matlab/ManifoldToolbox/arclen2chord.m: (0.1.0)
 
 	- Sphere arc length distances to Euclidean chord length distances.

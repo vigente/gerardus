@@ -93,7 +93,7 @@ if (~isscalar(vmax))
 end
 
 % number of vertices
-N = length(unique(tri(:)));
+N = max(tri(:));
 
 if (nargin < 5 || isempty(isFree))
     % if the user doesn't specify which vertices are free and which ones
@@ -113,13 +113,6 @@ isFree = isFree(:);
 if (length(isFree) ~= N)
     error('ISFREE must have one element per point in vertex in the mesh')
 end
-
-% vector to map vertex indices in the mesh to vertex indices in the CCQP
-% problem. The reason is that we pass to SMACOF d(isFree,isFree),
-% y(isFree,:), so when we write the constraints, we need to rename the
-% vertices
-map = nan(N, 1);
-map(isFree) = 1:Nfree;
 
 % number of triangles
 Ntri = size(tri, 1);
@@ -144,22 +137,23 @@ bnd = cell(1, 2*Nfree+1);
 bnd{1} = 'Bounds';
 
 % variables bounds, lb<=nu<=ub
+idx = find(isFree);
 for I = 1:Nfree
 
     % bounds for x-coordinate
     bnd{3*I-1} = sprintf(...
         ' %.15g <= x%d <= %.15g', ...
-        -R, I, R);
+        -R, idx(I), R);
 
     % bounds for y-coordinate
     bnd{3*I} = sprintf(...
         ' %.15g <= y%d <= %.15g', ...
-        -R, I, R);
+        -R, idx(I), R);
     
     % bounds for z-coordinate
     bnd{3*I+1} = sprintf(...
         ' %.15g <= z%d <= %.15g', ...
-        -R, I, R);
+        -R, idx(I), R);
     
 end
 
@@ -216,10 +210,6 @@ for I = idxtricon
             zj = yloc(2, 3); % y-coordinate of 2nd fixed vertex
             
             k = triloc(3);   % index of free vertex in the mesh
-            k = map(k);      % index of free vertex for the SMACOF problem
-            if (isnan(k))
-                error('Assertion fail: Free vertex index mapped to NaN')
-            end
             
             % constraint with lower bound. Example:
             % c1: -2 x1 +3.23 x4 +1 x2 * x3 >= -1
@@ -267,12 +257,6 @@ for I = idxtricon
             j = triloc(2);   % index of free vertex in the mesh
             k = triloc(3);   % index of free vertex in the mesh
 
-            j = map(j);      % index of free vertex for the SMACOF problem
-            k = map(k);      % index of free vertex for the SMACOF problem
-            if (isnan(j) || isnan(k))
-                error('Assertion fail: Free vertex index mapped to NaN')
-            end
-            
             % constraint with lower bound
             con{count} = sprintf( ...
                 ' c%d: %.15g x%d y%d + %.15g x%d y%d + %.15g x%d z%d + %.15g y%d z%d + %.15g x%d z%d + %.15g y%d z%d >= %.15g', ...
@@ -306,13 +290,6 @@ for I = idxtricon
             i = triloc(1);   % index of free vertex in the mesh
             j = triloc(2);   % index of free vertex in the mesh
             k = triloc(3);   % index of free vertex in the mesh
-            
-            i = map(i);      % index of free vertex for the SMACOF problem
-            j = map(j);      % index of free vertex for the SMACOF problem
-            k = map(k);      % index of free vertex for the SMACOF problem
-            if (isnan(i) || isnan(j) || isnan(k))
-                error('Assertion fail: Free vertex index mapped to NaN')
-            end
             
             % constraint with lower bound
             con{count} = sprintf( ...
@@ -351,11 +328,12 @@ end
 %% Radius constraints
 
 % add one radius constraint per free vertex
+idx = find(isFree);
 for I = 1:Nfree
     
     con{count} = sprintf( ...
         ' c%d: x%d^2 + y%d^2 + z%d^2 = %.15g', ...
-        count, I, I, I, R^2);
+        count, idx(I), idx(I), idx(I), R^2);
     count = count + 1;
     
 end
