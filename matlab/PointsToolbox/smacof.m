@@ -7,8 +7,8 @@ function [y, stopCondition, sigma, t] = smacof(dx, y, w, opts)
 % Heiser [1]-[3] from the late 1970s. A modern account can be found in [4].
 %
 % An advantage of SMACOF over classical MDS (cmdscale) is that the former
-% accepts sparse distance matrices. A disadvante is that the solution is
-% found iteratively.
+% accepts sparse distance matrices. A disadvantage is that the solution is
+% found iteratively and can get trapped in local minima.
 %
 % Y = smacof(D, Y0)
 %
@@ -52,15 +52,15 @@ function [y, stopCondition, sigma, t] = smacof(dx, y, w, opts)
 %
 %
 % [1] J. De Leeuw, "Applications of convex analysis to multidimensional
-% scaling," Recent Developments in Statistics, pp. 133–146, 1977.
+% scaling," Recent Developments in Statistics, pp. 133ï¿½146, 1977.
 %
 % [2] J. De Leeuw and W. J. Heiser, "Convergence of correction matrix
 % algorithms for multidimensional scaling," ser. Geometric representations
-% of relational data, J. C. Lingoes, Ed. Mathesis Press, 1977, pp. 735–753.
+% of relational data, J. C. Lingoes, Ed. Mathesis Press, 1977, pp. 735ï¿½753.
 %
-% [3] ——, "Multidimensional scaling with restrictions on the
+% [3] ï¿½ï¿½, "Multidimensional scaling with restrictions on the
 % configuration," ser. Multivariate analysis, P. R. Krishnaiah, Ed., vol.
-% 5. North Holland Publishing Company, 1980, pp. 501–522.
+% 5. North Holland Publishing Company, 1980, pp. 501ï¿½522.
 %
 % [4] J. De Leeuw and P. Mair, "Multidimensional scaling using
 % majorization: SMACOF in R," Journal of Statistical Software, vol. 31, no.
@@ -69,7 +69,7 @@ function [y, stopCondition, sigma, t] = smacof(dx, y, w, opts)
 % See also: cmds.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
+% Copyright Â© 2014 University of Oxford
 % Version: 0.0.3
 % $Rev$
 % $Date$
