@@ -31,7 +31,7 @@ function [y, stopCondition, sigma, t] ...
 %   http://polip.zib.de/pipformat.php
 %
 %
-% Y = cons_smacof_pip(D, Y0, ISFREE, BND, [], CON)
+% [Y, STOPCONDITION, SIGMA, T] = cons_smacof_pip(D, Y0, ISFREE, BND, [], CON)
 %
 %   D is an (N, N)-distance matrix, with distances between the points in an
 %   N-point configuration. D can be full or sparse. D(i,j)=0 means that
@@ -56,10 +56,17 @@ function [y, stopCondition, sigma, t] ...
 %   Y is the solution computed by SMACOF. Y is a point configuration with
 %   the same size as Y0.
 %
+%   STOPCONDITION is a cell array with a string for each stop condition
+%   that made the algorithm stop at the last iteration.
+%
+%   SIGMA is a vector with the stress value at each iteration.
+%
+%   T is a vector with the time between the beginning of the algorithm and
+%   each iteration. Units in seconds.
+%
 % Y = cons_smacof_pip(..., SMACOF_OPTS, SCIP_OPTS)
 %
-%   SMACOF_OPTS is a struct with tweaking parameters for the SMACOF
-%   algorithm.
+%   SMACOF_OPTS is a struct with parameters to tweak the SMACOF algorithm.
 %
 %     'MaxIter': (default = 0) Maximum number of majorization iterations we
 %                allow the optimisation algorithm.
@@ -73,7 +80,7 @@ function [y, stopCondition, sigma, t] ...
 %     'TolFun':  (default = 1e-12) Termination tolerance of the stress
 %                value.
 %
-%   SCIP_OPTS is a struct with tweaking parameters for the SCIP algorithm.
+%   SCIP_OPTS is a struct with parameters to tweak the SCIP algorithm.
 %
 %     'scipbin': (defaults = 'scip-3.0.2.linux.x86_64.gnu.opt.spx' (Linux),
 %                            'scip-3.0.2.darwin.x86_64.gnu.opt.spx' (Mac),
@@ -112,11 +119,11 @@ function [y, stopCondition, sigma, t] ...
 % quadratic programming," IEEE Transactions on Visualization and Computer
 % Graphics, vol. 12, no. 4, pp. 536-548, 2006.
 %
-% See also: cmdscale, qcqp_smacof.
+% See also: cmdscale, qcqp_smacof, tri_sphparam.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.2
+% Version: 0.3.3
 % $Rev$
 % $Date$
 %
@@ -149,6 +156,9 @@ function [y, stopCondition, sigma, t] ...
 % check arguments
 narginchk(6, 8);
 nargoutchk(0, 4);
+
+% start clock
+tic
 
 % number of points
 N = size(dx, 1);
@@ -400,7 +410,6 @@ sigma(1) = sum(sum(w .* (dx - dy).^2));
 
 % display algorithm's evolution
 t = zeros(1, smacof_opts.MaxIter+1); % time past from 0th iteration
-tic
 if (strcmp(smacof_opts.Display, 'iter'))
     fprintf('Iter\t\tSigma\t\t\tTime (sec)\n')
     fprintf('===================================================\n')
@@ -409,6 +418,10 @@ end
 
 % auxiliary intermediate result
 mwdx = -w .* dx;
+
+% initialize the storage of the best solution found by the algorithm
+sigmabest = Inf;
+ybest = nan(size(y));
 
 % majorization loop
 for I = 1:smacof_opts.MaxIter
@@ -489,6 +502,12 @@ for I = 1:smacof_opts.MaxIter
     % compute stress with the current solution
     sigma(I+1) = sum(sum(w .* (dx - dy).^2));
     
+    % update best solution
+    if (sigma(I+1) < sigmabest)
+        sigmabest = sigma(I+1);
+        ybest = y;
+    end
+    
     % display algorithm's evolution
     t(I+1) = toc;
     if (strcmp(smacof_opts.Display, 'iter'))
@@ -514,6 +533,9 @@ for I = 1:smacof_opts.MaxIter
     end
     
 end
+
+% return the best solution the algorithm has found in all iterations
+y = ybest;
 
 % check whether the "maximum number of iterations" stop condition has been
 % met
