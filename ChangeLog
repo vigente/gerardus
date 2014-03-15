@@ -1,3 +1,13 @@
+2014-03-15  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ManifoldToolbox/arclen2chord.m: (0.1.0)
+
+	- Sphere arc length distances to Euclidean chord length distances.
+
+	* Add matlab/ManifoldToolbox/chord2arclen.m: (0.1.0)
+
+	- Euclidean chord length distances to sphere arc length distances.
+
 2014-03-14  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/tri_sphparam_cons_smacof.m: (0.2.0)
