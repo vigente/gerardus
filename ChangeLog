@@ -1,5 +1,14 @@
 2014-03-15  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m: (0.1.3)
+
+	- I forgot to commit the changes to this function when I fixed the
+	bug for cons_smacof_pip(). We were doing it wrong when we had
+	fixed vertices. We were expecting the distance matrix to be
+	d(isFree, isFree). I commited them by mistake with in the last
+	commit. I'm not commiting after chaning the version number just so
+	that we have this log message.
+
 	* Add matlab/ManifoldToolbox/tri_sphparam.m: (0.1.0)
 	* Add matlab/test/test_tri_sphparam.m: (0.1.0)
 
