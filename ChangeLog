@@ -1,3 +1,14 @@
+2014-03-16  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_sphparam.m: (0.1.1)
+
+	- Classical MDS solution is invariant under a mirroring
+	transformation. That is, if we had the ground truth, a mirror
+	image over the longitude coordinate produces the same stress, but
+	with all the triangle orientations inverted. Now we mirror the
+	parametrization if this reduces the number of triangles with a
+	negative orientation.
+
 2014-03-15  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/cons_smacof_pip.m: (0.3.4)

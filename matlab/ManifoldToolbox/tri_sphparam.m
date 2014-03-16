@@ -91,7 +91,7 @@ function [y, stopCondition, sigma, t] = tri_sphparam(tri, x, method, d, y, sphpa
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -249,11 +249,25 @@ switch method
         [y(:, 1), y(:, 2), y(:, 3)] ...
             = sph2cart(lon, lat, sphparam_opts.sphrad);
         
-        % time for initial parametrization
-        t = toc;
+        % signed volume of tetrahedra formed by sphere triangles and origin
+        % of coordinates
+        vol = sphtri_signed_vol(tri, y);
+        
+        % if more than half triangles have negative areas, we mirror the
+        % parametrization
+        if (nnz(vol<0) > length(vol)/2)
+            [lon, lat, sphrad] = cart2sph(y(:, 1), y(:, 2), y(:, 3));
+            [y(:, 1), y(:, 2), y(:, 3)] = sph2cart(-lon, lat, sphrad);
+        end
         
         % Classic MDS always produces a global optimum
         stopCondition = 'Global optimum';
+        
+        % stress of output parametrization
+        sigma = sum(sum((d - dmatrix(y')).^2));
+       
+        % time for initial parametrization
+        t = toc;
         
     %% SMACOF algorithm ("Scaling by majorizing a convex function"
     case 'smacof'
