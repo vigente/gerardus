@@ -82,9 +82,9 @@ function [y, stopCondition, sigma, t] ...
 %
 %   SCIP_OPTS is a struct with parameters to tweak the SCIP algorithm.
 %
-%     'scipbin': (defaults = 'scip-3.0.2.linux.x86_64.gnu.opt.spx' (Linux),
-%                            'scip-3.0.2.darwin.x86_64.gnu.opt.spx' (Mac),
-%                            'scip-3.0.2.mingw.x86_64.intel.opt.spx.exe' (Win))
+%     'scipbin': (defaults = 'scip-3.1.0.linux.x86_64.gnu.opt.spx' (Linux),
+%                            'scip-3.1.0.darwin.x86_64.gnu.opt.spx' (Mac),
+%                            'scip-3.1.0.mingw.x86_64.intel.opt.spx.exe' (Win))
 %                Name of the SCIP binary/executable. This binary should be
 %                available in the system path. E.g. place it in
 %                gerardus/programs. The binaries/executable can be
@@ -123,7 +123,7 @@ function [y, stopCondition, sigma, t] ...
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.3
+% Version: 0.3.4
 % $Rev$
 % $Date$
 %
@@ -214,11 +214,11 @@ if (nargin < 8 || isempty(scip_opts) || ~isfield(scip_opts, 'scipbin'))
     
     % default name of the SCIP binary depending on the architecture
     if (isunix)
-        SCIPBIN = 'scip-3.0.2.linux.x86_64.gnu.opt.spx';
+        SCIPBIN = 'scip-3.1.0.linux.x86_64.gnu.opt.spx';
     elseif (ismac)
-        SCIPBIN = 'scip-3.0.2.darwin.x86_64.gnu.opt.spx';
+        SCIPBIN = 'scip-3.1.0.darwin.x86_64.gnu.opt.spx';
     elseif (ispc)
-        SCIPBIN = 'scip-3.0.2.mingw.x86_64.intel.opt.spx.exe';
+        SCIPBIN = 'scip-3.1.0.mingw.x86_64.intel.opt.spx.exe';
     else
         error('Operating system not recognized: I do not know what is the default name for the SCIP binary')
     end

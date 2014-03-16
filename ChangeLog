@@ -1,5 +1,9 @@
 2014-03-15  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/PointsToolbox/cons_smacof_pip.m: (0.3.4)
+
+	- Update default version of SCIP, as now 3.1.0 has been released.
+
 	* Delete matlab/ManifoldToolbox/tri_sphparam_cons_smacof.m:
 
 	- This function has been rewritten as tri_sphparam, to make it
