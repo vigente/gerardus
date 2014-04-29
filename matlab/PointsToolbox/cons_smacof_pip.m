@@ -123,7 +123,7 @@ function [y, stopCondition, sigma, t] ...
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.4
+% Version: 0.3.5
 % $Rev$
 % $Date$
 %
@@ -234,9 +234,22 @@ if (nargin >= 8 && ~isempty(scip_opts))
     
     % display options
     QUIETFLAG = [];
+    OUTPUTREDIR = []; % output redirecton, e.g. "> /dev/null"
     if isfield(scip_opts, 'display_verblevel')
         if (scip_opts.display_verblevel == 0)
             QUIETFLAG = ' -q ';
+            
+            % bug workaround: there's a bug in
+            % scip-3.1.0.linux.x86_64.gnu.opt.spx, which causes the
+            % solution to be written as an empty file when the quiet flag
+            % is used. As a workaround, we disable the quiet flag in that
+            % case, and instead send the output to /dev/null, as suggested
+            % by Stefan Vigerske
+            if strcmp(SCIPBIN, 'scip-3.1.0.linux.x86_64.gnu.opt.spx')
+                QUIETFLAG = [];
+                OUTPUTREDIR = ' > /dev/null';
+            end
+            
         end
         scip_opts_comm{end+1} = [' -c "set display verblevel ' num2str(scip_opts.display_verblevel) '"'];
     end
@@ -483,7 +496,8 @@ for I = 1:smacof_opts.MaxIter
         strcat(scip_opts_comm{:}) ...
         ' -c "optimize"'...
         ' -c "write solution ' solfilename '"'...
-        ' -c "quit"']);
+        ' -c "quit"' ...
+        OUTPUTREDIR]);
     
     % read solution
     [aux, status] = read_solution(solfilename, size(y));
@@ -573,7 +587,8 @@ end
 
 % read status of the solution
 status = fgetl(fid);
-if (~strcmp(status(1:16), 'solution status:'))
+if ((isnumeric(status) && status == -1) ...
+        || ~strcmp(status(1:16), 'solution status:'))
     error(['Assertion fail: File with SCIP solution does not start with string ''solution status:''. File ' file])
 end
 status = status(18:end);
