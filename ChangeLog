@@ -1,3 +1,13 @@
+2014-04-29  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/cons_smacof_pip.m: (0.3.5)
+
+	- Fix bug. There's a bug in scip-3.1.0.linux.x86_64.gnu.opt.spx,
+	which causes the solution to be written as an empty file when the
+	quiet flag is used. As a workaround, we disable the quiet flag in
+	that case, and instead send the output to /dev/null, as suggested
+	by Stefan Vigerske.
+
 2014-04-22  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/FileFormatToolbox/ndpi_focus_points.m: (0.1.0)
