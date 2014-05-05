@@ -1,3 +1,20 @@
+2014-05-05  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_sphparam.m: (0.2.0)
+
+	- Fix the way we select the solution we return. Now we checked
+	whether the initial guess and found best solution are valid. If
+	both are, then we return the one with less stress. If only one is
+	valid, we return that one. If neither the initial guess is valid
+	nor a valid solution could be found, we return an array of NaNs.
+
+	- Change output syntax. Now return stress value of the initial
+	guess as a separate variable.
+
+2014-05-01  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/test/test_cons_smacof_pip.m: (0.2.5)
+
 2014-04-29  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/cons_smacof_pip.m: (0.3.5)

@@ -1,7 +1,7 @@
-function [y, stopCondition, sigma, t] = tri_sphparam(tri, x, method, d, y, sphparam_opts, smacof_opts, scip_opts)
+function [y, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, method, d, y, sphparam_opts, smacof_opts, scip_opts)
 % TRI_SPHPARAM  Spherical parametrization of closed triangular mesh.
 %
-% [Y, STOPCONDITION, SIGMA, T] = tri_sphparam(TRI, X, METHOD)
+% [Y, STOPCONDITION, SIGMA, SIGMA0, T] = tri_sphparam(TRI, X, METHOD)
 %
 %   TRI is a 3-column matrix with a surface mesh triangulation. Each row
 %   gives the indices of one triangle. The mesh needs to be a 2D manifold,
@@ -27,15 +27,25 @@ function [y, stopCondition, sigma, t] = tri_sphparam(tri, x, method, d, y, sphpa
 %
 %   Y is a 3-column matrix with the coordinates of the spherical
 %   parametrization of the mesh. Each row contains the (x,y,z)-coordinates
-%   of a point on the sphere. To compute the spherical coordinates of the
-%   points, run
+%   of a point on the sphere. Y is the best valid solution found by the
+%   algorithm within all iterations (including the intial guess). If the
+%   algorithm cannot find a single valid parametrization, it returns an
+%   array of NaNs. To compute the spherical coordinates of the points, run
 %
 %     [lon, lat, r] = cart2sph(y(:, 1), y(:, 2), y(:, 3));
 %
 %   STOPCONDITION is a cell array with a string for each stop condition
 %   that made the algorithm stop at the last iteration.
 %
-%   SIGMA is a vector with the stress value at each iteration. In 
+%   SIGMA is a vector with the stress value at each iteration. A value of
+%   NaN means that the algorithm could not find a valid solution in the
+%   corresponding iteration.
+%
+%   SIGMA0 is a scalar with the stress value of the initial guess Y0. Note
+%   that we have no guarantee that Y0 is a valid solution, so be careful
+%   when comparing SIGMA0 to SIGMA. In particular, SIGMA0 may be smaller
+%   than any SIGMA, but may not be a valid solution according to the
+%   constraints.
 %
 %   T is a vector with the time between the beginning of the algorithm and
 %   each iteration. Units in seconds.
@@ -91,7 +101,7 @@ function [y, stopCondition, sigma, t] = tri_sphparam(tri, x, method, d, y, sphpa
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -123,7 +133,7 @@ function [y, stopCondition, sigma, t] = tri_sphparam(tri, x, method, d, y, sphpa
 
 % check arguments
 narginchk(3, 8);
-nargoutchk(0, 4);
+nargoutchk(0, 5);
 
 % start clock
 tic;
@@ -145,9 +155,8 @@ if (nargin < 8)
     scip_opts = [];
 end
 
-% number of vertices and triangles
+% number of vertices
 N = size(x, 1);
-Ntri = size(tri, 1);
 
 % sphparam_opts defaults
 if (~isfield(sphparam_opts, 'sphrad'))
@@ -201,6 +210,15 @@ end
 if (nargin < 5 || isempty(y))
     y = rand(N, 3);
     y = y ./ repmat(sqrt(sum(y.^2, 2)), 1, 3) * sphparam_opts.sphrad;
+    
+else
+    
+    % if initial guess is provided, make sure that it corresponds to points
+    % on the sphere surface
+    if any(abs(sqrt(sum(y.^2, 2)) - sphparam_opts.sphrad) > 1e-10)
+        error('Initial guess points are not on the sphere surface')
+    end
+    
 end
    
 % check inputs dimensions
@@ -213,6 +231,12 @@ end
 if ((N ~= size(d, 1)) || (N ~= size(d, 2)))
     error('D must be a square matrix with the same number of rows as X')
 end
+
+% check whether the initial guess is a valid solution
+y0IsValid = all(sphtri_signed_vol(tri, y) > 0);
+
+% save a copy of the initial guess for later
+y0 = y;
 
 %% Different parametrization methods
 
@@ -265,6 +289,7 @@ switch method
         
         % stress of output parametrization
         sigma = sum(sum((d - dmatrix(y')).^2));
+        sigma0 = [];
        
         % time for initial parametrization
         t = toc;
@@ -287,6 +312,7 @@ switch method
         [lat, lon, sphparam_opts.sphrad] = proj_on_sphere(y);
         [y(:, 1), y(:, 2), y(:, 3)] ...
             = sph2cart(lon, lat, sphparam_opts.sphrad);
+        sigma0 = [];
         
     %% Constrained SMACOF, local optimization
     case 'consmacof-local'
@@ -337,6 +363,7 @@ switch method
         % initialize outputs, with one element per component
         stopCondition = cell(1, Ncomp);
         sigma = cell(1, Ncomp);
+        sigma0 = zeros(1, Ncomp);
         t = cell(1, Ncomp);
         
         %% Untangle parametrization: untangle clusters of tangled vertices, one by
@@ -423,7 +450,7 @@ switch method
                 sphparam_opts.volmax, isFreenn, ynn);
             
             % solve MDS problem with constrained SMACOF
-            [y(nn, :), stopCondition{C}, sigma{C}, t{C}] ...
+            [y(nn, :), stopCondition{C}, sigma{C}, sigma0(C), t{C}] ...
                 = cons_smacof_pip(dnn, ynn, isFreenn, bnd, [], con, ...
                 smacof_opts, scip_opts);
             
@@ -495,15 +522,67 @@ switch method
             sphparam_opts.volmax, isFree, y);
         
         % solve MDS problem with constrained SMACOF
-        [y, stopCondition, sigma, t] ...
+        [y, stopCondition, sigma, sigma0, t] ...
             = cons_smacof_pip(d, y, isFree, bnd, [], con, ...
             smacof_opts, scip_opts);
+        
+        
             
     otherwise
         error(['Unknown parametrization method: ' method])
 end
 
+%% check whether found solution is better than initial guess
+
+% check whether found solution is valid
+yIsValid = all(sphtri_signed_vol(tri, y) > 0);
+
+% the best valid solution we have found has this stress
+sigmabest = min(sigma);
+
+% possible cases comparing initial guess to solutions obtained by algorithm
+
+% both initial guess and best found solution are valid
+if (y0IsValid && yIsValid)
+    
+    % if the best solution is worse than the initial guess, we return the
+    % initial guess
+    if (sigma0 <= sigmabest)
+        y = y0;
+        stopCondition{end+1} = 'Returned solution is initial guess';
+    else
+        stopCondition{end+1} = 'Returned solution is best valid solution found';
+    end
+    
+% only the initial guess was valid, but best found solution isn't
+elseif (y0IsValid)
+    
+    % we return the initial guess
+    y = y0;
+    stopCondition{end+1} = 'Returned solution is initial guess';
+    
+% the best found solution is valid, but the initial guess wasn't
+elseif (yIsValid)
+  
+    % we don't need to do anything. The best found solution will be
+    % returned
+    stopCondition{end+1} = 'Returned solution is best valid solution found';
+    
+% neither initial guess was valid nor valid solution was found
+else
+    
+    % return array of NaNs
+    y = nan(size(y));
+    stopCondition{end+1} = 'No valid solution found';
+    
+end
+
 if (strcmp(sphparam_opts.Display, 'iter'))
+    if (y0IsValid || yIsValid)
+        fprintf('\t Returned parametrization is valid\n')
+    else
+        fprintf('\t Returned parametrization is invalid\n')
+    end
     fprintf('... Parametrization done. Total time: %.4e (sec)\n', toc)
 end
 
@@ -512,9 +591,6 @@ end
 % trisurf(tri, y(:, 1), y(:, 2), y(:, 3))
 % axis equal
 
-
-%% Final refinement: starting from a solution that fulfils the constraints,
-%% decrease stress if possible
 
 %% assertion check for self-intersections or negative tetrahedra
 
@@ -526,15 +602,8 @@ if (sphparam_opts.TopologyCheck)
     
     % assertion check: after untangling, the local neighbourhood cannot
     % produce self-intersections
-    if any(cgal_check_self_intersect(tri, y))
-        warning('Assertion fail: Mesh contains self-intersections after untangling')
-    end
-    
-    % assertion check: after untangling, volumes of all tetrahedra in the
-    % local neighbourhood must be positive
-    aux = sphtri_signed_vol(tri,  y);
-    if any(aux < sphparam_opts.volmin | aux > sphparam_opts.volmax)
-        warning('Mesh contains tetrahedra with volumes outside the constraint values')
+    if ((y0IsValid || yIsValid) && any(cgal_check_self_intersect(tri, y)))
+        warning('Assertion fail: Parametrization with all positive triangles but with self-intersections')
     end
     
     if (strcmp(sphparam_opts.Display, 'iter'))
