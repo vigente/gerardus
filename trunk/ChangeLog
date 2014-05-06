@@ -1,3 +1,30 @@
+2014-05-06  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_sphparam.m: (0.3.0)
+	* matlab/test/test_tri_sphparam.m: (0.1.1)
+
+	- Fix bug. We had broken the MDS method, by always producing an
+	array of NaNs as the output parametrization. We only need to check
+	whether we want to replace the found solution by the initial guess
+	in the SMACOF-based methods (because in MDS, there's no initial
+	guess).
+
+	- Enforce that for the MDS method, there can be no initial guess.
+
+	- Add new output variable that tells whether the output
+	parametrization is valid (all tetrahedra with positive area).
+
+	- In the MDS method, avoid recomputing the sphere radius. We stick
+	to what the user provided, or the estimate based on the mesh area.
+
+	- All methods use a matrix of chord distances instead of geodesic
+	distances, so move the code to do the conversion out of each
+	"case" in the "switch" statement, to have only one call for all
+	methods.
+
+	- Input variable Y is now Y0, which makes more sense and
+	simplifies the code a bit.
+
 2014-05-05  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/tri_sphparam.m: (0.2.0)
