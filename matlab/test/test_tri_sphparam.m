@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -99,7 +99,7 @@ y0 = x + 0.5 * rand(size(y));
 y0 = y0 ./ repmat(sum(y0.^2, 2), 1, 3);
 
 % compute SMACOF parametrization
-[y, stopCondition, sigma, t] ...
+[y, yIsValid, stopCondition, sigma, t] ...
     = tri_sphparam(tri, x, 'smacof', d, y0, sphparam_opts, smacof_opts);
 
 % plot parametrization result
@@ -145,7 +145,7 @@ y0(end-4:end, :) = y0(end-4:end, :) + 2 * rand(5, 3);
 y0 = y0 ./ repmat(sqrt(sum(y0.^2, 2)), 1, 3);
 
 % solve MDS problem with constrained SMACOF
-[y, stopCondition, sigma, t] ...
+[y, yIsValid, stopCondition, sigma, t] ...
     = tri_sphparam(tri, x, 'consmacof-local', d, y0, ...
     sphparam_opts, smacof_opts, scip_opts);
 
@@ -192,7 +192,7 @@ y0(end-4:end, :) = y0(end-4:end, :) + 2 * rand(5, 3);
 y0 = y0 ./ repmat(sqrt(sum(y0.^2, 2)), 1, 3);
 
 % solve MDS problem with constrained SMACOF
-[y, stopCondition, sigma, t] ...
+[y, yIsValid, stopCondition, sigma, t] ...
     = tri_sphparam(tri, x, 'consmacof-global', d, y0, ...
     sphparam_opts, smacof_opts, scip_opts);
 

@@ -1,7 +1,7 @@
-function [y, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, method, d, y, sphparam_opts, smacof_opts, scip_opts)
+function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, method, d, y0, sphparam_opts, smacof_opts, scip_opts)
 % TRI_SPHPARAM  Spherical parametrization of closed triangular mesh.
 %
-% [Y, STOPCONDITION, SIGMA, SIGMA0, T] = tri_sphparam(TRI, X, METHOD)
+% [Y, YISVALID, STOPCONDITION, SIGMA, SIGMA0, T] = tri_sphparam(TRI, X, METHOD)
 %
 %   TRI is a 3-column matrix with a surface mesh triangulation. Each row
 %   gives the indices of one triangle. The mesh needs to be a 2D manifold,
@@ -28,11 +28,14 @@ function [y, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, method, d, 
 %   Y is a 3-column matrix with the coordinates of the spherical
 %   parametrization of the mesh. Each row contains the (x,y,z)-coordinates
 %   of a point on the sphere. Y is the best valid solution found by the
-%   algorithm within all iterations (including the intial guess). If the
-%   algorithm cannot find a single valid parametrization, it returns an
-%   array of NaNs. To compute the spherical coordinates of the points, run
+%   algorithm within all iterations (including the intial guess). If no
+%   valid solution could be found, the initial guess is returned. To
+%   compute the spherical coordinates of the points, run
 %
 %     [lon, lat, r] = cart2sph(y(:, 1), y(:, 2), y(:, 3));
+%
+%   YISVALID is a boolean flag that indicates whether a valid solution
+%   could be found and returned.
 %
 %   STOPCONDITION is a cell array with a string for each stop condition
 %   that made the algorithm stop at the last iteration.
@@ -63,8 +66,8 @@ function [y, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, method, d, 
 %   considered for the stress measure.
 %
 %   Y0 is an initial guess for the output parametrization. For 'cmdscale',
-%   Y0 is ignored. For SMACOF methods, Y0 is important because the
-%   algorithm can be trapped into local minima.
+%   Y0 must be empty. For SMACOF methods, the choice of Y0 is important
+%   because the algorithm can be trapped into local minima.
 %
 %   SPHPARAM_OPTS is a struct with parameters to tweak the spherical
 %   parametrization algorithm.
@@ -101,7 +104,7 @@ function [y, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, method, d, 
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.3.0
 % $Rev$
 % $Date$
 %
@@ -133,7 +136,7 @@ function [y, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, method, d, 
 
 % check arguments
 narginchk(3, 8);
-nargoutchk(0, 5);
+nargoutchk(0, 6);
 
 % start clock
 tic;
@@ -205,22 +208,47 @@ if (~isfield(scip_opts, 'display_verblevel'))
     scip_opts.display_verblevel = 0;
 end
 
-% if no initial guess is provided for the output parametrization, we just
-% compute a random sampling of the sphere
-if (nargin < 5 || isempty(y))
-    y = rand(N, 3);
-    y = y ./ repmat(sqrt(sum(y.^2, 2)), 1, 3) * sphparam_opts.sphrad;
+% if Y0 not provided, we make it empty. This simplifies a bit the code
+% after
+if (nargin < 5)
+    y0 = [];
+end
+
+if (strcmp(method, 'cmdscale'))
+    
+    % enforce that the classical MDS method cannot have an initial guess
+    if (~isempty(y0))
+        error('With CMDSCALE method, initial guess cannot be provided')
+    end
     
 else
     
-    % if initial guess is provided, make sure that it corresponds to points
-    % on the sphere surface
-    if any(abs(sqrt(sum(y.^2, 2)) - sphparam_opts.sphrad) > 1e-10)
-        error('Initial guess points are not on the sphere surface')
+    if (isempty(y0))
+        
+        % in non-classical MDS methods, if no initial guess is provided,
+        % compute a random sampling of the sphere
+        y0 = rand(N, 3);
+        y0 = y0 ./ repmat(sqrt(sum(y0.^2, 2)), 1, 3) * sphparam_opts.sphrad;
+        
+    else
+        
+        % if initial guess is provided, make sure that it corresponds to
+        % points on the sphere surface
+        if any(abs(sqrt(sum(y0.^2, 2)) - sphparam_opts.sphrad) > 1e-10)
+            error(['Initial guess points are not on a sphere of radius ' num2str(sphparam_opts.sphrad)])
+        end
+        
     end
     
 end
-   
+
+% check whether the initial guess is a valid solution
+if isempty(y0)
+    y0IsValid = [];
+else
+    y0IsValid = all(sphtri_signed_vol(tri, y0) > 0);
+end
+
 % check inputs dimensions
 if (size(tri, 2) ~= 3)
     error('TRI must have 3 columns')
@@ -232,17 +260,15 @@ if ((N ~= size(d, 1)) || (N ~= size(d, 2)))
     error('D must be a square matrix with the same number of rows as X')
 end
 
-% check whether the initial guess is a valid solution
-y0IsValid = all(sphtri_signed_vol(tri, y) > 0);
-
-% save a copy of the initial guess for later
-y0 = y;
-
-%% Different parametrization methods
+%% Compute output parametrization with one of the implemented methods
 
 if (strcmp(sphparam_opts.Display, 'iter'))
     fprintf('Parametrization method: %s\n', method)
 end
+
+% all methods implemented here operate with Euclidean chord distances,
+% instead of the geodesic distances on the surface of the sphere
+d = arclen2chord(d, sphparam_opts.sphrad);
 
 switch method
     
@@ -256,20 +282,14 @@ switch method
             error('Classical MDS does not accept sparse distance matrices')
         end
         
-        % classical MDS operates with Euclidean chord distances, instead of
-        % the geodesic distances on the surface of the sphere
-        d = arclen2chord(d, sphparam_opts.sphrad);
-        
         % classical MDS parametrization. This will produce something
         % similar to a sphere, if the d matrix is not too far from being
         % Euclidean
         y = cmdscale(d);
         y = y(:, 1:3);
         
-        % project the MDS solution on the sphere, and recompute the sphere
-        % radius as the median of the radii of all vertices projected on
-        % the sphere
-        [lat, lon, sphparam_opts.sphrad] = proj_on_sphere(y);
+        % project the MDS solution on the sphere
+        [lat, lon] = proj_on_sphere(y);
         [y(:, 1), y(:, 2), y(:, 3)] ...
             = sph2cart(lon, lat, sphparam_opts.sphrad);
         
@@ -278,7 +298,8 @@ switch method
         vol = sphtri_signed_vol(tri, y);
         
         % if more than half triangles have negative areas, we mirror the
-        % parametrization
+        % parametrization (because MDS is invariant to "inside-out" sphere
+        % transformations)
         if (nnz(vol<0) > length(vol)/2)
             [lon, lat, sphrad] = cart2sph(y(:, 1), y(:, 2), y(:, 3));
             [y(:, 1), y(:, 2), y(:, 3)] = sph2cart(-lon, lat, sphrad);
@@ -289,6 +310,8 @@ switch method
         
         % stress of output parametrization
         sigma = sum(sum((d - dmatrix(y')).^2));
+        
+        % initial guess is empty, so its stress is empty too
         sigma0 = [];
        
         % time for initial parametrization
@@ -298,10 +321,6 @@ switch method
     case 'smacof'
         
         narginchk(3, 7);
-        
-        % SMACOF operates with Euclidean chord distances, instead of
-        % the geodesic distances on the surface of the sphere
-        d = arclen2chord(d, sphparam_opts.sphrad);
         
         % compute SMACOF parametrization
         [y, stopCondition, sigma, t] = smacof(d, y, [], smacof_opts);
@@ -321,10 +340,6 @@ switch method
         
         % spherical coordinates of the points
         [lon, lat] = cart2sph(y(:, 1), y(:, 2), y(:, 3));
-        
-        % SMACOF operates with Euclidean chord distances, instead of
-        % the geodesic distances on the surface of the sphere
-        d = arclen2chord(d, sphparam_opts.sphrad);
         
         % reorient all triangles so that all normals point outwards
         [~, tri] = meshcheckrepair(x, tri, 'deep');
@@ -486,19 +501,14 @@ switch method
     %% Constrained SMACOF, global optimization
     case 'consmacof-global'
         
-        
         %% Find tangled vertices
-        
-        % SMACOF operates with Euclidean chord distances, instead of
-        % the geodesic distances on the surface of the sphere
-        d = arclen2chord(d, sphparam_opts.sphrad);
         
         % reorient all triangles so that all normals point outwards
         [~, tri] = meshcheckrepair(x, tri, 'deep');
         
         % signed volume of tetrahedra formed by sphere triangles and origin
         % of coordinates
-        vol = sphtri_signed_vol(tri, y);
+        vol = sphtri_signed_vol(tri, y0);
         
         % we mark as tangled all vertices from tetrahedra with negative
         % volumes, because they correspond to triangles with normals
@@ -507,7 +517,7 @@ switch method
         isFree(unique(tri(vol <= 0, :))) = true;
         
         % find triangles that cause self-intersections
-        idx = cgal_check_self_intersect(tri, y);
+        idx = cgal_check_self_intersect(tri, y0);
         
         % we also mark as tangled all vertices from triangles that cause
         % self-intersections in the mesh
@@ -519,66 +529,82 @@ switch method
         [con, bnd] ...
             = tri_ccqp_smacof_nofold_sph_pip(tri, ...
             sphparam_opts.sphrad, sphparam_opts.volmin, ...
-            sphparam_opts.volmax, isFree, y);
+            sphparam_opts.volmax, isFree, y0);
         
         % solve MDS problem with constrained SMACOF
         [y, stopCondition, sigma, sigma0, t] ...
-            = cons_smacof_pip(d, y, isFree, bnd, [], con, ...
+            = cons_smacof_pip(d, y0, isFree, bnd, [], con, ...
             smacof_opts, scip_opts);
-        
-        
             
     otherwise
         error(['Unknown parametrization method: ' method])
 end
 
-%% check whether found solution is better than initial guess
+%% post-processing of the solution
 
 % check whether found solution is valid
 yIsValid = all(sphtri_signed_vol(tri, y) > 0);
 
-% the best valid solution we have found has this stress
-sigmabest = min(sigma);
+% if the initial guess was better than the found solution, we have to give
+% it as the output
+switch method
+    case 'cmdscale'
+        
+        % nothing to do
+        
+    otherwise
+    
+        % the best valid solution we have found has this stress
+        sigmabest = min(sigma);
 
-% possible cases comparing initial guess to solutions obtained by algorithm
+        % we need stopCondition to be a cell array, so that we can add more
+        % strings to it
+        if ~iscell(stopCondition)
+            stopCondition = {stopCondition};
+        end
 
-% both initial guess and best found solution are valid
-if (y0IsValid && yIsValid)
-    
-    % if the best solution is worse than the initial guess, we return the
-    % initial guess
-    if (sigma0 <= sigmabest)
-        y = y0;
-        stopCondition{end+1} = 'Returned solution is initial guess';
-    else
-        stopCondition{end+1} = 'Returned solution is best valid solution found';
-    end
-    
-% only the initial guess was valid, but best found solution isn't
-elseif (y0IsValid)
-    
-    % we return the initial guess
-    y = y0;
-    stopCondition{end+1} = 'Returned solution is initial guess';
-    
-% the best found solution is valid, but the initial guess wasn't
-elseif (yIsValid)
-  
-    % we don't need to do anything. The best found solution will be
-    % returned
-    stopCondition{end+1} = 'Returned solution is best valid solution found';
-    
-% neither initial guess was valid nor valid solution was found
-else
-    
-    % return array of NaNs
-    y = nan(size(y));
-    stopCondition{end+1} = 'No valid solution found';
-    
+        % possible cases comparing initial guess to solutions obtained by algorithm
+        
+        % both initial guess and best found solution are valid
+        if (y0IsValid && yIsValid)
+            
+            % if the best solution is worse than the initial guess, we return the
+            % initial guess
+            if (sigma0 <= sigmabest)
+                y = y0;
+                stopCondition{end+1} = 'Returned solution is initial guess';
+            else
+                stopCondition{end+1} = 'Returned solution is best solution found by algorithm';
+            end
+            
+            % only the initial guess was valid, but best found solution isn't
+        elseif (y0IsValid)
+            
+            % we return the initial guess
+            y = y0;
+            yIsValid = true;
+            stopCondition{end+1} = 'Returned solution is initial guess';
+            
+            % the best found solution is valid, but the initial guess wasn't
+        elseif (yIsValid)
+            
+            % we don't need to do anything. The best found solution will be
+            % returned
+            stopCondition{end+1} = 'Returned solution is best solution found by algorithm';
+            
+            % neither initial guess was valid nor valid solution was found
+        else
+            
+            % return array of NaNs
+            y = nan(size(y));
+            stopCondition{end+1} = 'No valid solution found';
+            
+        end
+        
 end
 
 if (strcmp(sphparam_opts.Display, 'iter'))
-    if (y0IsValid || yIsValid)
+    if (yIsValid)
         fprintf('\t Returned parametrization is valid\n')
     else
         fprintf('\t Returned parametrization is invalid\n')
@@ -602,8 +628,10 @@ if (sphparam_opts.TopologyCheck)
     
     % assertion check: after untangling, the local neighbourhood cannot
     % produce self-intersections
-    if ((y0IsValid || yIsValid) && any(cgal_check_self_intersect(tri, y)))
-        warning('Assertion fail: Parametrization with all positive triangles but with self-intersections')
+    if (yIsValid && any(cgal_check_self_intersect(tri, y)))
+        warning('Assertion fail: Output parametrization has only positive triangles but mesh self-intersects')
+    else
+        disp('Output parametrization has only positive triangles and mesh does not self-intersect')
     end
     
     if (strcmp(sphparam_opts.Display, 'iter'))
