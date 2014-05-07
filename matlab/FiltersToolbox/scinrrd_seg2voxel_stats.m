@@ -1,8 +1,8 @@
 function [stats, idx] = scinrrd_seg2voxel_stats(nrrd, RAD, idx)
 % SCINRRD_SEG2VOXEL_STATS  Shape stats for each voxel in a segmentation
-% based on a windowed neighbourhood
+% based on a windowed neighbourhood.
 %
-% [STATS, IDX] = SCINRRD_SEG2VOXEL_STATS(NRRD, RAD, IDX)
+% [STATS, IDX] = scinrrd_seg2voxel_stats(NRRD, RAD, IDX)
 %
 %   NRRD is an SCI NRRD struct with a binary segmentation mask of different
 %   structures, e.g. blobs, tubes, etc.
@@ -35,8 +35,8 @@ function [stats, idx] = scinrrd_seg2voxel_stats(nrrd, RAD, idx)
 %   "skeletonize3DSegmentation" in Gerardus), and only compute STATS on the
 %   skeleton.
 %
-%   >> nrrd = scinrrd_load('im.mat');
-%   >> nrrdsk = scinrrd_load('imsk.mat');
+%   >> nrrd = scimat_load('im.mat');
+%   >> nrrdsk = scimat_load('imsk.mat');
 %   >> idxsk = find(nrrdsk.data);
 %   >> stats = scinrrd_seg2voxel_stats(nrrd, 25e-4, idxsk);
 %
@@ -63,8 +63,8 @@ function [stats, idx] = scinrrd_seg2voxel_stats(nrrd, RAD, idx)
 % See also: scinrrd_seg2label_stats.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011 University of Oxford
-% Version: 0.1.1
+% Copyright © 2011-2014 University of Oxford
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
@@ -92,8 +92,8 @@ function [stats, idx] = scinrrd_seg2voxel_stats(nrrd, RAD, idx)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 3, nargin, 'struct'));
-error(nargoutchk(0, 2, nargout, 'struct'));
+narginchk(2, 3);
+nargoutchk(0, 2);
 
 % get radius size in voxels in every dimension
 x0 = scinrrd_index2world([1 1 1], nrrd.axis);

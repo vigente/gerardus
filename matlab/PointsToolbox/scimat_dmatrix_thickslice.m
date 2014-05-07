@@ -1,6 +1,6 @@
 function [d, points] = scimat_dmatrix_thickslice(scimat, K)
 % SCIMAT_DMATRIX_THICKSLICE  Compute a distance/adjacency matrix for a
-% segmentation that consists of scattered points in slices wide apart
+% segmentation that consists of scattered points in slices wide apart.
 %
 % [D, POINTS] = scimat_dmatrix_thickslice(SCIMAT, K)
 %
@@ -30,7 +30,7 @@ function [d, points] = scimat_dmatrix_thickslice(scimat, K)
 %
 % Example:
 %
-%    scimat = scinrrd_load('test/thick-slice-points.mat');
+%    scimat = scimat_load('test/thick-slice-points.mat');
 %    [d, points] = scimat_dmatrix_thickslice(scimat, 2);
 %    gplot3d(d, points, 'o')
 %    hold on
@@ -40,8 +40,8 @@ function [d, points] = scimat_dmatrix_thickslice(scimat, K)
 % See also: thickslice_collate_sax_la
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2013 University of Oxford
-% Version: 0.1.2
+% Copyright © 2013-2014 University of Oxford
+% Version: 0.1.3
 % $Rev$
 % $Date$
 % 

@@ -3,8 +3,8 @@
 % Script to test the filters provided by itk_imfilter.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011-2013 University of Oxford
-% Version: 0.4.3
+% Copyright © 2011-2014 University of Oxford
+% Version: 0.4.4
 % $Rev$
 % $Date$
 %
@@ -35,7 +35,7 @@
 %% itk::BinaryThinningImageFilter3D (skel) filter
 
 % load test data
-nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+nrrd = scimat_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
 nrrd.data = nrrd.data > 150;
 
 % plot data
@@ -63,7 +63,7 @@ nrrd = scinrrd_im2nrrd(im, [.5 .5 .5], [0 0 0]);
 w()
 
 % load test data
-nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+nrrd = scimat_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
 nrrd2 = nrrd;
 nrrd2.data(:) = 0;
 nrrd2.data(:, 20, :) = 1;
@@ -90,7 +90,7 @@ imagesc(v(:, :, 3))
 %% itk::SignedMaurerDistanceMapImageFilter (maudist) filter
 
 % load test data
-nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+nrrd = scimat_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
 nrrd2 = nrrd;
 nrrd2.data(:) = 0;
 nrrd2.data(:, 20:23, :) = 1;
@@ -113,7 +113,7 @@ imagesc(im(:, :, 3))
 %% itk:::BinaryDilateImageFilter (bwdilate) filter
 
 % load test data
-nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+nrrd = scimat_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
 nrrd.data = nrrd.data > 150;
 
 % plot data
@@ -132,7 +132,7 @@ imagesc(im(:, :, 3))
 %% itk:::BinaryErodeImageFilter (bwerode) filter
 
 % load test data
-nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+nrrd = scimat_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
 nrrd.data = nrrd.data > 150;
 
 % plot data
@@ -151,7 +151,7 @@ imagesc(im(:, :, 3))
 %% itk::AnisotropicDiffusionVesselEnhancementImageFilter (advess) filter
 
 % load test data
-nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+nrrd = scimat_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
 nrrd.data = single(nrrd.data);
 
 % plot data
@@ -184,7 +184,7 @@ imagesc(nrrd.data(:, 2:end, 3) - im(:, 2:end, 3))
 %% itk::MultiScaleHessianSmoothed3DToVesselnessMeasureImageFilter (hesves)
 
 % load test data
-nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+nrrd = scimat_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
 nrrd.data = single(nrrd.data);
 
 % plot data
@@ -210,7 +210,7 @@ imagesc(im(:, :, 5))
 %% itk::MedianImageFilter (median)
 
 % load test data
-nrrd = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+nrrd = scimat_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
 
 % default median filtering (no filtering)
 im2 = itk_imfilter('median', nrrd);
@@ -257,7 +257,7 @@ imagesc(im3(:, :, 4))
 %% itk::MRFImageFilter (mrf)
 
 % load test data
-scimat = scinrrd_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
+scimat = scimat_load('../../cpp/src/third-party/IJ-Vessel_Enhancement_Diffusion.1/CroppedWholeLungCTScan.mhd');
 
 % plot image
 hold off
@@ -315,7 +315,7 @@ imagesc(im2)
 %% itk::CannyEdgeDetectionImageFilter
 
 % load rat heart MRI
-scimat = scinrrd_load('data/008-mri-downsampled-4.mha');
+scimat = scimat_load('data/008-mri-downsampled-4.mha');
 
 % normalise the spacing, otherwise the filter produces NaN voxels
 inc = min([scimat.axis.spacing]);
