@@ -1,12 +1,12 @@
 function nrrd = scinrrd_tiff2nrrd(stack)
-% SCINRRD_TIFF2NRRD  Create SCI NRRD struct from TIFF stack
+% SCINRRD_TIFF2NRRD  Create SCI NRRD struct from TIFF stack.
 %
 % This function creates a struct with the correct format that the Gerardus
 % Toolbox uses for NRRD variables. This is the same format you obtain when
-% loading a .mat file using scinrrd_load(), and can be saved to a .mat file
-% using scinrrd_save().
+% loading a .mat file using scimat_load(), and can be saved to a .mat file
+% using scimat_save().
 %
-% NRRD = SCINRRD_TIFF2NRRD(STACK)
+% NRRD = scinrrd_tiff2nrrd(STACK)
 %
 %   STACK is a struct array obtained from loading a TIFF or LSM file with
 %   tiffread(). See below for details on both formats.
@@ -102,8 +102,8 @@ function nrrd = scinrrd_tiff2nrrd(stack)
 %               TimeOffset: 0
          
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011 University of Oxford
-% Version: 0.2.4
+% Copyright © 2011-2014 University of Oxford
+% Version: 0.2.5
 % $Rev$
 % $Date$
 % 
@@ -131,8 +131,8 @@ function nrrd = scinrrd_tiff2nrrd(stack)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 1, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
+narginchk(1, 1);
+nargoutchk(0, 1);
 
 % if stack was read from a TIFF file, it will have an 'info' field
 if isfield(stack, 'info')

@@ -1,3 +1,37 @@
+2014-05-07  Ramon Casero  <rcasero@gmail.com>
+
+	* Rename matlab/FileFormatToolbox/scinrrd_load.m as matlab/FileFormatToolbox/scimat_load.m: (0.3.0)
+	* Rename matlab/FileFormatToolbox/scinrrd_save.m as matlab/FileFormatToolbox/scimat_save.m: (0.5.0)
+	* matlab/CardiacToolbox/process_misas_patient.m: (0.1.1)
+	* matlab/FileFormatToolbox/scinrrd_im2nrrd.m: (0.1.2)
+	* matlab/FileFormatToolbox/scinrrd_tiff2nrrd.m: (0.2.5)
+	* matlab/FiltersToolbox/scinrrd_seg2voxel_stats.m: (0.1.2)
+	* matlab/ItkToolbox/itk_imfilter.m: (0.7.7)
+	* matlab/ItkToolbox/ItkImFilter.cpp: (1.6.2)
+	* matlab/PointsToolbox/scimat_dmatrix_thickslice.m: (0.1.3)
+	* matlab/test/test_itk_imfilter.m: (0.4.4)
+	* matlab/test/test_cgal_closest_trifacet.m: (0.2.4)
+	* matlab/test/test_pca_normalize.m: (0.1.1)
+	* matlab/test/test_scimat_dmatrix_imgeodesic.m: (0.1.1)
+	* matlab/test/test_surface_interp.m: (0.2.1)
+	* matlab/test/test_cgal_trifacet_area.m: (0.1.1)
+	* matlab/test/test_closest_trifacet.m: (0.3.2)
+
+	- Renaming of scinrrd_load(), scinrrd_save() as scimat_load(),
+	scimat_save(), respectively.
+
+	- While we are at it, update deprecated narginchk(), nargoutchk()
+	syntax when needed, and change function name to lower case in the
+	help header.
+
+	* matlab/test/test_surface_param.m: (0.6.1)
+
+	- Renaming of scinrrd_load(), scinrrd_save() as scimat_load(),
+	scimat_save(), respectively.
+
+	- Check for self-intersections.
+
+
 2014-05-06  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/tri_sphparam.m: (0.3.0)
