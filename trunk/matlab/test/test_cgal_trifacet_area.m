@@ -1,8 +1,8 @@
 % test_cgal_trifacet_area.m
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Copyright © 2013-2014 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -66,8 +66,8 @@ a = cgal_trifacet_area(as.bnd, x)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % load segmentation
-scimat = scinrrd_load('data/008-lvhull-downsampled-4.mha');
-scimat = scinrrd_load('data/008-rvhull-downsampled-4.mha');
+scimat = scimat_load('data/008-lvhull-downsampled-4.mha');
+scimat = scimat_load('data/008-rvhull-downsampled-4.mha');
 
 % compute surface mesh from segmentation
 opt = .004;

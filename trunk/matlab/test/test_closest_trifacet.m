@@ -1,8 +1,8 @@
 % test_closest_trifacet.m
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2013 University of Oxford
-% Version: 0.3.1
+% Copyright © 2013-2014 University of Oxford
+% Version: 0.3.2
 % $Rev$
 % $Date$
 %
@@ -92,7 +92,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % load alpha-shape convex hull binary mask
-aux = scinrrd_load('data/008-rvhull-downsampled-4.mha');
+aux = scimat_load('data/008-rvhull-downsampled-4.mha');
 
 opt = 10;
 method = 'cgalsurf';

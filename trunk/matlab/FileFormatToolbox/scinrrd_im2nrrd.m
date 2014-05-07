@@ -1,12 +1,12 @@
 function nrrd = scinrrd_im2nrrd(im, res, offset)
-% SCINRRD_IM2NRRD  Create SCI NRRD struct from Matlab data
+% SCINRRD_IM2NRRD  Create SCI NRRD struct from Matlab data.
 %
 % This function creates a struct with the correct format that the Gerardus
 % Toolbox uses for NRRD variables. This is the same format you obtain when
-% loading a .mat file using scinrrd_load(), and can be saved to a .mat file
-% using scinrrd_save().
+% loading a .mat file using scimat_load(), and can be saved to a .mat file
+% using scimat_save().
 %
-% NRRD = SCINRRD_IM2NRRD(IM, RES, OFFSET)
+% NRRD = scinrrd_im2nrrd(IM, RES, OFFSET)
 %
 %   IM is a Matlab array with the image or segmentation. IM can be of class
 %   logical, (u)int8, (u)int16, (u)int32, (u)int64, single or double. IM
@@ -24,8 +24,8 @@ function nrrd = scinrrd_im2nrrd(im, res, offset)
 %   slices as for RES applies.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011-2013 University of Oxford
-% Version: 0.1.1
+% Copyright © 2011-2014 University of Oxford
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 

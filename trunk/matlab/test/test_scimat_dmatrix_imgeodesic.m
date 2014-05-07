@@ -1,8 +1,8 @@
 % test_scimat_dmatrix_imgeodesic.m
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Copyright © 2013-2014 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -150,11 +150,11 @@ end
 % load downsampled MRI image or rat heart: Note this doesn't work because
 % the papillary muscles create a low-cost shortcut between the septum and
 % LV free wall
-scimat = scinrrd_load('data/008-mri-downsampled-4.mha');
+scimat = scimat_load('data/008-mri-downsampled-4.mha');
 
 % instead, load a rough segmentation mask of the LV, with the papillary
 % muscles removed with an alpha-shape
-scimat = scinrrd_load('data/008-lvhull-downsampled-4.mha');
+scimat = scimat_load('data/008-lvhull-downsampled-4.mha');
 
 % plot one of the slices
 subplot(2, 1, 1)
@@ -213,8 +213,8 @@ colormap(jet)
 axis equal
 
 % load landmarks on the LV endocardium
-aux = scinrrd_load('data/008-lvhull-points.mha');
-% aux = scinrrd_load('data/008-rvhull-points.mha');
+aux = scimat_load('data/008-lvhull-points.mha');
+% aux = scimat_load('data/008-rvhull-points.mha');
 [r, c, s] = ind2sub(size(aux.data), find(aux.data));
 idx = [r c s];
 

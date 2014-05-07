@@ -9,8 +9,8 @@ function process_misas_patient(pathname)
 %   PATHNAME='~/kelvin/MISAS_02_01_10'.
 
 % Author: Ramon Casero <ramon.casero@comlab.ox.ac.uk>
-% Copyright © 2009 University of Oxford
-% Version: 0.1.0
+% Copyright © 2009-2014 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -38,8 +38,8 @@ function process_misas_patient(pathname)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 1, nargin, 'struct' ) );
-error( nargoutchk( 0, 0, nargout, 'struct' ) );
+narginchk(1, 1);
+nargoutchk(0, 0);
 
 % get list of all directories and files in the parent directory
 dirlist = dir([pathname filesep '*']);
@@ -91,14 +91,14 @@ if (fid1 ~= -1 && fid2 ~= -1)
     fclose(fid2);
     
     % load both files
-    nrrd1 = scinrrd_load([pathname filesep 'NormalMri1.mha']);
-    nrrd2 = scinrrd_load([pathname filesep 'NormalMri2.mha']);
+    nrrd1 = scimat_load([pathname filesep 'NormalMri1.mha']);
+    nrrd2 = scimat_load([pathname filesep 'NormalMri2.mha']);
     
     % to remove the banding artefacts, we take the maximum value for each voxel
     nrrd = nrrd1;
     nrrd.data = max(nrrd1.data, nrrd2.data);
     
     % save resulting file
-    scinrrd_save([pathname filesep 'NormalMri.mat'], nrrd);
+    scimat_save([pathname filesep 'NormalMri.mat'], nrrd);
 end
 

@@ -1,12 +1,12 @@
 /* ItkImFilter.cpp
  *
- * ITK_IMFILTER: Run ITK filter on a 2D, 3D or 4D image
+ * ITK_IMFILTER  Run ITK filter on a 2D, 3D or 4D image.
  *
  * This MEX function is a multiple-purpose wrapper to be able to run
  * all ITK filters that inherit from itk::ImageToImageFilter on a
  * Matlab 2D image or 3D or 4D image volume.
  *
- * B = ITK_IMFILTER(TYPE, A, [FILTER PARAMETERS])
+ * B = itk_imfilter(TYPE, A, [FILTER PARAMETERS])
  *
  *   TYPE is a string with the filter we want to run. See below for a whole
  *   list of options.
@@ -37,7 +37,7 @@
  *       scimat.axis.label:   ignored
  *       scimat.axis.unit:    ignored
  *
- *   (An SCI MAT struct is the output of Matlab's function scinrrd_load(),
+ *   (An SCI MAT struct is the output of Matlab's function scimat_load(),
  *   also available from Gerardus.)
  *
  *   [FILTER PARAMETERS] is an optional list of parameters, specific for
@@ -51,7 +51,7 @@
  * Supported filters:
  * -------------------------------------------------------------------------
  *
- * B = ITK_IMFILTER('skel', A)
+ * B = itk_imfilter('skel', A)
  *
  *   (itk::BinaryThinningImageFilter3D)
  *   Skeletonize a binary mask
@@ -88,7 +88,7 @@
  *
  * -------------------------------------------------------------------------
  *
- * B = ITK_IMFILTER('maudist', A)
+ * B = itk_imfilter('maudist', A)
  *
  *   (itk::SignedMaurerDistanceMapImageFilter)
  *   Compute signed distance map for a binary mask. Distance values are
@@ -104,7 +104,7 @@
  *
  * -------------------------------------------------------------------------
  *
- * B = ITK_IMFILTER('appsigndist', A)
+ * B = itk_imfilter('appsigndist', A)
  *
  *   (itk::ApproximateSignedDistanceMapImageFilter) 
  *   Compute signed distance map for a binary mask. Distance values
@@ -122,8 +122,8 @@
  *
  * -------------------------------------------------------------------------
  *
- * B = ITK_IMFILTER('bwdilate', A, RADIUS, FOREGROUND)
- * B = ITK_IMFILTER('bwerode', A, RADIUS, FOREGROUND)
+ * B = itk_imfilter('bwdilate', A, RADIUS, FOREGROUND)
+ * B = itk_imfilter('bwerode', A, RADIUS, FOREGROUND)
  *
  *   (itk::BinaryDilateImageFilter). 
  *   Binary dilation. The structuring element is a ball.
@@ -141,7 +141,7 @@
  *
  * -------------------------------------------------------------------------
  *
- * B = ITK_IMFILTER('advess', A, SIGMAMIN, SIGMAMAX, NUMSIGMASTEPS, NUMITERATIONS,
+ * B = itk_imfilter('advess', A, SIGMAMIN, SIGMAMAX, NUMSIGMASTEPS, NUMITERATIONS,
  *                  WSTRENGTH, SENSITIVITY, TIMESTEP, EPSILON)
  *
  *   (itk::AnisotropicDiffusionVesselEnhancementImageFilter)
@@ -365,8 +365,8 @@
 
  /*
   * Author: Ramon Casero <rcasero@gmail.com>
-  * Copyright © 2011-2013 University of Oxford
-  * Version: 1.6.1
+  * Copyright © 2011-2014 University of Oxford
+  * Version: 1.6.2
   * $Rev$
   * $Date$
   *
