@@ -25,7 +25,7 @@ function nrrd = scinrrd_im2nrrd(im, res, offset)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011-2014 University of Oxford
-% Version: 0.1.2
+% Version: 0.1.3
 % $Rev$
 % $Date$
 % 
@@ -55,10 +55,6 @@ function nrrd = scinrrd_im2nrrd(im, res, offset)
 % check arguments
 narginchk(1, 3);
 nargoutchk(0, 1);
-
-if (ndims(im) > 3)
-    error('Input image cannot have more than 3 dimensions')
-end
 
 % defaults
 if (nargin < 2 || isempty(res))
