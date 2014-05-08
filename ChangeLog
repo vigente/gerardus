@@ -1,5 +1,12 @@
 2014-05-08  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scinrrd_crop.m: (0.1.1)
+
+	- When croppring, allow for a 4th dimension so that we can pass
+	colour images with (row, col, slice, channel).
+
+	- Update deprecated narginchk(), nargoutchk() syntax.
+
 	* matlab/FileFormatToolbox/scinrrd_im2nrrd.m: (0.1.3)
 
 	- Remove the limitation that input image must have 3 dimensions so
