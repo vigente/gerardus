@@ -11,8 +11,8 @@ function nrrd = scinrrd_crop(nrrd, from, to)
 %   NRRD2 is the cropped volume.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011 University of Oxford
-% Version: 0.0.1
+% Copyright © 2011-2014 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -40,8 +40,8 @@ function nrrd = scinrrd_crop(nrrd, from, to)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(3, 3, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
+narginchk(3, 3);
+nargoutchk(0, 1);
 
 % if we have 2-vectors, make them 3-vectors for uniformity
 if (length(from) == 2)
@@ -52,7 +52,7 @@ if (length(to) == 2)
 end
 
 % crop the data volume
-nrrd.data = nrrd.data(from(1):to(1), from(2):to(2), from(3):to(3));
+nrrd.data = nrrd.data(from(1):to(1), from(2):to(2), from(3):to(3), :);
 
 % correct the metainformation in the nrrd volume
 for I = 1:3
