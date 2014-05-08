@@ -1,5 +1,11 @@
 2014-05-08  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/scimat_load.m: (0.4.1)
+
+	- Fix bug. Paul Cormack from Hamamatsu replied that pixel size is
+	PhysicalWidth / PixelWidth, instead of PhysicalWidth /
+	(PixelWidth-1).
+
 	* matlab/FileFormatToolbox/scimat_load.m: (0.4.0)
 
 	- Add new file format. Now we can read also .vmu (Hamamatsu

@@ -59,7 +59,7 @@ function scimat = scimat_load(file)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2014 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % $Rev$
 % $Date$
 % 
@@ -341,8 +341,8 @@ switch lower(ext)
         % at this point in the code, res, sz -> (rows, cols, slices)
         
         % compute pixel size from the total image size
-        res(1) = res(1) / (sz(1) - 1);
-        res(2) = res(2) / (sz(2) - 1);
+        res(1) = res(1) / sz(1);
+        res(2) = res(2) / sz(2);
         
         % check that the image is RGB
         if (~strcmpi(pixelorder, 'RGB'))
