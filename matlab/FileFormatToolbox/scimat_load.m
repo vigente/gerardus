@@ -1,5 +1,6 @@
 function scimat = scimat_load(file)
-% SCIMAT_LOAD  Load a SCIMAT struct from a Matlab, MetaImage or LSM file.
+% SCIMAT_LOAD  Load an image into a SCIMAT struct from a Matlab, MetaImage,
+% Carl Zeiss LSM or Hamamatsu VMU file.
 %
 % SCIMAT = scimat_load(FILE)
 %
@@ -8,8 +9,23 @@ function scimat = scimat_load(file)
 %   imagesc(nrrd.data(:,:,50)), it produces the same image as the 50 axial
 %   slice in Seg3D.
 %
-%   FILE is a string with the path and name of the .mat, .mha or .lsm file
-%   that contains the 2D or 3D image.
+%   FILE is a string with the path and name of the .mat, .mha, .lsm or .vmu
+%   file that contains the 2D or 3D image:
+%
+%     .mat: Matlab binary file with a "scirunnrrd" struct (see below for
+%           details).
+%
+%     .mha: MetaImage file (developed for the ITK and VTK libraries). The
+%          .mha file can be pure text, containing only the image metadata,
+%          and a path to the file with the actual binary image data, or it
+%          can contain both text metadata and binary image within the same
+%          file.
+%
+%     .lsm: Carl Zeiss microscopy image format. Binary file.
+%
+%     .vmu: Hamamatsu Uncompressed Virtual Microscope Specimen. Text file
+%           containing only the image metadata, and a path to the file with
+%           the actual binary image data.
 %
 %   SCIMAT is the struct with the image data and metadata. For example,
 %
@@ -43,7 +59,7 @@ function scimat = scimat_load(file)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2014 University of Oxford
-% Version: 0.3.0
+% Version: 0.4.0
 % $Rev$
 % $Date$
 % 
@@ -241,6 +257,140 @@ switch lower(ext)
         
         % convert to sci format
         scimat = scinrrd_tiff2nrrd(stack);
+        
+    case '.vmu' % Hamamatsu miscroscope format (Uncompressed Virtual Microscope Specimen)
+        
+        % init resolution and size vectors
+        rawfile = '';
+        res = [0 0 NaN];
+        sz = [0 0 1];
+        offset = [0 0 0];
+        bpp = [];
+        pixelorder = '';
+        
+        % open header file to read
+        fid = fopen(file, 'r');
+        if (fid == -1)
+            error('Gerardus:CannotReadFile', ...
+                ['Cannot open file for reading:\n' file])
+        end
+        
+        % read metainfo from header
+        tline = fgetl(fid);
+        while ischar(tline)
+            
+            % find the '=' in the line
+            idx = strfind(tline, '=');
+            if (isempty(idx))
+                % if this line has no label=value format, skip to next
+            end
+            
+            % split line into label and value
+            label = tline(1:idx-1);
+            value = tline(idx+1:end);
+            
+            switch label
+                
+                case 'ImageFile(0)'
+                    
+                    % name of file with the image data
+                    rawfile = value;
+
+                case 'PixelWidth'
+                    
+                    sz(2) = str2double(value);
+                
+                case 'PixelHeight'
+                    
+                    sz(1) = str2double(value);
+                
+                case 'PhysicalWidth'
+                    
+                    % units are nm
+                    res(2) = str2double(value) * 1e-9;
+                
+                case 'PhysicalHeight'
+                    
+                    % units are nm
+                    res(1) = str2double(value) * 1e-9;
+                
+                case 'XOffsetFromSlideCentre'
+                    
+                    offset(1) = str2double(value) * 1e-9;
+                
+                case 'YOffsetFromSlideCentre'
+                    
+                    offset(2) = str2double(value) * 1e-9;
+                    
+                case 'BitsPerPixel'
+                    
+                    bpp = str2double(value);
+                    
+                case 'PixelOrder'
+                    
+                    pixelorder = value;
+                    
+            end
+            
+            % read next line
+            tline = fgetl(fid);
+            
+        end
+        fclose(fid);
+        
+        % at this point in the code, res, sz -> (rows, cols, slices)
+        
+        % compute pixel size from the total image size
+        res(1) = res(1) / (sz(1) - 1);
+        res(2) = res(2) / (sz(2) - 1);
+        
+        % check that the image is RGB
+        if (~strcmpi(pixelorder, 'RGB'))
+            error('Microscopy image is not RGB')
+        else
+            numchannels = 3;
+        end
+
+        % check that we know the number of bits per pixel
+        if (isempty(bpp))
+            warning('File does not provide field BitsPerPixel. Assuming 3 bytes per pixel')
+            bpp = 24;
+        end
+        
+        % number of bytes per channel per pixel
+        numbyte = bpp / 8 / numchannels;
+        
+        % translate number of bits per pixel to Matlab data type
+        switch numbyte
+            case 1
+                pixeltype = 'uint8';
+            otherwise
+                error('Unknown data type. File does not contain one byte per channel per pixel')
+        end
+        
+        
+        % read image data to an array with the appropriate pixel type
+        % (note: '*uint8' is shorthand for 'uint8=>uint8')
+        [pathstr, ~, ~] = fileparts(file);
+        fid = fopen([pathstr filesep rawfile], 'r');
+        if (fid == -1)
+            error('Gerardus:CannotReadFile', ...
+                ['Cannot open file for reading:\n' file])
+        end
+        im = fread(fid, numchannels * sz(1) * sz(2), ['*' pixeltype]);
+        fclose(fid);
+        
+        % reshape image array to produce an image R*C*channels that can be
+        % visualized with imagesc()
+        im = reshape(im, [numchannels sz(2) sz(1)]);
+        im = permute(im, [3 2 1]);
+        
+        % add a dummy dimension, so that it is clear that we don't have 3
+        % slices instead of 3 channels
+        im = reshape(im, [size(im, 1) size(im, 2) 1 size(im, 3)]);
+        
+        % create SCI MAT struct
+        scimat = scinrrd_im2nrrd(im, res, offset);
         
     otherwise
         

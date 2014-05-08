@@ -1,5 +1,10 @@
 2014-05-08  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/scimat_load.m: (0.4.0)
+
+	- Add new file format. Now we can read also .vmu (Hamamatsu
+	Uncompressed Virtual Microscope Specimen) files.
+
 	* matlab/FiltersToolbox/scinrrd_crop.m: (0.1.1)
 
 	- When croppring, allow for a 4th dimension so that we can pass
