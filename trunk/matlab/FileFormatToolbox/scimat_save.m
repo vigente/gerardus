@@ -7,7 +7,33 @@ function scirunnrrd = scimat_save(file, scirunnrrd, touint8, v73)
 %   This function formats the SCIMAT volume and saves it to a .mat or .mha
 %   file that can be imported as a segmentation or image volume by Seg3D.
 %
-%   FILE is a string with the path and name of the output .mat/.mha file.
+%   FILE is a string with the path and name of the output file. Currently,
+%   the following output formats are supported:
+%
+%     .mat: Matlab binary file with a "scirunnrrd" struct (see below for
+%           details). This file format can be opened by Seg3D.
+%
+%     .mha: Uncompressed MetaImage file (developed for the ITK and VTK
+%           libraries). The .mha file contains both text metadata and
+%           binary image within the same file.
+%
+%     .png: Portable Network Graphics. PNG uses lossless compression.
+%           Binary file. In principle, Matlab limits the image size to
+%           2^32-1 bytes. However, if you edit the line in imwrite() that
+%           says
+%             max32 = double(intmax('uint32'));
+%           to
+%             max32 = double(intmax('uint64'));
+%           Matlab will accept and save larger files to PNG. Watch out,
+%           though, because trying to save larger files to other formats
+%           that are not PGN may crash Matlab.
+%
+%     .jp2, .jpx: JPEG2000 with lossless compression. Limited to images
+%           smaller than 2^32-1 bytes.
+%
+%     .tif, .tiff: Tagged Image File Format. Limited to images smaller than
+%           2^32-1 bytes. Binary file. Grayscale or RGB images.
+%           AdobeDeflate lessless compression.
 %
 %   SCIMAT is the struct with the image data and metadata. For example,
 %
@@ -68,7 +94,7 @@ function scirunnrrd = scimat_save(file, scirunnrrd, touint8, v73)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2014 University of Oxford
-% Version: 0.5.0
+% Version: 0.6.0
 % $Rev$
 % $Date$
 % 
@@ -111,6 +137,7 @@ end
 [~, ~, ext] = fileparts(file);
 
 switch lower(ext)
+    
     case '.mat'
         % make x-,y-coordinates compatible with the Seg3D convention
         scirunnrrd = scinrrd_seg3d2matlab(scirunnrrd);
@@ -130,6 +157,7 @@ switch lower(ext)
         else
             save(file, 'scirunnrrd');
         end
+        
     case '.mha'
         % swap rows and columns so that we have x-coordinates in the first
         % column, and y-coordinates in the second column, as expected by
@@ -140,6 +168,91 @@ switch lower(ext)
         writemetaimagefile(file, scirunnrrd.data, ...
             [scirunnrrd.axis([2 1 3]).spacing], ...
             [scirunnrrd.axis([2 1 3]).min]+[scirunnrrd.axis([2 1 3]).spacing]/2);
+        
+    case '.png'
+        
+        % number of colour channels
+        numchannels = size(scirunnrrd.data, 3);
+        
+        % bit depth
+        switch class(scirunnrrd.data)
+            case 'uint8'
+                bitdepth = 8;
+        end
+        
+        % image offset
+        offset = scinrrd_index2world([1 1 1], scirunnrrd.axis);
+        
+        % write the image to file, including metadata
+        %
+        % Note: there seems to be a bug in imwrite(), and XOffset, YOffset
+        % and OffsetUnit will be created as "other" metadata tags, instead
+        % of assigned to the official ones
+        imwrite(scirunnrrd.data, file, 'ResolutionUnit', 'meter', ...
+            'Software', 'Matlab/Gerardus/scimat_save()', ...
+            'XResolution', 1 / scirunnrrd.axis(2).spacing, ...
+            'YResolution', 1 / scirunnrrd.axis(1).spacing, ...
+            'BitDepth', bitdepth, ...
+            'XOffset', sprintf('%0.13e', offset(1)), ...
+            'YOffset', sprintf('%0.13e', offset(2)), ...
+            'OffsetUnit', 'meter');
+        
+    case {'.jp2', '.jpx'}
+        
+        % make sure that the image is not too large. In principle,
+        % imwrite() would detect that that size is too large, and give an
+        % error. But if we have hacked imwrite() so that it accepts larger
+        % images than 4 GB, so that we can save them to .png, if the user
+        % tries to save to JPEG2000, this will give a segfault
+        max32 = double(intmax('uint32'));
+        aux = zeros(1, class(scirunnrrd.data));
+        s = whos('aux');
+        if ((numel(scirunnrrd.data) * s.bytes) > max32)
+            error(message('MATLAB:imagesci:imwrite:tooMuchData'))
+        end
+
+        % save image to file
+        imwrite(scirunnrrd.data, file, 'Mode', 'lossless');
+        
+    case {'.tif', '.tiff'}
+        
+        % "Exporting Image Data and Metadata to TIFF Files"
+        % http://www.mathworks.com/help/matlab/import_export/exporting-to-images.html#br_c_iz-6
+        
+        % create new TIFF file
+        t = Tiff(file, 'w');
+        
+        % set tags
+        tagstruct.ImageLength = size(scirunnrrd.data, 1); % rows
+        tagstruct.ImageWidth = size(scirunnrrd.data, 2);  % columns
+        tagstruct.SamplesPerPixel = size(scirunnrrd.data, 3); % channels per pixel
+        tagstruct.Compression = Tiff.Compression.AdobeDeflate;
+        switch tagstruct.SamplesPerPixel
+            case 1 % grayscale image, black has intensity 0
+                tagstruct.Photometric = Tiff.Photometric.MinIsBlack;
+            case 3 % RGB image
+                tagstruct.Photometric = Tiff.Photometric.RGB;
+            otherwise
+                error('Input image is not grayscale or RGB')
+        end
+        switch class(scirunnrrd.data)
+            case 'uint8'
+                tagstruct.BitsPerSample = 8;
+            otherwise
+                error('Type not implemented. Input image is not of type uint8.')
+        end
+        tagstruct.PlanarConfiguration = Tiff.PlanarConfiguration.Chunky;
+        tagstruct.Software = 'Gerardus/scimat_save()';
+        tagstruct.ResolutionUnit = Tiff.ResolutionUnit.Centimeter; % resolution units are pixel/cm
+        tagstruct.XResolution = 1 / (scirunnrrd.axis(2).spacing * 100);
+        tagstruct.YResolution = 1 / (scirunnrrd.axis(1).spacing * 100);
+        t.setTag(tagstruct);
+        
+        % write image data to file
+        t.write(scirunnrrd.data);
+        
+        % close TIFF object
+        t.close();
         
     otherwise
         error('Unrecognised output file format')
