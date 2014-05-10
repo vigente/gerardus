@@ -1,3 +1,11 @@
+2014-05-10  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_save.m: (0.6.0)
+
+	- Add output formats PNG (that allows saving images larger than
+	4GB) with lossless compression, JPEG2000 and TIFF with
+	AdobeDeflate compression.
+
 2014-05-08  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scimat_load.m: (0.4.1)

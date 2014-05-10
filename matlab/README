@@ -815,6 +815,12 @@ gridfit.m
 	          that approximates your data, but allows you to control the
 	          amount of smoothing.
 	
+imwrite.m
+
+	IMWRITE Write image to graphics file.
+	   IMWRITE(A,FILENAME,FMT) writes the image A to the file specified by
+	   FILENAME in the format specified by FMT.
+	
 inhull.m
 
 	 inhull: tests if a set of points are inside a convex hull
