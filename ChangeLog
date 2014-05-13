@@ -1,3 +1,10 @@
+2014-05-13  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/FileFormatToolbox/vmu2png.m: (0.1.0)
+
+	- VMU2PNG Convert a microscope image file from .vmu to .png
+	format.
+
 2014-05-10  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scimat_save.m: (0.6.0)
