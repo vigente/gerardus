@@ -205,6 +205,10 @@ sortdirbynum.m
 	 SORTDIRBYNUM  List the files in a directory ordering them by a numerical
 	 substring field in the file name
 	
+vmu2png.m
+
+	 VMU2PNG  Convert a microscope image file from .vmu to .png format.
+	
 writemetaimagefile.m
 
 	 WRITEMETAIMAGEFILE  Write a MetaImage file (.mha) with both header and data
