@@ -1,0 +1,6 @@
+#--- $Id: make.osf1.alpha.compaq.opt,v 1.9 2010/06/10 19:42:43 bzfkocht Exp $
+CC		=	cc
+CPPFLAGS	+=	-DNDEBUG -DNO_MSHELL -Dinline=""
+CFLAGS		=	-O4 -fast
+LDFLAGS		=	-non_shared -lgmp -lz -lm
+

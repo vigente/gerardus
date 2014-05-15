@@ -1,0 +1,17 @@
+#--- $Id: make.linux.x86_64.gnu.opt-gccold,v 1.2 2011/10/31 08:48:56 bzfkocht Exp $
+CPPFLAGS	+=	-DNDEBUG -DNO_MSHELL -D__NO_MATH_INLINES 
+CFLAGS		=	-O3 -m64
+LDFLAGS		=	-lgmp -lz -lm -static
+
+ifeq ($(LINK),shared)
+LIBRARY		=	$(LIBDIR)/lib$(LIBNAME).so
+LIBLINK		=	$(LIBDIR)/lib$(NAME).$(BASE).so
+CFLAGS		+=	-fPIC
+AR		=	gcc -m64 -shared -o # the trailing space is important
+ARFLAGS		=       $(LDFLAGS)
+RANLIB		=	true
+endif
+
+ifeq ($(LINK),static)
+LDFLAGS		+=	-static
+endif

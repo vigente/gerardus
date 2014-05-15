@@ -1,0 +1,4 @@
+LDFLAGS		+=	-lm
+ARFLAGS		=	crs
+ZLIB_FLAGS	=
+ZLIB_LDFLAGS 	=	-lz

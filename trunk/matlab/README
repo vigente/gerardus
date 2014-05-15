@@ -1,0 +1,2206 @@
+This file is part of the Matlab Toolboxes of project Gerardus.
+
+=============================================================
+Toolboxes in Gerardus:
+=============================================================
+
+* CardiacToolbox
+
+	Functions specific to cardiac image processing
+
+* FileFormatToolbox
+
+	Functions to create image files or convert image files from
+	one format to another.
+
+* FiltersToolbox
+
+	Filters to enhance or transform images in general, and SCI
+	NRRD data volumes in particular.
+
+* ItkToolbox
+
+	ITK functions running as MEX files in Matlab.
+
+* ManifoldToolbox
+
+	Operations with meshes and manifolds, open and closed.
+
+* PointsToolbox
+
+	Functions to operate with sets of points.
+
+* ThirdPartyToolbox
+
+	Derivative works or third party functions that cannot be
+	covered by the GPL used elsewhere in Gerardus, or code with an
+	uncertain licence status.
+
+
+CardiacToolbox
+-------------------------------------------------------------
+
+correct_rv_crescent_tips.m
+
+	 CORRECT_RV_CRESCENT_TIPS  Correct the segmentation of the Right
+	 Ventricle's crescent tips using the segmentation of the tricuspid and
+	 pulmonary annula
+	
+crest_envelope.m
+
+	 CREST_ENVELOPE  Compute the envelope for the Right Ventricle's crest
+	
+estimate_bias_field.m
+
+estimate_block_fgbg.m
+
+is_lv_on_the_left.m
+
+	 IS_LV_ON_THE_LEFT  Check whether the left ventricle is on the left hand
+	 side of the image
+	
+process_misas_patient.m
+
+	 PROCESS_MISAS_PATIENT  Create MetaImage volumes from directory tree of
+	 IMA DICOM files, for project with human hearts provided by Kelvin Wong
+	
+scinrrd_rv_crescent_tips.m
+
+	 SCINRRD_RV_CRESCENT_TIPS  Extract the tips of the crescent-shaped curve
+	 in all slices of the Right Ventricle
+	
+tissue2lvrv.m
+
+	 TISSUE2LVRV  Extract LV and RV cavities from tissue and atrioventricular
+	 surface segmentations
+	
+trimatria.m
+
+	 TRIMATRIA  Remove the atria from a whole cardiac tissue segmentation
+	
+ventricles_phantom.m
+
+	 VENTRICLES_PHANTOM Create phantom image of simplified heart ventricles
+	
+
+CgalToolbox
+-------------------------------------------------------------
+
+cgal_alpha_shape3.m
+
+	 CGAL_ALPHA_SHAPE3  Whole alpha-shape of a 3D set of points
+	
+cgal_check_self_intersect.m
+
+	 CGAL_CHECK_SELF_INTERSECT Check for self-intersections in a triangular
+	 mesh
+	
+cgal_closest_trifacet.m
+
+	 CGAL_CLOSEST_TRIFACET  Closest triangular facet of a mesh to a point in 3D
+	
+cgal_fixed_alpha_shape3.m
+
+	 CGAL_FIXED_ALPHA_SHAPE3  Individual alpha-shapes of a 3D set of points
+	
+cgal_insurftri.m
+
+	 CGAL_INSURFTRI  Find whether a point is inside or outside a closed
+	 surface.
+	
+cgal_meshseg.m
+
+	 CGAL_MESHSEG  Surface meshing of an isosurface from a segmentation or
+	 grayscale image.
+	
+cgal_surfsubdivision.m
+
+	 CGAL_SURFSUBDIVISION  3D Surface Approximating Subdivision Methods
+	
+cgal_trifacet_area.m
+
+	 CGAL_TRIFACET_AREA  Area of the facets in a triangular mesh
+	
+cgal_tri_fillholes.m
+
+	 CGAL_TRI_FILLHOLES  Fill holes in a triangular mesh, with triangles.
+	
+cgal_tri_simplify.m
+
+	 CGAL_TRI_SIMPLIFY  Reduce number of faces in triangular mesh using edge
+	 collapse.
+	
+
+FileFormatToolbox
+-------------------------------------------------------------
+
+dcm2mat.m
+
+	 DCM2MAT  Read a batch of DICOM files, collate them and save as a
+	 single volume in a .mat file
+	
+dcm2metaimage.m
+
+	 DCM2METAIMAGE  Read a batch of DICOM files, collate them and save as a
+	 single MetaImage volume (one .mha and one .raw file)
+	
+im2metaimage.m
+
+	 IM2METAIMAGE  Read a batch of image files, collate them and save as a
+	 single MetaImage "file" (actually, one .mha and one .raw file)
+	
+matlab2vox_seg3d.m
+
+	 MATLAB2VOX_SEG3D  Convert Matlab file with Seg3D segmentation to vox
+	 format (for the Tarantula meshing application)
+	
+ndpi_focus_points.m
+
+	 NDPI_FOCUS_POINTS  Read focus points coordinates from .ndpi image file
+	 obtained from a Hamamatsu microscope.
+	
+parsave.m
+
+	 parsave  Save workspace variables to file within a parfor loop.
+	
+scimat_load.m
+
+	 SCIMAT_LOAD  Load an image into a SCIMAT struct from a Matlab, MetaImage,
+	 Carl Zeiss LSM or Hamamatsu VMU file.
+	
+scimat_save.m
+
+	 SCIMAT_SAVE  Save a SCIMAT struct to a Matlab or MetaImage format that
+	 can be imported by Seg3D and Seg3D2.
+	
+scinrrd_im2nrrd.m
+
+	 SCINRRD_IM2NRRD  Create SCI NRRD struct from Matlab data.
+	
+scinrrd_index2world.m
+
+	 SCINRRD_INDEX2WORLD  Convert data volume indices to real world
+	 coordinates for NRRD volumes created by SCI applications (e.g. Seg3D)
+	
+scinrrd_seg3d2matlab.m
+
+	 SCINRRD_SEG3D2MATLAB  Correct dimensions of data loaded from SCI NRRD so
+	 that rows and columns will follow Matlab's coordinates
+	
+scinrrd_tiff2nrrd.m
+
+	 SCINRRD_TIFF2NRRD  Create SCI NRRD struct from TIFF stack.
+	
+scinrrd_world2index.m
+
+	 SCINRRD_WORLD2INDEX  Convert real world coordinates to data volume
+	 indices for NRRD volumes created by SCI applications (e.g. Seg3D)
+	 
+	   Function SCINRRD_WORLD2INDEX() maps between the real world coordinates
+	   of points within the NRRD data volume and the indices of the 
+	   image volume used to store the voxel intensity values.
+	
+sortdirbynum.m
+
+	 SORTDIRBYNUM  List the files in a directory ordering them by a numerical
+	 substring field in the file name
+	
+vmu2png.m
+
+	 VMU2PNG  Convert a microscope image file from .vmu to .png format.
+	
+writemetaimagefile.m
+
+	 WRITEMETAIMAGEFILE  Write a MetaImage file (.mha) with both header and data
+	
+WriteMhaFile.m
+
+	 WRITEMHAFILE  Write the header part of a MetaImage file (.mha)
+	
+WriteRawFile.m
+
+	 WRITERAWFILE  Write the binary part of a MetaImage file (.raw)
+	
+
+FiltersToolbox
+-------------------------------------------------------------
+
+amrf_seg.m
+
+	 AMRF_SEG  Adaptive Markov Random Field segmentation.
+	
+blockproc3.m
+
+	 BLOCKPROC3  Block processing for a 3D image
+	
+bwbox.m
+
+	 BWBOX  Find tight box around segmentation (and possibly add a margin)
+	
+bwregiongrow.m
+
+	 BWREGIONGROW  Fast region grow labelling of binary image from multiple
+	 seeds
+	
+bwrmsmallcomp.m
+
+	 BWRMSMALLCOMP  Remove small connected components from a segmentation
+	
+bw_sb_interp.m
+
+	 BW_SB_INTERP Function that performs the shape-base interpolation
+	 following Herman et al. (1992) paper
+	
+bwsplitwithsurf.m
+
+	 BWSPLITWITHSURF  Split a volume into connected components separated by a
+	 surface
+	
+ccwrap.m
+
+	 CCWRAP  Wrapper that enables CTRL+C interruption of MEX files
+	
+correct_light_blobs_in_microscope_mosaic.m
+
+	 CORRECT_LIGHT_BLOBS_IN_MICROSCOPE_MOSAIC  Correct the colour blob created
+	 by the microscope's light in each tile of a mosaic, e.g. for histology.
+	
+fspecial3.m
+
+	 FSPECIAL3  Create predefined 3-dimensional filters
+	
+gmthr_seg.m
+
+	 GMTHR_SEG  Segment an image estimating threshold as intersection of two
+	 Gaussians from Gaussian mixture model
+	
+im2dmatrix.m
+
+	 IM2DMATRIX  Sparse distance matrix between 2D or 3D image voxels,
+	 weighted by voxel intensities
+	
+imblend.m
+
+	 IMBLEND  Blend two image stacks to increase the apparent dynamic range
+	 and improve the signal to noise ratio
+	
+img_tps_map.m
+
+	 IMG_TPS_MAP Warp an image using a thin-plate spline transformation
+	
+im_modes.m
+
+	 IM_MODES  Estimate typical values (modes) of foreground/background
+	 intensities in a greyscale image.
+	
+labmathmorph.m
+
+	 LABMATHMORPH  Mathematical morphology operators on a labelled
+	 segmentation, one label at a time
+	
+mm_opening.m
+
+	 MM_OPENING Mathematical Morphology operator: Opening (erosion+dilation)
+	 with removal of small components
+	
+scimat_blockproc3.m
+
+	 SCIMAT_BLOCKPROC3  Block processing for a 3D SCI MAT volume
+	
+scimat_lconvhull_smoothing.m
+
+	 SCIMAT_LCONVHULL_SMOOTHING  Mesh and rasterization of the smoothing of a
+	 binary image using a local convex hull.
+	
+scinrrd_box.m
+
+	 SCINRRD_BOX  Compute tight box around SCI NRRD segmentation
+	
+scinrrd_centroids.m
+
+	 SCINRRD_CENTROIDS  Compute centroid of segmentation in each slice
+	
+scinrrd_crop.m
+
+	 SCINRRD_CROP  Crop an SCI NRRD image or segmentation volume
+	
+scinrrd_estimate_bias_field.m
+
+	 SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field
+	
+scinrrd_gradients.m
+
+	 SCINRRD_GRADIENTS  Compute 1st and 2nd order image gradients
+	
+scinrrd_intersect_plane.m
+
+	 SCINRRD_INTERSECT_PLANE  Intersection of a plane with an image volume
+	
+scinrrd_ndgrid.m
+
+	 SCINRRD_NDGRID  Generation of arrays for 3D SCI NRRD image volumes
+	
+scinrrd_optimal_intersecting_plane.m
+
+	 SCINRRD_OPTIMAL_INTERSECTING_PLANE  Optimise intersection plane for SCI
+	 NRRD segmentation mask
+	
+scinrrd_optimal_intersecting_plane_old.m
+
+	 Note: Old implementation of function
+	 scinrrd_optimal_intersecting_plane(). Backup while we transition to
+	 a definite method.
+	
+scinrrd_papillary_muscles.m
+
+	 SCINRRD_PAPILLARY_MUSCLES  Extract the papillay muscles from a
+	 segmentation of the Left Ventricle's cavity
+	
+scinrrd_regionprops.m
+
+	 SCINRRD_REGIONPROPS  Measure properties of image regions on each slice
+	
+scinrrd_seg2label_stats.m
+
+	 SCINRRD_SEG2LABEL_STATS  Shape stats for each object in a multi-label
+	 segmentation; objects can be straightened with an skeleton or medial line
+	 before computing some measures
+	
+scinrrd_seg2voxel_stats.m
+
+	 SCINRRD_SEG2VOXEL_STATS  Shape stats for each voxel in a segmentation
+	 based on a windowed neighbourhood.
+	
+scinrrd_skeleton_prune.m
+
+	 SCINRRD_SKELETON_PRUNE  Prune branches in a segmentation's skeletonization
+	
+scinrrd_squeeze.m
+
+	 SCINRRD_SQUEEZE  Remove dummy dimension and convert data to double type
+	
+scinrrd_unsqueeze.m
+
+	 SCINRRD_UNSQUEEZE  Add dummy dimension and convert data to uint8 data
+	 type
+	
+scinrrd_vertical_orientation_pca_basis.m
+
+	 SCINRRD_VERTICAL_ORIENTATION_PCA_BASIS  Compute a basis from the
+	 Principal Components of a set of voxels, such that the vertical axis is
+	 assigned to the maximum variability, and the basis is right-hand oriented
+	
+seg2dmat.m
+
+	 SEG2DMAT  Local neighbourhood distance matrix between segmentation voxels
+	
+skeleton_label.m
+
+	 SKELETON_LABEL  Give each branch of a skeleton a different label, and
+	 sort the voxels within each branch
+	
+skeleton_plot.m
+
+	 SKELETON_PLOT  Plot a labelled segmentation and its skeleton
+	
+typicalpsf.m
+
+	 TYPICALPSF  Estimate point spread function from microbeads image
+	
+
+ItkToolbox
+-------------------------------------------------------------
+
+itk_imfilter.m
+
+	 ITK_IMFILTER  Run ITK filter on a 2D, 3D or 4D image.
+	
+itk_pstransform.m
+
+	 ITK_PSTRANSFORM: Spatial transformation (i.e. warp) of a set of points,
+	 defined from a known landmark correspondence
+	
+itk_tri_rasterization.m
+
+	 ITK_TRI_RASTERIZATION  Rasterization of triangular mesh to binary
+	 segmentation
+	
+
+ManifoldToolbox
+-------------------------------------------------------------
+
+add_vertex_to_tri.m
+
+	 ADD_VERTEX_TO_TRI  Add vertices to a triangular mesh
+	
+arclen2chord.m
+
+	 ARCLEN2CHORD  Sphere arc length distances to Euclidean chord length
+	 distances.
+	
+chord2arclen.m
+
+	 CHORD2ARCLEN  Euclidean chord length distances to sphere arc length
+	 distances.
+	
+closest_trifacet.m
+
+	 CLOSEST_TRIFACET  Closest triangular facet of a mesh to a point in 3D
+	
+congrow.m
+
+	 CONGROW  Grow the local neighbourhoods in a connectivity matrix
+	
+delaunay_sphere.m
+
+	 DELAUNAY_SPHERE  Triangulation of a sphere or a surface topologically
+	 equivalent to a sphere so that it can be used as a mesh
+	
+dmatrix_con.m
+
+	 DMATRIX_CON  Sparse distance and shortest-path distance matrices between
+	 the nodes of a mesh from a connectivity matrix
+	
+dmatrix_mesh.m
+
+	 DMATRIX_MESH  Sparse distance and shortest-path distance matrices between
+	 the nodes of a mesh
+	
+dmatrix_sphmesh.m
+
+	 DMATRIX_SPHMESH  Sparse great-circle distance and shortest-path distance 
+	 matrices between the nodes of a spherical mesh
+	
+graphcc.m
+
+	 GRAPHCC  Split a graph into connected components.
+	
+lmdscale.m
+
+	 LMDSCALE  Local neighbourhood Multidimensional scaling on a plane
+	
+make_dmatrix_congruent_with_sphere.m
+
+proj_on_sphere.m
+
+	 PROJ_ON_SPHERE  Project a point configuration onto a sphere
+	
+quadsurf.m
+
+	 QUADSURF  Quadrangular mesh surface plot
+	
+remove_vertex_from_tri.m
+
+	 REMOVE_VERTEX_FROM_TRI  Remove vertices from a triangular mesh
+	
+scimat_tri_to_raster.m
+
+	 SCIMAT_TRI_TO_RASTER  Rasterize a closed triangular mesh
+	
+smdscale.m
+
+	 SMDSCALE  Local neighbourhood Multidimensional scaling on a sphere
+	
+sphtri_signed_vol.m
+
+	 SPHTRI_SIGNED_VOL  Signed volume of the elements of a sphere partitioned
+	 into tetrahedra.
+	
+sphtri_vertex_istangled.m
+
+	 SPHTRI_VERTEX_ISTANGLED Find tangled vertices in a spherical triangular
+	 mesh.
+	
+sphtri_vertex_untangle.m
+
+surface_tridomain.m
+
+	 SURFACE_TRIDOMAIN  Triangular mesh to cover a planar or spherical domain
+	
+tri_ccqp_smacof_nofold_sph_pip.m
+
+	 TRI_CCQP_SMACOF_NOFOLD_SPH_PIP  Constraints in PIP format for CCQP-SMACOF
+	 to ensure that 2D triangules on the sphere preserve positive orientation.
+	
+triconncomp.m
+
+	 TRICONNCOMP  Find connected components in mesh
+	
+trifacet_signed_area.m
+
+	 TRIFACET_SIGNED_AREA  Signed area of the facets in a 2D triangulation.
+	
+tri_find_nonmanifold_vertex.m
+
+	 TRI_FIND_NONMANIFOLD_VERTEX  Find indices of non-manifold vertices in a
+	 triangular mesh
+	
+trihemisphere.m
+
+	 TRIHEMISPHERE  Triangular mesh on hemisphere with roughly uniformly
+	 distributed points
+	
+tri_qcqp_smacof_nofold_2d.m
+
+	 TRI_QCQP_SMACOF_NOFOLD_2D  Constraints for QCQP-SMACOF to ensure that a
+	 2D triangular mesh has no fold-overs.
+	
+tri_qcqp_smacof_nofold_2d_pip.m
+
+	 TRI_QCQP_SMACOF_NOFOLD_2D_PIP  Constraints in PIP format for QCQP-SMACOF
+	 to ensure that 2D triangules preserve positive orientation.
+	
+tri_sphparam.m
+
+	 TRI_SPHPARAM  Spherical parametrization of closed triangular mesh.
+	
+tri_squeeze.m
+
+	 TRI_SQUEEZE  Remove disconnected vertices from triangular mesh
+	
+vertex_untangle.m
+
+	 VERTEX_UNTANGLE  Find 2D coordinates for a free vertex surrounded
+	 by a polygon of fixed counter-clockwise sorted vertices such that the
+	 free vertex is untangled.
+	
+
+PointsToolbox
+-------------------------------------------------------------
+
+bwmesh.m
+
+	 BWMESH  Tetrahedral volumetric and triangular surface mesh of a binary
+	 segmentation
+	
+cons_smacof_pip.m
+
+	 CONS_SMACOF_PIP  SMACOF algorithm with polynomial constraints (PIP file
+	 format)
+	
+coords_from_dist_gower.m
+
+	 COORDS_FROM_DIST_GOWER  Compute point coordinates from distances to a set
+	 of landmarks, as described in Gower (1986)
+	
+cube_five_tessellation.m
+
+	 CUBE_FIVE_TESSELLATION  Tessellation in 5 tetrahedra of a cube with
+	 perpendicular diagonals on opposite sides of the cube (non-stackable)
+	
+cube_stackable_tessellation.m
+
+	 CUBE_STACKABLE_TESSELLATION  Tessellation in tetrahedra of a cube that
+	 can be stacked in a regular mesh
+	
+dmatrix2coords.m
+
+	 DMATRIX2COORDS  Point coordinates from distance matrix
+	
+dmatrix.m
+
+	 DMATRIX  Matrix of distances between vectors
+	
+extmat2rotmat.m
+
+	 EXTMAT2ROTMAT  Convert rotation in extended matrix form into centroid and
+	 matrix pair
+	
+findpeaksn.m
+
+	 FINDPEAKSN  Find local peaks (local maxima) in n-dimensional data
+	
+gram2dsq.m
+
+	 GRAM2DSQ  Convert Gram matrix to squared distance matrix
+	
+graph_nn.m
+
+	 GRAPH_NN  Nearest neighbours from a subset of nodes in a graph to another
+	 subset
+	
+intersect_gaussians.m
+
+	 INTERSECT_GAUSSIANS  Intersection of two Gaussians (analytic solution)
+	
+intersect_line_plane.m
+
+	 INTERSECT_LINE_PLANE  Find intersection of a line with a plane
+	
+iscollinear.m
+
+	 ISCOLLINEAR  Test to determine whether a set of points are collinear
+	
+mba_surface_interpolation.m
+
+	 MBA_SURFACE_INTERPOLATION  Scattered data Multilevel B-spline interpolation
+	
+pca_align.m
+
+	 PCA_ALIGN  Align a set of points so that its centroid is zero, and the
+	 Principal Components correspond to the Cartesian axes
+	
+pca_normalize.m
+
+	 PCA_NORMALIZE  Normalize a set of points so that its centroid is zero,the
+	 Principal Components correspond to the Cartesian axes, and the variance
+	 (eigenvalue) along each Principal Component is one
+	
+plotaxes.m
+
+	 PLOTAXES  Plot axes of 3D coordinate system
+	
+plot_dmatrix.m
+
+	 PLOT_DMATRIX  Plot the connections implied by a distance matrix
+	
+polardecomp.m
+
+	 POLARDECOMP  Polar decomposition of a square complex matrix
+	
+polycenter.m
+
+	 POLYCENTER  Compute center of mass and area of polygon
+	
+pts_cn.m
+
+	 PTS_CN  Center and normalize sets of points
+	
+pts_kmat.m
+
+	 PTS_KMAT  Compute kernel matrix for Linear and Kernel Principal Component
+	 Analysis (PCA and KPCA)
+	
+pts_local_rigid.m
+
+	 PTS_LOCAL_RIGID  Non-rigid transformation that is locally rigid between
+	 two sets of points with known correspondence
+	
+pts_mesh.m
+
+	 PTS_MESH  Tetrahedral volumetric and triangular surface mesh of a cloud
+	 of points
+	
+pts_pca.m
+
+	 PTS_PCA  Linear and Kernel Principal Component Analysis (PCA and KPCA)
+	
+pts_procrustes_gen.m
+
+	 PTS_PROCRUSTES_GEN Generalized Least-Squares Fit Orthogonal Procrustes
+	 Analysis
+	
+pts_procrustes.m
+
+	 PTS_PROCRUSTES Least-Squares Fit Orthogonal Procrustes Analysis between
+	 two sets of points
+	
+pts_rotmat.m
+
+	 PTS_ROTMAT  Compute rotation matrix to minimize least squares error
+	
+pts_simil_map.m
+
+	 PTS_SIMIL_MAP  Apply similarity transformation to points
+	
+pts_simil_map_params.m
+
+	 PTS_SIMIL_MAP_PARAMS  Compute similarity transformation parameters
+	 between sets of points with unknown correspondence (Procrustes is used)
+	
+pts_tps_map.m
+
+	 PTS_TPS_MAP  Interpolate/warp/map N-dimensional points using a thin-plate
+	 spline transformation
+	
+pts_tps_weights.m
+
+	 PTS_TPS_WEIGHTS  Compute weights and affine parameters of thin-plate
+	 spline warp for N-dimensional points
+	
+qcqp_smacof.m
+
+	 QCQP_SMACOF  Scaling by MAjorizing a COnvex Function (SMACOF) algorithm
+	 posed as a Quadratic Program with Quadratic Constraints (QPQC).
+	
+quaternion2matrix.m
+
+	 QUATERNION2MATRIX  Convert quaternion to rotation matrix
+	
+rotmat2extmat.m
+
+	 ROTMAT2EXTMAT  Convert centroid and rotation matrix pair to extended
+	 matrix form
+	
+scimat_dmatrix_imgeodesic.m
+
+	 SCIMAT_DMATRIX_IMGEODESIC  Compute a distance/adjacency matrix for a set
+	 of scattered points using the image intensity to approximate the
+	 geodesics
+	
+scimat_dmatrix_thickslice.m
+
+	 SCIMAT_DMATRIX_THICKSLICE  Compute a distance/adjacency matrix for a
+	 segmentation that consists of scattered points in slices wide apart.
+	
+scimat_simlandmarks_thickslice.m
+
+	 SCIMAT_SIMLANDMARKS_THICKSLICE  Simulate a human placing landmarks on the
+	 boundary of a "thick slice" segmentation
+	
+scinrrd_pca.m
+
+	 SCINRRD_PCA Principal Principal Component Analysis of the selected
+	 points in a SCI NRRD segmentation mask
+	
+scinrrd_surface_interpolation.m
+
+	 SCINRRD_SURFACE_INTERPOLATION  Interpolate a surface and create a
+	 segmentation mask from a scattered set of points
+	
+smacof.m
+
+	 SMACOF  Classic implementation of SMACOF (Scaling by MAjorizing a COnvex
+	 Function) algorithm for MDS (Multidimensional Scaling)
+	
+sparse_breakdown.m
+
+	 SPARSE_BREAKDOWN  Extract internal arrays from sparse matrix
+	
+surface_interp.m
+
+	 SURFACE_INTERP  Interpolate a surface from a parametrized scattered set
+	 of points
+	
+surface_interpolation.m
+
+	 SURFACE_INTERPOLATION  Interpolate a surface from a scattered set of
+	 points
+	
+surface_param.m
+
+	 SURFACE_PARAM  2D parametrization of a scattered set of 3D points or of
+	 the vertices of a triangular mesh, for open and closed surfaces.
+	
+thickslice_collate_sax_la.m
+
+	 THICKSLICE_COLLATE_SAX_LA  Build a distance/adjacency matrix collating
+	 points from a Long Axis plane to a set of Short Axis planes
+	
+vec2rotmat.m
+
+	 VEC2ROTMAT  Compute rotation matrix from Cartesian vector
+	
+
+ThirdPartyToolbox
+-------------------------------------------------------------
+
+alphavol.m
+
+	 ALPHAVOL Alpha shape of 2D or 3D point set.
+	
+dijkstra.m
+
+	 DIJKSTRA  Shortests path tree from sparse matrix graph
+	
+gplot3d.m
+
+	GPLOT3D Plot graph, as in "graph theory". This is a modification of
+	MATLAB's GPLOT function for vertices in 3D
+	
+gridfit.m
+
+	 gridfit: estimates a surface on a 2d grid, based on scattered data
+	          Replicates are allowed. All methods extrapolate to the grid
+	          boundaries. Gridfit uses a modified ridge estimator to
+	          generate the surface, where the bias is toward smoothness.
+	 
+	          Gridfit is not an interpolant. Its goal is a smooth surface
+	          that approximates your data, but allows you to control the
+	          amount of smoothing.
+	
+imwrite.m
+
+	IMWRITE Write image to graphics file.
+	   IMWRITE(A,FILENAME,FMT) writes the image A to the file specified by
+	   FILENAME in the format specified by FMT.
+	
+inhull.m
+
+	 inhull: tests if a set of points are inside a convex hull
+	 usage: in = inhull(testpts,xyz)
+	 usage: in = inhull(testpts,xyz,tess)
+	 usage: in = inhull(testpts,xyz,tess,tol)
+	
+isedm.m
+
+IsomapII.m
+
+	 ISOMAPII   Computes Isomap embedding using an advanced version of
+	             the algorithm in Tenenbaum, de Silva, and Langford (2000), 
+	             which can take advantage of sparsity in the graph and 
+	             redundancy in the distances. 
+	
+Isomap.m
+
+	 ISOMAP   Computes Isomap embedding using the algorithm of 
+	             Tenenbaum, de Silva, and Langford (2000). 
+	
+L2_distance.m
+
+	 L2_DISTANCE - computes Euclidean distance matrix
+	
+networkComponents.m
+
+	 [nClusters,sizes,members,idxLargestCluster] = networkComponents(A)
+	
+pointTriangleDistance.m
+
+	 POINTTRIANGLEDISTANCE  Calculate distance between a point and a triangle
+	 in 3D
+	
+polygeom.m
+
+sphereFit.m
+
+tiff_read_header.m
+
+tightfig.m
+
+
+ThirdPartyToolbox/FastMarchingToolbox
+-------------------------------------------------------------
+
+batch_landmarks_error.m
+
+batch_propagation_mesh.m
+
+batch_shape_meshing.m
+
+callback_active_contour.m
+
+compile_mex.m
+
+compute_alpha_map.m
+
+compute_bending_invariant.m
+
+compute_distance_landmark.m
+
+compute_eccentricity_transform.m
+
+compute_edge_energy.m
+
+compute_geodesic.m
+
+compute_geodesic_mesh.m
+
+compute_heuristic_landmark.m
+
+compute_heuristic_multiresolution.m
+
+compute_levelset_shape.m
+
+compute_saddle_points.m
+
+compute_shape_boundary.m
+
+compute_voronoi_triangulation.m
+
+compute_voronoi_triangulation_mesh.m
+
+content.m
+
+	 Toolbox Fast Marching - A toolbox for Fast Marching and level sets computations
+	
+convert_distance_color.m
+
+display_eccentricity.m
+
+display_segmentation.m
+
+divgrad.m
+
+eucdist2.m
+
+	EUCDIST2 Compute 2-D Euclidean distance transform.
+	   D = EUCDIST2(BW) computes the Euclidean distance transform on the input 
+	   binary image BW, which must be 2-D.  Specifically, it computes the
+	   distance to the nearest nonzero-valued pixel.
+	    
+	   [D,L] = EUCDIST2(BW) returns a linear index array L representing a
+	   nearest-neighbor map.  L(r,c) is the linear index of the nonzero-valued
+	   element of BW closest to (r,c).
+	
+generate_constrained_map.m
+
+load_potential_map.m
+
+perform_active_contour.m
+
+perform_circular_fast_marching_2d.m
+
+perform_farthest_landmark_sampling.m
+
+perform_farthest_point_sampling_boundary.m
+
+perform_farthest_point_sampling.m
+
+perform_farthest_point_sampling_mesh.m
+
+perform_fast_marching.m
+
+perform_fast_marching_mesh.m
+
+perform_fast_marching_old.m
+
+perform_fmstar_2d.m
+
+perform_fmstar_3d.m
+
+perform_front_propagation_2d.m
+
+perform_front_propagation_2d_slow.m
+
+perform_geodesic_interpolation.m
+
+perform_lloyd_mesh.m
+
+perform_redistancing.m
+
+pick_curves.m
+
+pick_start_end_point.m
+
+plot_constrained_path_planing.m
+
+plot_fast_marching_2d.m
+
+plot_fast_marching_3d.m
+
+plot_fast_marching_mesh.m
+
+plot_volumetric_data.m
+
+publish_html.m
+
+toolbox_fast_marching.m
+
+vol3d.m
+
+	H = VOL3D Volume render 3-D data. 
+	 VOL3D uses the orthogonal plane 2-D texture mapping technique for 
+	 volume rending 3-D data in OpenGL. Use the 'texture' option to fine 
+	 tune the texture mapping technique. This function is best used with
+	 fast OpenGL hardware.
+	
+
+ThirdPartyToolbox/iso2meshToolbox
+-------------------------------------------------------------
+
+advancefront.m
+
+	 advance an edge-front on an oriented surface to the next separated by
+	 one-element width
+	
+bbxflatsegment.m
+
+	 decompose edge loops into flat segments alone x/y/z 
+	 planes of the bounding box
+	
+binsurface.m
+
+	 fast isosurface extraction from 3D binary images
+	
+bwislands.m
+
+	 return the indices of non-zero elements in a 2D or 3D image
+	 grouped by connected regions in a cell array
+	
+cgals2m.m
+
+	 wrapper for CGAL 3D mesher (CGAL 3.5 and newer)
+	 convert a triangular surface to tetrahedral mesh
+	
+cgalv2m.m
+
+	 wrapper for CGAL 3D mesher (CGAL 3.5 or up)
+	 convert a binary (or multi-valued) volume to tetrahedral mesh
+	
+deislands2d.m
+
+	 remove isolated islands on a 2D image below speicified size limit
+	
+deislands3d.m
+
+	 remove isolated islands for 3D image (for each slice)
+	
+delendelem.m
+
+	 delete elements whose nodes are all edge nodes
+	
+deletemeshfile.m
+
+	 delete a given work mesh file under the working directory
+	
+edgeneighbors.m
+
+	 to find neighboring triangular elements in a triangule surface
+	
+elemvolume.m
+
+	 calculate the volume for a list of simplexes
+	
+extractloops.m
+
+	 extract individual loops from an edge table of a loop
+	 collection
+	
+faceneighbors.m
+
+	 to find 4 face-neighboring elements of a tetrahedron
+	
+fallbackexeext.m
+
+	 get the fallback external tool extension names for the current platform
+	
+fillholes3d.m
+
+	 close a 3D image with the speicified gap size and then fill the holes
+	
+finddisconnsurf.m
+
+	 subroutine to extract disconnected surfaces from a 
+	 cluster of surfaces
+	 
+	 author: Qianqian Fang (fangq@nmr.mgh.harvard.edu)
+	 Date: 2008/03/06
+	
+flatsegment.m
+
+	 decompose edge loops into flat segments alone arbitrary planes of the bounding box
+	
+getexeext.m
+
+	 get meshing external tool extension names for the current platform
+	
+getintersecttri.m
+
+	 get the IDs of self-intersecting elements from tetgen
+	 call this when tetgen complains about self-intersection
+	
+getoptkey.m
+
+	 val=getoptkey(key,default,'key1',val1,'key2',val2, ...)
+	
+getplanefrom3pt.m
+
+	 define a plane equation ax+by+cz+d=0 from three 3D points
+	
+getvarfrom.m
+
+	 get variable value by name from specified work-space
+	
+imedge3d.m
+
+	 Extract the boundary voxels from a binary image
+	 
+	 author: Aslak Grinsted <ag at glaciology.net>
+	 modified by Qianqian Fang <fangq at nmr.mgh.harvard.edu>
+	
+internalpoint.m
+
+	 imperical function to find an internal point
+	 of a planar polygon
+	
+iso2meshver.m
+
+	 v=iso2meshver
+	
+isoctavemesh.m
+
+jsonopt.m
+
+	 setting options based on a struct. The struct can be produced
+	 by varargin2struct from a list of 'param','value' pairs
+	
+loadjson.m
+
+	 data=loadjson(fname,'param1',value1,'param2',value2,...)
+	
+maxsurf.m
+
+	 return the surface with the maximum element number (not 
+	 necessarily in area) from a cell arry of surfaces
+	
+mcpath.m
+
+	 get full executable path by prepending a command directory path
+	 parameters:
+	
+mergemesh.m
+
+	 merge two or more tetrahedral meshes or triangular surfaces
+	 
+	 author: Qianqian Fang <fangq at nmr.mgh.harvard.edu>
+	
+mergestruct.m
+
+	 merge two struct objects into one
+	
+mergesurf.m
+
+	 merge two or more triangular meshes and split intersecting elements
+	 
+	 author: Qianqian Fang <fangq at nmr.mgh.harvard.edu>
+	
+meshabox.m
+
+	 create the surface and tetrahedral mesh of a box geometry
+	
+meshacylinder.m
+
+	 [node,face,elem]=meshacylinder(c0,c1,r,tsize,maxvol,ndiv)
+	
+meshanellip.m
+
+	 create the surface and tetrahedral mesh of an ellipsoid
+	
+meshasphere.m
+
+	 create the surface and tetrahedral mesh of a sphere
+	
+meshcentroid.m
+
+	 compute the centroids of a mesh defined by nodes and elements
+	 (surface or tetrahedra) in R^n space
+	
+meshcheckrepair.m
+
+	 check and repair a surface mesh
+	
+meshconn.m
+
+	 create node neighbor list from a mesh
+	
+meshedge.m
+
+	 return all edges in a surface or volumetric mesh
+	
+mesheuler.m
+
+	 Euler's charastistics of a mesh
+	
+meshquality.m
+
+	 compute the Joe-Liu mesh quality measure of a tetrahedral mesh
+	
+meshrefine.m
+
+	 refine a tetrahedral mesh by adding new nodes or constraints
+	
+meshreorient.m
+
+	 reorder nodes in a surface or tetrahedral mesh to ensure all
+	 elements are oriented consistently
+	
+meshresample.m
+
+	 resample mesh using CGAL mesh simplification utility
+	
+meshunitsphere.m
+
+	 create the surface and/or volumetric mesh of a unit sphere 
+	 centered at [0 0 0] and radius 1
+	
+mwpath.m
+
+	 get full temp-file name by prepend working-directory and current session name
+	
+neighborelem.m
+
+	 create node neighbor list from a mesh
+	
+nodevolume.m
+
+	 calculate the Voronoi volume of each node in a simplex mesh
+	
+orderloopedge.m
+
+	 order the node list of a simple loop based on connection sequence
+	
+plotmesh.m
+
+	 plot surface and volumetric meshes
+	 
+	 author: Qianqian Fang <fangq at nmr.mgh.harvard.edu>
+	
+plotsurf.m
+
+	 plot 3D surface meshes
+	 
+	 author: Qianqian Fang <fangq at nmr.mgh.harvard.edu>
+	
+plottetra.m
+
+	 plot 3D surface meshes
+	 
+	 author: Qianqian Fang <fangq at nmr.mgh.harvard.edu>
+	
+qmeshcut.m
+
+	 fast tetrahedral mesh slicer
+	
+raysurf.m
+
+	 perform a Havel-styled ray tracing for a triangular surface
+	
+raytrace.m
+
+	 perform a Havel-styled ray tracing for a triangular surface
+	
+readasc.m
+
+	 read FreeSurfer ASC mesh format
+	
+readgts.m
+
+	 read GNU Triangulated Surface Format (GTS)
+	
+readinr.m
+
+	 load a volume from an INR file
+	
+readmedit.m
+
+	 read Medit mesh format
+	
+readoff.m
+
+	 read Geomview Object File Format (OFF)
+	
+readsmf.m
+
+readtetgen.m
+
+	 read tetgen output files
+	
+remeshsurf.m
+
+	 remesh a triangular surface and the output is guaranteed to be
+	 free of self-intersecting element. This function is similar to 
+	 meshresample, but it can both downsample or upsample a mesh
+	
+removedupelem.m
+
+	 remove doubly duplicated elements
+	
+removedupnodes.m
+
+	 removing the duplicated nodes from a mesh
+	
+removeisolatednode.m
+
+	 remove isolated nodes: nodes that are not included in any element
+	
+removeisolatedsurf.m
+
+	 remove disjointed surface fragment by using mesh diameter
+	
+rotatevec3d.m
+
+	 rotate 3D points from one Cartesian coordinate system to another
+	
+rotmat2vec.m
+
+	 the rotation matrix from vector u to v, satisfying R*u*s=v
+	
+s2m.m
+
+	 volumetric mesh generation from a closed surface, shortcut for surf2mesh
+	
+s2v.m
+
+	 shortcut for surf2vol, coverting a surface to a volumetric image
+	
+saveabaqus.m
+
+	 saveabaqus(node,face,elem,fname)
+	
+saveasc.m
+
+	 save a surface mesh to FreeSurfer ASC mesh format
+	
+savebinstl.m
+
+	 save a tetrahedral mesh to a binary STL (Standard Tessellation Language) file
+	
+savedxf.m
+
+	 save a surface mesh to DXF format
+	
+savegts.m
+
+	 save a surface mesh to GNU Triangulated Surface Format (GTS)
+	
+saveinr.m
+
+	 save a surface mesh to INR Format
+	
+savejmesh.m
+
+	 export a mesh to the JMesh format
+	
+savejson.m
+
+	 json=savejson(rootname,obj,opt)
+	 json=savejson(rootname,obj,'param1',value1,'param2',value2,...)
+	
+savemedit.m
+
+	 save a surface or tetrahedral mesh to Medit format
+	
+savemphtxt.m
+
+	 save tetrahedron mesh to comsol file (.mphtxt)
+	
+saveoff.m
+
+	 save a surface mesh to Geomview Object File Format (OFF)
+	
+savesmf.m
+
+	 save a surface mesh to smf format
+	
+savestl.m
+
+	 save a tetrahedral mesh to an STL (Standard Tessellation Language) file
+	
+savesurfpoly.m
+
+	 save a set of surfaces into poly format (for tetgen)
+	
+savetetgenele.m
+
+	 save a mesh tetrahedral element list to tetgen .ele format
+	
+savetetgennode.m
+
+	 save a mesh node list to tetgen .node format
+	
+savevrml.m
+
+	 save a surface mesh to VRML 1.0 format
+	
+smoothbinvol.m
+
+	 perform a memory-limited 3D image smoothing
+	
+smoothsurf.m
+
+	 smoothing a surface mesh
+	
+sms.m
+
+	 simplified version of surface mesh smoothing
+	
+sortmesh.m
+
+	 sort nodes and elements in a mesh so that the indexed
+	 nodes and elements are closer to each order
+	 (this may reduce cache-miss in a calculation)
+	
+surf2mesh.m
+
+	 create quality volumetric mesh from isosurface patches
+	
+surf2vol.m
+
+	 convert a triangular surface to a shell of voxels in a 3D image
+	
+surf2volz.m
+
+	 convert a triangular surface to a shell of voxels in a 3D image
+	 along the z-axis
+	
+surfaceclean.m
+
+	 remove surface patches that are located inside 
+	               the bounding box faces
+	
+surfboolean.m
+
+	 merge two or more triangular meshes and resolve intersecting elements
+	 
+	 author: Qianqian Fang <fangq at nmr.mgh.harvard.edu>
+	
+surfdiffuse.m
+
+	 apply a smoothing/diffusion process on a surface
+	
+surfedge.m
+
+	 find the edge of an open surface or surface of a volume
+	
+surfinterior.m
+
+	 identify a point that is enclosed by the (closed) surface
+	
+surfnorm.m
+
+	 snorm=surfnorm(node,face,'Normalize',0)
+	
+surfpart.m
+
+	 partition a triangular surface using a closed loop defined by existing edges
+	
+surfplane.m
+
+	 plane equation coefficients for each face in a surface
+	
+surfreorient.m
+
+	 reorder nodes in a single closed surface to ensure the norms of all
+	 triangles are pointing outward
+	
+surfseeds.m
+
+	 calculate a set of interior points with each enclosed by a closed
+	 component of a surface
+	
+thickenbinvol.m
+
+	 thickening a binary volume by a given pixel width
+	 this is similar to bwmorph(vol,'thicken',3) except 
+	 this does it in 3d and only does thickening for 
+	 non-zero elements (and hopefully faster)
+	
+thinbinvol.m
+
+	 thinning a binary volume by a given pixel width
+	 this is similar to bwmorph(vol,'thin',n) except 
+	 this does it in 3d and only does thinning for 
+	 non-zero elements (and hopefully faster)
+	
+uniqedges.m
+
+	 return the unique edge list from a surface or tetrahedral mesh
+	
+v2m.m
+
+	 volumetric mesh generation from binary or gray-scale volumetric images
+	 shortcut for vol2mesh
+	
+v2s.m
+
+	 surface mesh generation from binary or gray-scale volumetric images
+	 shortcut for vol2surf
+	
+varargin2struct.m
+
+	 opt=varargin2struct(...,optstruct,...)
+	
+vol2mesh.m
+
+	 convert a binary (or multi-valued) volume to tetrahedral mesh
+	
+vol2restrictedtri.m
+
+	 surface mesh extraction using CGAL mesher
+	
+vol2surf.m
+
+	 converting a 3D volumetric image to surfaces
+	
+volface.m
+
+	 find the surface patches of a volume
+	
+volmap2mesh.m
+
+	 convert a binary volume to tetrahedral mesh followed by an Affine transform
+	
+
+ThirdPartyToolbox/niftiToolbox
+-------------------------------------------------------------
+
+affine.m
+
+	  Using 2D or 3D affine matrix to rotate, translate, scale, reflect and
+	  shear a 2D image or 3D volume. 2D image is represented by a 2D matrix,
+	  3D volume is represented by a 3D matrix, and data type can be real 
+	  integer or floating-point.
+	
+bipolar.m
+
+	BIPOLAR returns an M-by-3 matrix containing a blue-red colormap, in
+		in which red stands for positive, blue stands for negative, 
+		and white stands for 0.
+	
+bresenham_line3d.m
+
+	  Generate X Y Z coordinates of a 3D Bresenham's line between
+	  two given points.
+	
+clip_nii.m
+
+	  CLIP_NII: Clip the NIfTI volume from any of the 6 sides
+	
+collapse_nii_scan.m
+
+	  Collapse multiple single-scan NIFTI files into a multiple-scan NIFTI file
+	
+expand_nii_scan.m
+
+	  Expand a multiple-scan NIFTI file into multiple single-scan NIFTI files
+	
+extra_nii_hdr.m
+
+	  Decode extra NIFTI header information into hdr.extra
+	
+flip_lr.m
+
+	  When you load any ANALYZE or NIfTI file with 'load_nii.m', and view
+	  it with 'view_nii.m', you may find that the image is L-R flipped.
+	  This is because of the confusion of radiological and neurological
+	  convention in the medical image before NIfTI format is adopted. You
+	  can find more details from:
+	
+get_nii_frame.m
+
+	  Return time frame of a NIFTI dataset. Support both *.nii and 
+	  *.hdr/*.img file extension. If file extension is not provided,
+	  *.hdr/*.img will be used as default. 
+	
+load_nii_ext.m
+
+	  Load NIFTI header extension after its header is loaded using load_nii_hdr.
+	
+load_nii_hdr.m
+
+load_nii_img.m
+
+load_nii.m
+
+	  Load NIFTI or ANALYZE dataset. Support both *.nii and *.hdr/*.img
+	  file extension. If file extension is not provided, *.hdr/*.img will
+	  be used as default.
+	
+load_untouch0_nii_hdr.m
+
+load_untouch_header_only.m
+
+	  Load NIfTI / Analyze header without applying any appropriate affine
+	  geometric transform or voxel intensity scaling. It is equivalent to
+	  hdr field when using load_untouch_nii to load dataset. Support both
+	  *.nii and *.hdr file extension. If file extension is not provided,
+	  *.hdr will be used as default.
+	  
+	  Usage: [header, ext, filetype, machine] = load_untouch_header_only(filename)
+	  
+	  filename - NIfTI / Analyze file name.
+	  
+	  Returned values:
+	  
+	  header - struct with NIfTI / Analyze header fields.
+	  
+	  ext - NIfTI extension if it is not empty.
+	  
+	  filetype	- 0 for Analyze format (*.hdr/*.img);
+			  1 for NIFTI format in 2 files (*.hdr/*.img);
+			  2 for NIFTI format in 1 file (*.nii).
+	  
+	  machine    - a string, see below for details. The default here is 'ieee-le'.
+	
+load_untouch_nii_hdr.m
+
+load_untouch_nii_img.m
+
+load_untouch_nii.m
+
+	  Load NIFTI or ANALYZE dataset, but not applying any appropriate affine
+	  geometric transform or voxel intensity scaling.
+	
+make_ana.m
+
+	  Make ANALYZE 7.5 data structure specified by a 3D or 4D matrix.
+	  Optional parameters can also be included, such as: voxel_size, 
+	  origin, datatype, and description. 
+	  
+	  Once the ANALYZE structure is made, it can be saved into ANALYZE 7.5 
+	  format data file using "save_untouch_nii" command (for more detail, 
+	  type: help save_untouch_nii). 
+	  
+	  Usage: ana = make_ana(img, [voxel_size], [origin], [datatype], [description])
+	
+make_nii.m
+
+	  Make NIfTI structure specified by an N-D matrix. Usually, N is 3 for 
+	  3D matrix [x y z], or 4 for 4D matrix with time series [x y z t]. 
+	  Optional parameters can also be included, such as: voxel_size, 
+	  origin, datatype, and description. 
+	  
+	  Once the NIfTI structure is made, it can be saved into NIfTI file 
+	  using "save_nii" command (for more detail, type: help save_nii). 
+	  
+	  Usage: nii = make_nii(img, [voxel_size], [origin], [datatype], [description])
+	
+mat_into_hdr.m
+
+	MAT_INTO_HDR  The old versions of SPM (any version before SPM5) store
+		an affine matrix of the SPM Reoriented image into a matlab file 
+		(.mat extension). The file name of this SPM matlab file is the
+		same as the SPM Reoriented image file (.img/.hdr extension).
+	
+reslice_nii.m
+
+	  The basic application of the 'reslice_nii.m' program is to perform
+	  any 3D affine transform defined by a NIfTI format image.
+	
+rri_file_menu.m
+
+	  Imbed a file menu to any figure. If file menu exist, it will append
+	  to the existing file menu. This file menu includes: Copy to clipboard,
+	  print, save, close etc.
+	
+rri_orient.m
+
+	  Convert image of different orientations to standard Analyze orientation
+	
+rri_orient_ui.m
+
+rri_select_file.m
+
+	
+rri_xhair.m
+
+	   rri_xhair: create a pair of full_cross_hair at point [x y] in
+	              axes h_ax, and return xhair struct
+	
+rri_zoom_menu.m
+
+	  Imbed a zoom menu to any figure.
+	
+save_nii_ext.m
+
+	  Save NIFTI header extension.
+	
+save_nii_hdr.m
+
+save_nii.m
+
+	  Save NIFTI dataset. Support both *.nii and *.hdr/*.img file extension.
+	  If file extension is not provided, *.hdr/*.img will be used as default.
+	  
+	  Usage: save_nii(nii, filename, [old_RGB])
+	  
+	  nii.hdr - struct with NIFTI header fields (from load_nii.m or make_nii.m)
+	
+save_untouch0_nii_hdr.m
+
+save_untouch_nii_hdr.m
+
+save_untouch_nii.m
+
+	  Save NIFTI or ANALYZE dataset that is loaded by "load_untouch_nii.m".
+	  The output image format and file extension will be the same as the
+	  input one (NIFTI.nii, NIFTI.img or ANALYZE.img). Therefore, any file
+	  extension that you specified will be ignored.
+	
+save_untouch_slice.m
+
+	  Save back to the original image with a portion of slices that was
+	  loaded by "load_untouch_nii". You can process those slices matrix
+	  in any way, as long as their dimension is not altered.
+	
+unxform_nii.m
+
+	  Undo the flipping and rotations performed by xform_nii; spit back only
+	  the raw img data block. Initial cut will only deal with 3D volumes
+	  strongly assume we have called xform_nii to write down the steps used 
+	  in xform_nii.
+	
+verify_nii_ext.m
+
+	  Verify NIFTI header extension to make sure that each extension section
+	  must be an integer multiple of 16 byte long that includes the first 8
+	  bytes of esize and ecode. If the length of extension section is not the
+	  above mentioned case, edata should be padded with all 0.
+	
+view_nii.m
+
+	  VIEW_NII: Create or update a 3-View (Front, Top, Side) of the 
+		brain data that is specified by nii structure
+	
+view_nii_menu.m
+
+	  Imbed Zoom, Interp, and Info menu to view_nii window.
+	
+xform_nii.m
+
+
+ThirdPartyToolbox/OptiToolbox
+-------------------------------------------------------------
+
+opti_Install.m
+
+
+ThirdPartyToolbox/SpharmToolbox
+-------------------------------------------------------------
+
+align_FOE.m
+
+
+align_cps.m
+
+	 Goal: Align P to X using ICP
+
+align_CPS_SHREC.m
+
+
+align_FOE.m
+
+
+align_icp.m
+
+	 Goal: Align P to X using ICP
+
+calc_asr.m
+
+
+calc_STPS.m
+
+
+calc_triangle_areas.m
+
+
+calculate_SPHARM_basis.m
+
+	 Goal: Create canonical spherical harmonic bases
+
+conv2bim.m
+
+	 Goal: 
+
+create_SPHARM_des_LSF.m
+
+
+dispOptions.m
+
+
+do_pca.m
+
+
+extractSignals.m
+
+
+extract_surface.m
+
+	 Goal: Extract surface data (vertices and faces) from a binary object
+
+fill3dholes.m
+
+
+fix_bad_topology.m
+
+	 Goal: Fix a binary image by removing bad connectivities
+
+fixed_fvec.m
+
+
+FLD.m
+
+	 Goal: 
+
+gen_surf_data.m
+
+
+get_vertexnormals.m
+
+
+gipl_read_header.m
+
+
+gipl_read_volume.m
+
+
+gipl_write_volume.m
+
+
+initOptions.m
+
+
+initParamCALD.m
+
+
+load_nii_hdr.m
+
+
+load_nii_img.m
+
+
+load_nii.m
+
+
+LoadObjList.m
+
+
+loadOptions.m
+
+
+match_cps.m
+
+
+match_icp.m
+
+
+match_param_hie.m
+
+
+match_param.m
+
+
+NIfTI2bim.m
+
+	 Goal: Convert NIfTI image to bim format
+
+patch_color.m
+
+	 Goal: surface rendering with color
+
+patch_colormesh.m
+
+	 Goal: surface rendering with color
+
+patch_lighta.m
+
+	 Goal: surface rendering with lighting
+
+patch_light.m
+
+	 Goal: surface rendering with lighting
+
+patch_lightmesh.m
+
+	 Goal: surface rendering with lighting
+
+patch_mesh.m
+
+	 Goal: surface mesh rendering
+
+patch_overlay.m
+
+
+patch_shademesh.m
+
+	 Goal: surface shaded mesh rendering
+
+performHKsmooth.m
+
+	 Goal: Heat kernal smoothing, preprocessing for t-test
+
+performPCA.m
+
+
+performTstat.m
+
+
+project_PCA.m
+
+
+read_coef.m
+
+
+read_gipl.m
+
+
+read_meta.m
+
+
+readM.m
+
+
+readSTL.m
+
+
+rotate_mat.m
+
+
+rotate_param_m03.m
+
+	 Goal: rotating parameter space
+
+sample_euler_angle.m
+
+
+sample_Param_Space.m
+
+	 Goal: 
+
+saveOptions.m
+
+
+shrec_kth_itr.m
+
+
+smootheCALD.m
+
+
+SpharmMatAlignment.m
+
+
+SpharmMatDisplayStat.m
+
+
+SpharmMatExpandAlignByPDM.m
+
+
+SpharmMatExpansion.m
+
+
+SPHARM_MAT.m
+
+
+SpharmMatParameterization.m
+
+
+SpharmMatParamTriaMesh.m
+
+
+SpharmMatStatAnalysis.m
+
+
+SpharmMatUtilAverageObjs.m
+
+
+SpharmMatUtilBatchJobs.m
+
+
+SpharmMatUtilDisplayObjs.m
+
+
+SpharmMatUtilFormatConvert.m
+
+
+SpharmMatUtilImportObjs.m
+
+
+SpharmMatUtilScaleObjs.m
+
+
+SpharmMatUtilTopologyFix.m
+
+
+SPHARM_rmsd_batch.m
+
+
+SPHARM_rmsd.m
+
+
+stlreadASCII.m
+
+
+stlreadBIN.m
+
+
+surf_spharm.m
+
+
+updateOptions.m
+
+
+utl_eas.m
+
+	 Goal: create euler angle samples
+
+utl_sgm.m
+
+	 Goal: create signmatrix
+
+write_coef.m
+
+
+write_gipl.m
+
+
+write_metaNcoef.m
+
+
+write_meta_quad.m
+
+
+write_meta_tri.m
+
+
+write_procalign.m
+
+
+write_surfNpara.m
+
+
+xform_nii.m
+
+
+conv2bim.m
+
+	 Goal: 
+
+amira_r_hipp_surf.m
+
+
+
+ThirdPartyToolbox/SphereUniformSamplingToolbox
+-------------------------------------------------------------
+
+IcosahedronMesh.m
+
+ParticleSampleSphere.m
+
+	 Create an approximately uniform triangular tessellation of the unit 
+	 sphere by minimizing generalized electrostatic potential energy 
+	 (aka Reisz s-energy) of the system of charged particles. Effectively, 
+	 this function produces a locally optimal solution to the problem that 
+	 involves finding a minimum Reisz s-energy configuration of N equal 
+	 charges confined to the surface of the unit sphere (s=1 corresponds to 
+	 the problem originally posed by J. J. Thomson). 
+	
+RandSampleSphere.m
+
+	 Generate a uniform or stratified sampling of a unit sphere.
+	
+SubdivideSphericalMesh.m
+
+	 Subdivide triangular mesh representing the surface of the unit sphere
+	 k times using triangular quadrisection (see function TriQuad for more 
+	 info). The newly inserted vertices are re-projected onto the unit sphere
+	 after every iteration.
+	
+TriQuad.m
+
+	 Subdivide triangular mesh using triangular quadrisection. During this
+	 operation new vertices are inserted at the edge midpoints thereby 
+	 producing four new faces for every face of the original mesh. 
+	 Illustration of this operation is provided below:
+	 
+	                     x3                        x3
+	                    /  \      subdivision     /  \
+	                   /    \         -->        v3__v2
+	                  /      \                  / \  / \
+	                x1________x2              x1___v1___x2
+	
+
+ThirdPartyToolbox/SphericalTrigToolbox
+-------------------------------------------------------------
+
+aaad.m
+
+	AAAD  gives both solutions to the angle-angle-angle problem, in degrees.
+	
+aaa.m
+
+	AAA  gives both solutions to the angle-angle-angle problem, in radians.
+	
+aasd.m
+
+	AASD   gives both solutions to the angle-angle-side problem, in degrees.
+	
+aas.m
+
+	AAS   gives both solutions to the angle-angle-side problem, in radians.
+	
+acos2d.m
+
+	ACOS2D      4-quadrant arccosine function, in degrees. 
+	
+acos2.m
+
+	ACOS2      4-quadrant arccosine function, in radians. 
+	
+asad.m
+
+	ASAD   gives both solutions to the angle-side-angle problem, in degrees.
+	
+asa.m
+
+	ASA   gives both solutions to the angle-side-angle problem, in radians.
+	
+sasd.m
+
+	SASD   gives both solutions to the side-angle-side problem, in degrees.
+	
+sas.m
+
+	SAS   gives both solutions to the side-angle-side problem, in radians.
+	
+ssad.m
+
+	SSAD  gives both solutions to the side-side-angle problem, in degrees.
+	
+ssa.m
+
+	SSA   gives both solutions to the side-side-angle problem, in radians.
+	
+sssd.m
+
+sss.m
+
+	SSS   gives both solutions to the side-side-side problem, in radians.
+	
+
+ThirdPartyToolbox/sphsplineToolbox
+-------------------------------------------------------------
+
+sphsplinetc.m
+
+	 SPHSPLINETC Gridding using a spherical surface spline in tension
+	
+sphsplinet.m
+
+	 SPHSPLINET  Gridding using a spherical surface spline in tension
+	
+SSSTc.m
+
+	 SSSTc  Spherical Surface Spline in Tension (C mex version)
+	
+SSSTgradc.m
+
+	 SSSTgradc  Spherical Surface Spline in Tension gradient (C Mex version)
+	
+SSSTgrad.m
+
+	 SSSTgrad  Spherical Surface Spline in Tension gradient
+	
+SSST.m
+
+	 SSST  Spherical Surface Spline in Tension
+	
+WB_lookup.m
+
+
+ThirdPartyToolbox/TiffreadToolbox
+-------------------------------------------------------------
+
+image_background.m
+
+	 IMAGE_BRACKGROUND Automatically find the pixel-value of the background,
+	 for images that are predominantly black
+	
+image_histogram.m
+
+	 IMAGE_HISTOGRAM  Calculate the histogram of the given image
+	
+show_image.m
+
+	 SHOW_IMAGE  Display picture in 16-bit gray levels
+	
+show_stack.m
+
+	 SHOW_STACK  Display movie frames with a slider and autoscaling
+	
+tiffread.m
+
+	 TIFFREAD  Reads 8,16,32 bits uncompressed grayscale and (some) color tiff
+	 files, as well as stacks or multiple tiff images, for example those
+	 produced by metamorph, Zeiss LSM or NIH-image
+	
+

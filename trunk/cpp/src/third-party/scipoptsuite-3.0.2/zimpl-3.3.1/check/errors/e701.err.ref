@@ -1,0 +1,4 @@
+*** Error 701: sqrt(): Numerical argument out of domain
+*** File: e701.zpl Line 2
+*** param x := sqrt(-1);
+***                   ^^^

@@ -1,0 +1,4 @@
+#--- $Id: make.sunos.sparc.gnu.opt,v 1.6 2010/06/10 19:42:43 bzfkocht Exp $
+CPPFLAGS	+=	-DNDEBUG -DNO_MSHELL -D__NO_MATH_INLINES 
+CFLAGS		=	-O6
+LDFLAGS		=	-Bstatic -lgmp -lz -lm

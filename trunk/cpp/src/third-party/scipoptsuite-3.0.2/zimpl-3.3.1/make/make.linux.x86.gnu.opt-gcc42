@@ -1,0 +1,4 @@
+#--- $Id: make.linux.x86.gnu.opt-gcc42,v 1.1 2008/09/30 15:03:24 bzfkocht Exp $
+CPPFLAGS	+=	-DNDEBUG -DNO_MSHELL -D__NO_MATH_INLINES 
+CFLAGS		=	-O6 -march=native -mtune=native
+LDFLAGS		=	-lgmp -lz -lm -static
