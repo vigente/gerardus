@@ -1,5 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2012-2013 University of Oxford
+# Copyright © 2012-2014 University of Oxford
+# Version: 0.2.21
 # $Rev$
 # $Date$
 #
@@ -36,6 +37,7 @@ include_directories(
   ..
   .
   )
+link_directories(${Boost_LIBRARY_DIRS})
 
 ################################################################
 ## cgal_insurftri()
@@ -93,6 +95,7 @@ add_mex_file(cgal_check_self_intersect
   )
 
 target_link_libraries(cgal_check_self_intersect
+  ${Boost_THREAD_LIBRARY}
   CGAL
   CGAL_ImageIO
   ${ITK_LIBRARIES})
@@ -141,6 +144,7 @@ add_mex_file(cgal_meshseg
   )
 
 target_link_libraries(cgal_meshseg
+  ${Boost_THREAD_LIBRARY}
   CGAL
   CGAL_ImageIO
   ${ITK_LIBRARIES})

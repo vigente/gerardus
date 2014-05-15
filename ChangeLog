@@ -1,5 +1,10 @@
 2014-05-14  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CgalToolbox/CMakeLists.txt: (0.2.21)
+
+	- Fix bug. cgal_meshseg and cgal_checl_self_intersect need to link
+	against boost_thread.
+
 	* CMakeLists.txt: (0.9.1)
 
 	- Check that if we are in Windows, Gerardus is not on a network drive, as this
