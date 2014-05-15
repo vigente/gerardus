@@ -1,0 +1,5 @@
+#--- $Id: make.win.x86.mingw-cross.dbg,v 1.5 2010/06/10 19:42:43 bzfkocht Exp $
+CPPFLAGS	+=	-DFREEMEM -D__NO_MATH_INLINES -DWITH_PCRE -DPCRE_STATIC
+CFLAGS		=	-O -g $(GCCWARN)
+LDFLAGS		=	-lpcreposix -lpcre -lgmp -lz -lm -static
+BINARY		=	$(BINDIR)/$(BINNAME).exe

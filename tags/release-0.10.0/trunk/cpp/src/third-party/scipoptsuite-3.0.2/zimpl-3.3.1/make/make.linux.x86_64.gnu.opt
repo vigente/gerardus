@@ -1,0 +1,20 @@
+# Modified for project Gerardus
+# by Ramon Casero <rcasero@gmail.com> 14 Dec 2013
+
+#--- $Id: make.linux.x86_64.gnu.opt,v 1.8 2011/11/01 07:45:30 bzfkocht Exp $
+CPPFLAGS	+=	-DNDEBUG -DNO_MSHELL -D__NO_MATH_INLINES 
+CFLAGS		=	-O3 -m64 -mtune=native
+LDFLAGS		=	$(GERARDUSLDFLAGS) -lgmp -lz -lm
+
+ifeq ($(LINK),shared)
+LIBRARY		=	$(LIBDIR)/lib$(LIBNAME).so
+LIBLINK		=	$(LIBDIR)/lib$(NAME).$(BASE).so
+CFLAGS		+=	-fPIC
+AR		=	gcc -m64 -shared -o # the trailing space is important
+ARFLAGS		=       $(LDFLAGS)
+RANLIB		=	true
+endif
+
+ifeq ($(LINK),static)
+LDFLAGS		+=	-static
+endif

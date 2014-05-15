@@ -1,0 +1,107 @@
+Installation of certain Harwell subroutines.
+
+*********************************************************************
+Note: It is YOUR RESPONSIBILITY to ensure that you are entitled to
+      download and use this third party package.
+*********************************************************************
+
+Information on the Harwell Subroutine Library (HSL) is available at
+
+http://www.hsl.rl.ac.uk/
+
+For use by COIN-OR, STFC provides special packages at
+
+http://www.hsl.rl.ac.uk/ipopt/
+
+which can be build independently or within the buildsystem in this
+directory.
+
+Different ways to use the HSL routines in COIN-OR Ipopt:
+--------------------------------------------------------
+
+1. If you download the HSL sources when you configure and compile
+   Ipopt, those files will be compiled and included into the Ipopt
+   executable.
+
+2. You can also compile Ipopt without the HSL source files.  In this
+   case, Ipopt will be built without the HSL routines, but it will be
+   possible to load a shared library at runtime that contains the HSL
+   routines.  For this, you need to provide this shared library.  You
+   can use the Makefile of the coinhsl package obtained from HSL or
+   the Makefiles in this ThirdParty/HSL directory to generate
+   this shared library.  For details, please look at the
+
+   "Compiling a shared library with HSL" 
+
+   below in this file.
+
+Instructions on providing the source code for ThirdParty/HSL:
+-------------------------------------------------------------
+
+First, follow the links at http://www.hsl.rl.ac.uk/ipopt to register and
+obtain an archive coinhsl-x.y.z.tar.gz.
+
+Unpack this archive via
+  gunzip coinhsl-x.y.z.tar.gz
+  tar xf coinhsl-x.y.z.tar
+
+Then rename the directory coinhsl-x.y.z to coinhsl, or set a symbolic link:
+  ln -s coinhsl-x.y.z coinhsl
+
+The configuration script will then detect which source files are available
+in your coinhsl package and prepare the Makefile accordingly.
+
+Note, that in difference to previous versions of ThirdParty/HSL, the
+configure script now checks for the HSL routines in subdirectories
+as they are given in the coinhsl-x.y.z.tar.gz archive.
+
+Compiling a shared library with HSL
+===================================
+
+Note: This has not yet been successfully tested on all platforms.  It
+      should work on most UNIX systems (including Linux), and also on
+      Cygwin and MSys.  So far, it does not seem to work on AIX.
+
+If you already built an Ipopt executable or library, you can still add
+the functionality of the HSL routines without recompiling Ipopt.  The
+following describes the mechanism that Ipopt uses to use a Harwell
+Subroutine:
+
+1. If the Ipopt binary/library had been compiled with HSL files
+   present, those subroutines are always available.
+
+2. If you are selecting a Harwell subroutine (such as MA27 or MA57 as
+   argument to the "linear_solver" option) which has not been available
+   when Ipopt had been compiled, Ipopt will attempt to load a shared
+   library containing this routine.  The name of the shared library
+   depends on the operating system:
+
+   - Windows (Cygwin/MSys/MSVC): libhsl.dll
+   - Darwin: libhsl.dylib
+   - UNIX (including Linux): libhsl.so
+
+   If this library is not found, or the selected routine is not
+   available in this shared library, Ipopt will abort with an error
+   message.
+
+An easy way to generate this shared library is to use the "configure"
+script in this directory, using the following instructions:
+
+1. Put the HSL routines that are available to you into this directory
+   (see above).
+
+2. Run the configure script of ThirdParty/HSL (not the one in the
+   Ipopt base directory!).  As arguments, you would essentially
+   provide the same flags as you would usually when you compile Ipopt,
+   but you need to add the flag "--enable-loadable-library".  Since
+   you are compiling a shared library, you cannot specify the
+   "--disable-shared" flag.
+
+3. Then just run "make install".  If it works, this should give you
+   the shared library in the "lib" subdirectory in the directory where
+   you run the ThirdParty/HSL/configure script.
+
+4. To use the shared library, you need to make sure that Ipopt will
+   find it when it is looking for it.  On most UNIX systems, you need
+   to put the shared library into a directory in the LD_LIBRARY_PATH
+   search path, and on Windows it needs to be in the PATH.

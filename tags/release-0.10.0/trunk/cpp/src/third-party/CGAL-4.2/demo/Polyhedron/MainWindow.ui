@@ -1,0 +1,654 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>978</width>
+    <height>594</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>CGAL Polyhedron demo</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="Polyhedron_3.qrc">
+    <normaloff>:/cgal/icons/resources/cgal_logo.xpm</normaloff>:/cgal/icons/resources/cgal_logo.xpm</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <widget class="Viewer" name="viewer" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>1</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>978</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionLoad"/>
+    <addaction name="actionErase"/>
+    <addaction name="actionEraseAll"/>
+    <addaction name="actionDuplicate"/>
+    <addaction name="actionSaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="actionLoad_Script"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="actionShowHide"/>
+    <addaction name="actionSetPolyhedronA"/>
+    <addaction name="actionSetPolyhedronB"/>
+    <addaction name="actionSelect_all_items"/>
+    <addaction name="actionPreferences"/>
+   </widget>
+   <widget class="QMenu" name="menuOperations">
+    <property name="title">
+     <string>&amp;Operations</string>
+    </property>
+    <widget class="QMenu" name="menuSubdivision">
+     <property name="title">
+      <string>&amp;Subdivision</string>
+     </property>
+     <addaction name="actionLoop"/>
+     <addaction name="actionCatmullClark"/>
+     <addaction name="actionSqrt3"/>
+    </widget>
+    <widget class="QMenu" name="menu_Boolean_operations">
+     <property name="title">
+      <string>&amp;Boolean operations</string>
+     </property>
+     <addaction name="actionToNef"/>
+     <addaction name="actionToPoly"/>
+     <addaction name="actionUnion"/>
+     <addaction name="actionIntersection"/>
+     <addaction name="actionDifference"/>
+     <addaction name="separator"/>
+     <addaction name="actionMinkowskiSum"/>
+    </widget>
+    <widget class="QMenu" name="menuParameterization">
+     <property name="title">
+      <string>Parameterization</string>
+     </property>
+     <addaction name="actionMVC"/>
+     <addaction name="actionDCP"/>
+    </widget>
+    <widget class="QMenu" name="menuPCA">
+     <property name="title">
+      <string>PCA</string>
+     </property>
+     <addaction name="actionFitLine"/>
+     <addaction name="actionFitPlane"/>
+    </widget>
+    <addaction name="menuPCA"/>
+    <addaction name="actionEstimateCurvature"/>
+    <addaction name="actionSelfIntersection"/>
+    <addaction name="actionConvexHull"/>
+    <addaction name="actionKernel"/>
+    <addaction name="menuSubdivision"/>
+    <addaction name="actionSimplify"/>
+    <addaction name="actionRemeshing"/>
+    <addaction name="actionConvexDecomposition"/>
+    <addaction name="menu_Boolean_operations"/>
+    <addaction name="menuParameterization"/>
+    <addaction name="actionInsideOut"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <widget class="QMenu" name="menuDockWindows">
+     <property name="title">
+      <string>&amp;Dock windows</string>
+     </property>
+     <addaction name="dummyAction"/>
+    </widget>
+    <widget class="QMenu" name="menuCamera">
+     <property name="title">
+      <string>Ca&amp;mera</string>
+     </property>
+     <addaction name="actionDumpCamera"/>
+     <addaction name="action_Copy_camera"/>
+     <addaction name="action_Paste_camera"/>
+    </widget>
+    <addaction name="actionRecenterScene"/>
+    <addaction name="action_Look_at"/>
+    <addaction name="actionAntiAliasing"/>
+    <addaction name="actionDraw_two_sides"/>
+    <addaction name="actionSetBackgroundColor"/>
+    <addaction name="menuDockWindows"/>
+    <addaction name="menuCamera"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuOperations"/>
+   <addaction name="menuView"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QDockWidget" name="sceneDockWidget">
+   <property name="locale">
+    <locale language="English" country="UnitedStates"/>
+   </property>
+   <property name="windowTitle">
+    <string>Geometric Objects</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContent">
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="0">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QToolButton" name="addButton">
+           <property name="text">
+            <string>+</string>
+           </property>
+           <property name="icon">
+            <iconset resource="Polyhedron_3.qrc">
+             <normaloff>:/cgal/icons/plus</normaloff>:/cgal/icons/plus</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="removeButton">
+           <property name="text">
+            <string>-</string>
+           </property>
+           <property name="icon">
+            <iconset resource="Polyhedron_3.qrc">
+             <normaloff>:/cgal/icons/minus</normaloff>:/cgal/icons/minus</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="duplicateButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="Polyhedron_3.qrc">
+             <normaloff>:/cgal/icons/duplicate</normaloff>:/cgal/icons/duplicate</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTreeView" name="sceneView">
+         <property name="editTriggers">
+          <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::ExtendedSelection</enum>
+         </property>
+         <property name="indentation">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="consoleDockWidget">
+   <property name="allowedAreas">
+    <set>Qt::BottomDockWidgetArea|Qt::LeftDockWidgetArea|Qt::TopDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Console</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <widget class="QTextEdit" name="consoleTextEdit">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="infoDockWidget">
+   <property name="windowTitle">
+    <string>Infos</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QScrollArea" name="scrollArea">
+         <property name="minimumSize">
+          <size>
+           <width>350</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>545</width>
+            <height>178</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="infoLabel">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>1</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::DefaultContextMenu</enum>
+             </property>
+             <property name="lineWidth">
+              <number>0</number>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
+             <property name="textInteractionFlags">
+              <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="displayLabel">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <action name="actionQuit">
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionSimplify">
+   <property name="text">
+    <string>&amp;Simplification</string>
+   </property>
+  </action>
+  <action name="actionCatmullClark">
+   <property name="text">
+    <string>&amp;Catmull-Clark</string>
+   </property>
+  </action>
+  <action name="actionKernel">
+   <property name="text">
+    <string>&amp;Kernel</string>
+   </property>
+  </action>
+  <action name="actionUnion">
+   <property name="text">
+    <string>&amp;Union</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O, U</string>
+   </property>
+  </action>
+  <action name="actionIntersection">
+   <property name="text">
+    <string>&amp;Intersection</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O, I</string>
+   </property>
+  </action>
+  <action name="actionDifference">
+   <property name="text">
+    <string>&amp;Difference</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O, D</string>
+   </property>
+  </action>
+  <action name="actionFitPlane">
+   <property name="text">
+    <string>Fit &amp;plane</string>
+   </property>
+  </action>
+  <action name="actionFitLine">
+   <property name="text">
+    <string>Fit &amp;line</string>
+   </property>
+  </action>
+  <action name="actionEstimateCurvature">
+   <property name="text">
+    <string>&amp;Curvature estimation</string>
+   </property>
+  </action>
+  <action name="actionLoad">
+   <property name="icon">
+    <iconset resource="Polyhedron_3.qrc">
+     <normaloff>:/cgal/icons/plus</normaloff>:/cgal/icons/plus</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Load...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionErase">
+   <property name="icon">
+    <iconset resource="Polyhedron_3.qrc">
+     <normaloff>:/cgal/icons/minus</normaloff>:/cgal/icons/minus</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Erase</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
+  </action>
+  <action name="actionDuplicate">
+   <property name="icon">
+    <iconset resource="Polyhedron_3.qrc">
+     <normaloff>:/cgal/icons/duplicate</normaloff>:/cgal/icons/duplicate</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Duplicate</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionSqrt3">
+   <property name="text">
+    <string>&amp;Sqrt3</string>
+   </property>
+  </action>
+  <action name="actionAntiAliasing">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Antialiasing</string>
+   </property>
+  </action>
+  <action name="dummyAction">
+   <property name="text">
+    <string>n/a</string>
+   </property>
+  </action>
+  <action name="actionConvexHull">
+   <property name="text">
+    <string>&amp;Convex hull</string>
+   </property>
+  </action>
+  <action name="actionEraseAll">
+   <property name="text">
+    <string>&amp;Erase all</string>
+   </property>
+  </action>
+  <action name="actionOptions">
+   <property name="text">
+    <string>&amp;Options...</string>
+   </property>
+  </action>
+  <action name="actionLoop">
+   <property name="text">
+    <string>&amp;Loop</string>
+   </property>
+  </action>
+  <action name="actionSaveAs">
+   <property name="text">
+    <string>Save &amp;as...</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>&amp;Save</string>
+   </property>
+  </action>
+  <action name="actionSaveAll">
+   <property name="text">
+    <string>Save a&amp;ll</string>
+   </property>
+  </action>
+  <action name="actionMergeAll">
+   <property name="text">
+    <string>Mer&amp;ge all</string>
+   </property>
+  </action>
+  <action name="actionMerge">
+   <property name="text">
+    <string>&amp;Merge</string>
+   </property>
+  </action>
+  <action name="actionSelfIntersection">
+   <property name="text">
+    <string>Self-&amp;intersection</string>
+   </property>
+  </action>
+  <action name="actionSelectAll">
+   <property name="text">
+    <string>Select &amp;all</string>
+   </property>
+  </action>
+  <action name="actionSelectNone">
+   <property name="text">
+    <string>Select &amp;none</string>
+   </property>
+  </action>
+  <action name="actionSelectInvert">
+   <property name="text">
+    <string>&amp;Invert selection</string>
+   </property>
+  </action>
+  <action name="actionShowHide">
+   <property name="text">
+    <string>Show/Hide</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Space</string>
+   </property>
+  </action>
+  <action name="actionSetPolyhedronA">
+   <property name="text">
+    <string>Set polyhedron A</string>
+   </property>
+  </action>
+  <action name="actionSetPolyhedronB">
+   <property name="text">
+    <string>Set polyhedron B</string>
+   </property>
+  </action>
+  <action name="actionInsideOut">
+   <property name="text">
+    <string>&amp;Inside-out</string>
+   </property>
+  </action>
+  <action name="actionRemeshing">
+   <property name="text">
+    <string>&amp;Remeshing</string>
+   </property>
+  </action>
+  <action name="actionConvexDecomposition">
+   <property name="text">
+    <string>Convex Decomposition</string>
+   </property>
+  </action>
+  <action name="actionMVC">
+   <property name="text">
+    <string>Mean &amp;value coordinates</string>
+   </property>
+  </action>
+  <action name="actionDCP">
+   <property name="text">
+    <string>Discrete &amp;conformal maps</string>
+   </property>
+  </action>
+  <action name="actionExplode">
+   <property name="text">
+    <string>Explode</string>
+   </property>
+  </action>
+  <action name="actionToNef">
+   <property name="text">
+    <string>Convert to nef polyhedron</string>
+   </property>
+  </action>
+  <action name="actionToPoly">
+   <property name="text">
+    <string>Convert to normal polyhedron</string>
+   </property>
+  </action>
+  <action name="actionDraw_two_sides">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Draw &amp;two sides</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionRecenterScene">
+   <property name="text">
+    <string>Re&amp;center scene</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionSetBackgroundColor">
+   <property name="text">
+    <string>Change &amp;background color...</string>
+   </property>
+  </action>
+  <action name="actionMinkowskiSum">
+   <property name="text">
+    <string>&amp;Minkowski sum</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O, M</string>
+   </property>
+  </action>
+  <action name="action_Look_at">
+   <property name="text">
+    <string>&amp;Look at...</string>
+   </property>
+  </action>
+  <action name="actionDumpCamera">
+   <property name="text">
+    <string>&amp;Dump camera coordinates</string>
+   </property>
+  </action>
+  <action name="action_Copy_camera">
+   <property name="text">
+    <string>&amp;Copy camera</string>
+   </property>
+  </action>
+  <action name="action_Paste_camera">
+   <property name="text">
+    <string>&amp;Paste camera</string>
+   </property>
+  </action>
+  <action name="actionSelect_all_items">
+   <property name="text">
+    <string>Select all items</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionLoad_Script">
+   <property name="text">
+    <string>Load &amp;script</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>&amp;Preferences</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Viewer</class>
+   <extends>QWidget</extends>
+   <header>Viewer.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="Polyhedron_3.qrc"/>
+ </resources>
+ <connections/>
+</ui>

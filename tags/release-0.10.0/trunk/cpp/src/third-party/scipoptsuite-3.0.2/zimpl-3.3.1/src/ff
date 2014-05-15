@@ -1,0 +1,496 @@
+==== blkmem.c ====
+11c11
+<  * Copyright (C) 2007-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2007-2012 by Thorsten Koch <koch@zib.de>
+==== bound.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== code.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== conname.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== define.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== elem.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== entry.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== gmpmisc.c ====
+11c11
+<  * Copyright (C) 2003-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2003-2012 by Thorsten Koch <koch@zib.de>
+==== hash.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== heap.c ====
+11c11
+<  * Copyright (C) 2006-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2006-2012 by Thorsten Koch <koch@zib.de>
+==== idxset.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== inst.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== iread.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== list.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== load.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== local.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== metaio.c ====
+11c11
+<  * Copyright (C) 2006-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2006-2012 by Thorsten Koch <koch@zib.de>
+==== mmlparse2.c ====
+305c305
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== mmlscan.c ====
+777c777
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== mono.c ====
+11c11
+<  * Copyright (C) 2007-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2007-2012 by Thorsten Koch <koch@zib.de>
+==== mshell.c ====
+11c11
+<  * Copyright (C) 2003-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2003-2012 by Thorsten Koch <koch@zib.de>
+==== numbdbl.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== numbgmp.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== prog.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== random.c ====
+11c11
+<  * Copyright (C) 2007-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2007-2012 by Thorsten Koch <koch@zib.de>
+==== rathumwrite.c ====
+11c11
+<  * Copyright (C) 2003-2009 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2003-2012 by Thorsten Koch <koch@zib.de>
+14,15c14,15
+<  * modify it under the terms of the GNU General Public License
+<  * as published by the Free Software Foundation; either version 2
+---
+>  * modify it under the terms of the GNU Lesser General Public License
+>  * as published by the Free Software Foundation; either version 3
+21c21
+<  * GNU General Public License for more details.
+---
+>  * GNU Lesser General Public License for more details.
+23c23
+<  * You should have received a copy of the GNU General Public License
+---
+>  * You should have received a copy of the GNU Lesser General Public License
+25c25
+<  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+---
+>  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA. 
+==== ratlpfwrite.c ====
+11c11
+<  * Copyright (C) 2003-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2003-2012 by Thorsten Koch <koch@zib.de>
+==== ratlpstore.c ====
+11c11
+<  * Copyright (C) 2003-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2003-2012 by Thorsten Koch <koch@zib.de>
+==== ratmpswrite.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== ratmstwrite.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== ratordwrite.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== ratpresolve.c ====
+11c11
+<  * Copyright (C) 2003-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2003-2012 by Thorsten Koch <koch@zib.de>
+==== ratsoswrite.c ====
+11c11
+<  * Copyright (C) 2005-2007 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2005-2012 by Thorsten Koch <koch@zib.de>
+14,15c14,15
+<  * modify it under the terms of the GNU General Public License
+<  * as published by the Free Software Foundation; either version 2
+---
+>  * modify it under the terms of the GNU Lesser General Public License
+>  * as published by the Free Software Foundation; either version 3
+21c21
+<  * GNU General Public License for more details.
+---
+>  * GNU Lesser General Public License for more details.
+23c23
+<  * You should have received a copy of the GNU General Public License
+---
+>  * You should have received a copy of the GNU Lesser General Public License
+25c25
+<  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+---
+>  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
+==== rdefpar.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== set4.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== setempty.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== setlist.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== setmulti.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== setprod.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== setpseudo.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== setrange.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== source.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== stkchk.c ====
+11c11
+<  * Copyright (C) 2011-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2011-2012 by Thorsten Koch <koch@zib.de>
+==== stmt.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== strstore2.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== symbol.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== term2.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== tuple.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== vinst.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== xlpglue.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== zimpl.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== zimpllib.c ====
+11c11
+<  * Copyright (C) 2005-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2005-2012 by Thorsten Koch <koch@zib.de>
+78c78
+<       "* Release %-5s Copyright (C)2011 by Thorsten Koch *\n" \
+---
+>       "* Release %-5s Copyright (C)2012 by Thorsten Koch *\n" \
+==== zlpglue.c ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== blkmem.h ====
+11c11
+<  * Copyright (C) 2007-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2007-2012 by Thorsten Koch <koch@zib.de>
+==== bool.h ====
+11c11
+<  * Copyright (C) 2003-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2003-2012 by Thorsten Koch <koch@zib.de>
+==== bound.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== code.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== conname.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== define.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== elem.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== entry.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== gmpmisc.h ====
+11c11
+<  * Copyright (C) 2003-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2003-2012 by Thorsten Koch <koch@zib.de>
+==== hash.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== heap.h ====
+11c11
+<  * Copyright (C) 2006-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2006-2012 by Thorsten Koch <koch@zib.de>
+==== idxset.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== inst.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== lint.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== list.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== local.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== metaio.h ====
+11c11
+<  * Copyright (C) 2006-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2006-2012 by Thorsten Koch <koch@zib.de>
+==== mme.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== mmlparse2.h ====
+==== mono.h ====
+11c11
+<  * Copyright (C) 2007-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2007-2012 by Thorsten Koch <koch@zib.de>
+==== mshell.h ====
+11c11
+<  * Copyright (C) 2007-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2007-2012 by Thorsten Koch <koch@zib.de>
+==== numb.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== prog.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== random.h ====
+11c11
+<  * Copyright (C) 2007-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2007-2012 by Thorsten Koch <koch@zib.de>
+==== ratlp.h ====
+11c11
+<  * Copyright (C) 2003-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2003-2012 by Thorsten Koch <koch@zib.de>
+==== ratlpstore.h ====
+11c11
+<  * Copyright (C) 2003-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2003-2012 by Thorsten Koch <koch@zib.de>
+==== ratlptypes.h ====
+11c11
+<  * Copyright (C) 2003-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2003-2012 by Thorsten Koch <koch@zib.de>
+==== rdefpar.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== set4.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== set.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== stkchk.h ====
+11c11
+<  * Copyright (C) 2011-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2011-2012 by Thorsten Koch <koch@zib.de>
+==== stmt.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== strstore.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== symbol.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== term.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== tuple.h ====
+11c11
+<  * Copyright (C) 2001-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2001-2012 by Thorsten Koch <koch@zib.de>
+==== xlpglue.h ====
+11c11
+<  * Copyright (C) 2003-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2003-2012 by Thorsten Koch <koch@zib.de>
+==== zimpllib.h ====
+11c11
+<  * Copyright (C) 2005-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2005-2012 by Thorsten Koch <koch@zib.de>
+==== zlpglue.h ====
+11c11
+<  * Copyright (C) 2003-2011 by Thorsten Koch <koch@zib.de>
+---
+>  * Copyright (C) 2003-2012 by Thorsten Koch <koch@zib.de>

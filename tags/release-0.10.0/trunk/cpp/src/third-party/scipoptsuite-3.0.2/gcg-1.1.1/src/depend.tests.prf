@@ -1,0 +1,66 @@
+$(TESTOBJDIR)/test.o: src/tests/test.cpp lib/gtest/gtest/gtest.h \
+ lib/gtest/gtest/internal/gtest-internal.h \
+ lib/gtest/gtest/internal/gtest-port.h \
+ lib/gtest/gtest/internal/gtest-string.h \
+ lib/gtest/gtest/internal/gtest-filepath.h \
+ lib/gtest/gtest/internal/gtest-type-util.h \
+ lib/gtest/gtest/gtest-death-test.h \
+ lib/gtest/gtest/internal/gtest-death-test-internal.h \
+ lib/gtest/gtest/gtest-message.h lib/gtest/gtest/gtest-param-test.h \
+ lib/gtest/gtest/internal/gtest-param-util.h \
+ lib/gtest/gtest/internal/gtest-linked_ptr.h \
+ lib/gtest/gtest/gtest-printers.h \
+ lib/gtest/gtest/internal/gtest-param-util-generated.h \
+ lib/gtest/gtest/gtest_prod.h lib/gtest/gtest/gtest-test-part.h \
+ lib/gtest/gtest/gtest-typed-test.h lib/gtest/gtest/gtest_pred_impl.h \
+ src/gcgplugins.h lib/scip/src/scip/scip.h lib/scip/src/scip/def.h \
+ lib/scip/src/scip/type_retcode.h lib/scip/src/scip/pub_message.h \
+ lib/scip/src/scip/type_message.h lib/scip/src/scip/struct_message.h \
+ lib/scip/src/blockmemshell/memory.h lib/scip/src/scip/type_result.h \
+ lib/scip/src/scip/type_clock.h lib/scip/src/scip/type_misc.h \
+ lib/scip/src/scip/type_timing.h lib/scip/src/scip/type_scip.h \
+ lib/scip/src/scip/type_paramset.h lib/scip/src/scip/type_event.h \
+ lib/scip/src/scip/type_lp.h lib/scip/src/scip/type_nlp.h \
+ lib/scip/src/scip/type_var.h lib/scip/src/scip/type_prob.h \
+ lib/scip/src/scip/type_tree.h lib/scip/src/scip/type_branch.h \
+ lib/scip/src/scip/type_conflict.h lib/scip/src/scip/type_cons.h \
+ lib/scip/src/scip/type_sol.h lib/scip/src/scip/type_dialog.h \
+ lib/scip/src/scip/type_disp.h lib/scip/src/scip/type_heur.h \
+ lib/scip/src/scip/type_nodesel.h lib/scip/src/scip/type_presol.h \
+ lib/scip/src/scip/type_pricer.h lib/scip/src/scip/type_reader.h \
+ lib/scip/src/scip/type_relax.h lib/scip/src/scip/type_sepa.h \
+ lib/scip/src/scip/type_prop.h lib/scip/src/nlpi/type_nlpi.h \
+ lib/scip/src/nlpi/type_expr.h lib/scip/src/scip/pub_branch.h \
+ lib/scip/src/scip/pub_conflict.h lib/scip/src/scip/pub_cons.h \
+ lib/scip/src/scip/struct_cons.h lib/scip/src/scip/pub_cutpool.h \
+ lib/scip/src/scip/type_cutpool.h lib/scip/src/scip/pub_dialog.h \
+ lib/scip/src/scip/pub_disp.h lib/scip/src/scip/pub_event.h \
+ lib/scip/src/scip/pub_fileio.h lib/scip/src/scip/pub_heur.h \
+ lib/scip/src/scip/pub_implics.h lib/scip/src/scip/type_implics.h \
+ lib/scip/src/scip/struct_implics.h lib/scip/src/scip/pub_lp.h \
+ lib/scip/src/scip/type_set.h lib/scip/src/scip/type_stat.h \
+ lib/scip/src/scip/type_lpi.h lib/scip/src/scip/struct_lp.h \
+ lib/scip/src/scip/pub_nlp.h lib/scip/src/scip/pub_misc.h \
+ lib/scip/src/scip/struct_misc.h lib/scip/src/scip/pub_nodesel.h \
+ lib/scip/src/scip/pub_paramset.h lib/scip/src/scip/pub_presol.h \
+ lib/scip/src/scip/pub_pricer.h lib/scip/src/scip/pub_reader.h \
+ lib/scip/src/scip/pub_relax.h lib/scip/src/scip/pub_sepa.h \
+ lib/scip/src/scip/pub_prop.h lib/scip/src/scip/pub_sol.h \
+ lib/scip/src/scip/struct_sol.h lib/scip/src/scip/pub_tree.h \
+ lib/scip/src/scip/struct_tree.h lib/scip/src/scip/pub_var.h \
+ lib/scip/src/scip/type_history.h lib/scip/src/scip/struct_var.h \
+ lib/scip/src/scip/implics.h lib/scip/src/scip/history.h \
+ lib/scip/src/scip/struct_history.h lib/scip/src/scip/lpi.h \
+ lib/scip/src/nlpi/pub_expr.h lib/scip/src/scip/intervalarith.h \
+ lib/scip/src/nlpi/type_exprinterpret.h lib/scip/src/nlpi/struct_expr.h \
+ lib/scip/src/scip/struct_scip.h lib/scip/src/scip/type_interrupt.h \
+ lib/scip/src/scip/type_mem.h lib/scip/src/scip/type_primal.h \
+ lib/scip/src/scip/type_pricestore.h lib/scip/src/scip/type_sepastore.h \
+ lib/scip/src/scip/set.h lib/scip/src/scip/buffer.h \
+ lib/scip/src/scip/type_buffer.h lib/scip/src/scip/struct_set.h \
+ lib/scip/src/scip/message.h lib/scip/src/scip/tree.h \
+ lib/scip/src/scip/misc.h lib/scip/src/scip/var.h \
+ lib/scip/src/scip/event.h lib/scip/src/scip/struct_event.h \
+ src/relax_gcg.h src/type_branchgcg.h src/type_decomp.h src/pricer_gcg.h \
+ src/type_solver.h src/cons_decomp.h src/type_detector.h src/reader_blk.h \
+ src/reader_dec.h

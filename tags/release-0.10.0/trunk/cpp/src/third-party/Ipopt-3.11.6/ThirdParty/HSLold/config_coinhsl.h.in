@@ -1,0 +1,36 @@
+/* config_coinhsl.h.in. */
+
+#ifndef __CONFIG_COINHSL_H__
+#define __CONFIG_COINHSL_H__
+
+/* Define to 1 if MA27 is available. */
+#undef COINHSL_HAS_MA27
+
+/* Define to 1 if MA28 is available. */
+#undef COINHSL_HAS_MA28
+
+/* Define to 1 if MA57 is available. */
+#undef COINHSL_HAS_MA57
+
+/* Define to 1 if MA77 is available. */
+#undef COINHSL_HAS_MA77
+
+/* Define to 1 if MC19 is available. */
+#undef COINHSL_HAS_MC19
+
+/* Define to 1 if METIS is available */
+#undef COINHSL_HAS_METIS
+
+/* Version number of project */
+#undef COINHSL_VERSION
+
+/* Major Version number of project */
+#undef COINHSL_VERSION_MAJOR
+
+/* Minor Version number of project */
+#undef COINHSL_VERSION_MINOR
+
+/* Release Version number of project */
+#undef COINHSL_VERSION_RELEASE
+
+#endif

@@ -1,0 +1,54 @@
+Detailed installation instructions for Bonmin can be found in the Users Manual at
+http://www.coin-or.org/Bonmin/Intro.html
+
+Standard installation instructions for COIN-OR projects can be found at
+
+https://projects.coin-or.org/BuildTools
+
+I - Installing Bonmin
+The build process of Bonmin uses the standard GNU Autotools
+
+It has been successfully compiled and run on the following platforms:
+ - Linux using g++ version 4.5
+ - Windows using version Cygwin 1.5.18
+ - Mac OS X using gcc 4.5
+
+Note that Bonmin reauires a certain number of third parties dependencies. Please visit:
+https://projects.coin-or.org/Bonmin/wiki/ThirdParty
+to find out how to obtain and install them.
+
+Bonmin is then compiled and installed using the commands:
+
+% ./configure
+% make
+% make install
+
+This installs the executable bonmin in the bin subdirectory of the
+installation direcory.
+
+The configure script attempts to find all of the machine specific settings
+(compiler, libraries,...) necessary to compile and run the code. Although
+{\tt configure} should find most of the standard ones, you may have to
+manually specify a few of the settings. The options for the configure
+script can be found by issuing the command
+
+% ./configure --help
+
+For a more in depth description of these options, the reader is invited
+to refer to the COIN-OR BuildTools trac page at:
+https://projects.coin-or.org/BuildTools/
+
+II - BUILDING THE DOCUMENTATION
+The documentation for Bonmin consists of a users' manual and a reference
+manual. You can build a local copy of the reference manual provided that
+you have Latex
+and Doxygen installed on your machine. To do it Issue the command
+
+% make doxydoc
+It calls Doxygen to build a copy of the reference manual. An html version
+of the reference manual can then be accessed in doc/html/index.html.
+
+III - RUNNING THE TEST PROGRAMS
+By issuing the command
+% make test
+you build and run the automatic test program for Bonmin.

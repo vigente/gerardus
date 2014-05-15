@@ -1,0 +1,6 @@
+#--- $Id: make.sunos.x86.sun.dbg,v 1.5 2010/06/10 19:42:43 bzfkocht Exp $
+CC		=	cc
+CPPFLAGS	+=	-DFREEMEM -Dinline=""
+CFLAGS		=	-g -xcheck=stkovf
+LDFLAGS		=	-Bstatic -lgmp -lz -lm
+

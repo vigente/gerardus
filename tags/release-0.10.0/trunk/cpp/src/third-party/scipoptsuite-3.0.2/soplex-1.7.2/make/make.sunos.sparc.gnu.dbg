@@ -1,0 +1,5 @@
+CXX	=	g++
+CPPFLAGS=	-Isrc -DNDEBUG  -DWITH_ZLIB
+CXXFLAGS=	-O0 -mcpu=v8 -fforce-addr -funroll-loops
+LDFLAGS	=	-lz -lm
+ARFLAGS	=	crs

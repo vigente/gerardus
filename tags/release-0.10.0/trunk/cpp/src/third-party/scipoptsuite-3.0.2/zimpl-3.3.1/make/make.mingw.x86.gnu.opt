@@ -1,0 +1,4 @@
+#--- $Id: make.mingw.x86.gnu.opt,v 1.1 2012/11/23 13:03:43 bzfkocht Exp $
+CPPFLAGS	+=	-DNDEBUG -DNO_MSHELL -D__NO_MATH_INLINES 
+CFLAGS		=	-O6
+LDFLAGS		=	-lgmp -lz -lpcreposix -lpcre -lm -static

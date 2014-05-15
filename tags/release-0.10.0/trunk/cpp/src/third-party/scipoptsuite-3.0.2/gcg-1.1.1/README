@@ -1,0 +1,48 @@
+INSTALLATION:
+
+This is a very rudimentary description of what's needed to get GCG running.
+The official documentation can be found either under
+http://www.or.rwth-aachen.de/gcg
+or it can be locally created using doxygen version at least 1.8.0 with "make doc"
+
+Here is what you have to do to get the standalone version of GCG running:
+
+1. You need SCIP version 3.0.0 or higher and a reasonable compiler suite with
+   libraries installed.
+   Under Ubuntu, you can install these with
+     "sudo apt-get install build-essential libreadline-dev libz-dev"
+   With OpenSuSE 11.4and 12.1 this is
+     "sudo zypper in -t pattern devel_C_C++ && sudo zypper in readline-devel zlib-devel-static"
+   The package names may differ on your linux distribution.
+
+2. Create a folder lib/ in your gcg directory and create a softlink there
+   pointing to your SCIP directory or type "make" and let the makefile ask you for
+   the link to the SCIP directory.
+
+3. Compile the GCG project, by entering "make [options]" where the options are
+   the same as in SCIP. You can find SCIP and its documentation on
+   http://scip.zib.de .
+
+USAGE:
+
+Here you'll find the basic instructions how GCG can be used to solve MIPs by
+generic Dantzig-Wolfe decomposition. A more elaborate example can be found in
+the official documentation.
+
+1. Start the binary, "bin/gcg" for the binary that you compiled last or "bin/gcg. ..." for a previous binary
+   with different options
+2. Read in a problem, e.g., an .lp-file or .mps-file (r problem.lp)
+3. Read in the corresponding .dec-file  (r problem.dec)
+4. Solve the problem by entering "optimize" or "o"
+
+INFORMATION ABOUT STRUCTURE (DEC OR BLK) FILES
+
+You can find examples on ".dec" and ".blk" files in the check/instances
+directory. The fileformat is documented in the documentation as well as in the
+reader header files.
+
+LICENSING:
+
+GCG is licensed under the GNU Lesser General Public Licenes. The instances in
+check/instances are distributed with a different license, see check/readme for
+more details on the license and origin of these instances.
