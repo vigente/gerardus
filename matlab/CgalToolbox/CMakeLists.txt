@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2012-2014 University of Oxford
-# Version: 0.2.21
+# Version: 0.2.22
 # $Rev$
 # $Date$
 #
@@ -37,7 +37,11 @@ include_directories(
   ..
   .
   )
-link_directories(${Boost_LIBRARY_DIRS})
+# only for Linux/Mac. In Windows, linking to the Boost libraries 
+# causes "one or more multiply defined symbols found" link errors
+if(NOT WIN32)
+  link_directories(${Boost_LIBRARY_DIRS})
+endif()
 
 ################################################################
 ## cgal_insurftri()
@@ -94,11 +98,20 @@ add_mex_file(cgal_check_self_intersect
   CgalCheckSelfIntersect.cpp
   )
 
-target_link_libraries(cgal_check_self_intersect
-  ${Boost_THREAD_LIBRARY}
-  CGAL
-  CGAL_ImageIO
-  ${ITK_LIBRARIES})
+# In Windows, linking to the Boost libraries causes "one or more 
+# multiply defined symbols found" link errors
+if(WIN32)
+  target_link_libraries(cgal_check_self_intersect
+    CGAL
+    CGAL_ImageIO
+    ${ITK_LIBRARIES})
+else()
+  target_link_libraries(cgal_check_self_intersect
+    ${Boost_THREAD_LIBRARY}
+    CGAL
+    CGAL_ImageIO
+    ${ITK_LIBRARIES})
+endif()
 # we need this dependency to make sure that the CGAL library is built
 # before we try to build the mex function
 add_dependencies(cgal_check_self_intersect copy_compiler_config.h)
@@ -143,11 +156,20 @@ add_mex_file(cgal_meshseg
   CgalMeshSegmentation.cpp
   )
 
-target_link_libraries(cgal_meshseg
-  ${Boost_THREAD_LIBRARY}
-  CGAL
-  CGAL_ImageIO
-  ${ITK_LIBRARIES})
+# In Windows, linking to the Boost libraries causes "one or more 
+# multiply defined symbols found" link errors
+if(WIN32)
+  target_link_libraries(cgal_meshseg
+    CGAL
+    CGAL_ImageIO
+    ${ITK_LIBRARIES})
+else()
+  target_link_libraries(cgal_meshseg
+    ${Boost_THREAD_LIBRARY}
+    CGAL
+    CGAL_ImageIO
+    ${ITK_LIBRARIES})
+endif()
 # we need this dependency to make sure that the CGAL library is built
 # before we try to build the mex function
 add_dependencies(cgal_meshseg copy_compiler_config.h)
