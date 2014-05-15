@@ -1,4 +1,8 @@
-2014-05-14  Ramon Casero  <rcasero@gmail.com>
+2014-05-15  Ramon Casero  <rcasero@gmail.com>
+
+	* release 0.10.0.
+
+	- Build works for Linux and Windows.
 
 	* matlab/CgalToolbox/CMakeLists.txt: (0.2.22)
 
