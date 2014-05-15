@@ -1,3 +1,11 @@
+2014-05-14  Ramon Casero  <rcasero@gmail.com>
+
+	* CMakeLists.txt: (0.9.1)
+
+	- Check that if we are in Windows, Gerardus is not on a network drive, as this
+	will make CMake fail. As the error given by CMake will say nothing about the
+	problem being the network drive, this is very confusing and annoying.
+
 2014-05-13  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/FileFormatToolbox/vmu2png.m: (0.1.0)
