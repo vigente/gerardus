@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2011-2013 University of Oxford
-# Version: 0.9.0
+# Copyright © 2011-2014 University of Oxford
+# Version: 0.9.1
 # $Rev$
 # $Date$
 #
@@ -208,6 +208,16 @@ endif(NOT WIN32)
 
 # project name
 project(GERARDUS)
+
+# CMake doesn't work for Windows when Gerardus is on a network share (e.g. cmake -E untar fails 
+# without a reason, running bootstrap.bat fails too...)
+if (WIN32)
+  # get the two first characters of the path to Gerardus
+  string(SUBSTRING "${GERARDUS_SOURCE_DIR}" 0 2 AUX)
+  if (AUX STREQUAL "//")
+    message(FATAL_ERROR "Gerardus cannot be built on a Windows share, e.g. \\\\my_share\\gerardus. It needs to be on C:, D:, etc. Otherwise, CMake doesn't work well.")
+  endif()
+endif()
 
 #############################################################################################
 ## Third-party libraries: GMP and MRPF
@@ -632,9 +642,9 @@ if(NOT Boost_version_hpp)
   # uncompress the Boost tarball if necessary
   if(NOT EXISTS "${BOOST_SOURCE_DIR}")
     execute_process(
-      COMMAND ${CMAKE_COMMAND} -E tar xzf ${BOOST_TARBALL_FILENAME}
-      WORKING_DIRECTORY ${GERARDUS_SOURCE_DIR}/cpp/src/third-party
-      RESULT_VARIABLE BOOST_UNTAR_ERROR)
+	COMMAND ${CMAKE_COMMAND} -E tar xzf ${BOOST_TARBALL_FILENAME}
+	WORKING_DIRECTORY ${GERARDUS_SOURCE_DIR}/cpp/src/third-party
+	RESULT_VARIABLE BOOST_UNTAR_ERROR)
 
     # it is possible that the download seems correct, but the
     # tarball is an empty file. We need to detect these cases, and
