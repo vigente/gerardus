@@ -2,9 +2,9 @@
 
 	* matlab/CgalToolbox/CMakeLists.txt: (0.2.22)
 
-	- Fix bug. In Windows, cgal_meshseg and cgal_checl_self_intersect cannot be 
-	linked here to boost_thread, or we get a "one or more multiply defined 
-	symbols found" link error.
+	- Fix bug. In Windows, cgal_meshseg and cgal_checl_self_intersect
+	cannot be linked here to boost_thread, or we get a "one or more
+	multiply defined symbols found" link error.
 
 	* matlab/CgalToolbox/CMakeLists.txt: (0.2.21)
 
@@ -13,9 +13,10 @@
 
 	* CMakeLists.txt: (0.9.1)
 
-	- Check that if we are in Windows, Gerardus is not on a network drive, as this
-	will make CMake fail. As the error given by CMake will say nothing about the
-	problem being the network drive, this is very confusing and annoying.
+	- Check that if we are in Windows, Gerardus is not on a network
+	drive, as this will make CMake fail. As the error given by CMake
+	will say nothing about the problem being the network drive, this
+	is very confusing and annoying.
 
 2014-05-13  Ramon Casero  <rcasero@gmail.com>
 
