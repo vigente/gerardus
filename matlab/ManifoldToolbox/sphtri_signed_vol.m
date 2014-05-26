@@ -16,7 +16,7 @@ function vol = sphtri_signed_vol(tri, x)
     
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -64,5 +64,5 @@ vol = zeros(Ntetra, 1);
 for I = 1:Ntetra
     % volume of tratrahedron formed by a triangle and the centre of the
     % sphere
-    vol(I) = det([x(tri(I, :), :) ones(3, 1); 0 0 0 1]);
+    vol(I) = det([x(tri(I, :), :) ones(3, 1); 0 0 0 1]) / 6;
 end
