@@ -1,4 +1,4 @@
-function [y, stopCondition, sigma, t] ...
+function [y, stopCondition, sigma, sigma0, t] ...
     = cons_smacof_pip(dx, y, isFree, bnd, w, con, smacof_opts, scip_opts)
 % CONS_SMACOF_PIP  SMACOF algorithm with polynomial constraints (PIP file
 % format)
@@ -31,7 +31,7 @@ function [y, stopCondition, sigma, t] ...
 %   http://polip.zib.de/pipformat.php
 %
 %
-% [Y, STOPCONDITION, SIGMA, T] = cons_smacof_pip(D, Y0, ISFREE, BND, [], CON)
+% [Y, STOPCONDITION, SIGMA, SIGMA0, T] = cons_smacof_pip(D, Y0, ISFREE, BND, [], CON)
 %
 %   D is an (N, N)-distance matrix, with distances between the points in an
 %   N-point configuration. D can be full or sparse. D(i,j)=0 means that
@@ -53,13 +53,26 @@ function [y, stopCondition, sigma, t] ...
 %      CON = {'Subject to', ...
 %            ' c1: -0.5 x6 y7 +0.5 x3 y7 +0.5 x7 y6 -0.5 x3 y6 -0.5 x7 y3 +0.5 x6 y3 >= 0.1'};
 %
-%   Y is the solution computed by SMACOF. Y is a point configuration with
-%   the same size as Y0.
+%   Y is the best solution computed by the algorithm within all iterations.
+%   Y is a point configuration with the same size as Y0. If the algorithm
+%   cannot find any valid solution (e.g. because we set a too short time
+%   limit, or because a valid solution doesn't exist, Y will be an array of
+%   NaNs).
 %
 %   STOPCONDITION is a cell array with a string for each stop condition
 %   that made the algorithm stop at the last iteration.
 %
-%   SIGMA is a vector with the stress value at each iteration.
+%   SIGMA is a vector with the stress value at each iteration. If the
+%   algorithm could not find any solution, SIGMA is a single scalar with
+%   value = Inf. Note that even if the last SIGMA value is Inf, this
+%   doesn't mean that the algorithm hasn't found a valid solution in a
+%   previous iteration.
+%
+%   SIGMA0 is a scalar with the stress value of the initial guess Y0. Note
+%   that we have no guarantee that Y0 is a valid solution, so be careful
+%   when comparing SIGMA0 to SIGMA. In particular, SIGMA0 may be smaller
+%   than any SIGMA, but may not be a valid solution according to the
+%   constraints.
 %
 %   T is a vector with the time between the beginning of the algorithm and
 %   each iteration. Units in seconds.
@@ -109,7 +122,13 @@ function [y, stopCondition, sigma, t] ...
 %                of solutions were found (-1: no limit).
 %
 %     'lp_threads': (default 0: automatic) number of threads used for
-%                solving the LP
+%                solving the LP.
+%
+%     'numerics_feastol': (default 1e-6) feasibility tolerance for
+%                constraints in SCIP. If this value is changed from the
+%                default, it needs to be passed to the function that
+%                creates the constraints too, e.g.
+%                tri_ccqp_smacof_nofold_sph_pip().
 %
 %
 % [1] J de Leeuw, P Mair, "Multidimensional scaling using majorization:
@@ -123,7 +142,7 @@ function [y, stopCondition, sigma, t] ...
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.5
+% Version: 0.4.0
 % $Rev$
 % $Date$
 %
@@ -155,7 +174,7 @@ function [y, stopCondition, sigma, t] ...
 
 % check arguments
 narginchk(6, 8);
-nargoutchk(0, 4);
+nargoutchk(0, 5);
 
 % start clock
 tic
@@ -288,6 +307,13 @@ if (nargin >= 8 && ~isempty(scip_opts))
         scip_opts_comm{end+1} = [' -c "set lp advanced threads ' num2str(scip_opts.lp_threads) '"'];
     end
     
+    % numerics options
+    
+    % feasibility tolerance for constraints in SCIP [1e-6]
+    if (isfield(scip_opts, 'numerics_feastol'))
+        scip_opts_comm{end+1} = [' -c "set numerics feastol ' num2str(scip_opts.numerics_feastol) '"'];
+    end
+    
 end
 
 %% Objective function: 1/2 nu' * H * nu + f' * nu
@@ -418,21 +444,27 @@ stopCondition = [];
 dy = dmatrix_con(dx, y);
 
 % initial stress
-sigma = zeros(1, smacof_opts.MaxIter+1);
-sigma(1) = sum(sum(w .* (dx - dy).^2));
+sigma0 = sum(sum(w .* (dx - dy).^2));
+
+% vector of stress computed by the algorithm
+sigma = zeros(1, smacof_opts.MaxIter);
 
 % display algorithm's evolution
-t = zeros(1, smacof_opts.MaxIter+1); % time past from 0th iteration
+t = zeros(1, smacof_opts.MaxIter); % time past from 0th iteration
 if (strcmp(smacof_opts.Display, 'iter'))
     fprintf('Iter\t\tSigma\t\t\tTime (sec)\n')
     fprintf('===================================================\n')
-    fprintf('%d\t\t%.4e\t\t%.4e\n', 0, sigma(1), 0.0)
+    fprintf('%d\t\t%.4e\t\t%.4e\n', 0, sigma0, 0.0)
 end
 
 % auxiliary intermediate result
 mwdx = -w .* dx;
 
-% initialize the storage of the best solution found by the algorithm
+% initialize the storage of the best solution found by the algorithm. We
+% start with Inf so that the initial guess will always be replaced by any
+% valid solution. The reason is that we cannot be sure that the initial
+% guess fulfills the constraints, but any valid solution from a later
+% iteration does
 sigmabest = Inf;
 ybest = nan(size(y));
 
@@ -501,8 +533,20 @@ for I = 1:smacof_opts.MaxIter
     
     % read solution
     [aux, status] = read_solution(solfilename, size(y));
+    
+    % if SCIP cannot find a valid solution (e.g. we set a too short time
+    % limit or it doesn't exist), then we cannot update the current
+    % solution. This also means that we need to stop the optimization,
+    % because the problem matrices and vectors won't change, and basically
+    % we would try to solve the same problem again, not reaching a solution
+    % either. Note however that it's possible that we have been finding
+    % valid solutions before, and it's only at a later iteration that we
+    % get to this "not valid solution" situation. Thus, we cannot assume
+    % that the stop condition below these lines means "error".
     if (isempty(aux))
         stopCondition{end+1} = ['SCIP: ' status];
+        sigma(I) = NaN;
+        t(I) = toc;
         break;
     end
 
@@ -514,31 +558,34 @@ for I = 1:smacof_opts.MaxIter
     dy = dmatrix_con(dx, y);
 
     % compute stress with the current solution
-    sigma(I+1) = sum(sum(w .* (dx - dy).^2));
+    sigma(I) = sum(sum(w .* (dx - dy).^2));
     
     % update best solution
-    if (sigma(I+1) < sigmabest)
-        sigmabest = sigma(I+1);
+    if (sigma(I) < sigmabest)
+        sigmabest = sigma(I);
         ybest = y;
     end
     
     % display algorithm's evolution
-    t(I+1) = toc;
+    t(I) = toc;
     if (strcmp(smacof_opts.Display, 'iter'))
-        fprintf('%d\t\t%.4e\t\t%.4e\n', I, sigma(I+1), t(I+1))
+        fprintf('%d\t\t%.4e\t\t%.4e\n', I, sigma(I), t(I))
     end
     
     % check whether the stress is under the tolerance level requested by
     % the user
-    if (sigma(I+1) < smacof_opts.TolFun)
+    if (sigma(I) < smacof_opts.TolFun)
         stopCondition{end+1} = 'TolFun';
     end
     
     % check whether the improvement in stress is below the user's request,
-    % and it's positive (don't stop if the error gets worse)
-    if ((sigma(I)-sigma(I+1))/sigma(I) < smacof_opts.Epsilon ...
-        && (sigma(I)-sigma(I+1))/sigma(I) >= 0)
-        stopCondition{end+1} = 'Epsilon';
+    % and it's positive (don't stop if the stress gets worse, because
+    % stress can go up and down in the optimization)
+    if (I > 1)
+        if ((sigma(I-1)-sigma(I))/sigma(I-1) < smacof_opts.Epsilon ...
+                && (sigma(I-1)-sigma(I))/sigma(I-1) >= 0)
+            stopCondition{end+1} = 'Epsilon';
+        end
     end
 
     % stop if any stop condition has been met
@@ -559,8 +606,8 @@ end
 
 % prune stress and time vectors if convergence was reached before the
 % maximum number of iterations
-sigma(I+2:end) = [];
-t(I+2:end) = [];
+sigma(I+1:end) = [];
+t(I+1:end) = [];
 
 end
 

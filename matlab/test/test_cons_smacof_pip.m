@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.4
+% Version: 0.2.5
 % $Rev$
 % $Date$
 %
@@ -100,7 +100,7 @@ scip_opts.limits_time = 100;
 scip_opts.display_verblevel = 4;
 
 % solve MDS problem with constrained SMACOF
-[y, stopCondition, sigma, t] ...
+[y, stopCondition, sigma, sigma0, t] ...
     = cons_smacof_pip(dtot, x, [], bnd, [], con, ...
     smacof_opts, scip_opts);
 
@@ -127,9 +127,9 @@ plot(y(:, 1), y(:, 2), 'xr')
 
 stopCondition
 
-% plot stress evolution
+% plot stress evolution (there's a single point)
 subplot(2, 1, 2)
-plot(t, sigma)
+stem(t, sigma)
 xlabel('Time (sec)')
 ylabel('\sigma')
 
@@ -165,7 +165,7 @@ scip_opts.limits_solutions = 1;
 scip_opts.display_verblevel = 0;
 
 % solve MDS problem with constrained SMACOF
-[y, stopCondition, sigma, t] ...
+[y, stopCondition, sigma, sigma0, t] ...
     = cons_smacof_pip(dtot, y0, [], bnd, [], con, ...
     smacof_opts, scip_opts);
 
@@ -194,7 +194,7 @@ stopCondition
 
 % plot stress evolution
 subplot(2, 1, 2)
-plot(t, sigma)
+plot([0 t], [sigma0 sigma])
 xlabel('Time (sec)')
 ylabel('stress')
 
@@ -227,7 +227,7 @@ scip_opts.display_verblevel = 0;
 
 % solve MDS problem with constrained SMACOF
 tic
-[y, stopCondition, sigma, t] ...
+[y, stopCondition, sigma, sigma0, t] ...
     = cons_smacof_pip(dtot, x, isFree, bnd, [], con, ...
     smacof_opts, scip_opts);
 toc
@@ -250,7 +250,7 @@ stopCondition
 % plot stress evolution
 subplot(2, 1, 2)
 hold off
-plot(t, sigma)
+plot([0 t], [sigma0 sigma])
 xlabel('Time (sec)')
 ylabel('stress')
 
@@ -325,7 +325,7 @@ scip_opts.limits_solutions = 1;
 scip_opts.display_verblevel = 0;
 
 % solve MDS problem with constrained SMACOF
-[y, stopCondition, sigma, t] ...
+[y, stopCondition, sigma, sigma0, t] ...
     = cons_smacof_pip(dtot, y0, isFree, bnd, [], con, ...
     smacof_opts, scip_opts);
 
@@ -355,7 +355,7 @@ stopCondition
 % plot stress evolution
 subplot(2, 1, 2)
 hold off
-plot(t, sigma)
+plot([0 t], [sigma0 sigma])
 xlabel('Time (sec)')
 ylabel('stress')
 
@@ -412,7 +412,7 @@ scip_opts.limits_solutions = 1;
 scip_opts.display_verblevel = 4;
 
 % solve MDS problem with constrained SMACOF
-[y, stopCondition, sigma, t] ...
+[y, stopCondition, sigma, sigma0, t] ...
     = cons_smacof_pip(dtot, x, [], bnd, [], con, ...
     smacof_opts, scip_opts);
 
@@ -439,7 +439,7 @@ stopCondition
 
 % plot stress evolution
 subplot(2, 1, 2)
-plot(t, sigma)
+plot([0 t], [sigma0 sigma])
 xlabel('Time (sec)')
 ylabel('stress')
 
@@ -486,7 +486,7 @@ scip_opts.limits_solutions = 1;
 scip_opts.display_verblevel = 0;
 
 % solve MDS problem with constrained SMACOF
-[y, stopCondition, sigma, t] ...
+[y, stopCondition, sigma, sigma0, t] ...
     = cons_smacof_pip(dtot, y0, [], bnd, [], con, ...
     smacof_opts, scip_opts);
 
@@ -519,7 +519,7 @@ stopCondition
 
 % plot stress evolution
 subplot(2, 1, 2)
-plot(t, sigma)
+plot([0 t], [sigma0 sigma])
 xlabel('Time (sec)')
 ylabel('stress')
 
@@ -548,7 +548,7 @@ scip_opts.limits_solutions = 1;
 scip_opts.display_verblevel = 4;
 
 % solve MDS problem with constrained SMACOF
-[y, stopCondition, sigma, t] ...
+[y, stopCondition, sigma, sigma0, t] ...
     = cons_smacof_pip(dtot, y0, isFree, bnd, [], con, ...
     smacof_opts, scip_opts);
 
@@ -581,6 +581,6 @@ stopCondition
 
 % plot stress evolution
 subplot(2, 1, 2)
-plot(t, sigma)
+plot([0 t], [sigma0 sigma])
 xlabel('Time (sec)')
 ylabel('stress')
