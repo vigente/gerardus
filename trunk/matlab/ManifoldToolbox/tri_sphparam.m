@@ -104,7 +104,7 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % $Rev$
 % $Date$
 %
@@ -206,6 +206,10 @@ end
 if (~isfield(scip_opts, 'display_verblevel'))
     % by default, be silent
     scip_opts.display_verblevel = 0;
+end
+if (~isfield(scip_opts, 'numerics_feastol'))
+    % feasibility tolerance for constraints in SCIP
+    scip_opts.numerics_feastol = 1e-6;
 end
 
 % if Y0 not provided, we make it empty. This simplifies a bit the code
@@ -529,7 +533,7 @@ switch method
         [con, bnd] ...
             = tri_ccqp_smacof_nofold_sph_pip(tri, ...
             sphparam_opts.sphrad, sphparam_opts.volmin, ...
-            sphparam_opts.volmax, isFree, y0);
+            sphparam_opts.volmax, isFree, y0, scip_opts.numerics_feastol);
         
         % solve MDS problem with constrained SMACOF
         [y, stopCondition, sigma, sigma0, t] ...

@@ -1,5 +1,65 @@
 2014-05-26  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/PointsToolbox/cons_smacof_pip.m: (0.4.0)
+	* matlab/test/test_cons_smacof_pip.m: (0.2.5)
+
+	- Fix bug. In some cases, SCIP was returning a solution as
+	"valid", but when we checked it, some of the tetrahedra had small
+	negative areas. After asking in the SCIP mailing list, Stefan
+	Vigerske noted that constraints are fulfilled within a
+	tolerance. E.g. SCIP considers 0 >= -1e-8 as true for a 1e-6
+	tolerance. But for us, this tolerance is not acceptable because it
+	produces small overlaps in the output parametrization. This has to
+	be corrected in two places: In the functions that create the
+	string of constraints, so that the constraint+tolerance are always
+	within the actual constraint values we want, and in this function,
+	being able to modify the tolerance ('scip_opts.numerics_feastol').
+
+	- Fix bug. The initial guess may have a low stress, but be an
+	invalid solution. Because we don't have a function to check the
+	validity of the initial solution yet, we always replace the
+	initial guess by any valid solution found by SMACOF. In theory, if
+	the initial guess is already the best valid solution, this could
+	lead to the algorithm returning a suboptimal valid solution. But
+	we hope that in practice, the algorithm wouldn't degrade the
+	solution much.
+
+	- Fix bug. If SCIP cannot find a valid solution (e.g. we set a too
+	short time limit or it doesn't exist), then we cannot update the
+	current solution. This also means that we need to stop the
+	optimization, because the problem matrices and vectors won't
+	change, and basically we would try to solve the same problem
+	again, not reaching a solution either. Note however that it's
+	possible that we have been finding valid solutions before, and
+	it's only at a later iteration that we get to this "not valid
+	solution" situation. Thus, we cannot assume that the stop
+	condition below these lines means "error".
+
+	- Add output variable to separate initial guess (sigma0) from
+	stress values obtained during iterations of the SMACOF algorithm
+	(sigma). This is to emphasize that we can compute the initial
+	stress, but currently we cannot check whether the constraints are
+	fulfilled or not. On the other hand, once SMACOF starts running,
+	all sigma stress values will correspond to valid solutions (if
+	there's no valid solution, sigma(I)=NaN, and the algorithm stops).
+
+	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m: (0.2.0)
+	* matlab/ManifoldToolbox/tri_qcqp_smacof_nofold_2d_pip.m: (0.2.0)
+	* matlab/ManifoldToolbox/tri_sphparam.m: (0.3.1)
+
+	- Fix bug. In some cases, SCIP was returning a solution as
+	"valid", but when we checked it, some of the tetrahedra had small
+	negative areas. After asking in the SCIP mailing list, Stefan
+	Vigerske noted that constraints are fulfilled within a
+	tolerance. E.g. SCIP considers 0 >= -1e-8 as true for a 1e-6
+	tolerance. But for us, this tolerance is not acceptable because it
+	produces small overlaps in the output parametrization. This has to
+	be corrected in two places: We need to be able able to modify the
+	SCIP tolerance ('scip_opts.numerics_feastol') in the SMACOF
+	function; and in this function, constraint intervals need to be
+	modified, so that constraint+tolerance values are always within
+	the actual constraint values we want.
+
 	* Add matlab/ManifoldToolbox/sphtri_signed_vol.m: (0.1.1)
 
 	- Fix bug. Volume of tetrahedron is det/6, not det.

@@ -1,4 +1,4 @@
-function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree, y)
+function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree, y, feastol)
 % TRI_CCQP_SMACOF_NOFOLD_SPH_PIP  Constraints in PIP format for CCQP-SMACOF
 % to ensure that 2D triangules on the sphere preserve positive orientation.
 %
@@ -30,7 +30,7 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 %      CON = {'Subject to', ...
 %            ' c1: -0.5 x6 y7 +0.5 x3 y7 +0.5 x7 y6 -0.5 x3 y6 -0.5 x7 y3 +0.5 x6 y3 >= 0.1'};
 %
-% ... = tri_qcqp_smacof_nofold_2d_pip(..., ISFREE, Y)
+% ... = tri_qcqp_smacof_nofold_2d_pip(..., ISFREE, Y, FEASTOL)
 %
 %   ISFREE is an boolean N-vector, where N is the number of vertices in the
 %   mesh. ISFREE(i)==true means that the i-th vertex is a free vertex (i.e.
@@ -42,10 +42,20 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 %   vertices as Y(ISFREE, :). The values Y(~ISFREE, :) are simply ignored.
 %   Thus, Y doesn't need to be provided if all vertices are free. If
 %   there's at least a fixed vertex, then Y must be provided.
+%
+%   FEASTOL is an scalar with the feasibility tolerance for constraints in
+%   SCIP. In SCIP, a constraint X >= A is considered fulfilled if
+%   X >= A-FEASTOL. This can lead to tetrahedra with negative volumes. To
+%   avoid this and guarantee that SCIP will strictly fulfill the VMIN
+%   constraints, this function turns them into X >= A+FEASTOL. Likewise,
+%   VMAX constraints become X <= A-FEASTOL. By default, FEASTOL=1e-6, but
+%   the user can change this value in SCIP. In that case, the new value of
+%   FEASTOL must be passed both to this function and to the function that
+%   runs the SCIP solver.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.3
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -74,7 +84,7 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 % <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(4, 6);
+narginchk(4, 7);
 nargoutchk(0, 2);
 
 %% Input arguments
@@ -128,6 +138,11 @@ if (any(~isFree))
         error('User says there is at least one fixed vertex, but initial configuration Y0 either has not been provided or has wrong dimensions')
     end
     
+end
+
+if (nargin < 7 || isempty(feastol))
+    % feasibility tolerance for constraints in SCIP
+    feastol = 1e-6;
 end
 
 %% Upper and lower bounds for the objective function variables
@@ -219,7 +234,7 @@ for I = idxtricon
                 (-yj*zi+yi*zj)/6, k, ...
                  (xj*zi-xi*zj)/6, k, ...
                 (-xj*yi+xi*yj)/6, k, ...
-                vmin);
+                vmin + feastol);
             count = count + 1;
             
             % constraint with upper bound. Example:
@@ -230,7 +245,7 @@ for I = idxtricon
                 (-yj*zi+yi*zj)/6, k, ...
                  (xj*zi-xi*zj)/6, k, ...
                 (-xj*yi+xi*yj)/6, k, ...
-                vmax);
+                vmax - feastol);
             count = count + 1;
             
         case 2 % 2 free vertices, 1 fixed vertex
@@ -267,7 +282,7 @@ for I = idxtricon
                 -xi/6, k, j, ...
                 -yi/6, j, k, ...
                  xi/6, j, k, ...
-                vmin);
+                vmin + feastol);
             count = count + 1;
             
             % constraint with upper bound
@@ -280,7 +295,7 @@ for I = idxtricon
                 -xi/6, k, j, ...
                 -yi/6, j, k, ...
                 xi/6, j, k, ...
-                vmax);
+                vmax - feastol);
             count = count + 1;
             
         case 3 % three free vertices
@@ -301,7 +316,7 @@ for I = idxtricon
                 -1/6, i, k, j, ...
                 -1/6, j, i, k, ...
                  1/6, i, j, k, ...
-                vmin);
+                vmin + feastol);
             count = count + 1;
             
             % constraint with upper bound
@@ -314,7 +329,7 @@ for I = idxtricon
                 -1/6, i, k, j, ...
                 -1/6, j, i, k, ...
                  1/6, i, j, k, ...
-                vmax);
+                vmax - feastol);
             count = count + 1;
             
         otherwise
