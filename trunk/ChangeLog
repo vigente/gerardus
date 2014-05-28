@@ -1,3 +1,11 @@
+2014-05-28  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/cons_smacof_pip.m: (0.4.1)
+
+	- Fix bug. If the user provides a problem with no free vertices
+	(i.e. there's nothing to optimise), make the function exit
+	gracefully instead of with an error.
+
 2014-05-26  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/cons_smacof_pip.m: (0.4.0)

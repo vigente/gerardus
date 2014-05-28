@@ -142,7 +142,7 @@ function [y, stopCondition, sigma, sigma0, t] ...
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % $Rev$
 % $Date$
 %
@@ -202,6 +202,7 @@ if (nargin < 3 || isempty(isFree))
     isFree = true(N, 1);
 end
 Nfree = nnz(isFree);
+
 if (isempty(w))
     % if the user doesn't provide a weight matrix, we simply assign 1 if
     % two vertices are connected, and 0 if not
@@ -212,6 +213,17 @@ if (isempty(w))
 end
 if (any(size(w) ~= [N N]))
     error('W must be a square matrix with the same size as D')
+end
+
+% if the user doesn't allow any vertices to be optimized, then we can exit
+% the function
+if (Nfree == 0)
+    stopCondition = 'No free vertices to optimise';
+    sigma = [];
+    dy = dmatrix_con(dx, y);
+    sigma0 = sum(sum(w .* (dx - dy).^2));
+    t = [];
+    return;
 end
 
 % SMACOF_OPTS defaults
