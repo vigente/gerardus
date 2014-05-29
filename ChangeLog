@@ -1,3 +1,10 @@
+2014-05-29  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_sphparam.m: (0.3.2)
+
+	- Fix bug. No need to check topology if we know that SMACOF could
+	not find a valid solution.
+
 2014-05-28  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/cons_smacof_pip.m: (0.4.1)
