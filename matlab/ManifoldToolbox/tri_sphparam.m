@@ -104,7 +104,7 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.1
+% Version: 0.3.2
 % $Rev$
 % $Date$
 %
@@ -624,22 +624,29 @@ end
 
 %% assertion check for self-intersections or negative tetrahedra
 
-if (sphparam_opts.TopologyCheck)
+% it only makes sense to double-check the topology if we think that the
+% parametrization is valid. Otherwise, we already know that the
+% topology is wrong
+if (yIsValid && sphparam_opts.TopologyCheck)
     
     if (strcmp(sphparam_opts.Display, 'iter'))
+        
         fprintf('Checking output parametrization tolopogy\n')
+        
     end
-    
+
     % assertion check: after untangling, the local neighbourhood cannot
     % produce self-intersections
     if (yIsValid && any(cgal_check_self_intersect(tri, y)))
         warning('Assertion fail: Output parametrization has only positive triangles but mesh self-intersects')
-    else
+    elseif (strcmp(sphparam_opts.Display, 'iter'))
         disp('Output parametrization has only positive triangles and mesh does not self-intersect')
     end
-    
+        
     if (strcmp(sphparam_opts.Display, 'iter'))
+        
         fprintf('... done checking output parametrization tolopogy\n')
+        
     end
     
 end
