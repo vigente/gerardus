@@ -50,6 +50,11 @@ crest_envelope.m
 
 	 CREST_ENVELOPE  Compute the envelope for the Right Ventricle's crest
 	
+equalise_blockface_illumination.m
+
+	 EQUALISE_BLOCKFACE_ILLUMINATION  Correct illumination inhomogeneities in
+	 blockface photography.
+	
 estimate_bias_field.m
 
 estimate_block_fgbg.m
