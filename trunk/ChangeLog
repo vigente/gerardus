@@ -1,6 +1,14 @@
+2014-06-07  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/CardiacToolbox/correct_blockface_perspective.m (0.1.0)
+
+	- CORRECT_BLOCKFACE_PERSPECTIVE Transform Bewster angle blockface
+	image onto 90º projection.
+
 2014-06-05  Ramon Casero  <rcasero@gmail.com>
 
-	* Add matlab/CardiacToolbox/equalise_blockface_illumination.m (0.1.0)
+	* Add matlab/CardiacToolbox/equalise_blockface_illumination.m
+	(0.1.0)
 	* Add matlab/test/R_55_0001.bmp
 	* Add matlab/test/polymask.mat
 	* Add matlab/test/ellipmask.mat

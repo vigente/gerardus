@@ -40,6 +40,11 @@ Toolboxes in Gerardus:
 CardiacToolbox
 -------------------------------------------------------------
 
+correct_blockface_perspective.m
+
+	 CORRECT_BLOCKFACE_PERSPECTIVE  Transform Bewster angle blockface image
+	 onto 90º projection.
+	
 correct_rv_crescent_tips.m
 
 	 CORRECT_RV_CRESCENT_TIPS  Correct the segmentation of the Right
