@@ -257,3 +257,25 @@ if ~isempty(strfind(getenv('OS'), 'Windows'))
 end
 }}}
 This code searches the system path, and adds any DLL directory that is missing.
+
+= Usage of TortoiseSVN in Windows =
+
+  # [http://tortoisesvn.net/downloads.html Download and install TortoiseSVN] for Windows. Reboot Windows after installation is successful.
+  # Check out Gerardus by right-clicking inside a folder where you want to have it, and selecting "SVN Checkout" in the contextual menu with the following parameters:
+   * URL of repository: https://gerardus.googlecode.com/svn/trunk
+   * Checkout directory: C:\path\to\folder\where\you\want\gerardus
+   * Checkout Depth: Fully recursive.
+   * Revision: HEAD revision.
+  # Make your changes to the repository.
+  # Select the files you want to commit. Right click and choose "SVN Commit..." on the contextual menu. If this is the first time you try to commit to Gerardus, a dialogue will pop up asking for your usename/password:
+   {{{
+<https://gerardus.googlecode.com:443> Google Code Subversion Repository
+
+Requests a username and password
+Username:
+Password:
+□ Save authentication
+}}}
+   * Your username is your Gmail address (e.g. john.doe@gmail.com).
+   * Go to the Gerardus Googlecode website to obtain your [https://code.google.com/hosting/settings Gerardus password].
+   * Tick the "Save authentication" box so that in future your commits won't require entering your username/password again.
