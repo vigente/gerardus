@@ -36,7 +36,7 @@ function scirunnrrd = scimat_save(file, scirunnrrd, touint8, v73)
 %           AdobeDeflate lessless compression.
 %
 %   SCIMAT is the struct with the image data and metadata (see "help
-%   scimat_load" for details on SCIMAT structs).
+%   scimat" for details on SCIMAT structs).
 %
 % scimat_save(FILE, SCIMAT, TOUINT8)
 %
@@ -69,7 +69,7 @@ function scirunnrrd = scimat_save(file, scirunnrrd, touint8, v73)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2014 University of Oxford
-% Version: 0.6.1
+% Version: 0.6.2
 % $Rev$
 % $Date$
 % 

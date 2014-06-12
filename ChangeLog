@@ -1,5 +1,19 @@
 2014-06-12  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/FiltersToolbox/scimat.m (0.1.0)
+	* matlab/FileFormatToolbox/scimat_load.m (0.4.3)
+	* matlab/FileFormatToolbox/scimat_save.m (0.6.2)
+	* matlab/CardiacToolbox/is_lv_on_the_left.m (0.1.2)
+	* matlab/FileFormatToolbox/scimat_index2world.m (0.3.1)
+	* matlab/FileFormatToolbox/scimat_world2index.m (0.3.1)
+	* matlab/FileFormatToolbox/scimat_im2scimat.m (0.2.1)
+	* matlab/FiltersToolbox/scimat_intersect_plane.m (0.4.1)
+	* matlab/FiltersToolbox/scinrrd_ndgrid.m (0.2.2)
+	* matlab/FiltersToolbox/scimat_squeeze.m (0.2.1)
+	* matlab/FiltersToolbox/scimat_unsqueeze.m (0.2.1)
+
+	- Help file that contains information about the SCIMAT struct.
+
 	* Rename matlab/FileFormatToolbox/scinrrd_im2nrrd.m to
 	 matlab/FileFormatToolbox/scimat_im2scimat.m (0.2.0)
 

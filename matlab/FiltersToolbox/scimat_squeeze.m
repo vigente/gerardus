@@ -11,7 +11,7 @@ function scimat = scimat_squeeze(scimat, todouble)
 %   SCIMAT is a struct that contains a 3D volume. We use SCIMAT structs
 %   widely in Gerardus, because that way we have the image data and
 %   metainformation (e.g. voxel size) together in the same
-%   variable. For details on SCIMAT structs, see "help scimat_load".
+%   variable. For details on SCIMAT structs, see "help scimat".
 %
 %   This function removes the dummy dimension.
 %
@@ -25,7 +25,7 @@ function scimat = scimat_squeeze(scimat, todouble)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
