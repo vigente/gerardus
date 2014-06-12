@@ -23,11 +23,11 @@ function idx = tri_find_nonmanifold_vertex(tri, x, scimat_axis)
 %   (x,y,z) Cartesian coordinates. SCIMAT.AXIS is the axis field from a
 %   SCIMAT structure with the offset and voxel size information.
 %
-% See also: scinrrd_world2index, scinrrd_index2world.
+% See also: scimat_world2index, scimat_index2world.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Copyright © 2013-2014 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -61,14 +61,14 @@ nargoutchk(0, 1);
 
 % defaults
 if (nargin < 3 || isempty(scimat_axis))
-    scimat = scinrrd_im2nrrd(zeros(2), [1 1 1], [0 0 0]);
+    scimat = scimat_im2scimat(zeros(2), [1 1 1], [0 0 0]);
     scimat_axis = scimat.axis;
     clear scimat
 end
 
 % we convert the vertex coordinates to indices to avoid loss of precision
 % when meshcheckrepair() writes to and reads from OFF file
-rcs = round(scinrrd_world2index(x, scimat_axis));
+rcs = round(scimat_world2index(x, scimat_axis));
 
 % meshcheckrepair() is supposed to be used to repair a non-manifold mesh.
 % What it actually does is that it duplicates non-manifold vertices, which

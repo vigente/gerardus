@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013-2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
@@ -73,7 +73,7 @@ imd = abs(itk_imfilter('maudist', imed));
 imagesc(imd)
 
 % convert to SCI MAT format
-scimat = scinrrd_im2nrrd(imd, [1 1 1], [.5 .5 .5]);
+scimat = scimat_im2scimat(imd, [1 1 1], [.5 .5 .5]);
 
 % plot ellipse distance map binary mask
 subplot(2, 1, 2)
@@ -90,13 +90,13 @@ x = [
     ];
 
 % real world coordinates => indices
-idx = scinrrd_world2index(x, scimat.axis);
+idx = scimat_world2index(x, scimat.axis);
 
 % round to nearest voxel centre
 idx = round(idx);
 
 % recompute coordinates of the points
-x = scinrrd_index2world(idx, scimat.axis);
+x = scimat_index2world(idx, scimat.axis);
 
 % plot points
 hold on
@@ -132,7 +132,7 @@ for I = 1:size(x, 1)
         [r, c, s] = ind2sub(size(scimat.data), pth);
         
         % obtain x, y, z coordinates
-        pth = scinrrd_index2world([r' c' s'], scimat.axis);
+        pth = scimat_index2world([r' c' s'], scimat.axis);
         
         % plot path
         plot(pth(:, 1), pth(:, 2), 'w')
@@ -222,7 +222,7 @@ idx = [r c s];
 aux.axis = scimat.axis;
 
 % convert to real world coordinates
-x = scinrrd_index2world(idx, scimat.axis);
+x = scimat_index2world(idx, scimat.axis);
 
 % plot points
 subplot(1, 1, 1)
@@ -273,7 +273,7 @@ for I = 1:size(x, 1)
         [r, c, s] = ind2sub(size(scimat.data), pth);
         
         % obtain x, y, z coordinates
-        pth = scinrrd_index2world([r' c' s'], scimat.axis);
+        pth = scimat_index2world([r' c' s'], scimat.axis);
         
         % plot path
         hold on

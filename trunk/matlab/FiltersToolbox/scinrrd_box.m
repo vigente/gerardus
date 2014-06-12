@@ -1,7 +1,7 @@
 function box = scinrrd_box(nrrd, m, a)
-% SCINRRD_BOX  Compute tight box around SCI NRRD segmentation
+% SCINRRD_BOX  Compute tight box around SCI NRRD segmentation.
 %
-% X = SCINRRD_BOX(NRRD, M, A)
+% X = scinrrd_box(NRRD, M, A)
 %
 %   This function finds the vertices of a box tangent to the edges of a
 %   segmentation. The box can be vertical or have any other orientation.
@@ -43,8 +43,8 @@ function box = scinrrd_box(nrrd, m, a)
 %      property: []
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010 University of Oxford
-% Version: 0.1.0
+% Copyright © 2010-2014 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -72,33 +72,33 @@ function box = scinrrd_box(nrrd, m, a)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 3, nargin, 'struct' ) );
-error( nargoutchk( 0, 1, nargout, 'struct' ) );
+narginchk(1, 3);
+nargoutchk(0, 1);
 
 % default
-if ( nargin < 2 || isempty( m ) )
+if (nargin < 2 || isempty(m))
     m = [0 0 0];
 end
-if ( nargin < 3 || isempty( a ) )
+if (nargin < 3 || isempty(a))
     a = eye(3); % identity matrix
 end
 
 % remove the dummy dimension
-nrrd = scinrrd_squeeze( nrrd );
+nrrd = scimat_squeeze(nrrd);
 
 % get hold of all the points in the segmentation mask
 
 % extract linear indices of voxels in the segmentation
-idx = find( nrrd.data );
+idx = find(nrrd.data);
 
 % get volume size
-sz = size( nrrd.data );
+sz = size(nrrd.data);
 
 % convert linear index to multiple subscripts
-[ir, ic, iz] = ind2sub( sz, idx );
+[ir, ic, iz] = ind2sub(sz, idx);
 
 % convert indices to real world coordinates and make column vectors
-x = scinrrd_index2world( [ ir, ic, iz ], nrrd.axis )';
+x = scimat_index2world([ ir, ic, iz ], nrrd.axis)';
 
 % to make the interface consistent, we ask the user to input the backwards
 % rotation (whenever we input the nrrd volume, backwards rotation; whenever
@@ -107,7 +107,7 @@ x = scinrrd_index2world( [ ir, ic, iz ], nrrd.axis )';
 a = a';
 
 % avoid unnecessary operations if rotation is identity matrix
-if all(all( a ~= eye(3) ))
+if all(all(a ~= eye(3)))
     
     % move points to centre of rotation
     for I = 1:3
@@ -120,8 +120,8 @@ if all(all( a ~= eye(3) ))
 end
 
 % find the limits of the data
-minx = min( x, [], 2 );
-maxx = max( x, [], 2 );
+minx = min(x, [], 2);
+maxx = max(x, [], 2);
 
 % create the box vertices
 box = [...
@@ -135,7 +135,7 @@ box = [...
     [maxx(1) minx(2) maxx(3)]' ];
 
 
-if all(all( a ~= eye(3) ))
+if all(all(a ~= eye(3)))
     
     % undo rotation of vertices
     box = a' * box;

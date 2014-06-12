@@ -1,11 +1,11 @@
 function [tri, triboundary] = bwmesh(im, res)
 % BWMESH  Tetrahedral volumetric and triangular surface mesh of a binary
-% segmentation
+% segmentation.
 %
 % This is a very basic function for toy examples. For a much more
 % sophisticated surface mesher, see cgal_meshseg, also in Gerardus.
 %
-% [TRI, TRIBOUNDARY] = BWMESH(IM, RES)
+% [TRI, TRIBOUNDARY] = bwmesh(IM, RES)
 %
 %   IM is a 3D array with a binary segmentation.
 %
@@ -31,7 +31,7 @@ function [tri, triboundary] = bwmesh(im, res)
 %   slow even for small meshes)
 %
 %     >> [r, c, s] = ind2sub(size(nrrd.data), find(nrrd.data));
-%     >> x = scinrrd_index2world([r c s], nrrd.axis);
+%     >> x = scimat_index2world([r c s], nrrd.axis);
 %     >> tetramesh(tri, x(:, 1), x(:, 2), x(:, 3))
 %
 %   TRIBOUNDARY is a 3-column array. Each row has the indices of 3 nodes
@@ -51,8 +51,8 @@ function [tri, triboundary] = bwmesh(im, res)
 % See also: cgal_meshseg, pts_mesh, TriRep, delaunay.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011-2013 University of Oxford
-% Version: 0.1.6
+% Copyright © 2011-2014 University of Oxford
+% Version: 0.1.7
 % $Rev$
 % $Date$
 %
@@ -99,7 +99,7 @@ end
 
 % real world coordinates of the voxel centres
 [r, c, s] = ind2sub(size(im), find(im));
-x = scinrrd_index2world([r c s], nrrdaxis);
+x = scimat_index2world([r c s], nrrdaxis);
 
 % length of voxel diagonal
 len = sqrt(sum(res.^2));

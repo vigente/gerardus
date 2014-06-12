@@ -1,8 +1,8 @@
 function [v, d, m] = scinrrd_pca(nrrd)
 % SCINRRD_PCA Principal Principal Component Analysis of the selected
-% points in a SCI NRRD segmentation mask
+% points in a SCI NRRD segmentation mask.
 %
-% [V, D, M] = SCINRRD_PCA(NRRD)
+% [V, D, M] = scinrrd_pca(NRRD)
 %
 %   This function computes Principal Component Analysis (PCA) on the
 %   collection of points in a SCI NRRD segmentation mask.
@@ -33,11 +33,10 @@ function [v, d, m] = scinrrd_pca(nrrd)
 %          data: [4-D uint8]
 %          axis: [4x1 struct]
 %      property: []
-%
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010 University of Oxford
-% Version: 0.1.0
+% Copyright © 2010-2014 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -65,26 +64,26 @@ function [v, d, m] = scinrrd_pca(nrrd)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 1, nargin, 'struct' ) );
-error( nargoutchk( 0, 3, nargout, 'struct' ) );
+narginchk(1, 1) ;
+nargoutchk(0, 3) ;
 
 % squeeze NRRD variables, if necessary
-nrrd = scinrrd_squeeze( nrrd );
+nrrd = scimat_squeeze(nrrd);
 
 % extract linear indices of voxels in the segmentation
-idx = find( nrrd.data );
+idx = find(nrrd.data);
 
 % get volume size
-sz = size( nrrd.data );
+sz = size(nrrd.data);
 
 % convert linear index to multiple subscripts
-[ir, ic, iz] = ind2sub( sz, idx );
+[ir, ic, iz] = ind2sub(sz, idx);
 
 % convert indices to real world coordinates
-x = scinrrd_index2world( [ ir, ic, iz ], nrrd.axis );
+x = scimat_index2world([ ir, ic, iz ], nrrd.axis);
 
 % compute centroid
-m = mean( x );
+m = mean(x);
 
 % compute PCA
-[ v, d ] = pts_pca( x' );
+[v, d] = pts_pca(x');

@@ -1,36 +1,31 @@
-function nrrd = scinrrd_squeeze(nrrd, todouble)
-% SCINRRD_SQUEEZE  Remove dummy dimension and convert data to double type
+function scimat = scimat_squeeze(scimat, todouble)
+% SCIMAT_SQUEEZE  Remove dummy dimension from SCIRUNNRRD struct so that it
+% becomes a SCIMAT struct.
 %
-% NRRD = SCINRRD_SQUEEZE(NRRD, TODOUBLE)
+% SCIMAT = scimat_squeeze(SCIRUNNRRD)
 %
-%   NRRD is an SCI NRRD image volume struct. Even if the data is 3D, the
-%   struct adds a dummy dimension. This function removes it, so that
-%   indices are more intuitive (e.g., x-coordinates are data(:, , ) instead
-%   of data( , :, , )
+%   When the application Seg3D saves images to Matlab format, it saves them
+%   to a SCIRUNNRRD struct, which is basically SCIMAT with a dummy
+%   dimension.
+%
+%   SCIMAT is a struct that contains a 3D volume. We use SCIMAT structs
+%   widely in Gerardus, because that way we have the image data and
+%   metainformation (e.g. voxel size) together in the same
+%   variable. For details on SCIMAT structs, see "help scimat_load".
+%
+%   This function removes the dummy dimension.
+%
+% SCIMAT = scimat_squeeze(..., TODOUBLE)
 %
 %   TODOUBLE is a flag to convert the image data from uint8 to double. This
 %   is useful for image processing, but the data will be 8 times larger. By
 %   default, TODOUBLE=false.
 %
-%   Note on SCI NRRD: Software applications developed at the University of
-%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
-%   internally use NRRD volumes to store medical data.
-%
-%   When label volumes (segmentation masks) are saved to a Matlab file
-%   (.mat), they use a struct called "scirunnrrd" to store all the NRRD
-%   information:
-%
-%   >>  scirunnrrd
-%
-%   scirunnrrd = 
-%
-%          data: [4-D uint8]
-%          axis: [4x1 struct]
-%      property: []
+% See also: scimat_load.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010-2011 University of Oxford
-% Version: 0.1.2
+% Copyright © 2010-2014 University of Oxford
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -58,8 +53,8 @@ function nrrd = scinrrd_squeeze(nrrd, todouble)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 2, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
+narginchk(1, 2);
+nargoutchk(0, 1);
 
 % defaults
 if (nargin < 2 || isempty(todouble))
@@ -67,12 +62,12 @@ if (nargin < 2 || isempty(todouble))
 end
 
 % remove dummy dimension
-nrrd.data = squeeze(nrrd.data);
-if (length(nrrd.axis) > 3)
-    nrrd.axis = nrrd.axis(2:end);
+scimat.data = squeeze(scimat.data);
+if (length(scimat.axis) > 3)
+    scimat.axis = scimat.axis(2:end);
 end
 
 % convert data to double
 if (todouble)
-    nrrd.data = double(nrrd.data);
+    scimat.data = double(scimat.data);
 end

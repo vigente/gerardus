@@ -4,8 +4,8 @@
 % interpolated surface with surface_interpolation()
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011 University of Oxford
-% Version: 0.1.1
+% Copyright © 2011-2014 University of Oxford
+% Version: 0.1.2
 % $Rev$
 % $Date$
 %
@@ -36,7 +36,7 @@
 % create a NRRD struct skeleton to generate the segmentation mask
 res = [.01 .01 .01];
 offset = [0 0 0];
-nrrd = scinrrd_im2nrrd(zeros(101, 101, 101, 'uint8'), res, offset);
+nrrd = scimat_im2scimat(zeros(101, 101, 101, 'uint8'), res, offset);
 
 % points that define the surface
 x = [...

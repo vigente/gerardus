@@ -6,8 +6,8 @@ function scimat = scimat_load(file)
 %
 %   This function loads the SCIMAT volume, removes the dummy dimension and
 %   corrects the row/column order so that if you do e.g.
-%   imagesc(nrrd.data(:,:,50)), it produces the same image as the 50 axial
-%   slice in Seg3D.
+%   imagesc(scimat.data(:,:,50)), it produces the same image as the 50
+%   axial slice in Seg3D.
 %
 %   FILE is a string with the path and name of the .mat, .mha, .lsm or .vmu
 %   file that contains the 2D or 3D image:
@@ -59,7 +59,7 @@ function scimat = scimat_load(file)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2014 University of Oxford
-% Version: 0.4.1
+% Version: 0.4.2
 % $Rev$
 % $Date$
 % 
@@ -104,10 +104,10 @@ switch lower(ext)
         scimat = scimat.scirunnrrd;
         
         % remove dummy dimension
-        scimat = scinrrd_squeeze(scimat);
+        scimat = scimat_squeeze(scimat);
         
         % correct x-,y-coordinates
-        scimat = scinrrd_seg3d2matlab(scimat);
+        scimat = scimat_seg3d2matlab(scimat);
         
     case {'.mha', '.mhd'} % MetaImage file
         
@@ -390,7 +390,7 @@ switch lower(ext)
         im = reshape(im, [size(im, 1) size(im, 2) 1 size(im, 3)]);
         
         % create SCI MAT struct
-        scimat = scinrrd_im2nrrd(im, res, offset);
+        scimat = scimat_im2scimat(im, res, offset);
         
     otherwise
         

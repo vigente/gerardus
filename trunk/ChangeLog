@@ -1,3 +1,71 @@
+2014-06-12  Ramon Casero  <rcasero@gmail.com>
+
+	* Rename matlab/FileFormatToolbox/scinrrd_im2nrrd.m to
+	 matlab/FileFormatToolbox/scimat_im2scimat.m (0.2.0)
+
+	* Rename matlab/FileFormatToolbox/scinrrd_world2index.m to
+	matlab/FileFormatToolbox/scimat_world2index.m (0.3.0)
+
+	* Rename matlab/FileFormatToolbox/scinrrd_index2world.m
+	matlab/FileFormatToolbox/scimat_index2world.m (0.3.0)
+
+	* Rename matlab/FiltersToolbox/scinrrd_intersect_plane.m to
+	matlab/FiltersToolbox/scimat_intersect_plane.m (0.4.0)
+
+	* Rename matlab/FiltersToolbox/scinrrd_squeeze.m to
+	matlab/FiltersToolbox/scimat_squeeze.m (0.2.0)
+
+	* Rename matlab/FiltersToolbox/scinrrd_unsqueeze.m to
+	matlab/FiltersToolbox/scimat_unsqueeze.m (0.2.0)
+
+	* Rename matlab/FileFormatToolbox/scinrrd_seg3d2matlab to
+	matlab/FileFormatToolbox/scimat_seg3d2matlab (0.2.0)
+
+	- Update deprecated syntax for narginchk, nargoutchk.
+
+	* matlab/FileFormatToolbox/scimat_load.m (0.4.2)
+	* matlab/FileFormatToolbox/scimat_save.m (0.6.1)
+	* matlab/CardiacToolbox/scinrrd_rv_crescent_tips.m (0.1.1)
+	* matlab/CardiacToolbox/is_lv_on_the_left.m (0.1.1)
+	* matlab/ManifoldToolbox/tri_find_nonmanifold_vertex.m (0.1.1)
+	* matlab/ManifoldToolbox/scimat_tri_to_raster.m (0.2.1)
+	* matlab/FiltersToolbox/scinrrd_ndgrid.m (0.2.1)
+	* matlab/FiltersToolbox/scinrrd_estimate_bias_field.m (0.1.1)
+	* matlab/FiltersToolbox/scinrrd_box.m (0.1.1)
+	* matlab/FiltersToolbox/scinrrd_papillary_muscles.m (0.1.1)
+	* matlab/FiltersToolbox/scinrrd_centroids.m (0.1.1)
+	* matlab/test/test_scinrrd_surface_interpolation.m (0.1.2)
+	* matlab/test/test_scimat_dmatrix_imgeodesic.m (0.1.2)
+	* matlab/test/test_itk_imfilter.m (0.4.5)
+	* matlab/test/test_smdscale.m (0.3.2)
+	* matlab/PointsToolbox/scimat_dmatrix_thickslice.m (0.1.4)
+	* matlab/PointsToolbox/scinrrd_pca.m (0.1.1)
+	* matlab/PointsToolbox/scimat_simlandmarks_thickslice.m (0.1.1)
+	* matlab/PointsToolbox/pts_mesh.m (0.2.1)
+	* matlab/PointsToolbox/scinrrd_surface_interpolation.m (0.7.1)
+	* matlab/PointsToolbox/bwmesh.m (0.1.7)
+
+	- Gerardus functions used by this function have been renamed.
+
+	- Update deprecated syntax for narginchk, nargoutchk when
+	required.
+
+	- Minor style updates to help header, e.g. stop at the end of
+	summary, function name in lowercase, no space before/after
+	bracket.
+
+	* Delete
+	matlab/FiltersToolbox/scinrrd_optimal_intersecting_plane_old.m.
+
+2014-06-10  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scinrrd_im2nrrd.m (0.2.0)
+	* matlab/FileFormatToolbox/scinrrd_world2index.m (0.3.0)
+
+	- Pablo Lamata contribution.
+
+	- Update narginchk/nargoutchk syntax where appropriate.
+
 2014-06-07  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/CardiacToolbox/correct_blockface_perspective.m (0.1.0)

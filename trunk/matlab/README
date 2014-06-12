@@ -183,16 +183,16 @@ scimat_save.m
 	 SCIMAT_SAVE  Save a SCIMAT struct to a Matlab or MetaImage format that
 	 can be imported by Seg3D and Seg3D2.
 	
-scinrrd_im2nrrd.m
+scimat_im2scimat.m
 
 	 SCINRRD_IM2NRRD  Create SCI NRRD struct from Matlab data.
 	
-scinrrd_index2world.m
+scimat_index2world.m
 
 	 SCINRRD_INDEX2WORLD  Convert data volume indices to real world
 	 coordinates for NRRD volumes created by SCI applications (e.g. Seg3D)
 	
-scinrrd_seg3d2matlab.m
+scimat_seg3d2matlab.m
 
 	 SCINRRD_SEG3D2MATLAB  Correct dimensions of data loaded from SCI NRRD so
 	 that rows and columns will follow Matlab's coordinates
@@ -201,7 +201,7 @@ scinrrd_tiff2nrrd.m
 
 	 SCINRRD_TIFF2NRRD  Create SCI NRRD struct from TIFF stack.
 	
-scinrrd_world2index.m
+scimat_world2index.m
 
 	 SCINRRD_WORLD2INDEX  Convert real world coordinates to data volume
 	 indices for NRRD volumes created by SCI applications (e.g. Seg3D)
@@ -342,7 +342,7 @@ scinrrd_gradients.m
 
 	 SCINRRD_GRADIENTS  Compute 1st and 2nd order image gradients
 	
-scinrrd_intersect_plane.m
+scimat_intersect_plane.m
 
 	 SCINRRD_INTERSECT_PLANE  Intersection of a plane with an image volume
 	
@@ -385,11 +385,11 @@ scinrrd_skeleton_prune.m
 
 	 SCINRRD_SKELETON_PRUNE  Prune branches in a segmentation's skeletonization
 	
-scinrrd_squeeze.m
+scimat_squeeze.m
 
 	 SCINRRD_SQUEEZE  Remove dummy dimension and convert data to double type
 	
-scinrrd_unsqueeze.m
+scimat_unsqueeze.m
 
 	 SCINRRD_UNSQUEEZE  Add dummy dimension and convert data to uint8 data
 	 type
