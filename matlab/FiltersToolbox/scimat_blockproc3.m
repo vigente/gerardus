@@ -72,8 +72,8 @@ function scimat2 = scimat_blockproc3(scimat, blksz, fun, border, numworkers)
 % See also: blockproc, blockproc3.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011 University of Oxford
-% Version: 0.3.1
+% Copyright © 2011,2014 University of Oxford
+% Version: 0.3.2
 % $Rev$
 % $Date$
 % 
@@ -209,7 +209,7 @@ if (numworkers > 1) % parallel processing
         jobCleanupTrigger{B} = onCleanup(@() cleanup(job{B}));
  
         % add processing of current block as a task
-        createTask(job{B}, fun, 1, {scinrrd_crop(scimat, ...
+        createTask(job{B}, fun, 1, {scimat_crop(scimat, ...
             [br0(I) bc0(J) bs0(K)], ...
             [brx(I) bcx(J) bsx(K)])});
         
@@ -256,7 +256,7 @@ else % single processor (we save memory by not creating a cell vector with all t
             for K = 1:NS
 
                 % process current image block
-                aux = fun(scinrrd_crop(scimat, ...
+                aux = fun(scimat_crop(scimat, ...
                     [br0(I) bc0(J) bs0(K)], ...
                     [brx(I) bcx(J) bsx(K)] ...
                     ));

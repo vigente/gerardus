@@ -1,5 +1,68 @@
 2014-06-12  Ramon Casero  <rcasero@gmail.com>
 
+	* Rename matlab/FileFormatToolbox/scinrrd_tiff2nrrd.m as
+	matlab/FileFormatToolbox/scimat_tiff2scimat.m (0.3.0)
+
+	* Rename matlab/FiltersToolbox/scinrrd_centroids.m as
+	matlab/FiltersToolbox/scimat_centroids.m (0.2.0)
+
+	* Rename matlab/FiltersToolbox/scinrrd_regionprops.m as
+	matlab/FiltersToolbox/scimat_regionprops.m (0.2.0)
+
+	* Rename matlab/FiltersToolbox/scinrrd_seg2label_stats.m as
+	matlab/FiltersToolbox/scimat_seg2label_stats.m (0.9.0)
+
+	* Rename
+	matlab/FiltersToolbox/scinrrd_optimal_intersecting_plane.m as
+	matlab/FiltersToolbox/scimat_optimal_intersecting_plane.m (0.2.0)
+
+	* Rename matlab/FiltersToolbox/scinrrd_crop.m as
+	matlab/FiltersToolbox/scimat_crop.m (0.2.0)
+
+	* Rename matlab/FiltersToolbox/scinrrd_ndgrid.m as
+	matlab/FiltersToolbox/scimat_ndgrid.m (0.3.0)
+
+	* Rename
+	matlab/FiltersToolbox/scinrrd_vertical_orientation_pca_basis.m as
+	matlab/FiltersToolbox/scimat_vertical_orientation_pca_basis.m (0.2.0)
+
+	* Rename matlab/FiltersToolbox/scinrrd_estimate_bias_field.m as
+	matlab/FiltersToolbox/scimat_estimate_bias_field.m (0.2.0)
+
+	* Rename matlab/FiltersToolbox/scinrrd_gradients.m as
+	matlab/FiltersToolbox/scimat_gradients.m (0.2.0)
+
+	* Rename matlab/FiltersToolbox/scinrrd_papillary_muscles.m as
+	matlab/FiltersToolbox/scimat_papillary_muscles.m (0.2.0)
+
+	* Rename matlab/FiltersToolbox/scinrrd_box.m as
+	matlab/FiltersToolbox/scimat_box.m (0.2.0)
+
+	* Rename matlab/FiltersToolbox/scinrrd_seg2voxel_stats.m as
+	matlab/FiltersToolbox/scimat_seg2voxel_stats.m (0.2.0)
+
+	* Rename matlab/FiltersToolbox/scinrrd_skeleton_prune.m as
+	matlab/FiltersToolbox/scimat_skeleton_prune.m (0.5.0)
+
+	* Rename
+	matlab/FiltersToolbox/scinrrd_vertical_orientation_pca_basis.m as
+	matlab/FiltersToolbox/scimat_vertical_orientation_pca_basis.m (0.3.0)
+
+	* Rename matlab/PointsToolbox/scinrrd_pca.m as
+	matlab/PointsToolbox/scimat_pca.m (0.2.0)
+
+	* Rename matlab/CardiacToolbox/scinrrd_rv_crescent_tips.m as
+	matlab/CardiacToolbox/scimat_rv_crescent_tips.m (0.2.0)
+
+	* matlab/FileFormatToolbox/scimat_load.m (0.4.4)
+	* matlab/FiltersToolbox/scimat_blockproc3.m (0.3.2)
+	* matlab/FiltersToolbox/skeleton_label.m (0.15.5)
+
+	- In the early days of Gerardus, we called "scimat" structs as
+	"nrrd", which was a bad choice. Here we rename the functions that
+	were still called "scinrrd_*", and/or had "nrrd" as input/output
+	arguments.
+
 	* Add matlab/FiltersToolbox/scimat.m (0.1.0)
 	* matlab/FileFormatToolbox/scimat_load.m (0.4.3)
 	* matlab/FileFormatToolbox/scimat_save.m (0.6.2)

@@ -1,13 +1,13 @@
-function [dx, dy, dxx, dyy, dxy] = scinrrd_gradients(nrrd, method)
-% SCINRRD_GRADIENTS  Compute 1st and 2nd order image gradients
+function [dx, dy, dxx, dyy, dxy] = scimat_gradients(scimat, method)
+% SCIMAT_GRADIENTS  Compute 1st and 2nd order image gradients
 %
-% [DX, DY, DXX, DYY, DXY] = SCINRRD_GRADIENTS(NRRD)
+% [DX, DY, DXX, DYY, DXY] = scimat_gradients(SCIMAT)
 %
 %   This function computes the first and second order gradients of an image
-%   provided in SCI NRRD format. The voxel size in each dimension is taken
+%   provided in SCIMAT format. The voxel size in each dimension is taken
 %   into account when computing the gradients.
 %
-%   NRRD is the struct with the data.
+%   SCIMAT is the struct with the image (see "help scimat" for details).
 %
 %   DX, DY are the first order gradients of the image I in the X and Y
 %   directions, respectively, dI/dx, dI/dy (Note: the X direction
@@ -17,33 +17,17 @@ function [dx, dy, dxx, dyy, dxy] = scinrrd_gradients(nrrd, method)
 %   d^2(I)/dxdy. Second order gradients are computed with an explicit
 %   formula using a 3x3 pixel neighbourhood.
 %
-% ... = SCINRRD_GRADIENTS(NRRD, METHOD)
+% ... = scimat_gradients(SCIMAT, METHOD)
 %
 %   The second order gradients are computed using a explicit formula by
 %   default (METHOD='default'). However, it is also possible to compute it
 %   running function gradient() twice (METHOD='approx'). Note that 'approx'
 %   uses a 5x5 neighbourhood to compute the gradient, instead of 3x3, so it
 %   is less accurate. It's also slower.
-%
-%   Note on SCI NRRD: Software applications developed at the University of
-%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
-%   internally use NRRD volumes to store medical data.
-%
-%   When label volumes (segmentation masks) are saved to a Matlab file
-%   (.mat), they use a struct called "scirunnrrd" to store all the NRRD
-%   information:
-%
-%   >>  scirunnrrd
-%
-%   scirunnrrd = 
-%
-%          data: [4-D uint8]
-%          axis: [4x1 struct]
-%      property: []
 
 % Author: Ramon Casero <rcasero@gmail.com>, Vicente Grau
-% Copyright © 2010 University of Oxford
-% Version: 0.1.0
+% Copyright © 2010,2014 University of Oxford
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -71,8 +55,8 @@ function [dx, dy, dxx, dyy, dxy] = scinrrd_gradients(nrrd, method)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 2, nargin, 'struct' ) );
-error( nargoutchk( 0, 5, nargout, 'struct' ) );
+narginchk(1, 2);
+nargoutchk(0, 5);
 
 % defaults
 if (nargin < 2)
@@ -81,8 +65,8 @@ end
 
 % compute first order gradients (beware: spacing(1) is for rows, the
 % Y-coordinate)
-[dx, dy] = gradient(nrrd.data, nrrd.axis(2).spacing, ...
-    nrrd.axis(1).spacing, nrrd.axis(3).spacing);
+[dx, dy] = gradient(scimat.data, scimat.axis(2).spacing, ...
+    scimat.axis(1).spacing, scimat.axis(3).spacing);
 
 % compute second order gradients (we assume dxy = dyx)
 dxx = zeros(size(dx));
@@ -90,26 +74,26 @@ dyy = zeros(size(dx));
 dxy = zeros(size(dx));
 
 if (strcmp(method, 'default'))
-    dxx(:, 2:end-1, :) = (-2 * nrrd.data(:, 2:end-1, :) ...
-        + nrrd.data(:, 1:end-2, :) + nrrd.data(:, 3:end, :)) ...
-        / nrrd.axis(2).spacing^2;
-    dyy(2:end-1, :, :) = (-2 * nrrd.data(2:end-1, :, :) ...
-        + nrrd.data(1:end-2, :, :) + nrrd.data(3:end, :, :)) ...
-        / nrrd.axis(1).spacing^2;
+    dxx(:, 2:end-1, :) = (-2 * scimat.data(:, 2:end-1, :) ...
+        + scimat.data(:, 1:end-2, :) + scimat.data(:, 3:end, :)) ...
+        / scimat.axis(2).spacing^2;
+    dyy(2:end-1, :, :) = (-2 * scimat.data(2:end-1, :, :) ...
+        + scimat.data(1:end-2, :, :) + scimat.data(3:end, :, :)) ...
+        / scimat.axis(1).spacing^2;
     dxy(2:end-1, 2:end-1, :) = (...
-        -nrrd.data(1:end-2, 3:end, :) - ...
-        nrrd.data(3:end, 1:end-2, :) + ...
-        nrrd.data(1:end-2, 1:end-2, :) + ...
-        nrrd.data(3:end, 3:end, :) ...
+        -scimat.data(1:end-2, 3:end, :) - ...
+        scimat.data(3:end, 1:end-2, :) + ...
+        scimat.data(1:end-2, 1:end-2, :) + ...
+        scimat.data(3:end, 3:end, :) ...
         ) ...
-        / nrrd.axis(1).spacing / nrrd.axis(2).spacing;
+        / scimat.axis(1).spacing / scimat.axis(2).spacing;
 
 elseif (strcmp(method, 'approx'))
     % instead of using the explicit formula for the second order gradients, we
     % can use function gradient() twice
     warning('Using inaccurate approximation')
-    dxx = gradient(dx, nrrd.axis(2).spacing, ...
-        nrrd.axis(1).spacing, nrrd.axis(3).spacing);
-    [dxy, dyy] = gradient(dy, nrrd.axis(2).spacing, ...
-        nrrd.axis(1).spacing, nrrd.axis(3).spacing);
+    dxx = gradient(dx, scimat.axis(2).spacing, ...
+        scimat.axis(1).spacing, scimat.axis(3).spacing);
+    [dxy, dyy] = gradient(dy, scimat.axis(2).spacing, ...
+        scimat.axis(1).spacing, scimat.axis(3).spacing);
 end

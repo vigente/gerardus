@@ -1,5 +1,5 @@
-function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio, alphamax, p)
-% SCINRRD_SKELETON_PRUNE  Prune branches in a segmentation's skeletonization
+function scimatsk = scimat_skeleton_prune(scimatsk, scimat, minlen, lratio, alphamax, p)
+% SCIMAT_SKELETON_PRUNE  Prune branches in a segmentation's skeletonization
 %
 % This function prunes the leaves of a segmentation skeleton in three
 % steps:
@@ -15,27 +15,27 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio, alphamax,
 %      be pruned)
 %
 %
-% NRRDPR = SCINRRD_SKELETON_PRUNE(NRRDSK)
-% NRRDPR = SCINRRD_SKELETON_PRUNE(NRRDSK, [], MINLEN)
+% SCIMATPR = scimat_skeleton_prune(SCIMATSK)
+% SCIMATPR = scimat_skeleton_prune(SCIMATSK, [], MINLEN)
 %
 %   This syntax runs steps 1 and 2 only.
 %
-%   NRRDSK is an SCI NRRD struct. NRRDSK.data contains the result of
-%   running a skeletonization algorithm on a binary segmentation NRRD,
+%   SCIMATSK is an SCIMAT struct. SCIMATSK.data contains the result of
+%   running a skeletonization algorithm on a binary segmentation SCIMAT,
 %   e.g.
 %
-%     >> nrrdsk = nrrd;
-%     >> nrrdsk.data = itk_imfilter('skel', nrrd);
+%     >> scimatsk = scimat;
+%     >> scimatsk.data = itk_imfilter('skel', scimat);
 %
 %   MINLEN is a scalar with the minimum length in voxels for a leaf. Any
 %   leaf shorter than MINLEN will be pruned. By default, MINLEN = 5 voxel.
 %
 %
-% NRRDPR = SCINRRD_SKELETON_PRUNE(NRRDSK, NRRD, MAXCLUMP, MINLEN, LRATIO, ALPHAMAX, P)
+% SCIMATPR = scimat_skeleton_prune(SCIMATSK, SCIMAT, MAXCLUMP, MINLEN, LRATIO, ALPHAMAX, P)
 %
 %   This syntax runs steps 1, 2 and 3.
 %
-%   NRRD is the binary segmentation mentioned above.
+%   SCIMAT is the binary segmentation mentioned above.
 %
 %   LRATIO is a scalar. Leaves with L/R < LRATIO will be pruned, where
 %   L is the length from the bifurcation to the tip of the leaf. By
@@ -44,27 +44,10 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio, alphamax,
 %   ALPHAMAX and P are merging parameters. See the help of function
 %   skeleton_label for details. If merging is not enabled, then no leaves
 %   will be pruned in step 3.
-%
-%
-%   Note on SCI NRRD: Software applications developed at the University of
-%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
-%   internally use NRRD volumes to store medical data.
-%
-%   When label volumes (segmentation masks) are saved to a Matlab file
-%   (.mat), they use a struct called "scirunnrrd" to store all the NRRD
-%   information:
-%
-%   >>  scirunnrrd
-%
-%   scirunnrrd = 
-%
-%          data: [4-D uint8]
-%          axis: [4x1 struct]
-%      property: []
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011 University of Oxford
-% Version: 0.4.1
+% Copyright © 2011, 2014 University of Oxford
+% Version: 0.5.0
 % $Rev$
 % $Date$
 % 
@@ -92,16 +75,16 @@ function nrrdsk = scinrrd_skeleton_prune(nrrdsk, nrrd, minlen, lratio, alphamax,
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 6, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
+narginchk(1, 6);
+nargoutchk(0, 1);
 
-if ~isstruct(nrrdsk)
-    error('NRRDSK must be an SCI NRRD struct')
+if ~isstruct(scimatsk)
+    error('SCIMATSK must be an SCIMAT struct')
 end
 
 % defaults
 if (nargin < 2)
-    nrrd = [];
+    scimat = [];
 end
 if (nargin < 3 || isempty(minlen))
     minlen = 5;
@@ -119,7 +102,7 @@ end
 %% Step 1: removal of big clumps of voxels
 
 % if we have no voxels to prune, don't waste time processing
-if (nnz(nrrdsk.data) == 0)
+if (nnz(scimatsk.data) == 0)
     return
 end
 
@@ -127,8 +110,8 @@ end
 % don't care about the actual distances, just need to know which voxels are
 % connected to others. Actual distances are needed to parameterize the
 % branches, though
-[dsk, dictsk, idictsk] = seg2dmat(nrrdsk.data, 'seg', ...
-    [nrrdsk.axis.spacing]);
+[dsk, dictsk, idictsk] = seg2dmat(scimatsk.data, 'seg', ...
+    [scimatsk.axis.spacing]);
 
 % find bifurcation voxels
 
@@ -144,10 +127,10 @@ bifidx = idictsk(bifidx);
 % label connected components of skeleton branches
 
 % remove bifurcation voxels from original skeleton
-nrrdsk.data(bifidx) = 0;
+scimatsk.data(bifidx) = 0;
 
 % get connected components in the image
-cc = bwconncomp(nrrdsk.data);
+cc = bwconncomp(scimatsk.data);
 
 % make size vector always have size(3)
 if length(cc.ImageSize) == 2
@@ -158,7 +141,7 @@ end
 % and find which branches should be merged together
 
 % tag each branch with its label
-nrrdsk.data = labelmatrix(cc);
+scimatsk.data = labelmatrix(cc);
 
 % create empty image volume and add only bifurcation voxels
 sk2 = zeros(cc.ImageSize, 'uint8');
@@ -186,7 +169,7 @@ for I = 1:bifcc.NumObjects
     send = min(cc.ImageSize(3), max(s) + 1);
 
     % extract that box from the volume with the branches
-    boxbr = nrrdsk.data(r0:rend, c0:cend, s0:send);
+    boxbr = scimatsk.data(r0:rend, c0:cend, s0:send);
     
     % create a box for the bifurcation clump
     boxbif = zeros(size(boxbr), class(sk2));
@@ -257,16 +240,16 @@ for I = 1:bifcc.NumObjects
 end
 
 % convert labelled skeleton to binary mask
-nrrdsk.data = uint8(nrrdsk.data ~= 0);
+scimatsk.data = uint8(scimatsk.data ~= 0);
 
 % add bifurcation voxels to skeleton binary mask
-nrrdsk.data(cat(1, bifcc.PixelIdxList{:})) = 1;
+scimatsk.data(cat(1, bifcc.PixelIdxList{:})) = 1;
 
 %% Step 2: pruning of very short leaf branches
 while (1)
     
     % compute skeleton labelling
-    [~, cc] = skeleton_label(nrrdsk.data, [], [nrrdsk.axis.spacing]);
+    [~, cc] = skeleton_label(scimatsk.data, [], [scimatsk.axis.spacing]);
    
     % get number of voxels in each branch
     n = cellfun(@(x) length(x), cc.PixelIdxList);
@@ -275,10 +258,10 @@ while (1)
     idx1 = find(n < minlen & cc.IsLeaf);
     
     % remove short branches from the segmentation
-    nrrdsk.data(cat(1, cc.PixelIdxList{idx1})) = 0;
+    scimatsk.data(cat(1, cc.PixelIdxList{idx1})) = 0;
     
     % recompute the skeleton labelling
-    [~, ~, bifcc, mcon] = skeleton_label(nrrdsk.data, [], [nrrdsk.axis.spacing]);
+    [~, ~, bifcc, mcon] = skeleton_label(scimatsk.data, [], [scimatsk.axis.spacing]);
    
     % find bifurcation clusters that are connected to 0 or 1 branches
     idx2 = find(sum(mcon, 1) < 2);
@@ -286,7 +269,7 @@ while (1)
     % remove those bifurcation clumps, because they are not connecting
     % branches, they are either floating alone in space, or terminating a
     % branch
-    nrrdsk.data(cat(1, bifcc.PixelIdxList{idx2})) = 0;
+    scimatsk.data(cat(1, bifcc.PixelIdxList{idx2})) = 0;
     
     % if no bifurcation clumps were found to be removed, stop the
     % algorithm, because that means that no new short leaf-braches can be
@@ -301,7 +284,7 @@ end
 %% Step 3: pruning of leaf branches produced by segmentation artifacts
 
 % skip if no full segmentation is provided
-if isempty(nrrd)
+if isempty(scimat)
     return
 end
 
@@ -314,12 +297,12 @@ while (atleastonepruning)
     
     % label the segmentation using multiple merging at every bifurcation
     % clump
-    [nrrd.data, cc, ~, mcon, ~, cc2] = ...
-        skeleton_label(nrrdsk.data, nrrd.data, [nrrd.axis.spacing], ...
+    [scimat.data, cc, ~, mcon, ~, cc2] = ...
+        skeleton_label(scimatsk.data, scimat.data, [scimat.axis.spacing], ...
         alphamax, p, false);
     
     % measure the stats of every merged branch
-    stats2 = scinrrd_seg2label_stats(nrrd, cc2, p);
+    stats2 = scimat_seg2label_stats(scimat, cc2, p);
     
     % loop each branch in the list of merged branches
     for I = 1:cc2.NumObjects
@@ -356,9 +339,9 @@ while (atleastonepruning)
             len = zeros(size(bn));
             for K = 1:length(len)
                 idx = cc.PixelIdxList{bn(K)}([1 end]);
-                [r1, c1, s1] = ind2sub(size(nrrdsk.data), idx);
-                xyz = scinrrd_index2world([r1(:), c1(:), s1(:)], ...
-                    nrrdsk.axis);
+                [r1, c1, s1] = ind2sub(size(scimatsk.data), idx);
+                xyz = scimat_index2world([r1(:), c1(:), s1(:)], ...
+                    scimatsk.axis);
                 len(K) = sqrt(sum(diff(xyz).^2));
             end
             
@@ -369,7 +352,7 @@ while (atleastonepruning)
             % if length of the secondary branch is not much larger than the
             % radius of the main branch, we assume that the secondary branch is
             % a segmentation artifact, and remove it
-            nrrdsk.data(cat(1, ...
+            scimatsk.data(cat(1, ...
                 cc.PixelIdxList{bn(toremove)})) = 0;
             
         end

@@ -1,42 +1,26 @@
-function [tip1, tip2] = scinrrd_rv_crescent_tips(nrrd, m)
-% SCINRRD_RV_CRESCENT_TIPS  Extract the tips of the crescent-shaped curve
+function [tip1, tip2] = scimat_rv_crescent_tips(scimat, m)
+% SCIMAT_RV_CRESCENT_TIPS  Extract the tips of the crescent-shaped curve
 % in all slices of the Right Ventricle.
 %
-% [X1, X2] = SCINRRD_RV_CRESCENT_TIPS(NRRD, M)
+% [X1, X2] = scimat_rv_crescent_tips(SCIMAT, M)
 %
 %   X1, X2 are 3-colum matrices where each row are the real world
 %   coordinates of each of the tips of the RV crescent shape.
 %
-%   NRRD is the struct with the RV segmentation mask.
+%   SCIMAT is the struct with the RV segmentation mask (see "help scimat"
+%   for details).
 %
 %   M is a 3-column matrix, where each row has the real world coordinates
 %   of a centroid (typically, the central Left Ventricle's central curve
-%   computed with scinrrd_centroids()). There must be as many centroids as
+%   computed with scimat_centroids()). There must be as many centroids as
 %   slices. Centroids with NaN coordinates will be skipped.
 %
 %   In the case of a RV slice that has no corresponding LV centroid, the
 %   closest LV centroid will be used.
-%
-%
-%   Note on SCI NRRD: Software applications developed at the University of
-%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
-%   internally use NRRD volumes to store medical data.
-%
-%   When label volumes (segmentation masks) are saved to a Matlab file
-%   (.mat), they use a struct called "scirunnrrd" to store all the NRRD
-%   information:
-%
-%   >>  scirunnrrd
-%
-%   scirunnrrd = 
-%
-%          data: [4-D uint8]
-%          axis: [4x1 struct]
-%      property: []
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010-2014 University of Oxford
-% Version: 0.1.1
+% Copyright © 2010,2014 University of Oxford
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -68,10 +52,10 @@ narginchk(2, 2);
 nargoutchk(0, 2);
 
 % volume size
-sz = [nrrd.axis.size];
+sz = [scimat.axis.size];
 
 % if (size(m, 1) ~= sz(3))
-%     error('There must be a centroid per slice in NRRD, even if the centroid in NaN')
+%     error('There must be a centroid per slice in SCIMAT, even if the centroid in NaN')
 % end
 if (size(m, 2) ~= 3)
     error('M must be a 3-column matrix')
@@ -84,7 +68,7 @@ tip2 = nan(sz(3), 3);
 % iterate slices
 for I = 1:sz(3)
     % extract slice
-    im = nrrd.data(:,:, I);
+    im = scimat.data(:,:, I);
     
     % get linear indices of all pixels in current slice
     idx = find(im);
@@ -99,7 +83,7 @@ for I = 1:sz(3)
     
     % convert indices to real world coordinates and make colum vectors
     x = scimat_index2world( [ ir, ic, I+zeros(length(ir), 1) ], ...
-        nrrd.axis );
+        scimat.axis );
     
     % compute a centroid for the slice
     xm = mean(x, 1);

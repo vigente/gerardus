@@ -34,7 +34,7 @@ function scimat = scimat_load(file)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2014 University of Oxford
-% Version: 0.4.3
+% Version: 0.4.4
 % $Rev$
 % $Date$
 % 
@@ -231,7 +231,7 @@ switch lower(ext)
         warning('on', 'tiffread2:LookUp')
         
         % convert to sci format
-        scimat = scinrrd_tiff2nrrd(stack);
+        scimat = scimat_tiff2scimat(stack);
         
     case '.vmu' % Hamamatsu miscroscope format (Uncompressed Virtual Microscope Specimen)
         

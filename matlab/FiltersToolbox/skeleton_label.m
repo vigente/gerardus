@@ -119,11 +119,11 @@ function [sk, cc, bifcc, mcon, madj, cc2, mmerge] = skeleton_label(sk, im, res, 
 %                      to create branch i
 %
 %
-% See also: skeleton_plot, scinrrd_skeleton_prune.
+% See also: skeleton_plot, scimat_skeleton_prune.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011, 2014 University of Oxford
-% Version: 0.15.4
+% Version: 0.15.5
 % $Rev$
 % $Date$
 % 
@@ -238,8 +238,8 @@ cc.IsLeaf = false(1, cc.NumObjects);
 cc.BranchLength = zeros(1, cc.NumObjects);
 cc.Degree = cell(1, cc.NumObjects);
 
-% wrap the full segmentation in a nrrd structure
-nrrd = scimat_im2scimat(im, res);
+% wrap the full segmentation in a scimat structure
+scimat = scimat_im2scimat(im, res);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% sort the skeleton voxels in each branch
@@ -260,7 +260,7 @@ nrrd = scimat_im2scimat(im, res);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % % compute distance transform of the segmentation
-% dist = itk_imfilter('maudist', nrrd);
+% dist = itk_imfilter('maudist', scimat);
 % 
 % % compute length of voxel diagonal
 % if (cc.ImageSize(3) == 1) % 2D
@@ -495,29 +495,29 @@ cc.Degree(idx) = [];
 % tag each skeleton branch with its label
 sk = labelmatrix(cc);
 
-% % duplicate in the nrrd struct
-% nrrd.data = sk;
+% % duplicate in the scimat struct
+% scimat.data = sk;
 % 
 % % compute value with the right type for voxels that have to be tagged using
 % % the region grow algorithm
 % TODO = sk(1)*0 + cc.NumObjects;
 % 
-% % add all the segmentation voxels that need to be tagged to the nrrd struct
-% nrrd.data(im & ~nrrd.data) = TODO;
+% % add all the segmentation voxels that need to be tagged to the scimat struct
+% scimat.data(im & ~scimat.data) = TODO;
 % 
 % % region grow algorithm to extend branch labels
-% nrrd.data = bwregiongrow(nrrd.data, TODO, res);
+% scimat.data = bwregiongrow(scimat.data, TODO, res);
 % 
 % % in some very particular cases, a small patch of voxels may be left
 % % unlabelled. We are just going to remove them from the segmentation
-% nrrd.data(nrrd.data == TODO) = 0;
+% scimat.data(scimat.data == TODO) = 0;
 % 
 % % remove the empty list of voxels we added for the TODO label
 % cc.PixelIdxList(end) = [];
 % cc.NumObjects = cc.NumObjects - 1;
 % 
 % % compute label statistics
-% stats = scinrrd_seg2label_stats(nrrd, cc, p);
+% stats = scimat_seg2label_stats(scimat, cc, p);
 % 
 
 
@@ -645,7 +645,7 @@ for I = 1:bifcc.NumObjects
                 dsk, dictsk, idictsk);
             
             % compute angle between the branches if they are merged
-            alpha(J) = angle_btw_branches(br, bif, nrrd.axis, p);
+            alpha(J) = angle_btw_branches(br, bif, scimat.axis, p);
             
         end
         
@@ -823,11 +823,11 @@ if (alphamax >= 0) % merging
     cc2.PixelIdxList(end+1) = {[]};
 
     % label all branch skeleton voxels
-    nrrd.data = labelmatrix(cc2);
-    TODO = nrrd.data(1)*0 + cc2.NumObjects;
+    scimat.data = labelmatrix(cc2);
+    TODO = scimat.data(1)*0 + cc2.NumObjects;
 
     % add the bifurcation voxels that are not part of branches
-    nrrd.data(setdiff(cat(1, bifcc.PixelIdxList{:}), ...
+    scimat.data(setdiff(cat(1, bifcc.PixelIdxList{:}), ...
         cat(1, cc2.PixelIdxList{:}))) = TODO;
     
 else % not merging
@@ -837,11 +837,11 @@ else % not merging
     cc.PixelIdxList(end+1) = {[]};
 
     % label all branch skeleton voxels
-    nrrd.data = labelmatrix(cc);
-    TODO = nrrd.data(1)*0 + cc.NumObjects;
+    scimat.data = labelmatrix(cc);
+    TODO = scimat.data(1)*0 + cc.NumObjects;
 
     % add the bifurcation voxels that are not part of branches
-    nrrd.data(setdiff(cat(1, bifcc.PixelIdxList{:}), ...
+    scimat.data(setdiff(cat(1, bifcc.PixelIdxList{:}), ...
         cat(1, cc.PixelIdxList{:}))) = TODO;
 
 end
@@ -849,16 +849,16 @@ end
 % if a whole segmentation is provided, then we are also going to segment it
 if (~isempty(im))
     
-    nrrd.data((im ~= 0) & (nrrd.data == 0)) = TODO;
+    scimat.data((im ~= 0) & (scimat.data == 0)) = TODO;
     
 end
 
 % region grow algorithm to extend branch labels
-nrrd.data = bwregiongrow(nrrd.data, TODO, res);
+scimat.data = bwregiongrow(scimat.data, TODO, res);
 
 % in some very particular cases, a small patch of voxels may be left
 % unlabelled. We are just going to remove them from the segmentation
-nrrd.data(nrrd.data == TODO) = 0;
+scimat.data(scimat.data == TODO) = 0;
 
 if (alphamax >= 0) % merging
     
@@ -875,7 +875,7 @@ else % not merging
 end
 
 % update the variable for the output labelling
-sk = nrrd.data;
+sk = scimat.data;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% correct labelling of bifurcation regions
@@ -888,8 +888,8 @@ if (isempty(im) || ~CORRECT)
 end
 
 % get coordinates and labels of the segmented voxels
-idxlab = find(nrrd.data);
-lab = nonzeros(nrrd.data);
+idxlab = find(scimat.data);
+lab = nonzeros(scimat.data);
 
 % sort the label values and the indices of their voxels
 [lab, idx] = sort(lab);
@@ -904,19 +904,19 @@ idxlab0 = [0 ; find(diff(lab)) ; length(lab)] + 1;
 lab = unique(lab);
 
 % value for "TODO" voxels
-TODO = nrrd.data(1) * 0 + 2;
+TODO = scimat.data(1) * 0 + 2;
 
 % loop every merged branch
 for I = 1:length(lab)
     
     % list of voxels in current branch. The reason why we are not doing a
-    % simple br = find(nrrd.data == I); is because for a large volume,
+    % simple br = find(scimat.data == I); is because for a large volume,
     % that's a comparatively very slow operation
     br = idxlab(idxlab0(I):idxlab0(I+1)-1);
     
     % indices of branch  and skeleton voxels
-    [r, c, s] = ind2sub(size(nrrd.data), br);
-    [rsk, csk, ssk] = ind2sub(size(nrrd.data), cc2.PixelIdxList{lab(I)});
+    [r, c, s] = ind2sub(size(scimat.data), br);
+    [rsk, csk, ssk] = ind2sub(size(scimat.data), cc2.PixelIdxList{lab(I)});
     
     % coordinates of a box that contains the branch and the skeleton
     rmin = min([r ; rsk]);
@@ -927,7 +927,7 @@ for I = 1:length(lab)
     smax = max([s ; ssk]);
     
     % crop labelled segmentation with the box
-    im = nrrd.data(rmin:rmax, cmin:cmax, smin:smax);
+    im = scimat.data(rmin:rmax, cmin:cmax, smin:smax);
     
     % create another box (reference box) of the same size where we are
     % going to put the voxels of the main branch only
@@ -975,7 +975,7 @@ for I = 1:length(lab)
     nstep = nstep(end);
 
     % reset the image to be grown from the skeleton
-    im = nrrd.data(rmin:rmax, cmin:cmax, smin:smax);
+    im = scimat.data(rmin:rmax, cmin:cmax, smin:smax);
     im(im > 0) = TODO;
     im(sub2ind(size(im), ...
         rsk - rmin + 1, csk - cmin + 1, ssk - smin + 1)) = 1;
@@ -988,7 +988,7 @@ for I = 1:length(lab)
     [r, c, s] = ind2sub(size(im), find((im == 1) | im0));
     
     % convert box voxel indices to whole segmentation indices
-    br = sub2ind(size(nrrd.data), ...
+    br = sub2ind(size(scimat.data), ...
         r + rmin - 1, c + cmin - 1, s + smin - 1);
     
     % list of all sub-branches connected to the bifurcationa clumps of
@@ -1013,14 +1013,14 @@ for I = 1:length(lab)
         
         % relabel the intersection voxels as belonging to the main branch,
         % not the secondary branch
-        nrrd.data(brsec) = lab(I);
+        scimat.data(brsec) = lab(I);
         
     end
     
 end
 
 % copy result to output
-sk = nrrd.data;
+sk = scimat.data;
 
 end
 
@@ -1141,11 +1141,11 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % angle_btw_branches(): compute angle between two concatenated branches
-function alpha = angle_btw_branches(br, bif, nrrdaxis, p)
+function alpha = angle_btw_branches(br, bif, scimataxis, p)
 
 % real world coordinates of voxels
-[r, c, s] = ind2sub([nrrdaxis.size], br);
-xyz = scimat_index2world([r, c, s], nrrdaxis);
+[r, c, s] = ind2sub([scimataxis.size], br);
+xyz = scimat_index2world([r, c, s], scimataxis);
         
 % compute spline parameterization (Lee's centripetal scheme)
 t = cumsum([0; (sum((xyz(2:end, :) - xyz(1:end-1, :)).^2, 2)).^.25]);
