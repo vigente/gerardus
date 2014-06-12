@@ -1,13 +1,14 @@
-function [v, d, m] = scinrrd_pca(nrrd)
-% SCINRRD_PCA Principal Principal Component Analysis of the selected
-% points in a SCI NRRD segmentation mask.
+function [v, d, m] = scimat_pca(scimat)
+% SCIMAT_PCA Principal Principal Component Analysis of the selected points
+% in a SCIMAT segmentation mask.
 %
-% [V, D, M] = scinrrd_pca(NRRD)
+% [V, D, M] = scimat_pca(SCIMAT)
 %
 %   This function computes Principal Component Analysis (PCA) on the
-%   collection of points in a SCI NRRD segmentation mask.
+%   collection of points in a SCIMAT segmentation mask.
 %
-%   NRRD is the SCI NRRD struct.
+%   SCIMAT is a struct with the segmentation (see "help scimat" for
+%   details).
 %
 %   V is a matrix with the column eigenvectors ordered in decreasing order
 %   of the corresponding eigenvalues in D.
@@ -17,26 +18,10 @@ function [v, d, m] = scinrrd_pca(nrrd)
 %   eigenvectors, and the centre of rotation if the data is rotated.
 %
 %   Assuming a 3D volume, V is a (3, 3)-matrix and D a 3-vector.
-%
-%   Note on SCI NRRD: Software applications developed at the University of
-%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
-%   internally use NRRD volumes to store medical data.
-%
-%   When label volumes (segmentation masks) are saved to a Matlab file
-%   (.mat), they use a struct called "scirunnrrd" to store all the NRRD
-%   information:
-%
-%   >>  scirunnrrd
-%
-%   scirunnrrd = 
-%
-%          data: [4-D uint8]
-%          axis: [4x1 struct]
-%      property: []
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -67,20 +52,20 @@ function [v, d, m] = scinrrd_pca(nrrd)
 narginchk(1, 1) ;
 nargoutchk(0, 3) ;
 
-% squeeze NRRD variables, if necessary
-nrrd = scimat_squeeze(nrrd);
+% squeeze SCIMAT variables, if necessary
+scimat = scimat_squeeze(scimat);
 
 % extract linear indices of voxels in the segmentation
-idx = find(nrrd.data);
+idx = find(scimat.data);
 
 % get volume size
-sz = size(nrrd.data);
+sz = size(scimat.data);
 
 % convert linear index to multiple subscripts
 [ir, ic, iz] = ind2sub(sz, idx);
 
 % convert indices to real world coordinates
-x = scimat_index2world([ ir, ic, iz ], nrrd.axis);
+x = scimat_index2world([ ir, ic, iz ], scimat.axis);
 
 % compute centroid
 m = mean(x);

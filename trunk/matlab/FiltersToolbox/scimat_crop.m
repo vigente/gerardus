@@ -1,18 +1,19 @@
-function nrrd = scinrrd_crop(nrrd, from, to)
-% SCINRRD_CROP  Crop an SCI NRRD image or segmentation volume
+function scimat = scimat_crop(scimat, from, to)
+% SCIMAT_CROP  Crop a SCIMAT image or segmentation volume.
 %
-% NRRD2 = SCINRRD_CROP(NRRD, FROM, TO)
+% SCIMAT2 = scimat_crop(SCIMAT, FROM, TO)
 %
-%   NRRD is an SCI NRRD image or segmentation volume.
+%   SCIMAT is a SCIMAT image or segmentation volume (see "help scimat" for
+%   details).
 %
 %   FROM, TO are vectors with the index coordinates that define the
 %   cropping box. For example, FROM=[2 3 7], TO=[15 20 22].
 %
-%   NRRD2 is the cropped volume.
+%   SCIMAT2 is the cropped volume.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011-2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -52,20 +53,20 @@ if (length(to) == 2)
 end
 
 % crop the data volume
-nrrd.data = nrrd.data(from(1):to(1), from(2):to(2), from(3):to(3), :);
+scimat.data = scimat.data(from(1):to(1), from(2):to(2), from(3):to(3), :);
 
-% correct the metainformation in the nrrd volume
+% correct the metainformation in the scimat volume
 for I = 1:3
     
     % size
-    nrrd.axis(I).size = size(nrrd.data, I);
+    scimat.axis(I).size = size(scimat.data, I);
     
     % "left" edge of first voxel
-    nrrd.axis(I).min = nrrd.axis(I).min ...
-        + (from(I) - 1) * nrrd.axis(I).spacing;
+    scimat.axis(I).min = scimat.axis(I).min ...
+        + (from(I) - 1) * scimat.axis(I).spacing;
     
     % "left" edge of last voxel
-    nrrd.axis(I).max = nrrd.axis(I).min ...
-        + (nrrd.axis(I).size - 1) * nrrd.axis(I).spacing;
+    scimat.axis(I).max = scimat.axis(I).min ...
+        + (scimat.axis(I).size - 1) * scimat.axis(I).spacing;
     
 end

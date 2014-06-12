@@ -1,20 +1,21 @@
-function [ mopt, vopt, avals, mvals, vvals ] = ...
-    scinrrd_optimal_intersecting_plane( nrrd, m0, v0, params )
-% SCINRRD_OPTIMAL_INTERSECTING_PLANE  Optimise intersection plane for SCI
-% NRRD segmentation mask
+function [mopt, vopt, avals, mvals, vvals] = ...
+    scimat_optimal_intersecting_plane(scimat, m0, v0, params)
+% SCIMAT_OPTIMAL_INTERSECTING_PLANE  Optimise intersection plane for SCIMAT
+% segmentation mask.
 %
 % [MOPT, VOPT, AVALS, MVALS, VVALS] = ...
-%      SCINRRD_OPTIMAL_INTERSECTING_PLANE(NRRD, M0, V0, PARAMS)
+%      scimat_optimal_intersecting_plane(SCIMAT, M0, V0, PARAMS)
 %
-%   This function computes the plane that intersects a SCI NRRD
-%   segmentation mask in a way that minimizes the segmentation area
-%   intersected by the plane. That is, in some sense in finds the plane
-%   more orthogonal to the segmented volume.
+%   This function computes the plane that intersects a SCIMAT segmentation
+%   mask in a way that minimizes the segmentation area intersected by the
+%   plane. That is, in some sense in finds the plane more orthogonal to the
+%   segmented volume.
 %
 %   (Note that the area is computed on the convex hull of the plane
 %   intersection with the volume.)
 %
-%   NRRD is the SCI NRRD struct.
+%   SCIMAT is the struct with the volume that we want to intersect (see
+%   "help scimat" for details).
 %
 %   M0 is the rotation centroid. This centroid will not change.
 %
@@ -64,27 +65,10 @@ function [ mopt, vopt, avals, mvals, vvals ] = ...
 %   the normal vector VVALS(T,P,:).
 %
 %   VVALS is a volume like MVALS, only for the normal vectors.
-%
-%
-%   Note on SCI NRRD: Software applications developed at the University of
-%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
-%   internally use NRRD volumes to store medical data.
-%
-%   When label volumes (segmentation masks) are saved to a Matlab file
-%   (.mat), they use a struct called "scirunnrrd" to store all the NRRD
-%   information:
-%
-%   >>  scirunnrrd
-%
-%   scirunnrrd = 
-%
-%          data: [4-D uint8]
-%          axis: [4x1 struct]
-%      property: []
 
 % Author(s): Ramon Casero <rcasero@gmail.com>, Vicente Grau
-% Copyright © 2010 University of Oxford
-% Version: 0.1.0
+% Copyright © 2010, 2014 University of Oxford
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -114,76 +98,76 @@ function [ mopt, vopt, avals, mvals, vvals ] = ...
 %% Checks and initialization
 
 % check arguments
-error( nargchk( 2, 4, nargin, 'struct' ) );
-error( nargoutchk( 0, 5, nargout, 'struct' ) );
+narginchk(2, 4) ;
+nargoutchk(0, 5) ;
 
 % defaults
-if ( nargin < 3 || isempty( v0 ) )
-    v0 = [ 0 0 1 ];
+if (nargin < 3 || isempty(v0))
+    v0 = [0 0 1];
 end
-if ( nargin < 4 || isempty( params ) )
+if (nargin < 4 || isempty(params))
     params.type = 'local';
     params.rad = [];
-    params.range = [ 30 30 ] / 180 * pi;
-    params.n = [ 61 61 ];
+    params.range = [30 30] / 180 * pi;
+    params.n = [61 61];
     se = [];
 end
-if (~isfield(params, 'type' ))
+if (~isfield(params, 'type'))
     params.type = 'local';
 end
-if (~isfield(params, 'rad' ))
+if (~isfield(params, 'rad'))
     params.rad = [];
     se = [];
 end
-if (~isfield(params, 'range' ))
-    params.range = [ 30 30 ] / 180 * pi;
+if (~isfield(params, 'range'))
+    params.range = [30 30] / 180 * pi;
 end
-if (~isfield(params, 'n' ))
-    params.n = [ 61 61 ];
+if (~isfield(params, 'n'))
+    params.n = [61 61];
 end
 
 % prevent user entering rotation matrix instead of initial vector by
 % mistake
-if ( size( v0, 2 ) ~= 1 || size( v0, 1 ) ~= 3 )
-    error( 'V0 must be a column 3-vector' )
+if (size(v0, 2) ~= 1 || size(v0, 1) ~= 3)
+    error('V0 must be a column 3-vector')
 end
 
 % remove the dummy dimension and convert image data to double
-nrrd = scinrrd_squeeze( nrrd, true );
+scimat = scimat_squeeze(scimat, true);
 
 % convert radius from real world size into number of pixels
-params.rad = round( ...
-    params.rad ./ [ nrrd.axis( 1:length( params.rad ) ).spacing ] );
+params.rad = round(...
+    params.rad ./ [scimat.axis(1:length(params.rad)).spacing]);
 
 % create disk for dilation/erosion if we are going to smooth in 2D
-if ( length( params.rad ) == 1 )
-    se = strel( 'disk', params.rad );
+if (length(params.rad) == 1)
+    se = strel('disk', params.rad);
 end
 
 % 3D smoothing of the segmentation edges
-if ( length( params.rad ) == 2 )
-    se = strel( 'ball', params.rad(1), params.rad(2) );
-    nrrd.data = imdilate( nrrd.data, se );
-    nrrd.data = imerode( nrrd.data, se );
+if (length(params.rad) == 2)
+    se = strel('ball', params.rad(1), params.rad(2));
+    scimat.data = imdilate(scimat.data, se);
+    scimat.data = imerode(scimat.data, se);
 end
 
 % generate 3D grid of coordinates
-[ x, y, z ] = scinrrd_ndgrid( nrrd );
+[x, y, z] = scimat_ndgrid(scimat);
 
-% % DEBUG: compute intersection of NRRD volume with the initial plane
+% % DEBUG: compute intersection of SCIMAT volume with the initial plane
 % % (if you want to visualize the image as in Seg3D, you need to do 'axis
 % % xy')
-% im = scinrrd_intersect_plane(nrrd, m0, v0, x, y, z);
+% im = scimat_intersect_plane(scimat, m0, v0, x, y, z);
 
 %% Optimisation of the intersection area
 
 % convert Cartesian coordinates into spherical coordinates (length has to
 % be one); note: we use phi for azimuth, and theta for elevation, contrary
 % to Matlab's naming convention
-[ phi0, theta0 ] = cart2sph( v0(1), v0(2), v0(3) );
+[phi0, theta0] = cart2sph(v0(1), v0(2), v0(3));
 
 % group spherical coordinates into vector
-alpha0 = [ phi0, theta0 ];
+alpha0 = [phi0, theta0];
 
 % init variables to keep track of the evolution of area values in the
 % optimisation
@@ -192,48 +176,48 @@ mvals = [];
 vvals = [];
     
 % local or global optimisation
-if strcmp( params.type, 'local' )
+if strcmp(params.type, 'local')
 
     % run optimisation to find minimum area; note that v0 is the only
-    % variable optimised, but the rest (nrrd, x, y, z, m, rad, se) are
+    % variable optimised, but the rest (scimat, x, y, z, m, rad, se) are
     % available to segmented_area_of_intersection() because the latter is a
     % subfunction
     alpha = fminsearch(@segmented_area_of_intersection, alpha0);
     
     % convert result from spherical to Carterian coordinates
-    [ aux1 aux2 aux3 ] = sph2cart( alpha(1), alpha(2), 1.0 );
-    vopt = [ aux1 aux2 aux3 ];
+    [aux1 aux2 aux3] = sph2cart(alpha(1), alpha(2), 1.0);
+    vopt = [aux1 aux2 aux3];
     
     % final centroid of the intersecting plane
-    mopt = mvals( :, end );
+    mopt = mvals(:, end);
 
-elseif strcmp( params.type, 'global' )
+elseif strcmp(params.type, 'global')
     
     % interval of azimuth angle values, phi \in [-180º, 180º] or \in 
     % [0, 360º]
-    phimin = phi0 - abs( params.range(1) );
-    phimax = phi0 + abs( params.range(1) );
+    phimin = phi0 - abs(params.range(1));
+    phimax = phi0 + abs(params.range(1));
     
     % interval of elevation angle values, theta \in [-90º, 90º]
-    thmin = max( theta0 - abs( params.range(2) ), -pi/2 );
-    thmax = min( theta0 + abs( params.range(2) ), pi/2 );
+    thmin = max(theta0 - abs(params.range(2)), -pi/2);
+    thmax = min(theta0 + abs(params.range(2)), pi/2);
     
     % sample angle intervals
-    phivals = linspace( phimin, phimax, params.n(1) );
-    thetavals = linspace( thmin, thmax, params.n(2) );
+    phivals = linspace(phimin, phimax, params.n(1));
+    thetavals = linspace(thmin, thmax, params.n(2));
     
     % create matrices to save outputs; note that for each area value we
     % need to save a 3-vector with the rotation point, and a 3-vector with
     % the normal plane
-    avals = zeros( length(thetavals), length(phivals) );
-    mvals = zeros( length(thetavals), length(phivals), 3 );
-    vvals = zeros( length(thetavals), length(phivals), 3 );
+    avals = zeros(length(thetavals), length(phivals));
+    mvals = zeros(length(thetavals), length(phivals), 3);
+    vvals = zeros(length(thetavals), length(phivals), 3);
     
     % compute area for each combination of elevation and azimuth angles
-    for T = 1:length( thetavals ) % elevation
-        for P = 1:length( phivals ) % azimuth
-            [ a, mnew, v ] = segmented_area_of_intersection( ...
-                [ phivals(P) thetavals(T) ] );
+    for T = 1:length(thetavals) % elevation
+        for P = 1:length(phivals) % azimuth
+            [a, mnew, v] = segmented_area_of_intersection(...
+                [phivals(P) thetavals(T)]);
             
             % put values in output matrices
             avals(T, P) = a;
@@ -244,17 +228,17 @@ elseif strcmp( params.type, 'global' )
     end
     
     % find minimum area
-    [foo, idx] = min( avals(:) );
+    [foo, idx] = min(avals(:));
     
     % convert linear index to multiple subscripts
-    [T, P] = ind2sub( size(avals), idx );
+    [T, P] = ind2sub(size(avals), idx);
     
     % output optimal plane
-    mopt = squeeze( mvals(T, P, :) );
-    vopt = squeeze( vvals(T, P, :) );
+    mopt = squeeze(mvals(T, P, :));
+    vopt = squeeze(vvals(T, P, :));
     
 else
-    error( [ 'Optimisation type not implemented: ' params.type ] )
+    error(['Optimisation type not implemented: ' params.type])
 end
 
     %% Objective function (the function we are trying to minimise)
@@ -263,57 +247,57 @@ end
     function [a, mnew, v] = segmented_area_of_intersection(alpha)
         
         % convert spherical to Carterian coordinates
-        [ aux1 aux2 aux3 ] = sph2cart( alpha(1), alpha(2), 1.0 );
-        v = [ aux1 aux2 aux3 ]';
+        [aux1 aux2 aux3] = sph2cart(alpha(1), alpha(2), 1.0);
+        v = [aux1 aux2 aux3]';
         
         % vector cannot be zero
-        if ( norm(v) == 0 )
-            error( 'Normal vector to plane cannot be (0,0,0)' )
+        if (norm(v) == 0)
+            error('Normal vector to plane cannot be (0,0,0)')
         end
         
         % this function cannot deal with vertical planes, because of a
         % singularity
-        if ( v(3) == 0 )
-            error( 'Intersecting plane cannot be vertical' )
+        if (v(3) == 0)
+            error('Intersecting plane cannot be vertical')
         end
 
         % compute intersection of plane with volume
-        [ im, zp, xp, yp ] = scinrrd_intersect_plane(nrrd, m0, v, x, y, z);
+        [im, zp, xp, yp] = scimat_intersect_plane(scimat, m0, v, x, y, z);
         
         % 2D smoothing of the segmentation edges
-        if ( length( params.rad ) == 1 )
-            im = imdilate( im, se );
-            im = imerode( im, se );
+        if (length(params.rad) == 1)
+            im = imdilate(im, se);
+            im = imerode(im, se);
         end
         
 %         % DEBUG: plot rotated plane
 %         hold off
-%         plot3( xp(:), yp(:), zp(:), '.r' )
+%         plot3(xp(:), yp(:), zp(:), '.r')
         
         % find segmented voxels in the 2D cut
-        idx = find( im );
+        idx = find(im);
 
         % get coordinates of segmented voxels
-        xps = xp( idx );
-        yps = yp( idx );
-        zps = zp( idx );
+        xps = xp(idx);
+        yps = yp(idx);
+        zps = zp(idx);
         
 %         % DEBUG: visualize intersection projected onto horizontal plane
 %         hold off
 %         imagesc(xp(:), yp(:), im > 0)
 %         hold on
 %         % DEBUG: compute and plot convex hull
-%         idx2 = convhull( xps, yps );
+%         idx2 = convhull(xps, yps);
 %         vxs = xps(idx2);
 %         vys = yps(idx2);
 %         plot(vxs, vys, 'w')
-%         xlabel( 'x (m)' )
-%         ylabel( 'y (m)' )
+%         xlabel('x (m)')
+%         ylabel('y (m)')
 %         pause
         
         % compute a rotation matrix from the Cartesian system to the
         % rotated plane
-        rotmat = vec2rotmat( v );
+        rotmat = vec2rotmat(v);
   
         % we are now seeing the rotated plane projected onto the horizontal
         % plane, i.e. we see the segmentation mask in perspective.
@@ -328,16 +312,16 @@ end
         
         % ...second, make the rotated plane horizontal, by inverting the
         % rotation...
-        xyzps = [ xps(:) yps(:) zps(:) ] * rotmat;
-        xps = xyzps( :, 1 );
-        yps = xyzps( :, 2 );
-        zps = xyzps( :, 3 );
+        xyzps = [xps(:) yps(:) zps(:)] * rotmat;
+        xps = xyzps(:, 1);
+        yps = xyzps(:, 2);
+        zps = xyzps(:, 3);
         
         % if everything has gone alright, then the z-coordinate of xyzp
         % should be zero (+numerical errors), because the rotated plane is
         % now the XY plane
-        assert( abs( min( zps ) ) < 1e-10 )
-        assert( abs( max( zps ) ) < 1e-10 )
+        assert(abs(min(zps)) < 1e-10)
+        assert(abs(max(zps)) < 1e-10)
         
 %         % DEBUG: visualize segmentation mask in real world coordinates
 %         hold off
@@ -346,12 +330,12 @@ end
         
         % compute convex hull (reuse idx2): note convex hull coordinates
         % are on projected space
-        idx2 = convhull( xps, yps );
+        idx2 = convhull(xps, yps);
         vxs = xps(idx2);
         vys = yps(idx2);
         
         % compute x-,y-coordinates centroid and area of polygon
-        [ mnew, a ] = polycenter( vxs, vys );
+        [mnew, a] = polycenter(vxs, vys);
         mnew(3) = 0;
         
         % the centroid is now on projected coordinates, but we need to put
@@ -360,11 +344,11 @@ end
         mnew = (mnew' + m0)';
         
         % for the global algorithm, values are recorded in a different way
-        if strcmp( params.type, 'local' )
+        if strcmp(params.type, 'local')
             % kept track of optimisation evolution
-            avals = [ avals a ];
-            vvals = [ vvals v ];
-            mvals = [ mvals mnew ];
+            avals = [avals a];
+            vvals = [vvals v];
+            mvals = [mvals mnew];
         end
         
     end
