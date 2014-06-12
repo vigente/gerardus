@@ -1,5 +1,5 @@
 function [nrrd, sigma] = scinrrd_estimate_bias_field(nrrd, x, a, sigma, FASTINTERP)
-% SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field
+% SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field.
 %
 %   This function provides an estimate of the bias field from a magnetic
 %   resonance image (MRI).
@@ -19,7 +19,7 @@ function [nrrd, sigma] = scinrrd_estimate_bias_field(nrrd, x, a, sigma, FASTINTE
 %   Alternatively, this function could use an approximating TPS instead of
 %   an interpolating one.
 %
-% NRRD2 = SCINRRD_ESTIMATE_BIAS_FIELD(NRRD, X)
+% NRRD2 = scinrrd_estimate_bias_field(NRRD, X)
 %
 %   NRRD is an image provided in SCI NRRD format.
 %
@@ -28,7 +28,7 @@ function [nrrd, sigma] = scinrrd_estimate_bias_field(nrrd, x, a, sigma, FASTINTE
 %
 %   NRRD2 is the estimated bias field in SCI NRRD format.
 %
-% NRRD2 = SCINRRD_ESTIMATE_BIAS_FIELD(NRRD, X, A, SIGMA, FASTINTERP)
+% NRRD2 = scinrrd_estimate_bias_field(NRRD, X, A, SIGMA, FASTINTERP)
 %
 %   A is a scaling factor. Because using the TPS to interpolate all voxels
 %   can be rather slow, and the bias field is anyway a slow varying field,
@@ -38,6 +38,12 @@ function [nrrd, sigma] = scinrrd_estimate_bias_field(nrrd, x, a, sigma, FASTINTE
 %   = 1.0 and no rescaling is used. If A has 1 value, then the same scaling
 %   is applied to all dimensions. If A has 3 values, each value is used to
 %   scale one dimension.
+%
+%   Note: Small values of A imply a large SIGMA to avoid aliasing.
+%   Internally, this attempts to create a large Gaussian filter, and the
+%   computer may run out of memory. Larger values of A require a lot of
+%   memory from the thin-plate spline, and this may give an out of memory
+%   error too.
 %
 %   SIGMA is the standard deviation of the Gaussian filter. By default,
 %   sigma = 2*sqrt(-2 ln(alpha)) / a, alpha=1/sqrt(2)*ones(1,3), so that
@@ -106,8 +112,8 @@ function [nrrd, sigma] = scinrrd_estimate_bias_field(nrrd, x, a, sigma, FASTINTE
 % numerical error and a small filter.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011 University of Oxford
-% Version: 0.1.0
+% Copyright © 2011-2014 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -135,8 +141,8 @@ function [nrrd, sigma] = scinrrd_estimate_bias_field(nrrd, x, a, sigma, FASTINTE
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 5, nargin, 'struct'));
-error(nargoutchk(0, 2, nargout, 'struct'));
+narginchk(2, 5);
+nargoutchk(0, 2);
 
 % defaults
 alpha = 1/sqrt(2)*ones(1,3);
@@ -156,7 +162,7 @@ if (nargin < 5 || isempty(FASTINTERP))
 end
     
 % squeeze volume
-nrrd = scinrrd_squeeze(nrrd);
+nrrd = scimat_squeeze(nrrd);
 
 % size of input volume
 nin = [nrrd.axis.size];
@@ -169,7 +175,7 @@ a = nout ./ nin;
 % Seg3D provides continuous point coordinates over the whole image volume.
 % But in fact, intensity values correspond to the voxel centre, so we have
 % to convert the coordinates to indices and round them
-x = scinrrd_world2index(x, nrrd.axis);
+x = scimat_world2index(x, nrrd.axis);
 x = round(x);
 
 % compute low-pass anti-aliasing filter
@@ -214,12 +220,12 @@ end
 clear h hbox im
 
 % convert back to coordinates
-x = scinrrd_index2world(x, nrrd.axis);
+x = scimat_index2world(x, nrrd.axis);
 
 % compute coordinates of the two extreme voxels that define the image
 % volume
-cmin = scinrrd_index2world([1 1 1], nrrd.axis);
-cmax = scinrrd_index2world(nin, nrrd.axis);
+cmin = scimat_index2world([1 1 1], nrrd.axis);
+cmax = scimat_index2world(nin, nrrd.axis);
 
 % if we have point coordinates with values like 100, 400, matrix L for the
 % thin-plate spline weight computation is badly scaled. Thus, we make use

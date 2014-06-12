@@ -21,8 +21,8 @@ function [x, scimat] = scimat_simlandmarks_thickslice(scimat, p, dim, s)
 %   S is a vector with the indices of the slices that will be sampled.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Copyright © 2013-2014 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -133,4 +133,4 @@ end
 
 % get coordinates of landmarks
 [r, c, s] = ind2sub(sz, find(scimat.data));
-x = scinrrd_index2world([r, c, s], scimat.axis);
+x = scimat_index2world([r, c, s], scimat.axis);

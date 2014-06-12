@@ -1,9 +1,10 @@
 function [xg, yg, zg] = scinrrd_ndgrid(nrrd, ri, ci, si)
-% SCINRRD_NDGRID  Generation of arrays for 3D SCI NRRD image volumes
+% SCINRRD_NDGRID  Generation of arrays for 3D SCI NRRD image volumes.
 %
 % [XG, YG, ZG] = scinrrd_ndgrid(NRRD)
 %
-%   NRRD is a SCI MAT image volume.
+%   NRRD is a SCIMAT image volume (see "help scimat_load" for details on
+%   SCIMAT structs).
 %
 %   XG, YG, ZG are arrays with the x-, y-, z-coordinates of the voxels in
 %   NRRD.
@@ -21,8 +22,8 @@ function [xg, yg, zg] = scinrrd_ndgrid(nrrd, ri, ci, si)
 % See also: ndgrid.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010-2012 University of Oxford
-% Version: 0.2.0
+% Copyright © 2010-2014 University of Oxford
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -50,11 +51,11 @@ function [xg, yg, zg] = scinrrd_ndgrid(nrrd, ri, ci, si)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 4, nargin, 'struct' ));
-error(nargoutchk(0, 3, nargout, 'struct'));
+narginchk(1, 4);
+nargoutchk(0, 3);
 
 % squeeze the non-used first dimension of data
-nrrd = scinrrd_squeeze(nrrd);
+nrrd = scimat_squeeze(nrrd);
 
 % defaults
 if (nargin < 2 || isempty(ri))

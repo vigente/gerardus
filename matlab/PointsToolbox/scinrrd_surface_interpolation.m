@@ -1,6 +1,6 @@
 function [nrrd, uv, x] = scinrrd_surface_interpolation(nrrd, x, param, interp)
 % SCINRRD_SURFACE_INTERPOLATION  Interpolate a surface and create a
-% segmentation mask from a scattered set of points
+% segmentation mask from a scattered set of points.
 %
 % NRRD = scinrrd_surface_interpolation(NRRD0, X)
 %
@@ -32,8 +32,8 @@ function [nrrd, uv, x] = scinrrd_surface_interpolation(nrrd, x, param, interp)
 % See also: surface_interpolation.m.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010-2013 University of Oxford
-% Version: 0.7.0
+% Copyright © 2010-2014 University of Oxford
+% Version: 0.7.1
 % $Rev$
 % $Date$
 % 
@@ -84,7 +84,7 @@ interp.res = [nrrd.axis.spacing];
 [R, C, S] = size(y);
 
 % convert real world coordinates to indices
-idx = round(scinrrd_world2index(reshape(y, R*C, S), nrrd.axis));
+idx = round(scimat_world2index(reshape(y, R*C, S), nrrd.axis));
 
 % remove points outside the volume
 badidx = isnan(sum(idx, 2));

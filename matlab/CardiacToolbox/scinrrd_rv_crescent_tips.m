@@ -1,6 +1,6 @@
 function [tip1, tip2] = scinrrd_rv_crescent_tips(nrrd, m)
 % SCINRRD_RV_CRESCENT_TIPS  Extract the tips of the crescent-shaped curve
-% in all slices of the Right Ventricle
+% in all slices of the Right Ventricle.
 %
 % [X1, X2] = SCINRRD_RV_CRESCENT_TIPS(NRRD, M)
 %
@@ -35,8 +35,8 @@ function [tip1, tip2] = scinrrd_rv_crescent_tips(nrrd, m)
 %      property: []
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010 University of Oxford
-% Version: 0.1.0
+% Copyright © 2010-2014 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -64,8 +64,8 @@ function [tip1, tip2] = scinrrd_rv_crescent_tips(nrrd, m)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 2, 2, nargin, 'struct' ) );
-error( nargoutchk( 0, 2, nargout, 'struct' ) );
+narginchk(2, 2);
+nargoutchk(0, 2);
 
 % volume size
 sz = [nrrd.axis.size];
@@ -98,7 +98,7 @@ for I = 1:sz(3)
     [ir, ic] = ind2sub( sz(1:2), idx );
     
     % convert indices to real world coordinates and make colum vectors
-    x = scinrrd_index2world( [ ir, ic, I+zeros(length(ir), 1) ], ...
+    x = scimat_index2world( [ ir, ic, I+zeros(length(ir), 1) ], ...
         nrrd.axis );
     
     % compute a centroid for the slice
@@ -108,7 +108,7 @@ for I = 1:sz(3)
     d = dmatrix(xm', m');
     
     % find closest axis centroid to the slice centroid
-    [foo, inn] = min(d);
+    [~, inn] = min(d);
     
     % center the slice points around the axis centroid
     x = x - m(inn * ones(size(x, 1), 1), :);
@@ -118,8 +118,8 @@ for I = 1:sz(3)
     
     % assume that the point with the largest and smallest azimuth values
     % are the crescent tips
-    [foo, idx1] = max(phi);
-    [foo, idx2] = min(phi);
+    [~, idx1] = max(phi);
+    [~, idx2] = min(phi);
     
     % assign the tip points to the output variable, undoing the previous
     % centering

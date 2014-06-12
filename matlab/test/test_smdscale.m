@@ -1,8 +1,8 @@
 % test_smdscale.m
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2012-2013 University of Oxford
-% Version: 0.3.0
+% Copyright © 2012-2014 University of Oxford
+% Version: 0.3.2
 % $Rev$
 % $Date$
 %
@@ -210,7 +210,7 @@ axis equal
 clear
 
 % load segmentation mask of LV hull
-im = scinrrd_load('data/008-lvhull-downsampled-4.mha');
+im = scimat_load('data/008-lvhull-downsampled-4.mha');
 
 % compute mesh from segmentation
 opt = .004;
@@ -310,7 +310,7 @@ axis equal
 clear
 
 % load segmentation mask of LV hull
-im = scinrrd_load('data/008-lvhull-downsampled-4.mha');
+im = scimat_load('data/008-lvhull-downsampled-4.mha');
 
 % compute mesh from segmentation
 opt = .004;

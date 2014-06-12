@@ -1,15 +1,15 @@
 function [tri, triboundary] = pts_mesh(x, maxlen)
 % PTS_MESH  Tetrahedral volumetric and triangular surface mesh of a cloud
-% of points
+% of points.
 %
-% [TRI, TRIBOUNDARY] = PTS_MESH(X, MAXLEN)
+% [TRI, TRIBOUNDARY] = pts_mesh(X, MAXLEN)
 %
 %   X is a 3-column array where each row has the Cartesian coordinates of a
 %   point from the cloud of points. If you have a segmentation in SCI NRRD
 %   format, you can compute the coordinates of the segmented voxels as
 %
 %     >> [r, c, s] = ind2sub(size(nrrd.data), find(nrrd.data));
-%     >> x = scinrrd_index2world([r c s], nrrd.axis);
+%     >> x = scimat_index2world([r c s], nrrd.axis);
 %
 %   MAXLEN is a scalar with the maximum length allowed for an edge
 %   connecting two nodes in the mesh. By default, MAXLEN=Inf, so the mesh
@@ -44,8 +44,8 @@ function [tri, triboundary] = pts_mesh(x, maxlen)
 % See also: bwmesh, TriRep, delaunay
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011 University of Oxford
-% Version: 0.2.0
+% Copyright © 2011-2014 University of Oxford
+% Version: 0.2.1
 % $Rev$
 % $Date$
 %
@@ -74,8 +74,8 @@ function [tri, triboundary] = pts_mesh(x, maxlen)
 % <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 2, nargin, 'struct'));
-error(nargoutchk(0, 2, nargout, 'struct'));
+narginchk(1, 2);
+nargoutchk(0, 2);
 
 % defaults
 if (nargin < 2 || isempty(maxlen))

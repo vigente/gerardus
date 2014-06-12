@@ -1,12 +1,12 @@
-function nrrd = scinrrd_im2nrrd(im, res, offset)
-% SCINRRD_IM2NRRD  Create SCI NRRD struct from Matlab data.
+function scimat = scimat_im2scimat(im, res, offset)
+% SCIMAT_IM2SCIMAT  Create SCIMAT struct from scratch.
 %
 % This function creates a struct with the correct format that the Gerardus
-% Toolbox uses for NRRD variables. This is the same format you obtain when
-% loading a .mat file using scimat_load(), and can be saved to a .mat file
-% using scimat_save().
+% Toolbox uses for SCIMAT variables. This is the same format you obtain
+% when loading a .mat file using scimat_load(), and can be saved to a .mat
+% file using scimat_save(), that can be opened with Seg3D.
 %
-% NRRD = scinrrd_im2nrrd(IM, RES, OFFSET)
+% SCIMAT = scimat_im2scimat(IM, RES, OFFSET)
 %
 %   IM is a Matlab array with the image or segmentation. IM can be of class
 %   logical, (u)int8, (u)int16, (u)int32, (u)int64, single or double. IM
@@ -22,10 +22,16 @@ function nrrd = scinrrd_im2nrrd(im, res, offset)
 %   OFFSET is a 3-vector with the coordinates of the *centre* of the first
 %   voxel in the image. The same correspondence with rows, columns and
 %   slices as for RES applies.
+%
+%   SCIMAT is the result of intersecting the volume with a plane, given as
+%   a SCIMAT struct. We use SCIMAT structs widely in Gerardus, because that
+%   way we have the image data and metainformation (e.g. voxel size)
+%   together in the same variable. For details on SCIMAT structs, see "help
+%   scimat_load".
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011-2014 University of Oxford
-% Version: 0.1.3
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -67,33 +73,33 @@ end
 % create NRRD struct
 
 % data volume
-nrrd.data = im;
+scimat.data = im;
 
 % loop some of the fields
 for I = 1:3
     
     % data volume size
-    nrrd.axis(I).size = size(im, I);
+    scimat.axis(I).size = size(im, I);
     
     % image resolution
-    nrrd.axis(I).spacing = res(I);
+    scimat.axis(I).spacing = res(I);
     
     % left edge of first voxel
-    nrrd.axis(I).min = offset(I) - res(I) / 2;
+    scimat.axis(I).min = offset(I) - res(I) / 2;
     
     % left edge of last voxel
-    nrrd.axis(I).max = offset(I) + (size(im, I) - 1) * res(I);
+    scimat.axis(I).max = offset(I) + (size(im, I) - 1) * res(I);
     
     % unused
-    nrrd.axis(I).center = 1;
-    nrrd.axis(I).unit = 'no unit';
+    scimat.axis(I).center = 1;
+    scimat.axis(I).unit = 'no unit';
     
 end
 
 % other
-nrrd.axis(1).label = 'axis 2';
-nrrd.axis(2).label = 'axis 1';
-nrrd.axis(3).label = 'axis 3';
+scimat.axis(1).label = 'axis 2';
+scimat.axis(2).label = 'axis 1';
+scimat.axis(3).label = 'axis 3';
 
-% we need nrrd.axis to be a column vector
-nrrd.axis = nrrd.axis';
+% we need scimat.axis to be a column vector
+scimat.axis = scimat.axis';

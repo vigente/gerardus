@@ -1,8 +1,8 @@
 function nrrd2 = scinrrd_papillary_muscles(nrrd, NPAPS)
 % SCINRRD_PAPILLARY_MUSCLES  Extract the papillay muscles from a
-% segmentation of the Left Ventricle's cavity
+% segmentation of the Left Ventricle's cavity.
 %
-% NRRD = SCINRRD_PAPILLARY_MUSCLES(NRRD)
+% NRRD = scinrrd_papillary_muscles(NRRD)
 %
 %   This function extracts a segmentation of the papillary muscles from the
 %   segmentation of a Left Ventricular cavity. In fact, the papillary
@@ -12,7 +12,7 @@ function nrrd2 = scinrrd_papillary_muscles(nrrd, NPAPS)
 %
 %   NRRD is the SCI NRRD struct with the segmentation.
 %
-% NRRD = SCINRRD_PAPILLARY_MUSCLES(NRRD, NPAPS)
+% NRRD = scinrrd_papillary_muscles(NRRD, NPAPS)
 %
 %   NPAPS is a constant with the number of papillary muscles we want to
 %   extract. By default, NPAPS=2.
@@ -35,8 +35,8 @@ function nrrd2 = scinrrd_papillary_muscles(nrrd, NPAPS)
 %
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010 University of Oxford
-% Version: 0.1.0
+% Copyright © 2010-2014 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -64,8 +64,8 @@ function nrrd2 = scinrrd_papillary_muscles(nrrd, NPAPS)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 2, nargin, 'struct' ) );
-error( nargoutchk( 0, 1, nargout, 'struct' ) );
+narginchk(1, 2);
+nargoutchk(0, 1);
 
 % defaults
 if (nargin < 2 || isempty(NPAPS))
@@ -73,16 +73,16 @@ if (nargin < 2 || isempty(NPAPS))
 end
 
 % remove the dummy dimension
-nrrd = scinrrd_squeeze( nrrd );
+nrrd = scimat_squeeze(nrrd);
 
 % get a tight box around the LV segmentation
 box = scinrrd_box(nrrd);
 
 % convert real world coordinates to indices
-boxi = scinrrd_world2index( box', nrrd.axis )';
+boxi = scimat_world2index(box', nrrd.axis)';
 
 % get data volume size
-sz = size( nrrd.data );
+sz = size(nrrd.data);
 
 % create output segmentation volume
 nrrd2 = nrrd;
@@ -101,33 +101,33 @@ for I = min(boxi(3,:)):max(boxi(3,:))
     
     % connected components filter (nlabs is the number of labels w/o counting
     % the background)
-    [ im, nlabs ] = bwlabel( nrrd.data(:, :, I) );
+    [ im, nlabs ] = bwlabel(nrrd.data(:, :, I));
     
     % get number of voxels in each label
-    nvox = zeros( nlabs, 1 );
+    nvox = zeros(nlabs, 1);
     for L = 1:nlabs
-        nvox(L) = sum( im(:) == L );
+        nvox(L) = sum(im(:) == L);
     end
     
     % we assume that the largest connected component is the cavity
-    [ nvoxmax, idx ] = max( nvox );
+    [ nvoxmax, idx ] = max(nvox);
     
     % it only makes sense to compute the convex hull if there are at least
     % three pixels
-    if ( nvoxmax >= 3 )
+    if (nvoxmax >= 3)
     
         % we delete the rest of voxels; even if they are part of the cavity, we
         % don't want them interfering with the convex hull
         im = (im == idx);
         
         % get linear indices of cavity pixels
-        idx = find( im );
+        idx = find(im);
         
         % convert linear index to multiple subscripts
-        [ir, ic] = ind2sub( sz(1:2), idx );
+        [ir, ic] = ind2sub(sz(1:2), idx);
         
         % compute the convex hull
-        idxhull = convhull( ir, ic );
+        idxhull = convhull(ir, ic);
         
         % get all the pixels inside of convex hull
         hull = roipoly(im, ic(idxhull), ir(idxhull));
@@ -138,7 +138,7 @@ for I = min(boxi(3,:)):max(boxi(3,:))
         hull = imerode(hull, se1);
         
         % put the new segmentation into the data volume
-        nrrd2.data(:, :, I) = bitxor( im, hull );
+        nrrd2.data(:, :, I) = bitxor(im, hull);
         
     end
     
@@ -155,12 +155,12 @@ end
 im = nrrd2.data(:, :, round(mean(boxi(3,:))));
 
 % compute connected components
-[im, nlabs] = bwlabel( im );
+[im, nlabs] = bwlabel(im);
 
 % get number of voxels in each label
-nvox = zeros( nlabs, 1 );
+nvox = zeros(nlabs, 1);
 for L = 1:nlabs
-    nvox(L) = sum( im(:) == L );
+    nvox(L) = sum(im(:) == L);
 end
     
 % order connected components by decreasing area size
@@ -218,7 +218,7 @@ for I = round(mean(boxi(3,:)))+1:max(boxi(3,:))
     nrrd2.data(:, :, I) = nrrd2.data(:, :, I) & im1mask;
     
     % compute connected components in the new slice
-    [nrrd2.data(:, :, I), nlabs2] = bwlabel( nrrd2.data(:, :, I) );
+    [nrrd2.data(:, :, I), nlabs2] = bwlabel(nrrd2.data(:, :, I));
     
     % we need a temporal image to store the new papillary bits
     im2 = nrrd2.data(:, :, I) * 0;
@@ -228,7 +228,7 @@ for I = round(mean(boxi(3,:)))+1:max(boxi(3,:))
         
         % matrix to keep track of the intersection of each papillary bit
         % with every connected component
-        sim = zeros( npaps, nlabs2 );
+        sim = zeros(npaps, nlabs2);
         
         % intersect each papillary bit with each connected component bit
         for L = 1:npaps
@@ -254,7 +254,7 @@ for I = round(mean(boxi(3,:)))+1:max(boxi(3,:))
     
     % recheck the number of components now in the slice (because the
     % papillary muscles can fuse together)
-    [ foo, npaps ] = bwlabel( nrrd2.data(:, :, I) );
+    [ foo, npaps ] = bwlabel(nrrd2.data(:, :, I));
         
 end
 
@@ -311,7 +311,7 @@ for I = round(mean(boxi(3,:))):-1:min(boxi(3,:))
     nrrd2.data(:, :, I) = nrrd2.data(:, :, I) & im1mask;
     
     % compute connected components in the new slice
-    [nrrd2.data(:, :, I), nlabs2] = bwlabel( nrrd2.data(:, :, I) );
+    [nrrd2.data(:, :, I), nlabs2] = bwlabel(nrrd2.data(:, :, I));
     
     % we need a temporal image to store the new papillary bits
     im2 = nrrd2.data(:, :, I) * 0;
@@ -321,7 +321,7 @@ for I = round(mean(boxi(3,:))):-1:min(boxi(3,:))
         
         % matrix to keep track of the intersection of each papillary bit
         % with every connected component
-        sim = zeros( npaps, nlabs2 );
+        sim = zeros(npaps, nlabs2);
         
         % intersect each papillary bit with each connected component bit
         for L = 1:npaps
@@ -347,7 +347,7 @@ for I = round(mean(boxi(3,:))):-1:min(boxi(3,:))
     
     % recheck the number of components now in the slice (because the
     % papillary muscles can fuse together)
-    [ foo, npaps ] = bwlabel( nrrd2.data(:, :, I) );
+    [ foo, npaps ] = bwlabel(nrrd2.data(:, :, I));
         
 end
 
