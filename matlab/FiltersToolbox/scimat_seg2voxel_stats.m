@@ -1,11 +1,11 @@
-function [stats, idx] = scinrrd_seg2voxel_stats(nrrd, RAD, idx)
-% SCINRRD_SEG2VOXEL_STATS  Shape stats for each voxel in a segmentation
+function [stats, idx] = scimat_seg2voxel_stats(scimat, RAD, idx)
+% SCIMAT_SEG2VOXEL_STATS  Shape stats for each voxel in a segmentation
 % based on a windowed neighbourhood.
 %
-% [STATS, IDX] = scinrrd_seg2voxel_stats(NRRD, RAD, IDX)
+% [STATS, IDX] = scimat_seg2voxel_stats(SCIMAT, RAD, IDX)
 %
-%   NRRD is an SCI NRRD struct with a binary segmentation mask of different
-%   structures, e.g. blobs, tubes, etc.
+%   SCIMAT is a struct with a binary segmentation mask of different
+%   structures, e.g. blobs, tubes, etc. (see "help scimat" for details).
 %
 %   This function computes certain parameters (STATS) that can be used to
 %   decide whether a voxel belongs to a blob, a tube, etc.
@@ -22,12 +22,12 @@ function [stats, idx] = scinrrd_seg2voxel_stats(nrrd, RAD, idx)
 %   IDX is a vector with linear index values of the segmented voxels. If
 %   you want to read the voxels, you can do
 %
-%   >> nrrd.data(idx)
+%   >> scimat.data(idx)
 %
 %   The row, column and slice coordinates of the segmented voxels are given
 %   by
 %
-%   >> [r, c, s] = ind2sub(size(nrrd.data), idx);
+%   >> [r, c, s] = ind2sub(size(scimat.data), idx);
 %
 %   By default, IDX is computed internally as all the voxels different from
 %   0 in the segmentation mask. But a much faster way to segment vessels is
@@ -35,10 +35,10 @@ function [stats, idx] = scinrrd_seg2voxel_stats(nrrd, RAD, idx)
 %   "skeletonize3DSegmentation" in Gerardus), and only compute STATS on the
 %   skeleton.
 %
-%   >> nrrd = scimat_load('im.mat');
-%   >> nrrdsk = scimat_load('imsk.mat');
-%   >> idxsk = find(nrrdsk.data);
-%   >> stats = scinrrd_seg2voxel_stats(nrrd, 25e-4, idxsk);
+%   >> scimat = scimat_load('im.mat');
+%   >> scimatsk = scimat_load('imsk.mat');
+%   >> idxsk = find(scimatsk.data);
+%   >> stats = scimat_seg2voxel_stats(scimat, 25e-4, idxsk);
 %
 %   The measures provided by STATS are:
 %
@@ -60,11 +60,11 @@ function [stats, idx] = scinrrd_seg2voxel_stats(nrrd, RAD, idx)
 %     STATS.DC:   Distance between the centroid of the connected component
 %                 and the target voxel.
 %
-% See also: scinrrd_seg2label_stats.
+% See also: scimat_seg2label_stats.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011-2014 University of Oxford
-% Version: 0.1.2
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -96,13 +96,13 @@ narginchk(2, 3);
 nargoutchk(0, 2);
 
 % get radius size in voxels in every dimension
-x0 = scinrrd_index2world([1 1 1], nrrd.axis);
-irad = round(scinrrd_world2index(x0+RAD*ones(1,3), nrrd.axis) - [1 1 1]);
+x0 = scimat_index2world([1 1 1], scimat.axis);
+irad = round(scimat_world2index(x0+RAD*ones(1,3), scimat.axis) - [1 1 1]);
 
 % find all the voxels that are part of the segmentation, if they are not
 % provided by the user
 if (nargin < 3 || isempty(idx))
-    idx = find(nrrd.data);
+    idx = find(scimat.data);
 end
 
 %initialize output matrices for the eigenvalues
@@ -113,20 +113,20 @@ stats.vol = stats.var1;
 stats.dc = stats.var1;
 
 % compute voxel volume
-vol0 = prod([nrrd.axis.spacing]);
+vol0 = prod([scimat.axis.spacing]);
 
 %loop every voxel that is part of the segmentation (skip the rest)
 for I = 1:length(idx)
-    [R, C, S] = ind2sub(size(nrrd.data), idx(I));
+    [R, C, S] = ind2sub(size(scimat.data), idx(I));
 
     % extract a neighbourhood around the target voxel
     Rmin = max(R-irad(1), 1);
-    Rmax = min(R+irad(1), size(nrrd.data, 1));
+    Rmax = min(R+irad(1), size(scimat.data, 1));
     Cmin = max(C-irad(2), 1);
-    Cmax = min(C+irad(2), size(nrrd.data, 2));
+    Cmax = min(C+irad(2), size(scimat.data, 2));
     Smin = max(S-irad(3), 1);
-    Smax = min(S+irad(3), size(nrrd.data, 3));
-    im = nrrd.data(...
+    Smax = min(S+irad(3), size(scimat.data, 3));
+    im = scimat.data(...
         Rmin:Rmax, ...
         Cmin:Cmax, ...
         Smin:Smax ...
@@ -152,20 +152,20 @@ for I = 1:length(idx)
     end
     
     % convert the index values, that are indices of im (neighbourhood), to
-    % indices in nrrd.data (whole image)
+    % indices in scimat.data (whole image)
     [Rcc, Ccc, Scc] = ind2sub(size(im), cc.PixelIdxList{Jtarg});
     Rcc = Rcc+Rmin-1;
     Ccc = Ccc+Cmin-1;
     Scc = Scc+Smin-1;
     
     % convert indices to real world coordinates
-    x = scinrrd_index2world([Rcc, Ccc, Scc], nrrd.axis);
+    x = scimat_index2world([Rcc, Ccc, Scc], scimat.axis);
     
     % compute centroid of the points
     xmean = mean(x);
     
     % compute coordinates of the target point
-    xtarg = scinrrd_index2world([R, C, S], nrrd.axis);
+    xtarg = scimat_index2world([R, C, S], scimat.axis);
     
     % compute distance between target point and centroid
     stats.dc(I) = sqrt(sum((xmean - xtarg).^2));

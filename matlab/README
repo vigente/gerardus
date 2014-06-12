@@ -74,9 +74,9 @@ process_misas_patient.m
 	 PROCESS_MISAS_PATIENT  Create MetaImage volumes from directory tree of
 	 IMA DICOM files, for project with human hearts provided by Kelvin Wong
 	
-scinrrd_rv_crescent_tips.m
+scimat_rv_crescent_tips.m
 
-	 SCINRRD_RV_CRESCENT_TIPS  Extract the tips of the crescent-shaped curve
+	 SCIMAT_RV_CRESCENT_TIPS  Extract the tips of the crescent-shaped curve
 	 in all slices of the Right Ventricle.
 	
 tissue2lvrv.m
@@ -197,6 +197,10 @@ scimat_seg3d2matlab.m
 	 SCIMAT_SEG3D2MATLAB  Correct dimensions of data loaded from a *.mat file
 	 created with Seg3D so that it will follow Matlab's convention.
 	
+scimat_tiff2scimat.m
+
+	 SCIMAT_TIFF2SCIMAT  Create SCIMAT struct from TIFF stack.
+	
 scimat_world2index.m
 
 	 SCIMAT_WORLD2INDEX  Convert real world coordinates to image indices for
@@ -205,10 +209,6 @@ scimat_world2index.m
 	   Function scimat_world2index() converts the coordinates of a voxel given
 	   as real world coordinates [x, y, z] into index coordinates 
 	   [row, column, slice].
-	
-scinrrd_tiff2nrrd.m
-
-	 SCINRRD_TIFF2NRRD  Create SCI NRRD struct from TIFF stack.
 	
 sortdirbynum.m
 
@@ -317,6 +317,26 @@ scimat_blockproc3.m
 
 	 SCIMAT_BLOCKPROC3  Block processing for a 3D SCI MAT volume
 	
+scimat_box.m
+
+	 SCIMAT_BOX  Compute tight box around SCIMAT segmentation.
+	
+scimat_centroids.m
+
+	 SCIMAT_CENTROIDS  Compute centroid of segmentation in each slice.
+	
+scimat_crop.m
+
+	 SCIMAT_CROP  Crop a SCIMAT image or segmentation volume.
+	
+scimat_estimate_bias_field.m
+
+	 SCIMAT_ESTIMATE_BIAS_FIELD  Estimate MRI bias field.
+	
+scimat_gradients.m
+
+	 SCIMAT_GRADIENTS  Compute 1st and 2nd order image gradients
+	
 scimat_intersect_plane.m
 
 	 SCIMAT_INTERSECT_PLANE  Intersection of a plane with an image volume.
@@ -330,6 +350,39 @@ scimat.m
 
 	 SCIMAT  Struct used in Gerardus to store 3D images and their metadata.
 	
+scimat_ndgrid.m
+
+	 SCIMAT_NDGRID  Generation of arrays for 3D SCIMAT image volumes.
+	
+scimat_optimal_intersecting_plane.m
+
+	 SCIMAT_OPTIMAL_INTERSECTING_PLANE  Optimise intersection plane for SCIMAT
+	 segmentation mask.
+	
+scimat_papillary_muscles.m
+
+	 SCIMAT_PAPILLARY_MUSCLES  Extract the papillay muscles from a
+	 segmentation of the Left Ventricle's cavity.
+	
+scimat_regionprops.m
+
+	 SCIMAT_REGIONPROPS  Measure properties of image regions on each slice.
+	
+scimat_seg2label_stats.m
+
+	 SCIMAT_SEG2LABEL_STATS  Shape stats for each object in a multi-label
+	 segmentation; objects can be straightened with an skeleton or medial line
+	 before computing some measures.
+	
+scimat_seg2voxel_stats.m
+
+	 SCIMAT_SEG2VOXEL_STATS  Shape stats for each voxel in a segmentation
+	 based on a windowed neighbourhood.
+	
+scimat_skeleton_prune.m
+
+	 SCIMAT_SKELETON_PRUNE  Prune branches in a segmentation's skeletonization
+	
 scimat_squeeze.m
 
 	 SCIMAT_SQUEEZE  Remove dummy dimension from SCIRUNNRRD struct so that it
@@ -340,62 +393,9 @@ scimat_unsqueeze.m
 	 SCIMAT_UNSQUEEZE  Add dummy dimension to SCIMAT struct so that it becomes
 	 a SCIRUNNRRD struct.
 	
-scinrrd_box.m
+scimat_vertical_orientation_pca_basis.m
 
-	 SCINRRD_BOX  Compute tight box around SCI NRRD segmentation.
-	
-scinrrd_centroids.m
-
-	 SCINRRD_CENTROIDS  Compute centroid of segmentation in each slice.
-	
-scinrrd_crop.m
-
-	 SCINRRD_CROP  Crop an SCI NRRD image or segmentation volume
-	
-scinrrd_estimate_bias_field.m
-
-	 SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field.
-	
-scinrrd_gradients.m
-
-	 SCINRRD_GRADIENTS  Compute 1st and 2nd order image gradients
-	
-scinrrd_ndgrid.m
-
-	 SCINRRD_NDGRID  Generation of arrays for 3D SCI NRRD image volumes.
-	
-scinrrd_optimal_intersecting_plane.m
-
-	 SCINRRD_OPTIMAL_INTERSECTING_PLANE  Optimise intersection plane for SCI
-	 NRRD segmentation mask
-	
-scinrrd_papillary_muscles.m
-
-	 SCINRRD_PAPILLARY_MUSCLES  Extract the papillay muscles from a
-	 segmentation of the Left Ventricle's cavity.
-	
-scinrrd_regionprops.m
-
-	 SCINRRD_REGIONPROPS  Measure properties of image regions on each slice
-	
-scinrrd_seg2label_stats.m
-
-	 SCINRRD_SEG2LABEL_STATS  Shape stats for each object in a multi-label
-	 segmentation; objects can be straightened with an skeleton or medial line
-	 before computing some measures
-	
-scinrrd_seg2voxel_stats.m
-
-	 SCINRRD_SEG2VOXEL_STATS  Shape stats for each voxel in a segmentation
-	 based on a windowed neighbourhood.
-	
-scinrrd_skeleton_prune.m
-
-	 SCINRRD_SKELETON_PRUNE  Prune branches in a segmentation's skeletonization
-	
-scinrrd_vertical_orientation_pca_basis.m
-
-	 SCINRRD_VERTICAL_ORIENTATION_PCA_BASIS  Compute a basis from the
+	 SCIMAT_VERTICAL_ORIENTATION_PCA_BASIS  Compute a basis from the
 	 Principal Components of a set of voxels, such that the vertical axis is
 	 assigned to the maximum variability, and the basis is right-hand oriented
 	
@@ -406,7 +406,7 @@ seg2dmat.m
 skeleton_label.m
 
 	 SKELETON_LABEL  Give each branch of a skeleton a different label, and
-	 sort the voxels within each branch
+	 sort the voxels within each branch.
 	
 skeleton_plot.m
 
@@ -752,15 +752,15 @@ scimat_dmatrix_thickslice.m
 	 SCIMAT_DMATRIX_THICKSLICE  Compute a distance/adjacency matrix for a
 	 segmentation that consists of scattered points in slices wide apart.
 	
+scimat_pca.m
+
+	 SCIMAT_PCA Principal Principal Component Analysis of the selected points
+	 in a SCIMAT segmentation mask.
+	
 scimat_simlandmarks_thickslice.m
 
 	 SCIMAT_SIMLANDMARKS_THICKSLICE  Simulate a human placing landmarks on the
 	 boundary of a "thick slice" segmentation
-	
-scinrrd_pca.m
-
-	 SCINRRD_PCA Principal Principal Component Analysis of the selected
-	 points in a SCI NRRD segmentation mask.
 	
 scinrrd_surface_interpolation.m
 

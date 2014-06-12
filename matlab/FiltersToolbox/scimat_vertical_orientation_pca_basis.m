@@ -1,16 +1,17 @@
-function [m, v] = scinrrd_vertical_orientation_pca_basis(nrrd)
-% SCINRRD_VERTICAL_ORIENTATION_PCA_BASIS  Compute a basis from the
+function [m, v] = scimat_vertical_orientation_pca_basis(scimat)
+% SCIMAT_VERTICAL_ORIENTATION_PCA_BASIS  Compute a basis from the
 % Principal Components of a set of voxels, such that the vertical axis is
 % assigned to the maximum variability, and the basis is right-hand oriented
 %
-% [M, A] = SCINRRD_VERTICAL_ORIENTATION_PCA_BASIS(NRRD)
+% [M, A] = scimat_vertical_orientation_pca_basis(SCIMAT)
 %
-%   This function computes the centroid of an SCI NRRD segmentation, and a
+%   This function computes the centroid of a SCIMAT segmentation, and a
 %   basis where the axes give the Principal Components of variability of
 %   the voxels. The vertical axis is assigned  to the maximum variability,
 %   and the basis is right-hand oriented
 %
-%   NRRD is the SCI NRRD struct.
+%   SCIMAT is a struct with the segmentation (see "help scimat" for
+%   details).
 %
 %   M is a 3-vector with the coordinates of the segmentation mask centroid.
 %
@@ -29,27 +30,10 @@ function [m, v] = scinrrd_vertical_orientation_pca_basis(nrrd)
 %   Note that you can use M, A to make the segmentation object vertical, if
 %   you rotate the voxel coordinates with the transpose matrix A' around
 %   the centroid M.
-%
-%
-%   Note on SCI NRRD: Software applications developed at the University of
-%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
-%   internally use NRRD volumes to store medical data.
-%
-%   When label volumes (segmentation masks) are saved to a Matlab file
-%   (.mat), they use a struct called "scirunnrrd" to store all the NRRD
-%   information:
-%
-%   >>  scirunnrrd
-%
-%   scirunnrrd = 
-%
-%          data: [4-D uint8]
-%          axis: [4x1 struct]
-%      property: []
 
 % Author: Ramon Casero.
-% Copyright © 2010 University of Oxford
-% Version: 0.1.0
+% Copyright © 2010,2014 University of Oxford
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
@@ -77,11 +61,11 @@ function [m, v] = scinrrd_vertical_orientation_pca_basis(nrrd)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 1, nargin, 'struct' ) );
-error( nargoutchk( 0, 2, nargout, 'struct' ) );
+narginchk(1, 1) ;
+nargoutchk(0, 2) ;
 
 % compute Principal Component Analysis of the segmented voxels
-[v, d, m] = scinrrd_pca( nrrd );
+[v, d, m] = scimat_pca(scimat);
 
 % if we use the eigenvector matrix to rotate the data, then the first
 % eigenvector would be projected on the x-axis, i.e. the object would be
@@ -89,7 +73,7 @@ error( nargoutchk( 0, 2, nargout, 'struct' ) );
 % going to do is make the object vertical (1st eigenvector projects on
 % z-axis), and also that the major horizontal axis is parallel to the
 % screen (2nd eigenvector projects on x-axis)
-v = v( :, [ 2 3 1 ] );
+v = v(:, [ 2 3 1 ]);
 
 % note that v is also valid if we take the negative of any vector. In fact,
 % we cannot be sure that e.g. the vectors in v fulfill X x Y = Z or 

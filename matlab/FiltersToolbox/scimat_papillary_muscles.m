@@ -1,8 +1,8 @@
-function nrrd2 = scinrrd_papillary_muscles(nrrd, NPAPS)
-% SCINRRD_PAPILLARY_MUSCLES  Extract the papillay muscles from a
+function scimat2 = scimat_papillary_muscles(scimat, NPAPS)
+% SCIMAT_PAPILLARY_MUSCLES  Extract the papillay muscles from a
 % segmentation of the Left Ventricle's cavity.
 %
-% NRRD = scinrrd_papillary_muscles(NRRD)
+% SCIMAT = scimat_papillary_muscles(SCIMAT)
 %
 %   This function extracts a segmentation of the papillary muscles from the
 %   segmentation of a Left Ventricular cavity. In fact, the papillary
@@ -10,33 +10,17 @@ function nrrd2 = scinrrd_papillary_muscles(nrrd, NPAPS)
 %   them, and instead of stopping at the chordae tendineae, the
 %   segmentation continues and selects some trabeculations.
 %
-%   NRRD is the SCI NRRD struct with the segmentation.
+%   SCIMAT is the SCIMAT struct with the segmentation (see "help scimat"
+%   for details).
 %
-% NRRD = scinrrd_papillary_muscles(NRRD, NPAPS)
+% SCIMAT = scimat_papillary_muscles(SCIMAT, NPAPS)
 %
 %   NPAPS is a constant with the number of papillary muscles we want to
 %   extract. By default, NPAPS=2.
-%
-%   Note on SCI NRRD: Software applications developed at the University of
-%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
-%   internally use NRRD volumes to store medical data.
-%
-%   When label volumes (segmentation masks) are saved to a Matlab file
-%   (.mat), they use a struct called "scirunnrrd" to store all the NRRD
-%   information:
-%
-%   >>  scirunnrrd
-%
-%   scirunnrrd = 
-%
-%          data: [4-D uint8]
-%          axis: [4x1 struct]
-%      property: []
-%
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -73,20 +57,20 @@ if (nargin < 2 || isempty(NPAPS))
 end
 
 % remove the dummy dimension
-nrrd = scimat_squeeze(nrrd);
+scimat = scimat_squeeze(scimat);
 
 % get a tight box around the LV segmentation
-box = scinrrd_box(nrrd);
+box = scimat_box(scimat);
 
 % convert real world coordinates to indices
-boxi = scimat_world2index(box', nrrd.axis)';
+boxi = scimat_world2index(box', scimat.axis)';
 
 % get data volume size
-sz = size(nrrd.data);
+sz = size(scimat.data);
 
 % create output segmentation volume
-nrrd2 = nrrd;
-nrrd2.data(:) = 0;
+scimat2 = scimat;
+scimat2.data(:) = 0;
 
 %% Compute convex hull for the segmentation in each slice, and remove the
 %% segmentation. This way, we get the papillary muscles together with some
@@ -101,7 +85,7 @@ for I = min(boxi(3,:)):max(boxi(3,:))
     
     % connected components filter (nlabs is the number of labels w/o counting
     % the background)
-    [ im, nlabs ] = bwlabel(nrrd.data(:, :, I));
+    [ im, nlabs ] = bwlabel(scimat.data(:, :, I));
     
     % get number of voxels in each label
     nvox = zeros(nlabs, 1);
@@ -138,7 +122,7 @@ for I = min(boxi(3,:)):max(boxi(3,:))
         hull = imerode(hull, se1);
         
         % put the new segmentation into the data volume
-        nrrd2.data(:, :, I) = bitxor(im, hull);
+        scimat2.data(:, :, I) = bitxor(im, hull);
         
     end
     
@@ -152,7 +136,7 @@ end
 %% the next slice
 
 % extract the middle slice
-im = nrrd2.data(:, :, round(mean(boxi(3,:))));
+im = scimat2.data(:, :, round(mean(boxi(3,:))));
 
 % compute connected components
 [im, nlabs] = bwlabel(im);
@@ -215,13 +199,13 @@ for I = round(mean(boxi(3,:)))+1:max(boxi(3,:))
     end
     
     % remove all pixels from the new slice that are outside of the mask
-    nrrd2.data(:, :, I) = nrrd2.data(:, :, I) & im1mask;
+    scimat2.data(:, :, I) = scimat2.data(:, :, I) & im1mask;
     
     % compute connected components in the new slice
-    [nrrd2.data(:, :, I), nlabs2] = bwlabel(nrrd2.data(:, :, I));
+    [scimat2.data(:, :, I), nlabs2] = bwlabel(scimat2.data(:, :, I));
     
     % we need a temporal image to store the new papillary bits
-    im2 = nrrd2.data(:, :, I) * 0;
+    im2 = scimat2.data(:, :, I) * 0;
 
     % make sure that we are not in a slice without any segmented pixels
     if (nlabs2)
@@ -236,7 +220,7 @@ for I = round(mean(boxi(3,:)))+1:max(boxi(3,:))
             % component
             for C = 1:nlabs2
                 sim(L, C) = length(find((im1 == L) ...
-                    & (nrrd2.data(:, :, I) == C)));
+                    & (scimat2.data(:, :, I) == C)));
             end
         end
         
@@ -244,17 +228,17 @@ for I = round(mean(boxi(3,:)))+1:max(boxi(3,:))
         % largest intersection with the previous slice's bit
         for L = 1:npaps
             [foo, Lnew] = max(sim(L, :));
-            im2(nrrd2.data(:, :, I) == Lnew) = L;
+            im2(scimat2.data(:, :, I) == Lnew) = L;
         end
         
     end
     
     % overrite the segmentation volume with just the papillary bits
-    nrrd2.data(:, :, I) = im2;
+    scimat2.data(:, :, I) = im2;
     
     % recheck the number of components now in the slice (because the
     % papillary muscles can fuse together)
-    [ foo, npaps ] = bwlabel(nrrd2.data(:, :, I));
+    [ foo, npaps ] = bwlabel(scimat2.data(:, :, I));
         
 end
 
@@ -308,13 +292,13 @@ for I = round(mean(boxi(3,:))):-1:min(boxi(3,:))
     end
     
     % remove all pixels from the new slice that are outside of the mask
-    nrrd2.data(:, :, I) = nrrd2.data(:, :, I) & im1mask;
+    scimat2.data(:, :, I) = scimat2.data(:, :, I) & im1mask;
     
     % compute connected components in the new slice
-    [nrrd2.data(:, :, I), nlabs2] = bwlabel(nrrd2.data(:, :, I));
+    [scimat2.data(:, :, I), nlabs2] = bwlabel(scimat2.data(:, :, I));
     
     % we need a temporal image to store the new papillary bits
-    im2 = nrrd2.data(:, :, I) * 0;
+    im2 = scimat2.data(:, :, I) * 0;
 
     % make sure that we are not in a slice without any segmented pixels
     if (nlabs2)
@@ -329,7 +313,7 @@ for I = round(mean(boxi(3,:))):-1:min(boxi(3,:))
             % component
             for C = 1:nlabs2
                 sim(L, C) = length(find((im1 == L) ...
-                    & (nrrd2.data(:, :, I) == C)));
+                    & (scimat2.data(:, :, I) == C)));
             end
         end
         
@@ -337,17 +321,17 @@ for I = round(mean(boxi(3,:))):-1:min(boxi(3,:))
         % largest intersection with the previous slice's bit
         for L = 1:npaps
             [foo, Lnew] = max(sim(L, :));
-            im2(nrrd2.data(:, :, I) == Lnew) = L;
+            im2(scimat2.data(:, :, I) == Lnew) = L;
         end
         
     end
     
     % overrite the segmentation volume with just the papillary bits
-    nrrd2.data(:, :, I) = im2;
+    scimat2.data(:, :, I) = im2;
     
     % recheck the number of components now in the slice (because the
     % papillary muscles can fuse together)
-    [ foo, npaps ] = bwlabel(nrrd2.data(:, :, I));
+    [ foo, npaps ] = bwlabel(scimat2.data(:, :, I));
         
 end
 

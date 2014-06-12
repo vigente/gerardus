@@ -1,15 +1,16 @@
-function centroids = scinrrd_centroids(nrrd, p)
-% SCINRRD_CENTROIDS  Compute centroid of segmentation in each slice.
+function centroids = scimat_centroids(scimat, p)
+% SCIMAT_CENTROIDS  Compute centroid of segmentation in each slice.
 %
-% X = scinrrd_centroids(NRRD)
+% X = scimat_centroids(SCIMAT)
 %
-%   NRRD is the struct with the segmentation.
+%   SCIMAT is the struct with the segmentation (see "help scimat" for
+%   details).
 %
 %   X is a 3-column matrix where each row has the real world coordinates of
-%   the centroid of a slice in NRRD. Empty slices get a 
+%   the centroid of a slice in SCIMAT. Empty slices get a 
 %   centroid=[NaN NaN NaN].
 %
-% X = scinrrd_centroids(NRRD, P)
+% X = scimat_centroids(SCIMAT, P)
 %
 %   P is a scalar that allows to smooth out the centroid positions using
 %   cubic spline approximation.
@@ -18,27 +19,10 @@ function centroids = scinrrd_centroids(nrrd, p)
 %   smoothing is maximum and the result is the least squares straight line
 %   fit to the centroids. When P=1, no smoothing is applied (default). If
 %   P=[], then Matlab computes a value that it considers optimal for P.
-%
-%
-%   Note on SCI NRRD: Software applications developed at the University of
-%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
-%   internally use NRRD volumes to store medical data.
-%
-%   When label volumes (segmentation masks) are saved to a Matlab file
-%   (.mat), they use a struct called "scirunnrrd" to store all the NRRD
-%   information:
-%
-%   >>  scirunnrrd
-%
-%   scirunnrrd = 
-%
-%          data: [4-D uint8]
-%          axis: [4x1 struct]
-%      property: []
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -75,7 +59,7 @@ if (nargin < 2)
 end
 
 % compute centroids and number of pixels in each slice
-stats = scinrrd_regionprops(nrrd, 'Area', 'Centroid');
+stats = scimat_regionprops(scimat, 'Area', 'Centroid');
 
 % extract centroids (warning: centroid coordinates are given in
 % index units, but with the columns before the rows!)
@@ -90,7 +74,7 @@ for I = 1:length(stats)
 end
 % convert to real world coordinates, taking into account that we have
 % columns before rows in centroids
-centroids = scimat_index2world(centroids(:, [2 1 3]), nrrd.axis);
+centroids = scimat_index2world(centroids(:, [2 1 3]), scimat.axis);
 
 % if smoothing required
 if (p~=1)

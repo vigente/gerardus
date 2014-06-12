@@ -1,5 +1,5 @@
-function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
-% SCINRRD_SEG2LABEL_STATS  Shape stats for each object in a multi-label
+function stats = scimat_seg2label_stats(scimat, cc, p, STRAIGHT)
+% SCIMAT_SEG2LABEL_STATS  Shape stats for each object in a multi-label
 % segmentation; objects can be straightened with an skeleton or medial line
 % before computing some measures.
 %
@@ -37,12 +37,12 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 %
 %   Boundary voxel counting is performed without straightening the labels.
 %
-% STATS = scinrrd_seg2label_stats(NRRD, CC)
+% STATS = scimat_seg2label_stats(SCIMAT, CC)
 %
-%   NRRD is an SCI NRRD struct with a labelled segmentation mask. All
-%   voxels in nrrd.data with value 0 belong to the background. All voxels
-%   with value 1 belong to object 1, value 2 corresponds to object 2, and
-%   so on.
+%   SCIMAT is a struct with a labelled segmentation mask (see "help scimat"
+%   for details). All voxels in scimat.data with value 0 belong to the
+%   background. All voxels with value 1 belong to object 1, value 2
+%   corresponds to object 2, and so on.
 %
 %   CC is a struct produced by function skeleton_label() with the list of
 %   skeleton voxels that belongs to each object, and the parameterization
@@ -50,10 +50,10 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 %
 %   The labels can be created, e.g.
 %
-%     >> nrrd = seg;
-%     >> [nrrd.data, cc] = skeleton_label(sk, seg.data, [seg.axis.spacing]);
+%     >> scimat = seg;
+%     >> [scimat.data, cc] = skeleton_label(sk, seg.data, [seg.axis.spacing]);
 %
-%     where seg is an NRRD struct with a binary segmentation, and sk is the
+%     where seg is an SCIMAT struct with a binary segmentation, and sk is the
 %     corresponding skeleton, that can be computed using
 %
 %     >> sk = itk_imfilter('skel', seg.data);
@@ -85,7 +85,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 %                a NaN is returned
 %
 %
-% STATS = scinrrd_seg2label_stats(..., P, STRAIGHT)
+% STATS = scimat_seg2label_stats(..., P, STRAIGHT)
 %
 %   P is a scalar in [0, 1]. To straighten branches, an approximating or
 %   smoothing cubic spline is fitted to the skeleton voxels using
@@ -103,11 +103,11 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 %   STRAIGHT=true.
 %
 %
-% See also: skeleton_label, seg2dmat, scinrrd_seg2voxel_stats.
+% See also: skeleton_label, seg2dmat, scimat_seg2voxel_stats.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011, 2014 University of Oxford
-% Version: 0.8.7
+% Version: 0.9.0
 % $Rev$
 % $Date$
 % 
@@ -148,7 +148,7 @@ end
 
 % figure out whether the data is 2D or 3D, because if it's 2D, a landlocked
 % voxel has degree 8, but if it's 3D, it needs degree 26
-if (size(nrrd.data, 3) > 1)
+if (size(scimat.data, 3) > 1)
     % data is 3D
     degmax = 26;
 else
@@ -161,9 +161,9 @@ if (p < 0 || p > 1)
 end
 
 % number of objects
-N = max(nrrd.data(:));
+N = max(scimat.data(:));
 if (~isempty(cc) && (N ~= cc.NumObjects))
-    error('If CC is provided, then it must have one element per object in NRRD')
+    error('If CC is provided, then it must have one element per object in SCIMAT')
 end
 
 % compute degree of each voxel in the segmentation
@@ -184,15 +184,15 @@ end
 %
 % Also, we have to mask out everything outside the segmentation, because
 % the convolution has a "blurring" effect at the edges of the object
-deg = convn(single(nrrd.data ~= 0), ones(3, 1, 1, 'single'), 'same');
+deg = convn(single(scimat.data ~= 0), ones(3, 1, 1, 'single'), 'same');
 deg = convn(deg, ones(1, 3, 1, 'single'), 'same');
-if (size(nrrd.data, 3) > 1)
+if (size(scimat.data, 3) > 1)
     deg = convn(deg, ones(1, 1, 3, 'single'), 'same');
 end
 idx = deg > 0;
 deg(idx) = deg(idx) - 1;
 deg = uint8(deg);
-deg = deg .* uint8(nrrd.data ~= 0);
+deg = deg .* uint8(scimat.data ~= 0);
 
 % init output
 stats.Var = zeros(3, N);
@@ -204,8 +204,8 @@ stats.Vol = nan(1, N);
 stats.CylDivergence = nan(1, N);
 
 % get indices and labels of the segmented voxels
-idxlab = find(nrrd.data);
-lab = nonzeros(nrrd.data);
+idxlab = find(scimat.data);
+lab = nonzeros(scimat.data);
 
 % sort the label values
 [lab, idx] = sort(lab);
@@ -222,7 +222,7 @@ LAB = unique(lab);
 clear lab
 
 % get length of voxel diagonal
-len0 = sqrt(sum([nrrd.axis.spacing].^2));
+len0 = sqrt(sum([scimat.axis.spacing].^2));
 
 % loop every branch
 for I = 1:length(LAB)
@@ -230,7 +230,7 @@ for I = 1:length(LAB)
     %% compute number of voxels
 
     % list of voxels in current branch. The reason why we are not doing a
-    % simple br = find(nrrd.data == LAB(I)); is because for a large volume,
+    % simple br = find(scimat.data == LAB(I)); is because for a large volume,
     % that's a comparatively very slow operation
     br = idxlab(idxlab0(I):idxlab0(I+1)-1);
     
@@ -247,19 +247,19 @@ for I = 1:length(LAB)
     
     % crop the part of the segmentation that contains the branch, removing
     % voxels that don't belong to the branch
-    [r, c, s] = ind2sub(size(nrrd.data), br);
+    [r, c, s] = ind2sub(size(scimat.data), br);
     
     from = min([r c s], [], 1);
     to = max([r c s], [], 1);
     
-    deglab0 = (nrrd.data(from(1):to(1), from(2):to(2), from(3):to(3)) ...
+    deglab0 = (scimat.data(from(1):to(1), from(2):to(2), from(3):to(3)) ...
         == LAB(I));
     
     % compute degree of each voxel in the label if the label had been
     % disconnected from all other labels
     deglab = convn(single(deglab0), ones(3, 1, 1, 'single'), 'same');
     deglab = convn(deglab, ones(1, 3, 1, 'single'), 'same');
-    if (size(nrrd.data, 3) > 1)
+    if (size(scimat.data, 3) > 1)
         deglab = convn(deglab, ones(1, 1, 3, 'single'), 'same');
     end
     idx = deglab0 > 0;
@@ -281,16 +281,16 @@ for I = 1:length(LAB)
     end
     
     % coordinates of branch voxels
-    [r, c, s] = ind2sub(size(nrrd.data), br(:));
-    xi = scimat_index2world([r, c, s], nrrd.axis)';
+    [r, c, s] = ind2sub(size(scimat.data), br(:));
+    xi = scimat_index2world([r, c, s], scimat.axis)';
     
     % straighten all branch voxels
     if (STRAIGHT && all(~isnan(cc.PixelParam{LAB(I)})) ...
             && (length(sk) > 2) && (length(br) > 2))
         
         % coordinates of skeleton voxels
-        [r, c, s] = ind2sub(size(nrrd.data), sk);
-        x = scimat_index2world([r, c, s], nrrd.axis)';
+        [r, c, s] = ind2sub(size(scimat.data), sk);
+        x = scimat_index2world([r, c, s], scimat.axis)';
         
         % smooth skeleton
         if (p < 1)
@@ -443,4 +443,4 @@ for I = 1:length(LAB)
 end
 
 % compute volume of the branch
-stats.Vol = stats.NVox * prod([nrrd.axis.spacing]);
+stats.Vol = stats.NVox * prod([scimat.axis.spacing]);

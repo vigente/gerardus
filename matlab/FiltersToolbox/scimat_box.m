@@ -1,12 +1,13 @@
-function box = scinrrd_box(nrrd, m, a)
-% SCINRRD_BOX  Compute tight box around SCI NRRD segmentation.
+function box = scimat_box(scimat, m, a)
+% SCIMAT_BOX  Compute tight box around SCIMAT segmentation.
 %
-% X = scinrrd_box(NRRD, M, A)
+% X = scimat_box(SCIMAT, M, A)
 %
 %   This function finds the vertices of a box tangent to the edges of a
 %   segmentation. The box can be vertical or have any other orientation.
 %
-%   NRRD is the SCI NRRD struct.
+%   SCIMAT is a struct with the segmentation (see "help scimat" for
+%   details).
 %
 %   X is a (3, 8)-matrix with the coordinates of the box vertices.
 %
@@ -20,31 +21,11 @@ function box = scinrrd_box(nrrd, m, a)
 %   A is the rotation from output to input voxel coordinates.
 %
 %   The "backwards transformation" is the transpose of the forward
-%   transformation. For example, in this toolbox the backwards
-%   transformation is obtained with function 
-%
-%     scinrrd_vertical_rot3(nrrd,'img')
-%
-%
-%   Note on SCI NRRD: Software applications developed at the University of
-%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
-%   internally use NRRD volumes to store medical data.
-%
-%   When label volumes (segmentation masks) are saved to a Matlab file
-%   (.mat), they use a struct called "scirunnrrd" to store all the NRRD
-%   information:
-%
-%   >>  scirunnrrd
-%
-%   scirunnrrd = 
-%
-%          data: [4-D uint8]
-%          axis: [4x1 struct]
-%      property: []
+%   transformation.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010-2014 University of Oxford
-% Version: 0.1.1
+% Copyright © 2010,2014 University of Oxford
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -84,26 +65,26 @@ if (nargin < 3 || isempty(a))
 end
 
 % remove the dummy dimension
-nrrd = scimat_squeeze(nrrd);
+scimat = scimat_squeeze(scimat);
 
 % get hold of all the points in the segmentation mask
 
 % extract linear indices of voxels in the segmentation
-idx = find(nrrd.data);
+idx = find(scimat.data);
 
 % get volume size
-sz = size(nrrd.data);
+sz = size(scimat.data);
 
 % convert linear index to multiple subscripts
 [ir, ic, iz] = ind2sub(sz, idx);
 
 % convert indices to real world coordinates and make column vectors
-x = scimat_index2world([ ir, ic, iz ], nrrd.axis)';
+x = scimat_index2world([ ir, ic, iz ], scimat.axis)';
 
 % to make the interface consistent, we ask the user to input the backwards
-% rotation (whenever we input the nrrd volume, backwards rotation; whenever
-% we input points, forwards rotation). But actually, we are going to
-% operate on points, so we need to get the forwards rotation
+% rotation (whenever we input the scimat volume, backwards rotation;
+% whenever we input points, forwards rotation). But actually, we are going
+% to operate on points, so we need to get the forwards rotation
 a = a';
 
 % avoid unnecessary operations if rotation is identity matrix
