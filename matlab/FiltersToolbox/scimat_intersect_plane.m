@@ -6,7 +6,7 @@ function [im, gx, gy, gz, midx] = scimat_intersect_plane(scimat, m, v, interp)
 %   SCIMAT is a struct with the 3D volume that we want to intersect. We use
 %   SCIMAT structs widely in Gerardus, because that way we have the image
 %   data and metainformation (e.g. voxel size) together in the same
-%   variable. For details on SCIMAT structs, see "help scimat_load".
+%   variable. For details on SCIMAT structs, see "help scimat".
 %
 %   IM is an image that displays the intersection of the plane with the
 %   image volume. Voxels that fall outside the image volume are returned as
@@ -48,7 +48,7 @@ function [im, gx, gy, gz, midx] = scimat_intersect_plane(scimat, m, v, interp)
 
 % Authors: Ramon Casero <rcasero@gmail.com>, Pablo Lamata <pablo.lamata@dpag.ox.ac.uk>
 % Copyright © 2010-2014 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % $Rev$
 % $Date$
 % 

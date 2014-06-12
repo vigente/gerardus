@@ -27,11 +27,11 @@ function scimat = scimat_im2scimat(im, res, offset)
 %   a SCIMAT struct. We use SCIMAT structs widely in Gerardus, because that
 %   way we have the image data and metainformation (e.g. voxel size)
 %   together in the same variable. For details on SCIMAT structs, see "help
-%   scimat_load".
+%   scimat".
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011-2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 

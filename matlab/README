@@ -67,7 +67,7 @@ estimate_block_fgbg.m
 is_lv_on_the_left.m
 
 	 IS_LV_ON_THE_LEFT  Check whether the left ventricle is on the left hand
-	 side of the image
+	 side of the image.
 	
 process_misas_patient.m
 
@@ -77,7 +77,7 @@ process_misas_patient.m
 scinrrd_rv_crescent_tips.m
 
 	 SCINRRD_RV_CRESCENT_TIPS  Extract the tips of the crescent-shaped curve
-	 in all slices of the Right Ventricle
+	 in all slices of the Right Ventricle.
 	
 tissue2lvrv.m
 
@@ -173,6 +173,15 @@ parsave.m
 
 	 parsave  Save workspace variables to file within a parfor loop.
 	
+scimat_im2scimat.m
+
+	 SCIMAT_IM2SCIMAT  Create SCIMAT struct from scratch.
+	
+scimat_index2world.m
+
+	 scimat_index2world  Convert image indices to real world coordinates for
+	 the SCIMAT image struct that we use in Gerardus.
+	
 scimat_load.m
 
 	 SCIMAT_LOAD  Load an image into a SCIMAT struct from a Matlab, MetaImage,
@@ -183,32 +192,23 @@ scimat_save.m
 	 SCIMAT_SAVE  Save a SCIMAT struct to a Matlab or MetaImage format that
 	 can be imported by Seg3D and Seg3D2.
 	
-scimat_im2scimat.m
-
-	 SCINRRD_IM2NRRD  Create SCI NRRD struct from Matlab data.
-	
-scimat_index2world.m
-
-	 SCINRRD_INDEX2WORLD  Convert data volume indices to real world
-	 coordinates for NRRD volumes created by SCI applications (e.g. Seg3D)
-	
 scimat_seg3d2matlab.m
 
-	 SCINRRD_SEG3D2MATLAB  Correct dimensions of data loaded from SCI NRRD so
-	 that rows and columns will follow Matlab's coordinates
+	 SCIMAT_SEG3D2MATLAB  Correct dimensions of data loaded from a *.mat file
+	 created with Seg3D so that it will follow Matlab's convention.
+	
+scimat_world2index.m
+
+	 SCIMAT_WORLD2INDEX  Convert real world coordinates to image indices for
+	 the SCIMAT image struct that we use in Gerardus.
+	 
+	   Function scimat_world2index() converts the coordinates of a voxel given
+	   as real world coordinates [x, y, z] into index coordinates 
+	   [row, column, slice].
 	
 scinrrd_tiff2nrrd.m
 
 	 SCINRRD_TIFF2NRRD  Create SCI NRRD struct from TIFF stack.
-	
-scimat_world2index.m
-
-	 SCINRRD_WORLD2INDEX  Convert real world coordinates to data volume
-	 indices for NRRD volumes created by SCI applications (e.g. Seg3D)
-	 
-	   Function SCINRRD_WORLD2INDEX() maps between the real world coordinates
-	   of points within the NRRD data volume and the indices of the 
-	   image volume used to store the voxel intensity values.
 	
 sortdirbynum.m
 
@@ -317,18 +317,36 @@ scimat_blockproc3.m
 
 	 SCIMAT_BLOCKPROC3  Block processing for a 3D SCI MAT volume
 	
+scimat_intersect_plane.m
+
+	 SCIMAT_INTERSECT_PLANE  Intersection of a plane with an image volume.
+	
 scimat_lconvhull_smoothing.m
 
 	 SCIMAT_LCONVHULL_SMOOTHING  Mesh and rasterization of the smoothing of a
 	 binary image using a local convex hull.
 	
+scimat.m
+
+	 SCIMAT  Struct used in Gerardus to store 3D images and their metadata.
+	
+scimat_squeeze.m
+
+	 SCIMAT_SQUEEZE  Remove dummy dimension from SCIRUNNRRD struct so that it
+	 becomes a SCIMAT struct.
+	
+scimat_unsqueeze.m
+
+	 SCIMAT_UNSQUEEZE  Add dummy dimension to SCIMAT struct so that it becomes
+	 a SCIRUNNRRD struct.
+	
 scinrrd_box.m
 
-	 SCINRRD_BOX  Compute tight box around SCI NRRD segmentation
+	 SCINRRD_BOX  Compute tight box around SCI NRRD segmentation.
 	
 scinrrd_centroids.m
 
-	 SCINRRD_CENTROIDS  Compute centroid of segmentation in each slice
+	 SCINRRD_CENTROIDS  Compute centroid of segmentation in each slice.
 	
 scinrrd_crop.m
 
@@ -336,35 +354,25 @@ scinrrd_crop.m
 	
 scinrrd_estimate_bias_field.m
 
-	 SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field
+	 SCINRRD_ESTIMATE_BIAS_FIELD  Estimate MRI bias field.
 	
 scinrrd_gradients.m
 
 	 SCINRRD_GRADIENTS  Compute 1st and 2nd order image gradients
 	
-scimat_intersect_plane.m
-
-	 SCINRRD_INTERSECT_PLANE  Intersection of a plane with an image volume
-	
 scinrrd_ndgrid.m
 
-	 SCINRRD_NDGRID  Generation of arrays for 3D SCI NRRD image volumes
+	 SCINRRD_NDGRID  Generation of arrays for 3D SCI NRRD image volumes.
 	
 scinrrd_optimal_intersecting_plane.m
 
 	 SCINRRD_OPTIMAL_INTERSECTING_PLANE  Optimise intersection plane for SCI
 	 NRRD segmentation mask
 	
-scinrrd_optimal_intersecting_plane_old.m
-
-	 Note: Old implementation of function
-	 scinrrd_optimal_intersecting_plane(). Backup while we transition to
-	 a definite method.
-	
 scinrrd_papillary_muscles.m
 
 	 SCINRRD_PAPILLARY_MUSCLES  Extract the papillay muscles from a
-	 segmentation of the Left Ventricle's cavity
+	 segmentation of the Left Ventricle's cavity.
 	
 scinrrd_regionprops.m
 
@@ -384,15 +392,6 @@ scinrrd_seg2voxel_stats.m
 scinrrd_skeleton_prune.m
 
 	 SCINRRD_SKELETON_PRUNE  Prune branches in a segmentation's skeletonization
-	
-scimat_squeeze.m
-
-	 SCINRRD_SQUEEZE  Remove dummy dimension and convert data to double type
-	
-scimat_unsqueeze.m
-
-	 SCINRRD_UNSQUEEZE  Add dummy dimension and convert data to uint8 data
-	 type
 	
 scinrrd_vertical_orientation_pca_basis.m
 
@@ -505,7 +504,7 @@ remove_vertex_from_tri.m
 	
 scimat_tri_to_raster.m
 
-	 SCIMAT_TRI_TO_RASTER  Rasterize a closed triangular mesh
+	 SCIMAT_TRI_TO_RASTER  Rasterize a closed triangular mesh.
 	
 smdscale.m
 
@@ -581,7 +580,7 @@ PointsToolbox
 bwmesh.m
 
 	 BWMESH  Tetrahedral volumetric and triangular surface mesh of a binary
-	 segmentation
+	 segmentation.
 	
 cons_smacof_pip.m
 
@@ -689,7 +688,7 @@ pts_local_rigid.m
 pts_mesh.m
 
 	 PTS_MESH  Tetrahedral volumetric and triangular surface mesh of a cloud
-	 of points
+	 of points.
 	
 pts_pca.m
 
@@ -761,12 +760,12 @@ scimat_simlandmarks_thickslice.m
 scinrrd_pca.m
 
 	 SCINRRD_PCA Principal Principal Component Analysis of the selected
-	 points in a SCI NRRD segmentation mask
+	 points in a SCI NRRD segmentation mask.
 	
 scinrrd_surface_interpolation.m
 
 	 SCINRRD_SURFACE_INTERPOLATION  Interpolate a surface and create a
-	 segmentation mask from a scattered set of points
+	 segmentation mask from a scattered set of points.
 	
 smacof.m
 

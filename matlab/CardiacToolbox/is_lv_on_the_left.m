@@ -5,7 +5,7 @@ function flag = is_lv_on_the_left(scimat, m, rot)
 % FLAG = is_lv_on_the_left(SCIMAT, M, ROT)
 %
 %   SCIMAT is a struct with the whole tissue segmentation (see "help
-%   load_scimat" for details on SCIMAT structs).
+%   scimat" for details on SCIMAT structs).
 %
 %   M, ROT are a 3-vector and a (3, 3)-matrix that represent the centroid
 %   and main axes of the heart, respectively.
@@ -15,7 +15,7 @@ function flag = is_lv_on_the_left(scimat, m, rot)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
