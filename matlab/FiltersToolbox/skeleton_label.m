@@ -1,8 +1,8 @@
 function [sk, cc, bifcc, mcon, madj, cc2, mmerge] = skeleton_label(sk, im, res, alphamax, p, SINGLEMERGE, CORRECT)
 % SKELETON_LABEL  Give each branch of a skeleton a different label, and
-% sort the voxels within each branch
+% sort the voxels within each branch.
 %
-% [LAB, CC, BIFCC, MCON, MADJ] = SKELETON_LABEL(SK, [], RES)
+% [LAB, CC, BIFCC, MCON, MADJ] = skeleton_label(SK, [], RES)
 %
 %   SK is a 3D segmentation mask. SK is assumed to be a skeleton resulting
 %   from some kind of thinning algorithm, e.g. 
@@ -60,7 +60,7 @@ function [sk, cc, bifcc, mcon, madj, cc2, mmerge] = skeleton_label(sk, im, res, 
 %   7 and 3 and connected through the bifurcation clump 10.
 %
 %
-% [LAB, ...] = SKELETON_LABEL(SK, IM, RES)
+% [LAB, ...] = skeleton_label(SK, IM, RES)
 %
 %   IM is an array with the same size as SK, and contains the whole
 %   segmentation. SK is the skeleton of IM.
@@ -71,7 +71,7 @@ function [sk, cc, bifcc, mcon, madj, cc2, mmerge] = skeleton_label(sk, im, res, 
 %
 %     >> LAB .* SK
 %
-% [..., CC2] = SKELETON_LABEL(SK, IM, RES, ALPHAMAX, P, SINGLEMERGE, CORRECT)
+% [..., CC2] = skeleton_label(SK, IM, RES, ALPHAMAX, P, SINGLEMERGE, CORRECT)
 %
 %   With this syntax you can merge branches that are well aligned with each
 %   other.
@@ -122,8 +122,8 @@ function [sk, cc, bifcc, mcon, madj, cc2, mmerge] = skeleton_label(sk, im, res, 
 % See also: skeleton_plot, scinrrd_skeleton_prune.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011 University of Oxford
-% Version: 0.15.3
+% Copyright © 2011, 2014 University of Oxford
+% Version: 0.15.4
 % $Rev$
 % $Date$
 % 
@@ -151,8 +151,8 @@ function [sk, cc, bifcc, mcon, madj, cc2, mmerge] = skeleton_label(sk, im, res, 
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(1, 7, nargin, 'struct'));
-error(nargoutchk(0, 8, nargout, 'struct'));
+narginchk(1, 7);
+nargoutchk(0, 8);
 
 % defaults
 if (nargin < 2)
@@ -239,7 +239,7 @@ cc.BranchLength = zeros(1, cc.NumObjects);
 cc.Degree = cell(1, cc.NumObjects);
 
 % wrap the full segmentation in a nrrd structure
-nrrd = scinrrd_im2nrrd(im, res);
+nrrd = scimat_im2scimat(im, res);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% sort the skeleton voxels in each branch
@@ -1145,7 +1145,7 @@ function alpha = angle_btw_branches(br, bif, nrrdaxis, p)
 
 % real world coordinates of voxels
 [r, c, s] = ind2sub([nrrdaxis.size], br);
-xyz = scinrrd_index2world([r, c, s], nrrdaxis);
+xyz = scimat_index2world([r, c, s], nrrdaxis);
         
 % compute spline parameterization (Lee's centripetal scheme)
 t = cumsum([0; (sum((xyz(2:end, :) - xyz(1:end-1, :)).^2, 2)).^.25]);
