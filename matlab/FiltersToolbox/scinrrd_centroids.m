@@ -1,7 +1,7 @@
 function centroids = scinrrd_centroids(nrrd, p)
-% SCINRRD_CENTROIDS  Compute centroid of segmentation in each slice
+% SCINRRD_CENTROIDS  Compute centroid of segmentation in each slice.
 %
-% X = SCINRRD_CENTROIDS(NRRD)
+% X = scinrrd_centroids(NRRD)
 %
 %   NRRD is the struct with the segmentation.
 %
@@ -9,7 +9,7 @@ function centroids = scinrrd_centroids(nrrd, p)
 %   the centroid of a slice in NRRD. Empty slices get a 
 %   centroid=[NaN NaN NaN].
 %
-% X = SCINRRD_CENTROIDS(NRRD, P)
+% X = scinrrd_centroids(NRRD, P)
 %
 %   P is a scalar that allows to smooth out the centroid positions using
 %   cubic spline approximation.
@@ -37,8 +37,8 @@ function centroids = scinrrd_centroids(nrrd, p)
 %      property: []
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010 University of Oxford
-% Version: 0.1.0
+% Copyright © 2010-2014 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -66,8 +66,8 @@ function centroids = scinrrd_centroids(nrrd, p)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 2, nargin, 'struct' ) );
-error( nargoutchk( 0, 1, nargout, 'struct' ) );
+narginchk(1, 2);
+nargoutchk(0, 1);
 
 % defaults
 if (nargin < 2)
@@ -90,7 +90,7 @@ for I = 1:length(stats)
 end
 % convert to real world coordinates, taking into account that we have
 % columns before rows in centroids
-centroids = scinrrd_index2world(centroids(:, [2 1 3]), nrrd.axis);
+centroids = scimat_index2world(centroids(:, [2 1 3]), nrrd.axis);
 
 % if smoothing required
 if (p~=1)

@@ -1,5 +1,5 @@
 function scimat = scimat_tri_to_raster(tri, x, scimat, raster)
-% SCIMAT_TRI_TO_RASTER  Rasterize a closed triangular mesh
+% SCIMAT_TRI_TO_RASTER  Rasterize a closed triangular mesh.
 %
 % This takes a triangular mesh and returns a raster image with voxels == 1
 % inside the mesh and == 0 outside the mesh.
@@ -34,8 +34,8 @@ function scimat = scimat_tri_to_raster(tri, x, scimat, raster)
 % scimat_lconvhull_smoothing.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2013 University of Oxford
-% Version: 0.2.0
+% Copyright © 2013-2014 University of Oxford
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -96,10 +96,10 @@ switch raster
         % closest voxel centres
         xmin = min(x);
         xmax = max(x);
-        idxmin = floor(scinrrd_world2index(xmin, scimat.axis));
-        idxmax = ceil(scinrrd_world2index(xmax, scimat.axis));
-        xmin = scinrrd_index2world(idxmin, scimat.axis);
-        xmax = scinrrd_index2world(idxmax, scimat.axis);
+        idxmin = floor(scimat_world2index(xmin, scimat.axis));
+        idxmax = ceil(scimat_world2index(xmax, scimat.axis));
+        xmin = scimat_index2world(idxmin, scimat.axis);
+        xmax = scimat_index2world(idxmax, scimat.axis);
         
         % vectors of voxel centres to check whether they are inside or outside
         % the mesh
@@ -121,7 +121,7 @@ switch raster
         % should be == 1
         res = [scimat.axis.spacing]; % (r, c, s) format
         sz = size(scimat.data); % (r, c, s) format
-        origin = scinrrd_index2world([1, 1, 1], scimat.axis);
+        origin = scimat_index2world([1, 1, 1], scimat.axis);
         scimat.data = itk_tri_rasterization(tri, x, res, sz, origin);
         
     otherwise

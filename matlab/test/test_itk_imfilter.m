@@ -4,7 +4,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011-2014 University of Oxford
-% Version: 0.4.4
+% Version: 0.4.5
 % $Rev$
 % $Date$
 %
@@ -56,7 +56,7 @@ imagesc(im(:, :, 3))
 % very simple 3x3 matrix with only central pixel = 1
 im = zeros(3);
 im(2, 2) = 1;
-nrrd = scinrrd_im2nrrd(im, [.5 .5 .5], [0 0 0]);
+nrrd = scimat_im2scimat(im, [.5 .5 .5], [0 0 0]);
 [im2, v, w] = itk_imfilter('dandist', nrrd);
 
 % vector is given in voxel coordinates as (r, c, s) instead of (x, y, z)

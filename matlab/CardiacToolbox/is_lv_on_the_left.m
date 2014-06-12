@@ -1,38 +1,21 @@
-function flag = is_lv_on_the_left(nrrd, m, rot)
+function flag = is_lv_on_the_left(scimat, m, rot)
 % IS_LV_ON_THE_LEFT  Check whether the left ventricle is on the left hand
-% side of the image
+% side of the image.
 %
-% FLAG = IS_LV_ON_THE_LEFT(NRRD, M, ROT)
+% FLAG = is_lv_on_the_left(SCIMAT, M, ROT)
 %
-%   NRRD is a struct with the whole tissue segmentation.
+%   SCIMAT is a struct with the whole tissue segmentation (see "help
+%   load_scimat" for details on SCIMAT structs).
 %
 %   M, ROT are a 3-vector and a (3, 3)-matrix that represent the centroid
 %   and main axes of the heart, respectively.
 %
 %   FLAG is a boolean. It is true of the left ventricle is on the left hand
 %   side of the image with respect to the coordinate system defined by ROT.
-%
-%
-%   Note on SCI NRRD: Software applications developed at the University of
-%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
-%   internally use NRRD volumes to store medical data.
-%
-%   When label volumes (segmentation masks) are saved to a Matlab file
-%   (.mat), they use a struct called "scirunnrrd" to store all the NRRD
-%   information:
-%
-%   >>  scirunnrrd
-%
-%   scirunnrrd = 
-%
-%          data: [4-D uint8]
-%          axis: [4x1 struct]
-%      property: []
-%
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010 University of Oxford
-% Version: 0.1.0
+% Copyright © 2010-2014 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -60,11 +43,11 @@ function flag = is_lv_on_the_left(nrrd, m, rot)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 3, 3, nargin, 'struct' ) );
-error( nargoutchk( 0, 1, nargout, 'struct' ) );
+narginchk(3, 3);
+nargoutchk(0, 1);
 
 % cut a whole tissue plane orthogonal to the vertical axis
-im = scinrrd_intersect_plane(nrrd, m, rot(:, 3));
+im = scimat_intersect_plane(scimat, m, rot(:, 3));
 
 % the computed "X axis" of the orientation can be pointing more or less in
 % the direction of of X or -X. We compute the angle

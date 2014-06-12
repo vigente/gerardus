@@ -41,7 +41,7 @@ function [d, points] = scimat_dmatrix_thickslice(scimat, K)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013-2014 University of Oxford
-% Version: 0.1.3
+% Version: 0.1.4
 % $Rev$
 % $Date$
 % 
@@ -85,7 +85,7 @@ idx = find(scimat.data);
 
 % in real world coordinates
 [r, c, s] = ind2sub(size(scimat.data), idx);
-points = scinrrd_index2world([r c s], scimat.axis);
+points = scimat_index2world([r c s], scimat.axis);
 
 % total number of points
 Ntot = length(r);

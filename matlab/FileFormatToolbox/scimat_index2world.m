@@ -1,43 +1,32 @@
-function x = scinrrd_index2world(idx, ax, CHOP)
-% SCINRRD_INDEX2WORLD  Convert data volume indices to real world
-% coordinates for NRRD volumes created by SCI applications (e.g. Seg3D)
+function x = scimat_index2world(idx, ax, CHOP)
+% scimat_index2world  Convert image indices to real world coordinates for
+% the SCIMAT image struct that we use in Gerardus.
 %
-%   Function SCINRRD_INDEX2WORLD() maps between the indices of the 
-%   image volume used to store the voxel intensity values, and the
-%   real world coordinates of points within the NRRD data volume.
+%   Function scimat_index2world() converts the coordinates of a voxel given
+%   as index coordinates [row, column, slice] into its real world
+%   coordinates [x, y, z].
 %
 %      [r, c, s] -> [x, y, z]
 %
-%   This function assumes that input indices are in 
-%   (row, column, slice)-order, corresponding to (y, x, z). However, output
-%   world coordinates are given in (x, y, z)-order.
+%   This agrees with Matlab's convention that images are expected to be
+%   (r, c, s) <-> (y, x, z), but point coordinates are given in the
+%   (x, y, z)-order.
 %
 %   For points that are not within the data volume, the returned
 %   coordinates are "NaN".
 %
-% X = SCINRRD_INDEX2WORLD(IDX, AXIS)
-%
-%   X is a 3-column matrix where each row contains the real world
-%   (x, y, z)-coordinates of a point.
+% X = scimat_index2world(IDX, AXIS)
 %
 %   IDX has the same size as X, and the voxel indices in 
 %   (row, column, slice)-order, that corresponds to (y, x, z)-order.
 %
-%   AXIS is the 4x1 struct array nrrd.axis from an SCI NRRD struct. It
-%   contains the following fields:
+%   AXIS is the scimat.axis field from a SCIMAT struct (see "help
+%   scimat_load" for details).
 %
-%   >> nrrd.axis
+%   X is a 3-column matrix where each row contains the real world
+%   (x, y, z)-coordinates of a point.
 %
-%   4x1 struct array with fields:
-%       size
-%       spacing
-%       min
-%       max
-%       center
-%       label
-%       unit
-%
-% IDX = SCINRRD_INDEX2WORLD(..., CHOP)
+% IDX = scimat_index2world(..., CHOP)
 %
 %   CHOP is a flag to convert points outside the image volume to NaNs. By
 %   default, CHOP=true.
@@ -45,34 +34,17 @@ function x = scinrrd_index2world(idx, ax, CHOP)
 %
 % Example:
 %
-% >> x = scinrrd_index2world([55, 189, 780], nrrd.axis)
+% >> x = scimat_index2world([55 189 780], scimat.axis)
 %
 % x =
 %
-%     0.0100    0.0110    0.0200
+%     .0100, .0110, .0200
 %
-%
-%   Note on SCI NRRD: Software applications developed at the University of
-%   Utah Scientific Computing and Imaging (SCI) Institute, e.g. Seg3D,
-%   internally use NRRD volumes to store medical data.
-%
-%   When data or label volumes are saved to a Matlab file (.mat), they use
-%   a struct called "scirunnrrd" to store all the NRRD information:
-%
-%   >>  scirunnrrd
-%
-%   scirunnrrd = 
-%
-%          data: [4-D uint8]
-%          axis: [4x1 struct]
-%      property: []
-%
-%
-% See also: scinrrd_world2index.
+% See also: scimat_world2index, scimat_load, scimat_im2scimat.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2009-2012 University of Oxford
-% Version: 0.2.1
+% Copyright © 2009-2014 University of Oxford
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
