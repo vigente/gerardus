@@ -58,6 +58,10 @@
 	* matlab/PointsToolbox/pts_mesh.m (0.2.1)
 	* matlab/PointsToolbox/scinrrd_surface_interpolation.m (0.7.1)
 	* matlab/PointsToolbox/bwmesh.m (0.1.7)
+	* matlab/FiltersToolbox/skeleton_label.m (0.15.4)
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m (0.7.1)
+	* matlab/FiltersToolbox/scinrrd_seg2label_stats.m (0.8.7)
+	* matlab/test/test_surface_param.m (0.6.2)
 
 	- Gerardus functions used by this function have been renamed.
 

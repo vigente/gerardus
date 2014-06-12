@@ -55,8 +55,8 @@ function [tri, x, scimat] = scimat_lconvhull_smoothing(scimat, rad, raster)
 % cgal_alpha_shape3, cgal_fixed_alpha_shape3, scimat_tri_to_raster.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2012-2013 University of Oxford
-% Version: 0.7.0
+% Copyright © 2012-2014 University of Oxford
+% Version: 0.7.1
 % $Rev$
 % $Date$
 % 
@@ -111,7 +111,7 @@ scimat.data = bwperim(scimat.data);
 
 % coordinates of segmented voxels
 [r, c, s] = ind2sub(size(scimat.data), find(scimat.data));
-x = scinrrd_index2world([r c s], scimat.axis);
+x = scimat_index2world([r c s], scimat.axis);
 clear r c s
 
 % matrix to keep track of the non-manifold vertices that we are going
@@ -123,7 +123,7 @@ while (true)
     
     % coordinates of segmented voxels
     [r, c, s] = ind2sub(size(scimat.data), find(scimat.data));
-    x = scinrrd_index2world([r c s], scimat.axis);
+    x = scimat_index2world([r c s], scimat.axis);
     clear r c s
     
     % remove vertices that have been found to be non-manifold in the

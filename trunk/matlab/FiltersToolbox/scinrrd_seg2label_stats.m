@@ -1,7 +1,7 @@
 function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 % SCINRRD_SEG2LABEL_STATS  Shape stats for each object in a multi-label
 % segmentation; objects can be straightened with an skeleton or medial line
-% before computing some measures
+% before computing some measures.
 %
 %   This function was developed to measure the dimensions of different
 %   objects found in a segmentation. 
@@ -37,7 +37,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 %
 %   Boundary voxel counting is performed without straightening the labels.
 %
-% STATS = SCINRRD_SEG2LABEL_STATS(NRRD, CC)
+% STATS = scinrrd_seg2label_stats(NRRD, CC)
 %
 %   NRRD is an SCI NRRD struct with a labelled segmentation mask. All
 %   voxels in nrrd.data with value 0 belong to the background. All voxels
@@ -85,7 +85,7 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 %                a NaN is returned
 %
 %
-% STATS = SCINRRD_SEG2LABEL_STATS(..., P, STRAIGHT)
+% STATS = scinrrd_seg2label_stats(..., P, STRAIGHT)
 %
 %   P is a scalar in [0, 1]. To straighten branches, an approximating or
 %   smoothing cubic spline is fitted to the skeleton voxels using
@@ -106,8 +106,8 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 % See also: skeleton_label, seg2dmat, scinrrd_seg2voxel_stats.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011 University of Oxford
-% Version: 0.8.6
+% Copyright © 2011, 2014 University of Oxford
+% Version: 0.8.7
 % $Rev$
 % $Date$
 % 
@@ -135,8 +135,8 @@ function stats = scinrrd_seg2label_stats(nrrd, cc, p, STRAIGHT)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 4, nargin, 'struct'));
-error(nargoutchk(0, 1, nargout, 'struct'));
+narginchk(2, 4);
+nargoutchk(0, 1);
 
 % defaults
 if (nargin < 3 || isempty(p))
@@ -282,7 +282,7 @@ for I = 1:length(LAB)
     
     % coordinates of branch voxels
     [r, c, s] = ind2sub(size(nrrd.data), br(:));
-    xi = scinrrd_index2world([r, c, s], nrrd.axis)';
+    xi = scimat_index2world([r, c, s], nrrd.axis)';
     
     % straighten all branch voxels
     if (STRAIGHT && all(~isnan(cc.PixelParam{LAB(I)})) ...
@@ -290,7 +290,7 @@ for I = 1:length(LAB)
         
         % coordinates of skeleton voxels
         [r, c, s] = ind2sub(size(nrrd.data), sk);
-        x = scinrrd_index2world([r, c, s], nrrd.axis)';
+        x = scimat_index2world([r, c, s], nrrd.axis)';
         
         % smooth skeleton
         if (p < 1)
