@@ -3,8 +3,8 @@ function [xg, yg, zg] = scinrrd_ndgrid(nrrd, ri, ci, si)
 %
 % [XG, YG, ZG] = scinrrd_ndgrid(NRRD)
 %
-%   NRRD is a SCIMAT image volume (see "help scimat_load" for details on
-%   SCIMAT structs).
+%   NRRD is a SCIMAT image volume (see "help scimat" for details on SCIMAT
+%   structs).
 %
 %   XG, YG, ZG are arrays with the x-, y-, z-coordinates of the voxels in
 %   NRRD.
@@ -23,7 +23,7 @@ function [xg, yg, zg] = scinrrd_ndgrid(nrrd, ri, ci, si)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2014 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 % 

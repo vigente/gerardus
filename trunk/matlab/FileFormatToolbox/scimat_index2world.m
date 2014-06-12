@@ -21,7 +21,7 @@ function x = scimat_index2world(idx, ax, CHOP)
 %   (row, column, slice)-order, that corresponds to (y, x, z)-order.
 %
 %   AXIS is the scimat.axis field from a SCIMAT struct (see "help
-%   scimat_load" for details).
+%   scimat" for details).
 %
 %   X is a 3-column matrix where each row contains the real world
 %   (x, y, z)-coordinates of a point.
@@ -44,7 +44,7 @@ function x = scimat_index2world(idx, ax, CHOP)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2009-2014 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % $Rev$
 % $Date$
 % 
