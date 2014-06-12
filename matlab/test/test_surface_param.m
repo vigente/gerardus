@@ -1,8 +1,8 @@
 % test_surface_param.m
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2013 University of Oxford
-% Version: 0.6.0
+% Copyright © 2013-2014 University of Oxford
+% Version: 0.6.2
 % $Rev$
 % $Date$
 %
@@ -187,7 +187,7 @@ plot(out.err.stress1)
 rng(0)
 
 % load low resolution segmentation of LV, with detail removed
-scimat = scinrrd_load('data/008-lv-resampled-0_31.mha');
+scimat = scimat_load('data/008-lv-resampled-0_31.mha');
 
 % keep perimeter only
 scimat.data = bwperim(scimat.data);
@@ -195,7 +195,7 @@ scimat.data = bwperim(scimat.data);
 % coordinates of perimeter points
 idx = find(scimat.data);
 [r, c, s] = ind2sub(size(scimat.data), idx);
-x = scinrrd_index2world([r c s], scimat.axis);
+x = scimat_index2world([r c s], scimat.axis);
 
 % subsample boundary points
 x = x(randi(size(x, 1), round(size(x, 1)/5), 1), :);
@@ -281,6 +281,10 @@ param.options.Iteration = 100;
 param.options.LocalIteration = 10;
 latlon = surface_param(x, param);
 
+% check for self-intersections
+bad = cgal_check_self_intersect(param.tri, x);
+nnz(bad>0)
+
 % rigid registration to overlap the solution with the original data
 [xx, yy, zz] = sph2cart(latlon(:, 2), latlon(:, 1), sphrad);
 [~, x1] = procrustes(x, [xx, yy, zz], 'Scaling',false);
@@ -294,7 +298,7 @@ axis equal
 
 %% smdscale
 
-% compute spherical Isomap parametrization, no need the constrain the
+% compute spherical MDSmap parametrization, no need the constrain the
 % distance matrix more
 clear param
 param.type = 'smdscale';
