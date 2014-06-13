@@ -123,7 +123,7 @@ function [sk, cc, bifcc, mcon, madj, cc2, mmerge] = skeleton_label(sk, im, res, 
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011, 2014 University of Oxford
-% Version: 0.15.5
+% Version: 0.15.6
 % $Rev$
 % $Date$
 % 
@@ -645,7 +645,7 @@ for I = 1:bifcc.NumObjects
                 dsk, dictsk, idictsk);
             
             % compute angle between the branches if they are merged
-            alpha(J) = angle_btw_branches(br, bif, scimat.axis, p);
+            alpha(J) = angle_btw_branches(br, bif, scimat, p);
             
         end
         
@@ -1141,11 +1141,11 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % angle_btw_branches(): compute angle between two concatenated branches
-function alpha = angle_btw_branches(br, bif, scimataxis, p)
+function alpha = angle_btw_branches(br, bif, scimat, p)
 
 % real world coordinates of voxels
-[r, c, s] = ind2sub([scimataxis.size], br);
-xyz = scimat_index2world([r, c, s], scimataxis);
+[r, c, s] = ind2sub([scimat.axis.size], br);
+xyz = scimat_index2world([r, c, s], scimat);
         
 % compute spline parameterization (Lee's centripetal scheme)
 t = cumsum([0; (sum((xyz(2:end, :) - xyz(1:end-1, :)).^2, 2)).^.25]);

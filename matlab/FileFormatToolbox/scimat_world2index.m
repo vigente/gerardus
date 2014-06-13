@@ -1,4 +1,4 @@
-function idx = scimat_world2index(x, ax, CHOP)
+function idx = scimat_world2index(x, scimat, CHOP)
 % SCIMAT_WORLD2INDEX  Convert real world coordinates to image indices for
 % the SCIMAT image struct that we use in Gerardus.
 % 
@@ -18,7 +18,7 @@ function idx = scimat_world2index(x, ax, CHOP)
 %   Note also that the indices are not rounded, to allow for sub-pixel
 %   accuracy. If integer indices are required, then just use round(idx).
 %
-% IDX = scimat_world2index(X, AXIS)
+% IDX = scimat_world2index(X, SCIMAT)
 %
 %   X is a 3-column matrix where each row contains the real world
 %   (x,y,z)-coordinates of a point.
@@ -26,8 +26,12 @@ function idx = scimat_world2index(x, ax, CHOP)
 %   IDX has the same size as X, and the voxel indices in 
 %   (row, column, slice)-order, that corresponds to (y, x, z)-order.
 %
-%   AXIS is the scimat.axis field from a SCIMAT struct (see "help
-%   scimat" for details).
+%   SCIMAT is a struct with the image space metadata, i.e. spacing, offset
+%   and orientation (see "help scimat" for details). SCIMAT.data (the fild
+%   that contains the image itself) is not used by the function, and thus
+%   can be present or absent. Note that Matlab will pass SCIMAT.data by
+%   reference, so passing the whole image does not require more memory or
+%   slow the function down.
 %
 % IDX = scimat_world2index(..., CHOP)
 %
@@ -37,7 +41,7 @@ function idx = scimat_world2index(x, ax, CHOP)
 %
 % Example:
 %
-% >> idx = scimat_world2index([.01, .011, .02], scimat.axis)
+% >> idx = scimat_world2index([.01, .011, .02], scimat)
 %
 % idx =
 %
@@ -47,7 +51,7 @@ function idx = scimat_world2index(x, ax, CHOP)
     
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2009-2014 University of Oxford
-% Version: 0.3.1
+% Version: 0.4.0
 % $Rev$
 % $Date$
 % 
@@ -91,30 +95,37 @@ end
 idx = zeros(size(x));
 
 % extract parameters
-xmin = [ax.min];
-dx = [ax.spacing];
-n = [ax.size];
+xmin = [scimat.axis.min];
+dx = [scimat.axis.spacing];
+n = [scimat.axis.size];
+orig = xmin + dx/2;
+
 % remove dummy dimension, if present
-if (length( xmin ) == 4)
+if (length(xmin) == 4)
     xmin = xmin(2:end);
     dx = dx(2:end);
+    orig = orig(2:end);
 end
 
 % number of dimensions (we expect D=3, but in case this gets more general)
 D = length(dx);
+if (D ~= 3)
+    error('Input SCIMAT volume expected to have 3 dimensions.')
+end
 
 % (x, y, z) => (y, x, z)
 x = x(:, [2 1 3]);
 
-% convert real world coordinates to indices
+% convert real world coordinates to indices. The reason for the loop is
+% that x may have more than 1 point to convert, and this is probably more
+% efficient than having to replicate orig and dx to fit the size of x
 for I = 1:D
-    idx(:, I) = (x(:, I) - xmin(I) - dx(I)/2) / dx(I) + 1;
+    idx(:, I) = (x(:, I) - orig(I)) / dx(I) + 1;
 end
-
 
 % find which coordinates are outside the volume
 if CHOP
     for I = 1:D
-        idx( idx( :, I ) < 0.5 | idx( :, I ) > n(I)+0.5, I ) = NaN;
+        idx(idx(:, I) < 0.5 | idx(:, I) > n(I)+0.5, I) = NaN;
     end
 end

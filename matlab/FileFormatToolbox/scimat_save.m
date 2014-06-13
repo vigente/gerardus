@@ -69,7 +69,7 @@ function scirunnrrd = scimat_save(file, scirunnrrd, touint8, v73)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2014 University of Oxford
-% Version: 0.6.2
+% Version: 0.6.3
 % $Rev$
 % $Date$
 % 
@@ -156,7 +156,7 @@ switch lower(ext)
         end
         
         % image offset
-        offset = scimat_index2world([1 1 1], scirunnrrd.axis);
+        offset = scimat_index2world([1 1 1], scirunnrrd);
         
         % write the image to file, including metadata
         %

@@ -1,4 +1,4 @@
-function x = scimat_index2world(idx, ax, CHOP)
+function x = scimat_index2world(idx, scimat, CHOP)
 % scimat_index2world  Convert image indices to real world coordinates for
 % the SCIMAT image struct that we use in Gerardus.
 %
@@ -15,13 +15,17 @@ function x = scimat_index2world(idx, ax, CHOP)
 %   For points that are not within the data volume, the returned
 %   coordinates are "NaN".
 %
-% X = scimat_index2world(IDX, AXIS)
+% X = scimat_index2world(IDX, SCIMAT)
 %
 %   IDX has the same size as X, and the voxel indices in 
 %   (row, column, slice)-order, that corresponds to (y, x, z)-order.
 %
-%   AXIS is the scimat.axis field from a SCIMAT struct (see "help
-%   scimat" for details).
+%   SCIMAT is a struct with the image space metadata, i.e. spacing, offset
+%   and orientation (see "help scimat" for details). SCIMAT.data (the fild
+%   that contains the image itself) is not used by the function, and thus
+%   can be present or absent. Note that Matlab will pass SCIMAT.data by
+%   reference, so passing the whole image does not require more memory or
+%   slow the function down.
 %
 %   X is a 3-column matrix where each row contains the real world
 %   (x, y, z)-coordinates of a point.
@@ -34,7 +38,7 @@ function x = scimat_index2world(idx, ax, CHOP)
 %
 % Example:
 %
-% >> x = scimat_index2world([55 189 780], scimat.axis)
+% >> x = scimat_index2world([55 189 780], scimat)
 %
 % x =
 %
@@ -44,7 +48,7 @@ function x = scimat_index2world(idx, ax, CHOP)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2009-2014 University of Oxford
-% Version: 0.3.1
+% Version: 0.4.0
 % $Rev$
 % $Date$
 % 
@@ -88,13 +92,16 @@ end
 x = zeros(size(idx));
 
 % extract parameters
-xmin = [ax.min];
-dx = [ax.spacing];
-n = [ax.size];
+xmin = [scimat.axis.min];
+dx = [scimat.axis.spacing];
+n = [scimat.axis.size];
+orig = xmin + dx/2;
+
 % remove dummy dimension, if present
 if (length(xmin) == 4)
     xmin = xmin(2:end);
     dx = dx(2:end);
+    orig = orig(2:end);
 end
 
 % number of dimensions (we expect D=3, but in case this gets more general)
@@ -109,7 +116,7 @@ end
 
 % convert indices to real world coordinates
 for I = 1:D
-    x(:, I) = (idx(:, I) - 1) * dx(I) + xmin(I) + dx(I)/2;
+    x(:, I) = (idx(:, I) - 1) * dx(I) + orig(I);
 end
 
 % (y, x, z) => (x, y, z)

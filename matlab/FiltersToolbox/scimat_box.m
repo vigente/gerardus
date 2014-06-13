@@ -25,7 +25,7 @@ function box = scimat_box(scimat, m, a)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010,2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -79,7 +79,7 @@ sz = size(scimat.data);
 [ir, ic, iz] = ind2sub(sz, idx);
 
 % convert indices to real world coordinates and make column vectors
-x = scimat_index2world([ ir, ic, iz ], scimat.axis)';
+x = scimat_index2world([ir, ic, iz], scimat)';
 
 % to make the interface consistent, we ask the user to input the backwards
 % rotation (whenever we input the scimat volume, backwards rotation;

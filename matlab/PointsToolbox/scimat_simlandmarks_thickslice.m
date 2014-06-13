@@ -1,6 +1,6 @@
 function [x, scimat] = scimat_simlandmarks_thickslice(scimat, p, dim, s)
 % SCIMAT_SIMLANDMARKS_THICKSLICE  Simulate a human placing landmarks on the
-% boundary of a "thick slice" segmentation
+% boundary of a "thick slice" segmentation.
 %
 % This function simulates a human placing landmarks on a segmentation when
 % the slices are thick or when only one out of every n slices will be
@@ -22,7 +22,7 @@ function [x, scimat] = scimat_simlandmarks_thickslice(scimat, p, dim, s)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013-2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
@@ -133,4 +133,4 @@ end
 
 % get coordinates of landmarks
 [r, c, s] = ind2sub(sz, find(scimat.data));
-x = scimat_index2world([r, c, s], scimat.axis);
+x = scimat_index2world([r, c, s], scimat);

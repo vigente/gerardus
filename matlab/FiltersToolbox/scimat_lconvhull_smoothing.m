@@ -56,7 +56,7 @@ function [tri, x, scimat] = scimat_lconvhull_smoothing(scimat, rad, raster)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012-2014 University of Oxford
-% Version: 0.7.1
+% Version: 0.7.2
 % $Rev$
 % $Date$
 % 
@@ -111,7 +111,7 @@ scimat.data = bwperim(scimat.data);
 
 % coordinates of segmented voxels
 [r, c, s] = ind2sub(size(scimat.data), find(scimat.data));
-x = scimat_index2world([r c s], scimat.axis);
+x = scimat_index2world([r c s], scimat);
 clear r c s
 
 % matrix to keep track of the non-manifold vertices that we are going
@@ -123,7 +123,7 @@ while (true)
     
     % coordinates of segmented voxels
     [r, c, s] = ind2sub(size(scimat.data), find(scimat.data));
-    x = scimat_index2world([r c s], scimat.axis);
+    x = scimat_index2world([r c s], scimat);
     clear r c s
     
     % remove vertices that have been found to be non-manifold in the
@@ -160,7 +160,7 @@ while (true)
     while (true)
         
         % find non-manifold vertices
-        idx = tri_find_nonmanifold_vertex(tri, x, scimat.axis);
+        idx = tri_find_nonmanifold_vertex(tri, x, scimat);
         
         % stop if all vertices are now manifold
         if isempty(idx)
@@ -207,7 +207,7 @@ idx = find(xlab ~= idx);
 [tri, x] = remove_vertex_from_tri(tri, x, idx);
 
 % double-check that there aren't any non-manifold vertices
-idx = tri_find_nonmanifold_vertex(tri, x, scimat.axis);
+idx = tri_find_nonmanifold_vertex(tri, x, scimat);
 if ~isempty(idx)
     warning(['Assertion fail. Non-manifold vertices: ' num2str(length(idx))])
 end
