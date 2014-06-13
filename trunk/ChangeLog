@@ -1,3 +1,38 @@
+2014-06-13  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_index2world.m (0.4.0)
+	* matlab/FileFormatToolbox/scimat_world2index.m (0.4.0)
+	* matlab/ManifoldToolbox/tri_find_nonmanifold_vertex.m (0.2.0)
+
+	- Interface change. Input variable AX becomes SCIMAT. Now, instead
+	of passing scimat.axis, the user has to pass scimat. This way, we
+	will also be able to get scimat.rotmat without having to add
+	another input variable.
+
+	* matlab/CardiacToolbox/scimat_rv_crescent_tips.m (0.2.1)
+	* matlab/FileFormatToolbox/scimat_save.m (0.6.3)
+	* matlab/FiltersToolbox/scimat_centroids.m (0.2.1)
+	* matlab/FiltersToolbox/scimat_intersect_plane.m (0.4.2)
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m (0.7.2)
+	* matlab/FiltersToolbox/skeleton_label.m (0.15.6)
+	* matlab/FiltersToolbox/scimat_box.m (0.2.1)
+	* matlab/FiltersToolbox/scimat_skeleton_prune.m (0.5.1)
+	* matlab/FiltersToolbox/scimat_estimate_bias_field.m (0.2.1)
+	* matlab/FiltersToolbox/scimat_seg2label_stats.m (0.9.1)
+	* matlab/FiltersToolbox/scimat_seg2voxel_stats.m (0.2.1)
+	* matlab/ManifoldToolbox/scimat_tri_to_raster.m (0.2.2)
+	* matlab/PointsToolbox/bwmesh.m (0.1.8)
+	* matlab/PointsToolbox/scimat_simlandmarks_thickslice.m (0.1.2)
+	* matlab/PointsToolbox/scimat_dmatrix_thickslice.m (0.1.5)
+	* matlab/PointsToolbox/pts_mesh.m (0.2.2)
+	* matlab/PointsToolbox/scimat_pca.m (0.2.1)
+	* matlab/test/test_scimat_dmatrix_imgeodesic.m (0.1.3)
+	* matlab/test/test_surface_param.m (0.6.3)
+
+	- Correct the functions so that they accommodate the interface
+	change of scimat_index2world, scimat_world2index and
+	tri_find_nonmanifold_vertex.
+
 2014-06-12  Ramon Casero  <rcasero@gmail.com>
 
 	* Rename matlab/FileFormatToolbox/scinrrd_tiff2nrrd.m as

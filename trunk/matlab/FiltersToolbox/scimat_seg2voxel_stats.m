@@ -64,7 +64,7 @@ function [stats, idx] = scimat_seg2voxel_stats(scimat, RAD, idx)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011-2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -96,8 +96,8 @@ narginchk(2, 3);
 nargoutchk(0, 2);
 
 % get radius size in voxels in every dimension
-x0 = scimat_index2world([1 1 1], scimat.axis);
-irad = round(scimat_world2index(x0+RAD*ones(1,3), scimat.axis) - [1 1 1]);
+x0 = scimat_index2world([1 1 1], scimat);
+irad = round(scimat_world2index(x0+RAD*ones(1,3), scimat) - [1 1 1]);
 
 % find all the voxels that are part of the segmentation, if they are not
 % provided by the user
@@ -159,13 +159,13 @@ for I = 1:length(idx)
     Scc = Scc+Smin-1;
     
     % convert indices to real world coordinates
-    x = scimat_index2world([Rcc, Ccc, Scc], scimat.axis);
+    x = scimat_index2world([Rcc, Ccc, Scc], scimat);
     
     % compute centroid of the points
     xmean = mean(x);
     
     % compute coordinates of the target point
-    xtarg = scimat_index2world([R, C, S], scimat.axis);
+    xtarg = scimat_index2world([R, C, S], scimat);
     
     % compute distance between target point and centroid
     stats.dc(I) = sqrt(sum((xmean - xtarg).^2));

@@ -20,8 +20,8 @@ function [v, d, m] = scimat_pca(scimat)
 %   Assuming a 3D volume, V is a (3, 3)-matrix and D a 3-vector.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010-2014 University of Oxford
-% Version: 0.2.0
+% Copyright © 2010,2014 University of Oxford
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -65,7 +65,7 @@ sz = size(scimat.data);
 [ir, ic, iz] = ind2sub(sz, idx);
 
 % convert indices to real world coordinates
-x = scimat_index2world([ ir, ic, iz ], scimat.axis);
+x = scimat_index2world([ir, ic, iz], scimat);
 
 % compute centroid
 m = mean(x);

@@ -48,7 +48,7 @@ function [im, gx, gy, gz, midx] = scimat_intersect_plane(scimat, m, v, interp)
 
 % Authors: Ramon Casero <rcasero@gmail.com>, Pablo Lamata <pablo.lamata@dpag.ox.ac.uk>
 % Copyright © 2010-2014 University of Oxford
-% Version: 0.4.1
+% Version: 0.4.2
 % $Rev$
 % $Date$
 % 
@@ -105,7 +105,7 @@ rotmat = vec2rotmat(v(:));
 grcs = rotmat * [gr(:) gc(:) gs(:)]';
 
 % compute index coordinates of real world coordinates of the plane point
-idxm = scimat_world2index(m, scimat.axis);
+idxm = scimat_world2index(m, scimat);
 
 % center rotated grid on the plane point m
 grcs(1, :) = grcs(1, :) + idxm(1);
@@ -140,7 +140,7 @@ switch interp
 end
 
 % compute real world coordinates for the sampling points
-gxyz = scimat_index2world(grcs', scimat.axis)';
+gxyz = scimat_index2world(grcs', scimat)';
 
 % reshape the sampled points to get again a grid distribution
 im = reshape(im, size(gc));

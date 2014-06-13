@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013-2014 University of Oxford
-% Version: 0.1.2
+% Version: 0.1.3
 % $Rev$
 % $Date$
 % 
@@ -90,13 +90,13 @@ x = [
     ];
 
 % real world coordinates => indices
-idx = scimat_world2index(x, scimat.axis);
+idx = scimat_world2index(x, scimat);
 
 % round to nearest voxel centre
 idx = round(idx);
 
 % recompute coordinates of the points
-x = scimat_index2world(idx, scimat.axis);
+x = scimat_index2world(idx, scimat);
 
 % plot points
 hold on
@@ -132,7 +132,7 @@ for I = 1:size(x, 1)
         [r, c, s] = ind2sub(size(scimat.data), pth);
         
         % obtain x, y, z coordinates
-        pth = scimat_index2world([r' c' s'], scimat.axis);
+        pth = scimat_index2world([r' c' s'], scimat);
         
         % plot path
         plot(pth(:, 1), pth(:, 2), 'w')
@@ -222,7 +222,7 @@ idx = [r c s];
 aux.axis = scimat.axis;
 
 % convert to real world coordinates
-x = scimat_index2world(idx, scimat.axis);
+x = scimat_index2world(idx, scimat);
 
 % plot points
 subplot(1, 1, 1)
@@ -273,7 +273,7 @@ for I = 1:size(x, 1)
         [r, c, s] = ind2sub(size(scimat.data), pth);
         
         % obtain x, y, z coordinates
-        pth = scimat_index2world([r' c' s'], scimat.axis);
+        pth = scimat_index2world([r' c' s'], scimat);
         
         % plot path
         hold on
