@@ -9,7 +9,7 @@ function [tri, triboundary] = pts_mesh(x, maxlen)
 %   format, you can compute the coordinates of the segmented voxels as
 %
 %     >> [r, c, s] = ind2sub(size(nrrd.data), find(nrrd.data));
-%     >> x = scimat_index2world([r c s], nrrd.axis);
+%     >> x = scimat_index2world([r c s], nrrd);
 %
 %   MAXLEN is a scalar with the maximum length allowed for an edge
 %   connecting two nodes in the mesh. By default, MAXLEN=Inf, so the mesh
@@ -45,7 +45,7 @@ function [tri, triboundary] = pts_mesh(x, maxlen)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011-2014 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 %

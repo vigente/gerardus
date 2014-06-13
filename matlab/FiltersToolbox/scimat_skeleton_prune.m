@@ -47,7 +47,7 @@ function scimatsk = scimat_skeleton_prune(scimatsk, scimat, minlen, lratio, alph
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011, 2014 University of Oxford
-% Version: 0.5.0
+% Version: 0.5.1
 % $Rev$
 % $Date$
 % 
@@ -340,8 +340,7 @@ while (atleastonepruning)
             for K = 1:length(len)
                 idx = cc.PixelIdxList{bn(K)}([1 end]);
                 [r1, c1, s1] = ind2sub(size(scimatsk.data), idx);
-                xyz = scimat_index2world([r1(:), c1(:), s1(:)], ...
-                    scimatsk.axis);
+                xyz = scimat_index2world([r1(:), c1(:), s1(:)], scimatsk);
                 len(K) = sqrt(sum(diff(xyz).^2));
             end
             

@@ -23,15 +23,16 @@ function [tri, triboundary] = bwmesh(im, res)
 %
 %   has 5 nodes, with corresponding indices 1, 2, 3, 4 and 5.
 %
-%   Example: If you have a SCI NRRD volume
+%   Example: If you have a SCIMAT volume "scimat", you can compute the mesh
+%   with:
 %
-%     >> [tri, trisurface] = bwmesh(nrrd.data, [nrrd.axis.spacing]);
+%     >> [tri, trisurface] = bwmesh(scimat.data, [nrrd.axis.spacing]);
 %
 %   To plot the volumetric mesh you can use (but note that this is very
 %   slow even for small meshes)
 %
 %     >> [r, c, s] = ind2sub(size(nrrd.data), find(nrrd.data));
-%     >> x = scimat_index2world([r c s], nrrd.axis);
+%     >> x = scimat_index2world([r c s], nrrd);
 %     >> tetramesh(tri, x(:, 1), x(:, 2), x(:, 3))
 %
 %   TRIBOUNDARY is a 3-column array. Each row has the indices of 3 nodes
@@ -52,7 +53,7 @@ function [tri, triboundary] = bwmesh(im, res)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011-2014 University of Oxford
-% Version: 0.1.7
+% Version: 0.1.8
 % $Rev$
 % $Date$
 %
@@ -92,14 +93,14 @@ end
 
 % auxiliary struct so that we can use a function already in the toolbox
 for I = 3:-1:1
-    nrrdaxis(I).spacing = res(I);
-    nrrdaxis(I).min = 0;
-    nrrdaxis(I).size = size(im, I);
+    scimat.axis(I).spacing = res(I);
+    scimat.axis(I).min = - res(I)/2;
+    scimat.axis(I).size = size(im, I);
 end
 
 % real world coordinates of the voxel centres
 [r, c, s] = ind2sub(size(im), find(im));
-x = scimat_index2world([r c s], nrrdaxis);
+x = scimat_index2world([r c s], scimat);
 
 % length of voxel diagonal
 len = sqrt(sum(res.^2));

@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013-2014 University of Oxford
-% Version: 0.6.2
+% Version: 0.6.3
 % $Rev$
 % $Date$
 %
@@ -195,7 +195,7 @@ scimat.data = bwperim(scimat.data);
 % coordinates of perimeter points
 idx = find(scimat.data);
 [r, c, s] = ind2sub(size(scimat.data), idx);
-x = scimat_index2world([r c s], scimat.axis);
+x = scimat_index2world([r c s], scimat);
 
 % subsample boundary points
 x = x(randi(size(x, 1), round(size(x, 1)/5), 1), :);
@@ -214,7 +214,7 @@ axis equal
 tri = s.bnd;
 
 % check that we don't have non-manifold vertices
-idx = tri_find_nonmanifold_vertex(tri, x, scimat.axis);
+idx = tri_find_nonmanifold_vertex(tri, x, scimat);
 if (nnz(idx))
     error('Assertion fail: mesh has non-manifold vertices')
 end

@@ -760,7 +760,7 @@ scimat_pca.m
 scimat_simlandmarks_thickslice.m
 
 	 SCIMAT_SIMLANDMARKS_THICKSLICE  Simulate a human placing landmarks on the
-	 boundary of a "thick slice" segmentation
+	 boundary of a "thick slice" segmentation.
 	
 scinrrd_surface_interpolation.m
 

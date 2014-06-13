@@ -107,7 +107,7 @@ function stats = scimat_seg2label_stats(scimat, cc, p, STRAIGHT)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011, 2014 University of Oxford
-% Version: 0.9.0
+% Version: 0.9.1
 % $Rev$
 % $Date$
 % 
@@ -282,7 +282,7 @@ for I = 1:length(LAB)
     
     % coordinates of branch voxels
     [r, c, s] = ind2sub(size(scimat.data), br(:));
-    xi = scimat_index2world([r, c, s], scimat.axis)';
+    xi = scimat_index2world([r, c, s], scimat)';
     
     % straighten all branch voxels
     if (STRAIGHT && all(~isnan(cc.PixelParam{LAB(I)})) ...
@@ -290,7 +290,7 @@ for I = 1:length(LAB)
         
         % coordinates of skeleton voxels
         [r, c, s] = ind2sub(size(scimat.data), sk);
-        x = scimat_index2world([r, c, s], scimat.axis)';
+        x = scimat_index2world([r, c, s], scimat)';
         
         % smooth skeleton
         if (p < 1)

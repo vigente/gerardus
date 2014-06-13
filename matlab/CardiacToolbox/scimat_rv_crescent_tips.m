@@ -20,7 +20,7 @@ function [tip1, tip2] = scimat_rv_crescent_tips(scimat, m)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010,2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -82,8 +82,8 @@ for I = 1:sz(3)
     [ir, ic] = ind2sub( sz(1:2), idx );
     
     % convert indices to real world coordinates and make colum vectors
-    x = scimat_index2world( [ ir, ic, I+zeros(length(ir), 1) ], ...
-        scimat.axis );
+    x = scimat_index2world([ir, ic, I+zeros(length(ir), 1) ], ...
+        scimat);
     
     % compute a centroid for the slice
     xm = mean(x, 1);

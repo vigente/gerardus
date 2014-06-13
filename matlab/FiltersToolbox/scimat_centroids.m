@@ -21,8 +21,8 @@ function centroids = scimat_centroids(scimat, p)
 %   P=[], then Matlab computes a value that it considers optimal for P.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010-2014 University of Oxford
-% Version: 0.2.0
+% Copyright © 2010,2014 University of Oxford
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -74,7 +74,7 @@ for I = 1:length(stats)
 end
 % convert to real world coordinates, taking into account that we have
 % columns before rows in centroids
-centroids = scimat_index2world(centroids(:, [2 1 3]), scimat.axis);
+centroids = scimat_index2world(centroids(:, [2 1 3]), scimat);
 
 % if smoothing required
 if (p~=1)

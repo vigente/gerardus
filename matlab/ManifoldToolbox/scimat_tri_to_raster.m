@@ -35,7 +35,7 @@ function scimat = scimat_tri_to_raster(tri, x, scimat, raster)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013-2014 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 % 
@@ -96,10 +96,10 @@ switch raster
         % closest voxel centres
         xmin = min(x);
         xmax = max(x);
-        idxmin = floor(scimat_world2index(xmin, scimat.axis));
-        idxmax = ceil(scimat_world2index(xmax, scimat.axis));
-        xmin = scimat_index2world(idxmin, scimat.axis);
-        xmax = scimat_index2world(idxmax, scimat.axis);
+        idxmin = floor(scimat_world2index(xmin, scimat));
+        idxmax = ceil(scimat_world2index(xmax, scimat));
+        xmin = scimat_index2world(idxmin, scimat);
+        xmax = scimat_index2world(idxmax, scimat);
         
         % vectors of voxel centres to check whether they are inside or outside
         % the mesh
@@ -121,7 +121,7 @@ switch raster
         % should be == 1
         res = [scimat.axis.spacing]; % (r, c, s) format
         sz = size(scimat.data); % (r, c, s) format
-        origin = scimat_index2world([1, 1, 1], scimat.axis);
+        origin = scimat_index2world([1, 1, 1], scimat);
         scimat.data = itk_tri_rasterization(tri, x, res, sz, origin);
         
     otherwise

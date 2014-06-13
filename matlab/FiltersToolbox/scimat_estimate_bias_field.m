@@ -113,7 +113,7 @@ function [scimat, sigma] = scimat_estimate_bias_field(scimat, x, a, sigma, FASTI
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011-2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -175,7 +175,7 @@ a = nout ./ nin;
 % Seg3D provides continuous point coordinates over the whole image volume.
 % But in fact, intensity values correspond to the voxel centre, so we have
 % to convert the coordinates to indices and round them
-x = scimat_world2index(x, scimat.axis);
+x = scimat_world2index(x, scimat);
 x = round(x);
 
 % compute low-pass anti-aliasing filter
@@ -220,12 +220,12 @@ end
 clear h hbox im
 
 % convert back to coordinates
-x = scimat_index2world(x, scimat.axis);
+x = scimat_index2world(x, scimat);
 
 % compute coordinates of the two extreme voxels that define the image
 % volume
-cmin = scimat_index2world([1 1 1], scimat.axis);
-cmax = scimat_index2world(nin, scimat.axis);
+cmin = scimat_index2world([1 1 1], scimat);
+cmax = scimat_index2world(nin, scimat);
 
 % if we have point coordinates with values like 100, 400, matrix L for the
 % thin-plate spline weight computation is badly scaled. Thus, we make use
