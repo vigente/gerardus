@@ -1,3 +1,13 @@
+2014-06-16  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m: (0.2.1)
+
+	- Do not create constraints for the cases f(x) > -Inf and f(x) <
+	Inf. These constraints have no effect on the problem, and they
+	produce the following warning in SCIP:
+
+	"WARNING: indefinite expression tree in	constraint <c45>"
+
 2014-06-13  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scimat_index2world.m (0.4.0)
