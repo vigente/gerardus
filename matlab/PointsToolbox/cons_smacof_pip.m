@@ -142,7 +142,7 @@ function [y, stopCondition, sigma, sigma0, t] ...
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.4.1
+% Version: 0.4.2
 % $Rev$
 % $Date$
 %
@@ -457,6 +457,10 @@ dy = dmatrix_con(dx, y);
 
 % initial stress
 sigma0 = sum(sum(w .* (dx - dy).^2));
+
+% if dx, dy are sparse matrices, sigma0 will be a sparse scalar, and this
+% gives an error with fprintf below
+sigma0 = full(sigma0);
 
 % vector of stress computed by the algorithm
 sigma = zeros(1, smacof_opts.MaxIter);
