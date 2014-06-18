@@ -44,18 +44,20 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 %   there's at least a fixed vertex, then Y must be provided.
 %
 %   FEASTOL is an scalar with the feasibility tolerance for constraints in
-%   SCIP. In SCIP, a constraint X >= A is considered fulfilled if
-%   X >= A-FEASTOL. This can lead to tetrahedra with negative volumes. To
-%   avoid this and guarantee that SCIP will strictly fulfill the VMIN
-%   constraints, this function turns them into X >= A+FEASTOL. Likewise,
-%   VMAX constraints become X <= A-FEASTOL. By default, FEASTOL=1e-6, but
-%   the user can change this value in SCIP. In that case, the new value of
-%   FEASTOL must be passed both to this function and to the function that
-%   runs the SCIP solver.
+%   SCIP. In SCIP, a constraint f(x) >= b is fulfilled when 
+%   f(x) >= b-FEASTOL*max(1,|b|). This could lead to tetrahedra that
+%   fulfill the VMIN constraint but have tiny negative volumes. To avoid
+%   this and guarantee that SCIP will strictly fulfill the VMIN
+%   constraints, this function turns them into 
+%   f(x) >= VMIN+FEASTOL*max(1,|b|). Likewise, VMAX constraints become 
+%   f(x) <= VMAX-FEASTOL*max(1,|b|). By default, FEASTOL=1e-6, but the user
+%   can change this value in SCIP. In that case, the new value of FEASTOL
+%   must be passed both to this function and to the function that runs the
+%   SCIP solver.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 %
@@ -143,6 +145,12 @@ end
 if (nargin < 7 || isempty(feastol))
     % feasibility tolerance for constraints in SCIP
     feastol = 1e-6;
+end
+if (feastol < 1e-9)
+    error('SCIP will fail without warning when FEASTOL is too small. In particular, FEASTOL<numerics/epsilon (def 1e-9) will make FEASTOL=0')
+end
+if (vmin < 10 * feastol)
+    error('VMIN is too close to FEASTOL, and this may generate solutions with tiny negative areas/volumes. Scale your problem so that constraint limits can be larger')
 end
 
 %% Upper and lower bounds for the objective function variables
@@ -235,7 +243,7 @@ for I = idxtricon
                     (-yj*zi+yi*zj)/6, k, ...
                     (xj*zi-xi*zj)/6, k, ...
                     (-xj*yi+xi*yj)/6, k, ...
-                    vmin + feastol);
+                    vmin + feastol * max(1, abs(vmin)));
                 count = count + 1;
             end
             
@@ -248,7 +256,7 @@ for I = idxtricon
                     (-yj*zi+yi*zj)/6, k, ...
                     (xj*zi-xi*zj)/6, k, ...
                     (-xj*yi+xi*yj)/6, k, ...
-                    vmax - feastol);
+                    vmax - feastol * max(1, abs(vmax)));
                 count = count + 1;
             end
             
@@ -287,7 +295,7 @@ for I = idxtricon
                     -xi/6, k, j, ...
                     -yi/6, j, k, ...
                     xi/6, j, k, ...
-                    vmin + feastol);
+                    vmin + feastol * max(1, abs(vmin)));
                 count = count + 1;
             end
             
@@ -302,7 +310,7 @@ for I = idxtricon
                     -xi/6, k, j, ...
                     -yi/6, j, k, ...
                     xi/6, j, k, ...
-                    vmax - feastol);
+                    vmax - feastol * max(1, abs(vmax)));
                 count = count + 1;
             end
             
@@ -325,7 +333,7 @@ for I = idxtricon
                     -1/6, i, k, j, ...
                     -1/6, j, i, k, ...
                     1/6, i, j, k, ...
-                    vmin + feastol);
+                    vmin + feastol * max(1, abs(vmin)));
                 count = count + 1;
             end
             
@@ -340,7 +348,7 @@ for I = idxtricon
                     -1/6, i, k, j, ...
                     -1/6, j, i, k, ...
                     1/6, i, j, k, ...
-                    vmax - feastol);
+                    vmax - feastol * max(1, abs(vmax)));
                 count = count + 1;
             end
             

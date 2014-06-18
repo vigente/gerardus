@@ -1,6 +1,34 @@
+2014-06-17  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m (0.2.2)
+
+	- SCIP will fail to work properly without warning when FEASTOL is
+	too small. In particular, FEASTOL<numerics/epsilon (def 1e-9) will
+	make FEASTOL=0. See below email reply by Stefan Vigerske in SCIP
+	mailing list. Thus, now we don't let it be <1e-9.
+
+	- Fix bug. According again to the email response below, contraints
+	need to be modified as VMIN+FEASTOL*max(1, |VMIN|), instead of the
+	VMIN+FEASTOL that we had before.
+
+	http://listserv.zib.de/pipermail/scip/2014-May/002014.html
+
+	"setting the feastol that small is not supported. There is another
+	tolerance (numerics/epsilon) that is (silently) assumed to be
+	smaller than feastol, and by default 1e-9. Numbers smaller than
+	epsilon are treated as 0.
+
+	Further, a feastol of 1e-10 while still having values like 1e4 in
+	your problem might give issues when having to use double
+	precision. The limited precision of the floating point numbers is
+	also the reason why -0.166666666666667 ends up as
+	-0.16666666666666699048.
+
+	Bottomline: Don't set feastol too small."
+
 2014-06-16  Ramon Casero  <rcasero@gmail.com>
 
-	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m: (0.2.1)
+	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m (0.2.1)
 
 	- Do not create constraints for the cases f(x) > -Inf and f(x) <
 	Inf. These constraints have no effect on the problem, and they
