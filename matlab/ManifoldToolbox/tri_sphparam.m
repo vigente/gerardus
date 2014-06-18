@@ -18,12 +18,12 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %     'smacof':   Unconstrained SMACOF, followed by projection of points on
 %                 sphere.
 %
+%     'consmacof-global': Constrained SMACOF with untangling of all
+%                 vertices simulataneously (too slow except for small
+%                 problems).
+%
 %     'consmacof-local': Constrained SMACOF with local untangling of
 %                 connected vertices.
-%
-%     'consmacof-global': Constrained SMACOF with untangling of all
-%                 vertices simulataneously (too slow except for very small
-%                 problems).
 %
 %   Y is a 3-column matrix with the coordinates of the spherical
 %   parametrization of the mesh. Each row contains the (x,y,z)-coordinates
@@ -40,15 +40,39 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %   STOPCONDITION is a cell array with a string for each stop condition
 %   that made the algorithm stop at the last iteration.
 %
-%   SIGMA is a vector with the stress value at each iteration. A value of
+%   SIGMA is a scalar, vector or cell array with stress values. A value of
 %   NaN means that the algorithm could not find a valid solution in the
-%   corresponding iteration.
+%   corresponding iteration. The format and meaning of SIGMA is different
+%   for each method:
+%
+%     'cmdscale': Single value with the stress of the solution using the
+%                 full distance matrix.
+%
+%     'smacof':   Vector with the stress at each SMACOF iteration. Stress
+%                 values are expected to be monotonically decreasing. Note
+%                 that these stress values are computed without projecting
+%                 the iteration solution onto a sphere, so SIGMA(end) will
+%                 be different from the stress of the returned spherical
+%                 solution.
+%
+%     'consmacof-global': Vector with the stress at each constrained SMACOF
+%                 iteration. min(STRESS) equals the stress of the best
+%                 solution found by SMACOF. However, if this solution is
+%                 worse than the initial guess, the latter is returned, and
+%                 its stress will be different from min(STRESS).
+%
+%     'consmacof-local': Cell array. Each array contains a vector with the
+%                 stress values of the constrained SMACOF optimisation of a
+%                 connected tangled component. The stress in each cell is
+%                 computed taking into account only the vertices of that
+%                 component. Thus, these values will be quite different
+%                 from the stress of the whole final solution.
 %
 %   SIGMA0 is a scalar with the stress value of the initial guess Y0. Note
 %   that we have no guarantee that Y0 is a valid solution, so be careful
 %   when comparing SIGMA0 to SIGMA. In particular, SIGMA0 may be smaller
-%   than any SIGMA, but may not be a valid solution according to the
-%   constraints.
+%   than any SIGMA, but may not be a solution where all triangles have
+%   positive area.
 %
 %   T is a vector with the time between the beginning of the algorithm and
 %   each iteration. Units in seconds.
@@ -104,7 +128,7 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.2
+% Version: 0.3.3
 % $Rev$
 % $Date$
 %
@@ -247,11 +271,7 @@ else
 end
 
 % check whether the initial guess is a valid solution
-if isempty(y0)
-    y0IsValid = [];
-else
-    y0IsValid = all(sphtri_signed_vol(tri, y0) > 0);
-end
+y0IsValid = ~isempty(y0) && all(sphtri_signed_vol(tri, y0) > 0);
 
 % check inputs dimensions
 if (size(tri, 2) ~= 3)
@@ -312,45 +332,61 @@ switch method
         % Classic MDS always produces a global optimum
         stopCondition = 'Global optimum';
         
-        % stress of output parametrization
+        % stress of output parametrization (note that we omit multiplying
+        % by w, as in this method w is a matrix of 1s)
+        % w = ones(size(d));
+        % sigma = sum(sum(w .* (d - dmatrix(y')).^2));
         sigma = sum(sum((d - dmatrix(y')).^2));
         
-        % initial guess is empty, so its stress is empty too
-        sigma0 = [];
+        % this is also the "best stress found" in the context of the
+        % implementation of tri_sphparam(), which has to deal with
+        % different algorithms, some of which return sigma as a vector, or
+        % sigma as a cell array of vectors
+        sigmasol = sigma;
+        
+        % initial guess is empty; we assign Inf stress to it, so that the
+        % result of MDS will be chosen as the output
+        sigma0 = Inf;
        
         % time for initial parametrization
         t = toc;
         
-    %% SMACOF algorithm ("Scaling by majorizing a convex function"
+    %% SMACOF ("Scaling by majorizing a convex function") algorithm
     case 'smacof'
         
         narginchk(3, 7);
         
         % compute SMACOF parametrization
-        [y, stopCondition, sigma, t] = smacof(d, y, [], smacof_opts);
+        [y, stopCondition, sigma, t] = smacof(d, y0, [], smacof_opts);
+        if (sigma(end) ~= min(sigma))
+            warning('In SMACOF method, the stress did not decrease monotonically, as expected')
+        end
     
-        % project the SMACOF solution on the sphere, and recompute the
-        % sphere radius as the median of the radii of all vertices
-        % projected on the sphere
-        [lat, lon, sphparam_opts.sphrad] = proj_on_sphere(y);
+        % project the SMACOF solution on the sphere
+        [lat, lon] = proj_on_sphere(y);
         [y(:, 1), y(:, 2), y(:, 3)] ...
             = sph2cart(lon, lat, sphparam_opts.sphrad);
-        sigma0 = [];
         
-    %% Constrained SMACOF, local optimization
-    case 'consmacof-local'
+        % stress of the initial guess (note that we don't need to multiply
+        % by the weight matrix, because it's only 1s or 0s)
+        % w = double(d ~= 0);
+        % sigma0 = sum(sum(w .* (d - dmatrix_con(w, y0)).^2));
+        sigma0 = sum(sum((d - dmatrix_con(d, y0)).^2));
         
-        %% Find tangled vertices and group in clusters of connected tangled vertices
+        % stress of the SMACOF solution projected on the sphere
+        sigmasol = sum(sum((d - dmatrix_con(d, y)).^2));
         
-        % spherical coordinates of the points
-        [lon, lat] = cart2sph(y(:, 1), y(:, 2), y(:, 3));
+    %% Constrained SMACOF, global optimization
+    case 'consmacof-global'
+        
+        %% Find tangled vertices
         
         % reorient all triangles so that all normals point outwards
         [~, tri] = meshcheckrepair(x, tri, 'deep');
         
         % signed volume of tetrahedra formed by sphere triangles and origin
         % of coordinates
-        vol = sphtri_signed_vol(tri, y);
+        vol = sphtri_signed_vol(tri, y0);
         
         % we mark as tangled all vertices from tetrahedra with negative
         % volumes, because they correspond to triangles with normals
@@ -358,12 +394,39 @@ switch method
         isFree = false(N, 1);
         isFree(unique(tri(vol <= 0, :))) = true;
         
-        % find triangles that cause self-intersections
-        idx = cgal_check_self_intersect(tri, y);
+        %% Untangle parametrization
         
-        % we also mark as tangled all vertices from triangles that cause
-        % self-intersections in the mesh
-        isFree(unique(tri(idx>0, :))) = true;
+        % recompute bounds and constraints for the spherical problem
+        [con, bnd] ...
+            = tri_ccqp_smacof_nofold_sph_pip(tri, ...
+            sphparam_opts.sphrad, sphparam_opts.volmin, ...
+            sphparam_opts.volmax, isFree, y0, scip_opts.numerics_feastol);
+        
+        % solve MDS problem with constrained SMACOF
+        [y, stopCondition, sigma, sigma0, t] ...
+            = cons_smacof_pip(d, y0, isFree, bnd, [], con, ...
+            smacof_opts, scip_opts);
+            
+    %% Constrained SMACOF, local optimization
+    case 'consmacof-local'
+        
+        %% Find tangled vertices and group in clusters of connected tangled vertices
+        
+        % spherical coordinates of the points
+        [lon, lat] = cart2sph(y0(:, 1), y0(:, 2), y0(:, 3));
+        
+        % reorient all triangles so that all normals point outwards
+        [~, tri] = meshcheckrepair(x, tri, 'deep');
+        
+        % signed volume of tetrahedra formed by sphere triangles and origin
+        % of coordinates
+        vol = sphtri_signed_vol(tri, y0);
+        
+        % we mark as tangled all vertices from tetrahedra with negative
+        % volumes, because they correspond to triangles with normals
+        % pointing inwards
+        isFree = false(N, 1);
+        isFree(unique(tri(vol <= 0, :))) = true;
         
         % mesh connectivity matrix
         dcon = dmatrix_mesh(tri);
@@ -389,6 +452,7 @@ switch method
         %% one
         
         % untangle each component separately
+        y = y0;
         for C = 1:Ncomp
             
             if (strcmp(sphparam_opts.Display, 'iter'))
@@ -400,9 +464,9 @@ switch method
             isFreenn(cc{C}) = true;
             
             % add to the local neighbourhood all the neighbours of the free
-            % vertices. Note that the neighbours must be fixed, because if
-            % they were free, they would have been included in the
-            % connected component by graphcc()
+            % vertices. Note that these neighbours are going to be fixed,
+            % because if they were free, they would have been included in
+            % the connected component by graphcc()
             nn = full(isFreenn' | (sum(dcon(isFreenn, :), 1) > 0))';
             
             % Local Convex Hull block:
@@ -423,7 +487,7 @@ switch method
                 
                 % rotate all vertices so that the local neighbourhood is centered
                 % around (0,0)
-                yrot = (rot * y')';
+                yrot = (rot * y0')';
                 
                 % convert to spherical coordinates
                 [lonrot, latrot] = cart2sph(yrot(:, 1), yrot(:, 2), yrot(:, 3));
@@ -459,7 +523,7 @@ switch method
             isFreenn = true(N, 1);
             isFreenn(vedgenn) = false;
             isFreenn = isFreenn(nn);
-            [trinn, ynn] = tri_squeeze(trinn, y);
+            [trinn, ynn] = tri_squeeze(trinn, y0);
             dnn = d(nn, nn);
             
             % recompute bounds and constraints for the spherical problem
@@ -469,25 +533,38 @@ switch method
                 sphparam_opts.volmax, isFreenn, ynn);
             
             % solve MDS problem with constrained SMACOF
-            [y(nn, :), stopCondition{C}, sigma{C}, sigma0(C), t{C}] ...
+            [aux, stopCondition{C}, sigma{C}, sigma0(C), t{C}] ...
                 = cons_smacof_pip(dnn, ynn, isFreenn, bnd, [], con, ...
                 smacof_opts, scip_opts);
             
+            % only free vertices can change in the solution
+            idx2 = find(nn);
+            y(idx2(isFreenn), :) = aux(isFreenn, :);
+            
+            % optional check of the topology
             if (sphparam_opts.TopologyCheck)
                 
-                % assertion check: after untangling, the local neighbourhood cannot
-                % produce self-intersections
-                if any(cgal_check_self_intersect(trinn, y(nn,:)))
-                    warning(['Component ' num2str(C) ...
-                        ' contains self-intersections after untangling'])
-                end
-                
-                % assertion check: after untangling, volumes of all tetrahedra in the
-                % local neighbourhood must be positive
-                aux = sphtri_signed_vol(trinn,  y(nn, :));
-                if any(aux < sphparam_opts.volmin | aux > sphparam_opts.volmax)
-                    warning(['Component ' num2str(C) ...
-                        ' contains tetrahedra with volumes outside the constraint values'])
+                if (any(isnan(y(nn, :))))
+                    
+                    warning(['Component ' num2str(C) ': no solution found'])
+                    
+                else
+                    
+                    % assertion check: after untangling, the local neighbourhood cannot
+                    % produce self-intersections
+                    if any(cgal_check_self_intersect(trinn, y(nn,:)))
+                        warning(['Component ' num2str(C) ...
+                            ' contains self-intersections after untangling'])
+                    end
+                    
+                    % assertion check: after untangling, volumes of all tetrahedra in the
+                    % local neighbourhood must be positive
+                    aux = sphtri_signed_vol(trinn,  y(nn, :));
+                    if any(aux < sphparam_opts.volmin | aux > sphparam_opts.volmax)
+                        warning(['Component ' num2str(C) ...
+                            ' contains tetrahedra with volumes outside the constraint values'])
+                    end
+                    
                 end
                 
             end
@@ -502,109 +579,75 @@ switch method
             
         end
         
-    %% Constrained SMACOF, global optimization
-    case 'consmacof-global'
+        % check whether solution is valid
+        yIsValid = all(~isnan(y(:))) ...
+            && all(sphtri_signed_vol(tri, y) >= 0);
         
-        %% Find tangled vertices
-        
-        % reorient all triangles so that all normals point outwards
-        [~, tri] = meshcheckrepair(x, tri, 'deep');
-        
-        % signed volume of tetrahedra formed by sphere triangles and origin
-        % of coordinates
-        vol = sphtri_signed_vol(tri, y0);
-        
-        % we mark as tangled all vertices from tetrahedra with negative
-        % volumes, because they correspond to triangles with normals
-        % pointing inwards
-        isFree = false(N, 1);
-        isFree(unique(tri(vol <= 0, :))) = true;
-        
-        % find triangles that cause self-intersections
-        idx = cgal_check_self_intersect(tri, y0);
-        
-        % we also mark as tangled all vertices from triangles that cause
-        % self-intersections in the mesh
-        isFree(unique(tri(idx>0, :))) = true;
-        
-        %% Untangle parametrization
-        
-        % recompute bounds and constraints for the spherical problem
-        [con, bnd] ...
-            = tri_ccqp_smacof_nofold_sph_pip(tri, ...
-            sphparam_opts.sphrad, sphparam_opts.volmin, ...
-            sphparam_opts.volmax, isFree, y0, scip_opts.numerics_feastol);
-        
-        % solve MDS problem with constrained SMACOF
-        [y, stopCondition, sigma, sigma0, t] ...
-            = cons_smacof_pip(d, y0, isFree, bnd, [], con, ...
-            smacof_opts, scip_opts);
+        if (yIsValid)
             
+            % compute stress of returned solution
+            dy = dmatrix_mesh(tri, y);
+            sigmasol = full(sum(sum(dcon .* (d - dy).^2)));
+            
+        else
+            
+            % if the solution found by SMACOF is invalid, we give it an Inf
+            % stress value
+            sigmasol = Inf;
+            
+        end
+        
+        % discard vector of initial stress for each tangled component, and
+        % replace by stress of initial guess
+        sigma0 = full(sum(sum(dcon .* (d - dmatrix_mesh(tri, y0)).^2)));
+
+
     otherwise
         error(['Unknown parametrization method: ' method])
 end
 
-%% post-processing of the solution
+%% choose what to return: initial guess or best solution found
 
-% check whether found solution is valid
+% we need stopCondition to be a cell array, so that we can add more
+% strings to it
+if ~iscell(stopCondition)
+    stopCondition = {stopCondition};
+end
+        
+% check whether initial guess and found solution is valid
 yIsValid = all(sphtri_signed_vol(tri, y) > 0);
 
 % if the initial guess was better than the found solution, we have to give
 % it as the output
-switch method
-    case 'cmdscale'
-        
-        % nothing to do
-        
-    otherwise
+
+% both initial guess and best found solution are valid or invalid,
+% so all things equal, we choose the one with the lower stress
+if ((y0IsValid && yIsValid) || (~y0IsValid && ~yIsValid))
     
-        % the best valid solution we have found has this stress
-        sigmabest = min(sigma);
-
-        % we need stopCondition to be a cell array, so that we can add more
-        % strings to it
-        if ~iscell(stopCondition)
-            stopCondition = {stopCondition};
-        end
-
-        % possible cases comparing initial guess to solutions obtained by algorithm
-        
-        % both initial guess and best found solution are valid
-        if (y0IsValid && yIsValid)
-            
-            % if the best solution is worse than the initial guess, we return the
-            % initial guess
-            if (sigma0 <= sigmabest)
-                y = y0;
-                stopCondition{end+1} = 'Returned solution is initial guess';
-            else
-                stopCondition{end+1} = 'Returned solution is best solution found by algorithm';
-            end
-            
-            % only the initial guess was valid, but best found solution isn't
-        elseif (y0IsValid)
-            
-            % we return the initial guess
-            y = y0;
-            yIsValid = true;
-            stopCondition{end+1} = 'Returned solution is initial guess';
-            
-            % the best found solution is valid, but the initial guess wasn't
-        elseif (yIsValid)
-            
-            % we don't need to do anything. The best found solution will be
-            % returned
-            stopCondition{end+1} = 'Returned solution is best solution found by algorithm';
-            
-            % neither initial guess was valid nor valid solution was found
-        else
-            
-            % return array of NaNs
-            y = nan(size(y));
-            stopCondition{end+1} = 'No valid solution found';
-            
-        end
-        
+    % if the best solution is worse than the initial guess, we return the
+    % initial guess
+    if (sigma0 <= sigmasol)
+        y = y0;
+        stopCondition{end+1} = 'Returned solution is initial guess';
+    else
+        stopCondition{end+1} = 'Returned solution is best solution found by algorithm';
+    end
+    
+% only the initial guess was valid, but best found solution isn't
+elseif (y0IsValid)
+    
+    % we return the initial guess
+    y = y0;
+    yIsValid = true;
+    stopCondition{end+1} = 'Returned solution is initial guess';
+    
+% the best found solution is valid, but the initial guess wasn't
+elseif (yIsValid)
+    
+    % we don't need to do anything. The best found solution will be
+    % returned
+    stopCondition{end+1} = 'Returned solution is best solution found by algorithm';
+    
 end
 
 if (strcmp(sphparam_opts.Display, 'iter'))
