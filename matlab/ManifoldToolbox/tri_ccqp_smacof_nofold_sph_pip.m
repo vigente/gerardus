@@ -57,7 +57,7 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.2
+% Version: 0.2.3
 % $Rev$
 % $Date$
 %
@@ -243,7 +243,7 @@ for I = idxtricon
                     (-yj*zi+yi*zj)/6, k, ...
                     (xj*zi-xi*zj)/6, k, ...
                     (-xj*yi+xi*yj)/6, k, ...
-                    vmin + feastol * max(1, abs(vmin)));
+                    vmin + feastol * max([1, abs(vmin)]));
                 count = count + 1;
             end
             
@@ -256,7 +256,7 @@ for I = idxtricon
                     (-yj*zi+yi*zj)/6, k, ...
                     (xj*zi-xi*zj)/6, k, ...
                     (-xj*yi+xi*yj)/6, k, ...
-                    vmax - feastol * max(1, abs(vmax)));
+                    vmax - feastol * max([1, abs(vmax)]));
                 count = count + 1;
             end
             
@@ -295,7 +295,7 @@ for I = idxtricon
                     -xi/6, k, j, ...
                     -yi/6, j, k, ...
                     xi/6, j, k, ...
-                    vmin + feastol * max(1, abs(vmin)));
+                    vmin + feastol * max([1, abs(vmin)]));
                 count = count + 1;
             end
             
@@ -310,7 +310,7 @@ for I = idxtricon
                     -xi/6, k, j, ...
                     -yi/6, j, k, ...
                     xi/6, j, k, ...
-                    vmax - feastol * max(1, abs(vmax)));
+                    vmax - feastol * max([1, abs(vmax)]));
                 count = count + 1;
             end
             
@@ -333,7 +333,7 @@ for I = idxtricon
                     -1/6, i, k, j, ...
                     -1/6, j, i, k, ...
                     1/6, i, j, k, ...
-                    vmin + feastol * max(1, abs(vmin)));
+                    vmin + feastol * max([1, abs(vmin)]));
                 count = count + 1;
             end
             
@@ -348,7 +348,7 @@ for I = idxtricon
                     -1/6, i, k, j, ...
                     -1/6, j, i, k, ...
                     1/6, i, j, k, ...
-                    vmax - feastol * max(1, abs(vmax)));
+                    vmax - feastol * max([1, abs(vmax)]));
                 count = count + 1;
             end
             
