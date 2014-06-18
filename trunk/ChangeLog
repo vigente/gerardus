@@ -1,5 +1,41 @@
 2014-06-18  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/tri_sphparam.m (0.3.3)
+
+	- Fix general structure of the function so that it works with all
+	the methods. Now each method has to compute the stress of the
+	solution (sigmasol), because e.g. MDS uses a full distance matrix,
+	but constrained SMACOF uses sparse matrices. After exiting the
+	methods, common code can check whether the solution is valid
+	(yIsValid). Also, we take into account that some methods produce
+	sigma scalar, and others sigma cell array.
+
+	- When the initial guess is empty, give it sigma0 = Inf instead of
+	empty, so that the MDS method will always replace the intial guess
+	by the found solution.
+
+	- Stop checking self intersecting triangles to select tangled
+	vertices for constrained SMACOF, in addition to negative
+	areas. Now that the algorithm seems fixed, negative areas seem to
+	be enough, as they should.
+
+	- Fix bug in case 'smacof', 'consmacof-global',
+	'consmacof-local'. Input guess should be y0, not y, that doesn't
+	exist.
+
+	- In 'consmacof-local', the solution now updates only the free
+	vertices, and leaves the fixed vertices as they were
+	originally. This makes a difference when SCIP doesn't find a
+	solution, and it returns NaN for all the points coordinates.
+
+	- Fix bug. Run topology check only if the solution has no
+	NaN. Otherwise, it produces a segfault.
+
+	* matlab/PointsToolbox/cons_smacof_pip.m (0.4.2)
+
+	- Fix bug. If dx, dy are sparse matrices, sigma0 will be a sparse
+	scalar, and this gives an error with a fprintf() call.
+
 	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m (0.2.3)
 
 	- Fix bug. Bad syntax for max().
