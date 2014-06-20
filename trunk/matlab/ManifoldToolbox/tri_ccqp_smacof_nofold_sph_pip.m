@@ -17,8 +17,10 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 %
 %   R is a scalar with the sphere radius.
 %
-%   VMIN, VMAX are scalars with the minimum and maximum volume allowed for
-%   each output tetrahedron, respectively.
+%   VMIN, VMAX are the minimum and maximum volume allowed for each output
+%   tetrahedron. If they are scalars, then the same value is used for all
+%   tetrahedra. Otherwise, they must be column vectors, with one element
+%   per tetrahedron in the mesh.
 %
 %   BND is a cell array with the variable bounds in PIP format. E.g.
 %
@@ -57,7 +59,7 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.3
+% Version: 0.2.4
 % $Rev$
 % $Date$
 %
@@ -97,15 +99,25 @@ end
 if (~isscalar(R))
     error('R must be a scalar')
 end
-if (~isscalar(vmin))
-    error('VMIN must be a scalar')
-end
-if (~isscalar(vmax))
-    error('VMAX must be a scalar')
-end
 
-% number of vertices
+% number of vertices and triangles
 N = max(tri(:));
+Ntri = size(tri, 1);
+
+if (isscalar(vmin))
+    % same value for all tetrahedra
+    vmin = vmin(ones(Ntri, 1));
+end
+if (isscalar(vmax))
+    % same value for all tetrahedra
+    vmax = vmax(ones(Ntri, 1));
+end
+if (size(vmin, 1) ~= Ntri)
+    error('VMIN must be a scalar or a column vector with one element per triangle')
+end
+if (size(vmax, 1) ~= Ntri)
+    error('VMAX must be a scalar or a column vector with one element per triangle')
+end
 
 if (nargin < 5 || isempty(isFree))
     % if the user doesn't specify which vertices are free and which ones
@@ -125,9 +137,6 @@ isFree = isFree(:);
 if (length(isFree) ~= N)
     error('ISFREE must have one element per point in vertex in the mesh')
 end
-
-% number of triangles
-Ntri = size(tri, 1);
 
 if (any(~isFree))
     
@@ -236,27 +245,27 @@ for I = idxtricon
             
             % constraint with lower bound. Example:
             % c1: -2 x1 +3.23 x4 +1 x2 * x3 >= -1
-            if (vmin > -inf)
+            if (vmin(I) > -inf)
                 con{count} = sprintf( ...
                     ' c%d: %.15g x%d + %.15g y%d + %.15g z%d >= %.15g', ...
                     count-1, ...
                     (-yj*zi+yi*zj)/6, k, ...
                     (xj*zi-xi*zj)/6, k, ...
                     (-xj*yi+xi*yj)/6, k, ...
-                    vmin + feastol * max([1, abs(vmin)]));
+                    vmin(I) + feastol * max([1, abs(vmin(I))]));
                 count = count + 1;
             end
             
             % constraint with upper bound. Example:
             % c1: -2 x1 +3.23 x4 +1 x2 * x3 <= 2
-            if (vmax < inf)
+            if (vmax(I) < inf)
                 con{count} = sprintf( ...
                     ' c%d: %.15g x%d + %.15g y%d + %.15g z%d <= %.15g', ...
                     count-1, ...
                     (-yj*zi+yi*zj)/6, k, ...
                     (xj*zi-xi*zj)/6, k, ...
                     (-xj*yi+xi*yj)/6, k, ...
-                    vmax - feastol * max([1, abs(vmax)]));
+                    vmax(I) - feastol * max([1, abs(vmax(I))]));
                 count = count + 1;
             end
             
@@ -285,7 +294,7 @@ for I = idxtricon
             k = triloc(3);   % index of free vertex in the mesh
 
             % constraint with lower bound
-            if (vmin > -inf)
+            if (vmin(I) > -inf)
                 con{count} = sprintf( ...
                     ' c%d: %.15g x%d y%d + %.15g x%d y%d + %.15g x%d z%d + %.15g y%d z%d + %.15g x%d z%d + %.15g y%d z%d >= %.15g', ...
                     count-1, ...
@@ -295,12 +304,12 @@ for I = idxtricon
                     -xi/6, k, j, ...
                     -yi/6, j, k, ...
                     xi/6, j, k, ...
-                    vmin + feastol * max([1, abs(vmin)]));
+                    vmin(I) + feastol * max([1, abs(vmin(I))]));
                 count = count + 1;
             end
             
             % constraint with upper bound
-            if (vmax < inf)
+            if (vmax(I) < inf)
                 con{count} = sprintf( ...
                     ' c%d: %.15g x%d y%d + %.15g x%d y%d + %.15g x%d z%d + %.15g y%d z%d + %.15g x%d z%d + %.15g y%d z%d <= %.15g', ...
                     count-1, ...
@@ -310,7 +319,7 @@ for I = idxtricon
                     -xi/6, k, j, ...
                     -yi/6, j, k, ...
                     xi/6, j, k, ...
-                    vmax - feastol * max([1, abs(vmax)]));
+                    vmax(I) - feastol * max([1, abs(vmax(I))]));
                 count = count + 1;
             end
             
@@ -323,7 +332,7 @@ for I = idxtricon
             k = triloc(3);   % index of free vertex in the mesh
             
             % constraint with lower bound
-            if (vmin > -inf)
+            if (vmin(I) > -inf)
                 con{count} = sprintf( ...
                     ' c%d: %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d >= %.15g', ...
                     count-1, ...
@@ -333,12 +342,12 @@ for I = idxtricon
                     -1/6, i, k, j, ...
                     -1/6, j, i, k, ...
                     1/6, i, j, k, ...
-                    vmin + feastol * max([1, abs(vmin)]));
+                    vmin(I) + feastol * max([1, abs(vmin(I))]));
                 count = count + 1;
             end
             
             % constraint with upper bound
-            if (vmax > inf)
+            if (vmax(I) < inf)
                 con{count} = sprintf( ...
                     ' c%d: %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d + %.15g x%d y%d z%d <= %.15g', ...
                     count-1, ...
@@ -348,7 +357,7 @@ for I = idxtricon
                     -1/6, i, k, j, ...
                     -1/6, j, i, k, ...
                     1/6, i, j, k, ...
-                    vmax - feastol * max([1, abs(vmax)]));
+                    vmax(I) - feastol * max([1, abs(vmax(I))]));
                 count = count + 1;
             end
             
