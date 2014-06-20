@@ -1,5 +1,19 @@
 2014-06-20  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/tri_sphparam.m (0.3.5)
+
+	- Fix bug. As now we don't assing NaNs to vertices of local
+	components that cannot be untangled, we also need to change the
+	test in topology check to see whether a valid solution was
+	returned.
+
+	- Add note to the help header: Note that it seems that SCIP, or
+	maybe the way we input/output the problem to it causes small
+	tolerances in the constraints. E.g. if VMIN=1, we may get a
+	tetrahedron in the solution with volume 1-1e-5. This will be
+	detected by TopologyCheck as a violation of the constraint, but it
+	shouldn't be a problem in most cases.
+
 	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m (0.2.4)
 
 	- Allow VMIN, VMAX to be vectors so that we can pass different

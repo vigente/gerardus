@@ -103,7 +103,12 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %
 %     'TopologyCheck': (default false) Check that parametrization has no
 %                self-intersections and that all triangles have a positive
-%                orientation.
+%                orientation. Note that it seems that SCIP, or maybe the
+%                way we input/output the problem to it causes small
+%                tolerances in the constraints. E.g. if VMIN=1, we may get
+%                a tetrahedron in the solution with volume 1-1e-5. This
+%                will be detected by TopologyCheck as a violation of the
+%                constraint, but it shouldn't be a problem in most cases.
 %
 %     'volmin':  (default 0) Only used by constrained SMACOF methods.
 %                Minimum volume allowed to the oriented spherical
@@ -130,7 +135,7 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.4
+% Version: 0.3.5
 % $Rev$
 % $Date$
 %
@@ -550,7 +555,7 @@ switch method
             % optional check of the topology
             if (sphparam_opts.TopologyCheck)
                 
-                if (any(isnan(y(nn, :))))
+                if (any(isnan(aux(:))))
                     
                     warning(['Component ' num2str(C) ': no solution found'])
                     
