@@ -23,7 +23,9 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %                 problems).
 %
 %     'consmacof-local': Constrained SMACOF with local untangling of
-%                 connected vertices.
+%                 connected vertices. If the algorithm cannot find a way to
+%                 untangle a local component, it leaves its vertices
+%                 untouched.
 %
 %   Y is a 3-column matrix with the coordinates of the spherical
 %   parametrization of the mesh. Each row contains the (x,y,z)-coordinates
@@ -128,7 +130,7 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.3
+% Version: 0.3.4
 % $Rev$
 % $Date$
 %
@@ -529,17 +531,21 @@ switch method
             % recompute bounds and constraints for the spherical problem
             [con, bnd] ...
                 = tri_ccqp_smacof_nofold_sph_pip(trinn, ...
-                sphparam_opts.sphrad, sphparam_opts.volmin, ...
-                sphparam_opts.volmax, isFreenn, ynn);
+                sphparam_opts.sphrad, sphparam_opts.volmin(idxtrinn), ...
+                sphparam_opts.volmax(idxtrinn), isFreenn, ynn);
             
             % solve MDS problem with constrained SMACOF
             [aux, stopCondition{C}, sigma{C}, sigma0(C), t{C}] ...
                 = cons_smacof_pip(dnn, ynn, isFreenn, bnd, [], con, ...
                 smacof_opts, scip_opts);
             
-            % only free vertices can change in the solution
-            idx2 = find(nn);
-            y(idx2(isFreenn), :) = aux(isFreenn, :);
+            % only update the parametrization if we have found a valid
+            % solution
+            if (all(~isnan(aux(:))))
+                % update only the free vertices
+                idx2 = find(nn);
+                y(idx2(isFreenn), :) = aux(isFreenn, :);
+            end
             
             % optional check of the topology
             if (sphparam_opts.TopologyCheck)
@@ -550,19 +556,21 @@ switch method
                     
                 else
                     
-                    % assertion check: after untangling, the local neighbourhood cannot
-                    % produce self-intersections
+                    % assertion check: after untangling, the local
+                    % neighbourhood cannot produce self-intersections
                     if any(cgal_check_self_intersect(trinn, y(nn,:)))
                         warning(['Component ' num2str(C) ...
                             ' contains self-intersections after untangling'])
                     end
                     
-                    % assertion check: after untangling, volumes of all tetrahedra in the
-                    % local neighbourhood must be positive
+                    % assertion check: after untangling, volumes of all
+                    % tetrahedra in the local neighbourhood must be within
+                    % the volmin and volmax limits provided by the user
                     aux = sphtri_signed_vol(trinn,  y(nn, :));
-                    if any(aux < sphparam_opts.volmin | aux > sphparam_opts.volmax)
+                    if any(aux < sphparam_opts.volmin(idxtrinn) ...
+                            | aux > sphparam_opts.volmax(idxtrinn))
                         warning(['Component ' num2str(C) ...
-                            ' contains tetrahedra with volumes outside the constraint values'])
+                            ' contains tetrahedra with volumes outside the constraint boundaries'])
                     end
                     
                 end

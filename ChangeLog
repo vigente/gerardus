@@ -1,3 +1,21 @@
+2014-06-20  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m (0.2.4)
+
+	- Allow VMIN, VMAX to be vectors so that we can pass different
+	volume boundaries to each mesh tetrahedron.
+
+	- Fix bug. One of the constraints was never written because it had
+	if(vmax(I)>inf) instead of if(vmax(I)<inf).
+
+	* matlab/ManifoldToolbox/tri_sphparam.m (0.3.4)
+
+	- Adapt to change in tri_ccqp_smacof_nofold_sph_pip(). Now VMIN,
+	VMAX can be vectors.
+
+	- When a local component cannot be untangled, leave its vertices
+	untouched intead of converting them to NaN.
+
 2014-06-18  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/tri_sphparam.m (0.3.3)
