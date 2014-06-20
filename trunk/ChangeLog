@@ -1,5 +1,18 @@
 2014-06-20  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/tri_sphparam.m (0.3.6)
+
+	- Remove 'LocalConvexHull' option. It lets the algorithm move
+	vertices that belong to another tangled component, which causes
+	errors, as we don't recompute tangled vertices in each loop. Now
+	that the algorithm has been fixed, it doesn't seem necessary
+	either.
+
+	- Remove code that decided between the intial guess and the found
+	solution. For local constrained SMACOF, as we want to keep the
+	found solution even if its not valid, so that we can run the
+	algorithm again with different bounds.
+
 	* matlab/ManifoldToolbox/tri_sphparam.m (0.3.5)
 
 	- Fix bug. As now we don't assing NaNs to vertices of local
