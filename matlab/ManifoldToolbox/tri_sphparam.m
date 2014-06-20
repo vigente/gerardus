@@ -119,12 +119,6 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %     'volmax':  (default Inf) Only used by constrained SMACOF methods.
 %                Maximum volume of the output tetrahedra (see 'volmin').
 %
-%     'LocalConvexHull': (default true) Only used by 'consmacof-local' 
-%                method. When a local neighbourhood is tangled, untangle
-%                the convex hull that contains it. The reason is that
-%                untangling a convex domain is simpler, and it produces
-%                better quality solutions.
-%
 %   SMACOF_OPTS is a struct with parameters to tweak the SMACOF algorithm.
 %   See cons_smacof_pip for details.
 %
@@ -135,7 +129,7 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.5
+% Version: 0.3.6
 % $Rev$
 % $Date$
 %
@@ -206,9 +200,6 @@ if (~isfield(sphparam_opts, 'volmax'))
 end
 if (~isfield(sphparam_opts, 'Display'))
     sphparam_opts.Display = 'none';
-end
-if (~isfield(sphparam_opts, 'LocalConvexHull'))
-    sphparam_opts.LocalConvexHull = true;
 end
 if (~isfield(sphparam_opts, 'TopologyCheck'))
     sphparam_opts.TopologyCheck = false;
@@ -345,15 +336,8 @@ switch method
         % sigma = sum(sum(w .* (d - dmatrix(y')).^2));
         sigma = sum(sum((d - dmatrix(y')).^2));
         
-        % this is also the "best stress found" in the context of the
-        % implementation of tri_sphparam(), which has to deal with
-        % different algorithms, some of which return sigma as a vector, or
-        % sigma as a cell array of vectors
-        sigmasol = sigma;
-        
-        % initial guess is empty; we assign Inf stress to it, so that the
-        % result of MDS will be chosen as the output
-        sigma0 = Inf;
+        % initial guess is empty; we assign [] stress to it
+        sigma0 = [];
        
         % time for initial parametrization
         t = toc;
@@ -379,9 +363,6 @@ switch method
         % w = double(d ~= 0);
         % sigma0 = sum(sum(w .* (d - dmatrix_con(w, y0)).^2));
         sigma0 = sum(sum((d - dmatrix_con(d, y0)).^2));
-        
-        % stress of the SMACOF solution projected on the sphere
-        sigmasol = sum(sum((d - dmatrix_con(d, y)).^2));
         
     %% Constrained SMACOF, global optimization
     case 'consmacof-global'
@@ -476,35 +457,6 @@ switch method
             % the connected component by graphcc()
             nn = full(isFreenn' | (sum(dcon(isFreenn, :), 1) > 0))';
             
-            % Local Convex Hull block:
-            % This code snippet converts the local neighbourhood to the
-            % convex hull of the local neighbourhood. Untangling a convex
-            % local neighbourhood should be easier than a non-convex, but
-            % it also involves more vertices
-            if (sphparam_opts.LocalConvexHull)
-                
-                % mean point of the local neighbourhood
-                [latnnm, lonnnm] = meanm(lat(nn), lon(nn), 'radians');
-                ynnm = [0 0 0]';
-                [ynnm(1), ynnm(2), ynnm(3)] = sph2cart(lonnnm, latnnm, sphparam_opts.sphrad);
-                
-                % rotation matrix to take the centroid to lat=0, lon=0
-                rot = vrrotvec2mat([cross(ynnm, [1 0 0]'); ...
-                    acos(dot(ynnm/norm(ynnm), [1 0 0]'))]);
-                
-                % rotate all vertices so that the local neighbourhood is centered
-                % around (0,0)
-                yrot = (rot * y0')';
-                
-                % convert to spherical coordinates
-                [lonrot, latrot] = cart2sph(yrot(:, 1), yrot(:, 2), yrot(:, 3));
-                
-                % update the local neighbourhood so that the local neighbourhood is
-                % the convex hull
-                nn = nn | inhull([lonrot, latrot], [lonrot(nn), latrot(nn)]);
-                
-            end
-            
             % triangles that triangulate the local neighbourhood
             idxtrinn = sum(ismember(tri, find(nn)), 2) == 3;
             trinn = tri(idxtrinn, :);
@@ -592,91 +544,25 @@ switch method
             
         end
         
-        % check whether solution is valid
-        yIsValid = all(~isnan(y(:))) ...
-            && all(sphtri_signed_vol(tri, y) >= 0);
-        
-        if (yIsValid)
-            
-            % compute stress of returned solution
-            dy = dmatrix_mesh(tri, y);
-            sigmasol = full(sum(sum(dcon .* (d - dy).^2)));
-            
-        else
-            
-            % if the solution found by SMACOF is invalid, we give it an Inf
-            % stress value
-            sigmasol = Inf;
-            
-        end
-        
-        % discard vector of initial stress for each tangled component, and
-        % replace by stress of initial guess
-        sigma0 = full(sum(sum(dcon .* (d - dmatrix_mesh(tri, y0)).^2)));
-
-
     otherwise
         error(['Unknown parametrization method: ' method])
 end
 
 %% choose what to return: initial guess or best solution found
 
-% we need stopCondition to be a cell array, so that we can add more
-% strings to it
+% for uniformity, return stopCondition always as a cell array, even if it
+% has only one component
 if ~iscell(stopCondition)
     stopCondition = {stopCondition};
 end
         
-% check whether initial guess and found solution is valid
-yIsValid = all(sphtri_signed_vol(tri, y) > 0);
-
-% if the initial guess was better than the found solution, we have to give
-% it as the output
-
-% both initial guess and best found solution are valid or invalid,
-% so all things equal, we choose the one with the lower stress
-if ((y0IsValid && yIsValid) || (~y0IsValid && ~yIsValid))
-    
-    % if the best solution is worse than the initial guess, we return the
-    % initial guess
-    if (sigma0 <= sigmasol)
-        y = y0;
-        stopCondition{end+1} = 'Returned solution is initial guess';
-    else
-        stopCondition{end+1} = 'Returned solution is best solution found by algorithm';
-    end
-    
-% only the initial guess was valid, but best found solution isn't
-elseif (y0IsValid)
-    
-    % we return the initial guess
-    y = y0;
-    yIsValid = true;
-    stopCondition{end+1} = 'Returned solution is initial guess';
-    
-% the best found solution is valid, but the initial guess wasn't
-elseif (yIsValid)
-    
-    % we don't need to do anything. The best found solution will be
-    % returned
-    stopCondition{end+1} = 'Returned solution is best solution found by algorithm';
-    
-end
-
-if (strcmp(sphparam_opts.Display, 'iter'))
-    if (yIsValid)
-        fprintf('\t Returned parametrization is valid\n')
-    else
-        fprintf('\t Returned parametrization is invalid\n')
-    end
-    fprintf('... Parametrization done. Total time: %.4e (sec)\n', toc)
-end
+% check whether found solution is valid
+yIsValid = all(~isnan(y(:))) && all(sphtri_signed_vol(tri, y) > 0);
 
 % DEBUG: plot parametrization solution
 % hold off
 % trisurf(tri, y(:, 1), y(:, 2), y(:, 3))
 % axis equal
-
 
 %% assertion check for self-intersections or negative tetrahedra
 
@@ -708,7 +594,6 @@ if (yIsValid && sphparam_opts.TopologyCheck)
 end
 
 end
-
 
 %% Auxiliary functions
 
