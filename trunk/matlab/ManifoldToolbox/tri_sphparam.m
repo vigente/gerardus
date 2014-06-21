@@ -25,7 +25,15 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %     'consmacof-local': Constrained SMACOF with local untangling of
 %                 connected vertices. If the algorithm cannot find a way to
 %                 untangle a local component, it leaves its vertices
-%                 untouched.
+%                 untouched. This method is parallelized. To take advantage
+%                 of multiple threads, before running this function:
+%
+%                 % activate pool of workers
+%                 matlabpool
+%
+%                 % select number of parallel threads
+%                 myCluster = parcluster();
+%                 myCluster.NumWorkers = 6;
 %
 %   Y is a 3-column matrix with the coordinates of the spherical
 %   parametrization of the mesh. Each row contains the (x,y,z)-coordinates
@@ -125,11 +133,12 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %   SCIP_OPTS is a struct with parameters to tweak the SCIP algorithm. See
 %   cons_smacof_pip for details.
 %
+%
 % See also: cmdscale, cons_smacof_pip, qcqp_smacof.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.6
+% Version: 0.4.0
 % $Rev$
 % $Date$
 %
@@ -435,79 +444,74 @@ switch method
         sigma = cell(1, Ncomp);
         sigma0 = zeros(1, Ncomp);
         t = cell(1, Ncomp);
+        aux = cell(1, Ncomp);
+        isFreenn = cell(1, Ncomp);
+        nn = cell(1, Ncomp);
         
         %% Untangle parametrization: untangle clusters of tangled vertices, one by
         %% one
         
         % untangle each component separately
         y = y0;
-        for C = 1:Ncomp
+        parfor C = 1:Ncomp
             
             if (strcmp(sphparam_opts.Display, 'iter'))
                 fprintf('** Untangling component %d/%d\n', C, Ncomp)
             end
             
             % start the local neighbourhood with the free vertices
-            isFreenn = false(N, 1);
-            isFreenn(cc{C}) = true;
+            isFreenn{C} = false(N, 1);
+            isFreenn{C}(cc{C}) = true;
             
             % add to the local neighbourhood all the neighbours of the free
             % vertices. Note that these neighbours are going to be fixed,
             % because if they were free, they would have been included in
             % the connected component by graphcc()
-            nn = full(isFreenn' | (sum(dcon(isFreenn, :), 1) > 0))';
+            nn{C} = full(isFreenn{C}' | (sum(dcon(isFreenn{C}, :), 1) > 0))';
             
             % triangles that triangulate the local neighbourhood
-            idxtrinn = sum(ismember(tri, find(nn)), 2) == 3;
+            idxtrinn = sum(ismember(tri, find(nn{C})), 2) == 3;
             trinn = tri(idxtrinn, :);
             
             % at this point, it's possible that the local triangulation
             % doesn't contain all the vertices in the local neighbourhood.
             % Thus, we drop isolated vertices that don't have an associated
             % triangle
-            nn(:) = false;
-            nn(unique(trinn)) = true;
+            nn{C}(:) = false;
+            nn{C}(unique(trinn)) = true;
             
             % boundary of the triangulation. We are looking for edges that
             % appear only once in the triangulation. Those edges form the
             % boundary.
             edgenn = sort([trinn(:, 1:2); trinn(:, 2:3); trinn(:, [3 1])], 2);
-            [aux, ~, idx] = unique(edgenn, 'rows');
+            [edgeaux, ~, idx] = unique(edgenn, 'rows');
             idx = hist(idx, 1:max(idx));
-            vedgenn = unique(aux(idx == 1, :));
+            vedgenn = unique(edgeaux(idx == 1, :));
             
             % to speed things up, we want to pass to SMACOF a subproblem
             % created only from the local neighbourhood. Here, we create
             % the local neighbourhood variables for convenience
-            isFreenn = true(N, 1);
-            isFreenn(vedgenn) = false;
-            isFreenn = isFreenn(nn);
+            isFreenn{C} = true(N, 1);
+            isFreenn{C}(vedgenn) = false;
+            isFreenn{C} = isFreenn{C}(nn{C});
             [trinn, ynn] = tri_squeeze(trinn, y0);
-            dnn = d(nn, nn);
+            dnn = d(nn{C}, nn{C});
             
             % recompute bounds and constraints for the spherical problem
             [con, bnd] ...
                 = tri_ccqp_smacof_nofold_sph_pip(trinn, ...
                 sphparam_opts.sphrad, sphparam_opts.volmin(idxtrinn), ...
-                sphparam_opts.volmax(idxtrinn), isFreenn, ynn);
+                sphparam_opts.volmax(idxtrinn), isFreenn{C}, ynn);
             
             % solve MDS problem with constrained SMACOF
-            [aux, stopCondition{C}, sigma{C}, sigma0(C), t{C}] ...
-                = cons_smacof_pip(dnn, ynn, isFreenn, bnd, [], con, ...
+            [aux{C}, stopCondition{C}, sigma{C}, sigma0(C), t{C}] ...
+                = cons_smacof_pip(dnn, ynn, isFreenn{C}, bnd, [], con, ...
                 smacof_opts, scip_opts);
-            
-            % only update the parametrization if we have found a valid
-            % solution
-            if (all(~isnan(aux(:))))
-                % update only the free vertices
-                idx2 = find(nn);
-                y(idx2(isFreenn), :) = aux(isFreenn, :);
-            end
-            
+
             % optional check of the topology
             if (sphparam_opts.TopologyCheck)
                 
-                if (any(isnan(aux(:))))
+                if (any(isnan(aux{C}(:))))
                     
                     warning(['Component ' num2str(C) ': no solution found'])
                     
@@ -515,7 +519,7 @@ switch method
                     
                     % assertion check: after untangling, the local
                     % neighbourhood cannot produce self-intersections
-                    if any(cgal_check_self_intersect(trinn, y(nn,:)))
+                    if any(cgal_check_self_intersect(trinn, y(nn{C},:)))
                         warning(['Component ' num2str(C) ...
                             ' contains self-intersections after untangling'])
                     end
@@ -523,9 +527,9 @@ switch method
                     % assertion check: after untangling, volumes of all
                     % tetrahedra in the local neighbourhood must be within
                     % the volmin and volmax limits provided by the user
-                    aux = sphtri_signed_vol(trinn,  y(nn, :));
-                    if any(aux < sphparam_opts.volmin(idxtrinn) ...
-                            | aux > sphparam_opts.volmax(idxtrinn))
+                    vol = sphtri_signed_vol(trinn,  y(nn{C}, :));
+                    if any(vol < sphparam_opts.volmin(idxtrinn) ...
+                            | vol > sphparam_opts.volmax(idxtrinn))
                         warning(['Component ' num2str(C) ...
                             ' contains tetrahedra with volumes outside the constraint boundaries'])
                     end
@@ -533,9 +537,6 @@ switch method
                 end
                 
             end
-            
-            % update spherical coordinates of new points
-            [lon(nn), lat(nn)] = cart2sph(y(nn, 1), y(nn, 2), y(nn, 3));
             
             if (strcmp(sphparam_opts.Display, 'iter'))
                 fprintf('... Component %d/%d done. Time: %.4e\n', C, Ncomp, toc)
@@ -548,7 +549,24 @@ switch method
         error(['Unknown parametrization method: ' method])
 end
 
-%% choose what to return: initial guess or best solution found
+%% check solutions
+
+for C = 1:Ncomp
+    
+    % only update the parametrization if we have found a valid
+    % solution
+    if (all(~isnan(aux{C}(:))))
+        
+        % update only the free vertices
+        idx = find(nn{C});
+        y(idx(isFreenn{C}), :) = aux{C}(isFreenn{C}, :);
+    
+        % update spherical coordinates of new points
+        [lon(idx), lat(idx)] = cart2sph(y(idx, 1), y(idx, 2), y(idx, 3));
+        
+    end
+    
+end
 
 % for uniformity, return stopCondition always as a cell array, even if it
 % has only one component
