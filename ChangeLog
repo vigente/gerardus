@@ -1,3 +1,10 @@
+2014-06-21  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_sphparam.m (0.4.0)
+
+	- Parallelize the consmacof-local method converting the for loop
+	that untangles each connected component into a parfor loop.
+
 2014-06-20  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/tri_sphparam.m (0.3.6)
