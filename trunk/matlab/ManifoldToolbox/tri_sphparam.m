@@ -109,14 +109,20 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %     'Display': (default = 'off') Do not display any internal information.
 %                'iter': display internal information at every iteration.
 %
-%     'TopologyCheck': (default false) Check that parametrization has no
-%                self-intersections and that all triangles have a positive
-%                orientation. Note that it seems that SCIP, or maybe the
-%                way we input/output the problem to it causes small
-%                tolerances in the constraints. E.g. if VMIN=1, we may get
-%                a tetrahedron in the solution with volume 1-1e-5. This
-%                will be detected by TopologyCheck as a violation of the
-%                constraint, but it shouldn't be a problem in most cases.
+%     'TopologyCheck': (default false, 'consmacof-local' only) Check that
+%                parametrization has no self-intersections and that all
+%                triangles have a positive orientation. Note that it seems
+%                that SCIP, or maybe the way we input/output the problem to
+%                it causes small tolerances in the constraints. E.g. if
+%                VMIN=1, we may get a tetrahedron in the solution with
+%                volume 1-1e-5. This will be detected by TopologyCheck as a
+%                violation of the constraint, but it shouldn't be a problem
+%                in most cases. Note also that some triangles will have all
+%                vertices fixed in the local neighbourhood. If their volume
+%                is outside the range provided by the user, this will
+%                always trigger a warning, as the algorithm cannot move
+%                fixed vertices, and thus the volume cannot be changed to
+%                fit within the constraint either.
 %
 %     'volmin':  (default 0) Only used by constrained SMACOF methods.
 %                Minimum volume allowed to the oriented spherical
@@ -138,7 +144,7 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % $Rev$
 % $Date$
 %
@@ -269,7 +275,7 @@ else
         
         % if initial guess is provided, make sure that it corresponds to
         % points on the sphere surface
-        if any(abs(sqrt(sum(y0.^2, 2)) - sphparam_opts.sphrad) > 1e-10)
+        if any(abs(sqrt(sum(y0.^2, 2)) - sphparam_opts.sphrad) > 1e-8)
             error(['Initial guess points are not on a sphere of radius ' num2str(sphparam_opts.sphrad)])
         end
         
@@ -459,40 +465,16 @@ switch method
                 fprintf('** Untangling component %d/%d\n', C, Ncomp)
             end
             
-            % start the local neighbourhood with the free vertices
-            isFreenn{C} = false(N, 1);
-            isFreenn{C}(cc{C}) = true;
-            
-            % add to the local neighbourhood all the neighbours of the free
-            % vertices. Note that these neighbours are going to be fixed,
-            % because if they were free, they would have been included in
-            % the connected component by graphcc()
-            nn{C} = full(isFreenn{C}' | (sum(dcon(isFreenn{C}, :), 1) > 0))';
-            
-            % triangles that triangulate the local neighbourhood
-            idxtrinn = sum(ismember(tri, find(nn{C})), 2) == 3;
-            trinn = tri(idxtrinn, :);
-            
-            % at this point, it's possible that the local triangulation
-            % doesn't contain all the vertices in the local neighbourhood.
-            % Thus, we drop isolated vertices that don't have an associated
-            % triangle
-            nn{C}(:) = false;
-            nn{C}(unique(trinn)) = true;
-            
-            % boundary of the triangulation. We are looking for edges that
-            % appear only once in the triangulation. Those edges form the
-            % boundary.
-            edgenn = sort([trinn(:, 1:2); trinn(:, 2:3); trinn(:, [3 1])], 2);
-            [edgeaux, ~, idx] = unique(edgenn, 'rows');
-            idx = hist(idx, 1:max(idx));
-            vedgenn = unique(edgeaux(idx == 1, :));
+            % get local neighbourhood for the connected free vertex
+            % component
+            [nn{C}, trinn, idxtrinn] ...
+                = get_local_neighbourhood(tri, y, dcon, cc{C});
             
             % to speed things up, we want to pass to SMACOF a subproblem
             % created only from the local neighbourhood. Here, we create
             % the local neighbourhood variables for convenience
-            isFreenn{C} = true(N, 1);
-            isFreenn{C}(vedgenn) = false;
+            isFreenn{C} = false(N, 1);
+            isFreenn{C}(cc{C}) = true;
             isFreenn{C} = isFreenn{C}(nn{C});
             [trinn, ynn] = tri_squeeze(trinn, y0);
             dnn = d(nn{C}, nn{C});
@@ -524,14 +506,27 @@ switch method
                             ' contains self-intersections after untangling'])
                     end
                     
+                    % triangles in the local neighbourhood that have at
+                    % least a free vertex. These are the only ones that the
+                    % algorithm can change. The rest remain fixed
+                    trifree = sum(isFreenn{C}(trinn), 2) > 0;
+                    
                     % assertion check: after untangling, volumes of all
                     % tetrahedra in the local neighbourhood must be within
                     % the volmin and volmax limits provided by the user
                     vol = sphtri_signed_vol(trinn,  y(nn{C}, :));
-                    if any(vol < sphparam_opts.volmin(idxtrinn) ...
-                            | vol > sphparam_opts.volmax(idxtrinn))
+                    vol = sphtri_signed_vol(trinn,  aux{C});
+                    volmin = sphparam_opts.volmin(idxtrinn);
+                    volmax = sphparam_opts.volmax(idxtrinn);
+                    if any(vol(trifree) < volmin(trifree) ...
+                            | vol(trifree) > volmax(trifree))
                         warning(['Component ' num2str(C) ...
-                            ' contains tetrahedra with volumes outside the constraint boundaries'])
+                            ': Solution found by algorithm hasn''t been able to force all tetrahedra with free vertices within volume constraints'])
+                    end
+                    if any(vol(~trifree) < volmin(~trifree) ...
+                            | vol(~trifree) > volmax(~trifree))
+                        warning(['Component ' num2str(C) ...
+                            ': At least one of the tetrahedra with only fixed vertices has a volume outside the constraints provided by the user'])
                     end
                     
                 end
@@ -625,5 +620,82 @@ atot = sum(a);
 
 % estimate radius of parameterization sphere
 sphrad = sqrt(atot/4/pi);
+
+end
+
+% Starting from a set of connected free vertices, compute the associated
+% local neighbourhood. We want all the free vertices surrounded by a layer
+% of fixed vertices, and that the neighbourhood has no holes.
+function [nn, trinn, idxtrinn] = get_local_neighbourhood(tri, y, dcon, vfree)
+
+% number of vertices
+N = size(dcon, 1);
+
+% start the local neighbourhood with the free vertices
+isFreenn = false(N, 1);
+isFreenn(vfree) = true;
+
+% add to the local neighbourhood all the neighbours of the free
+% vertices. Note that these neighbours are going to be fixed,
+% because if they were free, they would have been included in
+% the connected component by graphcc()
+nn = full(isFreenn' | (sum(dcon(isFreenn, :), 1) > 0))';
+
+% it is possible to have a triangular hole in the neighbourhood
+% now. E.g. Let some connected free vertices have as NNs three
+% fixed vertices connected like p1-p2, p2-p3, p3-p1. It looks
+% like they form a triangle, but this "triangle" may not exist
+% in the mesh. Instead, it is possible that there's a fourth
+% vertex p4 "in the middle": p1-p4, p2-p4, p3-p4. This vertex
+% p4 is not in the list of NNs because it's at distance 2 from
+% any free vertex, but without it, the neighbourhood has a
+% hole. Note that p4 could be a vertex or set of vertices. As
+% long as they are "inside" p1-p2-p3, they won't have been
+% picked up as part of the neighbourhood, leaving holes in it
+
+% remove from the adjacency matrix "dcon" the connections of the vertices
+% selected so far
+dless = dcon;
+dless(nn, :) = 0;
+dless(:, nn) = 0;
+
+% vertices with no connections that haven't been selected belong in the
+% local neighbourhood too: those are vertices that were only connected to
+% neighbourhood vertices. When removing the connections, they appear
+% orphan. These missing orphan vertices are one of the causes for holes in
+% the neighbourhood
+idx = sum(dless, 2) == 0; % orphan + nn vertices
+nn(idx) = true;
+
+% find groups of connected vertices. The idea is that because we have
+% removed all vertices in the neighbourhood from the graph, the remaining
+% will be vertices "outside" or "inside" holes in the neighbourhood
+[~, cc] = graphcc(dless);
+
+% the largest connected component is everything "outside" the local
+% neighbourhood. Any other component will correspond to vertices that are
+% "inside" the local neighbourhood, but at distance >=2 from the free
+% vertices. This is the other cause for holes in the neighbourhood
+[~, idx] = max(arrayfun(@length, cc));
+
+% add the other components to the neighbourhood
+nn([cc{[1:idx-1 idx+1:end]}]) = true;
+
+% triangles that triangulate the local neighbourhood
+idxtrinn = sum(ismember(tri, find(nn)), 2) == 3;
+trinn = tri(idxtrinn, :);
+
+% make sure that there are no orphan vertices
+if (~isempty(setdiff(find(nn), unique(trinn))))
+    error('Assertion fail: There are orphan vertices that have no triangle associated')
+end
+
+% % vertices on the boundary of the triangulation. We are looking for edges
+% % that appear only once in the triangulation. Those edges form the
+% % boundary
+% edgenn = sort([trinn(:, 1:2); trinn(:, 2:3); trinn(:, [3 1])], 2);
+% [edgeaux, ~, idx] = unique(edgenn, 'rows');
+% idx = hist(idx, 1:max(idx));
+% nnedge = unique(edgeaux(idx == 1, :));
 
 end
