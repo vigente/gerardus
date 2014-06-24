@@ -1,3 +1,16 @@
+2014-06-24  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_sphparam.m (0.4.2)
+
+	- Add option sphparam_opts.AllInnerVerticesAreFree. For local
+	SMACOF only, this allows to recompute the free vertices in each
+	local neighbourhood. When the option is set to true, then in each
+	local neighbourhood we find the boundary, and then all the
+	vertices inside are considered to be free. This option makes local
+	neighbourhoods more "convex", and can help solve difficult
+	ones. On the other hand, it increases the number of free vertices,
+	which implies solving larger problems.
+
 2014-06-22  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/tri_sphparam.m (0.4.1)
