@@ -124,13 +124,26 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %                fixed vertices, and thus the volume cannot be changed to
 %                fit within the constraint either.
 %
-%     'volmin':  (default 0) Only used by constrained SMACOF methods.
+%     'AllInnerVerticesAreFree': (default false, 'consmacof-local' only).
+%                In each tangled local neighbourhood, find the external
+%                boundary (formed by fixed vertices). All vertices not on
+%                the boundary are treated as free, even if they were
+%                originally fixed. This option makes local neighbourhoods
+%                more "convex", and can help solve difficult ones. On the
+%                other hand, it increases the number of free vertices,
+%                which implies solving larger problems. For complex meshes,
+%                the best approach is to first run the algorithm with this
+%                option set to "false", and if some local neighbourhood
+%                cannot be untangled, pass the mesh again with this option
+%                set to "true".
+%
+%     'volmin':  (default 0, constrained SMACOF methods only).
 %                Minimum volume allowed to the oriented spherical
 %                tetrahedra at the output, formed by the triangles and the
 %                centre of the sphere. Note that if volmin>0, then all
 %                output triangles have outwards-pointing normals.
 %
-%     'volmax':  (default Inf) Only used by constrained SMACOF methods.
+%     'volmax':  (default Inf, constrained SMACOF methods only).
 %                Maximum volume of the output tetrahedra (see 'volmin').
 %
 %   SMACOF_OPTS is a struct with parameters to tweak the SMACOF algorithm.
@@ -144,7 +157,7 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.4.1
+% Version: 0.4.2
 % $Rev$
 % $Date$
 %
@@ -218,6 +231,9 @@ if (~isfield(sphparam_opts, 'Display'))
 end
 if (~isfield(sphparam_opts, 'TopologyCheck'))
     sphparam_opts.TopologyCheck = false;
+end
+if (~isfield(sphparam_opts, 'AllInnerVerticesAreFree'))
+    sphparam_opts.AllInnerVerticesAreFree = false;
 end
 
 % smacof_opts defaults
@@ -467,8 +483,9 @@ switch method
             
             % get local neighbourhood for the connected free vertex
             % component
-            [nn{C}, trinn, idxtrinn] ...
-                = get_local_neighbourhood(tri, y, dcon, cc{C});
+            [nn{C}, trinn, idxtrinn, cc{C}] ...
+                = get_local_neighbourhood(tri, y, dcon, cc{C}, ...
+                sphparam_opts.AllInnerVerticesAreFree);
             
             % to speed things up, we want to pass to SMACOF a subproblem
             % created only from the local neighbourhood. Here, we create
@@ -626,7 +643,7 @@ end
 % Starting from a set of connected free vertices, compute the associated
 % local neighbourhood. We want all the free vertices surrounded by a layer
 % of fixed vertices, and that the neighbourhood has no holes.
-function [nn, trinn, idxtrinn] = get_local_neighbourhood(tri, y, dcon, vfree)
+function [nn, trinn, idxtrinn, vfree] = get_local_neighbourhood(tri, y, dcon, vfree, RECOMPUTE_FREE_VERTICES)
 
 % number of vertices
 N = size(dcon, 1);
@@ -690,12 +707,22 @@ if (~isempty(setdiff(find(nn), unique(trinn))))
     error('Assertion fail: There are orphan vertices that have no triangle associated')
 end
 
-% % vertices on the boundary of the triangulation. We are looking for edges
-% % that appear only once in the triangulation. Those edges form the
-% % boundary
-% edgenn = sort([trinn(:, 1:2); trinn(:, 2:3); trinn(:, [3 1])], 2);
-% [edgeaux, ~, idx] = unique(edgenn, 'rows');
-% idx = hist(idx, 1:max(idx));
-% nnedge = unique(edgeaux(idx == 1, :));
+if (RECOMPUTE_FREE_VERTICES)
+    
+    % vertices on the boundary of the triangulation. We are looking for edges
+    % that appear only once in the triangulation. Those edges form the
+    % boundary
+    edgenn = sort([trinn(:, 1:2); trinn(:, 2:3); trinn(:, [3 1])], 2);
+    [edgeaux, ~, idx] = unique(edgenn, 'rows');
+    idx = hist(idx, 1:max(idx));
+    nnedge = unique(edgeaux(idx == 1, :));
+    
+    % reset the neighbourhood: now free vertices are all vertices not on the
+    % boundary
+    isFreenn = nn;
+    isFreenn(nnedge) = false;
+    vfree = find(isFreenn)';
+    
+end
 
 end
