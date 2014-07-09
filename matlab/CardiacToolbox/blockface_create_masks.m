@@ -72,12 +72,15 @@ if (N == 0)
     return
 end
 
-% size of the images
+% load the first image, so that we know the number of rows and columns in
+% the blockface volume
 im = imread([pathstr filesep file(1).name]);
+
+% initialize matrix to keep the average image
+immean = zeros(size(im, 1), size(im, 2));
 
 % compute an average of the slice intensities, that the user can employ as
 % a guide to draw the masks
-immean = zeros(size(im, 1), size(im, 2));
 for I = 1:N
     
     % load image from file
