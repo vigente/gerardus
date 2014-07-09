@@ -1,5 +1,18 @@
 2014-07-09  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CardiacToolbox/blockface_equalise_illumination.m (0.3.0)
+
+	- Changes in the method. After estimating block surface
+	illumination, crop out too little or large illumination
+	values. They correspond to interpolation artifacts on the edges,
+	and produce a bad equalisation.
+
+	- After equalisation, rescale intensity range so that it matches
+	intensity range of the original image.
+
+	- Convert equalised image from double to the type of the input
+	image.
+
 	* Rename matlab/CardiacToolbox/equalise_blockface_illumination.m
 	as matlab/CardiacToolbox/blockface_equalise_illumination.m (0.2.0)
 
