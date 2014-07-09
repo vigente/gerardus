@@ -1,5 +1,10 @@
 2014-07-09  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CardiacToolbox/blockface_imread_gray.m (0.1.1)
+
+	- Output image volume is now the same class of the images in the
+	files, instead of double.
+
 	* matlab/CardiacToolbox/blockface_equalise_illumination.m (0.3.0)
 
 	- Changes in the method. After estimating block surface

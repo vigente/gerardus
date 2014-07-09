@@ -14,7 +14,7 @@ function im = blockface_imread_gray(file_expr)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -65,7 +65,7 @@ end
 im = imread([pathstr filesep file(1).name]);
 
 % initialize matrix to keep the blockface volume
-im = zeros(size(im, 1), size(im, 2), N);
+im = zeros(size(im, 1), size(im, 2), N, class(im));
 
 % loop image files
 for I = 1:N
