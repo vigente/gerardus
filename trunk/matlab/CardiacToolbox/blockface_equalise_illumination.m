@@ -1,4 +1,4 @@
-function [imeq, illu] = blockface_equalise_illumination(im, polymask, ellipmask, ratio, thr, radheart, radpoly)
+function [im, illu] = blockface_equalise_illumination(im, polymask, ellipmask, ratio, thr, radheart, radpoly)
 % BLOCKFACE_EQUALISE_ILLUMINATION  Correct illumination inhomogeneities in
 % blockface photography.
 %
@@ -86,7 +86,7 @@ function [imeq, illu] = blockface_equalise_illumination(im, polymask, ellipmask,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.3.0
 % $Rev$
 % $Date$
 %
@@ -114,7 +114,7 @@ function [imeq, illu] = blockface_equalise_illumination(im, polymask, ellipmask,
 % along with this program.  If not, see
 % <http://www.gnu.org/licenses/>.
 
-DEBUG = false;
+DEBUG = 0;
 
 % check arguments
 narginchk(3, 7);
@@ -202,13 +202,39 @@ if (DEBUG)
     imagesc(illusmall)
 end
 
-
 % resize illumination to the full resolution
 illu = imresize(illusmall, size(im));
 illu(isnan(illu)) = Inf;
 
+% get illumination values at 1% and 99%, and median
+idx = ~isinf(illu);
+imin = quantile(illu(idx), .01);
+imedian = quantile(illu(idx), .5);
+imax = quantile(illu(idx), .99);
+
+% crop extreme illumination values
+illu(illu < imin) = imin;
+illu(illu > imax & ~isinf(illu)) = imax;
+
 % equalise illumination
 imeq = double(im) ./ illu;
+
+% intensity range in the equalised image
+imeqmin = quantile(double(imeq(idx)), .01);
+imeqmax = quantile(double(imeq(idx)), .99);
+
+% intensity range in the original image
+immin = quantile(double(im(idx)), .01);
+immax = quantile(double(im(idx)), .99);
+
+% scale equalised image intensity levels so that they match those of the
+% original image
+imeq(idx) = (imeq(idx) - imeqmin) / (imeqmax - imeqmin);
+imeq(idx) = imeq(idx) * (immax - immin) + immin;
+
+% convert to the original image pixel type (this will possibly crop some
+% intensity values at the top of the range, but it will be only a few)
+im(:) = imeq(:);
 
 % plot illumination profiles
 if (DEBUG)
