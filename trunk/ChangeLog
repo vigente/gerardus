@@ -1,5 +1,8 @@
 2014-07-09  Ramon Casero  <rcasero@gmail.com>
 
+	* Rename matlab/CardiacToolbox/equalise_blockface_illumination.m
+	as matlab/CardiacToolbox/blockface_equalise_illumination.m (0.2.0)
+
 	* Add matlab/CardiacToolbox/blockface_imread_gray.m (0.1.0)
 
 	- BLOCKFACE_IMREAD_GRAY Read multiple image files into grayscale
