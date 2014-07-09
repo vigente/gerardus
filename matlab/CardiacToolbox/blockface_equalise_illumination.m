@@ -1,5 +1,5 @@
-function [imeq, illu] = equalise_blockface_illumination(im, polymask, ellipmask, ratio, thr, radheart, radpoly)
-% EQUALISE_BLOCKFACE_ILLUMINATION  Correct illumination inhomogeneities in
+function [imeq, illu] = blockface_equalise_illumination(im, polymask, ellipmask, ratio, thr, radheart, radpoly)
+% BLOCKFACE_EQUALISE_ILLUMINATION  Correct illumination inhomogeneities in
 % blockface photography.
 %
 % This function dilates a polygonal mask of the wax block so that it
@@ -10,7 +10,7 @@ function [imeq, illu] = equalise_blockface_illumination(im, polymask, ellipmask,
 % extrapolate to all pixels on the block. Finally, the image is corrected
 % dividing by the estimated illumination.
 %
-% [IMEQ, ILLU] = equalise_blockface_illumination(IM, POLYMASK, ELLIPMASK)
+% [IMEQ, ILLU] = blockface_equalise_illumination(IM, POLYMASK, ELLIPMASK)
 %
 %   IM is a grayscale or RGB blockface photograph of a wax embedded heart.
 %
@@ -42,7 +42,7 @@ function [imeq, illu] = equalise_blockface_illumination(im, polymask, ellipmask,
 %   ILLU is an image with the same size as IM, containing the estimate of
 %   the illumination within POLYMASK.
 %
-% ... = equalise_blockface_illumination(..., RATIO, THR, RADHEART, RADPOLY)
+% ... = blockface_equalise_illumination(..., RATIO, THR, RADHEART, RADPOLY)
 %
 %   RATIO is a scalar with the scale factor applied to reduce the image to
 %   speed up the estimation of the illumination field. By default,
@@ -73,7 +73,7 @@ function [imeq, illu] = equalise_blockface_illumination(im, polymask, ellipmask,
 %     radpoly = 50;
 %
 %     % correct illumination
-%     [imeq, illu] = equalise_blockface_illumination(im, polymask, ...
+%     [imeq, illu] = blockface_equalise_illumination(im, polymask, ...
 %     ellipmask, ratio, thr, radheart, radpoly);
 %
 %     % plot image and results
