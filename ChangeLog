@@ -1,5 +1,10 @@
 2014-07-09  Ramon Casero  <rcasero@gmail.com>
 
+	* CardiacToolbox/blockface_create_masks.m (0.1.1)
+
+	- Fix bug. We need a wait() to that user can reposition or modify
+	the ellipse and polygon.
+
 	* Add CardiacToolbox/blockface_create_masks.m (0.1.0)
 
 	- BLOCKFACE_CREATE_MASK User interface to create the elliptical
