@@ -40,6 +40,16 @@ Toolboxes in Gerardus:
 CardiacToolbox
 -------------------------------------------------------------
 
+blockface_create_masks.m
+
+	 BLOCKFACE_CREATE_MASK  User interface to create the elliptical and
+	 polygonal segmentation masks used to correct blockface illumination.
+	
+blockface_equalise_illumination.m
+
+	 BLOCKFACE_EQUALISE_ILLUMINATION  Correct illumination inhomogeneities in
+	 blockface photography.
+	
 correct_blockface_perspective.m
 
 	 CORRECT_BLOCKFACE_PERSPECTIVE  Transform Bewster angle blockface image
@@ -54,11 +64,6 @@ correct_rv_crescent_tips.m
 crest_envelope.m
 
 	 CREST_ENVELOPE  Compute the envelope for the Right Ventricle's crest
-	
-equalise_blockface_illumination.m
-
-	 EQUALISE_BLOCKFACE_ILLUMINATION  Correct illumination inhomogeneities in
-	 blockface photography.
 	
 estimate_bias_field.m
 
