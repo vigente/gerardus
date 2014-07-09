@@ -50,6 +50,10 @@ blockface_equalise_illumination.m
 	 BLOCKFACE_EQUALISE_ILLUMINATION  Correct illumination inhomogeneities in
 	 blockface photography.
 	
+blockface_imread_gray.m
+
+	 BLOCKFACE_IMREAD_GRAY  Read multiple image files into grayscale volume.
+	
 correct_blockface_perspective.m
 
 	 CORRECT_BLOCKFACE_PERSPECTIVE  Transform Bewster angle blockface image
