@@ -25,7 +25,7 @@ function [ellipmask, polymask, immean] = blockface_create_masks(file_expr)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -95,17 +95,19 @@ end
 
 % plot the average intensity image
 him = imagesc(immean);
-title('Draw an ellipse tightly around the heart')
+title('Draw an ellipse tightly around the heart. Double-click on ellipse to finish.')
 
 % let the user draw an elliptical mask around the heart
 hmask = imellipse;
+wait(hmask);
 
 % convert the drawing to a binary segmentation
 ellipmask = createMask(hmask, him);
 
 % let the user draw a polygonal mask around the block
-title('Draw a polygon on the block''s edge')
+title('Draw a polygon on the block''s edge. Double-click on polygon to finish.')
 hmask = impoly;
+wait(hmask);
 
 % convert the drawing to a binary segmentation
 polymask = createMask(hmask, him);
