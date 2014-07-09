@@ -1,5 +1,8 @@
 2014-07-09  Ramon Casero  <rcasero@gmail.com>
 
+	* Rename matlab/CardiacToolbox/correct_blockface_perspective.m as
+	matlab/CardiacToolbox/blockface_correct_perspective.m (0.1.0)
+
 	* matlab/CardiacToolbox/blockface_imread_gray.m (0.1.1)
 
 	- Output image volume is now the same class of the images in the
