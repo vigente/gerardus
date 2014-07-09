@@ -57,7 +57,7 @@ function [ellipmask, polymask, immean] = blockface_create_masks(file_expr)
 narginchk(1, 1);
 nargoutchk(0, 3);
 
-% list of 55º blockface files
+% list of blockface files
 file = dir(file_expr);
 
 % directory with the files
