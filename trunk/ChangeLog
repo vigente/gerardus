@@ -1,3 +1,10 @@
+2014-07-10  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/CardiacToolbox/histology_blockface_preprocessing.m (0.1.0)
+
+	- HISTOLOGY_BLOCKFACE_PREPROCESSING Prepare histology and
+	blockface for registration.
+
 2014-07-09  Ramon Casero  <rcasero@gmail.com>
 
 	* Rename matlab/CardiacToolbox/correct_blockface_perspective.m as
