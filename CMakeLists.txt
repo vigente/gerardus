@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011-2014 University of Oxford
-# Version: 0.9.1
+# Version: 0.9.2
 # $Rev$
 # $Date$
 #
@@ -103,6 +103,12 @@ if(NOT WIN32)
     set(GCC_VERSION_REQUIRED_BY_MATLAB "4.4")
   elseif("${MATLAB_VERSION}" MATCHES "R2012b")
     set(GCC_VERSION_REQUIRED_BY_MATLAB "4.4")
+  elseif("${MATLAB_VERSION}" MATCHES "R2013a")
+    set(GCC_VERSION_REQUIRED_BY_MATLAB "4.4")
+  elseif("${MATLAB_VERSION}" MATCHES "R2013b")
+    set(GCC_VERSION_REQUIRED_BY_MATLAB "4.7")
+  elseif("${MATLAB_VERSION}" MATCHES "R2014a")
+    set(GCC_VERSION_REQUIRED_BY_MATLAB "4.7")
   else()
     message(FATAL_ERROR 
       "I do not know which version of gcc/g++ is needed for Matlab ${MATLAB_VERSION}.\nPlease update gerardus/CMakeLists.txt with this information.")
@@ -710,7 +716,9 @@ if(NOT Boost_version_hpp)
 
     # patch the Boost include files if necessary
     # version 1.44.0: https://bbs.archlinux.org/viewtopic.php?pid=1126374
-    if (${AUX_BOOST_VERSION} MATCHES "1.44.0")
+    # version 1.49.0: ditto
+    # this problem was solved in boost 1.50
+    if (${AUX_BOOST_VERSION} LESS "1.50.0")
       message(STATUS "This version of Boost needs patching")
       file(READ "${Boost_INCLUDE_DIR}/boost/thread/xtime.hpp" AUX)
       string(REPLACE TIME_UTC TIME_UTC_ AUX "${AUX}")
