@@ -71,8 +71,7 @@ crest_envelope.m
 	
 estimate_bias_field.m
 
-estimate_block_fgbg.m
-
+	
 histology_blockface_preprocessing.m
 
 	 HISTOLOGY_BLOCKFACE_PREPROCESSING  Prepare histology and blockface for
