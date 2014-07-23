@@ -1,3 +1,11 @@
+2014-07-23  Ramon Casero  <rcasero@gmail.com>
+
+	* CMakeLists.txt: (0.9.2)
+
+	- Make gerardus compile for Matlab 2013b on linux. This requires
+	Boost 1.49, and g++ 4.7. Thanks to Louie Cardone-Noott, who made
+	the original patch for this.
+
 2014-07-10  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/CardiacToolbox/histology_blockface_preprocessing.m (0.1.0)
