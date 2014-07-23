@@ -20,7 +20,7 @@ If you want to use also the Matlab MEX functions and C++ programs, then you need
  * CMake (currently tested with v2.8)
  * m4
  * Insight Toolkit v4.3.1 (Windows only)
- * Matlab (currently tested with R2012a)
+ * Matlab (currently tested with R2012a, R2012b, R2013b)
 
  * One-liner for linux that installs everything except ITK and Matlab. ITK will be downloaded and built by the Gerardus CMakeLists.txt script, and Matlab has to be installed separately
 {{{
@@ -42,9 +42,13 @@ $ sudo apt-get install subversion
 }}} 
   * Note for other users: See the [http://subversion.apache.org/packages.html subversion package download page] for more options
  * g++ Compiler
-   * Linux users must install both g++ and the version required by Matlab, e.g. g++-4.4 for Matlab2012a or Matlab2012b. E.g. Ubuntu/Debian users can install it with
+   * Linux users must install both g++ and the version required by Matlab, e.g. g++-4.4 for Matlab2012a/Matlab2012b or g++-4.7 for Matlab2013b. E.g. Ubuntu/Debian users can install it with
 {{{
 $ sudo apt-get install g++ g++-4.4
+
+or
+
+$ sudo apt-get install g++ g++-4.7
 }}}
    * Mac users can install [https://developer.apple.com/xcode/ Xcode] free from Apple's App Store. This includes gcc and Subversion. After installing Xcode you need to install the command-line tools - to do this open the preferences window in Xcode (start Xcode, open the Xcode menu and choose Preferences). Then click the Downloads tab and click the install button next to the `Command Line Tools` in the Components list.
    * For windows users, [http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express Visual C++ Express] is available free from Microsoft and includes C++ compilers.
@@ -86,10 +90,15 @@ BUILD_DOCUMENTATION   OFF
 BUILD_EXAMPLES        OFF
 BUILD_TESTING         OFF
 }}}
-  * Note for Linux and MacOSX: ITK needs to be compiled with the same version of the compiler used for Matlab. This can be ensured setting the following CMake variables (e.g. [http://www.mathworks.com/support/compilers/R2012a Matlab2012a for Linux requires gcc 4.4])
+  * Note for Linux and MacOSX: ITK needs to be compiled with the same version of the compiler used for Matlab. This can be ensured setting the following CMake variables (e.g. [http://www.mathworks.com/support/compilers/R2012a Matlab2012a/Matlab2012b/Matlab2013a for Linux require gcc 4.4], and [http://www.mathworks.com/support/compilers/R2013b/?sec=glnxa64 Matlab2013b/Matlab2014a] require gcc 4.7)
 {{{
 CMAKE_C_COMPILER gcc-4.4
 CMAKE_CXX_COMPILER g++-4.4
+
+or
+
+CMAKE_C_COMPILER gcc-4.7
+CMAKE_CXX_COMPILER g++-4.7
 }}}
   * Linux and MacOSX users can save time running cmake like this:
 {{{
@@ -97,6 +106,13 @@ $ cmake -DBUILD_SHARED_LIBS=ON -DITK_USE_REVIEW=ON \
 -DCMAKE_BUILD_TYPE=Release -DITK_LEGACY_REMOVE=ON \
 -DCMAKE_C_COMPILER=/usr/bin/gcc-4.4 \
 -DCMAKE_CXX_COMPILER=/usr/bin/g++-4.4  ..
+
+or
+
+$ cmake -DBUILD_SHARED_LIBS=ON -DITK_USE_REVIEW=ON \
+-DCMAKE_BUILD_TYPE=Release -DITK_LEGACY_REMOVE=ON \
+-DCMAKE_C_COMPILER=/usr/bin/gcc-4.7 \
+-DCMAKE_CXX_COMPILER=/usr/bin/g++-4.7  ..
 }}}
   * Notes for Windows users:
    * Start Visual Studio as *Administrator*. This is required to install ITK
