@@ -20,7 +20,7 @@ If you want to use also the Matlab MEX functions and C++ programs, then you need
  * CMake (currently tested with v2.8)
  * m4
  * Insight Toolkit v4.3.1 (Windows only)
- * Matlab (currently tested with R2012a, R2012b, R2013b)
+ * Matlab (currently tested with R2012a, R2012b, R2013b, R2014a)
 
  * One-liner for linux that installs everything except ITK and Matlab. ITK will be downloaded and built by the Gerardus CMakeLists.txt script, and Matlab has to be installed separately
 {{{
