@@ -1,3 +1,16 @@
+2014-07-24  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/vmu2png.m (0.2.1)
+
+	- Save 'PixelHeight' and 'PixelWidth' as an "Other" field in the
+	PNG image. Although these can be computed from
+	e.g. 'PhysicalHeight'and 'YResolution', in case of round-off
+	errors we want to have the original value from the microscope too.
+
+	- Fix bug. When path to file was empty (i.e. file is in current
+	directory), the function tried to save the PNG to the filesystem's
+	root directory '/'.
+
 2014-07-23  Ramon Casero  <rcasero@gmail.com>
 
 	* CMakeLists.txt: (0.9.2)
