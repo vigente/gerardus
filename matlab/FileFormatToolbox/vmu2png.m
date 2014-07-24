@@ -1,4 +1,4 @@
-function vmu2png(file)
+function vmu2png(file, outfile)
 % VMU2PNG  Convert a microscope image file from .vmu to .png format.
 %
 % vmu2png(FILE)
@@ -11,10 +11,16 @@ function vmu2png(file)
 %   This function reads the image and all the headers from the .vmu file
 %   and produces a .png file with the same name. PNG files use lossless
 %   Deflate compression.
+%
+% vmu2png(FILE, OUTFILE)
+%
+%   OUTFILE is a string with the path and name of the output .png file. By
+%   default, OUTFILE is the same as FILE, but changing the extension from
+%   .vmu to .png.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -43,7 +49,7 @@ function vmu2png(file)
 
 
 % check arguments
-narginchk(1, 1);
+narginchk(1, 2);
 nargoutchk(0, 0);
 
 %% Read input .vmu file
@@ -51,9 +57,14 @@ nargoutchk(0, 0);
 % extract extension of filename in lower case
 [pathstr, filestr, ext] = fileparts(file);
 ext = lower(ext);
-
 if (~strcmpi(ext, '.vmu'))
     error('Input file must have extension .vmu, .VMU')
+end
+
+% if file is in current directory, pathstr is emtpy now, but needs to be
+% made '.'
+if (isempty(pathstr))
+    pathstr = '.';
 end
 
 % init size vector
@@ -123,14 +134,14 @@ while ischar(tline)
         case 'PixelWidth'
             
             sz(2) = str2double(value);
-%             metadata{end+1} = 'Width';
-%             metadata{end+1} = sz(2);
+            metadata{end+1} = 'PixelWidth';
+            metadata{end+1} = value;
             
         case 'PixelHeight'
             
             sz(1) = str2double(value);
-%             metadata{end+1} = 'Height';
-%             metadata{end+1} = sz(1);
+            metadata{end+1} = 'PixelHeight';
+            metadata{end+1} = value;
             
         case 'PhysicalWidth'
             
@@ -283,10 +294,13 @@ fclose(fid);
 im = reshape(im, [numChannels sz(2) sz(1)]);
 im = permute(im, [3 2 1]);
 
-%% Wrte output .png file
+%% Write output .png file
 
 % output filename
-outfile = [pathstr filesep filestr '.png'];
+if (nargin < 2 || isempty(outfile))
+    % default output path and filename
+    outfile = [pathstr filesep filestr '.png'];
+end
 
 % write output PNG file
 imwrite(im, outfile, 'PNG', metadata{:});
