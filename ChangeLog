@@ -1,3 +1,11 @@
+2014-07-26  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CMakeLists.txt: (0.3.1)
+	* Add matlab/FileFormatToolbox/CMakeLists.txt: (0.1.1)
+
+	- We want to compile Matlab function vmu2png.m into a binary that
+	we can run from the command line.
+
 2014-07-24  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/vmu2png.m (0.2.1)
