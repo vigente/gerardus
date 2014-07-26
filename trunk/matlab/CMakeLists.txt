@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2011 University of Oxford
-# Version: 0.3.0
+# Copyright © 2011-2014 University of Oxford
+# Version: 0.3.1
 # $Rev$
 # $Date$
 #
@@ -28,12 +28,9 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-# Note: You'll probably have to edit this file to make it compile in
-# your system. Edit section "Find Matlab" with your own path to Matlab.
+cmake_minimum_required(VERSION 2.8)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-
-PROJECT(GERARDUS_MATLAB)
+project(GERARDUS_MATLAB)
 
 # # Find ITK.
 # FIND_PACKAGE(ITK REQUIRED)
@@ -53,14 +50,15 @@ PROJECT(GERARDUS_MATLAB)
 #   MESSAGE(FATAL_ERROR "Matlab not found")
 # ENDIF(MATLAB_FOUND)
 
-INCLUDE_DIRECTORIES(${MATLAB_INCLUDE_DIR})
+include_directories(${MATLAB_INCLUDE_DIR})
 
 # Add macros to build MEX files
-INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/MatlabMakeMacros.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/MatlabMakeMacros.cmake)
 
 # build mex functions in the toolboxes
-ADD_SUBDIRECTORY(ItkToolbox)
-ADD_SUBDIRECTORY(CgalToolbox)
-ADD_SUBDIRECTORY(FiltersToolbox)
-ADD_SUBDIRECTORY(ThirdPartyToolbox)
-ADD_SUBDIRECTORY(PointsToolbox)
+add_subdirectory(CgalToolbox)
+add_subdirectory(FileFormatToolbox)
+add_subdirectory(FiltersToolbox)
+add_subdirectory(ItkToolbox)
+add_subdirectory(ThirdPartyToolbox)
+add_subdirectory(PointsToolbox)
