@@ -29,21 +29,21 @@ function [uv, out] = surface_param(x, param)
 %     Parametrizations summary:
 %
 %     XY plane:
-%                 'xy' [default]: Simple projection on XY.
-%                 'pca': Projection on main PCA plane.
-%                 'isomap': Isomap (with Dijkstra's shortest path).
-%                 'cmdsmap': MDSmap, global neighbourhood, classical MDS.
+%                 'xy':       Simple projection on XY.
+%                 'pca':      Projection on main PCA plane.
+%                 'isomap':   Isomap (with Dijkstra's shortest path).
+%                 'cmdsmap':  MDSmap, global neighbourhood, classical MDS.
 %                 'lmdscale': MDSmap, local neighbourhood, local MDS.
 %
 %     Unit sphere:
-%                 'sphproj': Simple projection on sphere around centroid.
-%                 'cald'
-%                 'sphisomap'
+%                 'sphproj':  Simple projection on sphere around centroid.
+%                 'cald':     CALD method by Shen & Makedon 2006.
+%                 'smdscale': Spherical extension of lmdscale.
 %
 %=========================== OPEN SURFACES ================================
 %
-%   * 'xy' (default): Projection on the xy-plane, i.e. xy-coordinates of
-%     the points in X.
+%   * 'xy': Projection on the xy-plane, i.e. xy-coordinates of the points
+%   in X.
 %
 %--------------------------------------------------------------------------
 %
@@ -208,37 +208,9 @@ function [uv, out] = surface_param(x, param)
 %
 %--------------------------------------------------------------------------
 %
-%   * 'cald': Li Shen's Control Area and Length Distortions (CALD)
-%     spherical parametrization [6, 7].
-%
-%     PARAM.tri: [Req] 3-column matrix. Each row contains the 3 nodes that
-%       form one triangular facet in the mesh.
-%
-%     PARAM.options: [Opt] Extra arguments passed to CALD:
-%       - options.MeshGridSize: The interpolation mesh used to smooth the
-%         spherical parametrization has length 2*PARAM.MeshGridSize+1. By
-%         default, MeshGridSize = 50.
-%       - options.MaxSPHARMDegree: Degree of the spherical harmonics used
-%         for interpolation to smooth the spherical parametrization. By
-%         default, MaxSPHARMDegree = 6.
-%       - options.Tolerance: Scalar. In the interpolation smoothing, grid
-%         points with a height larger than PARAM.Tolerance*gmin, where gmin
-%         is the lowest point in the grid, will be truncated. By default,
-%         Tolerance = 2.
-%       - options.Smoothing: Scalar. Before parametrization smoothing,
-%         parametrization triangle areas relative to triangular mesh areas
-%         are smoothed by elevating to (1/PARAM.Smoothing). By default,
-%         Smoothing = 2.
-%       - options.Iteration: Maximum number of smoothing iterations.
-%         Smoothing will stop before reaching Iteration if the algorithm
-%         converges to a solution. By default, Iteration = 100.
-%       - options.LocalIteration: Number of smoothing iteration in the
-%         local smoothing algorithm. By default, LocalIteration = 10.
-%
-%--------------------------------------------------------------------------
-%
 %   * 'smdscale': Local neighbourhood Multidimensional scaling on a sphere.
-%     Our extension to lmdscale() 
+%     Our extension to lmdscale() based on method by Agarwal et al. 2010
+%     [6].
 %
 %     PARAM.d or PARAM.tri must be provided. If PARAM.d is provided,
 %     PARAM.tri and PARAM.options are ignored. Otherwise, PARAM.d is
@@ -310,7 +282,34 @@ function [uv, out] = surface_param(x, param)
 %
 %--------------------------------------------------------------------------
 %
+%   * 'cald': Li Shen's Control Area and Length Distortions (CALD)
+%     spherical parametrization [7, 8].
 %
+%     PARAM.tri: [Req] 3-column matrix. Each row contains the 3 nodes that
+%       form one triangular facet in the mesh.
+%
+%     PARAM.options: [Opt] Extra arguments passed to CALD:
+%       - options.MeshGridSize: The interpolation mesh used to smooth the
+%         spherical parametrization has length 2*PARAM.MeshGridSize+1. By
+%         default, MeshGridSize = 50.
+%       - options.MaxSPHARMDegree: Degree of the spherical harmonics used
+%         for interpolation to smooth the spherical parametrization. By
+%         default, MaxSPHARMDegree = 6.
+%       - options.Tolerance: Scalar. In the interpolation smoothing, grid
+%         points with a height larger than PARAM.Tolerance*gmin, where gmin
+%         is the lowest point in the grid, will be truncated. By default,
+%         Tolerance = 2.
+%       - options.Smoothing: Scalar. Before parametrization smoothing,
+%         parametrization triangle areas relative to triangular mesh areas
+%         are smoothed by elevating to (1/PARAM.Smoothing). By default,
+%         Smoothing = 2.
+%       - options.Iteration: Maximum number of smoothing iterations.
+%         Smoothing will stop before reaching Iteration if the algorithm
+%         converges to a solution. By default, Iteration = 100.
+%       - options.LocalIteration: Number of smoothing iteration in the
+%         local smoothing algorithm. By default, LocalIteration = 10.
+%
+%--------------------------------------------------------------------------
 %
 % [1] J.B. Tenenbaum, V. de Silva and J.C. Langford, "A Global Geometric
 % Framework for Nonlinear Dimensionality Reduction", Science 290(5500):
@@ -331,16 +330,20 @@ function [uv, out] = surface_param(x, param)
 % generalized mapmaker’s problem: flattening nonconvex polyhedral", IEEE
 % Pattern Analysis and Machine Intelligence, 11(9):1005-1008, 1989.
 %
-% [6] Shen and Makedon, "Spherical mapping for processing of 3D closed
+% [6] A. Agarwal et al., "Universal Multi-Dimensional Scaling", Procs. of
+% the 16th ACM SIGKDD international conference on Knowledge discovery and
+% data mining (KDD '10), p. 1149-1158.
+%
+% [7] Shen and Makedon, "Spherical mapping for processing of 3D closed
 % surfaces", Image and Vision Computing, 24(7):743–761, 2006.
 % http://www.sciencedirect.com/science/article/pii/S0262885606000485
 %
-% [7] CALD and SPHARM-MAT homepage,
+% [8] CALD and SPHARM-MAT homepage,
 % http://www.iupui.edu/~shenlab/software.html
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.6.0
+% Version: 0.6.1
 % $Rev$
 % $Date$
 % 
@@ -384,7 +387,7 @@ out = [];
 % defaults
 if (isempty(param) || ~isfield(param, 'type') ...
         || isempty(param.type))
-    param.type = 'xy';
+    error('No PARAM.type provided');
 end
 
 % obtain a 2D parameterisation for the input 3D points
@@ -585,86 +588,6 @@ switch param.type
         
 %--------------------------------------------------------------------------
 
-    case 'cald'
-        
-        % check arguments
-        nargoutchk(0, 1);
-
-        % required parameters
-        if (~isfield(param, 'tri') || isempty(param.tri))
-            error('PARAM.tri must be provided')
-        end
-
-        % set up parameters for the CALD algorithm. We have to create a
-        % structure with the right format. We can then replace default
-        % values by values provided by the user
-        param.options.vars = {'MeshGridSize', 'MaxSPHARMDegree', 'Tolerance', ...
-            'Smoothing', 'Iteration', 'LocalIteration', 't_major', ...
-            'SelectDiagonal', 'OutDirectory'};
-        param.options.args = [1 1 1 1 1 1 10 10 200];
-        param.options.inFilter = {
-            '*_bim.mat;*_fix.mat;*_obj.mat' 'Binary and Mesh Objects (*_bim.mat;*_fix.mat;*_obj.mat)'
-            '*_obj.mat'                     'Mesh Objects (*_obj.mat)'
-            '*_bim.mat;*_fix.mat'           'Binary Objects (*_bim.mat, *_fix.mat)'
-            '*.mat'                         'All Objects (*.mat)'
-            };
-        param.options.default = {'50'  '6'  '2'  '2'  '100'  '10'  ''  ''  './'};
-        if (~isfield(param.options, 'MeshGridSize') || isempty(param.options.MeshGridSize))
-            param.options.MeshGridSize = 50;
-        end
-        if (~isfield(param.options, 'MaxSPHARMDegree') || isempty(param.options.MaxSPHARMDegree))
-            param.options.MaxSPHARMDegree = 6;
-        end
-        if (~isfield(param.options, 'Tolerance') || isempty(param.options.Tolerance))
-            param.options.Tolerance = 2;
-        end
-        if (~isfield(param.options, 'Smoothing') || isempty(param.options.Smoothing))
-            param.options.Smoothing = 2;
-        end
-        if (~isfield(param.options, 'Iteration') || isempty(param.options.Iteration))
-            param.options.Iteration = 100;
-        end
-        if (~isfield(param.options, 'LocalIteration') || isempty(param.options.LocalIteration))
-            param.options.LocalIteration = 10;
-        end
-        param.options.t_major = 'x';
-        param.options.SelectDiagonal = 'ShortDiag';
-        param.options.OutDirectory = '.';
-        param.options = orderfields(param.options, ...
-            {'vars', 'args', 'inFilter', 'default', ...
-            'MeshGridSize', 'MaxSPHARMDegree', 'Tolerance', ...
-            'Smoothing', 'Iteration', 'LocalIteration', 't_major', ...
-            'SelectDiagonal', 'OutDirectory'});
-        
-        % initial parametrization
-        [sph_verts, name3] ...
-            = initParamCALD(x, param.tri, '', param.options);
-        
-        if (any(isnan(sph_verts)))
-            error('Initial parameterization produced NaN values')
-        end
-        
-        % smooth the parameterization
-        [~, ~, sph_verts, new_name] ...
-            = smootheCALD(x, param.tri, sph_verts, name3, param.options);
-        
-        % convert xyz coordinates to spherical coordinates
-        [lon, lat] ...
-            = cart2sph(sph_verts(:, 1), sph_verts(:, 2), sph_verts(:, 3));
-        
-        % delete files created by the SPHARM functions
-        if exist(new_name, 'file')
-            delete(new_name) % CALD_smo.mat
-        end
-        if exist('initParamCALD', 'file')
-            rmdir('initParamCALD', 's')
-        end
-        
-        % create output
-        uv = [lat lon];
-        
-%--------------------------------------------------------------------------
-
     case 'smdscale'
 
         % check arguments
@@ -766,6 +689,86 @@ switch param.type
         % create output with the parameterisation values for each point
         % lat = em(1, :)
         % lon = em(2, :)
+        uv = [lat lon];
+        
+%--------------------------------------------------------------------------
+
+    case 'cald'
+        
+        % check arguments
+        nargoutchk(0, 1);
+
+        % required parameters
+        if (~isfield(param, 'tri') || isempty(param.tri))
+            error('PARAM.tri must be provided')
+        end
+
+        % set up parameters for the CALD algorithm. We have to create a
+        % structure with the right format. We can then replace default
+        % values by values provided by the user
+        param.options.vars = {'MeshGridSize', 'MaxSPHARMDegree', 'Tolerance', ...
+            'Smoothing', 'Iteration', 'LocalIteration', 't_major', ...
+            'SelectDiagonal', 'OutDirectory'};
+        param.options.args = [1 1 1 1 1 1 10 10 200];
+        param.options.inFilter = {
+            '*_bim.mat;*_fix.mat;*_obj.mat' 'Binary and Mesh Objects (*_bim.mat;*_fix.mat;*_obj.mat)'
+            '*_obj.mat'                     'Mesh Objects (*_obj.mat)'
+            '*_bim.mat;*_fix.mat'           'Binary Objects (*_bim.mat, *_fix.mat)'
+            '*.mat'                         'All Objects (*.mat)'
+            };
+        param.options.default = {'50'  '6'  '2'  '2'  '100'  '10'  ''  ''  './'};
+        if (~isfield(param.options, 'MeshGridSize') || isempty(param.options.MeshGridSize))
+            param.options.MeshGridSize = 50;
+        end
+        if (~isfield(param.options, 'MaxSPHARMDegree') || isempty(param.options.MaxSPHARMDegree))
+            param.options.MaxSPHARMDegree = 6;
+        end
+        if (~isfield(param.options, 'Tolerance') || isempty(param.options.Tolerance))
+            param.options.Tolerance = 2;
+        end
+        if (~isfield(param.options, 'Smoothing') || isempty(param.options.Smoothing))
+            param.options.Smoothing = 2;
+        end
+        if (~isfield(param.options, 'Iteration') || isempty(param.options.Iteration))
+            param.options.Iteration = 100;
+        end
+        if (~isfield(param.options, 'LocalIteration') || isempty(param.options.LocalIteration))
+            param.options.LocalIteration = 10;
+        end
+        param.options.t_major = 'x';
+        param.options.SelectDiagonal = 'ShortDiag';
+        param.options.OutDirectory = '.';
+        param.options = orderfields(param.options, ...
+            {'vars', 'args', 'inFilter', 'default', ...
+            'MeshGridSize', 'MaxSPHARMDegree', 'Tolerance', ...
+            'Smoothing', 'Iteration', 'LocalIteration', 't_major', ...
+            'SelectDiagonal', 'OutDirectory'});
+        
+        % initial parametrization
+        [sph_verts, name3] ...
+            = initParamCALD(x, param.tri, '', param.options);
+        
+        if (any(isnan(sph_verts)))
+            error('Initial parameterization produced NaN values')
+        end
+        
+        % smooth the parameterization
+        [~, ~, sph_verts, new_name] ...
+            = smootheCALD(x, param.tri, sph_verts, name3, param.options);
+        
+        % convert xyz coordinates to spherical coordinates
+        [lon, lat] ...
+            = cart2sph(sph_verts(:, 1), sph_verts(:, 2), sph_verts(:, 3));
+        
+        % delete files created by the SPHARM functions
+        if exist(new_name, 'file')
+            delete(new_name) % CALD_smo.mat
+        end
+        if exist('initParamCALD', 'file')
+            rmdir('initParamCALD', 's')
+        end
+        
+        % create output
         uv = [lat lon];
         
 %--------------------------------------------------------------------------
