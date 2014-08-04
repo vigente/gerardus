@@ -1,3 +1,20 @@
+2014-08-05  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/PointsToolbox/surface_interp.m: (0.0.1)
+	* Delete matlab/PointsToolbox/surface_interpolation.m:
+
+	- SURFACE_INTERP Interpolate an open or closed surface from a
+	parametrized scattered set of points.
+
+	- Cannibalize old surface_interpolation() to make more modular,
+	leaner functions. We already added surface_param(), that took the
+	parametrization block. Now, surface_interp() takes the
+	interpolation methods themselves. Another function,
+	surface_domain() will provide the sampling of the surface domain.
+
+	- surface_interp() is still in alpha, because I have tested it
+	only with spherical interpolation. I added a warning for the user.
+
 2014-08-04  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/surface_param.m: (0.6.1)
