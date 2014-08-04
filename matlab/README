@@ -789,15 +789,17 @@ sparse_breakdown.m
 
 	 SPARSE_BREAKDOWN  Extract internal arrays from sparse matrix
 	
+surface_domain.m
+
+	     Open surfaces: Rectangular domain between min(UV) and max(UV).
+	     Sampling resolution given by INTERP.res (default [1 1]). The domain
+	     can be extended beyond min(UV) and max(UV) by a factor INTERP.klim
+	     (default 1).
+	
 surface_interp.m
 
-	 SURFACE_INTERP  Interpolate a surface from a parametrized scattered set
-	 of points
-	
-surface_interpolation.m
-
-	 SURFACE_INTERPOLATION  Interpolate a surface from a scattered set of
-	 points
+	 SURFACE_INTERP  Interpolate an open or closed surface from a parametrized
+	 scattered set of points.
 	
 surface_param.m
 
