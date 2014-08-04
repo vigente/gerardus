@@ -1,3 +1,10 @@
+2014-08-04  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/surface_param.m: (0.6.1)
+
+	- Some missing and wrong info in help header. Move CALD after
+	smdscale.
+
 2014-07-26  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/CMakeLists.txt: (0.3.1)
