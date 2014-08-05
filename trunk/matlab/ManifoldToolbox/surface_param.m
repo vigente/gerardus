@@ -26,7 +26,7 @@ function [uv, out] = surface_param(x, param)
 %   PARAM is a string or struct that selects the parametrization method
 %   and possibly arguments for the method.
 %
-%     Parametrizations summary:
+%     Parametrization methods summary (PARAM.type):
 %
 %     XY plane:
 %                 'xy':       Simple projection on XY.
