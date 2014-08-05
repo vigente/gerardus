@@ -1,5 +1,5 @@
 function [tri, uv] = surface_tridomain(gridtype, inctype, inc, uvmin, uvmax, k)
-% SURFACE_TRIDOMAIN  Triangular mesh to cover a planar or spherical domain
+% surface_tridomain  Triangular mesh to cover a planar or spherical domain.
 %
 %   This function creates a triangular mesh on a planar (XY) or spherical
 %   domain.
@@ -89,12 +89,34 @@ function [tri, uv] = surface_tridomain(gridtype, inctype, inc, uvmin, uvmax, k)
 %     [x, y, z] = sph2cart(uv(:, 2), uv(:, 1), 1);
 %     trisurf(tri, x, y, z)
 %
+% -------------------------------------------------------------------------
+% Spherical domains for closed surfaces, uniform distribution of vertices:
+% -------------------------------------------------------------------------
+%
+% [TRI, UV] = surface_tridomain('sphunif', 'num', N)
+%
+%   Using the Reisz s-energy minimization algorithm by A. Semechko, N is
+%   the number of particles distributed uniformly on the surface. 
+%   9 <= N < 1000, default N = 200.
+%
+%   TRI is a 3-column matrix with a surface triangulation. Each row has the
+%   indices of 3 vertices forming a spherical triangle.
+%
+%   UV is a 2-column matrix with the spherical coordinates, UV=[LAT LON] of
+%   the mesh vertices.
+%
+%   The mesh can be visualised with
+%
+%     [x, y, z] = sph2cart(uv(:, 2), uv(:, 1), 1);
+%     trisurf(tri, x, y, z)
+%
+% -------------------------------------------------------------------------
 %
 % See also: surface_param, surface_interp.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2013 University of Oxford
-% Version: 0.2.0
+% Copyright © 2013-2014 University of Oxford
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
@@ -121,45 +143,96 @@ function [tri, uv] = surface_tridomain(gridtype, inctype, inc, uvmin, uvmax, k)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% check arguments
 switch gridtype
     case 'rect'
+        
+        % check arguments
         if (ischar(inctype))
             narginchk(5, 6);
         else
             narginchk(3, 3);
         end
+        % defaults
+        if (nargin < 6 || isempty(k))
+            k = [1 1];
+        end
+        
     case 'sphang'
+        
+        % check arguments
         narginchk(3, 3);
+        
+    case 'sphunif'
+        
+        % check arguments
+        narginchk(1, 3);
+
+        % defaults
+        if (nargin < 2)
+            inctype = 'num';
+        end
+        if (nargin < 3)
+            inc = 200;
+        end
+        
     otherwise
         error('Grid method not implemented')
 end
 nargoutchk(0, 2);
 
-% defaults
-if (nargin < 6 || isempty(k))
-    k = [1 1];
-end
 
-% more input argument checks
-if (strcmp(gridtype, 'rect') && ischar(inctype))
-    if (~isvector(uvmin) || length(uvmin) ~= 2)
-        error('UVMIN must be a 2-vector')
-    end
-    if (~isvector(uvmax) || length(uvmax) ~= 2)
-        error('UVMAX must be a 2-vector')
-    end
-end
-if (ischar(inctype))
-    if (~isvector(inc) || length(inc) < 1 || length(inc) > 2)
-        error('DELTA or N must be a scalar or 2-vector')
-    end
-    if (isscalar(inc))
-        inc = [inc inc];
-    end
-    if (isscalar(k))
-        k = [k k];
-    end
+% input argument checks
+switch gridtype
+    case 'rect'
+        
+        if (ischar(inctype))
+            if (~isvector(uvmin) || length(uvmin) ~= 2)
+                error('UVMIN must be a 2-vector')
+            end
+            if (~isvector(uvmax) || length(uvmax) ~= 2)
+                error('UVMAX must be a 2-vector')
+            end
+            if (~strcmp(inctype, 'step') && ~strcmp(inctype, 'num'))
+                error('INCTYPE must be ''step'' or ''num'' for ''rect''')
+            end
+        end
+
+        if (ischar(inctype))
+            if (~isvector(inc) || length(inc) < 1 || length(inc) > 2)
+                error('DELTA or N must be a scalar or 2-vector')
+            end
+            if (isscalar(inc))
+                inc = [inc inc];
+            end
+            if (isscalar(k))
+                k = [k k];
+            end
+        end
+        
+    case 'sphang'
+        
+        if (~strcmp(inctype, 'step') && ~strcmp(inctype, 'num'))
+            error('INCTYPE must be ''step'' or ''num'' for ''sphang''')
+        end
+        
+        if (ischar(inctype))
+            if (~isvector(inc) || length(inc) < 1 || length(inc) > 2)
+                error('DELTA or N must be a scalar or 2-vector')
+            end
+            if (isscalar(inc))
+                inc = [inc inc];
+            end
+            if (isscalar(k))
+                k = [k k];
+            end
+        end
+        
+    case 'sphunif'
+        
+        if (~strcmp(inctype, 'num'))
+            error('INCTYPE must be ''num'' for ''sphunif''')
+        end
+        
 end
 
 % type of grid
@@ -283,5 +356,17 @@ switch gridtype
         % add triangles to the north pole
         idx = size(uv, 1);
         tri = [tri; [v(:, end) v([2:end 1], end) idx*ones(size(v, 1), 1)]];  % ui: tri
+        
+    case 'sphunif'
+        
+        % compute uniform distribution of particles
+        [x, tri] = ParticleSampleSphere('N', inc);
+        
+        % init output
+        uv = zeros(size(x, 1), 2);
+        
+        % convert sphere points from Cartesian to spherical coordinates
+        % UV = [LAT LON]
+        [uv(:, 2), uv(:, 1)] = cart2sph(x(:, 1), x(:, 2), x(:, 3));
         
 end

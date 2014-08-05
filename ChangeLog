@@ -1,5 +1,9 @@
 2014-08-05  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/surface_tridomain.m: (0.3.0)
+
+	- Add 'sphunif' option, to generate uniform meshing of the sphere.
+
 	* Move matlab/PointsToolbox/surface_interp.m to
 	matlab/ManifoldToolbox/surface_interp.m.
 	* Move matlab/PointsToolbox/surface_param.m to
