@@ -535,6 +535,16 @@ sphtri_vertex_istangled.m
 	
 sphtri_vertex_untangle.m
 
+surface_interp.m
+
+	 SURFACE_INTERP  Interpolate an open or closed surface from a parametrized
+	 scattered set of points.
+	
+surface_param.m
+
+	 SURFACE_PARAM  2D parametrization of a scattered set of 3D points or of
+	 the vertices of a triangular mesh, for open and closed surfaces.
+	
 surface_tridomain.m
 
 	 SURFACE_TRIDOMAIN  Triangular mesh to cover a planar or spherical domain
@@ -788,23 +798,6 @@ smacof.m
 sparse_breakdown.m
 
 	 SPARSE_BREAKDOWN  Extract internal arrays from sparse matrix
-	
-surface_domain.m
-
-	     Open surfaces: Rectangular domain between min(UV) and max(UV).
-	     Sampling resolution given by INTERP.res (default [1 1]). The domain
-	     can be extended beyond min(UV) and max(UV) by a factor INTERP.klim
-	     (default 1).
-	
-surface_interp.m
-
-	 SURFACE_INTERP  Interpolate an open or closed surface from a parametrized
-	 scattered set of points.
-	
-surface_param.m
-
-	 SURFACE_PARAM  2D parametrization of a scattered set of 3D points or of
-	 the vertices of a triangular mesh, for open and closed surfaces.
 	
 thickslice_collate_sax_la.m
 
