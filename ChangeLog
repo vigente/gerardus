@@ -1,5 +1,13 @@
 2014-08-05  Ramon Casero  <rcasero@gmail.com>
 
+	* Move matlab/PointsToolbox/surface_interp.m to
+	matlab/ManifoldToolbox/surface_interp.m.
+	* Move matlab/PointsToolbox/surface_param.m to
+	matlab/ManifoldToolbox/surface_param.m.
+
+	- To group them with surface_tridomain(), and highlight that these
+	are manifold functions.
+
 	* Add matlab/PointsToolbox/surface_interp.m: (0.0.1)
 	* Delete matlab/PointsToolbox/surface_interpolation.m:
 
