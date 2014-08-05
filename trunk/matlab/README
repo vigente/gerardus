@@ -547,7 +547,7 @@ surface_param.m
 	
 surface_tridomain.m
 
-	 SURFACE_TRIDOMAIN  Triangular mesh to cover a planar or spherical domain
+	 surface_tridomain  Triangular mesh to cover a planar or spherical domain.
 	
 tri_ccqp_smacof_nofold_sph_pip.m
 
