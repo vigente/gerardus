@@ -1,8 +1,8 @@
 function [xi, tri] = surface_interp(uv, x, interp, ui, vi)
-% SURFACE_INTERP  Interpolate an open or closed surface from a parametrized
+% surface_interp  Interpolate an open or closed surface from a parametrized
 % scattered set of points.
 %
-%   This function takes a scattered data set (X, Y, Z) in 3D and their 2D
+%   surface_interp takes a scattered data set (X, Y, Z) in 3D and their 2D
 %   parametrization U, V (on a plane or sphere) and computes three
 %   interpolants to map (U, V) -> (X, Y, Z):
 %
@@ -102,6 +102,8 @@ function [xi, tri] = surface_interp(uv, x, interp, ui, vi)
 % a Green's function for splines in tension, Geophys. J. Int., 174, 21-28,
 % doi:10.1111/j.1365-246X.2008.03829.x
 % http://www.soest.hawaii.edu/wessel/sphspline/
+%
+% See also: surface_tridomain, surface_param, scimat_surface2seg.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2014 University of Oxford
