@@ -1,14 +1,14 @@
 function [uv, out] = surface_param(x, param)
-% SURFACE_PARAM  2D parametrization of a scattered set of 3D points or of
+% surface_param  2D parametrization of a scattered set of 3D points or of
 % the vertices of a triangular mesh, for open and closed surfaces.
 %
-%   This function takes a scattered data set X in 3D that is supposed to
+%   surface_param takes a scattered data set X in 3D that is supposed to
 %   represent a sampling of a surface, and finds a 2D parameterisation U, V
 %   for them. The surface can be open or closed, in which case the
 %   parametrization domain will be the R^2 plane or the unit sphere,
 %   respectively.
 %
-%   This function provides several parametrization methods, some
+%   surface_param provides several parametrization methods, some
 %   implemented by us, some by other authors.
 %
 % [UV, OUT] = surface_param(X, PARAM)
@@ -340,6 +340,8 @@ function [uv, out] = surface_param(x, param)
 %
 % [8] CALD and SPHARM-MAT homepage,
 % http://www.iupui.edu/~shenlab/software.html
+%
+% See also: surface_tridomain, surface_interp, scimat_surface2seg.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
