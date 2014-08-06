@@ -1,3 +1,9 @@
+2014-08-06  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ManifoldToolbox/scimat_surface2seg.m: (0.1.0)
+
+	- scimat_surface2seg Convert triangular mesh into segmentation.
+
 2014-08-05  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/surface_tridomain.m: (0.3.0)
