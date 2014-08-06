@@ -27,7 +27,7 @@ function scimat = scimat_surface2seg(scimat, tri, x)
 %
 %   SCIMAT2 is the output segmentation.
 %
-% See also: surf_domain, surf_param, surf_interp.
+% See also: surface_tridomain, surface_param, surface_interp.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford

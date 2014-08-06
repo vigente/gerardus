@@ -1,7 +1,7 @@
 function [tri, uv] = surface_tridomain(gridtype, inctype, inc, uvmin, uvmax, k)
 % surface_tridomain  Triangular mesh to cover a planar or spherical domain.
 %
-%   This function creates a triangular mesh on a planar (XY) or spherical
+%   surface_tridomain creates a triangular mesh on a planar (XY) or spherical
 %   domain.
 %
 %   It can be used together with surface_param() and surface_interp() to
@@ -112,7 +112,7 @@ function [tri, uv] = surface_tridomain(gridtype, inctype, inc, uvmin, uvmax, k)
 %
 % -------------------------------------------------------------------------
 %
-% See also: surface_param, surface_interp.
+% See also: surface_param, surface_interp, scimat_surface2seg.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013-2014 University of Oxford
