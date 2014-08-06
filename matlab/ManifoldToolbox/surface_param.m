@@ -344,7 +344,7 @@ function [uv, out] = surface_param(x, param)
 % See also: surface_tridomain, surface_interp, scimat_surface2seg.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2013 University of Oxford
+% Copyright © 2013-2014 University of Oxford
 % Version: 0.6.1
 % $Rev$
 % $Date$
