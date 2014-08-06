@@ -515,6 +515,10 @@ remove_vertex_from_tri.m
 
 	 REMOVE_VERTEX_FROM_TRI  Remove vertices from a triangular mesh
 	
+scimat_surface2seg.m
+
+	 scimat_surface2seg  Convert triangular mesh into segmentation.
+	
 scimat_tri_to_raster.m
 
 	 SCIMAT_TRI_TO_RASTER  Rasterize a closed triangular mesh.
@@ -784,11 +788,6 @@ scimat_simlandmarks_thickslice.m
 
 	 SCIMAT_SIMLANDMARKS_THICKSLICE  Simulate a human placing landmarks on the
 	 boundary of a "thick slice" segmentation.
-	
-scinrrd_surface_interpolation.m
-
-	 SCINRRD_SURFACE_INTERPOLATION  Interpolate a surface and create a
-	 segmentation mask from a scattered set of points.
 	
 smacof.m
 
