@@ -31,7 +31,7 @@ function scimat = scimat_surface2seg(scimat, tri, x)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -67,7 +67,7 @@ lmin = min([scimat.axis.spacing]);
 
 % if the scimat struct has no data field, create one
 if (~isfield(scimat, 'data'))
-    scimat.data = zeros(size([scimat.axis.size]), 'uint8');
+    scimat.data = zeros([scimat.axis.size], 'uint8');
 end
 
 % loop triangles
