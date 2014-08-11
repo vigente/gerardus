@@ -1,3 +1,10 @@
+2014-08-11  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/CardiacToolbox/blockface_frame_shifts.m: (0.1.0)
+
+	- blockface_frame_shifts Find translation shifts between
+	consecutive blockface frames.
+
 2014-08-06  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ManifoldToolbox/scimat_surface2seg.m: (0.1.0)

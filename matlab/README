@@ -55,6 +55,11 @@ blockface_equalise_illumination.m
 	 BLOCKFACE_EQUALISE_ILLUMINATION  Correct illumination inhomogeneities in
 	 blockface photography.
 	
+blockface_frame_shifts.m
+
+	 blockface_frame_shifts  Find translation shifts between consecutive
+	 blockface frames.
+	
 blockface_imread_gray.m
 
 	 BLOCKFACE_IMREAD_GRAY  Read multiple image files into grayscale volume.
@@ -541,12 +546,12 @@ sphtri_vertex_untangle.m
 
 surface_interp.m
 
-	 SURFACE_INTERP  Interpolate an open or closed surface from a parametrized
+	 surface_interp  Interpolate an open or closed surface from a parametrized
 	 scattered set of points.
 	
 surface_param.m
 
-	 SURFACE_PARAM  2D parametrization of a scattered set of 3D points or of
+	 surface_param  2D parametrization of a scattered set of 3D points or of
 	 the vertices of a triangular mesh, for open and closed surfaces.
 	
 surface_tridomain.m
