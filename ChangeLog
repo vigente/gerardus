@@ -1,5 +1,10 @@
 2014-08-11  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/scimat_surface2seg.m: (0.1.1)
+
+	- Fix bug. Instead of passing the size of the image volume, we
+	were passing the size of the size vector.
+
 	* Add matlab/CardiacToolbox/blockface_frame_shifts.m: (0.1.0)
 
 	- blockface_frame_shifts Find translation shifts between
