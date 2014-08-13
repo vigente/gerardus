@@ -55,9 +55,9 @@ blockface_equalise_illumination.m
 	 BLOCKFACE_EQUALISE_ILLUMINATION  Correct illumination inhomogeneities in
 	 blockface photography.
 	
-blockface_frame_shifts.m
+blockface_find_frame_shifts.m
 
-	 blockface_frame_shifts  Find translation shifts between consecutive
+	 blockface_find  frame_shifts  Find translation shifts between consecutive
 	 blockface frames.
 	
 blockface_imread_gray.m
