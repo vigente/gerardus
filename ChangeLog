@@ -1,5 +1,11 @@
 2014-08-13  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/elastix_read_transf_result.m: (0.1.1)
+
+	- Rename output iter as iterInfo.
+
+	- Remove double quotes "" from text fields in the struct.
+
 	* Add matlab/FiltersToolbox/elastix_read_transf_result.m: (0.1.0)
 
 	- elastix_read_transf_result Read the result image and transform
