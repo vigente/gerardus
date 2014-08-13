@@ -1,8 +1,8 @@
-function [param, im, iterInfo] = elastix_read_transf_result(outdir)
-% elastix_read_transf_result  Read the result image and transform
-% parameters of a registration computed with elastix
+function [param, im, iterInfo] = elastix_read_reg_output(outdir)
+% elastix_read_reg_output  Read output of registration computed with
+% elastix.
 %
-% [PARAM, IM, ITERINFO] = elastix_read_transf_result(OUTDIR)
+% [PARAM, IM, ITERINFO] = elastix_read_reg_output(OUTDIR)
 %
 %   OUTDIR is a string with the path to the output directory created by
 %   elastix.
