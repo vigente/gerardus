@@ -1,5 +1,10 @@
 2014-08-13  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/FiltersToolbox/elastix_read_transf_result.m: (0.1.0)
+
+	- elastix_read_transf_result Read the result image and transform
+	parameters of a registration computed with elastix.
+
 	* Rename matlab/CardiacToolbox/blockface_frame_shifts.m as
 	matlab/CardiacToolbox/blockface_find_frame_shifts.m.
 
