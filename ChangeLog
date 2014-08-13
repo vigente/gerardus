@@ -1,5 +1,8 @@
 2014-08-13  Ramon Casero  <rcasero@gmail.com>
 
+	* Rename matlab/FiltersToolbox/elastix_read_transf_result.m as
+	matlab/FiltersToolbox/elastix_read_reg_output.m.
+
 	* matlab/FiltersToolbox/elastix_read_transf_result.m: (0.1.1)
 
 	- Rename output iter as iterInfo.
