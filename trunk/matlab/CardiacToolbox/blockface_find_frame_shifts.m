@@ -1,8 +1,8 @@
-function [txnorm, tx] = blockface_frame_shifts(files, pathtofiles)
-% blockface_frame_shifts  Find translation shifts between consecutive
+function [txnorm, tx] = blockface_find_frame_shifts(files, pathtofiles)
+% blockface_find_frame_shifts  Find translation shifts between consecutive
 % blockface frames.
 %
-% [TXNORM, TX] = blockface_frame_shifts(FILES, PATHTOFILES)
+% [TXNORM, TX] = blockface_find_frame_shifts(FILES, PATHTOFILES)
 %
 %   FILES is the result of a dir() command, e.g. dir('*_55_*.png'). The
 %   function expects a list of blockface images.
