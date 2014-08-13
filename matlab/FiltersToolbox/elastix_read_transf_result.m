@@ -1,8 +1,8 @@
-function [param, im, iter] = elastix_read_transf_result(outdir)
+function [param, im, iterInfo] = elastix_read_transf_result(outdir)
 % elastix_read_transf_result  Read the result image and transform
 % parameters of a registration computed with elastix
 %
-% [PARAM, IM, ITER] = elastix_read_transf_result(OUTDIR)
+% [PARAM, IM, ITERINFO] = elastix_read_transf_result(OUTDIR)
 %
 %   OUTDIR is a string with the path to the output directory created by
 %   elastix.
@@ -13,12 +13,12 @@ function [param, im, iter] = elastix_read_transf_result(outdir)
 %   IM is the result image of the elastix registration (e.g.
 %   OUTDIR/result.0.png, OUTDIR/result.0.jpg).
 %
-%   ITER is a struct with the details of the elastix optimization
+%   ITERINFO is a struct with the details of the elastix optimization
 %   (OUTDIR/IterationInfo.0.R0.txt).
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -102,10 +102,18 @@ while ischar(tline)
         val = tline2(idx+1:end);
     end
     
-    % if the value can be converted to numeric format, we do
+    % if the value can be converted to numeric format, we do. Otherwise,
+    % it's a string, and we remove the double quotes ""
     val2 = str2num(val);
     if (~isempty(val2))
         val = val2;
+    else
+        if (val(1) == '"')
+            val = val(2:end);
+        end
+        if (val(end) == '"')
+            val = val(1:end-1);
+        end
     end
     
     % add field to output struct
@@ -164,11 +172,11 @@ if (nargout > 2)
     table = dlmread([outdir filesep 'IterationInfo.0.R0.txt'], '\t', 1, 0);
     
     % create struct
-    iter.ItNr = table(:, 1);
-    iter.Metric = table(:, 2);
-    iter.stepSize = table(:, 3);
-    iter.Gradient = table(:, 4);
-    iter.Time = table(:, 5);
+    iterInfo.ItNr = table(:, 1);
+    iterInfo.Metric = table(:, 2);
+    iterInfo.stepSize = table(:, 3);
+    iterInfo.Gradient = table(:, 4);
+    iterInfo.Time = table(:, 5);
     
 end
 
