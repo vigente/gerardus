@@ -1,25 +1,28 @@
-function [txnorm, tx] = blockface_find_frame_shifts(files, pathtofiles)
+function [tnorm, t, iterInfo] = blockface_find_frame_shifts(files, pathtofiles)
 % blockface_find_frame_shifts  Find translation shifts between consecutive
 % blockface frames.
 %
-% [TXNORM, TX] = blockface_find_frame_shifts(FILES, PATHTOFILES)
+% [TNORM, T, ITERINFO] = blockface_find_frame_shifts(FILES, PATHTOFILES)
 %
 %   FILES is the result of a dir() command, e.g. dir('*_55_*.png'). The
 %   function expects a list of blockface images.
 %
 %   PATHTOFILES is the full path to the files. By default, PATHTOFILES='.'.
 %
-%   TXNORM is a vector with the norm of the translation vector between
-%   pairs of frames. If there are N blockface images, then TXNORM has N-1
-%   elements. TXNORM(I) is the norm of the translation from FILES(I+1) to
-%   FILES(I).
+%   TNORM is a vector. TNORM(I) is the norm of the translation from
+%   FILES(I+1) to FILES(I).
 %
-%   TX is an (N-1, 2)-matrix with the (x, y) translation vector. TX(I,:) is
-%   the translation from FILES(I+1) to FILES(I).
+%   T is a struct array. T(I) has the solution transform for the
+%   registration of FILES(I+1) onto FILES(I). See elastix for details.
+%
+%   ITERINFO is a struct array. ITERINFO(I) has the optimization measures
+%   corresponding to PARAM(I). See elastix for details.
+%
+% % See also: elastix, elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -50,7 +53,7 @@ DEBUG = 0;
 
 % check arguments
 narginchk(1, 2);
-nargoutchk(0, 2);
+nargoutchk(0, 3);
 
 % defaults
 if (nargin < 2 || isempty(pathtofiles))
@@ -60,17 +63,28 @@ end
 % write translation registration parameters to a temp file
 paramfile = write_translate_parameters_file();
 
-% init translation displacement vector
-tx = zeros(length(files)-1, 2);
-txnorm = zeros(length(files)-1, 1);
-
 % expand list of files names so that they can operate as sliced variables
 % in the parfor loop
 fixed = files(1:end-1);
 moving = files(2:end);
 
+% memory allocation for output
+tnorm = zeros(1, length(files)-1);
+
+% register 2nd frame onto 1st frame so that we can then create a struct
+% array with the other registrations. Allocate memory for the rest
+[t, iterInfo] = frame_registration(...
+    [pathtofiles filesep fixed(1).name], ...
+    [pathtofiles filesep moving(1).name], ...
+    paramfile, DEBUG);
+t(1:length(files)-1) = t;
+iterInfo(1:length(files)-1) = iterInfo;
+
+% norm of first translation
+tnorm(1) = norm(t(1).TransformParameters);
+
 % load images
-parfor I = 1:length(files)-1
+parfor I = 2:length(files)-1
     
     % display frame number
     if (DEBUG)
@@ -78,10 +92,13 @@ parfor I = 1:length(files)-1
     end
     
     % register I+1 frame onto I frame
-    [tx(I, :), txnorm(I)] = frame_registration(...
+    [t(I), iterInfo(I)] = frame_registration(...
         [pathtofiles filesep fixed(I).name], ...
         [pathtofiles filesep moving(I).name], ...
         paramfile, DEBUG);
+    
+    % norm of translation
+    tnorm(I) = norm(t(I).TransformParameters);
     
 end
 
@@ -95,12 +112,7 @@ end
 % frame_registration()
 %
 %   Translate registration of two frames.
-function [tx, txabs] = frame_registration(fixed, moving, paramfile, DEBUG)
-
-% temporary file for moving image and output directory for elastix
-im2_temp = [tempname '.png'];
-outdir_temp = tempname;
-mkdir(outdir_temp)
+function [t, iterInfo] = frame_registration(fixed, moving, paramfile, DEBUG)
 
 % load two consecutive frames
 im1 = imread(fixed);
@@ -123,44 +135,9 @@ if (DEBUG)
     imshowpair(im1, im2, 'Scaling', 'joint');
 end
 
-% save moving image to temporary file so that we can use elastix
-imwrite(im2, im2_temp);
-
-% translation registration of images
-if (DEBUG)
-    system([...
-        'elastix ' ...
-        ' -f ' fixed ...
-        ' -m ' moving ...
-        ' -out ' outdir_temp ...
-        ' -p ' paramfile
-        ]);
-else
-    % hide command output from elastix
-    [status, result] = system([...
-        'elastix ' ...
-        ' -f ' fixed ...
-        ' -m ' moving ...
-        ' -out ' outdir_temp ...
-        ' -p ' paramfile
-        ]);
-end
-
-% read result
-im2_reg = imread([outdir_temp filesep 'result.0.png']);
-
-% read transform parameters
-fid = fopen([outdir_temp filesep 'TransformParameters.0.txt']);
-if (fid == -1)
-    error(['Cannot open ' outdir_temp filesep 'TransformParameters.0.txt'])
-end
-c = textscan(fid, '%s %s %s', 'Delimiter', ' ', 'ReturnOnError', false);
-fclose(fid);
-idx = find(strcmp('(TransformParameters', c{1}));
-tx = [str2double(c{2}{idx}) str2double(c{3}{idx}(1:end-1))];
-
-% translation displacement
-txabs = norm(tx);
+% register corrected 2nd frame onto 1st frame
+param.verbose = DEBUG;
+[t, im2_reg, iterInfo] = elastix(paramfile, im1, im2, param);
 
 % plot result
 if (DEBUG)
@@ -171,10 +148,6 @@ if (DEBUG)
     hold off
     imshowpair(im1, im2_reg, 'Scaling', 'joint');
 end
-
-% delete temp directory and file
-rmdir(outdir_temp, 's')
-delete(im2_temp)
 
 end
 

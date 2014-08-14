@@ -1,24 +1,26 @@
-function [param, im, iterInfo] = elastix_read_reg_output(outdir)
+function [t, im, iterInfo] = elastix_read_reg_output(outdir)
 % elastix_read_reg_output  Read output of registration computed with
 % elastix.
 %
-% [PARAM, IM, ITERINFO] = elastix_read_reg_output(OUTDIR)
+% [T, IM, ITERINFO] = elastix_read_reg_output(OUTDIR)
 %
 %   OUTDIR is a string with the path to the output directory created by
 %   elastix.
 %
-%   PARAM is a struct with the contents of the parameter transform file
-%   (OUTDIR/TransformParameters.0.txt).
+%   T is a struct with the contents of the parameter transform file
+%   (OUTDIR/TransformParameters.0.txt). See elastix for details.
 %
 %   IM is the result image of the elastix registration (e.g.
 %   OUTDIR/result.0.png, OUTDIR/result.0.jpg).
 %
 %   ITERINFO is a struct with the details of the elastix optimization
-%   (OUTDIR/IterationInfo.0.R0.txt).
+%   (OUTDIR/IterationInfo.0.R0.txt). See elastix for details.
+%
+% See also: elastix, blockface_find_frame_shifts.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
@@ -53,7 +55,7 @@ nargoutchk(0, 3);
 %% TransformParameters.0.txt
 
 % init output struct
-param = struct([]);
+t = struct([]);
 
 % open transform parameters text file to read
 fid = fopen([outdir filesep 'TransformParameters.0.txt'], 'r');
@@ -117,10 +119,10 @@ while ischar(tline)
     end
     
     % add field to output struct
-    if (isempty(param))
-        param = struct(label, val);
+    if (isempty(t))
+        t = struct(label, val);
     else
-        param.(label) = val;
+        t.(label) = val;
     end
     
     % read next line
