@@ -1,3 +1,35 @@
+2014-08-14  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/FiltersToolbox/elastix.m: (0.1.0)
+
+	- elastix Matlab interface to the image registration program
+	"elastix".
+
+	* matlab/CardiacToolbox/blockface_find_frame_shifts.m: (0.2.0)
+
+	- Instead of returning the translation transform as a 2-vector
+	with the X, Y translation, now we return a struct with all the
+	fields in the TransformParameters.0.txt file.
+
+	- Intead of reading TransformParameters.0.txt manually, we now use
+	elastix_read_reg_output().
+
+	- Instead of creating temp files and directories and calling
+	elastix by hand using system(), we use new function elastix() to
+	do the registration.
+
+	- Fix bug. We were registering the corrected grayscale moving
+	image to the original RGB fixed image.
+
+	- Rename output arguments tx, txnorm as t, tnorm.
+
+	- Add output argument iterInfo.
+
+	* matlab/FiltersToolbox/elastix_read_reg_output.m: (0.1.2)
+
+	- Rename output argument param as t, as this variable contains the
+	transform result, not algorithm parameters.
+
 2014-08-13  Ramon Casero  <rcasero@gmail.com>
 
 	* Rename matlab/FiltersToolbox/elastix_read_transf_result.m as
