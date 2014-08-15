@@ -10,10 +10,10 @@ function [tnorm, t, iterInfo] = blockface_find_frame_shifts(files, pathtofiles)
 %   PATHTOFILES is the full path to the files. By default, PATHTOFILES='.'.
 %
 %   TNORM is a vector. TNORM(I) is the norm of the translation from
-%   FILES(I+1) to FILES(I).
+%   FILES(I) to FILES(I-1).
 %
 %   T is a struct array. T(I) has the solution transform for the
-%   registration of FILES(I+1) onto FILES(I). See elastix for details.
+%   registration of FILES(I) onto FILES(I-1). See elastix for details.
 %
 %   ITERINFO is a struct array. ITERINFO(I) has the optimization measures
 %   corresponding to PARAM(I). See elastix for details.
@@ -22,7 +22,7 @@ function [tnorm, t, iterInfo] = blockface_find_frame_shifts(files, pathtofiles)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
@@ -69,19 +69,29 @@ fixed = files(1:end-1);
 moving = files(2:end);
 
 % memory allocation for output
-tnorm = zeros(1, length(files)-1);
+tnorm = zeros(1, length(files));
 
 % register 2nd frame onto 1st frame so that we can then create a struct
-% array with the other registrations. Allocate memory for the rest
+% array with the other registrations. 
 [t, iterInfo] = frame_registration(...
     [pathtofiles filesep fixed(1).name], ...
     [pathtofiles filesep moving(1).name], ...
     paramfile, DEBUG);
-t(1:length(files)-1) = t;
-iterInfo(1:length(files)-1) = iterInfo;
 
-% norm of first translation
-tnorm(1) = norm(t(1).TransformParameters);
+% Allocate memory for the rest
+t(1:length(files)) = t;
+iterInfo(1:length(files)) = iterInfo;
+
+% frame 1 is the reference and doesn't get registered to anything
+t(1).TransformParameters(:) = 0;
+iterInfo(1).ItNr(:) = 0;
+iterInfo(1).Metric(:) = 0;
+iterInfo(1).stepSize(:) = 0;
+iterInfo(1).Gradient(:) = 0;
+iterInfo(1).Time(:) = 0;
+
+% norm of first translation (frame 2 to frame 1)
+tnorm(2) = norm(t(2).TransformParameters);
 
 % load images
 parfor I = 2:length(files)-1
@@ -92,13 +102,13 @@ parfor I = 2:length(files)-1
     end
     
     % register I+1 frame onto I frame
-    [t(I), iterInfo(I)] = frame_registration(...
+    [t(I+1), iterInfo(I+1)] = frame_registration(...
         [pathtofiles filesep fixed(I).name], ...
         [pathtofiles filesep moving(I).name], ...
         paramfile, DEBUG);
     
     % norm of translation
-    tnorm(I) = norm(t(I).TransformParameters);
+    tnorm(I+1) = norm(t(I+1).TransformParameters);
     
 end
 
