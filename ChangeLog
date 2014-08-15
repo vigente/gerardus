@@ -1,3 +1,12 @@
+2014-08-15  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CardiacToolbox/blockface_find_frame_shifts.m: (0.3.0)
+
+	- Shift output variables, so that t(I) corresponds to the
+	transfrom from frame I to frame I-1, etc. This makes that tnorm, t
+	and iterInfo have one element per frame, and makes it easier to
+	work with them.
+
 2014-08-14  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/FiltersToolbox/elastix.m: (0.1.0)
