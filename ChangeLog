@@ -1,5 +1,10 @@
 2014-08-19  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/FiltersToolbox/transformix: (0.1.0)
+
+	- transformix Matlab interface to the image warping program
+	"transformix".
+
 	* Add matlab/FiltersToolbox/elastix_write_param2file.m: (0.1.0)
 
 	- elastix_write_param2file Write struct with elastix parameters to

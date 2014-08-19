@@ -445,6 +445,10 @@ skeleton_plot.m
 
 	 SKELETON_PLOT  Plot a labelled segmentation and its skeleton
 	
+transformix.m
+
+	 transformix  Matlab interface to the image warping program "transformix".
+	
 typicalpsf.m
 
 	 TYPICALPSF  Estimate point spread function from microbeads image
