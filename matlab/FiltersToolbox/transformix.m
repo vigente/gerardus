@@ -1,12 +1,17 @@
 function imout = transformix(t, im, opts)
 % transformix  Matlab interface to the image warping program "transformix".
 %
+% transformix is a simple interface to the command line program
+% "transformix"
+%
+%   http://elastix.isi.uu.nl/
+%
 % FILENAMEOUT = transformix(T, FILENAMEIN)
 % IMOUT = transformix(T, IMIN)
 %
-%   T is a struct with the transform parameters. Typically, this is the
-%   output of a call to elastix, the registration program. See help to
-%   elastix for details.
+%   T is a struct, or the path and name of a text file with the transform
+%   parameters. Typically, this is the output of a call to elastix, the
+%   registration program. See help to elastix for details.
 %
 %   The input image can be provided either as a string with the path and
 %   filename (FILENAMEIN) or as an image array (IMIN). The output will have
@@ -26,10 +31,12 @@ function imout = transformix(t, im, opts)
 %     outfile: path and filename to output image. If none is provided, a
 %       random filename in the temp directory is created. This option is
 %       ignored if the input/output images are given in array form.
+%
+% See also: elastix.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -79,10 +86,14 @@ if (isstruct(t))
     tfile = elastix_write_param2file([], t);
     delete_tfile = true;
     
-else
+elseif (ischar(t))
     
     tfile = t;
     delete_tfile = false;
+    
+else
+    
+    error('T must be a struct, or a path and filename')
     
 end
 
