@@ -304,6 +304,10 @@ elastix_read_reg_output.m
 	 elastix_read_reg_output  Read output of registration computed with
 	 elastix.
 	
+elastix_write_param2file.m
+
+	 elastix_write_param2file  Write struct with elastix parameters to file.
+	
 fspecial3.m
 
 	 FSPECIAL3  Create predefined 3-dimensional filters
