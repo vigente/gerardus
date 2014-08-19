@@ -1,5 +1,10 @@
 2014-08-19  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/transformix: (0.1.1)
+
+	- Check that T is either a struct or string. Correct the help
+	header to note that it can be either.
+
 	* Add matlab/FiltersToolbox/transformix: (0.1.0)
 
 	- transformix Matlab interface to the image warping program
