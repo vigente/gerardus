@@ -32,7 +32,8 @@ function imout = transformix(t, im, opts)
 %       random filename in the temp directory is created. This option is
 %       ignored if the input/output images are given in array form.
 %
-% See also: elastix.
+% See also: elastix, elastix_read_file2param, elastix_write_param2file,
+% elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
