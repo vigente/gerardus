@@ -4,7 +4,7 @@ function [y, stopCondition, sigma, t] = smacof(dx, y, w, opts)
 %
 % SMACOF (Scaling by MAjorizing a COnvex Function) is an iterative method
 % to solve Multidimensional Scaling problems, proposed by de Leeuw and
-% Heiser [1]-[3] from the late 1970s. A modern account can be found in [4].
+% Heiser [1]-[2] from the late 1970s. A modern account can be found in [3].
 %
 % An advantage of SMACOF over classical MDS (cmdscale) is that the former
 % accepts sparse distance matrices. A disadvantage is that the solution is
@@ -50,27 +50,33 @@ function [y, stopCondition, sigma, t] = smacof(dx, y, w, opts)
 %     'TolFun':  (default = 1e-12) Termination tolerance of the stress
 %                value.
 %
+%     'Update':  (default = 'classical') Guttman transform update with
+%                ('classical' [1]-[3]) or without ('reduced' [4])
+%                translation degree of freedom. Our testing doesn't seem to
+%                make a difference in the solution, although possibly
+%                'reduced' is faster when inverting V.
+%
 %
 % [1] J. De Leeuw, "Applications of convex analysis to multidimensional
-% scaling," Recent Developments in Statistics, pp. 133�146, 1977.
+% scaling," Recent Developments in Statistics, pp. 133-146, 1977.
 %
 % [2] J. De Leeuw and W. J. Heiser, "Convergence of correction matrix
 % algorithms for multidimensional scaling," ser. Geometric representations
-% of relational data, J. C. Lingoes, Ed. Mathesis Press, 1977, pp. 735�753.
+% of relational data, J. C. Lingoes, Ed. Mathesis Press, 1977, pp. 735-753.
 %
-% [3] ��, "Multidimensional scaling with restrictions on the
-% configuration," ser. Multivariate analysis, P. R. Krishnaiah, Ed., vol.
-% 5. North Holland Publishing Company, 1980, pp. 501�522.
-%
-% [4] J. De Leeuw and P. Mair, "Multidimensional scaling using
+% [3] J. De Leeuw and P. Mair, "Multidimensional scaling using
 % majorization: SMACOF in R," Journal of Statistical Software, vol. 31, no.
 % 3, 2009.
+%
+% [4] E. R. Gansner, Y. Koren, and S. North, "Graph drawing by stress
+% majorization," in Proceedings of the 12th international conference on
+% Graph Drawing, 2005, pp. 239–250.
 %
 % See also: cmds.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.0.3
+% Version: 0.1.0
 % $Rev$
 % $Date$
 %
@@ -139,14 +145,40 @@ end
 if (nargin < 4 || isempty(opts) || ~isfield(opts, 'TolFun'))
     opts.TolFun = 1e-12;
 end
+if (nargin < 4 || isempty(opts) || ~isfield(opts, 'Update'))
+    opts.Update = 'classical';
+end
 
 % pre-compute the weighted Laplacian matrix
 V = -w;
 V(1:N+1:end) = sum(w, 2);
 
-% pre-compute peudoinverse of V (V is square but not full rank, so we
-% cannot compute the inverse)
-Vinv = pinv(full(V));
+switch (opts.Update)
+    
+    case 'classical'
+        
+        % pre-compute peudoinverse of V (V is square but not full rank, so we
+        % cannot compute the inverse)
+        Vinv = pinv(full(V));
+        
+    case 'reduced'
+
+        % pre-compute inverse of V minus first row and column, as suggested
+        % by Gansner et al. (2005), to remove the translation
+        % degree-of-freedom, assuming that the first point in the solution
+        % is 0. In reality, they suggested solving a system using Cholesky
+        % factorization or conjugate gradient, but we haven't implemented
+        % it here for code simplicity.
+        Vinv = inv(V(2:end, 2:end));
+        
+        % translate the intial solution so that the first point is 0
+        y = y - repmat(y(1, :), N, 1);
+        
+    otherwise
+        
+        error('Method for opts.Update not implemented')
+        
+end
 
 % we don't need V anymore
 clear V
@@ -183,9 +215,21 @@ for I = 1:opts.MaxIter
     % auxiliary matrix B: main diagonal elements
     B(1:N+1:end) = -sum(B, 2);
     
-    % Guttman transform update
-    y = Vinv * B * y;
+    switch (opts.Update)
+        
+        case 'classical'
 
+            % Guttman transform update
+            y = Vinv * B * y;
+            
+        case 'reduced'
+            
+            % Reduced Guttman transform update
+            y = [zeros(1, size(y, 2))
+                Vinv * B(2:end, 2:end) * y(2:end, :)];
+            
+    end
+    
     % recompute distances between vertices in the current solution
     dy = dmatrix_con(dx, y);
 
