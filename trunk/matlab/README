@@ -57,14 +57,14 @@ blockface_equalise_illumination.m
 	 BLOCKFACE_EQUALISE_ILLUMINATION  Correct illumination inhomogeneities in
 	 blockface photography.
 	
-blockface_find_frame_shifts.m
-
-	 blockface_find_frame_shifts  Find transformations that register
-	 consecutive frames in a list of images.
-	
 blockface_imread_gray.m
 
 	 BLOCKFACE_IMREAD_GRAY  Read multiple image files into grayscale volume.
+	
+blockface_intraframe_reg.m
+
+	 blockface_intraframe_reg  Register consecutive frames in a list of
+	 blockface images.
 	
 correct_rv_crescent_tips.m
 
