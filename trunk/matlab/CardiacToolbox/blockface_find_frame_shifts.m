@@ -1,28 +1,31 @@
-function [tnorm, t, iterInfo] = blockface_find_frame_shifts(files, pathtofiles)
-% blockface_find_frame_shifts  Find translation shifts between consecutive
-% blockface frames.
+function [t, tParam, iterInfo, regParam] = blockface_find_frame_shifts(pathstr, files)
+% blockface_find_frame_shifts  Find transformations that register
+% consecutive frames in a list of images.
 %
-% [TNORM, T, ITERINFO] = blockface_find_frame_shifts(FILES, PATHTOFILES)
+% [T, TPARAM, ITERINFO, REGPARAM] = blockface_find_frame_shifts(PATHSTR, FILES)
+%
+%   PATHSTR is the full path to the files. If empty, PATHTOFILES='.'.
 %
 %   FILES is the result of a dir() command, e.g. dir('*_55_*.png'). The
 %   function expects a list of blockface images.
 %
-%   PATHTOFILES is the full path to the files. By default, PATHTOFILES='.'.
+%   T is a matrix where row I contains the transform parameters of the
+%   registration from FILES(I) to FILES(I-1).
 %
-%   TNORM is a vector. TNORM(I) is the norm of the translation from
-%   FILES(I) to FILES(I-1).
-%
-%   T is a struct array. T(I) has the solution transform for the
-%   registration of FILES(I) onto FILES(I-1). See elastix for details.
+%   TPARAM is a struct array. TPARAM(I) has all the details of the
+%   transform from FILES(I) to FILES(I-1).
 %
 %   ITERINFO is a struct array. ITERINFO(I) has the optimization measures
-%   corresponding to PARAM(I). See elastix for details.
+%   corresponding to TPARAM(I). See elastix for details.
+%
+%   REGPARAM is a struct with the registration parameters generated
+%   internally by the function.
 %
 % % See also: elastix, elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.0
+% Version: 0.4.0
 % $Rev$
 % $Date$
 % 
@@ -52,68 +55,74 @@ function [tnorm, t, iterInfo] = blockface_find_frame_shifts(files, pathtofiles)
 DEBUG = 0;
 
 % check arguments
-narginchk(1, 2);
-nargoutchk(0, 3);
+narginchk(2, 2);
+nargoutchk(0, 4);
 
-% defaults
-if (nargin < 2 || isempty(pathtofiles))
-    pathtofiles = '.';
+if (length(files) < 2)
+    error('At least two files are needed for registration')
 end
 
-% write translation registration parameters to a temp file
-paramfile = write_translate_parameters_file();
+% defaults
+if (isempty(pathstr))
+    pathstr = '.';
+end
 
-% expand list of files names so that they can operate as sliced variables
-% in the parfor loop
+% create a struct with the registration parameters
+regParam = generate_registration_parameters([pathstr filesep files(1).name]);
+
+% expand list of files names to clarify notation
 fixed = files(1:end-1);
 moving = files(2:end);
 
 % memory allocation for output
-tnorm = zeros(1, length(files));
+switch (regParam.Transform)
+    case 'SimilarityTransform'
+        t = zeros(length(files), 4);
+    otherwise
+        error('Transform not implemented')
+end
 
-% register 2nd frame onto 1st frame so that we can then create a struct
-% array with the other registrations. 
-[t, iterInfo] = frame_registration(...
-    [pathtofiles filesep fixed(1).name], ...
-    [pathtofiles filesep moving(1).name], ...
-    paramfile, DEBUG);
+% register 2nd frame onto 1st frame to obtain a param struct that we can
+% use as reference
+[tParam, iterInfo] = frame_registration(...
+    [pathstr filesep fixed(1).name], ...
+    [pathstr filesep moving(1).name], ...
+    regParam, DEBUG);
+t(2, :) = tParam.TransformParameters;
 
 % Allocate memory for the rest
-t(1:length(files)) = t;
+tParam(1:length(files)) = tParam;
 iterInfo(1:length(files)) = iterInfo;
 
 % frame 1 is the reference and doesn't get registered to anything
-t(1).TransformParameters(:) = 0;
+tParam(1).TransformParameters(:) = 0;
 iterInfo(1).ItNr(:) = 0;
 iterInfo(1).Metric(:) = 0;
 iterInfo(1).stepSize(:) = 0;
 iterInfo(1).Gradient(:) = 0;
 iterInfo(1).Time(:) = 0;
 
-% norm of first translation (frame 2 to frame 1)
-tnorm(2) = norm(t(2).TransformParameters);
-
-% load images
-parfor I = 2:length(files)-1
+% iterate images that we have to register
+% note: even though elastix uses parallel processing, it is slightly faster
+% (factor of ~0.93) using parfor to run 4 registrations on 1 processor at
+% the same time than 1 registration on 4 processors
+parfor I = 2:length(fixed)
     
     % display frame number
     if (DEBUG)
-        disp(['Frame ' num2str(I)])
+        disp(['Registering frame ' moving(I).name ' -> ' fixed(I).name])
     end
     
     % register I+1 frame onto I frame
-    [t(I+1), iterInfo(I+1)] = frame_registration(...
-        [pathtofiles filesep fixed(I).name], ...
-        [pathtofiles filesep moving(I).name], ...
-        paramfile, DEBUG);
+    [tParam(I+1), iterInfo(I+1)] = frame_registration(...
+        [pathstr filesep fixed(I).name], ...
+        [pathstr filesep moving(I).name], ...
+        regParam, DEBUG);
     
-    % norm of translation
-    tnorm(I+1) = norm(t(I+1).TransformParameters);
+    % transformation parameters
+    t(I+1, :) = tParam(I+1).TransformParameters;
     
 end
-
-% delete temp file
-delete(paramfile);
 
 end
 
@@ -162,146 +171,57 @@ end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% write_translate_parameters_file()
+% generate_registration_parameters()
 %
-%   Create a text file with the registration parameters
-function file = write_translate_parameters_file()
+%   Create a struct with the parameters necessary to find 
+function regParam = generate_registration_parameters(file)
 
-% create unique temp name for the parameters file
-[pathstr, name] = fileparts(tempname);
-file = [pathstr filesep 'ParametersTranslation2D-' name '.txt'];
+info = imfinfo(file);
 
-% text of the parameters file
-file_text = {
-'// Parameter file for affine registration'
-''
-'// The internal pixel type, used for computations'
-'// Leave to float in general'
-'(FixedInternalImagePixelType "float")'
-'(MovingInternalImagePixelType "float")'
-''
-'// The dimensions of the fixed and moving image'
-'(FixedImageDimension 2)'
-'(MovingImageDimension 2)'
-''
-'//Components'
-''
-'// The following components should be left as they are:'
-'(Registration "MultiResolutionRegistration")'
-'(FixedImagePyramid "FixedRecursiveImagePyramid")'
-'(MovingImagePyramid "MovingRecursiveImagePyramid")'
-'(Interpolator "BSplineInterpolator")'
-'(ResampleInterpolator "FinalBSplineInterpolator")'
-'(Resampler "DefaultResampler")'
-''
-'// You may change these:'
-'// The optimizer RegularStepGradientDescent (RSGD) works quite ok '
-'// in general. You may also use the StandardGradientDescent,'
-'// like in parameters_Rigid.txt. The Transform and Metric'
-'// are important and need to be chosen careful for each application.'
-'(Optimizer "RegularStepGradientDescent")'
-'(Transform "TranslationTransform")'
-'(Metric "AdvancedMeanSquares")'
-''
-'// Scales the rotations compared to the translations, to make'
-'// sure they are in the same range. The higher this parameter,'
-'// the smaller the changes in rotation angle in each iteration.'
-'// If you have the feeling that rotations are not found by elastix,'
-'// decrease it; if elastix crashes after a few iterations, with'
-'// the message that all samples map outside the moving image '
-'// buffer, you may have to increase this parameter.'
-'(Scales 1000.0)'
-''
-'// Automatically guess an initial translation. Not needed/recommended'
-'// here, because we already did a rigid registration before!'
-'(AutomaticTransformInitialization "false")'
-''
-'// Highly recommended to set this from elastix 4.3'
-'(UseDirectionCosines "true")'
-''
-'// Choose another center of rotation for the AffineTransform,'
-'// if you like. Uncomment if you want that.'
-'(CenterOfRotation 1232 954)'
-''
-'// The number of resolutions. 1 Is only enough if the expected'
-'// deformations are small. 3 or 4 mostly works fine.'
-'(NumberOfResolutions 1)'
-''
-'// The pixel type of the resulting image'
-'(ResultImagePixelType "unsigned char")'
-''
-'// Whether transforms are combined by composition or by addition.'
-'// In general, Compose is the best option in most cases.'
-'// It does not influence the results very much.'
-'(HowToCombineTransforms "Compose")'
-''
-'// Number of spatial samples used to compute the mutual'
-'// information in each resolution level.'
-'// With the RegularStepGradientDescentOptimizer in general'
-'// you need to set this to some fixed fraction of the total '
-'// number of voxels in the image. Say 20%, at least.'
-'// In the first resolutions the images are smaller so you '
-'// may use less samples.'
-'(NumberOfSpatialSamples 1500000)'
-''
-'// Pick the samples (pseudo)randomly. Use "Full" if you want'
-'// to use all voxels to compute metric. (then the previous '
-'// option makes of course no sense anymore).'
-'(ImageSampler "Random")'
-''
-'//Order of B-Spline interpolation used in each resolution level:'
-'// It may improve accuracy if you set this to 3. Never use 0.'
-'(BSplineInterpolationOrder 3)'
-''
-'//Order of B-Spline interpolation used for applying the final'
-'// deformation.'
-'// 3 gives good accuracy.'
-'// 1 gives worse accuracy (linear interpolation)'
-'// 0 gives worst accuracy, but may be appropriate for '
-'// binary images; this would be equivalent to nearest neighbor'
-'// interpolation.'
-'(FinalBSplineInterpolationOrder 3)'
-''
-'//Default pixel value for pixels that come from outside the picture:'
-'(DefaultPixelValue 0)'
-''
-'// The following parameters are for the StandardGradientDescent'
-'// optimizer. They determine the step size.'
-'// Especially SP_a needs to be tuned for each specific application.'
-'// The number of iterations is also important.'
-''
-'//Maximum number of iterations in each resolution level:'
-'// 100-500 works usually fine.'
-'(MaximumNumberOfIterations 100)'
-''
-'//Maximum step size of the RSGD optimizer for each resolution level.'
-'// The higher you set this, the more aggressive steps are taken.'
-'(MaximumStepLength 2.0)'
-''
-'//Minimum step size of the RSGD optimizer for each resolution level.'
-'// The lower you set this, the more accurate the final result.'
-'(MinimumStepLength 0.05)'
-''
-'//Minimum magnitude of the gradient (stopping criterion) for the RSGD optimizer:'
-'// The lower you set this, the more accurate the final result may be.'
-'(MinimumGradientMagnitude 0.00000001)'
-''
-'//Result image format'
-'(ResultImageFormat "png")'
-    };
-
-% write text to file
-fid = fopen(file, 'w+t');
-if (fid == -1)
-    error(['Error: Cannot open file descriptor to write registration parameters file: ' file])
-end
-[nrows, ~] = size(file_text);
-for row = 1:nrows
-    fprintf(fid, '%s\n', file_text{row, :});
-end
-st = fclose(fid);
-if (st == -1)
-    error(['Error: Cannot close parameters file: ' file])
-end
+regParam.FixedInternalImagePixelType = 'float';
+regParam.MovingInternalImagePixelType = 'float';
+regParam.FixedImageDimension = 2;
+regParam.MovingImageDimension = 2;
+regParam.Registration = 'MultiResolutionRegistration';
+regParam.FixedImagePyramid = 'FixedRecursiveImagePyramid';
+regParam.MovingImagePyramid = 'MovingRecursiveImagePyramid';
+regParam.Interpolator = 'BSplineInterpolator';
+regParam.ResampleInterpolator = 'FinalBSplineInterpolator';
+regParam.Resampler = 'DefaultResampler';
+regParam.Optimizer = 'RegularStepGradientDescent';
+regParam.Transform = 'SimilarityTransform';
+regParam.Metric = 'AdvancedMattesMutualInformation';
+regParam.NumberOfHistogramBins = 32;
+% Scales the rotations compared to the translations, to make
+% sure they are in the same range. The higher this parameter,
+% the smaller the changes in rotation angle in each iteration.
+% If you have the feeling that rotations are not found by elastix,
+% decrease it; if elastix crashes after a few iterations, with
+% the message that all samples map outside the moving image 
+% buffer, you may have to increase this parameter.
+regParam.Scales = 10000.0;
+regParam.AutomaticTransformInitialization = 'true';
+regParam.UseDirectionCosines = 'true';
+%param.CenterOfRotation = blockc;
+regParam.NumberOfResolutions = 1;
+regParam.ResultImagePixelType = 'unsigned char';
+regParam.HowToCombineTransforms = 'Compose';
+regParam.NumberOfSpatialSamples = round(info.Width * info.Height * .3);
+regParam.ImageSampler = 'Random';
+regParam.BSplineInterpolationOrder = 3;
+regParam.FinalBSplineInterpolationOrder = 3;
+regParam.DefaultPixelValue = 0;
+regParam.MaximumNumberOfIterations = 500;
+% Maximum step size of the RSGD optimizer for each resolution level.
+% The higher you set this, the more aggressive steps are taken.
+regParam.MaximumStepLength = 1.0;
+% Minimum step size of the RSGD optimizer for each resolution level.
+% The lower you set this, the more accurate the final result
+regParam.MinimumStepLength = 0.005;
+% Minimum magnitude of the gradient (stopping criterion) for the RSGD optimizer:
+% The lower you set this, the more accurate the final result may be
+regParam.MinimumGradientMagnitude = 0.000001;
+regParam.ResultImageFormat = 'png';
+regParam.CompressResultImage = 'true';
 
 end
