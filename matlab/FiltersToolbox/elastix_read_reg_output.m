@@ -20,7 +20,7 @@ function [t, im, iterInfo] = elastix_read_reg_output(outdir)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.2
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -54,84 +54,7 @@ nargoutchk(0, 3);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% TransformParameters.0.txt
 
-% init output struct
-t = struct([]);
-
-% open transform parameters text file to read
-fid = fopen([outdir filesep 'TransformParameters.0.txt'], 'r');
-if (fid == -1)
-    error(['Cannot open ' outdir filesep 'TransformParameters.0.txt'])
-end
-
-% read text file line by line
-tline = fgetl(fid);
-while ischar(tline)
-    
-    % duplicate line to process it
-    tline2 = tline;
-    
-    % skip lines that have no parameters
-    if (isempty(tline2) || (tline2(1) ~= '('))
-        
-        % read next line
-        tline = fgetl(fid);
-        
-        continue;
-    end
-    
-    % sanity check that parameter line ends in ')'
-    if (tline2(end) ~= ')')
-        error(['Line does''t end in '')'': ' tline2])
-    end
-    
-    % remove '(' and ')' from the line
-    tline2 = tline2(2:end-1);
-    
-    % position of first whitespace
-    idx = strfind(tline2, ' ');
-    
-    % get parameter field label
-    if (isempty(idx))
-        label = tline2;
-    else
-        label = tline2(1:idx-1);
-    end
-    
-    % get parameter values
-    if (isempty(idx))
-        val = [];
-    else
-        val = tline2(idx+1:end);
-    end
-    
-    % if the value can be converted to numeric format, we do. Otherwise,
-    % it's a string, and we remove the double quotes ""
-    val2 = str2num(val);
-    if (~isempty(val2))
-        val = val2;
-    else
-        if (val(1) == '"')
-            val = val(2:end);
-        end
-        if (val(end) == '"')
-            val = val(1:end-1);
-        end
-    end
-    
-    % add field to output struct
-    if (isempty(t))
-        t = struct(label, val);
-    else
-        t.(label) = val;
-    end
-    
-    % read next line
-    tline = fgetl(fid);
-    
-end
-
-% close parameters file
-fclose(fid);
+t = elastix_read_file2param([outdir filesep 'TransformParameters.0.txt']);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% result.0.png
