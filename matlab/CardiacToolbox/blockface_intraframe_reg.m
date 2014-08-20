@@ -1,8 +1,12 @@
-function [t, tParam, iterInfo, regParam] = blockface_find_frame_shifts(pathstr, files)
-% blockface_find_frame_shifts  Find transformations that register
-% consecutive frames in a list of images.
+function [t, tParam, iterInfo, regParam] = blockface_intraframe_reg(pathstr, files)
+% blockface_intraframe_reg  Register consecutive frames in a list of
+% blockface images.
 %
-% [T, TPARAM, ITERINFO, REGPARAM] = blockface_find_frame_shifts(PATHSTR, FILES)
+% blockface_intraframe_reg takes a list of files with blockface images, and
+% registers each file(I) to file(I-1), using a similarity transformation to
+% account for small translation and zoom-in/zoom-out movements.
+%
+% [T, TPARAM, ITERINFO, REGPARAM] = blockface_intraframe_reg(PATHSTR, FILES)
 %
 %   PATHSTR is the full path to the files. If empty, PATHTOFILES='.'.
 %
