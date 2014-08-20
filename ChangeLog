@@ -1,5 +1,10 @@
 2014-08-20  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/PointsToolbox/smacof.m: (0.1.0)
+
+	- Add opts.Update = 'reduced' for the reduced form of the Guttman
+	update proposed by Gasner et al.
+
 	* Rename matlab/CardiacToolbox/blockface_find_frame_shifts.m as
 	matlab/CardiacToolbox/blockface_intraframe_reg.m.
 
