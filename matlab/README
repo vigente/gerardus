@@ -59,8 +59,8 @@ blockface_equalise_illumination.m
 	
 blockface_find_frame_shifts.m
 
-	 blockface_find_frame_shifts  Find translation shifts between consecutive
-	 blockface frames.
+	 blockface_find_frame_shifts  Find transformations that register
+	 consecutive frames in a list of images.
 	
 blockface_imread_gray.m
 

@@ -1,5 +1,24 @@
 2014-08-20  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CardiacToolbox/blockface_find_frame_shifts.m: (0.4.0)
+
+	- Change translation transform by similarity transform, because in
+	some cases, frames shift not by translation but because the camera
+	seems to zoom in or out a bit.
+
+	- Tune the registration parameters so that they get a good precise
+	registration between frames (e.g. switch to
+	AdvancedMattesMutualInformation, make iteration steps smaller,
+	etc.).
+
+	- Don't return tnorm, as with similarity transforms it doesn't
+	make much sense. Instead, we return all the parameters of the
+	registration.
+
+	- Use struct instead of file for registration parameters.
+
+	- Swap input arguments so that path goes first, then file names.
+
 	* matlab/FiltersToolbox/elastix.m: (0.2.0)
 
 	- Input parameters for the registration can be a struct apart from
