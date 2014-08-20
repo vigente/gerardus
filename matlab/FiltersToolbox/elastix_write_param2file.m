@@ -17,8 +17,8 @@ function filename = elastix_write_param2file(filename, param)
 %           FixedInternalImagePixelType: 'float'
 %                                     ...
 %
-%    A temp file created and the struct is saved in a format understood by
-%    elastix. For the example above,
+%   A temp file created and the struct is saved in a format understood by
+%   elastix. For the example above,
 %
 %   (Transform "SimilarityTransform")
 %   (NumberOfParameters 4)
@@ -37,10 +37,13 @@ function filename = elastix_write_param2file(filename, param)
 %
 %   This syntax allows to decide the output filename, rather than letting
 %   the function produce a random name.
+%
+% See also: elastix_read_file2param, elastix, transformix,
+% elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 

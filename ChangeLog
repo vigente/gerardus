@@ -1,3 +1,19 @@
+2014-08-20  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/FiltersToolbox/elastix_read_file2param.m: (0.1.0)
+
+	- elastix_read_file2param Read file with elastix parameters to
+	struct.
+
+	* matlab/FiltersToolbox/elastix_read_reg_output: (0.2.0)
+
+	- Move code to read TransformParameters.0.txt to independent
+	function elastix_read_file2param().
+
+	* matlab/FiltersToolbox/elastix_write_param2file.m: (0.1.1)
+
+	- Update help header with new function.
+
 2014-08-19  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/transformix: (0.1.1)
