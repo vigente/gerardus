@@ -1,5 +1,17 @@
 2014-08-20  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/elastix.m: (0.2.0)
+
+	- Input parameters for the registration can be a struct apart from
+	a text file now.
+
+	- Input images (whether input is a filename or array) that are RGB
+	(colour) are now converted to grayscale before processing, because
+	elastix will only use the first channel otherwise, and ignore the
+	rest.
+
+	- Rename input argument param -> opts.
+
 	* Add matlab/FiltersToolbox/elastix_read_file2param.m: (0.1.0)
 
 	- elastix_read_file2param Read file with elastix parameters to

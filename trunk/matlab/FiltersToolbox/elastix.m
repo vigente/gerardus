@@ -1,4 +1,4 @@
-function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, param)
+function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 % elastix  Matlab interface to the image registration program "elastix".
 %
 % elastix is a simple interface to the command line program "elastix"
@@ -14,10 +14,7 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, param)
 % and directories, reading the result to Matlab variables, and cleaning up
 % afterwards.
 %
-% Note: Currently this function as been tested only with a single-level
-% registration.
-%
-% [T, MOVINGREG, ITERINFO] = elastix(REGPARAM, FIXED, MOVING, PARAM)
+% [T, MOVINGREG, ITERINFO] = elastix(REGPARAM, FIXED, MOVING, OPTS)
 %
 %   REGPARARM is a string with the path and name of a text file with the
 %   registration parameters for elastix, e.g.
@@ -26,7 +23,7 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, param)
 %   FIXED, MOVING are the images to register. They can be given as file
 %   names or as image arrays, e.g. 'im1.png' or im = checkerboard(10).
 %
-%   PARAM is an optional struct with fields
+%   OPTS is a struct where the fields contain options for the algorithm:
 %
 %     verbose: (def 0) If 0, it hides all the elastix command output to the
 %              screen.
@@ -76,11 +73,12 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, param)
 %    Gradient: [10x1 double]
 %        Time: [10x1 double]
 %
-% See also: elastix_read_reg_output, , blockface_find_frame_shifts.
+% See also: transformix, elastix_read_file2param, elastix_write_param2file,
+% elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -111,15 +109,19 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, param)
 narginchk(3, 4);
 nargoutchk(0, 3);
 
-if (isempty(regParam) || ~ischar(regParam) || isempty(dir(regParam)))
-    error('PARAM must be a valid .txt file with the registration parameters for elastix')
+if (isempty(regParam))
+    error('REGPARAM must be a .txt file or a struct with the registration parameters for elastix')
 end
 
 % defaults
-if (nargin < 4 || isempty(param))
+if (nargin < 4 || isempty(opts) || ~isfield(opts, 'verbose'))
     % capture the elastix output so that it's not output on the screen
-    param.verbose = 0;
+    opts.verbose = 0;
 end
+
+% if tranformation parameters are given as a struct, we need to create a
+% temp file so that elastix can load them
+[paramfile, delete_paramfile] = create_temp_file_if_param_struct(regParam);
 
 % if images are given as arrays instead of filenames, we need to create 
 % temporary files with the images so that elastix can work with them
@@ -132,8 +134,8 @@ if (ischar(moving))
     % registered image to the path provided by the user. If the user has
     % not provided an output name, then the result image will not be
     % returned. This is useful when we only need the transformation
-    if (~isfield(param, 'outfile'))
-        param.outfile = '';
+    if (~isfield(opts, 'outfile'))
+        opts.outfile = '';
     end
     
 else
@@ -141,7 +143,7 @@ else
     % if moving image was provided as an image, the output will be an
     % image array in memory, and we can ignore the output directory, as it
     % will not be saved to a file
-    param.outfile = '';
+    opts.outfile = '';
     
 end
 
@@ -153,13 +155,13 @@ if (~success)
 end
 
 % register images
-if (param.verbose)
+if (opts.verbose)
     status = system([...
         'elastix ' ...
         ' -f ' fixedfile ...
         ' -m ' movingfile ...
         ' -out ' tempoutdir ...
-        ' -p ' regParam
+        ' -p ' paramfile
         ]);
 else
     % hide command output from elastix
@@ -168,10 +170,10 @@ else
         ' -f ' fixedfile ...
         ' -m ' movingfile ...
         ' -out ' tempoutdir ...
-        ' -p ' regParam
+        ' -p ' paramfile
         ]);
 end
-if (status)
+if (status ~= 0)
     error('Registration failed')
 end
 
@@ -190,10 +192,10 @@ if (ischar(moving))
     
     % check that the output file extension matches the extension of the
     % output filename, and give a warning if they don't match
-    if (~isempty(param.outfile))
+    if (~isempty(opts.outfile))
         
         [~, ~, regfile_ext] = fileparts(regfile.name);
-        [~, ~, outfile_ext] = fileparts(param.outfile);
+        [~, ~, outfile_ext] = fileparts(opts.outfile);
         if (~strcmpi(regfile_ext, outfile_ext))
             warning('Gerardus:BadFileExtension', ...
                 [ 'Elastix produced a ' regfile_ext ...
@@ -202,7 +204,7 @@ if (ischar(moving))
         
         % the first output argument will be the path to the output file,
         % rather than the image itself
-        movingReg = param.outfile;
+        movingReg = opts.outfile;
         
         % move the result image to the directory requested by the user
         movefile([tempoutdir filesep regfile.name], movingReg);
@@ -230,6 +232,9 @@ end
 if (delete_movingfile)
     delete(movingfile)
 end
+if (delete_paramfile)
+    delete(paramfile)
+end
 rmdir(tempoutdir, 's')
 
 end
@@ -243,17 +248,80 @@ function [filename, delete_tempfile] = create_temp_file_if_array_image(file)
 
 if (ischar(file))
 
-    % input is a filename already, thus we don't need to create a temp file
-    delete_tempfile = false;
-    filename = file;
+    % read image header
+    info = imfinfo(file);
+    
+    switch (info.ColorType)
+        case 'truecolor'
+            
+            % input image is a color RGB image. Elastix only processes the
+            % first channel, and ignores the rest. Thus, we need to create
+            % a temp grayscale image to use as the input
+            
+            % load image
+            im = imread(file);
+            
+            % convert to grayscale
+            im = rgb2gray(im);
+            
+            % create a temp file to save the grayscale image
+            delete_tempfile = true;
+            [pathstr, name] = fileparts(tempname);
+            filename = [pathstr filesep name '.png'];
+            imwrite(im, filename);
+            
+        case 'grayscale'
+            
+            % input is a filename already, and image is grayscale. Thus we
+            % don't need to create a temp file
+            delete_tempfile = false;
+            filename = file;
+            
+        otherwise
+            
+            error('Image in input file is neither RGB nor grayscale')
+    end
+    
     
 else
+    
+    % if image is colour, it needs to be converted to grayscale, because
+    % elastix/transformix use the first channel of the image, and ignore
+    % the rest
+    if (size(file, 3) ~= 1)
+        file = rgb2gray(file);
+    end
     
     % create a temp file for the image
     delete_tempfile = true;
     [pathstr, name] = fileparts(tempname);
     filename = [pathstr filesep name '.png'];
     imwrite(file, filename);
+    
+end
+
+end
+
+% create_temp_file_if_param_struct
+%
+% check whether parameters are provided as a struct or file. If struct,
+% then save them to a temp file
+function [filename, delete_tempfile] = create_temp_file_if_param_struct(param)
+
+if (isstruct(param))
+
+    % create a temp file for the parameter file
+    delete_tempfile = true;
+    filename = elastix_write_param2file('', param);
+    
+elseif (ischar(param))
+    
+    delete_tempfile = false;
+    filename = param;
+    
+else
+    
+    error('REGPARAM must be a struct or file name')
     
 end
 
