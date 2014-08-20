@@ -1,5 +1,11 @@
 2014-08-20  Ramon Casero  <rcasero@gmail.com>
 
+	* Rename matlab/CardiacToolbox/blockface_find_frame_shifts.m as
+	matlab/CardiacToolbox/blockface_intraframe_reg.m.
+
+	- This function no longer tries to detect jumps, which is more
+	complicated, but only do the registration between frames.
+
 	* matlab/CardiacToolbox/blockface_find_frame_shifts.m: (0.4.0)
 
 	- Change translation transform by similarity transform, because in
