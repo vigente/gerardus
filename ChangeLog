@@ -1,3 +1,18 @@
+2014-08-21  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ItkToolbox/elastix_transf_imcoord2.m: (0.1.0)
+
+	- elastix_transf_imcoord Convert 2D pixel coordinates using
+	elastix/transformix transform.
+
+	* Move elastix functions to matlab/ItkToolbox:
+
+	- matlab/FiltersToolbox/elastix.m
+	- matlab/FiltersToolbox/elastix_read_file2param.m
+	- matlab/FiltersToolbox/elastix_read_reg_output.m
+	- matlab/FiltersToolbox/elastix_write_param2file.m
+	- matlab/FiltersToolbox/transformix.m
+
 2014-08-20  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/smacof.m: (0.1.0)
