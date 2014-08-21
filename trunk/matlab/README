@@ -295,23 +295,6 @@ correct_light_blobs_in_microscope_mosaic.m
 	 CORRECT_LIGHT_BLOBS_IN_MICROSCOPE_MOSAIC  Correct the colour blob created
 	 by the microscope's light in each tile of a mosaic, e.g. for histology.
 	
-elastix.m
-
-	 elastix  Matlab interface to the image registration program "elastix".
-	
-elastix_read_file2param.m
-
-	 elastix_read_file2param  Read file with elastix parameters to struct.
-	
-elastix_read_reg_output.m
-
-	 elastix_read_reg_output  Read output of registration computed with
-	 elastix.
-	
-elastix_write_param2file.m
-
-	 elastix_write_param2file  Write struct with elastix parameters to file.
-	
 fspecial3.m
 
 	 FSPECIAL3  Create predefined 3-dimensional filters
@@ -449,10 +432,6 @@ skeleton_plot.m
 
 	 SKELETON_PLOT  Plot a labelled segmentation and its skeleton
 	
-transformix.m
-
-	 transformix  Matlab interface to the image warping program "transformix".
-	
 typicalpsf.m
 
 	 TYPICALPSF  Estimate point spread function from microbeads image
@@ -461,6 +440,28 @@ typicalpsf.m
 ItkToolbox
 -------------------------------------------------------------
 
+elastix.m
+
+	 elastix  Matlab interface to the image registration program "elastix".
+	
+elastix_read_file2param.m
+
+	 elastix_read_file2param  Read file with elastix parameters to struct.
+	
+elastix_read_reg_output.m
+
+	 elastix_read_reg_output  Read output of registration computed with
+	 elastix.
+	
+elastix_transf_imcoord2.m
+
+	 elastix_transf_imcoord  Convert 2D pixel coordinates using
+	 elastix/transformix transform.
+	
+elastix_write_param2file.m
+
+	 elastix_write_param2file  Write struct with elastix parameters to file.
+	
 itk_imfilter.m
 
 	 ITK_IMFILTER  Run ITK filter on a 2D, 3D or 4D image.
@@ -474,6 +475,10 @@ itk_tri_rasterization.m
 
 	 ITK_TRI_RASTERIZATION  Rasterization of triangular mesh to binary
 	 segmentation
+	
+transformix.m
+
+	 transformix  Matlab interface to the image warping program "transformix".
 	
 
 ManifoldToolbox
