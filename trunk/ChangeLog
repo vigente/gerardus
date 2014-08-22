@@ -1,5 +1,9 @@
 2014-08-22  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CardiacToolbox/blockface_intraframe_reg.m: (0.4.1)
+
+	- 90º Blockface needs a larger value of Scales.
+
 	* Add matlab/ItkToolbox/elastix_compose_transf.m: (0.1.0)
 	* Add matlab/test/test_elastix_compose_transf.m: (0.1.0)
 	* Add matlab/test/SimilarityTransformExample.mat:
