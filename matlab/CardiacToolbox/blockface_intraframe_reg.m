@@ -29,7 +29,7 @@ function [t, tParam, iterInfo, regParam] = blockface_intraframe_reg(pathstr, fil
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % $Rev$
 % $Date$
 % 
@@ -110,7 +110,7 @@ iterInfo(1).Time(:) = 0;
 % note: even though elastix uses parallel processing, it is slightly faster
 % (factor of ~0.93) using parfor to run 4 registrations on 1 processor at
 % the same time than 1 registration on 4 processors
-parfor I = 2:length(fixed)
+for I = 2:length(fixed)
     
     % display frame number
     if (DEBUG)
@@ -203,7 +203,7 @@ regParam.NumberOfHistogramBins = 32;
 % decrease it; if elastix crashes after a few iterations, with
 % the message that all samples map outside the moving image 
 % buffer, you may have to increase this parameter.
-regParam.Scales = 10000.0;
+regParam.Scales = 50000.0;
 regParam.AutomaticTransformInitialization = 'true';
 regParam.UseDirectionCosines = 'true';
 %param.CenterOfRotation = blockc;
