@@ -18,7 +18,8 @@ function x = elastix_transf_imcoord2(x, t)
 %   points in the output image.
 %
 % See also: elastix, transformix, elastix_read_file2param,
-% elastix_read_reg_output, elastix_write_param2file.
+% elastix_read_reg_output, elastix_write_param2file,
+% elastix_compose_transf.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
