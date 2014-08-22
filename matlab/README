@@ -440,6 +440,10 @@ typicalpsf.m
 ItkToolbox
 -------------------------------------------------------------
 
+elastix_compose_transf.m
+
+	 elastix_compose_transf  Composition of two transforms in elastix format.
+	
 elastix.m
 
 	 elastix  Matlab interface to the image registration program "elastix".

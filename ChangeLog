@@ -1,3 +1,12 @@
+2014-08-22  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ItkToolbox/elastix_compose_transf.m: (0.1.0)
+	* Add matlab/test/test_elastix_compose_transf.m: (0.1.0)
+	* Add matlab/test/SimilarityTransformExample.mat:
+
+	- elastix_compose_transf Composition of two transforms in elastix
+	format.
+
 2014-08-21  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ItkToolbox/elastix_transf_imcoord2.m: (0.1.0)
