@@ -1,5 +1,9 @@
 2014-08-29  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CardiacToolbox/blockface_create_masks.m: (0.2.0)
+
+	- Instead of expr, input directory and result of dir().
+
 	* matlab/CardiacToolbox/blockface_correct_perspective.m: (0.2.0)
 
 	- Rewrite. Instead of for 2 images, apply perspective correction
