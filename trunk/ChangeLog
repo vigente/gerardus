@@ -1,5 +1,11 @@
 2014-08-29  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CardiacToolbox/blockface_correct_perspective.m: (0.2.0)
+
+	- Rewrite. Instead of for 2 images, apply perspective correction
+	to set of files. Use new projective2d object and imwarp instead of
+	old tform and imtransform.
+
 	* Add matlab/CardiacToolbox/blockface_correct_frame_shifts.m: (0.1.0)
 
 	- blockface_correct_frame_shifts Correct shift between blockface

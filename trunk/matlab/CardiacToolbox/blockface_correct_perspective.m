@@ -1,21 +1,23 @@
-function ims = correct_blockface_perspective(ims, imt, ps, pt)
-% CORRECT_BLOCKFACE_PERSPECTIVE  Transform Bewster angle blockface image
-% onto 90º projection.
+function blockface_correct_perspective(indir, files55, tform, outdir)
+% blockface_correct_perspective  Correct perspective of Bewster angle
+% blockface images.
 %
-% IMOUT = correct_blockface_perspective(IMS, IMT, PS, PT)
+% blockface_correct_perspective(INDIR, FILES55, TFORM, OUTDIR)
 %
-%   IMS, IMT are the source and target images (Brewster angle image and 90º
-%   image, respectively).
+%   INDIR is a string with the directory where the input files are kept.
 %
-%   PS, PT are the sets of source and target landmarks. Landmarks are
-%   corresponding anatomical locations in both images.
+%   FILES55 is the result of a dir() command with a list of the files to
+%   correct.
 %
-%   IMOUT is the output image that results from applying to IMS the
-%   transformation that maps PS to PT.
+%   TFORM is a projective2d object with the transform correction for the
+%   frames.
+%
+%   OUTDIR is a string with the directory for output images. INDIR and
+%   OUTDIR must be different to avoid overwriting the input files.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -45,11 +47,41 @@ function ims = correct_blockface_perspective(ims, imt, ps, pt)
 
 % check arguments
 narginchk(4, 4);
-nargoutchk(0, 1);
+nargoutchk(0, 0);
 
-% compute projective transformation based on landmarks
-trf = cp2tform(ps, pt, 'projective');
+% safety to prevent us from overwriting the source files
+if (strcmp(indir, outdir))
+    error('Input and output directory are the same, and files would be overwritten')
+end
 
-% apply transformation
-ims = imtransform(ims, trf, ...
-    'XData',[1 size(imt, 2)], 'YData',[1 size(imt, 1)]);
+% if destination directory doesn't exist, create it
+if (isempty(dir(outdir)))
+    ok = mkdir(outdir);
+    if (~ok)
+        error(['Cannot create output directory: ' outdir])
+    end
+end
+
+% correct perspective
+for I = 1:length(files55)
+    
+    % load image
+    im55 = imread([indir filesep files55(I).name]);
+    
+    % make output image the same size and coordinates as input image
+    ra = imref2d(size(im55));
+    
+    % correct perspective
+    im55to90 = imwarp(im55, tform, 'cubic', ...
+        'OutputView', ra, 'FillValues', double(min(im55(:))));
+    
+%     % plot results
+%     subplot(2, 1, 1)
+%     imagesc(im55)
+%     subplot(2, 1, 2)
+%     imagesc(im55to90)
+    
+    % save result
+    imwrite(im55to90, [outdir filesep files55(I).name]);
+    
+end
