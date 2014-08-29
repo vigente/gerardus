@@ -47,8 +47,8 @@ blockface_correct_frame_shifts.m
 	
 blockface_correct_perspective.m
 
-	 CORRECT_BLOCKFACE_PERSPECTIVE  Transform Bewster angle blockface image
-	 onto 90º projection.
+	 blockface_correct_perspective  Correct perspective of Bewster angle
+	 blockface images.
 	
 blockface_create_masks.m
 
