@@ -1,5 +1,5 @@
-function [ellipmask, polymask, immean] = blockface_create_masks(file_expr)
-% BLOCKFACE_CREATE_MASK  User interface to create the elliptical and
+function [ellipmask, polymask, immean] = blockface_create_masks(indir, files)
+% blockface_create_masks  User interface to create the elliptical and
 % polygonal segmentation masks used to correct blockface illumination.
 %
 % blockface_create_mask shows an average of the whole blockface volume, and
@@ -9,11 +9,12 @@ function [ellipmask, polymask, immean] = blockface_create_masks(file_expr)
 % in blockface_equalise_illumination() to correct the blockface
 % illumination.
 %
-% [ELLIPMASK, POLYMASK] = blockface_create_masks(FILE_EXPR)
+% [ELLIPMASK, POLYMASK] = blockface_create_masks(INDIR, FILES)
 %
-%   FILE_EXPR is a string with an expression passed to dir() to list the
-%   blockface image files, e.g. '/data/blockface/*.bmp' or
-%   'C:\data\blockface\*.bmp'.
+%   INDIR is a string with the directory where the input files are kept.
+%
+%   FILES is the result of a dir() command with a list of the files to
+%   correct.
 %
 %   ELLIPMASK, POLYMASK are binary segmentations of the elliptical and
 %   polygonal masks drawn by the user.
@@ -25,7 +26,7 @@ function [ellipmask, polymask, immean] = blockface_create_masks(file_expr)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -54,17 +55,11 @@ function [ellipmask, polymask, immean] = blockface_create_masks(file_expr)
 % <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(1, 1);
+narginchk(2, 2);
 nargoutchk(0, 3);
 
-% list of blockface files
-file = dir(file_expr);
-
-% directory with the files
-pathstr = fileparts(file_expr);
-
 % number of files
-N = length(file);
+N = length(files);
 
 if (N == 0)
     ellipmask = [];
@@ -74,7 +69,7 @@ end
 
 % load the first image, so that we know the number of rows and columns in
 % the blockface volume
-im = imread([pathstr filesep file(1).name]);
+im = imread([indir filesep files(1).name]);
 
 % initialize matrix to keep the average image
 immean = zeros(size(im, 1), size(im, 2));
@@ -84,7 +79,7 @@ immean = zeros(size(im, 1), size(im, 2));
 for I = 1:N
     
     % load image from file
-    im = imread([pathstr filesep file(I).name]);
+    im = imread([indir filesep files(I).name]);
     
     % convert to grayscale if image is in colour
     if (size(im, 3) == 3)
