@@ -42,6 +42,9 @@ CardiacToolbox
 
 blockface_correct_frame_shifts.m
 
+	 blockface_correct_frame_shifts  Correct shift between blockface image
+	 frames.
+	
 blockface_correct_perspective.m
 
 	 CORRECT_BLOCKFACE_PERSPECTIVE  Transform Bewster angle blockface image
