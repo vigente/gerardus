@@ -1,5 +1,9 @@
 2014-08-29  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/elastix_compose_transf.m: (0.2.1)
+
+	- Transpose affine matrix to match Matlab's tform convention.
+
 	* matlab/ItkToolbox/elastix_compose_transf.m: (0.2.0)
 
 	- Simplify. For the moment, only similarity transforms, but now we
