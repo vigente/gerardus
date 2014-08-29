@@ -1,5 +1,10 @@
 2014-08-29  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/CardiacToolbox/blockface_correct_frame_shifts.m: (0.1.0)
+
+	- blockface_correct_frame_shifts Correct shift between blockface
+	image frames.
+
 	* matlab/ItkToolbox/elastix_compose_transf.m: (0.2.1)
 
 	- Transpose affine matrix to match Matlab's tform convention.
