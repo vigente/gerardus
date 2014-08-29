@@ -1,3 +1,12 @@
+2014-08-29  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/elastix_compose_transf.m: (0.2.0)
+
+	- Simplify. For the moment, only similarity transforms, but now we
+	can convert any elastix affine transform to an affine matrix,
+	compose the transforms, and then return a transform with the most
+	flexible type of the two.
+
 2014-08-22  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/CardiacToolbox/blockface_intraframe_reg.m: (0.4.1)

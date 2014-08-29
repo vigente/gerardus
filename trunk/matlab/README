@@ -442,7 +442,7 @@ ItkToolbox
 
 elastix_compose_transf.m
 
-	 elastix_compose_transf  Composition of two transforms in elastix format.
+	 elastix_compose_transf  Composition of two 2D affine transforms.
 	
 elastix.m
 
