@@ -6,12 +6,16 @@ function tfc = elastix_compose_transf(tf1, tf2)
 %
 % TFC = elastix_compose_transf(TF1, TF2)
 %
-%   TF1, TF2 are two transforms, either given as (3, 3)-matrices to map
-%   coordinates in homogeneous coordinates with the rotation centered on
-%   the origin of coordinates (0, 0):
+%   TF1, TF2 are two transforms, either given as (3, 3)-matrices with the
+%   Matlab tform convention (help affine2d and projective2d for details) to
+%   map coordinates in homogeneous coordinates with the rotation centered
+%   on the origin of coordinates (0, 0):
 %
-%   [y] = [A t] [x]
-%   [1]   [0 1] [1]
+%   [y 1] = [x 1] * [A 0]
+%                   [t 1]
+%
+%   Note that for rigid transformations, A = [ cos(theta)  sin(theta)]
+%                                            [-sin(theta)  cos(theta)]
 %
 %   or in the struct format produced by elastix (see help elastix for
 %   details):
@@ -37,7 +41,7 @@ function tfc = elastix_compose_transf(tf1, tf2)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -78,7 +82,7 @@ a1 = origin_affine(tf1);
 a2 = origin_affine(tf2);
 
 % compose transforms
-ac = a1 * a2;
+ac = a2 * a1;
 
 % format output transform and center on same center as first transform
 tfc = format_centered_output(ac, tf1, tf2);
@@ -87,7 +91,7 @@ end
 
 function a = origin_affine(tf)
 
-% trasnform is provided as an elastix struct
+% transform is provided as an elastix struct
 if (isstruct(tf))
     
     switch (tf.Transform)
@@ -97,16 +101,16 @@ if (isstruct(tf))
             % transformation nomenclature
             s =     tf.TransformParameters(1);
             theta = tf.TransformParameters(2);
-            t =     tf.TransformParameters(3:4)';
-            c =     tf.CenterOfRotationPoint';
+            t =     tf.TransformParameters(3:4);
+            c =     tf.CenterOfRotationPoint;
             
             % center transform on origin
-            R = [cos(theta) -sin(theta);...
-                sin(theta) cos(theta)];
-            t = t + (eye(2) - s * R) * c;
+            R = [cos(theta) sin(theta);...
+                -sin(theta) cos(theta)];
+            t = t + c * (eye(2) - s * R);
             
             % create affine transform matrix
-            a = [s*R t; 0 0 1];
+            a = [s*R [0;0]; t 1];
             
         otherwise
             
@@ -122,9 +126,6 @@ else % transform is provided as an affine matrix
     
     % we don't need to do anything to the matrix
     a = tf;
-    
-    % an affine transform given as a matrix is implicitly centered on 0
-    c = [0; 0];
     
 end
 
@@ -149,20 +150,20 @@ if (isstruct(tf1)) % return composed transform as an elastix struct
         % convert general affine matrix into similarity transform
         % parameters
         s = sqrt(ac(1, 1)^2 + ac(1, 2)^2);
-        t = ac(1:2, 3);
-        theta = atan2(ac(2, 1), ac(1, 1));
+        t = ac(3, 1:2);
+        theta = atan2(ac(1, 2), ac(1, 1));
         
         % center transform on same center as TF1
-        c = tf1.CenterOfRotationPoint';
-        R = [cos(theta) -sin(theta);...
-                sin(theta) cos(theta)];
-        t = t - (eye(2) - s * R) * c;
+        c = tf1.CenterOfRotationPoint;
+        R = [ cos(theta) sin(theta);...
+             -sin(theta) cos(theta)];
+        t = t - c * (eye(2) - s * R);
 
         % assign parameters to output struct
         tfc.TransformParameters(1) = s;
         tfc.TransformParameters(2) = theta;
-        tfc.TransformParameters(3:4) = t';
-        tfc.CenterOfRotationPoint = c';
+        tfc.TransformParameters(3:4) = t;
+        tfc.CenterOfRotationPoint = c;
         
     elseif (strcmp(tf1.Transform, 'EulerTransform') ...
             || strcmp(tf2.Transform, 'EulerTransform'))
