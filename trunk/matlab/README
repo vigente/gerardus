@@ -84,7 +84,7 @@ estimate_bias_field.m
 	
 histology_blockface_preprocessing.m
 
-	 HISTOLOGY_BLOCKFACE_PREPROCESSING  Prepare histology and blockface for
+	 histology_blockface_preprocessing  Prepare histology and blockface for
 	 registration.
 	
 is_lv_on_the_left.m

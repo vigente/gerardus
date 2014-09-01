@@ -1,3 +1,23 @@
+2014-09-01  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CardiacToolbox/histology_blockface_preprocessing.m: (0.2.0)
+
+	- Now we input the elliptical (heart outline) and the polygonal
+	(wax blockface) masks.
+
+	- Correct scratches in block face.
+
+	- Instead of finding threshold between background and foreground
+	as the intersection of two gaussians, which doesn't work too well,
+	we simply find the mode of intensities. Because there's a lot more
+	background than tissue, the mode corresponds to the most typical
+	background value. We then make all intensities that are <= the
+	mode equal to zero. This is a very conservative threshold, that
+	removes some background, but preserves practically all tissue.
+
+	- We then extend the histograms of blockface and histology to
+	cover the whole intensity range.
+
 2014-08-29  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/CardiacToolbox/blockface_create_masks.m: (0.2.0)
