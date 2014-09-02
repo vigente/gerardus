@@ -20,7 +20,7 @@ function [t, im, iterInfo] = elastix_read_reg_output(outdir)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -99,7 +99,7 @@ if (nargout > 2)
     % create struct
     iterInfo.ItNr = table(:, 1);
     iterInfo.Metric = table(:, 2);
-    iterInfo.stepSize = table(:, 3);
+    iterInfo.StepSize = table(:, 3);
     iterInfo.Gradient = table(:, 4);
     iterInfo.Time = table(:, 5);
     
