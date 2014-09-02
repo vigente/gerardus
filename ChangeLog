@@ -1,5 +1,9 @@
 2014-09-02  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/elastix_read_reg_output.m: (0.2.1)
+
+	- Minor. Struct field was lowercase instead of uppercase.
+
 	* matlab/ItkToolbox/elastix.m: (0.3.0)
 
 	- Add optional parameters: 't0' to provide an initial transform to
