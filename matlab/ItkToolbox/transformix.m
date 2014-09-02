@@ -15,10 +15,8 @@ function imout = transformix(t, im, opts)
 %
 %   The input image can be provided either as a string with the path and
 %   filename (FILENAMEIN) or as an image array (IMIN). The output will have
-%   the same format (i.e. a path to an output file, or an image array). As
-%   transformix only uses the first channel in an image and ignores the
-%   rest, colour images are converted to grayscale before transforming
-%   them.
+%   the same format (i.e. a path to an output file, or an image array). The
+%   input image can be grayscale (1 channel) or colour RGB (3 channels).
 %
 %   FILENAMEOUT or IMOUT is the output transformed image.
 %
@@ -37,7 +35,7 @@ function imout = transformix(t, im, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -143,23 +141,22 @@ if (ischar(im))
     switch (info.ColorType)
         case 'truecolor'
             
-            % input image is a color RGB image. Elastix only processes the
-            % first channel, and ignores the rest. Thus, we need to create
-            % a temp grayscale image to use as the input
-            
             % load image
             imaux = imread(imfile);
             
-            % convert to grayscale
-            imaux = rgb2gray(imaux);
-            
-            % create a temp file to save the grayscale image. We overwrite
-            % the name of the original colour file, as we are not going to
-            % use it
+            % Elastix only processes the first channel, and ignores the
+            % rest. Thus, we need to create 3 temp files, one per channel.            
+            % We overwrite the name of the original colour file, as we are
+            % not going to use it. We'll need to delete the temp files when
+            % we finish with them
             delete_imfile = true;
-            imfile = [tempname ext];
-            im = imfile;
-            imwrite(imaux, imfile);
+            clear imfile
+            imfile{1} = [tempname ext];
+            imfile{2} = [tempname ext];
+            imfile{3} = [tempname ext];
+            imwrite(imaux(:, :, 1), imfile{1});
+            imwrite(imaux(:, :, 2), imfile{2});
+            imwrite(imaux(:, :, 3), imfile{3});
             
         case 'grayscale'
             
@@ -175,18 +172,76 @@ if (ischar(im))
 else % if the image is provided as an image array, we write it to a temp 
      % so that it can be read by transformix
     
-    % if image is colour, it needs to be converted to grayscale, because
-    % elastix/transformix use the first channel of the image, and ignore
-    % the rest
-    if (size(im, 3) ~= 1)
-        im = rgb2gray(im);
+    % if image is colour
+    if (size(im, 3) == 3)
+
+        % Elastix only processes the first channel, and ignores the
+        % rest. Thus, we need to create 3 temp files, one per channel.
+        % We'll need to delete the temp files when we finish with them
+        delete_imfile = true;
+        imfile{1} = [tempname ext];
+        imfile{2} = [tempname ext];
+        imfile{3} = [tempname ext];
+        imwrite(im(:, :, 1), imfile{1});
+        imwrite(im(:, :, 2), imfile{2});
+        imwrite(im(:, :, 3), imfile{3});
+        
+    elseif (size(im, 3) == 1) % image is grayscale
+
+        % only one channel, so we simply need to save the image array to a
+        % temp file that can be deleted after transformix processes it
+        delete_imfile = true;
+        isColour = false;
+        imfile = [tempname ext];
+        imwrite(im, imfile);
+        
+    else
+        
+        error('IM must be grayscale (1 channel) or RGB (3 channels)')
+        
     end
     
-    imfile = [tempname ext];
-    imwrite(im, imfile);
-    delete_imfile = true;
+end
+
+% init output image
+switch (t.ResultImagePixelType)
+    case 'unsigned char'
+        imout = zeros([t.Size([2 1]) length(imfile)], 'uint8');
+    otherwise
+        error(['ResultImagePixelType = ' t.ResultImagePixelType ...
+            ' not implemented'])
+end
+
+% apply transformation to each image channel separatedly
+for CH = 1:length(imfile)
+    imout(:, :, CH) = warp_image(tfile, imfile{CH}, ext, opts);
+end
+
+% format output
+if (ischar(im)) % input image given as path and filename
+
+    % write image to output file
+    imwrite(imout, opts.outfile);
+    
+    % return to user the path and name of result file
+    imout = opts.outfile;
     
 end
+
+% clean up temp files
+if (delete_tfile)
+    delete(tfile)
+end
+if (delete_imfile)
+    for CH = 1:length(imfile)
+        delete(imfile{CH})
+    end
+end
+
+end
+
+% warp_image: auxiliary function to warp one channel of the image
+function imout = warp_image(tfile, imfile, ext, opts)
 
 % create temp directory for the output
 outdir = tempname;
@@ -217,30 +272,10 @@ if (isempty(resultfile))
 end
 resultfile = [outdir filesep resultfile.name];
 
-% format output
-if (ischar(im)) % input image given as path and filename
+% read result image into memory
+imout = imread(resultfile);
 
-    ok = movefile(resultfile, opts.outfile);
-    if (~ok)
-        error(['Could not move result file ' resultfile ' to ' ...
-            opts.outfile])
-    end
-    
-    % return to user the path and name of result file
-    imout = opts.outfile;
-    
-else % input image given as an array
-    
-    % read result image into memory, to give to user as an output
-    imout = imread(resultfile);
-    
-end
-
-% clean up temp files and directories
-if (delete_imfile)
-    delete(imfile)
-end
-if (delete_tfile)
-    delete(tfile)
-end
+% clean up temp directory
 rmdir(outdir, 's')
+
+end
