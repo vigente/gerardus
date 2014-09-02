@@ -32,6 +32,19 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %              registered image to. This option is ignored when MOVING is
 %              an image array.
 %
+%     t0:      (def '') Struct or filename with an initial transform (see T
+%              below for format). T0 is applied to the image before the
+%              registration is run. Note that parameter
+%              InitialTransformParametersFileName allows to provide another
+%              transform that will be applied before t0, and so on
+%              iteratively.
+%
+%     fMask:   (def '') Mask for the fixed image. Only voxels == 1 are
+%              considered for the registration.
+%
+%     mMask:   (def '') Mask for the moving image. Only voxels == 1 are
+%              considered for the registration.
+%
 %   T is a struct with the contents of the parameter transform file
 %   (OUTDIR/TransformParameters.0.txt), e.g.
 %
@@ -73,12 +86,13 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %    Gradient: [10x1 double]
 %        Time: [10x1 double]
 %
+%
 % See also: transformix, elastix_read_file2param, elastix_write_param2file,
 % elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
@@ -118,15 +132,38 @@ if (nargin < 4 || isempty(opts) || ~isfield(opts, 'verbose'))
     % capture the elastix output so that it's not output on the screen
     opts.verbose = 0;
 end
+if (nargin < 4 || isempty(opts) || ~isfield(opts, 'outfile'))
+    % no name provided for the output file
+    opts.outfile = '';
+end
+if (nargin < 4 || isempty(opts) || ~isfield(opts, 't0'))
+    % no initial transform provided
+    opts.t0 = '';
+end
+if (nargin < 4 || isempty(opts) || ~isfield(opts, 'fMask'))
+    % no fixed image mask provided
+    opts.fMask = '';
+end
+if (nargin < 4 || isempty(opts) || ~isfield(opts, 'mMask'))
+    % no moving image mask provided
+    opts.mMask = '';
+end
 
 % if tranformation parameters are given as a struct, we need to create a
 % temp file so that elastix can load them
-[paramfile, delete_paramfile] = create_temp_file_if_param_struct(regParam);
+[paramfile, delete_paramfile] = create_temp_file_if_struct(regParam);
+
+% ditto for the initial transform
+[t0file, delete_t0file] = create_temp_file_if_struct(opts.t0);
 
 % if images are given as arrays instead of filenames, we need to create 
 % temporary files with the images so that elastix can work with them
 [fixedfile, delete_fixedfile] = create_temp_file_if_array_image(fixed);
 [movingfile, delete_movingfile] = create_temp_file_if_array_image(moving);
+
+% ditto for the fixed and moving masks
+[fMaskfile, delete_fMaskfile] = create_temp_file_if_array_image(opts.fMask);
+[mMaskfile, delete_mMaskfile] = create_temp_file_if_array_image(opts.mMask);
 
 if (ischar(moving))
     
@@ -154,24 +191,39 @@ if (~success)
     error(['Cannot create temp directory for registration output: ' tempoutdir])
 end
 
-% register images
+% create text string with the command to run elastix
+comm = [...
+    'elastix ' ...
+    ' -f ' fixedfile ...
+    ' -m ' movingfile ...
+    ' -out ' tempoutdir ...
+    ' -p ' paramfile
+    ];
+if (~isempty(opts.t0))
+    comm = [...
+        comm ...
+        ' -t0 ' t0file ...
+        ];
+end
+if (~isempty(opts.fMask))
+    comm = [...
+        comm ...
+        ' -fMask ' fMaskfile ...
+        ];
+end
+if (~isempty(opts.mMask))
+    comm = [...
+        comm ...
+        ' -mMask ' mMaskfile ...
+        ];
+end
+
+% run elastix
 if (opts.verbose)
-    status = system([...
-        'elastix ' ...
-        ' -f ' fixedfile ...
-        ' -m ' movingfile ...
-        ' -out ' tempoutdir ...
-        ' -p ' paramfile
-        ]);
+    status = system(comm);
 else
     % hide command output from elastix
-    [status, ~] = system([...
-        'elastix ' ...
-        ' -f ' fixedfile ...
-        ' -m ' movingfile ...
-        ' -out ' tempoutdir ...
-        ' -p ' paramfile
-        ]);
+    [status, ~] = system(comm);
 end
 if (status ~= 0)
     error('Registration failed')
@@ -235,6 +287,15 @@ end
 if (delete_paramfile)
     delete(paramfile)
 end
+if (delete_t0file)
+    delete(t0file)
+end
+if (delete_fMaskfile)
+    delete(fMaskfile)
+end
+if (delete_mMaskfile)
+    delete(mMaskfile)
+end
 rmdir(tempoutdir, 's')
 
 end
@@ -246,7 +307,14 @@ end
 % processed by elastix
 function [filename, delete_tempfile] = create_temp_file_if_array_image(file)
 
-if (ischar(file))
+if (isempty(file))
+    
+    % this option is useful for the fixed and moving masks, when they are
+    % not provided by the user, and thus file==''
+    filename = '';
+    delete_tempfile = false;
+
+elseif (ischar(file))
 
     % read image header
     info = imfinfo(file);
@@ -302,13 +370,20 @@ end
 
 end
 
-% create_temp_file_if_param_struct
+% create_temp_file_if_struct
 %
 % check whether parameters are provided as a struct or file. If struct,
 % then save them to a temp file
-function [filename, delete_tempfile] = create_temp_file_if_param_struct(param)
+function [filename, delete_tempfile] = create_temp_file_if_struct(param)
 
-if (isstruct(param))
+if (isempty(param))
+
+    % nothing provided. This is useful for T0, as the user will not always
+    % provide an initial transform
+    delete_tempfile = false;
+    filename = '';
+    
+elseif (isstruct(param))
 
     % create a temp file for the parameter file
     delete_tempfile = true;
@@ -316,6 +391,8 @@ if (isstruct(param))
     
 elseif (ischar(param))
     
+    % we are going to use the file provided by the user, and will not
+    % delete it afterwards
     delete_tempfile = false;
     filename = param;
     
