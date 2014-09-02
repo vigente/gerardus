@@ -1,5 +1,10 @@
 2014-09-02  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/transformix.m: (0.2.1)
+
+	- Fix bug. When image was grayscale, imfile was not a cell array,
+	but it was indexed as such.
+
 	* matlab/ItkToolbox/transformix.m: (0.2.0)
 
 	- Now colour input figures are transformed and output in colour

@@ -35,7 +35,7 @@ function imout = transformix(t, im, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -191,7 +191,6 @@ else % if the image is provided as an image array, we write it to a temp
         % only one channel, so we simply need to save the image array to a
         % temp file that can be deleted after transformix processes it
         delete_imfile = true;
-        isColour = false;
         imfile = [tempname ext];
         imwrite(im, imfile);
         
@@ -213,8 +212,12 @@ switch (t.ResultImagePixelType)
 end
 
 % apply transformation to each image channel separatedly
-for CH = 1:length(imfile)
-    imout(:, :, CH) = warp_image(tfile, imfile{CH}, ext, opts);
+if (iscell(imfile))
+    for CH = 1:length(imfile)
+        imout(:, :, CH) = warp_image(tfile, imfile{CH}, ext, opts);
+    end
+else
+    imout = warp_image(tfile, imfile, ext, opts);
 end
 
 % format output
@@ -233,8 +236,12 @@ if (delete_tfile)
     delete(tfile)
 end
 if (delete_imfile)
-    for CH = 1:length(imfile)
-        delete(imfile{CH})
+    if (iscell(imfile))
+        for CH = 1:length(imfile)
+            delete(imfile{CH})
+        end
+    else
+        delete(imfile)
     end
 end
 
