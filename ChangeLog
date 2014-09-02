@@ -1,5 +1,11 @@
 2014-09-02  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/elastix.m: (0.3.0)
+
+	- Add optional parameters: 't0' to provide an initial transform to
+	apply to the image before the registration. 'fMask', 'mMask' to
+	provide masks for the fixed and moving image.
+
 	* matlab/ItkToolbox/transformix.m: (0.2.1)
 
 	- Fix bug. When image was grayscale, imfile was not a cell array,
