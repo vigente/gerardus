@@ -92,7 +92,7 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % $Rev$
 % $Date$
 % 
@@ -289,6 +289,7 @@ if (delete_paramfile)
 end
 if (delete_t0file)
     delete(t0file)
+    t.InitialTransformParametersFileName = 'NoInitialTransform';
 end
 if (delete_fMaskfile)
     delete(fMaskfile)
