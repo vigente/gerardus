@@ -1,3 +1,20 @@
+2014-09-05  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/elastix.m: (0.3.1)
+
+	- Kind of fix bug, but not completely. When an initial transform
+	is provided, the result transform provided by elastix links to it
+	in field t.InitialTransformParametersFileName. When the initial
+	transform is provided as a struct, this means that we return a
+	link to a temp file that has been deleted.
+
+	Here, we are going to always return
+	t.InitialTransformParametersFileName='NoInitialTransform', but
+	this is just a quick fix because I won't be able to work on this
+	for the next week. What we have to do next is allow for nesting in
+	the t struct. I.e., t.InitialTransformParametersFileName=t0, where
+	t0 is another transform struct.
+
 2014-09-02  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/elastix_read_reg_output.m: (0.2.1)
