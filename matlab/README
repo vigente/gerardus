@@ -87,6 +87,10 @@ histology_blockface_preprocessing.m
 	 histology_blockface_preprocessing  Prepare histology and blockface for
 	 registration.
 	
+histology_preprocessing.m
+
+	 histology_preprocessing  Prepare slices for intra-histology registration.
+	
 is_lv_on_the_left.m
 
 	 IS_LV_ON_THE_LEFT  Check whether the left ventricle is on the left hand
@@ -468,6 +472,7 @@ elastix_transf_imcoord2.m
 elastix_write_param2file.m
 
 	 elastix_write_param2file  Write struct with elastix parameters to file.
+	 It accepts nested transform parameters.
 	
 itk_imfilter.m
 

@@ -1,5 +1,6 @@
 function filename = elastix_write_param2file(filename, param)
 % elastix_write_param2file  Write struct with elastix parameters to file.
+% It accepts nested transform parameters.
 %
 % FILENAME = elastix_write_param2file([], PARAM)
 % FILENAME = elastix_write_param2file('', PARAM)
@@ -43,7 +44,7 @@ function filename = elastix_write_param2file(filename, param)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -78,10 +79,28 @@ if (~isstruct(param))
     error('PARAM must be a struct with the transformation parameters')
 end
 
+% write to file(s) the transform or nested transforms
+filename = write_one_param_struct(param, filename);
+
+end
+
+% this is a nested function to write a series of nested parameter structs
+% to files. The function is called on a struct ta. If ta has an "initial
+% transform" tb (a transform that has to be applied before ta), then this
+% function is called on tb before returning. Thus, we have nested calls.
+function filename = write_one_param_struct(param, filename)
+
 % if no filename is provided, then we create a temp filename
 if (isempty(filename))
     [pathstr, name] = fileparts(tempname);
     filename = [pathstr filesep 'ElastixParameters-' name '.txt'];
+end
+
+% check if there's a previous nested transform
+if (~strcmp(param.InitialTransformParametersFileName, ...
+        'NoInitialTransform'))
+    param.InitialTransformParametersFileName ...
+        = write_one_param_struct(param.InitialTransformParametersFileName, '');
 end
 
 % open file for writing
@@ -111,4 +130,6 @@ end
 st = fclose(fid);
 if (st == -1)
     error(['Cannot close file for writing: ' filename])
+end
+
 end
