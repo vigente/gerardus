@@ -1,5 +1,10 @@
 2014-09-17  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/elastix.m: (0.3.2)
+	* matlab/ItkToolbox/transformix.m: (0.2.2)
+
+	- If transform/parameter files are nested, delete all of them.
+
 	* Add matlab/ItkToolbox/elastix_delete_param_file.m: (0.1.0)
 
 	- elastix_delete_param_file Delete nested transform files.
