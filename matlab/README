@@ -457,7 +457,8 @@ elastix.m
 	
 elastix_read_file2param.m
 
-	 elastix_read_file2param  Read file with elastix parameters to struct.
+	 elastix_read_file2param  Read file with elastix parameters into struct.
+	 It accepts nested transform files.
 	
 elastix_read_reg_output.m
 
