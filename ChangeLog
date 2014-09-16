@@ -1,5 +1,9 @@
 2014-09-16  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/elastix_read_file2param.m: (0.2.0)
+
+	- Enable nested transforms.
+
 	* matlab/ItkToolbox/elastix_write_param2file.m: (0.2.0)
 
 	- Enable nested transforms.

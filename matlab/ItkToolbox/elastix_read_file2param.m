@@ -1,5 +1,6 @@
 function param = elastix_read_file2param(filename)
-% elastix_read_file2param  Read file with elastix parameters to struct.
+% elastix_read_file2param  Read file with elastix parameters into struct.
+% It accepts nested transform files.
 %
 % PARAM = elastix_read_file2param(FILENAME)
 %
@@ -34,7 +35,7 @@ function param = elastix_read_file2param(filename)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -68,6 +69,18 @@ nargoutchk(0, 1);
 if (~ischar(filename))
     error('FILENAME must be a string')
 end
+
+% read transform file or nested files
+param = read_one_param_file(filename);
+
+end
+
+% this is a nested function to read a series of nested parameter files
+% to structs. The function is called on a file a.txt. If a.txt has an
+% "initial transform" b.txt (a transform that has to be applied before
+% a.txt), then this function is called on b.txt before returning. Thus, we
+% have nested calls
+function param = read_one_param_file(filename)
 
 % init output struct
 param = struct([]);
@@ -147,3 +160,13 @@ end
 
 % close parameters file
 fclose(fid);
+
+% if there's a previous nested transform...
+if (~strcmp(param.InitialTransformParametersFileName, ...
+        'NoInitialTransform'))
+    % ... read it
+    param.InitialTransformParametersFileName ...
+        = read_one_param_file(param.InitialTransformParametersFileName);
+end
+
+end
