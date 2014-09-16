@@ -35,7 +35,7 @@ function imout = transformix(t, im, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 % 
@@ -233,7 +233,7 @@ end
 
 % clean up temp files
 if (delete_tfile)
-    delete(tfile)
+    elastix_delete_param_file(tfile)
 end
 if (delete_imfile)
     if (iscell(imfile))
