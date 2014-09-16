@@ -1,10 +1,10 @@
-function tfc = elastix_compose_transf(tf1, tf2)
-% elastix_compose_transf  Composition of two 2D affine transforms.
+function tfc = elastix_compose_afftransf(tf1, tf2)
+% elastix_compose_afftransf  Composition of two 2D affine transforms.
 %
-% elastix_compose_transf composes two 2D transforms from the affine family,
-% and produces another affine transform.
+% elastix_compose_afftransf composes two 2D transforms from the affine
+% family, and produces another affine transform.
 %
-% TFC = elastix_compose_transf(TF1, TF2)
+% TFC = elastix_compose_afftransf(TF1, TF2)
 %
 %   TF1, TF2 are two transforms, either given as (3, 3)-matrices with the
 %   Matlab tform convention (help affine2d and projective2d for details) to

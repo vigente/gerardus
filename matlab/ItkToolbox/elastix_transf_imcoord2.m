@@ -19,11 +19,11 @@ function x = elastix_transf_imcoord2(x, t)
 %
 % See also: elastix, transformix, elastix_read_file2param,
 % elastix_read_reg_output, elastix_write_param2file,
-% elastix_compose_transf.
+% elastix_compose_afftransf.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
