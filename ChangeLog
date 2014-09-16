@@ -1,3 +1,9 @@
+2014-09-17  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ItkToolbox/elastix_delete_param_file.m: (0.1.0)
+
+	- elastix_delete_param_file Delete nested transform files.
+
 2014-09-16  Ramon Casero  <rcasero@gmail.com>
 
 	* Rename matlab/ItkToolbox/elastix_compose_transf.m as
