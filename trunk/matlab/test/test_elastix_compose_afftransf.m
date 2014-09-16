@@ -1,4 +1,4 @@
-% test_elastix_compose_transf.m
+% test_elastix_compose_afftransf.m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
@@ -79,7 +79,7 @@ imagesc(im3)
 axis xy equal
 
 % compute combined transform
-tc = elastix_compose_transf(t1, t2);
+tc = elastix_compose_afftransf(t1, t2);
 
 % transform im with the combined transform
 imc = transformix(tc, im);

@@ -1,5 +1,15 @@
 2014-09-16  Ramon Casero  <rcasero@gmail.com>
 
+	* Rename matlab/ItkToolbox/elastix_compose_transf.m as
+	matlab/ItkToolbox/elastix_compose_afftransf.m:
+	* matlab/CardiacToolbox/blockface_correct_frame_shifts.m: (0.1.1)
+	* matlab/ItkToolbox/elastix_transf_imcoord2.m: (0.1.1)
+	* Rename matlab/test/test_elastix_compose_transf.m as
+	matlab/test/test_elastix_compose_afftransf.m:
+
+	- elastix/transformix work also with transforms that are not
+	affine (e.g. B-spline), so this function name is misleading.
+
 	* matlab/ItkToolbox/elastix_read_file2param.m: (0.2.0)
 
 	- Enable nested transforms.

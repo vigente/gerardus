@@ -447,9 +447,9 @@ typicalpsf.m
 ItkToolbox
 -------------------------------------------------------------
 
-elastix_compose_transf.m
+elastix_compose_afftransf.m
 
-	 elastix_compose_transf  Composition of two 2D affine transforms.
+	 elastix_compose_afftransf  Composition of two 2D affine transforms.
 	
 elastix.m
 
