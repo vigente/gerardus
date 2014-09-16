@@ -45,7 +45,7 @@ function blockface_correct_frame_shifts(indir, files, t, idxprop, idxnoprop, out
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -107,7 +107,7 @@ for I = 2:length(t)
         
         % update the accumulated transform with the transform for this
         % frame
-        tAcc(I) = elastix_compose_transf(tAcc(I-1), t(I));
+        tAcc(I) = elastix_compose_afftransf(tAcc(I-1), t(I));
         
         % remove the first element of the index queue
         idxprop = idxprop(2:end);
@@ -123,7 +123,7 @@ end
 % add transforms that do not propagate
 for I = idxnoprop
    
-    tAcc(I) = elastix_compose_transf(tAcc(I), t(I));
+    tAcc(I) = elastix_compose_afftransf(tAcc(I), t(I));
     
 end
 
