@@ -451,6 +451,10 @@ elastix_compose_afftransf.m
 
 	 elastix_compose_afftransf  Composition of two 2D affine transforms.
 	
+elastix_delete_param_file.m
+
+	 elastix_delete_param_file  Delete nested transform files.
+	
 elastix.m
 
 	 elastix  Matlab interface to the image registration program "elastix".
