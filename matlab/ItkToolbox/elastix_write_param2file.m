@@ -87,7 +87,7 @@ end
 % this is a nested function to write a series of nested parameter structs
 % to files. The function is called on a struct ta. If ta has an "initial
 % transform" tb (a transform that has to be applied before ta), then this
-% function is called on tb before returning. Thus, we have nested calls.
+% function is called on tb before returning. Thus, we have nested calls
 function filename = write_one_param_struct(param, filename)
 
 % if no filename is provided, then we create a temp filename
@@ -96,9 +96,10 @@ if (isempty(filename))
     filename = [pathstr filesep 'ElastixParameters-' name '.txt'];
 end
 
-% check if there's a previous nested transform
+% if there's a previous nested transform...
 if (~strcmp(param.InitialTransformParametersFileName, ...
         'NoInitialTransform'))
+    % ... call the write function in a nested way
     param.InitialTransformParametersFileName ...
         = write_one_param_struct(param.InitialTransformParametersFileName, '');
 end
