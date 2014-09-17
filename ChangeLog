@@ -1,5 +1,12 @@
 2014-09-17  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/elastix_read_file2param.m: (0.2.1)
+
+	- Fix bug. Not all files will have field
+	"InitialTransformParametersFileName", e.g. registration parameter
+	files would ignore that field. The function was giving an error if
+	the field was not present.
+
 	* matlab/ItkToolbox/elastix.m: (0.3.2)
 	* matlab/ItkToolbox/transformix.m: (0.2.2)
 
