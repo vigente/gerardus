@@ -35,7 +35,7 @@ function param = elastix_read_file2param(filename)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -162,8 +162,8 @@ end
 fclose(fid);
 
 % if there's a previous nested transform...
-if (~strcmp(param.InitialTransformParametersFileName, ...
-        'NoInitialTransform'))
+if (isfield(param, 'InitialTransformParametersFileName') ...
+        && ~strcmp(param.InitialTransformParametersFileName, 'NoInitialTransform'))
     % ... read it
     param.InitialTransformParametersFileName ...
         = read_one_param_file(param.InitialTransformParametersFileName);
