@@ -44,7 +44,7 @@ function filename = elastix_write_param2file(filename, param)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -97,8 +97,8 @@ if (isempty(filename))
 end
 
 % if there's a previous nested transform...
-if (~strcmp(param.InitialTransformParametersFileName, ...
-        'NoInitialTransform'))
+if (isfield(param, 'InitialTransformParametersFileName') ...
+        && ~strcmp(param.InitialTransformParametersFileName, 'NoInitialTransform'))
     % ... call the write function in a nested way
     param.InitialTransformParametersFileName ...
         = write_one_param_struct(param.InitialTransformParametersFileName, '');

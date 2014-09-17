@@ -1,6 +1,7 @@
 2014-09-17  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/elastix_read_file2param.m: (0.2.1)
+	* matlab/ItkToolbox/elastix_write_param2file.m: (0.2.1)
 
 	- Fix bug. Not all files will have field
 	"InitialTransformParametersFileName", e.g. registration parameter
