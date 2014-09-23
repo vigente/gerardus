@@ -177,7 +177,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % generate_registration_parameters()
 %
-%   Create a struct with the parameters necessary to find 
+%   Create a struct with the parameters necessary for registration
 function regParam = generate_registration_parameters(file)
 
 info = imfinfo(file);
