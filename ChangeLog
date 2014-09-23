@@ -1,3 +1,15 @@
+2014-09-23  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/CardiacToolbox/histology_intraframe_reg.m: (0.1.0)
+
+	- histology_intraframe_reg Registration diffusion of histology
+	slices.
+
+	* Add matlab/CardiacToolbox/histology_preprocessing.m: (0.1.0)
+
+	- histology_preprocessing Prepare slices for intra-histology
+	registration.
+
 2014-09-17  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/elastix_read_file2param.m: (0.2.1)

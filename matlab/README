@@ -79,13 +79,14 @@ crest_envelope.m
 
 	 CREST_ENVELOPE  Compute the envelope for the Right Ventricle's crest
 	
-estimate_bias_field.m
-
-	
 histology_blockface_preprocessing.m
 
 	 histology_blockface_preprocessing  Prepare histology and blockface for
 	 registration.
+	
+histology_intraframe_reg.m
+
+	 histology_intraframe_reg  Registration diffusion of histology slices.
 	
 histology_preprocessing.m
 
