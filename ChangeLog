@@ -1,3 +1,10 @@
+2014-09-24  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/trifacet_signed_area.m: (0.2.0)
+
+	- Add output argument with negative triangles reoriented so that
+	all have a positive signed area.
+
 2014-09-23  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/CardiacToolbox/histology_intraframe_reg.m: (0.1.0)
