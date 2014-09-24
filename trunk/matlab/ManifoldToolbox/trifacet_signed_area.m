@@ -1,4 +1,4 @@
-function a = trifacet_signed_area(tri, x)
+function [a, tri] = trifacet_signed_area(tri, x)
 % TRIFACET_SIGNED_AREA  Signed area of the facets in a 2D triangulation.
 %
 % A = trifacet_signed_area(TRI, X)
@@ -12,10 +12,15 @@ function a = trifacet_signed_area(tri, x)
 %   A is a vector where A(i) is the signed area of the i-th triangle.
 %   Positive areas correspond to counter-clockwise triangles, and negative
 %   areas, to clockwise triangles.
+%
+% [..., TRI2] = trifacet_signed_area(...)
+%
+%   TRI2 returns TRI reoriented when necessary so that all triangles have
+%   a positive signed area.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -45,7 +50,7 @@ function a = trifacet_signed_area(tri, x)
 
 % check arguments
 narginchk(2, 2);
-nargoutchk(0, 1);
+nargoutchk(0, 2);
 
 if (size(tri, 2) ~= 3)
     error('TRI must have 3 columns')
@@ -65,3 +70,14 @@ x3x1 = x(tri(:, 3), 1) - x(tri(:, 1), 1);
 y2y1 = x(tri(:, 2), 2) - x(tri(:, 1), 2);
 
 a = 0.5 * (x2x1 .* y3y1 - x3x1 .* y2y1);
+
+% reorient negative area triangles
+if (nargout > 1)
+    
+    % triangles with negative area
+    idx = a < 0;
+    
+    % reorient triangles with negative area so that they become positive
+    tri(idx, 1:2) = tri(idx, [2 1]);
+    
+end
