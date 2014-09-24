@@ -59,7 +59,7 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.4
+% Version: 0.2.5
 % $Rev$
 % $Date$
 %
@@ -158,7 +158,7 @@ end
 if (feastol < 1e-9)
     error('SCIP will fail without warning when FEASTOL is too small. In particular, FEASTOL<numerics/epsilon (def 1e-9) will make FEASTOL=0')
 end
-if (vmin < 10 * feastol)
+if any(vmin < 10 * feastol)
     error('VMIN is too close to FEASTOL, and this may generate solutions with tiny negative areas/volumes. Scale your problem so that constraint limits can be larger')
 end
 

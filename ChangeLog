@@ -1,5 +1,34 @@
 2014-09-24  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/tri_qcqp_smacof_nofold_2d_pip.m: (0.2.1)
+
+	- Upgrade with same changes we made for
+	tri_ccqp_smacof_nofold_sph_pip().
+
+	- Allow AMIN, AMAX to be vectors so that we can pass different
+	volume boundaries to each mesh tetrahedron.
+
+	- SCIP will fail to work properly without warning when FEASTOL is
+	too small. In particular, FEASTOL<numerics/epsilon (def 1e-9) will
+	make FEASTOL=0. See below email reply by Stefan Vigerske in SCIP
+	mailing list. Thus, now we don't let it be <1e-9.
+
+	- Fix bug. According again to the email response below, contraints
+	need to be modified as VMIN+FEASTOL*max(1, |VMIN|), instead of the
+	VMIN+FEASTOL that we had before. (See similar entry below in
+	Changelog for tri_ccqp_smacof_nofold_sph_pip for more details).
+
+	- Do not create constraints for the cases f(x) > -Inf and f(x) <
+	Inf. These constraints have no effect on the problem, and they
+	produce the following warning in SCIP:
+
+	"WARNING: indefinite expression tree in	constraint <c45>"
+
+	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m: (0.2.5)
+
+	- Fix bug. We were checking VMIN as if it only could be a scalar,
+	not a vector.
+
 	* matlab/ManifoldToolbox/trifacet_signed_area.m: (0.2.0)
 
 	- Add output argument with negative triangles reoriented so that
