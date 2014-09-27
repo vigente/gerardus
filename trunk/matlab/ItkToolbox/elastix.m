@@ -22,6 +22,12 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %
 %   FIXED, MOVING are the images to register. They can be given as file
 %   names or as image arrays, e.g. 'im1.png' or im = checkerboard(10).
+%   Images can have one channel (grayscale) or more (e.g. RGB colour
+%   images). In the case of multi-channel images, we use the "multi-image"
+%   feature in elastix (see section 6.1.1 "Image registration with
+%   multiple metrics and/or images" in the elastix manual), with all
+%   channels contributing equally to the combined cost function. FIXED and
+%   MOVING must have the same number of channels.
 %
 %   OPTS is a struct where the fields contain options for the algorithm:
 %
@@ -75,7 +81,11 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %   the same type as MOVING (i.e. image array or path and filename). In the
 %   path and filename case, an image file will we created with path and
 %   name MOVINGREG=PARAM.outfile. If PARAM.outfile is not provided or
-%   empty, then the registered image is deleted and MOVINGREG=''.
+%   empty, then the registered image is deleted and MOVINGREG=''. For
+%   multi-channel images (e.g. RGB colour images), MOVINGREG will
+%   correspond to the first channel only, as this is the output provided by
+%   elastix. To obtain the multi-channel result, it is necessary to apply
+%   the transform to MOVING with transformix().
 %
 %   ITERINFO is a struct with the details of the elastix optimization
 %   (OUTDIR/IterationInfo.0.R0.txt), e.g.
@@ -92,7 +102,7 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.3.2
+% Version: 0.4.0
 % $Rev$
 % $Date$
 % 
@@ -161,6 +171,26 @@ end
 [fixedfile, delete_fixedfile] = create_temp_file_if_array_image(fixed);
 [movingfile, delete_movingfile] = create_temp_file_if_array_image(moving);
 
+% check that fixed and moving images have the same number of channels
+if (iscell(fixedfile) && ~iscell(movingfile))
+    error('Fixed and moving image must have the same number of channels')
+end
+if (iscell(fixedfile) && ...
+        (length(fixedfile) ~= length(movingfile)))
+    error('Fixed and moving image must have the same number of channels')
+end
+
+% check that registration parameters are correct for multichannel images
+if (iscell(fixedfile))
+    auxParam = elastix_read_file2param(paramfile);
+    if (~strcmp(auxParam.Registration, 'MultiMetricMultiResolutionRegistration'))
+        error('Multi-channel image registration requires regParam.Registration = ''MultiMetricMultiResolutionRegistration''.')
+    end
+%     if ((auxParam.FixedImagePyramid, ))
+%         error('Multi-channel image registration requires regParam.Registration = ''MultiMetricMultiResolutionRegistration''.')
+%     end
+end
+
 % ditto for the fixed and moving masks
 [fMaskfile, delete_fMaskfile] = create_temp_file_if_array_image(opts.fMask);
 [mMaskfile, delete_mMaskfile] = create_temp_file_if_array_image(opts.mMask);
@@ -192,10 +222,24 @@ if (~success)
 end
 
 % create text string with the command to run elastix
+comm = 'elastix ';
+if (iscell(fixedfile)) % multi-channel images
+    for I = 1:length(fixedfile)
+        comm = [...
+            comm ...
+            ' -f' num2str(I-1) ' ' fixedfile{I} ...
+            ' -m' num2str(I-1) ' ' movingfile{I} ...
+            ];
+    end
+else % single channel (grayscale) images
+    comm = [...
+        comm ...
+        ' -f ' fixedfile ...
+        ' -m ' movingfile ...
+        ];
+end
 comm = [...
-    'elastix ' ...
-    ' -f ' fixedfile ...
-    ' -m ' movingfile ...
+    comm ...
     ' -out ' tempoutdir ...
     ' -p ' paramfile
     ];
@@ -279,10 +323,10 @@ end
 
 % delete temp files and directories
 if (delete_fixedfile)
-    delete(fixedfile)
+    delete_image(fixedfile)
 end
 if (delete_movingfile)
-    delete(movingfile)
+    delete_image(movingfile)
 end
 if (delete_paramfile)
     elastix_delete_param_file(paramfile)
@@ -323,21 +367,22 @@ elseif (ischar(file))
     switch (info.ColorType)
         case 'truecolor'
             
-            % input image is a color RGB image. Elastix only processes the
-            % first channel, and ignores the rest. Thus, we need to create
-            % a temp grayscale image to use as the input
+            % input image is a color RGB image. We need to create a temp
+            % file for each channel
             
             % load image
             im = imread(file);
             
-            % convert to grayscale
-            im = rgb2gray(im);
-            
-            % create a temp file to save the grayscale image
+            % create temp files to save the channels of the image
             delete_tempfile = true;
-            [pathstr, name] = fileparts(tempname);
-            filename = [pathstr filesep name '.png'];
-            imwrite(im, filename);
+            nchan = size(im, 3);
+            filename = cell(1, nchan);
+            for I = 1:nchan
+                % create a temp file for the image
+                [pathstr, name] = fileparts(tempname);
+                filename{I} = [pathstr filesep name '.png'];
+                imwrite(im(:, :, I), filename{I});
+            end
             
         case 'grayscale'
             
@@ -354,18 +399,28 @@ elseif (ischar(file))
     
 else
     
-    % if image is colour, it needs to be converted to grayscale, because
-    % elastix/transformix use the first channel of the image, and ignore
-    % the rest
-    if (size(file, 3) ~= 1)
-        file = rgb2gray(file);
+    % if image is colour, it needs to be split into channels
+    nchan = size(file, 3);
+    delete_tempfile = true;
+    if (nchan == 1)
+        % grayscale image
+
+        % create a temp file for the image
+        [pathstr, name] = fileparts(tempname);
+        filename = [pathstr filesep name '.png'];
+        imwrite(file, filename);
+    else
+        % image with more than one channel, e.g. RGB image
+        
+        filename = cell(1, nchan);
+        for I = 1:nchan
+            % create a temp file for the image
+            [pathstr, name] = fileparts(tempname);
+            filename{I} = [pathstr filesep name '.png'];
+            imwrite(file(:, :, I), filename{I});
+        end
     end
     
-    % create a temp file for the image
-    delete_tempfile = true;
-    [pathstr, name] = fileparts(tempname);
-    filename = [pathstr filesep name '.png'];
-    imwrite(file, filename);
     
 end
 
@@ -401,6 +456,21 @@ else
     
     error('REGPARAM must be a struct or file name')
     
+end
+
+end
+
+% delete_image
+%
+% delete one or more files containing the channels of an image
+function delete_image(filename)
+
+if (iscell(filename))
+    for I = 1:length(filename)
+        delete(filename{I})
+    end
+else
+    delete(filename)
 end
 
 end
