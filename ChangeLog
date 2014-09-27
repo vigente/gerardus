@@ -1,3 +1,17 @@
+2014-09-27  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/elastix.m: (0.4.0)
+
+	- Enable registration of multi-channel images (e.g. colour
+	images), using the "multi-image" syntax in elastix.
+
+	* matlab/ItkToolbox/elastix_read_file2param.m: (0.2.2)
+	* matlab/ItkToolbox/elastix_write_param2file.m: (0.2.2)
+
+	- Allow multivalued fields, e.g.
+
+	(FixedImagePyramid "FixedSmoothingImagePyramid" "FixedSmoothingImagePyramid" "FixedSmoothingImagePyramid")
+
 2014-09-24  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/tri_qcqp_smacof_nofold_2d_pip.m: (0.2.1)
