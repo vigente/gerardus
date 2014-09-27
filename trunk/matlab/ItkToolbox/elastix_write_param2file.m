@@ -44,7 +44,7 @@ function filename = elastix_write_param2file(filename, param)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 % 
@@ -116,13 +116,36 @@ for I = 1:length(fieldname)
     
     val = param.(fieldname{I});
     
-    % write field and value to a line in the textfile
-    if (ischar(val))
-        fprintf(fid, '(%s "%s")\n', fieldname{I}, val);
-    else
-        % if field value is numeric, we need to convert to string
-        val = num2str(val);
-        fprintf(fid, '(%s %s)\n', fieldname{I}, val);
+    if (iscell(val))
+        
+        fprintf(fid, '(%s', fieldname{I});
+        
+        for J = 1:length(val)
+            
+            % write field and value to a line in the textfile
+            if (ischar(val{J}))
+                fprintf(fid, ' "%s"', val{J});
+            else
+                % if field value is numeric, we need to convert to string
+                val{J} = num2str(val{J});
+                fprintf(fid, ' %s', val{J});
+            end
+            
+        end
+        
+        fprintf(fid, ')\n');
+        
+        else
+        
+        % write field and value to a line in the textfile
+        if (ischar(val))
+            fprintf(fid, '(%s "%s")\n', fieldname{I}, val);
+        else
+            % if field value is numeric, we need to convert to string
+            val = num2str(val);
+            fprintf(fid, '(%s %s)\n', fieldname{I}, val);
+        end
+        
     end
     
 end

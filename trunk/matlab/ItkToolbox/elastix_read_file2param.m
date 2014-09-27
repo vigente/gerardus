@@ -31,11 +31,19 @@ function param = elastix_read_file2param(filename)
 %           FixedInternalImagePixelType: 'float'
 %                                     ...
 %
+%   Parameters with more than one value are converted to cell arrays. E.g.
+%
+%   (FixedImagePyramid "FixedSmoothingImagePyramid" "FixedSmoothingImagePyramid" "FixedSmoothingImagePyramid")
+%
+%   parses to
+%
+%   FixedImagePyramid: {1x3 cell}
+%
 % See also: elastix_write_param2file.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 % 
@@ -95,11 +103,14 @@ end
 tline = fgetl(fid);
 while ischar(tline)
     
-    % duplicate line to process it
-    tline2 = tline;
+    % remove everything after the comment sign
+    tline = regexprep(tline, '//.*', '');
     
-    % skip lines that have no parameters
-    if (isempty(tline2) || (tline2(1) ~= '('))
+    % check whether we have a line with something in brackets
+    tline2 = regexp(tline, '\(.*\)', 'match');
+   
+    % if not, this is a comment or empty line and we can skip it
+    if (isempty(tline2))
         
         % read next line
         tline = fgetl(fid);
@@ -107,43 +118,42 @@ while ischar(tline)
         continue;
     end
     
-    % sanity check that parameter line ends in ')'
-    if (tline2(end) ~= ')')
-        error(['Line does''t end in '')'': ' tline2])
-    end
-    
-    % remove '(' and ')' from the line
+    % remove brackets
+    tline2 = tline2{1};
     tline2 = tline2(2:end-1);
     
-    % position of first whitespace
-    idx = strfind(tline2, ' ');
-    
     % get parameter field label
-    if (isempty(idx))
-        label = tline2;
-    else
-        label = tline2(1:idx-1);
-    end
+    label = regexp(tline2, '\s*', 'split');
+    label = label{1};
+    
+    % remove label from label
+    tline2 = regexprep(tline2, ['\<' label '\s*'], '');
+    
+    % split line into words
+    tline2 = regexp(tline2, '"\s*"', 'split');
+    
+    % remove double quotes (")
+    tline2 = regexprep(tline2, '"', '');
     
     % get parameter values
-    if (isempty(idx))
-        val = [];
-    else
-        val = tline2(idx+1:end);
+    val = tline2;
+    
+    % if the values can be converted to numeric format, we do. Otherwise,
+    % it's a string
+    for I = 1:length(val)
+        
+        % try to convert to numeric
+        val2 = str2num(val{I});
+        
+        if (~isempty(val2)) % is numeric
+            val{I} = val2;
+        end
     end
     
-    % if the value can be converted to numeric format, we do. Otherwise,
-    % it's a string, and we remove the double quotes ""
-    val2 = str2num(val);
-    if (~isempty(val2))
-        val = val2;
-    else
-        if (val(1) == '"')
-            val = val(2:end);
-        end
-        if (val(end) == '"')
-            val = val(1:end-1);
-        end
+    % if there's only one value, we take it out of the cell, so that it's a
+    % number or string
+    if (length(val) == 1)
+        val = val{1};
     end
     
     % add field to output struct
