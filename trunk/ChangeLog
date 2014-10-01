@@ -1,5 +1,18 @@
 2014-10-01  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/elastix_compose_afftransf.m: (0.2.2)
+
+	- Add 'TranslationTransform' and 'EulerTransform' to the list of
+	affine transforms that are accepted.
+
+	- Use tf2 instead of tf1 as the template for the combined
+	transform. It makes sense, as tf2 is the last transform applied to
+	the image. We still maintain the rotation center from tf1, though.
+
+	* matlab/test/test_elastix_compose_afftransf.m: (0.1.1)
+
+	- Add section "Different image size in each transform".
+
 	* matlab/ItkToolbox/elastix_read_file2param.m: (0.2.3)
 
 	- Fix bug. Matlab str2num() converts 'true'/'false' to 1/0, rather
