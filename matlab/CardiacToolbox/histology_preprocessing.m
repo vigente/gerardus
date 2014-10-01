@@ -8,8 +8,8 @@ function [imref, im] = histology_preprocessing(imref, im)
 %
 % [IMREF2, IM2] = histology_preprocessing(IMREF, IM)
 %
-%   IMREF, IM are two input histology images (in RGB or grayscale format).
-%   When histograms are matched, IM is matched to IMREF.
+%   IMREF, IM are two input histology images (in RGB colour or grayscale
+%   format). When histograms are matched, IM is matched to IMREF.
 %
 %   IMREF2, IM2 are the output images after preprocessing.
 %
@@ -17,7 +17,7 @@ function [imref, im] = histology_preprocessing(imref, im)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -53,38 +53,56 @@ im = individual_image_preprocessing(im);
 imref = individual_image_preprocessing(imref);
 
 % match histograms to the central slice
-idxref = imref > 0;
-
-idx = im > 0;
-im(idx) = imhistmatch(im(idx), imref(idxref));
+for I = 1:size(im, 3)
+    
+    % select channels
+    chref = imref(:, :, I);
+    ch = im(:, :, I);
+    
+    % match histograms ignoring the background
+    idxref = chref > 0;
+    idx = ch > 0;
+    ch(idx) = imhistmatch(ch(idx), chref(idxref));
+    
+    % replace image channel with processed ones
+    imref(:, :, I) = chref;
+    im(:, :, I) = ch;
+    
+end
 
 end
 
 function im = individual_image_preprocessing(im)
 
-% convert to grayscale
-if (size(im, 3) == 3)
-    im = rgb2gray(im);
+% loop image channels
+for I = 1:size(im, 3)
+    
+    % select one channel
+    ch = im(:, :, I);
+    
+    % the image should have two types of blackground pixels: white-ish and
+    % pure black. The white-ish ones are from the original image, and the
+    % black ones come from the B-spline fill-in. When we invert the image,
+    % we don't want to invert the black ones, so we select non-black pixels
+    idx = ch ~= 0;
+    
+    % invert image and make lowest intensity = 0
+    ch(idx) = max(ch(idx)) - ch(idx);
+    
+    % remove background by zeroing anything <= mode (the background forms
+    % the largest peak). We are quite conservative here in terms of keeping
+    % all the tissue we can, to avoid losing detail, even if that means
+    % that we are going to have a bit of background noise
+    ch(ch <= mode(double(ch(idx)))) = 0;
+    
+    % extend histogram to cover whole dynamic range
+    minh = double(min(ch(ch > 0)));
+    maxh = double(max(ch(ch > 0)));
+    ch = uint8(255 * (double(ch) - minh) / (maxh - minh));
+    
+    % replace image channel with the processed one
+    im(:, :, I) = ch;
+    
 end
-
-% the image should have two types of blackground pixels: white-ish and
-% pure black. The white-ish ones are from the original image, and the black
-% ones come from the B-spline fill-in. When we invert the image, we don't
-% want to invert the black ones, so we select non-black pixels
-idx = im ~= 0;
-
-% invert image and make lowest intensity = 0
-im(idx) = max(im(idx)) - im(idx);
-
-% remove background by zeroing anything <= mode (the background forms the
-% largest peak). We are quite conservative here in terms of keeping all the
-% tissue we can, to avoid losing detail, even if that means that we are
-% going to have a bit of background noise
-im(im <= mode(double(im(idx)))) = 0;
-
-% extend histogram to cover whole dynamic range
-minh = double(min(im(im > 0)));
-maxh = double(max(im(im > 0)));
-im = uint8(255 * (double(im) - minh) / (maxh - minh));
 
 end
