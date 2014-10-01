@@ -2,7 +2,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -30,7 +30,7 @@
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Combination of similarity transforms
+%% Combination of similarity transforms, same image size
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % toy image 
@@ -96,3 +96,65 @@ elastix_transf_imcoord2(aux, t2)
 % apply composed transform to the same point (both results should be the
 % same)
 elastix_transf_imcoord2([37 24], tc)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Different image size in each transform
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% toy image
+im1 = zeros(100, 150, 'uint8');
+im1(25:75, 65:85) = 1;
+
+% plot
+subplot(2, 2, 1)
+imagesc(im1)
+axis xy equal
+axis([1 170 1 150])
+title('Base image im')
+
+% load example transform
+load('SimilarityTransformExample.mat', 't')
+
+% change default pixel value, so that we see where new background is being
+% created
+t.DefaultPixelValue = 2;
+t.FinalBSplineInterpolationOrder = 0;
+
+% define two transforms
+t1 = t;
+t1.TransformParameters(1) = 1.25;
+t1.Size = [130 85];
+
+% define two transforms
+t2 = t;
+t2.TransformParameters(1) = 0.7;
+t2.Size = [170 150];
+
+% transform image
+im2 = transformix(t1, im1);
+im3 = transformix(t2, im2);
+
+% plot transform in two steps
+subplot(2, 2, 2)
+imagesc(im2)
+axis xy equal
+axis([1 170 1 150])
+title('im2 = t1(im)')
+subplot(2, 2, 3)
+imagesc(im3)
+axis xy equal
+axis([1 170 1 150])
+title('t3 = t2(im2)')
+
+% combine transforms
+tc = elastix_compose_afftransf(t1, t2);
+
+% apply combined transform
+im3c = transformix(tc, im1);
+
+% plot result of combined transform
+subplot(2, 2, 4)
+imagesc(im3c)
+axis xy equal
+axis([1 170 1 150])
+title('tc(im)')
