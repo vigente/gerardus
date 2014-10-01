@@ -43,7 +43,7 @@ function param = elastix_read_file2param(filename)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.2
+% Version: 0.2.3
 % $Rev$
 % $Date$
 % 
@@ -142,10 +142,12 @@ while ischar(tline)
     % it's a string
     for I = 1:length(val)
         
-        % try to convert to numeric
+        % try to convert to numeric (note that 'true' and 'false', although
+        % strings, get successfully converted to 1 and 0, respectively)
         val2 = str2num(val{I});
         
-        if (~isempty(val2)) % is numeric
+        if (~isempty(val2) && ~strcmp(val{I}, 'true') ...
+                && ~strcmp(val{I}, 'false')) % is numeric
             val{I} = val2;
         end
     end
