@@ -1,3 +1,17 @@
+2014-10-01  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/elastix_read_file2param.m: (0.2.3)
+
+	- Fix bug. Matlab str2num() converts 'true'/'false' to 1/0, rather
+	than [], so those strings were being incorrectly detected as
+	numeric values.
+
+	* matlab/CardiacToolbox/histology_preprocessing.m: (0.2.0)
+
+	- Do not convert to grayscale internally. Now we can use
+	elastix/transformix with colour images. If grayscale is needed,
+	convert the images before passing them to this function.
+
 2014-09-27  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/elastix.m: (0.4.0)
