@@ -11,7 +11,8 @@ function imout = transformix(t, im, opts)
 %
 %   T is a struct, or the path and name of a text file with the transform
 %   parameters. Typically, this is the output of a call to elastix, the
-%   registration program. See help to elastix for details.
+%   registration program. See help to elastix for details. If T is empty,
+%   the input image IM is returned.
 %
 %   The input image can be provided either as a string with the path and
 %   filename (FILENAMEIN) or as an image array (IMIN). The output will have
@@ -35,7 +36,7 @@ function imout = transformix(t, im, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.2
+% Version: 0.2.3
 % $Rev$
 % $Date$
 % 
@@ -78,15 +79,23 @@ if (~isfield(opts, 'outfile'))
     opts.outfile = '';
 end
 
-% if the transformation parameters are provided as a struct, create a text
-% file with them, so that we can pass it to transformix
-if (isstruct(t))
+if (isempty(t))
     
+    % if the transform is empty, we return the input image
+    imout = im;
+    return
+
+elseif (isstruct(t))
+    
+    % if the transformation parameters are provided as a struct, create a
+    % text file with them, so that we can pass it to transformix
     tfile = elastix_write_param2file([], t);
     delete_tfile = true;
     
 elseif (ischar(t))
     
+    % if the transform is provided as a file, we will pass it to
+    % transformix, so we don't need to do anything else here
     tfile = t;
     delete_tfile = false;
     
