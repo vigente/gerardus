@@ -1,3 +1,33 @@
+2014-10-04  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CardiacToolbox/histology_intraframe_reg.m: (0.2.0)
+
+	- Register colour images without converting to grayscale. The main
+	change, apart from taking advantage of the new versions of our
+	elastix and transformix functions that can deal with colour, is
+	that the registration uses
+	'MultiMetricMultiResolutionRegistration', so that it can deal with
+	more than one channel.
+
+	- Allow an initial transform. This way, we can use the original
+	histology images, and pass the result of the rigid registration as
+	initial transforms. We will also be able to run e.g. 4 iterations
+	of diffusion, and then if we want to diffuse more, simply pass the
+	nested transforms from those 4 iterations as the new initial
+	transforms.
+
+	- Simplify the code a lot, by putting the registration of extreme
+	and intermediate slices in local functions.
+
+	- Put temp duplicate images in a temp directory in /tmp, instead
+	of directly in /tmp. This keeps things tidy, and it's easier to
+	delete them later too.
+
+	* matlab/ItkToolbox/transformix.m: (0.2.3)
+
+	- If transform is empty, return input image instead of giving an
+	error.
+
 2014-10-01  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/elastix_compose_afftransf.m: (0.2.2)
