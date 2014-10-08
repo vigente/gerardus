@@ -1,3 +1,10 @@
+2014-10-08  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* matlab/ThirdPartyToolbox/bwdistsc.m
+	* matlab/ThirdPartyToolbox/license-bwdistsc.txt 
+	
+	- Computes a distance transform for anisotropic voxel dimensions 
+
 2014-10-04  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/CardiacToolbox/histology_intraframe_reg.m: (0.2.0)
