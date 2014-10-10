@@ -1,5 +1,16 @@
 2014-10-10  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/surface_param.m: (0.6.2)
+	* matlab/ManifoldToolbox/tri_sphparam.m: (0.4.3)
+
+	- For Classical MDS, instead of first computing full eigenvector
+	decomposition and then keeping only the 2 or 3 leading ones, we
+	only compute those 2 or 3 eigenvectors. This is much much faster
+	for large distance matrices.
+
+	- Specify in the help that the distance matrix for closed surfaces
+	is a matrix of geodesic distances.
+
 	* matlab/PointsToolbox/triuvec.m: (0.1.0)
 
 	- triuvec  Extract upper triangular part into vector form.

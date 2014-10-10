@@ -32,8 +32,9 @@ function [uv, out] = surface_param(x, param)
 %                 'xy':       Simple projection on XY.
 %                 'pca':      Projection on main PCA plane.
 %                 'isomap':   Isomap (with Dijkstra's shortest path).
-%                 'cmdsmap':  MDSmap, global neighbourhood, classical MDS.
-%                 'lmdscale': MDSmap, local neighbourhood, local MDS.
+%                 'cmdsmap':  MDS mapping, global neighbourhood, classical
+%                             MDS.
+%                 'lmdscale': MDS mapping, local neighbourhood, local MDS.
 %
 %     Unit sphere:
 %                 'sphproj':  Simple projection on sphere around centroid.
@@ -107,7 +108,7 @@ function [uv, out] = surface_param(x, param)
 %     to triangular meshes, while Dijkstra's will work with any adjacency
 %     graph. This option uses classical MDS on a full distance matrix, so
 %     it's not valid for local neighbourhoods or closed surfaces. For local
-%     neighbourhoods, see 'lmdscale' below. For closed surfaces, see 
+%     neighbourhoods, see 'lmdscale' below.
 %
 %     PARAM.d or PARAM.tri must be provided. If PARAM.d is provided,
 %     PARAM.tri and PARAM.options are ignored. Otherwise, PARAM.d is
@@ -145,8 +146,8 @@ function [uv, out] = surface_param(x, param)
 %     Wolfson and Shaw [4, 5]), improved with a Fast Marching method
 %     (Zigelman et al. [3]). This is like 'cmdsmap' above, but with local
 %     neighbourhoods. Local neighbourhoods were already proposed in the
-%     first publications [4, 5] on what we are calling MDSmap. We use our
-%     own implementation of this idea, lmdscale().
+%     first publications [4, 5] on what we are calling MDS mapping. We use
+%     our own implementation of this idea, lmdscale().
 %
 %     PARAM.d or PARAM.tri must be provided. If PARAM.d is provided,
 %     PARAM.tri and PARAM.options are ignored. Otherwise, PARAM.d is
@@ -345,7 +346,7 @@ function [uv, out] = surface_param(x, param)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013-2014 University of Oxford
-% Version: 0.6.1
+% Version: 0.6.2
 % $Rev$
 % $Date$
 % 
@@ -395,6 +396,8 @@ end
 % obtain a 2D parameterisation for the input 3D points
 switch param.type
     
+%--------------------------------------------------------------------------
+% Open surface
 %--------------------------------------------------------------------------
 
     case 'xy'
@@ -518,11 +521,8 @@ switch param.type
         end
         
         % use classic MDS for the optimization
-        uv = cmdscale(param.d);
+        uv = cmdscale(param.d, 2);
         
-        % the output parametrization is 2D
-        uv = uv(:, 1:2);
-            
 %--------------------------------------------------------------------------
 
     case 'lmdscale'
@@ -566,7 +566,9 @@ switch param.type
         [u, v, out.stopCondition, out.err] ...
             = lmdscale(param.d, [], [], param.options2);
         uv = [u, v];
-
+        
+%--------------------------------------------------------------------------
+% Closed surface
 %--------------------------------------------------------------------------
 
     case 'sphproj'
