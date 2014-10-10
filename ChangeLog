@@ -1,9 +1,15 @@
+2014-10-10  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/triuvec.m: (0.1.0)
+
+	- triuvec  Extract upper triangular part into vector form.
+
 2014-10-08  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
-	* matlab/ThirdPartyToolbox/bwdistsc.m
-	* matlab/ThirdPartyToolbox/license-bwdistsc.txt 
-	
-	- Computes a distance transform for anisotropic voxel dimensions 
+	* Add matlab/ThirdPartyToolbox/bwdistsc.m:
+	* Add matlab/ThirdPartyToolbox/license-bwdistsc.txt:
+
+	- Computes a distance transform for anisotropic voxel dimensions.
 
 2014-10-04  Ramon Casero  <rcasero@gmail.com>
 
