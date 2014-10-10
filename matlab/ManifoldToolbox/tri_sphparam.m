@@ -94,10 +94,13 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %
 % ... = tri_sphparam(..., D, Y0, SPHPARAM_OPTS, SMACOF_OPTS, SCIP_CONS)
 %
-%   D is the square distance matrix. For 'cmdscale', D must be a full
-%   matrix. For the other methods, it can be a sparse or full matrix.
-%   D(i,j)=0 means that the distance between vertices i and j is not
-%   considered for the stress measure.
+%   D is the square distance matrix. D(i, j) should ideally be the geodesic
+%   distance between the i-th and j-th vertices. If D is not provided,
+%   geodesic distances will be approximated using the Fast Marching
+%   algorithm (see dmatrix_mesh). For 'cmdscale', D must be a full matrix.
+%   For the other methods, it can be a sparse or full matrix. D(i,j)=0
+%   means that the distance between vertices i and j is not considered for
+%   the stress measure. This enables creating local neighbourhoods.
 %
 %   Y0 is an initial guess for the output parametrization. For 'cmdscale',
 %   Y0 must be empty. For SMACOF methods, the choice of Y0 is important
@@ -157,7 +160,7 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.4.2
+% Version: 0.4.3
 % $Rev$
 % $Date$
 %
@@ -338,8 +341,7 @@ switch method
         % classical MDS parametrization. This will produce something
         % similar to a sphere, if the d matrix is not too far from being
         % Euclidean
-        y = cmdscale(d);
-        y = y(:, 1:3);
+        y = cmdscale(d, 3);
         
         % project the MDS solution on the sphere
         [lat, lon] = proj_on_sphere(y);
