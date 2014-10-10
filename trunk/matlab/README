@@ -498,6 +498,10 @@ transformix.m
 
 	 transformix  Matlab interface to the image warping program "transformix".
 	
+transformix_old.m
+
+	 transformix  Matlab interface to the image warping program "transformix".
+	
 
 ManifoldToolbox
 -------------------------------------------------------------
@@ -854,6 +858,10 @@ thickslice_collate_sax_la.m
 	 THICKSLICE_COLLATE_SAX_LA  Build a distance/adjacency matrix collating
 	 points from a Long Axis plane to a set of Short Axis planes
 	
+triuvec.m
+
+	 triuvec  Extract upper triangular part into vector form.
+	
 vec2rotmat.m
 
 	 VEC2ROTMAT  Compute rotation matrix from Cartesian vector
@@ -865,6 +873,16 @@ ThirdPartyToolbox
 alphavol.m
 
 	 ALPHAVOL Alpha shape of 2D or 3D point set.
+	
+bwdistsc.m
+
+	 D=BWDISTSC(BW,ASPECT)
+	 BWDISTSC computes Euclidean distance transform of a binary 3D image BW. 
+	 Distance transform assigns to each pixel in BW a number that is the 
+	 distance from that pixel to the nearest nonzero pixel in BW. BWDISTSC
+	 can accept a regular 2D image, a 3D array, and a cell array of 2D slices. 
+	 ASPECT is a 3-component vector defining the voxel-aspect-ratio for BW. 
+	 If ASPECT is not given, [1 1 1] isotropic aspect ratio is assumed.
 	
 dijkstra.m
 
