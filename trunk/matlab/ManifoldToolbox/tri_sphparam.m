@@ -5,11 +5,15 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %
 %   TRI is a 3-column matrix with a surface mesh triangulation. Each row
 %   gives the indices of one triangle. The mesh needs to be a 2D manifold,
-%   that can be embedded in 2D or 3D space. The orientation of the
-%   triangles does not matter.
+%   that can be embedded in 2D or 3D space. The triangles must have a
+%   positive orientation, that can be achieved with
+%
+%     [~, tri] = meshcheckrepair(x, tri, 'deep');
 %
 %   X is a 3-column matrix with the coordinates of the mesh vertices. Each
-%   row gives the (x,y,z)-coordinates of one vertex.
+%   row gives the (x,y,z)-coordinates of one vertex. X only needs to be
+%   provided if the radius of the sphere is not provided with
+%   sphparam_opts.sphrad. Otherwise, it can be empty.
 %
 %   METHOD is a string that selects the parametrization method:
 %
@@ -91,8 +95,12 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %   the output parameters for each connected component untangled by the
 %   algorithm.
 %
+% if sphere radius is not provided:
+% ... = tri_sphparam(TRI, X, D, Y0, SPHPARAM_OPTS, SMACOF_OPTS, SCIP_CONS)
 %
-% ... = tri_sphparam(..., D, Y0, SPHPARAM_OPTS, SMACOF_OPTS, SCIP_CONS)
+% if sphere radius is provided:
+% SPHPARAM_OPTS.sphrad = R;
+% ... = tri_sphparam(TRI, [], D, Y0, SPHPARAM_OPTS, SMACOF_OPTS, SCIP_CONS)
 %
 %   D is the square distance matrix. D(i, j) should ideally be the geodesic
 %   distance between the i-th and j-th vertices. If D is not provided,
@@ -140,6 +148,10 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %                cannot be untangled, pass the mesh again with this option
 %                set to "true".
 %
+%     'sphrad':  Radius of parametrization sphere. If not provided, X must
+%                be provided. The radius is then estimated so that the
+%                sphere has the same area as the total (TRI, X) mesh area.
+%
 %     'volmin':  (default 0, constrained SMACOF methods only).
 %                Minimum volume allowed to the oriented spherical
 %                tetrahedra at the output, formed by the triangles and the
@@ -160,7 +172,7 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.4.3
+% Version: 0.4.4
 % $Rev$
 % $Date$
 %
@@ -215,7 +227,10 @@ if (nargin < 8)
 end
 
 % number of vertices
-N = size(x, 1);
+N = size(d, 1);
+if (N ~= size(d, 2))
+    error('D must be a square matrix')
+end
 
 % sphparam_opts defaults
 if (~isfield(sphparam_opts, 'sphrad'))
@@ -309,11 +324,11 @@ y0IsValid = ~isempty(y0) && all(sphtri_signed_vol(tri, y0) > 0);
 if (size(tri, 2) ~= 3)
     error('TRI must have 3 columns')
 end
-if (size(x, 2) ~= 3)
+if (~isempty(x) && (size(x, 2) ~= 3))
     error('X must have 3 columns')
 end
-if ((N ~= size(d, 1)) || (N ~= size(d, 2)))
-    error('D must be a square matrix with the same number of rows as X')
+if (~isempty(x) && (N ~= size(x, 1)))
+    error('X must have the same number of rows as D matrix or be empty')
 end
 
 %% Compute output parametrization with one of the implemented methods
@@ -330,7 +345,7 @@ switch method
     
     %% Classic Multidimensional Scaling (MDS)
     case 'cmdscale'
-
+        
         narginchk(3, 6);
         
         % Classical MDS requires a full distance matrix
@@ -356,8 +371,7 @@ switch method
         % parametrization (because MDS is invariant to "inside-out" sphere
         % transformations)
         if (nnz(vol<0) > length(vol)/2)
-            [lon, lat, sphrad] = cart2sph(y(:, 1), y(:, 2), y(:, 3));
-            [y(:, 1), y(:, 2), y(:, 3)] = sph2cart(-lon, lat, sphrad);
+            y(:, 1) = -y(:, 1);
         end
         
         % Classic MDS always produces a global optimum
@@ -402,9 +416,6 @@ switch method
         
         %% Find tangled vertices
         
-        % reorient all triangles so that all normals point outwards
-        [~, tri] = meshcheckrepair(x, tri, 'deep');
-        
         % signed volume of tetrahedra formed by sphere triangles and origin
         % of coordinates
         vol = sphtri_signed_vol(tri, y0);
@@ -435,9 +446,6 @@ switch method
         
         % spherical coordinates of the points
         [lon, lat] = cart2sph(y0(:, 1), y0(:, 2), y0(:, 3));
-        
-        % reorient all triangles so that all normals point outwards
-        [~, tri] = meshcheckrepair(x, tri, 'deep');
         
         % signed volume of tetrahedra formed by sphere triangles and origin
         % of coordinates
@@ -475,7 +483,8 @@ switch method
         %% Untangle parametrization: untangle clusters of tangled vertices, one by
         %% one
         
-        % untangle each component separately
+        % untangle each component separately (note that this loop only
+        % computes the untangling, and it does not apply it to the mesh)
         y = y0;
         parfor C = 1:Ncomp
             
@@ -509,6 +518,30 @@ switch method
                 = cons_smacof_pip(dnn, ynn, isFreenn{C}, bnd, [], con, ...
                 smacof_opts, scip_opts);
 
+            if (strcmp(sphparam_opts.Display, 'iter'))
+                fprintf('... Component %d/%d done. Time: %.4e\n', C, Ncomp, toc)
+                fprintf('===================================================\n')
+            end
+            
+        end
+        
+        % apply successful untangling solutions to the mesh, and optionally
+        % check the topology
+        for C = 1:Ncomp
+            
+            % only update the parametrization if we have found a valid
+            % solution
+            if (all(~isnan(aux{C}(:))))
+                
+                % update only the free vertices
+                idx = find(nn{C});
+                y(idx(isFreenn{C}), :) = aux{C}(isFreenn{C}, :);
+                
+                % update spherical coordinates of new points
+                [lon(idx), lat(idx)] = cart2sph(y(idx, 1), y(idx, 2), y(idx, 3));
+                
+            end
+            
             % optional check of the topology
             if (sphparam_opts.TopologyCheck)
                 
@@ -552,35 +585,14 @@ switch method
                 
             end
             
-            if (strcmp(sphparam_opts.Display, 'iter'))
-                fprintf('... Component %d/%d done. Time: %.4e\n', C, Ncomp, toc)
-                fprintf('===================================================\n')
-            end
-            
         end
+
         
     otherwise
         error(['Unknown parametrization method: ' method])
 end
 
 %% check solutions
-
-for C = 1:Ncomp
-    
-    % only update the parametrization if we have found a valid
-    % solution
-    if (all(~isnan(aux{C}(:))))
-        
-        % update only the free vertices
-        idx = find(nn{C});
-        y(idx(isFreenn{C}), :) = aux{C}(isFreenn{C}, :);
-    
-        % update spherical coordinates of new points
-        [lon(idx), lat(idx)] = cart2sph(y(idx, 1), y(idx, 2), y(idx, 3));
-        
-    end
-    
-end
 
 % for uniformity, return stopCondition always as a cell array, even if it
 % has only one component
