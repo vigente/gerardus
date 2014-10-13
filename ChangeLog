@@ -1,3 +1,24 @@
+2014-10-13  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_sphparam.m: (0.4.4)
+
+	- Now X is no longer a mandatory argument. For most test we do,
+	when the distance matrix and sphere radius have been precomputed,
+	X is not needed. So remove meshcheckrepair(); instead, it's the
+	user that has to make sure that tri has all triangles positively
+	oriented before passing it to this function.
+
+	- Fix bug: the "update the parametrization" loop only works for
+	local SMACOF, but we had it for all methods.
+
+	- Local SMACOF: Check the topology only after having updated the
+	solution.
+
+	- Classical MDS: Sometimes the solution can be "inside-out". We
+	used to compute lat, lon and then invert lon to solve this, but
+	it's simpler to invert the x-coordinate without computing lat,
+	lon.
+
 2014-10-10  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/surface_param.m: (0.6.2)
