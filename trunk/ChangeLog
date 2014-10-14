@@ -1,3 +1,18 @@
+2014-10-14  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_sphparam.m: (0.4.5)
+
+	- Add parameter: sphparam_opts.Scale. Factor to scale the mesh,
+	distance matrix, sphere radius, volmin, volmax and
+	SMACOF_OPTS.TolFun. This is typically used when very small
+	tetrahedra cause "infeasible solutions" but volmin cannot be
+	reduced further because feasibility tolerance (feastol) >=
+	1e-6. MDS is invariant to scaling, and this factor acts
+	transparently, by unscaling the solution and output stress values.
+
+	- Fix bug. Convert volmin, volmax to vectors if they are given as
+	scalars. This prevents a later "Index out of bounds" error.
+
 2014-10-13  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/tri_sphparam.m: (0.4.4)
