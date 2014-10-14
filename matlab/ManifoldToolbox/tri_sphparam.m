@@ -120,20 +120,10 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %     'Display': (default = 'off') Do not display any internal information.
 %                'iter': display internal information at every iteration.
 %
-%     'TopologyCheck': (default false, 'consmacof-local' only) Check that
-%                parametrization has no self-intersections and that all
-%                triangles have a positive orientation. Note that it seems
-%                that SCIP, or maybe the way we input/output the problem to
-%                it causes small tolerances in the constraints. E.g. if
-%                VMIN=1, we may get a tetrahedron in the solution with
-%                volume 1-1e-5. This will be detected by TopologyCheck as a
-%                violation of the constraint, but it shouldn't be a problem
-%                in most cases. Note also that some triangles will have all
-%                vertices fixed in the local neighbourhood. If their volume
-%                is outside the range provided by the user, this will
-%                always trigger a warning, as the algorithm cannot move
-%                fixed vertices, and thus the volume cannot be changed to
-%                fit within the constraint either.
+%     'TopologyCheck': (default false, 'consmacof-local' only) Check after
+%                untangling each component that it has no
+%                self-intersections and that all triangles have a positive
+%                orientation.
 %
 %     'AllInnerVerticesAreFree': (default false, 'consmacof-local' only).
 %                In each tangled local neighbourhood, find the external
@@ -160,6 +150,17 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %
 %     'volmax':  (default Inf, constrained SMACOF methods only).
 %                Maximum volume of the output tetrahedra (see 'volmin').
+%
+%     'Scale':   (default 1.0, constrained SMACOF methods only). Factor to
+%                scale the mesh, distance matrix, sphere radius, volmin,
+%                volmax and SMACOF_OPTS.TolFun. This is typically used when
+%                very small tetrahedra cause "infeasible solutions" but
+%                volmin cannot be reduced further because feasibility
+%                tolerance (feastol) >= 1e-6. MDS is invariant to scaling,
+%                and this factor acts transparently, by unscaling the
+%                solution and output stress values. Basically, if you
+%                change Scale but nothing else, you should obtain the same
+%                result as long as your volmin, volmax are not too extreme.
 %
 %   SMACOF_OPTS is a struct with parameters to tweak the SMACOF algorithm.
 %   See cons_smacof_pip for details.
@@ -233,13 +234,16 @@ if (N ~= size(d, 2))
 end
 
 % sphparam_opts defaults
+if (~isfield(sphparam_opts, 'Scale'))
+    sphparam_opts.Scale = 1.0;
+end
 if (~isfield(sphparam_opts, 'sphrad'))
     % estimate the output parametrization sphere's radius, such that the
     % sphere's surface is the same as the total surface of the mesh
     sphparam_opts.sphrad = estimate_sphere_radius(tri, x);
 end
 if (~isfield(sphparam_opts, 'volmin'))
-    sphparam_opts.volmin = 0;
+    sphparam_opts.volmin = 1e-5;
 end
 if (~isfield(sphparam_opts, 'volmax'))
     sphparam_opts.volmax = Inf;
@@ -252,6 +256,15 @@ if (~isfield(sphparam_opts, 'TopologyCheck'))
 end
 if (~isfield(sphparam_opts, 'AllInnerVerticesAreFree'))
     sphparam_opts.AllInnerVerticesAreFree = false;
+end
+
+% if volmin, volmax given as scalar, turn them into vectors with one
+% element per triangle in the mesh
+if (isscalar(sphparam_opts.volmin))
+    sphparam_opts.volmin = sphparam_opts.volmin(ones(size(tri, 1), 1));
+end
+if (isscalar(sphparam_opts.volmax))
+    sphparam_opts.volmax = sphparam_opts.volmax(ones(size(tri, 1), 1));
 end
 
 % smacof_opts defaults
@@ -315,6 +328,15 @@ else
         
     end
     
+end
+
+if (~isempty(y0))
+    if (size(y0, 1) ~= N)
+        error('If Y0 is provided, it must have the same number of rows as D')
+    end
+    if (size(y0, 2) ~= 3)
+        error('If Y0 is provided, it must have 3 columns')
+    end
 end
 
 % check whether the initial guess is a valid solution
@@ -414,6 +436,11 @@ switch method
     %% Constrained SMACOF, global optimization
     case 'consmacof-global'
         
+        % scale mesh, distance matrix, sphere radius, volmin, volmax, etc,
+        % to avoid "infeasible solutions" when triangles are too small, as
+        % volmin cannot be smaller than feastol
+        [y0, d, sphparam_opts, smacof_opts] = scale_consmacof_problem(y0, d, sphparam_opts, smacof_opts);
+        
         %% Find tangled vertices
         
         % signed volume of tetrahedra formed by sphere triangles and origin
@@ -438,9 +465,18 @@ switch method
         [y, stopCondition, sigma, sigma0, t] ...
             = cons_smacof_pip(d, y0, isFree, bnd, [], con, ...
             smacof_opts, scip_opts);
+        
+        % unscale mesh, distance matrix, sphere radius, volmin, volmax,
+        % etc, to make process transparent to user
+        [y, sigma, sigma0] = unscale_consmacof_problem(y, sigma, sigma0, sphparam_opts);
             
     %% Constrained SMACOF, local optimization
     case 'consmacof-local'
+        
+        % scale mesh, distance matrix, sphere radius, volmin, volmax, etc,
+        % to avoid "infeasible solutions" when triangles are too small, as
+        % volmin cannot be smaller than feastol
+        [y0, d, sphparam_opts, smacof_opts] = scale_consmacof_problem(y0, d, sphparam_opts, smacof_opts);
         
         %% Find tangled vertices and group in clusters of connected tangled vertices
         
@@ -523,6 +559,47 @@ switch method
                 fprintf('===================================================\n')
             end
             
+            % optional check of the topology
+            if (sphparam_opts.TopologyCheck)
+                
+                if (any(isnan(aux{C}(:))))
+                    
+                    warning(['Component ' num2str(C) ': no solution found'])
+                    
+                else
+                    
+                    % assertion check: after untangling, the local
+                    % neighbourhood cannot produce self-intersections
+                    if any(cgal_check_self_intersect(trinn, aux{C}))
+                        warning(['Component ' num2str(C) ...
+                            ' contains self-intersections after untangling'])
+                    end
+                    
+                    % triangles in the local neighbourhood that have at
+                    % least a free vertex. These are the only ones that the
+                    % algorithm can change. The rest remain fixed
+                    trifree = sum(isFreenn{C}(trinn), 2) > 0;
+                    
+                    % assertion check: after untangling, volumes of all
+                    % tetrahedra in the local neighbourhood must be within
+                    % the volmin and volmax limits provided by the user
+                    vol = sphtri_signed_vol(trinn,  aux{C});
+                    volmin = sphparam_opts.volmin(idxtrinn);
+                    volmax = sphparam_opts.volmax(idxtrinn);
+                    if any(vol(trifree) < volmin(trifree) ...
+                            | vol(trifree) > volmax(trifree))
+                        warning(['Component ' num2str(C) ...
+                            ': Solution found by algorithm hasn''t been able to force all tetrahedra with free vertices within volume constraints'])
+                    end
+                    if any(vol(~trifree) < volmin(~trifree) ...
+                            | vol(~trifree) > volmax(~trifree))
+                        warning(['Component ' num2str(C) ...
+                            ': At least one of the tetrahedra with only fixed vertices has a volume outside the constraints provided by the user'])
+                    end
+                    
+                end
+                
+            end
         end
         
         % apply successful untangling solutions to the mesh, and optionally
@@ -542,52 +619,12 @@ switch method
                 
             end
             
-            % optional check of the topology
-            if (sphparam_opts.TopologyCheck)
-                
-                if (any(isnan(aux{C}(:))))
-                    
-                    warning(['Component ' num2str(C) ': no solution found'])
-                    
-                else
-                    
-                    % assertion check: after untangling, the local
-                    % neighbourhood cannot produce self-intersections
-                    if any(cgal_check_self_intersect(trinn, y(nn{C},:)))
-                        warning(['Component ' num2str(C) ...
-                            ' contains self-intersections after untangling'])
-                    end
-                    
-                    % triangles in the local neighbourhood that have at
-                    % least a free vertex. These are the only ones that the
-                    % algorithm can change. The rest remain fixed
-                    trifree = sum(isFreenn{C}(trinn), 2) > 0;
-                    
-                    % assertion check: after untangling, volumes of all
-                    % tetrahedra in the local neighbourhood must be within
-                    % the volmin and volmax limits provided by the user
-                    vol = sphtri_signed_vol(trinn,  y(nn{C}, :));
-                    vol = sphtri_signed_vol(trinn,  aux{C});
-                    volmin = sphparam_opts.volmin(idxtrinn);
-                    volmax = sphparam_opts.volmax(idxtrinn);
-                    if any(vol(trifree) < volmin(trifree) ...
-                            | vol(trifree) > volmax(trifree))
-                        warning(['Component ' num2str(C) ...
-                            ': Solution found by algorithm hasn''t been able to force all tetrahedra with free vertices within volume constraints'])
-                    end
-                    if any(vol(~trifree) < volmin(~trifree) ...
-                            | vol(~trifree) > volmax(~trifree))
-                        warning(['Component ' num2str(C) ...
-                            ': At least one of the tetrahedra with only fixed vertices has a volume outside the constraints provided by the user'])
-                    end
-                    
-                end
-                
-            end
-            
         end
 
-        
+        % unscale mesh, distance matrix, sphere radius, volmin, volmax,
+        % etc, to make process transparent to user
+        [y, sigma, sigma0] = unscale_consmacof_problem(y, sigma, sigma0, sphparam_opts);
+
     otherwise
         error(['Unknown parametrization method: ' method])
 end
@@ -736,6 +773,57 @@ if (RECOMPUTE_FREE_VERTICES)
     isFreenn = nn;
     isFreenn(nnedge) = false;
     vfree = find(isFreenn)';
+    
+end
+
+end
+
+% function to scale up the mesh, distance matrix, and some parameters in
+% constrained SMACOF. This is used because meshes with tiny triangles can
+% cause "infeasible solutions", as volmin cannot be made smaller than
+% feastol (feasibility tolerance). There's a twin function that scales down
+% the solution, as well as stress measures, so that the whole process is
+% transparent to the user.
+function [y0, d, sphparam_opts, smacof_opts] ...
+    = scale_consmacof_problem(y0, d, sphparam_opts, smacof_opts)
+
+if (sphparam_opts.Scale ~= 1.0)
+    
+    % mesh and distance matrix
+    y0 = y0 * sphparam_opts.Scale;
+    d = d * sphparam_opts.Scale;
+    
+    % sphparam parameters
+    sphparam_opts.sphrad = sphparam_opts.sphrad * sphparam_opts.Scale;
+    sphparam_opts.volmin = sphparam_opts.volmin * sphparam_opts.Scale^3;
+    sphparam_opts.volmax = sphparam_opts.volmax * sphparam_opts.Scale^3;
+    
+    % stress-related parameters (note: stress α scale^2)
+    smacof_opts.TolFun = smacof_opts.TolFun * sphparam_opts.Scale^2;
+    
+end
+
+end
+
+% function to scale down the constrained SMACOF solution, as well as the
+% stress, to make it transparent to the user the scaling of twin function
+% scale_consmacof_problem()
+function [y, sigma, sigma0] = unscale_consmacof_problem(y, sigma, sigma0, sphparam_opts)
+
+if (sphparam_opts.Scale ~= 1.0)
+    
+    % mesh
+    y = y / sphparam_opts.Scale;
+    
+    % stress (note: stress α scale^2)
+    if (iscell(sigma))
+        for I = 1:length(sigma)
+            sigma{I} = sigma{I} / sphparam_opts.Scale^2;
+        end
+    else
+        sigma = sigma / sphparam_opts.Scale^2;
+    end
+    sigma0 = sigma0 / sphparam_opts.Scale^2;
     
 end
 
