@@ -12,6 +12,21 @@ function [tParam, regParam] = histology_intraframe_reg(pathstr, files, opts)
 %   FILES is the result of a dir() command, e.g. dir('*.png'). The
 %   function expects a list of histology images.
 %
+%   TPARAM is an array of structs with the transforms for each image, where
+%   TPARAM(I) is the nested transform for the I-th image. Note that if
+%   ta is a series of nested transforms, e.g.
+%
+%     ta.Transform = 'EulerTransform';
+%     ta.InitialTransformParametersFileName = tb;
+%
+%     tb.Transform = 'BSplineTransform';
+%     tb.InitialTransformParametersFileName = 'NoInitialTransform';
+%
+%   tb is the "initial transform" of ta, but because ITK and elastix define
+%   the transform of an image in the inverse direction, in practice what
+%   happens is that ta is applied *first* to the image, and then tb is
+%   applied to the result.
+%
 % ... = histology_intraframe_reg(..., OPTS)
 %
 %   OPTS is a struct with algorithm parameters:
@@ -30,7 +45,7 @@ function [tParam, regParam] = histology_intraframe_reg(pathstr, files, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -119,8 +134,8 @@ for S = 1:opts.MaxIter
     disp(['S = ' num2str(S) '/' num2str(opts.MaxIter) ...
         ', I = ' num2str(1) '/' num2str(length(files))])
     tParam(1) = process_extreme_slices(...
-        [pathstr filesep files(2).name], ...
-        [pathstr filesep files(1).name], ...
+        [pathstr filesep files(2).name], ... % fixed
+        [pathstr filesep files(1).name], ... % moving
         T0(2), T0(1), regParam, opts);
     disp(['time = ' num2str(toc) 'sec'])
     
@@ -133,23 +148,24 @@ for S = 1:opts.MaxIter
             ', I = ' num2str(I) '/' num2str(length(files))])
         
         tParam(I) = process_intermediate_slices(...
-            [pathstr filesep files(I-1).name], ...
-            [pathstr filesep files(I).name], ...
-            [pathstr filesep files(I+1).name], ...
+            [pathstr filesep files(I-1).name], ... % fixed a
+            [pathstr filesep files(I).name], ...   % moving
+            [pathstr filesep files(I+1).name], ... % fixed b
             T0(I-1), T0(I), T0(I+1), regParam, opts);
         disp(['time = ' num2str(toc) 'sec'])
-
+        
     end
     
     % compute registration diffusion for the last slice of the histology
     % volume
+    N = length(files);
     tic
     disp(['S = ' num2str(S) '/' num2str(opts.MaxIter) ...
         ', I = ' num2str(length(files)) '/' num2str(length(files))])
-    tParam(end) = process_extreme_slices(...
-        [pathstr filesep files(end-1).name], ...
-        [pathstr filesep files(end).name], ...
-        T0(end-1), T0(end), regParam, opts);
+    tParam(N) = process_extreme_slices(...
+        [pathstr filesep files(N-1).name], ... % fixed
+        [pathstr filesep files(N).name], ...   % moving
+        T0(N-1), T0(N), regParam, opts);
     disp(['time = ' num2str(toc) 'sec'])
 
 end
@@ -182,16 +198,19 @@ regParam.Optimizer = 'RegularStepGradientDescent';
 regParam.ResampleInterpolator = 'FinalBSplineInterpolator';
 regParam.Resampler = 'DefaultResampler';
 regParam.Transform = 'BSplineTransform';
+regParam.BSplineTransformSplineOrder = 3;
+regParam.UseCyclicTransform = 'false';
 regParam.AutomaticTransformInitialization = 'false';
 regParam.AutomaticTransformInitializationMethod = 'GeometricalCenter';
 regParam.UseFastAndLowMemoryVersion = 'true';
 regParam.UseJacobianPreconditioning = 'false';
 regParam.FiniteDifferenceDerivative = 'false';
-regParam.MaximumNumberOfSamplingAttempts = 0;
+regParam.MaximumNumberOfSamplingAttempts = 10;
 regParam.ErodeMask = 'false';
 regParam.NumberOfResolutions = 3;
-regParam.FinalGridSpacingInVoxels = 16;
-regParam.GridSpacingSchedule = [64 16 4];
+regParam.ImagePyramidSchedule = [16 16 4 4 1 1];
+regParam.FinalGridSpacingInVoxels = 32;
+regParam.GridSpacingSchedule = [16 4 1];
 regParam.HowToCombineTransforms = 'Compose';
 regParam.UseDirectionCosines = 'true';
 regParam.MaximumNumberOfIterations = 400;
@@ -205,7 +224,10 @@ regParam.FixedLimitRangeRatio = 0;
 regParam.MovingLimitRangeRatio = 0;
 regParam.FixedKernelBSplineOrder = 3;
 regParam.MovingKernelBSplineOrder = 3;
-regParam.ImageSampler = {'Full'  'Full'  'Full'};
+% regParam.ImageSampler = {'RandomSparseMask' 'RandomSparseMask' 'RandomSparseMask'};
+regParam.ImageSampler = {'RandomCoordinate' 'RandomCoordinate' 'RandomCoordinate'};
+regParam.NewSamplesEveryIteration = 'true';
+regParam.NumberOfSpatialSamples = [0 0 0]; % to be set for each slice
 regParam.FixedImageBSplineInterpolationOrder = 1;
 regParam.UseRandomSampleRegion = 'false';
 regParam.BSplineInterpolationOrder = 1;
@@ -238,7 +260,7 @@ end
 %   REGPARAM is the struct with the registration parameters for elastix.
 %
 %   OPTS is a struct with optional algorithm parameters.
-function tm = process_extreme_slices(filef, filem, t0f, t0m, regParam, opts)
+function t0m = process_extreme_slices(filef, filem, t0f, t0m, regParam, opts)
 
 DEBUG = 0;
 
@@ -270,8 +292,12 @@ se = strel('disk', 10);
 opts.mMask = imdilate(opts.mMask, se);
 opts.fMask = imdilate(opts.fMask, se);
 
+% we use 10% of the voxels within the mask
+nSamples = nnz(imf) / 10 * regParam.GridSpacingSchedule(end);
+regParam.NumberOfSpatialSamples = round(nSamples ./ regParam.GridSpacingSchedule);
+
 % register slices
-[tm, immreg, iterinfo] = elastix(regParam, imf, imm, opts);
+[tma, immreg, iterinfo] = elastix(regParam, imf, imm, opts);
 
 if (DEBUG)
     subplot(2, 1, 1)
@@ -281,14 +307,17 @@ if (DEBUG)
     hold off
     imshowpair(imf, immreg)
 end
-    
 
-% apply diffusion
-tm.TransformParameters ...
-    = tm.TransformParameters * 2 * opts.DiffusionCoefficient;
-
-% add diffused transform to the list of accumulated transforms
-tm.InitialTransformParametersFileName = t0m;
+% create a new combined transform as a linear combination of the two
+% computed transforms, and apply diffusion coefficient (the new transform
+% has to go at the back of the list so that it is applied last)
+tma.TransformParameters ...
+    = 2 * tma.TransformParameters * opts.DiffusionCoefficient;
+str = 't0m';
+while (isstruct(eval([str '.InitialTransformParametersFileName'])))
+    str = [str '.InitialTransformParametersFileName'];
+end
+eval([str '.InitialTransformParametersFileName = tma;']);
 
 end
 
@@ -310,7 +339,7 @@ end
 %   REGPARAM is the struct with the registration parameters for elastix.
 %
 %   OPTS is a struct with optional algorithm parameters.
-function tm = process_intermediate_slices(filefa, filem, filefb, t0fa, t0m, t0fb, regParam, opts)
+function t0m = process_intermediate_slices(filefa, filem, filefb, t0fa, t0m, t0fb, regParam, opts)
 
 DEBUG = 0;
 
@@ -333,28 +362,19 @@ imfa = transformix(t0fa, imfa);
 imfb = transformix(t0fb, imfb);
 
 % create masks
-opts.mMask = uint8(sum(imm, 3) > 0);
-fMaska = uint8(sum(imfa, 3) > 0);
-fMaskb = uint8(sum(imfb, 3) > 0);
-
-% remove some background noise in the mask
-se = strel('disk', 1);
-opts.mMask = imerode(opts.mMask, se);
-fMaska = imerode(fMaska, se);
-fMaskb = imerode(fMaskb, se);
-
-% dilate mask to cover some background
-se = strel('disk', 10);
-opts.mMask = imdilate(opts.mMask, se);
-fMaska = imdilate(fMaska, se);
-fMaskb = imdilate(fMaskb, se);
+opts.mMask = create_mask(imm);
+fMaska = create_mask(imfa);
+fMaskb = create_mask(imfb);
 
 % register slices
 opts.fMask = fMaska;
+regParam.NumberOfSpatialSamples = round(nnz(fMaska) / 10); % use 10% of the voxels within the mask
 [tma, immrega, iterinfoa] = elastix(regParam, imfa, imm, opts);
 opts.fMask = fMaskb;
+regParam.NumberOfSpatialSamples = round(nnz(fMaskb) / 10); % use 10% of the voxels within the mask
 [tmb, immregb, iterinfob] = elastix(regParam, imfb, imm, opts);
 
+% visualize registered images
 if (DEBUG)
     subplot(2, 2, 1)
     hold off
@@ -370,13 +390,91 @@ if (DEBUG)
     imshowpair(imfb, immregb)
 end
 
-% apply diffusion
-tm = tma;
-tm.TransformParameters ...
+% create a new combined transform as a linear combination of the two
+% computed transforms, and apply diffusion coefficient (the new transform
+% has to go at the back of the list so that it is applied last)
+tma.TransformParameters ...
     = (tma.TransformParameters + tmb.TransformParameters) ...
     * opts.DiffusionCoefficient;
+str = 't0m';
+while (isstruct(eval([str '.InitialTransformParametersFileName'])))
+    str = [str '.InitialTransformParametersFileName'];
+end
+eval([str '.InitialTransformParametersFileName = tma;']);
 
-% add diffused transform to the list of accumulated transforms
-tm.InitialTransformParametersFileName = t0m;
+% visualize deformation field
+if (DEBUG)
+    
+    % create grid image
+    aux = zeros(size(imm), 'uint8');
+    for I = 1:5
+        aux(I:100:end, :, :) = 255;
+        aux(:, I:100:end, :) = 255;
+    end
+    
+    % deform grid according to both transforms independently, and the
+    % combined one
+    auxrega = transformix(tma, aux);
+    auxregb = transformix(tmb, aux);
+    auxregm = transformix(tm, aux);
+    
+    % display 3 deformation fields
+    subplot(3, 1, 1)
+    imagesc(auxrega)
+    axis equal
+    subplot(3, 1, 2)
+    imagesc(auxregb)
+    axis equal
+    subplot(3, 1, 3)
+    imagesc(auxregm)
+    axis equal
+    
+end
+
+end
+
+function mask = create_mask(im)
+
+% threshold image
+mask = uint8(sum(im, 3) > 0);
+
+% detect connected components of the mask
+cc = bwconncomp(mask);
+
+% remove small components
+stats = regionprops(cc, 'Area');
+idx = [stats.Area] < 5000;
+mask(cat(1, cc.PixelIdxList{idx})) = 0;
+
+% smooth mask and dilate a bit
+se = strel('disk', 15);
+mask = imdilate(mask, se);
+se = strel('disk', 5);
+mask = imerode(mask, se);
+
+% fill in the holes
+mask = imfill(mask, 'holes');
+
+% make sure we only have one connected components
+mask = bwrmsmallcomp(mask);
+
+% fit ellipse to the segmentation mask
+stats = regionprops(mask, 'MajorAxisLength', 'MinorAxisLength', ...
+    'Centroid', 'Orientation');
+
+% simplify notation
+xc = stats.Centroid(1);
+yc = stats.Centroid(2);
+a = stats.MajorAxisLength / 2;
+b = stats.MinorAxisLength / 2;
+alpha = stats.Orientation;
+
+% create elliptical segmentation mask
+[x, y] = meshgrid(1:size(mask, 2), 1:size(mask, 1));
+xy = [x(:) - xc, y(:) - yc] ...
+    * [cosd(alpha) sind(alpha); -sind(alpha) cosd(alpha)];
+
+mask = (b^2 * xy(:, 1).^2 + a^2 * xy(:, 2).^2 <= (a * b)^2);
+mask = reshape(mask, size(im, 1), size(im, 2));
 
 end

@@ -77,6 +77,19 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %                  ResultImagePixelType: 'unsigned char'
 %                   CompressResultImage: 'false'
 %
+%   Nested transforms: If T is a series of nested transforms, e.g.
+%
+%     ta.Transform = 'EulerTransform';
+%     ta.InitialTransformParametersFileName = tb;
+%
+%     tb.Transform = 'BSplineTransform';
+%     tb.InitialTransformParametersFileName = 'NoInitialTransform';
+%
+%   tb is the "initial transform" of ta, but because ITK and elastix define
+%   the transform of an image in the inverse direction, in practice what
+%   happens is that ta is applied *first* to the image, and then tb is
+%   applied to the result.
+%
 %   MOVINGREG is the result of registering MOVING onto FIXED. MOVINGREG is
 %   the same type as MOVING (i.e. image array or path and filename). In the
 %   path and filename case, an image file will we created with path and
@@ -102,7 +115,7 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % $Rev$
 % $Date$
 % 
