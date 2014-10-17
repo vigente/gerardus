@@ -1,3 +1,35 @@
+2014-10-16  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CardiacToolbox/histology_intraframe_reg.m: (0.2.1)
+
+	- Fix bug. In elastix, if we want to first apply transform ta and
+	then tb, we need to make ta.InitialTransformParametersFileName =
+	tb, counter-intuitively. We were doing it the other way around,
+	and that was causing oscillations in the registration after
+	several iterations.
+
+	- Change the registration parameters to have a bit of a coarser
+	grid, and speed up by random sampling 10% of the images instead of
+	using all voxels.
+
+	- Fix bug. Using "end" as index for T0 overwrote the transform for
+	slice N-1 instead of N.
+
+	- Encapsulate mask creation into local function. The mask is not
+	more complex. We threshold segment the foreground, as before, but
+	then we remove background noise, we dilate and fill the mask, and
+	then we fit an ellipse to the mask, and that ellipse becomes the
+	actual mask.
+
+	- Add debug code to show how a grid is deformed by the B-spline
+	transforms.
+
+	* matlab/ItkToolbox/elastix.m: (0.4.1)
+	* matlab/ItkToolbox/transformix.m: (0.2.4)
+
+	- Minor. Add note to help header explaining order of nested
+	transforms.
+
 2014-10-14  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/tri_sphparam.m: (0.4.5)
