@@ -14,6 +14,19 @@ function imout = transformix(t, im, opts)
 %   registration program. See help to elastix for details. If T is empty,
 %   the input image IM is returned.
 %
+%   Nested transforms: If T is a series of nested transforms, e.g.
+%
+%     ta.Transform = 'EulerTransform';
+%     ta.InitialTransformParametersFileName = tb;
+%
+%     tb.Transform = 'BSplineTransform';
+%     tb.InitialTransformParametersFileName = 'NoInitialTransform';
+%
+%   tb is the "initial transform" of ta, but because ITK and elastix define
+%   the transform of an image in the inverse direction, in practice what
+%   happens is that ta is applied *first* to the image, and then tb is
+%   applied to the result.
+%
 %   The input image can be provided either as a string with the path and
 %   filename (FILENAMEIN) or as an image array (IMIN). The output will have
 %   the same format (i.e. a path to an output file, or an image array). The
@@ -36,7 +49,7 @@ function imout = transformix(t, im, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.3
+% Version: 0.2.4
 % $Rev$
 % $Date$
 % 
