@@ -187,6 +187,11 @@ im2metaimage.m
 	 IM2METAIMAGE  Read a batch of image files, collate them and save as a
 	 single MetaImage "file" (actually, one .mha and one .raw file)
 	
+match_file_lists.m
+
+	 match_file_lists  Remove elements from a file list that are not in
+	 another.
+	
 matlab2vox_seg3d.m
 
 	 MATLAB2VOX_SEG3D  Convert Matlab file with Seg3D segmentation to vox
