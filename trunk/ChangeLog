@@ -1,3 +1,9 @@
+2014-10-22  Jo Bates  <jobates81@gmail.com>
+
+	* temp/JoFunction.m: (0.1.0)
+
+	- JoFunction  Power of a scalar.
+
 2014-10-20  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/match_file_lists.m: (0.1.0)
