@@ -11,9 +11,13 @@ function [im_out,rows,cols]=imagesc_nD(im_in,cols,clim)
 % IM_OUT = 2D mosaic image
 % ROWS   = Number of rows in output image
 % COLS   = Number of columns in output image
+%
+% USAGE
+% load mri
+% imagesc_nD(D);
 
 % Author: Irvin Teh <irvin@well.ox.ac.uk>
-% Copyright ï¿½ 2010-2014 University of Oxford
+% Copyright © 2010-2014 University of Oxford
 % Version: 0.1.0
 % $Rev$
 % $Date$
