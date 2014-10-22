@@ -321,6 +321,10 @@ im2dmatrix.m
 
 	 IM2DMATRIX  Sparse distance matrix between 2D or 3D image voxels,
 	 weighted by voxel intensities
+
+imagesc_nD.m
+
+	IMAGESC_ND  Reformats nD-arrayed 2D image data for display as 2D montage
 	
 imblend.m
 
