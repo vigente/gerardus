@@ -1,3 +1,9 @@
+2014-10-2  Irvin Teh  <irvin@well.ox.ac.uk>
+
+	* Add matlab/FiltersToolbox/imagesc_nD.m: (0.0.1)
+
+	- Reformats nD-arrayed 2D image data for display as 2D montage.
+
 2014-10-20  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/match_file_lists.m: (0.1.0)
