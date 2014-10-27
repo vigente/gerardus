@@ -1,3 +1,10 @@
+2014-10-27  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ItkToolbox/elastix_affine_tform2param.m: (0.1.0)
+
+	- elastix_affine_tform2param Convert Matlab tform affine transform
+	to elastix parameter vector.
+
 2014-10-27  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* Add matlab/CardiacToolbox/fit_DT.m: (0.1.1)
