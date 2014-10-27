@@ -1,4 +1,11 @@
-2014-10-2  Irvin Teh  <irvin@well.ox.ac.uk>
+2014-10-27  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* Add matlab/CardiacToolbox/fit_DT.m: (0.1.1)
+	* Add matlab/CardiacToolbox/DT_to_image.m: (0.1.1)
+
+	- Functions for fitting the diffusion tensor model.
+
+2014-10-22  Irvin Teh  <irvin@well.ox.ac.uk>
 
 	* Add matlab/FiltersToolbox/imagesc_nD.m: (0.0.1)
 
