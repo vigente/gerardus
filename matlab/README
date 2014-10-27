@@ -79,11 +79,24 @@ crest_envelope.m
 
 	 CREST_ENVELOPE  Compute the envelope for the Right Ventricle's crest
 	
+DT_to_image.m
+
+	DT_TO_IMAGE Inverses the transform in fit_DT
+	 
+	 The suggested usage of this file is to easily check how well a diffusion
+	 tensor fits to your data. Eg:
+	
+fit_DT.m
+
+	 FIT_DT    Fit the diffusion tensor model voxelwise to an image
+	
 histology_blockface_preprocessing.m
 
 	 histology_blockface_preprocessing  Prepare histology and blockface for
 	 registration.
 	
+histology_blockface_reg.m
+
 histology_intraframe_reg.m
 
 	 histology_intraframe_reg  Registration diffusion of histology slices.
@@ -321,11 +334,9 @@ im2dmatrix.m
 
 	 IM2DMATRIX  Sparse distance matrix between 2D or 3D image voxels,
 	 weighted by voxel intensities
-
+	
 imagesc_nD.m
 
-	IMAGESC_ND  Reformats nD-arrayed 2D image data for display as 2D montage
-	
 imblend.m
 
 	 IMBLEND  Blend two image stacks to increase the apparent dynamic range
@@ -457,6 +468,11 @@ typicalpsf.m
 ItkToolbox
 -------------------------------------------------------------
 
+elastix_affine_tform2param.m
+
+	 elastix_affine_tform2param  Convert Matlab tform affine transform to
+	 elastix parameter vector.
+	
 elastix_compose_afftransf.m
 
 	 elastix_compose_afftransf  Composition of two 2D affine transforms.
@@ -504,10 +520,6 @@ itk_tri_rasterization.m
 	 segmentation
 	
 transformix.m
-
-	 transformix  Matlab interface to the image warping program "transformix".
-	
-transformix_old.m
 
 	 transformix  Matlab interface to the image warping program "transformix".
 	
