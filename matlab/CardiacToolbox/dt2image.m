@@ -1,11 +1,11 @@
-function [ img ] = DT_to_image( DT, b )
-%DT_TO_IMAGE Inverses the transform in fit_DT
+function [ img ] = dt2image( DT, b )
+% DT2IMAGE Inverts the transform in fit_DT
 % 
 % The suggested usage of this file is to easily check how well a diffusion
 % tensor fits to your data. Eg:
 %
 % DT = fit_DT( im, b );
-% im_fitted = DT_to_image(DT, b);
+% im_fitted = dt2image(DT, b);
 % residuals = im_fitted - im;
 %
 % Ideally the residuals would be just noise - if there is any pattern to
@@ -19,7 +19,7 @@ function [ img ] = DT_to_image( DT, b )
 
     
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
-% Copyright © 2014 University of Oxford
+% Copyright ï¿½ 2014 University of Oxford
 % Version: 0.1.1
 % $Rev$
 % $Date$
