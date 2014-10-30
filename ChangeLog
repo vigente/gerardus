@@ -1,3 +1,8 @@
+2014-10-30  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* renamed matlab/CardiacToolbox/DT_to_image.m: (0.1.0) to 
+	matlab/CardiacToolbox/dt2image.m (0.1.0)
+
 2014-10-27  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ItkToolbox/elastix_affine_tform2param.m: (0.1.0)
