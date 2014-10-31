@@ -1,3 +1,16 @@
+2014-10-31  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/FileFormatToolbox/imread_list.m: (0.1.0)
+
+	- IMREAD_LIST  Read list of image files into volume.
+
+	* Rename matlab/CardiacToolbox/blockface_imread_gray.m (0.1.1) as
+	matlab/FileFormatToolbox/imread_list.m: (0.1.0)
+
+	- Reading a list of images into a volume is a function of general
+	interest, it made no sense that it was in CardiacToolbox and
+	called "blockface_imread_gray".
+
 2014-10-30  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* renamed matlab/CardiacToolbox/DT_to_image.m: (0.1.0) to 
