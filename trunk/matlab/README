@@ -60,10 +60,6 @@ blockface_equalise_illumination.m
 	 BLOCKFACE_EQUALISE_ILLUMINATION  Correct illumination inhomogeneities in
 	 blockface photography.
 	
-blockface_imread_gray.m
-
-	 BLOCKFACE_IMREAD_GRAY  Read multiple image files into grayscale volume.
-	
 blockface_intraframe_reg.m
 
 	 blockface_intraframe_reg  Register consecutive frames in a list of
@@ -79,9 +75,9 @@ crest_envelope.m
 
 	 CREST_ENVELOPE  Compute the envelope for the Right Ventricle's crest
 	
-DT_to_image.m
+dt2image.m
 
-	DT_TO_IMAGE Inverses the transform in fit_DT
+	 DT2IMAGE Inverts the transform in fit_DT
 	 
 	 The suggested usage of this file is to easily check how well a diffusion
 	 tensor fits to your data. Eg:
@@ -199,6 +195,10 @@ im2metaimage.m
 
 	 IM2METAIMAGE  Read a batch of image files, collate them and save as a
 	 single MetaImage "file" (actually, one .mha and one .raw file)
+	
+imread_list.m
+
+	 IMREAD_LIST  Read list of image files into volume.
 	
 match_file_lists.m
 
