@@ -20,7 +20,7 @@ function [t, im, iterInfo] = elastix_read_reg_output(outdir)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 % 
@@ -93,15 +93,29 @@ if (nargout > 2)
         error(['More than one iteration info file: ' outdir filesep 'IterationInfo.0.R0.txt'])
     end
     
-    % read the table
-    table = dlmread([outdir filesep 'IterationInfo.0.R0.txt'], '\t', 1, 0);
-    
-    % create struct
-    iterInfo.ItNr = table(:, 1);
-    iterInfo.Metric = table(:, 2);
-    iterInfo.StepSize = table(:, 3);
-    iterInfo.Gradient = table(:, 4);
-    iterInfo.Time = table(:, 5);
-    
-end
+    % if the file is empty
+    info = dir([outdir filesep 'IterationInfo.0.R0.txt']);
+    if (info.bytes == 0)
+        
+        iterInfo.ItNr = [];
+        iterInfo.Metric = [];
+        iterInfo.StepSize = [];
+        iterInfo.Gradient = [];
+        iterInfo.Time = [];
+        
+    else
+        
+        % read the table
+        table = dlmread([outdir filesep 'IterationInfo.0.R0.txt'], ...
+            '\t', 1, 0);
+        
+        % create struct
+        iterInfo.ItNr = table(:, 1);
+        iterInfo.Metric = table(:, 2);
+        iterInfo.StepSize = table(:, 3);
+        iterInfo.Gradient = table(:, 4);
+        iterInfo.Time = table(:, 5);
+        
+    end
 
+end

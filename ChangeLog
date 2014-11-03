@@ -1,3 +1,37 @@
+2014-11-03  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/elastix.m: (0.4.2)
+
+	- Fix bug. Other functions expect the intial transform to be
+	opts.t0 instead of opts.T0.
+
+	* matlab/ItkToolbox/elastix_read_reg_output.m: (0.2.2)
+
+	- Fix bug. Sometimes, elastix can produce an empty iteration info
+	file. Trying to read it gave an error. Now, if the file is empty
+	we return empty iterInfo.
+
+	* matlab/FileFormatToolbox/imread_list.m: (0.1.1)
+
+	- Fix bug. Wrong variable name.
+
+	* matlab/ManifoldToolbox/tri_sphparam.m: (0.4.5)
+
+	- Even if the initial guess points provided by the user are within
+	the sphere radius tolerance, we reproject them on the sphere,
+	because tiny radius errors can create neighbourhoods that cannot
+	be untangled.
+
+	* matlab/CardiacToolbox/histology_intraframe_reg.m: (0.2.2)
+
+	- Fix bug. Wrong number when checking number of output arguments.
+
+	- Fix bug. Other functions expect the intial transform to be
+	opts.t0 instead of opts.T0.
+
+	- Rename input argument from PATHTOFILES to PATHSTR for uniformity
+	with other function in the toolbox.
+
 2014-10-31  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/FileFormatToolbox/imread_list.m: (0.1.0)
@@ -1458,7 +1492,7 @@
 	- tests if a set of points are inside a convex hull. By John
 	D'Errico,
 	http://www.mathworks.co.uk/matlabcentral/fileexchange/10226-inhull
-
+edit e
 
 2014-02-27  Ramon Casero  <rcasero@gmail.com>
 

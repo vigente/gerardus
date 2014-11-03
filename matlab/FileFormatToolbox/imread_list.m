@@ -22,7 +22,7 @@ function im = imread_list(pathstr, file, TOGRAY)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -79,9 +79,9 @@ nchan = size(im0, 3);
 
 % initialize output volume
 if (nchan == 1 || TOGRAY)
-    im = zeros(size(im, 1), size(im, 2), N, class(im));
+    im = zeros(size(im0, 1), size(im0, 2), N, class(im0));
 else
-    im = zeros(size(im, 1), size(im, 2), N, nchan, class(im));
+    im = zeros(size(im0, 1), size(im0, 2), N, nchan, class(im0));
 end
 im(:, :, 1, :) = im0;
 
