@@ -39,7 +39,7 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %              an image array.
 %
 %     t0:      (def '') Struct or filename with an initial transform (see T
-%              below for format). T0 is applied to the image before the
+%              below for format). t0 is applied to the image before the
 %              registration is run. Note that parameter
 %              InitialTransformParametersFileName allows to provide another
 %              transform that will be applied before t0, and so on
@@ -115,7 +115,7 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.4.1
+% Version: 0.4.2
 % $Rev$
 % $Date$
 % 
@@ -346,7 +346,12 @@ if (delete_paramfile)
 end
 if (delete_t0file)
     elastix_delete_param_file(t0file)
-    t.InitialTransformParametersFileName = 'NoInitialTransform';
+    if (ischar(t.InitialTransformParametersFileName))
+        % if the transform is returned as a filename, the only one that is
+        % going to be preserved is the top transform. The nested ones will
+        % be deleted, so we cannot return filenames for them
+        t.InitialTransformParametersFileName = 'NoInitialTransform';
+    end
 end
 if (delete_fMaskfile)
     delete(fMaskfile)

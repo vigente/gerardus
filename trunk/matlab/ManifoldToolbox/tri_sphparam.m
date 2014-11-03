@@ -173,7 +173,7 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.4.4
+% Version: 0.4.5
 % $Rev$
 % $Date$
 %
@@ -320,11 +320,20 @@ else
         
     else
         
-        % if initial guess is provided, make sure that it corresponds to
-        % points on the sphere surface
+        % if initial guess is provided, make sure that the user didn't make
+        % a mistake providing an initial guess where the points don't lie
+        % on the sphere
         if any(abs(sqrt(sum(y0.^2, 2)) - sphparam_opts.sphrad) > 1e-8)
             error(['Initial guess points are not on a sphere of radius ' num2str(sphparam_opts.sphrad)])
         end
+        
+        % even if the initial guess points are quite close to the sphere,
+        % we need to re-project them on it, because tiny deviations from
+        % the radius can make the difference between a component being
+        % untangled or not
+        [lon, lat] = cart2sph(y0(:, 1), y0(:, 2), y0(:, 3));
+        [y0(:, 1), y0(:, 2), y0(:, 3)] ...
+            = sph2cart(lon, lat, sphparam_opts.sphrad);
         
     end
     
@@ -380,7 +389,7 @@ switch method
         % Euclidean
         y = cmdscale(d, 3);
         
-        % project the MDS solution on the sphere
+        % center and project the MDS solution on a sphere
         [lat, lon] = proj_on_sphere(y);
         [y(:, 1), y(:, 2), y(:, 3)] ...
             = sph2cart(lon, lat, sphparam_opts.sphrad);

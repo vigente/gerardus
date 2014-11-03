@@ -7,7 +7,7 @@ function [tParam, regParam] = histology_intraframe_reg(pathstr, files, opts)
 %
 % [TPARAM, REGPARAM] = histology_intraframe_reg(PATHSTR, FILES)
 %
-%   PATHSTR is the full path to the files. If empty, PATHTOFILES='.'.
+%   PATHSTR is the full path to the files. If empty, PATHSTR='.'.
 %
 %   FILES is the result of a dir() command, e.g. dir('*.png'). The
 %   function expects a list of histology images.
@@ -37,7 +37,7 @@ function [tParam, regParam] = histology_intraframe_reg(pathstr, files, opts)
 %
 %     'verbose':   (default 0) Show elastix output on the screen.
 %
-%     'T0':        (default []) Initial transform in elastix format for the
+%     't0':        (default []) Initial transform in elastix format for the
 %                  images (typically rigid transforms to provide an initial
 %                  rough alignment).
 %
@@ -45,7 +45,7 @@ function [tParam, regParam] = histology_intraframe_reg(pathstr, files, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % $Rev$
 % $Date$
 % 
@@ -74,7 +74,7 @@ function [tParam, regParam] = histology_intraframe_reg(pathstr, files, opts)
 
 % check arguments
 narginchk(2, 3);
-nargoutchk(0, 4);
+nargoutchk(0, 2);
 
 if (length(files) < 3)
     error('At least three files are needed for registration')
@@ -90,15 +90,15 @@ end
 if (isempty(opts) || ~isfield(opts, 'verbose'))
     opts.verbose = 0;
 end
-if (isempty(opts) || ~isfield(opts, 'T0'))
-    opts.T0 = [];
+if (isempty(opts) || ~isfield(opts, 't0'))
+    opts.t0 = [];
 end
 if (isempty(pathstr))
     pathstr = '.';
 end
 
-if (~isempty(opts.T0) && (length(opts.T0) ~= length(files)))
-    error('If opts.T0 initial transforms are provided, there must be one per image')
+if (~isempty(opts.t0) && (length(opts.t0) ~= length(files)))
+    error('If opts.t0 initial transforms are provided, there must be one per image')
 end
 
 % create a struct with the registration parameters
@@ -120,11 +120,11 @@ for S = 1:opts.MaxIter
     % iteration
     if (S==1)
         
-        T0 = opts.T0;
+        t0 = opts.t0;
         
     else
         
-        T0 = tParam;
+        t0 = tParam;
         
     end
     
@@ -136,7 +136,7 @@ for S = 1:opts.MaxIter
     tParam(1) = process_extreme_slices(...
         [pathstr filesep files(2).name], ... % fixed
         [pathstr filesep files(1).name], ... % moving
-        T0(2), T0(1), regParam, opts);
+        t0(2), t0(1), regParam, opts);
     disp(['time = ' num2str(toc) 'sec'])
     
     
@@ -151,7 +151,7 @@ for S = 1:opts.MaxIter
             [pathstr filesep files(I-1).name], ... % fixed a
             [pathstr filesep files(I).name], ...   % moving
             [pathstr filesep files(I+1).name], ... % fixed b
-            T0(I-1), T0(I), T0(I+1), regParam, opts);
+            t0(I-1), t0(I), t0(I+1), regParam, opts);
         disp(['time = ' num2str(toc) 'sec'])
         
     end
@@ -165,7 +165,7 @@ for S = 1:opts.MaxIter
     tParam(N) = process_extreme_slices(...
         [pathstr filesep files(N-1).name], ... % fixed
         [pathstr filesep files(N).name], ...   % moving
-        T0(N-1), T0(N), regParam, opts);
+        t0(N-1), t0(N), regParam, opts);
     disp(['time = ' num2str(toc) 'sec'])
 
 end
