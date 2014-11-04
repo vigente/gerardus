@@ -1,3 +1,12 @@
+2014-11-04  Ramon Casero  <rcasero@gmail.com>
+
+	* Add test/test_skeleton_label.m: (0.1.0)
+
+	- Test script for skeleton_label.m.
+
+	- First script that generates images to be included in the wiki as
+	documentation.
+
 2014-11-03  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/elastix.m: (0.4.2)
