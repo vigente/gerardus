@@ -6,10 +6,44 @@ The [https://code.google.com/p/gerardus/source/browse/trunk/matlab/FiltersToolbo
 
 = List of functions =
 
-[https://code.google.com/p/gerardus/source/browse/trunk/matlab/FiltersToolbox/skeleton_label.m skeleton_label.m]
+=== [https://code.google.com/p/gerardus/source/browse/trunk/matlab/FiltersToolbox/skeleton_label.m skeleton_label] ===
+
 {{{
-% SKELETON_LABEL  Give each branch of a skeleton a different label, and
+% skeleton_label  Give each branch of a skeleton a different label, and
 % sort the voxels within each branch.
 }}}
 
-[https://code.google.com/p/gerardus/source/browse/wiki/figures/test_skeleton_label-circles.png]
+Script: [https://code.google.com/p/gerardus/source/browse/trunk/matlab/test/test_skeleton_label.m test_skeleton_label.m].
+
+Load binary image:
+
+{{{
+im = imread('circles.png');
+imagesc(im)
+axis equal off
+colormap(gray)
+}}}
+
+[https://gerardus.googlecode.com/svn/wiki/figures/test_skeleton_label-circles.png]
+
+Compute skeleton:
+
+{{{
+im = bwmorph(im, 'skel', Inf);
+imagesc(im)
+axis equal off
+colormap(gray)
+}}}
+
+[https://gerardus.googlecode.com/svn/wiki/figures/test_skeleton_label-skel.png]
+
+Split the skeleton into branches, and assign a different label to each branch:
+
+{{{
+im = skeleton_label(im);
+imagesc(im)
+axis equal off
+colormap('default')
+}}}
+
+[https://gerardus.googlecode.com/svn/wiki/figures/test_skeleton_label-lab.png]
