@@ -28,7 +28,7 @@ axis equal off
 colormap(gray)
 }}}
 
-[https://gerardus.googlecode.com/svn/wiki/figures/test_skeleton_label-circles.png]
+<img width=50% src=https://gerardus.googlecode.com/svn/wiki/figures/test_skeleton_label-circles.png>
 
 Compute skeleton:
 
@@ -39,7 +39,7 @@ axis equal off
 colormap(gray)
 }}}
 
-[https://gerardus.googlecode.com/svn/wiki/figures/test_skeleton_label-skel.png]
+<img width=50% src=https://gerardus.googlecode.com/svn/wiki/figures/test_skeleton_label-skel.png>
 
 Split the skeleton into branches, and assign a different label to each branch:
 
@@ -50,4 +50,4 @@ axis equal off
 colormap('default')
 }}}
 
-[https://gerardus.googlecode.com/svn/wiki/figures/test_skeleton_label-lab.png]
+<img width=50% src=https://gerardus.googlecode.com/svn/wiki/figures/test_skeleton_label-lab.png>
