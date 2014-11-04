@@ -1,12 +1,16 @@
 #summary Documentation and examples for Filters Toolbox
 
-= Introduction =
+<wiki:toc max_depth="2" />
+
+= Summary =
 
 The [https://code.google.com/p/gerardus/source/browse/trunk/matlab/FiltersToolbox Filters Toolbox] contains functions that are applied to images (e.g. edge detection, segmentation, image enhancement).
 
 = List of functions =
 
-=== [https://code.google.com/p/gerardus/source/browse/trunk/matlab/FiltersToolbox/skeleton_label.m skeleton_label] ===
+== skeleton_label ==
+
+Code: [https://code.google.com/p/gerardus/source/browse/trunk/matlab/FiltersToolbox/skeleton_label.m skeleton_label.m]
 
 {{{
 % skeleton_label  Give each branch of a skeleton a different label, and
