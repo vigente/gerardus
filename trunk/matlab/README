@@ -91,8 +91,6 @@ histology_blockface_preprocessing.m
 	 histology_blockface_preprocessing  Prepare histology and blockface for
 	 registration.
 	
-histology_blockface_reg.m
-
 histology_intraframe_reg.m
 
 	 histology_intraframe_reg  Registration diffusion of histology slices.
@@ -577,8 +575,6 @@ lmdscale.m
 
 	 LMDSCALE  Local neighbourhood Multidimensional scaling on a plane
 	
-make_dmatrix_congruent_with_sphere.m
-
 proj_on_sphere.m
 
 	 PROJ_ON_SPHERE  Project a point configuration onto a sphere
@@ -613,8 +609,6 @@ sphtri_vertex_istangled.m
 	 SPHTRI_VERTEX_ISTANGLED Find tangled vertices in a spherical triangular
 	 mesh.
 	
-sphtri_vertex_untangle.m
-
 surface_interp.m
 
 	 surface_interp  Interpolate an open or closed surface from a parametrized
@@ -925,12 +919,6 @@ gridfit.m
 	          that approximates your data, but allows you to control the
 	          amount of smoothing.
 	
-imwrite.m
-
-	IMWRITE Write image to graphics file.
-	   IMWRITE(A,FILENAME,FMT) writes the image A to the file specified by
-	   FILENAME in the format specified by FMT.
-	
 inhull.m
 
 	 inhull: tests if a set of points are inside a convex hull
@@ -938,8 +926,6 @@ inhull.m
 	 usage: in = inhull(testpts,xyz,tess)
 	 usage: in = inhull(testpts,xyz,tess,tol)
 	
-isedm.m
-
 IsomapII.m
 
 	 ISOMAPII   Computes Isomap embedding using an advanced version of
@@ -955,30 +941,17 @@ Isomap.m
 L2_distance.m
 
 	 L2_DISTANCE - computes Euclidean distance matrix
-
+	
 loaddcmdir.m
 
-	 LOADDCMDIR reads metadata from DICOMDIR file and shows list of
-	 the different DICOM SERIES in Pop-up menus. After selecting a dicom 
-	 series the program creates the dcmSeries structure containing the 
-	 related file names and path.
-	 
-networkComponents.m
-
-	 [nClusters,sizes,members,idxLargestCluster] = networkComponents(A)
-	
 pointTriangleDistance.m
 
 	 POINTTRIANGLEDISTANCE  Calculate distance between a point and a triangle
 	 in 3D
 	
-polygeom.m
-
 sphereFit.m
 
 tiff_read_header.m
-
-tightfig.m
 
 
 ThirdPartyToolbox/FastMarchingToolbox
@@ -1861,9 +1834,6 @@ opti_Install.m
 ThirdPartyToolbox/SpharmToolbox
 -------------------------------------------------------------
 
-align_FOE.m
-
-
 align_cps.m
 
 	 Goal: Align P to X using ICP
@@ -2153,10 +2123,6 @@ write_surfNpara.m
 
 xform_nii.m
 
-
-conv2bim.m
-
-	 Goal: 
 
 amira_r_hipp_surf.m
 
