@@ -254,6 +254,10 @@ scimat_world2index.m
 	   as real world coordinates [x, y, z] into index coordinates 
 	   [row, column, slice].
 	
+smoldyn2matlab.m
+
+	SMOLDYN2MATLAB imports and converts Smoldyn molecule trajectory into Matlab format
+
 sortdirbynum.m
 
 	 SORTDIRBYNUM  List the files in a directory ordering them by a numerical
