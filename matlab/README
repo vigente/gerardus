@@ -955,7 +955,14 @@ Isomap.m
 L2_distance.m
 
 	 L2_DISTANCE - computes Euclidean distance matrix
-	
+
+loaddcmdir.m
+
+	 LOADDCMDIR reads metadata from DICOMDIR file and shows list of
+	 the different DICOM SERIES in Pop-up menus. After selecting a dicom 
+	 series the program creates the dcmSeries structure containing the 
+	 related file names and path.
+	 
 networkComponents.m
 
 	 [nClusters,sizes,members,idxLargestCluster] = networkComponents(A)
