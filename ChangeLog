@@ -1,3 +1,14 @@
+2014-11-05  Christopher Kelly  <christopher.kelly28@gmail.com>
+
+	* Add matlab/ThirdPartyToolbox/loaddcmdir.m,
+	* Add matlab/ThirdPartyToolbox/license-loaddcmdir.txt:
+
+	- add loaddcmdir.m function by Laszlo Balkay, last updated 05 Oct 2011,
+	
+	- reads metadata from DICOMDIR file and shows list of the different DICOM SERIES in Pop-up menus
+	
+	http://www.mathworks.co.uk/matlabcentral/fileexchange/7926-dicomdir-reader
+ 
 2014-11-04  Ramon Casero  <rcasero@gmail.com>
 
 	* Add test/test_skeleton_label.m: (0.1.0)
