@@ -86,6 +86,11 @@ fit_DT.m
 
 	 FIT_DT    Fit the diffusion tensor model voxelwise to an image
 	
+histology_blockface_manual_correction.m
+
+	 HISTOLOGY_BLOCKFACE_MANUAL_CORRECTION  Manual landmark correction of
+	 3D histology volume to match blockface volume.
+	
 histology_blockface_preprocessing.m
 
 	 histology_blockface_preprocessing  Prepare histology and blockface for

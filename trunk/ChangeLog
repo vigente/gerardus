@@ -1,3 +1,10 @@
+2014-11-07  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/CardiacToolbox/histology_blockface_manual_correction.m: (0.1.0)
+
+	- HISTOLOGY_BLOCKFACE_MANUAL_CORRECTION Manual landmark correction
+	of 3D histology volume to match blockface volume.
+
 2014-11-05  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/CardiacToolbox/histology_blockface_reg.m: (0.1.0)
