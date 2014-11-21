@@ -24,7 +24,7 @@ function [ DT, FA, ADC, VectorF ] = fit_DT( im, b, thresh_val )
     
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
@@ -146,9 +146,12 @@ if nargout > 1 % if you want the FA, ADC, etc.
         
     
     end
+    
+    % reshape to match input dimensions
+    FA = reshape(FA, sz(1:end-1));
+    ADC = reshape(ADC, sz(1:end-1));
+    VectorF = reshape(VectorF, [sz(1:end-1), 3]);
+    
 end
 
-% reshape to match input dimensions
-FA = reshape(FA, sz(1:end-1));
-ADC = reshape(ADC, sz(1:end-1));
-VectorF = reshape(VectorF, [sz(1:end-1), 3]);
+
