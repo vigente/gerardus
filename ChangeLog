@@ -1,3 +1,12 @@
+2014-11-23  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/smacof.m: (0.1.1)
+	* matlab/PointsToolbox/cons_smacof_pip.m: (0.4.3)
+	* matlab/ManifoldToolbox/tri_sphparam.m: (0.4.6)
+
+	- Fix bug. To compute stress we were adding all the terms in the
+	distance matrix instead of only the upper triangular half.
+
 2014-11-21  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* matlab/CardiacToolbox/fit_DT.m: (0.1.2)
@@ -10,7 +19,9 @@
 	* Add matlab/FiltersToolbox/inverse_TV_2D.m: (0.1.1)
 	* Add matlab/FiltersToolbox/forward_TV_mex.cpp: (0.1.1)
 
-	- Functions to do forward/inverse total variation transforms, very common in 		reconstruction algorithms as a spatial regulariser. Essentially just finite 		differences in x,y, and z.
+	- Functions to do forward/inverse total variation transforms, very
+	common in reconstruction algorithms as a spatial
+	regulariser. Essentially just finite differences in x, y, and z.
 
 2014-11-07  Ramon Casero  <rcasero@gmail.com>
 
