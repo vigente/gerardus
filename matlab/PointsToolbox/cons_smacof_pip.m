@@ -1,7 +1,7 @@
 function [y, stopCondition, sigma, sigma0, t] ...
     = cons_smacof_pip(dx, y, isFree, bnd, w, con, smacof_opts, scip_opts)
 % CONS_SMACOF_PIP  SMACOF algorithm with polynomial constraints (PIP file
-% format)
+% format).
 %
 % Scaling by MAjorizing a COnvex Function (SMACOF) is an iterative solution
 % to the Multidimensional Scaling (MDS) problem (see de Leeuw and Mair [1]
@@ -62,9 +62,16 @@ function [y, stopCondition, sigma, sigma0, t] ...
 %   STOPCONDITION is a cell array with a string for each stop condition
 %   that made the algorithm stop at the last iteration.
 %
-%   SIGMA is a vector with the stress value at each iteration. If the
-%   algorithm could not find any solution, SIGMA is a single scalar with
-%   value = Inf. Note that even if the last SIGMA value is Inf, this
+%   SIGMA is a vector with the stress value at each iteration. Weighted
+%   stress is given as
+%
+%     SIGMA = \sum_{i<j} W_ij (D_ij - DY_ij)^2
+%
+%   where W is a weight matrix the same size as D. W_ij = 0 means that the
+%   distance between points i and j does not affect the stress measure.
+%
+%   If the algorithm could not find any solution, SIGMA is a single scalar
+%   with value = Inf. Note that even if the last SIGMA value is Inf, this
 %   doesn't mean that the algorithm hasn't found a valid solution in a
 %   previous iteration.
 %
@@ -142,7 +149,7 @@ function [y, stopCondition, sigma, sigma0, t] ...
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.4.2
+% Version: 0.4.3
 % $Rev$
 % $Date$
 %
@@ -221,7 +228,7 @@ if (Nfree == 0)
     stopCondition = 'No free vertices to optimise';
     sigma = [];
     dy = dmatrix_con(dx, y);
-    sigma0 = sum(sum(w .* (dx - dy).^2));
+    sigma0 = 0.5 * sum(sum(w .* (dx - dy).^2));
     t = [];
     return;
 end
@@ -442,12 +449,13 @@ objfunq{1} = [' obj: ' objfunq{1}];
 
 %% SMACOF algorithm
 
-% file name and path to save PIP model and solutions (generate unique names
-% so that it is possible to run several instances of this function in
-% parallel)
+% file name and path to save PIP model, computed solution and initial guess
+% (generate unique names so that it is possible to run several instances of
+% this function in parallel)
 [~, aux] = fileparts(tempname);
-pipfilename = [tempdir 'model-' aux '.pip'];
-solfilename = [tempdir 'model-' aux '-sol.txt'];
+pipfilename = [tempdir 'model-' aux '.pip']; % PIP model
+solfilename = [tempdir 'model-' aux '.sol']; % output solution
+sol0filename = [tempdir 'model-' aux '.sol']; % initial guess
 
 % init stopCondition
 stopCondition = [];
@@ -456,7 +464,7 @@ stopCondition = [];
 dy = dmatrix_con(dx, y);
 
 % initial stress
-sigma0 = sum(sum(w .* (dx - dy).^2));
+sigma0 = 0.5 * sum(sum(w .* (dx - dy).^2));
 
 % if dx, dy are sparse matrices, sigma0 will be a sparse scalar, and this
 % gives an error with fprintf below
@@ -536,6 +544,9 @@ for I = 1:smacof_opts.MaxIter
         error(['Cannot close file ' pipfilename ' to save PIP model'])
     end
     
+    % create file for the initial guess
+    write_solution(sol0filename, y);
+    
     % solve the quadratic problem
     system([...
         SCIPBIN...
@@ -574,7 +585,7 @@ for I = 1:smacof_opts.MaxIter
     dy = dmatrix_con(dx, y);
 
     % compute stress with the current solution
-    sigma(I) = sum(sum(w .* (dx - dy).^2));
+    sigma(I) = 0.5 * sum(sum(w .* (dx - dy).^2));
     
     % update best solution
     if (sigma(I) < sigmabest)
@@ -722,6 +733,59 @@ for I = 1:length(c{1})-1
         y(idx, 2) = c{2}(I);
     elseif (c{1}{I}(1) == 'z') % this is a z-coordinate
         y(idx, 3) = c{2}(I);
+    end
+    
+end
+
+end
+
+% write SCIP initial solution to a text file that SCIP can understand
+%
+% y: matrix with the solution as a point configuration (each row is a
+%    point), including the points that are not free points
+%
+% file: path and file name of the solution file.
+function write_solution(file, y, isFree)
+
+% size of full solution configuration
+sz = size(y);
+
+if ((sz(2) ~= 2) && (sz(2) ~= 3))
+    error('We only know how to read solutions that are sets of 2D or 3D points')
+end
+
+fid = fopen(file, 'w');
+if (fid == -1)
+    error(['Cannot open file ' file ' to write solution'])
+end
+
+% write solution to file. Example result:
+%
+% x1                                                 -4 	(obj:0)
+% y1                                                  2 	(obj:0)
+% x2                                  0.613516669331233 	(obj:0)
+% y2                                                 -4 	(obj:0)
+% x3                                   1.24777861008035 	(obj:0)
+% y3                                  -3.43327058768579 	(obj:0)
+% x4                                                 -4 	(obj:0)
+% y4                                 -0.804343353251697 	(obj:0)
+% x5                                                  2 	(obj:0)
+% y5                                                 -4 	(obj:0)
+% x6                                  -3.31069797707353 	(obj:0)
+% y6                                   1.21192102496956 	(obj:0)
+% x7                                     1.643412276563 	(obj:0)
+% y7                                  -3.72674560989634 	(obj:0)
+for I = 1:sz(1)
+    
+    % write x-coordinate
+    fprintf(fid, '%s%d\t\f.16\t%s\n', 'x', I, y(I, 1), '(obj:0)');
+
+    % write y-coordinate
+    fprintf(fid, '%s%d\t\f.16\t%s\n', 'y', I, y(I, 2), '(obj:0)');
+    
+    % write z-coordinate
+    if (sz(2) == 3)
+        fprintf(fid, '%s%d\t\f.16\t%s\n', 'z', I, y(I, 3), '(obj:0)');
     end
     
 end

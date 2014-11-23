@@ -28,8 +28,8 @@ function [y, stopCondition, sigma, t] = smacof(dx, y, w, opts)
 %   simultaneously to make the algorithm stop.
 %
 %   SIGMA is a vector with the weighted stress value at each iteration:
-%   SIGMA(1) corresponds to the stress of Y0, SIGMA(2) corresponds to the
-%   first majorization iteration, etc. Weighted stress is given as
+%   SIGMA(1) corresponds to the stress of Y0, SIGMA(i) corresponds to the
+%   i-1 majorization iteration. Weighted stress is given as
 %
 %     SIGMA = \sum_{i<j} W_ij (D_ij - DY_ij)^2
 %
@@ -76,7 +76,7 @@ function [y, stopCondition, sigma, t] = smacof(dx, y, w, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 %
@@ -191,7 +191,7 @@ dy = dmatrix_con(dx, y);
 
 % initial stress
 sigma = zeros(1, opts.MaxIter+1);
-sigma(1) = sum(sum(w .* (dx - dy).^2));
+sigma(1) = 0.5 * sum(sum(w .* (dx - dy).^2));
 
 % display algorithm's evolution
 t = zeros(1, opts.MaxIter+1); % time past from 0th iteration
@@ -234,7 +234,7 @@ for I = 1:opts.MaxIter
     dy = dmatrix_con(dx, y);
 
     % compute stress with the current solution
-    sigma(I+1) = sum(sum(w .* (dx - dy).^2));
+    sigma(I+1) = 0.5 * sum(sum(w .* (dx - dy).^2));
     
     % display algorithm's evolution
     t(I+1) = toc;

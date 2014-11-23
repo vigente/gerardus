@@ -54,10 +54,15 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %   STOPCONDITION is a cell array with a string for each stop condition
 %   that made the algorithm stop at the last iteration.
 %
-%   SIGMA is a scalar, vector or cell array with stress values. A value of
-%   NaN means that the algorithm could not find a valid solution in the
-%   corresponding iteration. The format and meaning of SIGMA is different
-%   for each method:
+%   SIGMA is a scalar, vector or cell array with stress values. Raw stress
+%   is defined as the sum of stress terms in the upper triangular part of
+%   the stress matrix, i.e.
+%
+%     SIGMA = 0.5 * sum(sum(dx - dy).^2)
+%
+%   A value of NaN means that the algorithm could not find a valid solution
+%   in the corresponding iteration. Whether SIGMA is a scalar, vector or
+%   cell array depends on each method:
 %
 %     'cmdscale': Single value with the stress of the solution using the
 %                 full distance matrix.
@@ -173,7 +178,7 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.4.5
+% Version: 0.4.6
 % $Rev$
 % $Date$
 %
@@ -411,8 +416,8 @@ switch method
         % stress of output parametrization (note that we omit multiplying
         % by w, as in this method w is a matrix of 1s)
         % w = ones(size(d));
-        % sigma = sum(sum(w .* (d - dmatrix(y')).^2));
-        sigma = sum(sum((d - dmatrix(y')).^2));
+        % sigma = 0.5 * sum(sum(w .* (d - dmatrix(y')).^2));
+        sigma = 0.5 * sum(sum((d - dmatrix(y')).^2));
         
         % initial guess is empty; we assign [] stress to it
         sigma0 = [];
@@ -439,8 +444,8 @@ switch method
         % stress of the initial guess (note that we don't need to multiply
         % by the weight matrix, because it's only 1s or 0s)
         % w = double(d ~= 0);
-        % sigma0 = sum(sum(w .* (d - dmatrix_con(w, y0)).^2));
-        sigma0 = sum(sum((d - dmatrix_con(d, y0)).^2));
+        % sigma0 = 0.5 * sum(sum(w .* (d - dmatrix_con(w, y0)).^2));
+        sigma0 = 0.5 * sum(sum((d - dmatrix_con(d, y0)).^2));
         
     %% Constrained SMACOF, global optimization
     case 'consmacof-global'
