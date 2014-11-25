@@ -1,3 +1,9 @@
+2014-11-25 Irvin Teh <irvin@well.ox.ac.uk>
+
+	* matlab/FiltersToolbox/imagesc_nD: (0.1.0)
+
+	- Minor formatting fix to imagesc_nD.m
+
 2014-11-25  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ManifoldToolbox/tri2sphrad.m: (0.1.0)
