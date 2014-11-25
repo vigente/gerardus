@@ -1,3 +1,10 @@
+2014-11-25  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ManifoldToolbox/tri2sphrad.m: (0.1.0)
+
+	- TRI2SPHRAD Estimate radius of sphere with same area as
+	triangular mesh.
+
 2014-11-23  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/smacof.m: (0.1.1)
