@@ -333,6 +333,16 @@ correct_light_blobs_in_microscope_mosaic.m
 	 CORRECT_LIGHT_BLOBS_IN_MICROSCOPE_MOSAIC  Correct the colour blob created
 	 by the microscope's light in each tile of a mosaic, e.g. for histology.
 	
+forward_TV_2D.m
+
+	FORWARD_TV_2D Total variation of a 2D image
+	   Returns the sum of finite differences in 2D, and the residuals
+	
+forward_TV.m
+
+	FORWARD_TV Total variation of a 3D image
+	   Returns the sum of finite differences in 3D, and the residuals
+	
 fspecial3.m
 
 	 FSPECIAL3  Create predefined 3-dimensional filters
@@ -362,6 +372,16 @@ im_modes.m
 
 	 IM_MODES  Estimate typical values (modes) of foreground/background
 	 intensities in a greyscale image.
+	
+inverse_TV_2D.m
+
+	INVERSE_TV_D Inverse total variation of a 2D image
+	   Returns the inverse of forward_TV_2D
+	
+inverse_TV.m
+
+	INVERSE_TV Inverse total variation of an image
+	   Returns the inverse of forward_TV
 	
 labmathmorph.m
 
@@ -641,6 +661,10 @@ surface_tridomain.m
 
 	 surface_tridomain  Triangular mesh to cover a planar or spherical domain.
 	
+tri2sphrad.m
+
+	 TRI2SPHRAD  Estimate radius of sphere with same area as triangular mesh.
+	
 tri_ccqp_smacof_nofold_sph_pip.m
 
 	 TRI_CCQP_SMACOF_NOFOLD_SPH_PIP  Constraints in PIP format for CCQP-SMACOF
@@ -700,7 +724,7 @@ bwmesh.m
 cons_smacof_pip.m
 
 	 CONS_SMACOF_PIP  SMACOF algorithm with polynomial constraints (PIP file
-	 format)
+	 format).
 	
 coords_from_dist_gower.m
 
@@ -986,6 +1010,14 @@ sphereFit.m
 tiff_read_header.m
 
 tightfig.m
+
+
+ThirdPartyToolbox/CaptureFigVidToolbox
+-------------------------------------------------------------
+
+CaptureFigVid_Example.m
+
+CaptureFigVid.m
 
 
 ThirdPartyToolbox/FastMarchingToolbox
