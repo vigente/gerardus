@@ -1,10 +1,11 @@
 function [im_out,rows,cols]=imagesc_nD(im_in,cols,clim)
 
-% Reformats nD-arrayed 2D image data for display as 2D montage.
+% imagesc_nD Reformats nD-arrayed 2D image data for display as 2D montage.
 %
 % [IM_OUT,ROWS,COLS]=imagesc_nD(IM_IN,COLS,CLIM)
 % 
-% IM_IN  = nD data where first two dimensions correspond to a 2D image. 3rd to nth dimension are arrays of 2D images.
+% IM_IN  = nD data where first two dimensions correspond to a 2D image.
+%          3rd to nth dimension are arrays of 2D images.
 % COLS   = Specify number of columns in output image (Optional)
 % CLIM   = [CLOW CHIGH] to specify scaling (Optional)
 %  
@@ -17,7 +18,7 @@ function [im_out,rows,cols]=imagesc_nD(im_in,cols,clim)
 % imagesc_nD(D);
 
 % Author: Irvin Teh <irvin@well.ox.ac.uk>
-% Copyright © 2010-2014 University of Oxford
+% Copyright ï¿½ 2010-2014 University of Oxford
 % Version: 0.1.0
 % $Rev$
 % $Date$
