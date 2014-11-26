@@ -1,0 +1,3 @@
+#summary Documentation for all functions in Gerardus
+
+[https://gerardus.googlecode.com/svn/trunk/doc/docinfo/doc.html Docinfo]
