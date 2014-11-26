@@ -1,0 +1,108 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>GERARDUS DOCUMENTATION GUIDELINES</title><meta name="generator" content="MATLAB 8.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-26"><meta name="DC.source" content="doc.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>GERARDUS DOCUMENTATION GUIDELINES</h1><!--introduction--><p>This document contains information on how to create documentation for gerardus such that it is visible on the project public webpage at <a href="http://code.google.com">http://code.google.com</a></p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Prerequisites</a></li><li><a href="#3">Publisher options</a></li><li><a href="#5">Linking to the doc from within the function files</a></li><li><a href="#6">Documentation online</a></li></ul></div><h2>Prerequisites<a name="1"></a></h2><p>In order for html pages to be served from google as HTML pages rather than PLAINTEXT, it is important to set the mimetype correctly via svn. This can be done via the subversion config file, and setting appropriate <tt>auto-props</tt>.</p><pre>For more info see:
+  http://manjeetdahiya.com/2010/09/29/serving-html-documentation-from-google-code-svn/
+  https://code.google.com/p/flexlib/wiki/HowToBuild</pre><h2>Publisher options<a name="3"></a></h2><p>Matlab publisher can be used as normal; except you should specify in the options the gerardus/doc/&lt;function_name&gt; folder as the output path.</p><p>It is advisable to put each published output in its own folder, since if there's images generated by the publisher, they will be in the same folder</p><h2>Linking to the doc from within the function files<a name="5"></a></h2><p>There are instructions on matlab on how to create searchable documentation for matlab for toolboxes, but this is <a href="http://uk.mathworks.com/help/matlab/matlab_prog/display-custom-documentation.html">fairly complex</a>. A simple thing to do is to create a hyperlink to the published html documentation, when the function help is shown, as described <a href="http://uk.mathworks.com/help/matlab/matlab_prog/add-help-for-your-program.html">here</a>.</p><h2>Documentation online<a name="6"></a></h2><p>Once the html file has been uploaded from svn, one can create a wiki link to the <b>raw</b> html file. If the svn mimetype has been set correctly to text/html, this should display as a webpage; otherwise it will be served as text/plain (i.e. the page will display as source code, rather than interpreted as a webpage).</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2013a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% GERARDUS DOCUMENTATION GUIDELINES
+% This document contains information on how to create documentation for gerardus
+% such that it is visible on the project public webpage at
+% http://code.google.com
+%% Prerequisites
+% In order for html pages to be served from google as HTML pages rather than
+% PLAINTEXT, it is important to set the mimetype correctly via svn. This can be
+% done via the subversion config file, and setting appropriate
+% |auto-props|.
+%%
+%  For more info see:
+%    http://manjeetdahiya.com/2010/09/29/serving-html-documentation-from-google-code-svn/ 
+%    https://code.google.com/p/flexlib/wiki/HowToBuild
+
+%% Publisher options
+% Matlab publisher can be used as normal; except you should specify in the
+% options the gerardus/doc/<function_name> folder as the output path.
+%%
+% It is advisable to put each published output in its own folder, since if
+% there's images generated by the publisher, they will be in the same folder
+
+%% Linking to the doc from within the function files
+% There are instructions on matlab on how to create searchable documentation for
+% matlab for toolboxes, but this is <http://uk.mathworks.com/help/matlab/matlab_prog/display-custom-documentation.html fairly complex>.
+% A simple thing to do is to create a hyperlink to the
+% published html documentation, when the function help is shown, as described
+% <http://uk.mathworks.com/help/matlab/matlab_prog/add-help-for-your-program.html here>.
+
+%% Documentation online
+% Once the html file has been uploaded from svn, one can create a wiki link to
+% the *raw* html file. If the svn mimetype has been set correctly to text/html,
+% this should display as a webpage; otherwise it will be served as text/plain
+% (i.e. the page will display as source code, rather than interpreted as a
+% webpage).
+
+##### SOURCE END #####
+--></body></html>
