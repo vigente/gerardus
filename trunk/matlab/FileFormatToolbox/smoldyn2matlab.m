@@ -15,6 +15,10 @@ function [ ] = smoldyn2matlab( n )
 %   will fail to import the text file. To avoid this problem, create
 %   multiple molecule types within Smoldyn and save the trajectories of
 %   each as a separate txt file.
+%
+% SMOLDYN2MATLAB(N)
+%
+% N is the number of trajectory files to be converted.
 
 % Author: Jo Bates <jobates81@gmail.com>
 % Copyright © 2014 University of Oxford
