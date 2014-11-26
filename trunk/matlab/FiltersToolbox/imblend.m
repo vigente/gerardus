@@ -31,7 +31,7 @@ function [im, a0, b0] = imblend(im1, im2)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -59,8 +59,8 @@ function [im, a0, b0] = imblend(im1, im2)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error(nargchk(2, 2, nargin, 'struct'));
-error(nargoutchk(0, 3, nargout, 'struct'));
+narginchk(2, 2);
+nargoutchk(0, 3);
 
 % check image sizes
 if any(size(im1) ~= size(im2))
