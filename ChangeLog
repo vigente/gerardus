@@ -1,6 +1,12 @@
+2014-11-26 Christopher Kelly  <christopher.kelly28@gmail.com>
+
+	* matlab/FiltersToolbox/imblend.m: (0.2.1)
+
+    - Update old syntax to check input/output arguments.
+
 2014-11-25 Irvin Teh <irvin@well.ox.ac.uk>
 
-	* matlab/FiltersToolbox/imagesc_nD: (0.1.0)
+	* matlab/FiltersToolbox/imagesc_nD.m: (0.1.0)
 
 	- Minor formatting fix to imagesc_nD.m
 
