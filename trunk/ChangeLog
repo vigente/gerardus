@@ -1,3 +1,29 @@
+2014-11-28  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* Created DiffusionMRIToolbox
+
+	* Moved fit_DT.m and dt2image.m from CardiacToolbox
+	to DiffusionMRIToolbox
+	
+	* matlab/DiffusionMRIToolbox/fit_DT.m: (0.1.3)
+	
+	- Added extra functionality: diffusion tensor fitting can
+	be performed using linear or nonlinear fitting, and using
+	positivity constraints or not.
+
+	- Fixed bug where 1D signals crashed
+
+	- Now outputs S0, rather than log(S0)
+
+	* matlab/DiffusionMRIToolbox/DT2image: (0.1.3)
+
+	- minor change to handle S0 rather than log(S0) from fit_DT
+
+	* Add matlab/DiffusionMRIToolbox/fit_stretched_exponential.m
+
+	- FIT_STRETCHED_EXPONENTIAL    Fit the stretched exponential model of 
+	diffusion to an image
+
 2014-11-26 Christopher Kelly  <christopher.kelly28@gmail.com>
 
 	* matlab/FiltersToolbox/imblend.m: (0.2.1)
