@@ -1,5 +1,8 @@
-function [ DT, FA, ADC, VectorF ] = fit_DT( im, b, thresh_val )
-% FIT_DT    Fit the diffusion tensor model voxelwise to an image
+function [ DT, FA, ADC, VectorF ] = fit_DT( im, b, thresh_val, method)
+% FIT_DT    Fits the diffusion tensor model voxelwise to an image
+%           S = S0 exp(-bD)
+%
+% Inputs:
 %
 %   IM is the input image, of any dimensionality, with the diffusion 
 %   scans in the last dimension
@@ -11,7 +14,17 @@ function [ DT, FA, ADC, VectorF ] = fit_DT( im, b, thresh_val )
 %   THRESH_VAL is a threshold for skipping the FA, ADC and vector field 
 %   computation in voxels x where im(x) < thresh_val.
 %
-%   DT is the diffusion tensor coefficients
+%   METHOD is a string, and can take the following values:
+%       'linear' fits the tensor in the log domain
+%       'linear_constrained' also fits in the log domain, constrained
+%                            to be non-negative
+%       'nonlinear' fits in the signal domain
+%       'nonlinear_constrained' fits in the signal domain, constrained to
+%       be non-negative
+%
+% Outputs:
+%
+%   DT is the diffusion tensor coefficients [xx,xy,xz,yy,yz,zz,S0]
 % 
 %   FA is the fractional anisotropy
 % 
@@ -19,12 +32,16 @@ function [ DT, FA, ADC, VectorF ] = fit_DT( im, b, thresh_val )
 % 
 %   VECTORF is the vector field
 %
+% Known limitations: linear constrained version won't work with 0 < S0 < 1,
+% because log(1) = 0. In this case, just scale the whole thing up. The
+% function is invariant to scaling, other than S0 of course.
+%
 % See also DT_to_image
 
     
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.2
+% Version: 0.1.3
 % $Rev$
 % $Date$
 % 
@@ -52,14 +69,30 @@ function [ DT, FA, ADC, VectorF ] = fit_DT( im, b, thresh_val )
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(2, 3);
+narginchk(2, 4);
 nargoutchk(0, 4);
 
 if nargin < 3
     thresh_val = -inf;
 end
-    
+
+if nargin < 4 % default method is linear least squares
+    method = 'linear';
+end
+
+% check that a valid method has been given
+if ~max([strcmp(method, 'linear'), strcmp(method, 'constrained_linear'),...
+        strcmp(method, 'nonlinear'), strcmp(method, 'constrained_nonlinear')])
+    disp('Unrecognised method, performing fast linear fitting')
+end
+
 sz = size(im);
+
+% handle a vector with the wrong orientation
+if (length(sz) == 2) && (sz(2) == 1)
+    im = im';
+    sz = size(im);
+end
 
 % take the log of the image to linearise the equation
 imlog = log(im);
@@ -83,17 +116,51 @@ Bv = [Bv, -ones(size(Bv,1), 1)];
 % reshape Ilog so we can use the efficient \ operator
 imlog = reshape(imlog, [prod(sz(1:end-1)), sz(end)]);
 
-% Fit the tensor model
+% Fit the tensor model (linear, unconstrained)
 M = (Bv \ -imlog')';
 
-% In certain cases, you might want to do a nonlinear fit instead:
-% x are the coefficients of M
-% modelfun = @(x,Bv) exp(-(x(1) * Bv(:,1) + x(2) * Bv(:,2) + x(3) * Bv(:,3) + x(4) * Bv(:,4) + x(5) * Bv(:,5) + x(6) * Bv(:,6) + x(7) * Bv(:,7)));
-%x0 = M;
-%mdl = nlinfit(Bv, squeeze(im),modelfun,x0);
-% You might alternatively want to constrain the tensor to be positive
-% (with either option, this will need to go into a for loop, and it will be really slow)
-% M = lsqnonneg(Bv, -imlog')'
+% if we want a different fit, here they are:
+if strcmp(method, 'constrained_linear')
+    
+    % right now this uses lsqnonneg, which is a bit slow. If necessary,
+    % this can be replaced by a faster constrained solver, like mexLasso in
+    % the sparse decomposition toolbox with sparsity = 0
+    for i = 1:size(M,1)
+        M(i,:) = lsqnonneg(Bv, -imlog(i,:)')';
+    end
+ elseif strcmp(method, 'nonlinear')
+    imvector = reshape(im, [prod(sz(1:end-1)), sz(end)]);
+    modelfun = @(x,Bv) exp(-(x(1) * Bv(:,1) + x(2) * Bv(:,2) + ...
+            x(3) * Bv(:,3) + x(4) * Bv(:,4) + x(5) * Bv(:,5) + ...
+            x(6) * Bv(:,6) + x(7) * Bv(:,7)));
+    % we have to fit the model inside a loop because it can't be linearised
+    % note that here we could have alternatively used lsqnonlin, but I
+    % think that nlinfit is slightly faster
+    for i = 1:size(M,1)
+        x0 = M(i,:);
+        M(i,:) = nlinfit(Bv, imvector(i,:)', modelfun, x0);
+    end
+elseif strcmp(method, 'constrained_nonlinear')
+    imvector = reshape(im, [prod(sz(1:end-1)), sz(end)]);
+    options = optimset('display','off');
+    lb = zeros(1,7);% lower bounds are all zero
+    ub = zeros(1,7) + inf; % upper bounds are all inf
+    for i = 1:size(M,1)
+        
+        % this needs to be in the loop because it relies on i as well as x
+        modelfun = @(x) exp(-(x(1) * Bv(:,1) + x(2) * Bv(:,2) + ...
+                x(3) * Bv(:,3) + x(4) * Bv(:,4) + x(5) * Bv(:,5) + ...
+                x(6) * Bv(:,6) + x(7) * Bv(:,7)))...
+                - imvector(i, :)';
+            
+        x0 = M(i,:);
+        M(i,:) = lsqnonlin(modelfun, abs(x0), lb, ub, options);
+    end  
+end
+
+% convert log(S0) to S0
+M(:,7) = exp(M(:,7));
+
 
 % return the diffusion tensor
 DT = reshape(M, [sz(1:end-1), 7]);

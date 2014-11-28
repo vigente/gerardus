@@ -56,13 +56,16 @@ sz = size(DT);
 % reshape the tensor for efficient computing
 DT = reshape(DT, [prod(sz(1:end-1)), sz(end)]);
 
+% convert the S0 into log(S0) for linear fitting
+DT(:,7) = log(DT(:,7));
+
 % Sort all b matrices in to a vector Bv=[Bxx,2*Bxy,2*Bxz,Byy,2*Byz,Bzz];
 Bv=squeeze([b(1,1,:),2*b(1,2,:),2*b(1,3,:),b(2,2,:),2*b(2,3,:),b(3,3,:)])';
 
 % add the column of -1
 Bv = [Bv, -ones(size(Bv,1), 1)];
 
-% inverse the model
+% invert the model
 logI = -Bv * DT';
 
 % take the exponent (it was logged for the linear fitting)
