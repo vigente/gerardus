@@ -1,5 +1,12 @@
 2014-11-30  Ramon Casero  <rcasero@gmail.com>
 
+	* CMakeLists.txt: (0.9.3)
+
+	- Fix bug. Add explicit check for OpenGL, because CGAL_ImageIO
+	depends on OpenGL to build. Before this fix, if OpenGL was not in
+	the system (e.g. libgl1-mesa-dev for Ubuntu), the build would fail
+	without a clear message indicating what the problem was.
+
 	* matlab/ManifoldToolbox/tri_sphparam.m: (0.5.0)
 
 	- Change function interface. Remove input argument X, it's

@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011-2014 University of Oxford
-# Version: 0.9.2
+# Version: 0.9.3
 # $Rev$
 # $Date$
 #
@@ -786,6 +786,13 @@ else()
 endif()
 
 #############################################################################################
+## Third-party library: OpenGL
+#############################################################################################
+
+# Required by CGAL_ImageIO
+find_package(OpenGL REQUIRED)
+
+#############################################################################################
 ## Third-party library: CGAL
 #############################################################################################
 
@@ -876,4 +883,4 @@ ENDIF(WIN32)
 
 ADD_SUBDIRECTORY(cpp/src)
 ADD_SUBDIRECTORY(cpp/src/third-party/mba)
-ADD_SUBDIRECTORY(matlab)
+#ADD_SUBDIRECTORY(matlab)
