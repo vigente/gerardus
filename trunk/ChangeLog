@@ -1,5 +1,10 @@
 2014-11-30  Ramon Casero  <rcasero@gmail.com>
 
+	* CMakeLists.txt: (0.9.4)
+
+	- I had forgotten to uncomment adding the matlab directory, so the
+	Matlab files were not being built.
+
 	* CMakeLists.txt: (0.9.3)
 
 	- Fix bug. Add explicit check for OpenGL, because CGAL_ImageIO
