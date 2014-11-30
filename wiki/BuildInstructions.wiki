@@ -19,12 +19,13 @@ If you want to use also the Matlab MEX functions and C++ programs, then you need
  * g++ compiler
  * CMake (currently tested with v2.8)
  * m4
+ * OpenGL library
  * Insight Toolkit v4.3.1 (Windows only)
  * Matlab (currently tested with R2012a, R2012b, R2013b, R2014a)
 
  * One-liner for linux that installs everything except ITK and Matlab. ITK will be downloaded and built by the Gerardus CMakeLists.txt script, and Matlab has to be installed separately
 {{{
-sudo apt-get install subversion  cmake g++ g++-4.4 m4 
+sudo apt-get install subversion cmake g++ g++-4.7 m4 libgl1-mesa-dev
 }}}
 
 == In detail ==
@@ -71,6 +72,12 @@ $ sudo apt-get update
    * Note for Linux users: In Ubuntu, it can be easily installed doing
 {{{
 $ sudo apt-get install m4
+}}}
+ * [https://www.opengl.org/ OpenGL library]
+  * Gerardus has this dependency because `MatlabImportFilter` uses the `_image` type from `CGAL_ImageIO`, which depends on OpenGL to build.
+  * Linux users: You need the development package of the OpenGL library. E.g. in Ubuntu
+{{{
+$ sudo apt-get install libgl1-mesa-dev
 }}}
  * [http://www.itk.org/itkindex.html Insight Toolkit] (Gerardus tested with version 4.3.1)
   * Linux users: Starting from `gerardus/CMakeLists.txt` v0.9.0, ITK is automatically downloaded and built as part of the Gerardus building process, so it doesn't need to be installed separately. This may also work for MacOS X users, but I have not tested it.
