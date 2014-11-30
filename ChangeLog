@@ -1,12 +1,21 @@
+2014-11-30  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_sphparam.m: (0.5.0)
+
+	- Change function interface. Remove input argument X, it's
+	unnecessary and creates confusion with initial guess Y0. Now first
+	argument is the method, then the distance matrix, then the sphere
+	radius.
+
 2014-11-28  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* Created DiffusionMRIToolbox
 
 	* Moved fit_DT.m and dt2image.m from CardiacToolbox
 	to DiffusionMRIToolbox
-	
+
 	* matlab/DiffusionMRIToolbox/fit_DT.m: (0.1.3)
-	
+
 	- Added extra functionality: diffusion tensor fitting can
 	be performed using linear or nonlinear fitting, and using
 	positivity constraints or not.
