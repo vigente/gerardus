@@ -1,23 +1,16 @@
-function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, method, d, y0, sphparam_opts, smacof_opts, scip_opts)
+function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(method, d, sphparam_opts, tri, y0, smacof_opts, scip_opts)
 % TRI_SPHPARAM  Spherical parametrization of closed triangular mesh.
 %
-% [Y, YISVALID, STOPCONDITION, SIGMA, SIGMA0, T] = tri_sphparam(TRI, X, METHOD)
+% [Y, YISVALID, STOPCONDITION, SIGMA, SIGMA0, T] = tri_sphparam(METHOD, D, R, TRI)
+% [Y, YISVALID, STOPCONDITION, SIGMA, SIGMA0, T] = tri_sphparam(METHOD, D, SPHPARAM_OPTS, TRI)
 %
-%   TRI is a 3-column matrix with a surface mesh triangulation. Each row
-%   gives the indices of one triangle. The mesh needs to be a 2D manifold,
-%   that can be embedded in 2D or 3D space. The triangles must have a
-%   positive orientation, that can be achieved with
-%
-%     [~, tri] = meshcheckrepair(x, tri, 'deep');
-%
-%   X is a 3-column matrix with the coordinates of the mesh vertices. Each
-%   row gives the (x,y,z)-coordinates of one vertex. X only needs to be
-%   provided if the radius of the sphere is not provided with
-%   sphparam_opts.sphrad. Otherwise, it can be empty.
+% Inputs:
+% -------
 %
 %   METHOD is a string that selects the parametrization method:
 %
-%     'cmdscale': Classical Multidimensional Scaling (MDS).
+%     'cmdscale': Classical Multidimensional Scaling (MDS), followed by
+%                 projection of points on sphere.
 %
 %     'smacof':   Unconstrained SMACOF, followed by projection of points on
 %                 sphere.
@@ -38,6 +31,80 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %                 % select number of parallel threads
 %                 myCluster = parcluster();
 %                 myCluster.NumWorkers = 6;
+%
+%   D is the square distance matrix. D(i, j) should ideally be the geodesic
+%   distance between the i-th and j-th vertices. Geodesic distances can be
+%   computed using the Fast Marching method with 
+%
+%     [d, dtot] = dmatrix_mesh(tri, x, 'fastmarching');
+%
+%   For 'cmdscale', D must be a full matrix (dtot). For the other methods,
+%   it can be a sparse or full matrix. D(i,j)=0 means that the distance
+%   between vertices i and j is not considered for the stress measure. This
+%   enables creating local neighbourhoods.
+%
+%   R is a scalar with the output sphere radius. This parameter is
+%   important because a small mesh cannot fit isometrically in a large
+%   sphere and viceversa. See tri2sphrad TRI2SPHRAD
+%
+%   SPHPARAM_OPTS is a struct with parameters to tweak the spherical
+%   parametrization algorithm.
+%
+%     'sphrad':  The same as R above.
+%
+%     'Display': (default = 'off') Do not display any internal information.
+%                'iter': display internal information at every iteration.
+%
+%     'TopologyCheck': (default false, 'consmacof-local' only) Check after
+%                untangling each component that it has no
+%                self-intersections and that all triangles have a positive
+%                orientation.
+%
+%     'AllInnerVerticesAreFree': (default false, 'consmacof-local' only).
+%                In each tangled local neighbourhood, find the external
+%                boundary (formed by fixed vertices). All vertices not on
+%                the boundary are treated as free, even if they were
+%                originally fixed. This option makes local neighbourhoods
+%                more "convex", and can help solve difficult ones. On the
+%                other hand, it increases the number of free vertices,
+%                which implies solving larger problems. For complex meshes,
+%                the best approach is to first run the algorithm with this
+%                option set to "false", and if some local neighbourhood
+%                cannot be untangled, pass the mesh again with this option
+%                set to "true".
+%
+%     'volmin':  (default 0, constrained SMACOF methods only).
+%                Minimum volume allowed to the oriented spherical
+%                tetrahedra at the output, formed by the triangles and the
+%                centre of the sphere. Note that if volmin>0, then all
+%                output triangles have outwards-pointing normals.
+%
+%     'volmax':  (default Inf, constrained SMACOF methods only).
+%                Maximum volume of the output tetrahedra (see 'volmin').
+%
+%     'Scale':   (default 1.0, constrained SMACOF methods only). Factor to
+%                scale the mesh, distance matrix, sphere radius, volmin,
+%                volmax and SMACOF_OPTS.TolFun. This is typically used when
+%                very small tetrahedra cause "infeasible solutions" but
+%                volmin cannot be reduced further because feasibility
+%                tolerance (feastol) >= 1e-6. MDS is invariant to scaling,
+%                and this factor acts transparently, by unscaling the
+%                solution and output stress values. Basically, if you
+%                change Scale but nothing else, you should obtain the same
+%                result as long as your volmin, volmax are not too extreme.
+%
+%   TRI is a 3-column matrix with a surface mesh triangulation. Each row
+%   gives the indices of one triangle. The mesh needs to be a 2D manifold,
+%   that can be embedded in 2D or 3D space. 
+%
+%   Note: The triangles TRI must have a positive orientation. If the mesh
+%   is described by the triangles and points double (tri, x), this can be
+%   achieved with
+%
+%     [~, tri] = meshcheckrepair(x, tri, 'deep');
+%
+% Outputs:
+% --------
 %
 %   Y is a 3-column matrix with the coordinates of the spherical
 %   parametrization of the mesh. Each row contains the (x,y,z)-coordinates
@@ -100,72 +167,15 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %   the output parameters for each connected component untangled by the
 %   algorithm.
 %
-% if sphere radius is not provided:
-% ... = tri_sphparam(TRI, X, D, Y0, SPHPARAM_OPTS, SMACOF_OPTS, SCIP_CONS)
 %
-% if sphere radius is provided:
-% SPHPARAM_OPTS.sphrad = R;
-% ... = tri_sphparam(TRI, [], D, Y0, SPHPARAM_OPTS, SMACOF_OPTS, SCIP_CONS)
+% [...] = tri_sphparam(..., Y0, SMACOF_OPTS, SCIP_CONS)
 %
-%   D is the square distance matrix. D(i, j) should ideally be the geodesic
-%   distance between the i-th and j-th vertices. If D is not provided,
-%   geodesic distances will be approximated using the Fast Marching
-%   algorithm (see dmatrix_mesh). For 'cmdscale', D must be a full matrix.
-%   For the other methods, it can be a sparse or full matrix. D(i,j)=0
-%   means that the distance between vertices i and j is not considered for
-%   the stress measure. This enables creating local neighbourhoods.
+% Inputs:
+% -------
 %
 %   Y0 is an initial guess for the output parametrization. For 'cmdscale',
 %   Y0 must be empty. For SMACOF methods, the choice of Y0 is important
 %   because the algorithm can be trapped into local minima.
-%
-%   SPHPARAM_OPTS is a struct with parameters to tweak the spherical
-%   parametrization algorithm.
-%
-%     'Display': (default = 'off') Do not display any internal information.
-%                'iter': display internal information at every iteration.
-%
-%     'TopologyCheck': (default false, 'consmacof-local' only) Check after
-%                untangling each component that it has no
-%                self-intersections and that all triangles have a positive
-%                orientation.
-%
-%     'AllInnerVerticesAreFree': (default false, 'consmacof-local' only).
-%                In each tangled local neighbourhood, find the external
-%                boundary (formed by fixed vertices). All vertices not on
-%                the boundary are treated as free, even if they were
-%                originally fixed. This option makes local neighbourhoods
-%                more "convex", and can help solve difficult ones. On the
-%                other hand, it increases the number of free vertices,
-%                which implies solving larger problems. For complex meshes,
-%                the best approach is to first run the algorithm with this
-%                option set to "false", and if some local neighbourhood
-%                cannot be untangled, pass the mesh again with this option
-%                set to "true".
-%
-%     'sphrad':  Radius of parametrization sphere. If not provided, X must
-%                be provided. The radius is then estimated so that the
-%                sphere has the same area as the total (TRI, X) mesh area.
-%
-%     'volmin':  (default 0, constrained SMACOF methods only).
-%                Minimum volume allowed to the oriented spherical
-%                tetrahedra at the output, formed by the triangles and the
-%                centre of the sphere. Note that if volmin>0, then all
-%                output triangles have outwards-pointing normals.
-%
-%     'volmax':  (default Inf, constrained SMACOF methods only).
-%                Maximum volume of the output tetrahedra (see 'volmin').
-%
-%     'Scale':   (default 1.0, constrained SMACOF methods only). Factor to
-%                scale the mesh, distance matrix, sphere radius, volmin,
-%                volmax and SMACOF_OPTS.TolFun. This is typically used when
-%                very small tetrahedra cause "infeasible solutions" but
-%                volmin cannot be reduced further because feasibility
-%                tolerance (feastol) >= 1e-6. MDS is invariant to scaling,
-%                and this factor acts transparently, by unscaling the
-%                solution and output stress values. Basically, if you
-%                change Scale but nothing else, you should obtain the same
-%                result as long as your volmin, volmax are not too extreme.
 %
 %   SMACOF_OPTS is a struct with parameters to tweak the SMACOF algorithm.
 %   See cons_smacof_pip for details.
@@ -178,7 +188,7 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.4.6
+% Version: 0.5.0
 % $Rev$
 % $Date$
 %
@@ -209,26 +219,20 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(tri, x, m
 %% Process input to the function
 
 % check arguments
-narginchk(3, 8);
+narginchk(4, 7);
 nargoutchk(0, 6);
 
 % start clock
 tic;
 
-% common defaults
-if (nargin < 4 || isempty(d))
-    % by default, we compute the full distance matrix between vertices in
-    % the mesh using Fast Marching, as a linear approximation to geodesic
-    % distances on the manifold
-    [~, d] = dmatrix_mesh(tri, x, 'fastmarching');
-end
-if (nargin < 6)
-    sphparam_opts = [];
+% defaults
+if (nargin < 5)
+    y0 = [];
 end    
-if (nargin < 7)
+if (nargin < 6)
     smacof_opts = [];
 end
-if (nargin < 8)
+if (nargin < 7)
     scip_opts = [];
 end
 
@@ -238,14 +242,21 @@ if (N ~= size(d, 2))
     error('D must be a square matrix')
 end
 
+% if sphere radius provided as scalar, turn into sphparam_opts field
+if (~isstruct(sphparam_opts))
+    aux = sphparam_opts; % avoid warning with direct assignment
+    clear sphparam_opts
+    sphparam_opts.sphrad = aux;
+end
+
+% check that user provided sphere radius
+if (isempty(sphparam_opts.sphrad) || ~isfield(sphparam_opts, 'sphrad'))
+    error('Sphere radius must be provided with R or SPHPARAM_OPTS.sphrad variable')
+end
+
 % sphparam_opts defaults
 if (~isfield(sphparam_opts, 'Scale'))
     sphparam_opts.Scale = 1.0;
-end
-if (~isfield(sphparam_opts, 'sphrad'))
-    % estimate the output parametrization sphere's radius, such that the
-    % sphere's surface is the same as the total surface of the mesh
-    sphparam_opts.sphrad = estimate_sphere_radius(tri, x);
 end
 if (~isfield(sphparam_opts, 'volmin'))
     sphparam_opts.volmin = 1e-5;
@@ -301,12 +312,7 @@ if (~isfield(scip_opts, 'numerics_feastol'))
     scip_opts.numerics_feastol = 1e-6;
 end
 
-% if Y0 not provided, we make it empty. This simplifies a bit the code
-% after
-if (nargin < 5)
-    y0 = [];
-end
-
+% generate or check initial guess
 if (strcmp(method, 'cmdscale'))
     
     % enforce that the classical MDS method cannot have an initial guess
@@ -318,12 +324,22 @@ else
     
     if (isempty(y0))
         
-        % in non-classical MDS methods, if no initial guess is provided,
-        % compute a random sampling of the sphere
+        % if no initial guess is provided, compute a random sampling of the
+        % sphere
         y0 = rand(N, 3);
         y0 = y0 ./ repmat(sqrt(sum(y0.^2, 2)), 1, 3) * sphparam_opts.sphrad;
         
     else
+        
+        % check size of initial guess
+        if (~isempty(y0))
+            if (size(y0, 1) ~= N)
+                error('If Y0 is provided, it must have the same number of rows as D')
+            end
+            if (size(y0, 2) ~= 3)
+                error('If Y0 is provided, it must have 3 columns')
+            end
+        end
         
         % if initial guess is provided, make sure that the user didn't make
         % a mistake providing an initial guess where the points don't lie
@@ -344,27 +360,9 @@ else
     
 end
 
-if (~isempty(y0))
-    if (size(y0, 1) ~= N)
-        error('If Y0 is provided, it must have the same number of rows as D')
-    end
-    if (size(y0, 2) ~= 3)
-        error('If Y0 is provided, it must have 3 columns')
-    end
-end
-
-% check whether the initial guess is a valid solution
-y0IsValid = ~isempty(y0) && all(sphtri_signed_vol(tri, y0) > 0);
-
 % check inputs dimensions
 if (size(tri, 2) ~= 3)
     error('TRI must have 3 columns')
-end
-if (~isempty(x) && (size(x, 2) ~= 3))
-    error('X must have 3 columns')
-end
-if (~isempty(x) && (N ~= size(x, 1)))
-    error('X must have the same number of rows as D matrix or be empty')
 end
 
 %% Compute output parametrization with one of the implemented methods
@@ -545,7 +543,7 @@ switch method
             % get local neighbourhood for the connected free vertex
             % component
             [nn{C}, trinn, idxtrinn, cc{C}] ...
-                = get_local_neighbourhood(tri, y, dcon, cc{C}, ...
+                = get_local_neighbourhood(tri, dcon, cc{C}, ...
                 sphparam_opts.AllInnerVerticesAreFree);
             
             % to speed things up, we want to pass to SMACOF a subproblem
@@ -692,23 +690,10 @@ end
 
 %% Auxiliary functions
 
-% Estimate of the sphere's radius such that the sphere's surface is the
-% same as the total surface of the mesh
-function sphrad = estimate_sphere_radius(tri, x)
-
-% compute area of all mesh triangles
-a = cgal_trifacet_area(tri, x);
-atot = sum(a);
-
-% estimate radius of parameterization sphere
-sphrad = sqrt(atot/4/pi);
-
-end
-
 % Starting from a set of connected free vertices, compute the associated
 % local neighbourhood. We want all the free vertices surrounded by a layer
 % of fixed vertices, and that the neighbourhood has no holes.
-function [nn, trinn, idxtrinn, vfree] = get_local_neighbourhood(tri, y, dcon, vfree, RECOMPUTE_FREE_VERTICES)
+function [nn, trinn, idxtrinn, vfree] = get_local_neighbourhood(tri, dcon, vfree, RECOMPUTE_FREE_VERTICES)
 
 % number of vertices
 N = size(dcon, 1);
