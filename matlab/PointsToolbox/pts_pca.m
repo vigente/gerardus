@@ -1,7 +1,7 @@
-function [ v, d ] = pts_pca( x, kernel )
+function [v, d] = pts_pca(x, kernel)
 % PTS_PCA  Linear and Kernel Principal Component Analysis (PCA and KPCA)
 %
-% [ V, D ] = PTS_PCA(X)
+% [V, D] = PTS_PCA(X)
 %
 %   Center X and compute eigenvectors V and eigenvalues D using linear PCA.
 %
@@ -29,7 +29,7 @@ function [ v, d ] = pts_pca( x, kernel )
 %
 %   NOTE: Matlab's function cov() computes the _unbiased_ covariance.
 %
-% [ A, DA ] = PTS_PCA(X, KERNEL)
+% [A, DA] = PTS_PCA(X, KERNEL)
 %
 %   Generalization to any type of kernel. KERNEL is a struct with the
 %   kernel description
@@ -75,8 +75,8 @@ function [ v, d ] = pts_pca( x, kernel )
 % 1999.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2009-2011 University of Oxford
-% Version: 1.1.0
+% Copyright © 2009-2014 University of Oxford
+% Version: 1.1.1
 % $Rev$
 % $Date$
 % 
@@ -104,20 +104,20 @@ function [ v, d ] = pts_pca( x, kernel )
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-error( nargchk( 1, 2, nargin, 'struct' ) );
-error( nargoutchk( 0, 2, nargout, 'struct' ) );
+narginchk(1, 2);
+nargoutchk(0, 2);
 
-if ndims( x ) > 2
-    error( 'X must be a matrix, not a volume' )
+if ~ismatrix(x)
+    error('X must be a matrix, not a volume')
 end
 
 % get sizes
 %   N: vector length
 %   M: number of training vectors
-[ N, M ] = size( x );
+[N, M] = size(x);
 
 % defaults
-if ( nargin < 2 || isempty( kernel ) )
+if (nargin < 2 || isempty(kernel))
     kernel.type = 'linear';
 end
 
@@ -126,21 +126,21 @@ switch kernel.type
     case 'linear'
         
         % center training vectors
-        xmean = mean( x, 2 );
-        x = x - repmat( xmean, 1, M );
+        xmean = mean(x, 2);
+        x = x - repmat(xmean, 1, M);
 
         % compute matrix for eigenproblem
-        if ( M < N ) % "kernel matrix" trick to speed up computation
+        if (M < N) % "kernel matrix" trick to speed up computation
             x_cov = x' * x;
         else % normal case, covariance matrix
             x_cov = x * x' / M;
         end
 
         % compute eigenvalues and eigenvectors
-        [ v, d ] = eig( x_cov );
+        [v, d] = eig(x_cov);
 
         % save memory by reducing eigenvalues to a vector
-        d = diag( d );
+        d = diag(d);
 
         % reoder in decreasing order of signed modulus value
         [~, idx] = sort(abs(d).*sign(d), 1, 'descend');
@@ -150,10 +150,10 @@ switch kernel.type
         % if "kernel matrix" trick was used, it is necessary to convert the
         % coefficient eigenvectors and eigenvalues to feature space
         % eigenvectors and eigenvalues
-        if ( M < N )
+        if (M < N)
             
             % scale eigenvectors
-            v = x * ( v * diag( 1 ./ sqrt( d ) ) );
+            v = x * (v * diag(1 ./ sqrt(d)));
             
             % scale eigenvalues
             d = d / M;
@@ -164,23 +164,23 @@ switch kernel.type
 
         % for kernel PCA, we use a generalization of the speed up trick
         % above
-        k = pts_kmat( kernel, x );
+        k = pts_kmat(kernel, x);
         
         % center kernel matrix (this is the same as centering the feature
         % space training vectors and then computing the kernel matrix)
-        onesm = ones( M ) / M;
+        onesm = ones(M) / M;
         k = k - onesm * k - k * onesm + onesm * k * onesm;
         
         % k must be symmetric in order to avoid complex eigenvalues, and in
         % theory it should be, but there are small errors due to numeric
         % precision when the centered kernel matrix is computed
-        k = ( k + k' ) / 2;
+        k = (k + k') / 2;
         
         % compute eigenvalues and eigenvectors
-        [ v, d ] = eig( k );
+        [v, d] = eig(k);
 
         % save memory by reducing eigenvalues to a vector
-        d = diag( d );
+        d = diag(d);
 
         % reoder in decreasing order of signed modulus value
         [~, idx] = sort(abs(d).*sign(d), 1, 'descend');
