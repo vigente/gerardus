@@ -1,3 +1,14 @@
+2014-12-01  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/pts_pca.m: (1.1.1)
+
+	- Small changes.
+
+	- Update syntax of functions that check number of input/output
+	arguments.
+
+	- Remove trailing and following whitespaces in brackets.
+
 2014-11-30  Ramon Casero  <rcasero@gmail.com>
 
 	* CMakeLists.txt: (0.9.4)
