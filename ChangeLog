@@ -1,3 +1,15 @@
+2014-12-02  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ThirdPartyToolbox/tightfig.m: (0.1.0)
+
+	- Remove excess margins from figures.
+
+	- by Richard Crozier, 02 Dec 2011 (Updated 17 Dec 2012).
+
+	- Downloaded from MatlabCentral
+
+	http://uk.mathworks.com/matlabcentral/fileexchange/34055-tightfig
+
 2014-12-01  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/PointsToolbox/pts_pca.m: (1.1.1)
