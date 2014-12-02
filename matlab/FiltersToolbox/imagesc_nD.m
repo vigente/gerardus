@@ -59,11 +59,12 @@ num_images=prod(siz(3:end));
 im_in=reshape(im_in,[x y num_images]);
 
 % Determine rows and columns based on screen size
-if nargin<2
+if (nargin<2) || isempty(cols)
     siz_screen=get(0,'ScreenSize');
     aspect_ratio=siz_screen(3)/siz_screen(4); %width/height
     cols=ceil(sqrt(x/y*num_images*aspect_ratio));
 end
+
 rows=ceil(num_images/cols);
 
 % Array multislice data
