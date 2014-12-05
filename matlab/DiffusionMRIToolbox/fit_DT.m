@@ -1,6 +1,7 @@
-function [ DT, FA, ADC, VectorF ] = fit_DT( im, b, thresh_val, method)
+function [ DT, FA, ADC, VectorF, VectorF2, VectorF3 ] = fit_DT( im, b, thresh_val, method)
 % FIT_DT    Fits the diffusion tensor model voxelwise to an image
 %           S = S0 exp(-bD)
+%
 %
 % Inputs:
 %
@@ -30,18 +31,22 @@ function [ DT, FA, ADC, VectorF ] = fit_DT( im, b, thresh_val, method)
 % 
 %   ADC is the apparent diffusion coefficient
 % 
-%   VECTORF is the vector field
+%   VECTORF is the primary axis
+%
+%   VECTORF2 is the secondary axis
+%
+%   VECTORF3 is the tertiary axis
 %
 % Known limitations: linear constrained version won't work with 0 < S0 < 1,
 % because log(1) = 0. In this case, just scale the whole thing up. The
 % function is invariant to scaling, other than S0 of course.
 %
-% See also DT_to_image
+% See also dt2image
 
     
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.3
+% Version: 0.1.4
 % $Rev$
 % $Date$
 % 
@@ -70,7 +75,7 @@ function [ DT, FA, ADC, VectorF ] = fit_DT( im, b, thresh_val, method)
 
 % check arguments
 narginchk(2, 4);
-nargoutchk(0, 4);
+nargoutchk(0, 6);
 
 if nargin < 3
     thresh_val = -inf;
@@ -174,6 +179,8 @@ if nargout > 1 % if you want the FA, ADC, etc.
     FA = zeros(size(M,1), 1);
     ADC = zeros(size(M,1),1);
     VectorF = zeros(size(M,1), 3);
+    VectorF2 = zeros(size(M,1), 3);
+    VectorF3 = zeros(size(M,1), 3);
    
     for i = 1:size(M,1)
     
@@ -209,7 +216,9 @@ if nargout > 1 % if you want the FA, ADC, etc.
         % Second FA definition:
         FA(i)=sqrt(1.5)*( sqrt((EigenValues(1)-ADCv).^2+(EigenValues(2)-ADCv).^2+(EigenValues(3)-ADCv).^2)./sqrt(EigenValues(1).^2+EigenValues(2).^2+EigenValues(3).^2) );
         ADC(i)=ADCv;
-        VectorF(i,:)=EigenVectors(:,end)*EigenValues_old(end);
+        VectorF(i,:)=EigenVectors(:,3)*EigenValues_old(3);
+        VectorF2(i,:)=EigenVectors(:,2)*EigenValues_old(2);
+        VectorF3(i,:)=EigenVectors(:,1)*EigenValues_old(1);
         
     
     end
@@ -218,6 +227,8 @@ if nargout > 1 % if you want the FA, ADC, etc.
     FA = reshape(FA, sz(1:end-1));
     ADC = reshape(ADC, sz(1:end-1));
     VectorF = reshape(VectorF, [sz(1:end-1), 3]);
+    VectorF2 = reshape(VectorF2, [sz(1:end-1), 3]);
+    VectorF3 = reshape(VectorF3, [sz(1:end-1), 3]);
     
 end
 
