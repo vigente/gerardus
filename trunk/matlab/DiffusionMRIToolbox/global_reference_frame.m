@@ -1,14 +1,20 @@
-function [ rad, circ, long ] = global_reference_frame(LV_cavity )
+function [ rad, circ, long ] = global_reference_frame(LV_cavity, orientation)
 %GLOBAL_REFERENCE_FRAME Returns unit vectors for the global reference frame
 %   Fits a straight line through the center of the left ventricle cavity,
 %   and then computes the radial, circumferential, and longitudinal vectors
 %   based on this line.
 %
 %
-%   Input:
+%   Inputs:
 %       LV_CAVITY is a 3D binary segmentation of the left ventricle cavity.
 %           The long axis should be more or less aligned with the 3rd dimension
 %           of the image (z axis).
+%       ORIENTATION can be: 'ApexFirstAxial' 
+%                           'ApexLastAxial' (default)
+%                           'ApexFirstSagittal'
+%                           'ApexLastSagittal'
+%                           'ApexFirstCoronal'
+%                           'ApexLastCoronal'
 %
 %   Outputs:
 %       RAD is the radial unit vectors (along the 4th dimension)
@@ -18,7 +24,7 @@ function [ rad, circ, long ] = global_reference_frame(LV_cavity )
 
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
@@ -46,8 +52,46 @@ function [ rad, circ, long ] = global_reference_frame(LV_cavity )
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(1,1);
+narginchk(1,2);
 nargoutchk(0, 3);
+
+if nargin < 2
+    orientation = 'ApexLastAxial';
+end
+
+% check orientation
+needs_permuting = 0;
+if strcmp(orientation, 'ApexFirstSagittal') || ...
+    strcmp(orientation, 'ApexLastSagittal')
+    
+    needs_permuting = 1;
+    
+    perm_mat = [2 3 1];
+    inv_perm_mat = [3 1 2];
+    
+    LV_cavity = permute(LV_cavity, perm_mat);
+
+elseif strcmp(orientation, 'ApexFirstCoronal') || ...
+    strcmp(orientation, 'ApexLastCoronal')
+    
+    needs_permuting = 1;
+    
+    perm_mat = [1 3 2];
+    inv_perm_mat = [1 3 2];
+    
+    LV_cavity = permute(LV_cavity, perm_mat);
+
+end
+
+% when apex is last, the longitudinal vector is flipped
+long_multiplier = 1;
+if strcmp(orientation, 'ApexLastSagittal') || ...
+    strcmp(orientation, 'ApexLastCoronal') || ...
+    strcmp(orientation, 'ApexLastAxial') 
+
+    long_multiplier = -1;
+end
+
 
 sz = size(LV_cavity);
 
@@ -87,11 +131,11 @@ O = repmat(permute(Origin, [1 3 4 2]), [sz, 1]);
 
 % longitude vector
 l = [slope_xz(1), slope_yz(1), 1];
-l = l / norm(l);
+l = long_multiplier * l / norm(l);
 long = repmat(permute(l, [1 3 4 2]), [sz, 1]);
 
 % voxel coordinates
-[Y, X, Z] = meshgrid(1:sz(2), 1:sz(1), 1:sz(3));
+[X, Y, Z] = ndgrid(1:sz(1), 1:sz(2), 1:sz(3));
 V = cat(4, X, Y, Z);
 
 % use the dot product to find the position along the longitudinal vector
@@ -117,6 +161,12 @@ rad = rad ./ repmat(sqrt(sum(rad.^2,4)), [1 1 1 3]);
 circ = cross(long, rad, 4);
 circ = circ ./ repmat(sqrt(sum(circ.^2,4)), [1 1 1 3]);
 
+
+if needs_permuting
+    rad = permute(rad(:,:,:,inv_perm_mat), [inv_perm_mat, 4]);
+    circ = permute(circ(:,:,:,inv_perm_mat), [inv_perm_mat, 4]);
+    long = permute(long(:,:,:,inv_perm_mat), [inv_perm_mat, 4]);
+end
 
 end
 
