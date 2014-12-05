@@ -1,3 +1,13 @@
+2014-12-05  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* DiffusionMRIToolbox/global_reference_frame.m (0.1.2)
+
+	- Now accepts hearts with orientations other than axial (extra argument)
+
+	* matlab/DiffusionMRIToolbox/fit_DT.m: (0.1.4)
+
+	- Added outputs for secondary and tertiary eigenvectors
+
 2014-12-02  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* Add DiffusionMRIToolbox/global_reference_frame.m (0.1.1)
