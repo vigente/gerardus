@@ -17,7 +17,7 @@ function bw = bwrmsmallcomp(bw, nobj)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2012 University of Oxford
-% Version: 0.1.2
+% Version: 0.1.3
 % $Rev$
 % $Date$
 % 
@@ -63,7 +63,11 @@ cc = bwconncomp(bw);
 % doesn't remove all the noise, for some reason.
 len = cellfun(@length, cc.PixelIdxList);
 [~, idx] = sort(len, 2, 'descend');
-bw = false(size(bw));
+if (islogical(bw))
+  bw = false(size(bw));
+else
+  bw = zeros(size(bw), class(bw));
+end
 if ~isempty(idx)
     idx = cat(1, cc.PixelIdxList{idx(1:nobj)});
     bw(idx) = 1;

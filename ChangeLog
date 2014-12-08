@@ -1,5 +1,12 @@
 2014-12-08  Darryl McClymont  <darryl.mcclymont@gmail.com>
 	
+	* FiltersToolbox/bwrmsmallcomp.m (0.1.3)
+
+	- previous change broke Ramon’s existing code - output class
+	  now matches input class
+
+2014-12-08  Darryl McClymont  <darryl.mcclymont@gmail.com>
+	
 	* FiltersToolbox/bwrmsmallcomp.m (0.1.2)
 
 	- changed output from uint8 to logical
