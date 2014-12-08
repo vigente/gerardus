@@ -1,3 +1,9 @@
+2014-12-08  Darryl McClymont  <darryl.mcclymont@gmail.com>
+	
+	* FiltersToolbox/bwrmsmallcomp.m (0.1.2)
+
+	- changed output from uint8 to logical
+
 2014-12-05  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* DiffusionMRIToolbox/global_reference_frame.m (0.1.2)
