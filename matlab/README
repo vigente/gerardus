@@ -40,6 +40,11 @@ Toolboxes in Gerardus:
 CardiacToolbox
 -------------------------------------------------------------
 
+apply_rotation_matrix_to_vector.m
+
+	apply_rotation_matrix_to_vector Applies a rotation matrix to short axis
+	or long axis slice world coordinates.
+
 blockface_correct_frame_shifts.m
 
 	 blockface_correct_frame_shifts  Correct shift between blockface image
