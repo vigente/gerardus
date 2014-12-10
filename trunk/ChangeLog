@@ -1,3 +1,9 @@
+﻿2014-12-09  Benjamin Villard <b.016434@gmail.com>
+
+	* apply_rotation_matrix_to_vector.m (0.1.1)
+
+	- Applies a rotation matrix to short axis or long axis slice world coordinates.
+
 2014-12-08  Darryl McClymont  <darryl.mcclymont@gmail.com>
 	
 	* FiltersToolbox/bwrmsmallcomp.m (0.1.3)
