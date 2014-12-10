@@ -1,6 +1,12 @@
-﻿2014-12-09  Benjamin Villard <b.016434@gmail.com>
+﻿2014-12-10  Benjamin Villard <b.016434@gmail.com>
 
-	* apply_rotation_matrix_to_vector.m (0.1.1)
+	* Delete apply_rotation_matrix_to_vector.m (0.1.1)
+
+	- Delete since more of a local function than a global one. 
+
+2014-12-09  Benjamin Villard <b.016434@gmail.com>
+
+	* Add apply_rotation_matrix_to_vector.m (0.1.1)
 
 	- Applies a rotation matrix to short axis or long axis slice world coordinates.
 
