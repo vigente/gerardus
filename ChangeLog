@@ -1,4 +1,11 @@
-﻿2014-12-11  Adam Szmul <aszmul@gmail.com>
+﻿2014-12-11  Ramon Casero  <rcasero@gmail.com>
+
+	* Delete matlab/CardiacToolbox/getCMR42Contours:
+
+	- Issue 31. (WontFix) Zombie issue, not started in 5 weeks. To be
+	put out of it's misery, files will be deleted.
+
+2014-12-11  Adam Szmul <aszmul@gmail.com>
 
 	* Add matlab/RegistrationToolbox/regdemons.m: (0.1.0)
 
