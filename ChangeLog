@@ -1,4 +1,11 @@
-﻿2014-12-10  Benjamin Villard <b.016434@gmail.com>
+﻿2014-12-11  Adam Szmul <aszmul@gmail.com>
+
+	* Add lib/bin:
+
+	- Fix bug. If you ran add_gerardus_paths.m without building the project first,
+	it gave an error because lib/bin doesn't exist.
+
+2014-12-10  Benjamin Villard <b.016434@gmail.com>
 
 	* Delete apply_rotation_matrix_to_vector.m (0.1.1)
 
