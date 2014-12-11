@@ -1,5 +1,17 @@
 ﻿2014-12-11  Adam Szmul <aszmul@gmail.com>
 
+	* Add matlab/RegistrationToolbox/regdemons.m: (0.1.0)
+
+	- REGDEMONS Image registration using Thirion's Demons algorithm.
+
+	* Add matlab/RegistrationToolbox:
+
+	- Toolbox for image registration functions.
+
+	* matlab/add_gerardus_paths: (0.3.1)
+
+	- Add DiffusionMRIToolbox and RegistrationToolbox to the path.
+
 	* Add lib/bin:
 
 	- Fix bug. If you ran add_gerardus_paths.m without building the project first,
