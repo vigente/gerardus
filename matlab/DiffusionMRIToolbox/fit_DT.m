@@ -1,4 +1,4 @@
-function [ DT, FA, ADC, VectorF, VectorF2, VectorF3 ] = fit_DT( im, b, thresh_val, method)
+function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, method)
 % FIT_DT    Fits the diffusion tensor model voxelwise to an image
 %           S = S0 exp(-bD)
 %
@@ -31,11 +31,11 @@ function [ DT, FA, ADC, VectorF, VectorF2, VectorF3 ] = fit_DT( im, b, thresh_va
 % 
 %   ADC is the apparent diffusion coefficient
 % 
-%   VECTORF is the primary axis
+%   VECTORFIELD is the primary, secondary and tertiary unit vectors, concatenated
+%	in the last dimension
 %
-%   VECTORF2 is the secondary axis
-%
-%   VECTORF3 is the tertiary axis
+%	EigVals are the eigenvalues corresponding to the vector field, concatenated
+%	in the last dimension
 %
 % Known limitations: linear constrained version won't work with 0 < S0 < 1,
 % because log(1) = 0. In this case, just scale the whole thing up. The
@@ -45,8 +45,8 @@ function [ DT, FA, ADC, VectorF, VectorF2, VectorF3 ] = fit_DT( im, b, thresh_va
 
     
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.1.4
+% Copyright ï¿½ 2014 University of Oxford
+% Version: 0.1.5
 % $Rev$
 % $Date$
 % 
@@ -75,7 +75,7 @@ function [ DT, FA, ADC, VectorF, VectorF2, VectorF3 ] = fit_DT( im, b, thresh_va
 
 % check arguments
 narginchk(2, 4);
-nargoutchk(0, 6);
+nargoutchk(0, 5);
 
 if nargin < 3
     thresh_val = -inf;
@@ -181,6 +181,7 @@ if nargout > 1 % if you want the FA, ADC, etc.
     VectorF = zeros(size(M,1), 3);
     VectorF2 = zeros(size(M,1), 3);
     VectorF3 = zeros(size(M,1), 3);
+    EigVals = zeros(size(M,1), 3);
    
     for i = 1:size(M,1)
     
@@ -220,6 +221,7 @@ if nargout > 1 % if you want the FA, ADC, etc.
         VectorF2(i,:)=EigenVectors(:,2)*EigenValues_old(2);
         VectorF3(i,:)=EigenVectors(:,1)*EigenValues_old(1);
         
+        EigVals(i,:) = EigenValues_old;
     
     end
     
@@ -230,6 +232,7 @@ if nargout > 1 % if you want the FA, ADC, etc.
     VectorF2 = reshape(VectorF2, [sz(1:end-1), 3]);
     VectorF3 = reshape(VectorF3, [sz(1:end-1), 3]);
     
+    VectorField = cat(ndims(FA)+1, VectorF, VectorF2, VectorF3);
+    
+    EigVals = reshape(EigVals, [sz(1:end-1), 3]);
 end
-
-
