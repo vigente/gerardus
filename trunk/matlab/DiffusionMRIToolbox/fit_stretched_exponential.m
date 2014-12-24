@@ -1,44 +1,47 @@
-function [ Model_coeffs ] = fit_stretched_exponential( im, b, thresh_val, bounded )
+function [AA, FD, gamma_all, A_all] = fit_stretched_exponential(I0, Ihigh, bval0, bvalhigh, mask)
 % FIT_STRETCHED_EXPONENTIAL    Fit the stretched exponential model of 
 % diffusion to an image
 %
 %   Traditional tensor model: S = S0 exp( - b*D )
-%   Stretched exponential model: S = S0 exp(-(b*DDC)^alpha)
-%   See Bennet 2003 - Characterization of Continuously Distributed Cortical
+%   Stretched exponential model has two definitions:
+%           Bennet: S = S0 exp(-(b*DDC)^alpha)
+%           Hall:   S = S0 exp(- b^gamma * A)
+%                   where gamma = alpha, A = DDC^gamma
+%   Bennet 2003 - Characterization of Continuously Distributed Cortical
 %   Water Diffusion Rates With a Stretched-Exponential Model
+%   and 
+%   Hall 2008 - From Diffusion-Weighted MRI to Anomalous Diffusion Imaging
 %
-%   IM is the input image, of any dimensionality, with the diffusion 
-%   scans in the last dimension
+%   Here, we use the Hall 2008 definition because it is easily linearisable
+%
+%   Inputs:
+%       I0 is the un-attenuated image [row col slice repetition]
+%           If there was only a single I0 acquired, just pass a 3D array
+%       IHIGH is the attenuated images [row col slice direction shell]
+%           E.g. if you have 21 different directions and 3 shells, the data
+%           size would be [r c s 21 3]
+%       BVAL0 is the b-matrix of I0, of size [3 3 rep]
+%       BVALHIGH is the b-matrix of Ihigh, of size [3 3 direction shell]
+%       MASK is the mask of voxels that you want to be fit with
+%           a nonlinear regression. All voxels get fit with a linear fit 
+%           (very fast), whereas the voxels inside the mask are repeated 
+%           using a nonlinear regression with bounds on parameters (very 
+%           slow). I have found that the nonlinear fit changes the AA and 
+%           FD by 2-3% in 3-shell data. (optional)
 %     
-%   B is the b-matrix, of size [3 3 N]. If the measured b matrix isn't 
-%   available, it can be approximated by:
-%   b(:,:,n)=b_values(n)*unit_vectors(n,:)'*unit_vectors(n,:);
-% 
-%   THRESH_VAL is a threshold for skipping the FA, ADC and vector field 
-%   computation in voxels x where im(x) < thresh_val.
-%
-%   BOUNDED forces all coefficients to be within certain bounds (recommended)
-%
-%   MODEL_COEFFS is the same size as the original image, with the last
-%   dimension as the coefficients of the stretched exponential model as
-%   follows:  1-6 - DDC (xx, xy, xz, yy, yz, zz)
-%               7 - S0
-%               8 - alpha
-%
-%   A note on usage: This model shouldn't really be used unless you have
-%   multiple shells. Given a single shell, it can't accurately estimate 
-%   the alpha parameter. 
-%   While the function *can* fit a single alpha for all directions, the
-%   approach in Bennet (2003) and Hall (2008) seems to be fitting
-%   parameters in one direction at a time, with many samples with
-%   differing |b| values in a particular direction.
+%   Outputs:
+%       AA is Anomalous Anisotropy [r c s]
+%       FD is Fractal Dimension [r c s]
+%       GAMMA_ALL are the coefficients of gamma [r c s dir]
+%       A_ALL are the coefficients of A [r c s dir]
+%       
 %
 %   See also fit_DT
 
 
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
@@ -66,78 +69,91 @@ function [ Model_coeffs ] = fit_stretched_exponential( im, b, thresh_val, bounde
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(2, 4);
-nargoutchk(0, 1);
+narginchk(4, 5);
+nargoutchk(0, 4);
 
-if nargin < 3
-    thresh_val = -inf;
-end
-if nargin < 4
-    bounded = true;
-end
-
-sz = size(im);
-
-% take the log of the image to linearise the equation
-imlog = log(im);
-
-% Sort all b matrices in to a vector Bv=[Bxx,2*Bxy,2*Bxz,Byy,2*Byz,Bzz];
-Bv=squeeze([b(1,1,:),2*b(1,2,:),2*b(1,3,:),b(2,2,:),2*b(2,3,:),b(3,3,:)])';
-
-
-% Add another column to Bv to handle the constant term:
-% Slog = Bv * M + log(S0)
-% becomes:
-% Slog = [Bv, -1] * [M; -log(S0)]
-Bv = [Bv, -ones(size(Bv,1), 1)];
-
-% reshape Ilog so we can use the efficient \ operator
-imlog = reshape(imlog, [prod(sz(1:end-1)), sz(end)]);
-imvector = reshape(im, [prod(sz(1:end-1)), sz(end)]);
-
-% Fit the traditional tensor model (alpha = 1)
-M = (Bv \ -imlog')';
-
-% Turn log(S0) into S0
-M(:,7) = exp(M(:,7));
-
-% Set up the anomalous diffusion model
-if bounded
-    % we have to use lsqnonlin, because it lets you pick upper and lower
-    % bounds
-    options = optimset('display','off');
-    lb = zeros(1,8);
-    ub = [ones(1,6)*10E-3, inf, 1]; % See Bennet et al.
-else
-    % we can use nlinfit (slightly faster than lsqnonneg)
-    modelfun = @(x, Bv) x(7) .* exp(-1 * ...
-                 (x(1) * Bv(:,1) + x(2) * Bv(:,2) + x(3) * Bv(:,3) + ...
-                  x(4) * Bv(:,4) + x(5) * Bv(:,5) + x(6) * Bv(:,6)).^x(8));
+if nargin < 5
+    mask = 0;
 end
 
 
-Model_coeffs = zeros(size(M,1), 8);
-for i = 1:size(M,1)
-    disp(['Completed ' num2str(i) ' of ' num2str(size(M,1))])
-    if im(i) < thresh_val % skip if signal is low
-        continue
+I0_mean = mean(I0, 4);
+
+sz = size(Ihigh);
+
+gamma_all = zeros(sz(1:4));
+A_all = zeros(sz(1:4));
+
+%mask = (I0_mean > 2E4) & (I0_mean ./ Ihigh(:,:,:,1,1) < 3);
+
+for dir = 1:sz(4) % for each direction
+
+    b0 = bval0(:,:,1);
+    b1 = bvalhigh(:,:,dir,1);
+    b2 = bvalhigh(:,:,dir,2);
+    b3 = bvalhigh(:,:,dir,3);
+
+    % magnitude of b
+    b = [sqrt(sum(b1(:).^2)), sqrt(sum(b2(:).^2)), sqrt(sum(b3(:).^2))]';
+
+    % normalise by I0
+    I_dir = permute(Ihigh(:,:,:,dir,:), [1 2 3 5 4]) ./ repmat(I0_mean, [1 1 1 size(Ihigh,5)]);
+    
+    Ivector = reshape(I_dir, [prod(sz(1:3)), sz(5)]);
+    
+    % take the log for linear fitting
+    loglogsig = log(abs(log(Ivector)));
+    logb = log(b);
+
+    b_array = [logb(:), ones(size(logb(:)))];
+
+    % fit the linear model
+    coeff = (b_array \ loglogsig')';
+    
+    if max(mask(:)) == 1 % if the mask is not empty
+    
+        % use x as a best guess for the non-linear fitting
+        I_dir = squeeze(Ihigh(:,:,:,dir,:)); % not normalised this time
+        b = [sqrt(sum(b0(:).^2)), sqrt(sum(b1(:).^2)), sqrt(sum(b2(:).^2)), sqrt(sum(b3(:).^2))];
+
+        % do the nonlinear fitting only on the voxels in the mask
+        Ivector = reshape(I_dir, [prod(sz(1:3)), sz(5)]);
+        Ivector = double([I0_mean(mask), Ivector(mask(:), :)]);
+
+        options = optimset('display','off');
+        lb = zeros(1,3);
+        ub = [1, 10E-3, inf]; % See Bennet et al. for bounds
+
+        new_coeffs = zeros(size(Ivector,1), 3);
+        old_coeffs = coeff(mask(:),:);
+
+        parfor i = 1:size(new_coeffs,1)
+            disp(i)
+            x_guess = double([old_coeffs(i,1), exp(old_coeffs(i,2)), Ivector(i,1)]);
+
+            modelfun = @(x) x(3) .* exp(- x(2) * (b.^x(1))) - Ivector(i,:);
+
+            new_coeffs(i,:) = lsqnonlin(modelfun, abs(x_guess), lb, ub, options);
+        end
+
+        coeff(mask(:), :) = new_coeffs(:,1:2);
     end
     
-    % use a nonlinear fit, because I can't figure out a way to linearise
-    % this equation, so it is very slow.
-    x0 = [M(i, :), 1]; % initial fit has alpha = 1
-    if bounded    
-        modelfun = @(x) x(7) .* exp(-1 * (x(1) * Bv(:,1) + ...
-                        x(2) * Bv(:,2) + x(3) * Bv(:,3) + x(4) * Bv(:,4) + ...
-                        x(5) * Bv(:,5) + x(6) * Bv(:,6)).^x(8)) ...
-                        - imvector(i,:)';
-        Model_coeffs(i,:) = lsqnonlin(modelfun, abs(x0), lb, ub, options);
-    else
-        Model_coeffs(i,:) = nlinfit(Bv, imvector(i, :)', modelfun, x0);
-    end
+    
+    gamma = reshape(coeff(:,1), sz(1:3));
+    
+    A = reshape(exp(coeff(:,2)), sz(1:3));
+
+    gamma_all(:,:,:,dir) = gamma;
+    A_all(:,:,:,dir) = A;
 end
 
-% reshape to original size
-Model_coeffs = reshape(Model_coeffs, [sz(1:end-1), 8]);
+% Anomalous anisotropy
+mean_gamma = mean(gamma_all, 4);
+N = sz(4);
+AA = sqrt(N / (N - 1) * sum((gamma_all - repmat(mean_gamma, [1 1 1 N])).^2, 4)...
+    ./ sum(gamma_all.^2, 4));
 
+% Fractal dimension
+FD = 2 / mean_gamma;
 

@@ -1,4 +1,24 @@
-﻿2014-12-11  Ramon Casero  <rcasero@gmail.com>
+2014-12-24  Darryl McClymont  <darryl.mcclymont@gmail.com>
+	
+	* matlab/DiffusionMRIToolbox/global_reference_frame.m (0.1.3)
+
+	- Add extra argument for voxel dimensions
+
+	* matlab/DiffusionMRIToolbox/fit_stretched exponential.m (0.1.2)
+	
+	- Large number of edits, essentially a full re-write. Code now handles
+	multi-shell diffusion data and returns anomalous anisotropy, fractal 
+	dimension, and model parameters. Previous version fit the model to all 
+	directions at once, whereas the correct way to do it is to fit each direction
+	individually.
+
+	* matlab/DiffusionMRIToolbox/fit_DT.m (0.1.3)
+
+	- Change in output arguments. Eigenvalues are now returned, and the vector
+	field is concatenated in last dimension rather than being returned as three
+	arrays.
+
+2014-12-11  Ramon Casero  <rcasero@gmail.com>
 
 	* Delete matlab/CardiacToolbox/getCMR42Contours:
 

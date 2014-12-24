@@ -1,4 +1,4 @@
-function [ rad, circ, long ] = global_reference_frame(LV_cavity, orientation)
+function [ rad, circ, long ] = global_reference_frame(LV_cavity, orientation, dims)
 %GLOBAL_REFERENCE_FRAME Returns unit vectors for the global reference frame
 %   Fits a straight line through the center of the left ventricle cavity,
 %   and then computes the radial, circumferential, and longitudinal vectors
@@ -15,6 +15,7 @@ function [ rad, circ, long ] = global_reference_frame(LV_cavity, orientation)
 %                           'ApexLastSagittal'
 %                           'ApexFirstCoronal'
 %                           'ApexLastCoronal'
+%       DIMS is the voxel size of the data (default [1 1 1])
 %
 %   Outputs:
 %       RAD is the radial unit vectors (along the 4th dimension)
@@ -23,8 +24,8 @@ function [ rad, circ, long ] = global_reference_frame(LV_cavity, orientation)
 
 
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.1.2
+% Copyright ï¿½ 2014 University of Oxford
+% Version: 0.1.3
 % $Rev$
 % $Date$
 % 
@@ -52,11 +53,14 @@ function [ rad, circ, long ] = global_reference_frame(LV_cavity, orientation)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(1,2);
+narginchk(1,3);
 nargoutchk(0, 3);
 
 if nargin < 2
     orientation = 'ApexLastAxial';
+end
+if nargin < 3
+    dims = [1 1 1];
 end
 
 % check orientation
@@ -69,6 +73,7 @@ if strcmp(orientation, 'ApexFirstSagittal') || ...
     perm_mat = [2 3 1];
     inv_perm_mat = [3 1 2];
     
+    dims = dims(perm_mat);
     LV_cavity = permute(LV_cavity, perm_mat);
 
 elseif strcmp(orientation, 'ApexFirstCoronal') || ...
@@ -79,6 +84,7 @@ elseif strcmp(orientation, 'ApexFirstCoronal') || ...
     perm_mat = [1 3 2];
     inv_perm_mat = [1 3 2];
     
+    dims = dims(perm_mat);
     LV_cavity = permute(LV_cavity, perm_mat);
 
 end
@@ -114,9 +120,9 @@ for i = 1:size(LV_cavity,3)
 end
 
 % Only keep those with non-zero voxel counts
-fitrow = row_vector(row_vector ~= 0);
-fitcol = col_vector(row_vector ~= 0);
-fitslice = slice_vector(row_vector ~= 0);
+fitrow = row_vector(row_vector ~= 0) * dims(1);
+fitcol = col_vector(row_vector ~= 0) * dims(2);
+fitslice = slice_vector(row_vector ~= 0) * dims(3);
 
 
 % These lines copied from Valentina's ScriptAssignGlobalCylindricalSysToPhantom
