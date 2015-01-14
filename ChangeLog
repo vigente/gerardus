@@ -1,6 +1,19 @@
 2014-12-24  Christopher Kelly  <christopher.kelly28@googlemail.com>
+
+	* matlab/FileFormatToolbox/load_multi_dcm_dir.m: (0.1.0)
 	
-	* copy matlab/ThirdPartyToolbox/loaddcmdir.m to matlab/FileFormatToolbox/load_multi_dcm_dir.m: 
+	- Modifications to original third party function 
+	matlab/ThirdPartyToolbox/loaddcmdir.m.
+	
+	- Interface changed to give preview of image. 
+	
+	- Allows the selection of multiple series. 
+	
+	- Fewer output arguments, now the only output contains the
+	information of the series selected.
+	
+	* Copy matlab/ThirdPartyToolbox/license-loaddcmdir.txt to matlab/FileFormatToolbox/license-load_multi_dcm_dir.txt: 
+	* Copy matlab/ThirdPartyToolbox/loaddcmdir.m to matlab/FileFormatToolbox/load_multi_dcm_dir.m: 
 	
 	- baseline before applying my modifications
 
