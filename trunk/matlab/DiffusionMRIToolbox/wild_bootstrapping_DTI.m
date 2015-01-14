@@ -11,6 +11,9 @@ function [COU, FA_STD, ADC_STD] = wild_bootstrapping_DTI( I, bval, Mask, Nreps )
 %     
 %   BVAL is the b-matrix, of size [3 3 N]
 %
+%   MASK is the mask of voxels for analysis, same size as the first N-1
+%   dimensions of I
+%
 %   NREPS is the number of Monte Carlo repetitions (default 1000)
 %
 % Outputs:
@@ -55,10 +58,10 @@ function [COU, FA_STD, ADC_STD] = wild_bootstrapping_DTI( I, bval, Mask, Nreps )
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(2,3);
+narginchk(3,4);
 nargoutchk(0, 3);
 
-if nargin == 2
+if nargin == 3
     Nreps = 1000;
 end
 
