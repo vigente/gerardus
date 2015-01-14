@@ -1,4 +1,12 @@
-2014-12-24  Christopher Kelly  <christopher.kelly28@googlemail.com>
+2014-01-14  Darryl McClymont  <darryl.mcclymont@gmail.com>
+	
+	* Add matlab/DiffusionMRIToolbox/wild_bootstrapping_DTI.m (0.1.1)
+
+	- Returns uncertainty measures from diffusion tensor
+	images via wild bootstrapping. See Whitcher 2008 - Using the Wild 
+	Bootstrap to Quantify Uncertainty in Diffusion Tensor Imaging
+
+2014-01-14  Christopher Kelly  <christopher.kelly28@googlemail.com>
 
 	* matlab/FileFormatToolbox/load_multi_dcm_dir.m: (0.1.0)
 	
