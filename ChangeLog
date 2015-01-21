@@ -1,3 +1,16 @@
+2015-01-21  Benjamin Villard  <b.016434@gmail.com>
+	
+	* Add matlab/FilesFormatToolbox/load_dcm.m (0.1.0)
+
+	-LOAD_DCM reads the data paths acquired via Christopher Kelly's LOAD_MULTI_DCM_DIR function. 
+    The data is arranged in a 2D array containing the dicominfo (metainfo) for each individual
+    slice across time, and a 4D array containing the slices (.dcm) with the
+    rows, columns, slice and time.
+	
+	* matlab/FileFormatToolbox/load_multi_dcm_dir.m: (0.2.0)
+	
+	- Modifications. Changed the output to include Dicomdirpath, and added the SVM properties. 
+
 2014-01-14  Darryl McClymont  <darryl.mcclymont@gmail.com>
 	
 	* Add matlab/DiffusionMRIToolbox/wild_bootstrapping_DTI.m (0.1.1)
