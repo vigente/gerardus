@@ -1,4 +1,4 @@
-function seriesData = load_multi_dcm_dir(dicomdirpath)
+function [seriesData, dicomdirpath] = load_multi_dcm_dir(dicomdirpath)
 % LOAD_MULTI_DCM_DIR  Read metadata from DICOMDIR file.
 %
 % LOAD_MULTI_DCM_DIR reads metadata from DICOMDIR file and shows list of
@@ -22,9 +22,10 @@ function seriesData = load_multi_dcm_dir(dicomdirpath)
 %      Available from: http://uk.mathworks.com/matlabcentral/fileexchange/7926-dicomdir-reader
 %      under BSD 2-Clause License.
 %
-% Modified by Christopher Kelly <christopher.kelly28@googlemail.com>, University of Oxford.
+% Modified by Christopher Kelly <christopher.kelly28@googlemail.com> and
+% Benjamin Villard <b.016434@gmail.com>, University of Oxford.
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 %
@@ -42,6 +43,10 @@ function seriesData = load_multi_dcm_dir(dicomdirpath)
 %
 % http://code.google.com/p/gerardus/
 
+% check arguments
+narginchk(0, 1);
+nargoutchk(0, 2);
+
 hm = [];
 dcmPatient = [];
 ImgPrcTlbx = ver('images');
@@ -51,7 +56,7 @@ if ImgPrcTlbxVersion < 4
     return;
 end
 
-if nargin == 0 | strcmp(dicomdirpath,'')
+if ((nargin == 0) || strcmp(dicomdirpath,''))
     dicomdirpath = uigetdir('','Select DICOMDIR folder');
     if dicomdirpath == 0
         return;
