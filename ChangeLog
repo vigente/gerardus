@@ -1,62 +1,71 @@
+2015-01-21  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FilesFormatToolbox/load_dcm.m (0.1.1)
+
+	- Fix help header. Part of the copyright notice missing. Help
+	header has to be separated from copyright notice. Make similar to
+	other Gerardus functions.
+
 2015-01-21  Benjamin Villard  <b.016434@gmail.com>
-	
+
 	* Add matlab/FilesFormatToolbox/load_dcm.m (0.1.0)
 
-	-LOAD_DCM reads the data paths acquired via Christopher Kelly's LOAD_MULTI_DCM_DIR function. 
-    The data is arranged in a 2D array containing the dicominfo (metainfo) for each individual
-    slice across time, and a 4D array containing the slices (.dcm) with the
-    rows, columns, slice and time.
-	
+	-LOAD_DCM Load array of DICOM filenames as 3D+t image and
+	metainformation matrix.
+
 	* matlab/FileFormatToolbox/load_multi_dcm_dir.m: (0.2.0)
-	
-	- Modifications. Changed the output to include Dicomdirpath, and added the SVM properties. 
+
+	- Modifications. Changed the output to include Dicomdirpath, and
+	added the SVM properties.
 
 2014-01-14  Darryl McClymont  <darryl.mcclymont@gmail.com>
-	
+
 	* Add matlab/DiffusionMRIToolbox/wild_bootstrapping_DTI.m (0.1.1)
 
-	- Returns uncertainty measures from diffusion tensor
-	images via wild bootstrapping. See Whitcher 2008 - Using the Wild 
-	Bootstrap to Quantify Uncertainty in Diffusion Tensor Imaging
+	- Returns uncertainty measures from diffusion tensor images via
+	wild bootstrapping. See Whitcher 2008 - Using the Wild Bootstrap
+	to Quantify Uncertainty in Diffusion Tensor Imaging
 
 2014-01-14  Christopher Kelly  <christopher.kelly28@googlemail.com>
 
 	* matlab/FileFormatToolbox/load_multi_dcm_dir.m: (0.1.0)
-	
-	- Modifications to original third party function 
+
+	- Modifications to original third party function
 	matlab/ThirdPartyToolbox/loaddcmdir.m.
-	
-	- Interface changed to give preview of image. 
-	
-	- Allows the selection of multiple series. 
-	
+
+	- Interface changed to give preview of image.
+
+	- Allows the selection of multiple series.
+
 	- Fewer output arguments, now the only output contains the
 	information of the series selected.
-	
-	* Copy matlab/ThirdPartyToolbox/license-loaddcmdir.txt to matlab/FileFormatToolbox/license-load_multi_dcm_dir.txt: 
-	* Copy matlab/ThirdPartyToolbox/loaddcmdir.m to matlab/FileFormatToolbox/load_multi_dcm_dir.m: 
-	
+
+	* Copy matlab/ThirdPartyToolbox/license-loaddcmdir.txt to
+	matlab/FileFormatToolbox/license-load_multi_dcm_dir.txt:
+	* Copy matlab/ThirdPartyToolbox/loaddcmdir.m to
+	matlab/FileFormatToolbox/load_multi_dcm_dir.m:
+
 	- baseline before applying my modifications
 
 2014-12-24  Darryl McClymont  <darryl.mcclymont@gmail.com>
-	
+
 	* matlab/DiffusionMRIToolbox/global_reference_frame.m (0.1.3)
 
 	- Add extra argument for voxel dimensions
 
 	* matlab/DiffusionMRIToolbox/fit_stretched exponential.m (0.1.2)
-	
-	- Large number of edits, essentially a full re-write. Code now handles
-	multi-shell diffusion data and returns anomalous anisotropy, fractal 
-	dimension, and model parameters. Previous version fit the model to all 
-	directions at once, whereas the correct way to do it is to fit each direction
-	individually.
+
+	- Large number of edits, essentially a full re-write. Code now
+	handles multi-shell diffusion data and returns anomalous
+	anisotropy, fractal dimension, and model parameters. Previous
+	version fit the model to all directions at once, whereas the
+	correct way to do it is to fit each direction individually.
 
 	* matlab/DiffusionMRIToolbox/fit_DT.m (0.1.3)
 
-	- Change in output arguments. Eigenvalues are now returned, and the vector
-	field is concatenated in last dimension rather than being returned as three
-	arrays.
+	- Change in output arguments. Eigenvalues are now returned, and
+	the vector field is concatenated in last dimension rather than
+	being returned as three arrays.
 
 2014-12-11  Ramon Casero  <rcasero@gmail.com>
 
