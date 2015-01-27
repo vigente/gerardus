@@ -185,8 +185,14 @@ if nargout > 1 % if you want the FA, ADC, etc.
    
     for i = 1:size(M,1)
     
-        if im(i) < thresh_val
-            continue
+        if isscalar(thresh_val) % if thresh_val is a scalar, use it as a threshold
+            if im(i) < thresh_val
+                continue
+            end
+        else
+            if thresh_val(i) == 0 % otherwise use it as a mask
+                continue
+            end
         end
         
         Mi = M(i,:);
@@ -223,6 +229,11 @@ if nargout > 1 % if you want the FA, ADC, etc.
         
         EigVals(i,:) = EigenValues_old;
     
+    end
+    
+    % quick hack because reshape sz needs to be at least length 2
+    if length(sz) == 2
+        sz = [sz(1), 1, sz(2)];
     end
     
     % reshape to match input dimensions
