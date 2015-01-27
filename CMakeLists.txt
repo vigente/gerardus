@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2011-2014 University of Oxford
-# Version: 0.9.4
+# Copyright © 2011-2015 University of Oxford
+# Version: 0.9.5
 # $Rev$
 # $Date$
 #
@@ -267,6 +267,16 @@ else(WIN32 AND NOT CYGWIN) # linux builds
 
   include(ExternalProject)
 
+  # GMP depends on the m4 binary
+  find_program(M4 m4)
+  if (NOT M4)
+    message(FATAL_ERROR 
+      "Program m4 needs to be installed in the system in order to configure GMP. "
+      "In Debian/Ubuntu, you can install it running: "
+      "\"sudo apt-get install m4\"")
+  endif (NOT M4)
+
+  # download, build and install GMP
   ExternalProject_Add(GMP_GERARDUS
     PREFIX ${GMP_SOURCE_DIR}
     STAMP_DIR ${GMP_SOURCE_DIR}/output
@@ -300,6 +310,7 @@ else(WIN32 AND NOT CYGWIN) # linux builds
   # this line needed by CGAL to avoid looking for GMP in the system
   set(GMP_LIBRARIES "${GMP_SOURCE_DIR}/output/lib/libgmp.so") 
   
+  # download, build and install MPFR
   ExternalProject_Add(MPFR_GERARDUS
     DEPENDS GMP_GERARDUS
     PREFIX ${MPFR_SOURCE_DIR}

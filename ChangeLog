@@ -1,3 +1,12 @@
+2015-01-27  Ramon Casero  <rcasero@gmail.com>
+
+	* CMakeLists.txt: (0.9.5)
+
+	- Issue 44. Fix bug. Build was breaking without a clear error
+	message in linux systems if program "m4" was not installed,
+	because it's necessary to build GMP. Now we search for it, and
+	give a clear error message so that the user installs m4.
+
 2014-01-27  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* matlab/DiffusionMRIToolbox/fit_DT.m (0.1.6)
