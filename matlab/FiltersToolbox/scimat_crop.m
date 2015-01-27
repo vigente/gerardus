@@ -12,8 +12,9 @@ function scimat = scimat_crop(scimat, from, to)
 %   SCIMAT2 is the cropped volume.
 
 % Author: Ramon Casero <rcasero@gmail.com>
+% Modified by Benjamin Villard <b.016434@gmail.com>
 % Copyright © 2011-2014 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -52,8 +53,14 @@ if (length(to) == 2)
     to(3) = 1;
 end
 
-% crop the data volume
-scimat.data = scimat.data(from(1):to(1), from(2):to(2), from(3):to(3), :);
+% crop the data volume, Check for 3D/4D volume
+if (size(scimat.data) == 3)
+    scimat.data = scimat.data(from(1):to(1), from(2):to(2), from(3):to(3), :);
+end
+if (size(scimat.data) == 4)
+    scimat.data = scimat.data(from(1):to(1), from(2):to(2), :, :);
+end
+
 
 % correct the metainformation in the scimat volume
 for I = 1:3
