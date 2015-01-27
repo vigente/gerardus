@@ -13,7 +13,8 @@ function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, metho
 %   b(:,:,n)=b_values(n)*unit_vectors(n,:)'*unit_vectors(n,:);
 % 
 %   THRESH_VAL is a threshold for skipping the FA, ADC and vector field 
-%   computation in voxels x where im(x) < thresh_val.
+%   computation in voxels x where im(x) < thresh_val. THRESH_VAL can
+%   alternatively be a mask of voxels to process.
 %
 %   METHOD is a string, and can take the following values:
 %       'linear' fits the tensor in the log domain
@@ -46,7 +47,7 @@ function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, metho
     
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright � 2014 University of Oxford
-% Version: 0.1.5
+% Version: 0.1.6
 % $Rev$
 % $Date$
 % 
