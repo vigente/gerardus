@@ -1,4 +1,15 @@
-﻿2015-01-27  Benjamin Villard <b.016434@gmail.com>
+2014-01-27  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* matlab/DiffusionMRIToolbox/fit_DT.m (0.1.6)
+
+	- Modified the argument for skipping voxels. Can now be either
+	a scalar threshold or a mask.
+
+	* matlab/FiltersToolbox/forward_TV.m: (0.1.2)
+
+	- Added missing details in help header.
+
+2015-01-27  Benjamin Villard <b.016434@gmail.com>
 
 	* matlab/FiltersToolbox/scimat_crop.m (0.2.1)
 

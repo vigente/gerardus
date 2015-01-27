@@ -2,15 +2,21 @@ function [ TV, TV_grad ] = forward_TV( I )
 %FORWARD_TV Total variation of a 3D image
 %   Returns the sum of finite differences in 3D, and the residuals
 %
+%  [TV, TV_GRAD] = forward_TV(I)
+% 
 %   I is a 3D real image
-%     
-%   TV is the total variation of I
-%   TV_grad is the derivative
+%
+%   TV is the total variation of I. That is, the sum of the magnitude of 
+%   finite differences in x, y, and z
+%   
+%   TV_GRAD can be used to find the residuals between I and a smoothed
+%   version of I. It contains Dx, Dy and Dz, concatenated in the 4th
+%   dimension.
 
 
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
