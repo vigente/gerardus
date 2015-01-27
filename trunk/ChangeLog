@@ -1,3 +1,9 @@
+﻿2015-01-27  Benjamin Villard <b.016434@gmail.com>
+
+	* matlab/FiltersToolbox/scimat_crop.m (0.2.1)
+
+	- Modified scimat_crop.m to allow cropping of 4D volumes.
+
 2015-01-21  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FilesFormatToolbox/load_dcm.m (0.1.1)
