@@ -61,7 +61,10 @@ function [I_interp, Tx, Ty] = regdemons(I_rigid, I_mov,Tx,Ty,iteration, range, s
 narginchk(7, 7);
 nargoutchk(0, 3);
 
-  I_interp = I_mov;    
+
+[n m] = size(I_mov);
+[x, y]=meshgrid(1:m,1:n);
+I_interp = interp2(I_mov, x+Tx, y+Ty, 'linear'); ;    
         
 [Gx Gy] = gradient(I_rigid);
 
@@ -75,10 +78,9 @@ nargoutchk(0, 3);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
        %% Eq 4.
-        Vy = -(Diff.* (Gx))./((Gx.^2+Gy.^2) + Diff.^2 + 0.0001);   % changed order during iteration of X and Y
- 
-        Vx = -(Diff.* (Gy))./((Gy.^2 +Gx.^2) + Diff.^2 + 0.0001);  % changed order during iteration of X and Y    
- 
+        Vy = -(Diff.* (Gy))./((Gx.^2+Gy.^2) + Diff.^2 + 0.0001);   % changed order during iteration of X and Y
+        Vx = -(Diff.* (Gx))./((Gy.^2 +Gx.^2) + Diff.^2 + 0.0001);  % changed order during iteration of X and Y    
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -103,10 +105,11 @@ nargoutchk(0, 3);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Standard built in function       
 
-[x,y]=ndgrid(1:size(I_rigid,1),1:size(I_rigid,2));
-I_interp = interp2(I_mov, y+Ty,x+Tx, 'nearest');  % the other order of X and Y
+[x,y]=meshgrid(1:size(I_rigid,2),1:size(I_rigid,1));
+I_interp = interp2(I_mov, x+Tx, y+Ty, 'nearest');  % the other order of X and Y
 
-     I_interp(isnan(I_interp))=mean(mean(I_interp(~isnan(I_interp))));  % eliminates NaN
+     local_mean = medfilt2(I_mov, [3 3]);
+     I_interp(isnan(I_interp))=local_mean(isnan(I_interp));  % eliminates NaN
 
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
 
