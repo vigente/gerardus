@@ -24,7 +24,7 @@ function [dcm, dcminfo] = load_dcm(files, pth)
 % Authors: Ramon Casero <rcasero@gmail.com> and Benjamin Villard
 % <b.016434@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 %
@@ -91,12 +91,16 @@ for S = 1:length(files)
             dcm = repmat(dcm, 1, 1, length(files), length(files(S).ImageNames));
             
         else
-            
             dcm(:, :, S, T) = dicomread(dcminfo(S, T));
-            
         end
         
     end
     
 end
+% Check spatial order of the slice. If slices aren't ordered according to
+% their spatial aquisition, reorder the slices in the volume and in the
+% dicom header. 
+[~,locationOrder] = sort([dcminfo(:,1).SliceLocation]);
+dcminfo = dcminfo(locationOrder,:);
+dcm = dcm(:,:,locationOrder,:);
 
