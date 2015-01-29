@@ -1,3 +1,12 @@
+2015-01-29  Benjamin Villard <b.016434@gmail.com>
+
+	* matlab/FilesFormatToolbox/dcm2scimat.m (0.1.0)
+
+	- Added function dcm2scimat.m. The function 
+	converts DICOM data structure to scimat format. 
+	Inputs fed are the dicom metainformation along with 
+	the dicom image files.
+	
 2015-01-27  Ramon Casero  <rcasero@gmail.com>
 
 	* CMakeLists.txt: (0.9.5)
