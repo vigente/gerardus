@@ -1,5 +1,11 @@
 2015-01-29  Benjamin Villard <b.016434@gmail.com>
 
+	* matlab/FilesFormatToolbox/dcm2scimat.m (0.2.0)
+
+	- Modified dcm2scimat.m Added temporal dimension to the axis properties. 
+
+2015-01-29  Benjamin Villard <b.016434@gmail.com>
+
 	* matlab/FilesFormatToolbox/dcm2scimat.m (0.1.0)
 
 	- Added function dcm2scimat.m. The function 
