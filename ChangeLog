@@ -1,3 +1,9 @@
+2014-02-06  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* matlab/DiffusionMRIToolbox/wild_bootstrapping_DTI.m (0.1.2)
+
+	- Now returns cone of uncertainty for 2nd and 3rd eigenvectors too.
+
 2015-01-29  Benjamin Villard <b.016434@gmail.com>
 
 	* matlab/FilesFormatToolbox/dcm2scimat.m (0.2.0)

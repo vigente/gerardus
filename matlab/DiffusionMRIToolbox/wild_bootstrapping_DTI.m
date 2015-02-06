@@ -9,10 +9,10 @@ function [COU, FA_STD, ADC_STD] = wild_bootstrapping_DTI( I, bval, Mask, Nreps )
 %   I is the input image, of any dimensionality, with the diffusion 
 %   scans in the last dimension
 %     
-%   BVAL is the b-matrix, of size [3 3 N]
+%   BVAL is the b-matrix, of size [3 3 N] (same as in fit_DT)
 %
 %   MASK is the mask of voxels for analysis, same size as the first N-1
-%   dimensions of I
+%   dimensions of I. 
 %
 %   NREPS is the number of Monte Carlo repetitions (default 1000)
 %
@@ -21,7 +21,8 @@ function [COU, FA_STD, ADC_STD] = wild_bootstrapping_DTI( I, bval, Mask, Nreps )
 %   COU is the cone of uncertainty (in degrees) (See Jones 2003 - 
 %   Determining and Visualizing Uncertainty in Estimates of Fiber 
 %   Orientation From Diffusion Tensor MRI). Here, the 95th percentile is
-%   returned.
+%   returned. The COU of the second and third eigenvectors is concatenated
+%   in the last dimension.
 %
 %   FA_STD is the standard deviation of the fractional anisotropy over 
 %   the repetitions
@@ -30,7 +31,7 @@ function [COU, FA_STD, ADC_STD] = wild_bootstrapping_DTI( I, bval, Mask, Nreps )
     
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright � 2014 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
@@ -58,20 +59,24 @@ function [COU, FA_STD, ADC_STD] = wild_bootstrapping_DTI( I, bval, Mask, Nreps )
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(3,4);
+narginchk(2,4);
 nargoutchk(0, 3);
 
-if nargin == 3
+sz = size(I);
+
+if nargin < 3
+    Mask = zeros(sz(1:end-1));
+end
+
+if nargin < 4
     Nreps = 1000;
 end
 
 
-sz = size(I);
-
 % save memory and time by fitting in vector form
 I = reshape(I, [prod(sz(1:3)), sz(4)]);
 
-Ivector = I(Mask, :);
+Ivector = I(Mask(:), :);
 
 % fit the tensor
 [DT, FA, ADC, VectorField, EigVals] = fit_DT(Ivector, bval);
@@ -104,12 +109,15 @@ for n = 1:Nreps
     Inew = Ifit + Resids_to_add;
 
     [DT2, FA2, ADC2, VectorField2, EigVals2] = fit_DT(Inew, bval);
-
+    
+    VectorField2 = real(VectorField2);
+    
     DT_reps(:,:,n) = DT2;
     FA_reps(:,1,n) = FA2;
     ADC_reps(:,1,n) = ADC2;
     VectorField_reps(:,:,:,n) = VectorField2;
     EigVals_reps(:,:,:,n) = EigVals2;
+    
 end
 
 FA_STD = zeros(size(Mask));
@@ -118,30 +126,63 @@ FA_STD(Mask) = std(FA_reps, [], 3);
 ADC_STD = zeros(size(Mask));
 ADC_STD(Mask) = std(ADC_reps, [], 3);
 
-% angle between original data and bootstrapped data
-Angle_deviation = zeros(size(FA_reps));
-for n = 1:Nreps
-    A = real(squeeze(VectorField(:,1,1:3)));
 
-    B = real(squeeze(VectorField_reps(:,1,1:3,n)));
+% angle between original data and bootstrapped data
+Angle_deviation_primary = zeros(size(FA_reps));
+Angle_deviation_secondary = zeros(size(FA_reps));
+Angle_deviation_tertiary = zeros(size(FA_reps));
+
+for n = 1:Nreps
+    % primary eigenvectors
+    v1 = real(squeeze(VectorField(:,1,1:3)));
+    v2 = real(squeeze(VectorField_reps(:,1,1:3,n)));
     
     % ensure unit magnitude
+    v1 = bsxfun(@rdivide, v1, sqrt(sum(v1.^2, 2))+eps);
+    v2 = bsxfun(@rdivide, v2, sqrt(sum(v2.^2, 2))+eps);
     
-    A = bsxfun(@rdivide, A, sqrt(sum(A.^2, 2))+eps);
-    B = bsxfun(@rdivide, B, sqrt(sum(B.^2, 2))+eps);
+    theta = dot(v1, v2, 2);
+    Angle_deviation_primary(:,1,n) = acos(theta) / pi * 180;
     
-    C = dot(A, B, 2);
+    % secondary eigenvectors
+    v1 = real(squeeze(VectorField(:,1,4:6)));
+    v2 = real(squeeze(VectorField_reps(:,1,4:6,n)));
     
-    Angle_deviation(:,1,n) = acos(C) / pi * 180;
+    % ensure unit magnitude
+    v1 = bsxfun(@rdivide, v1, sqrt(sum(v1.^2, 2))+eps);
+    v2 = bsxfun(@rdivide, v2, sqrt(sum(v2.^2, 2))+eps);
+    
+    theta = dot(v1, v2, 2);
+    Angle_deviation_secondary(:,1,n) = acos(theta) / pi * 180;
+    
+    % tertiary eigenvectors
+    v1 = real(squeeze(VectorField(:,1,7:9)));
+    v2 = real(squeeze(VectorField_reps(:,1,7:9,n)));
+    
+    % ensure unit magnitude
+    v1 = bsxfun(@rdivide, v1, sqrt(sum(v1.^2, 2))+eps);
+    v2 = bsxfun(@rdivide, v2, sqrt(sum(v2.^2, 2))+eps);
+    
+    theta = dot(v1, v2, 2);
+    Angle_deviation_tertiary(:,1,n) = acos(theta) / pi * 180;
+    
+    
 end
 
 % bigger than 90 degrees? flip it over
-Angle_deviation(Angle_deviation > 90) = 180 - Angle_deviation(Angle_deviation > 90);
+Angle_deviation_primary(Angle_deviation_primary > 90) = 180 - Angle_deviation_primary(Angle_deviation_primary > 90);
+Angle_deviation_secondary(Angle_deviation_secondary > 90) = 180 - Angle_deviation_secondary(Angle_deviation_secondary > 90);
+Angle_deviation_tertiary(Angle_deviation_tertiary > 90) = 180 - Angle_deviation_tertiary(Angle_deviation_tertiary > 90);
 
 % 95th percentile
-COU = zeros(size(Mask));
-COU(Mask) = prctile(Angle_deviation, 95, 3);
+COU_primary = zeros(size(Mask));
+COU_primary(Mask) = prctile(Angle_deviation_primary, 95, 3);
+COU_secondary = zeros(size(Mask));
+COU_secondary(Mask) = prctile(Angle_deviation_secondary, 95, 3);
+COU_tertiary = zeros(size(Mask));
+COU_tertiary(Mask) = prctile(Angle_deviation_tertiary, 95, 3);
 
-
+n = ndims(COU_primary);
+COU = cat(n+1, COU_primary, COU_secondary, COU_tertiary);
 
 
