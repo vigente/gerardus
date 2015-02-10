@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2011-2013 University of Oxford
-# Version: 0.2.4
+# Copyright © 2011-2015 University of Oxford
+# Version: 0.2.5
 # $Rev$
 # $Date$
 #
@@ -49,6 +49,12 @@ INCLUDE_DIRECTORIES(..)
 
 ADD_MEX_FILE(im2dmatrix im2dmatrix.cpp)
 INCLUDE_DIRECTORIES(..)
+
+################################################################
+## forward_TV()
+################################################################
+
+ADD_MEX_FILE(forward_TV forward_TV_mex.cpp)
 
 ################################################################
 ## deconvolve()
