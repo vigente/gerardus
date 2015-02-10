@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011-2015 University of Oxford
-# Version: 0.2.6
+# Version: 0.2.7
 # $Rev$
 # $Date$
 #
@@ -32,29 +32,29 @@
 ## Pre-compilation for all targets
 ################################################################
 
-IF(NOT WIN32)
-  ADD_DEFINITIONS("-O2 -Wall")
-ENDIF(NOT WIN32)
+if(NOT WIN32)
+  add_definitions("-O2 -Wall")
+endif(NOT WIN32)
 
 ################################################################
 ## bwregiongrow()
 ################################################################
 
-ADD_MEX_FILE(bwregiongrow bwregiongrow.cpp)
-INCLUDE_DIRECTORIES(..)
+add_mex_file(bwregiongrow bwregiongrow.cpp)
+include_directories(..)
 
 ################################################################
 ## im2dmatrix()
 ################################################################
 
-ADD_MEX_FILE(im2dmatrix im2dmatrix.cpp)
-INCLUDE_DIRECTORIES(..)
+add_mex_file(im2dmatrix im2dmatrix.cpp)
+include_directories(..)
 
 ################################################################
 ## forward_TV_mex(): auxiliary function for forward_TV.m
 ################################################################
 
-ADD_MEX_FILE(forward_TV_mex forward_TV_mex.cpp)
+add_mex_file(forward_TV_mex forward_TV_mex.cpp)
 
 ################################################################
 ## deconvolve()
@@ -77,20 +77,20 @@ ADD_MEX_FILE(forward_TV_mex forward_TV_mex.cpp)
 ## Post-compilation for all targets
 ################################################################
 
-IF(WIN32)
-  INSTALL(TARGETS
+if(WIN32)
+  install(TARGETS
     bwregiongrow
     im2dmatrix
 #    deconvolve
     forward_TV_mex
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
-ELSE(WIN32)
-  INSTALL(TARGETS
+else(WIN32)
+  install(TARGETS
     bwregiongrow
     im2dmatrix
 #    deconvolve
     forward_TV_mex
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
-ENDIF(WIN32)
+endif(WIN32)
