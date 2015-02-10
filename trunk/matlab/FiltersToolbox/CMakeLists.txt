@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011-2015 University of Oxford
-# Version: 0.2.5
+# Version: 0.2.6
 # $Rev$
 # $Date$
 #
@@ -51,10 +51,10 @@ ADD_MEX_FILE(im2dmatrix im2dmatrix.cpp)
 INCLUDE_DIRECTORIES(..)
 
 ################################################################
-## forward_TV()
+## forward_TV_mex(): auxiliary function for forward_TV.m
 ################################################################
 
-ADD_MEX_FILE(forward_TV forward_TV_mex.cpp)
+ADD_MEX_FILE(forward_TV_mex forward_TV_mex.cpp)
 
 ################################################################
 ## deconvolve()
@@ -82,6 +82,7 @@ IF(WIN32)
     bwregiongrow
     im2dmatrix
 #    deconvolve
+    forward_TV_mex
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ELSE(WIN32)
@@ -89,6 +90,7 @@ ELSE(WIN32)
     bwregiongrow
     im2dmatrix
 #    deconvolve
+    forward_TV_mex
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 ENDIF(WIN32)
