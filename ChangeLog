@@ -2,7 +2,7 @@
 
 	* matlab/FiltersToolbox/CMakeLists.txt: (0.2.5)
 
-	- Add Darryl's forward_TV() function to the build system.
+	- Add Darryl's forward_TV_mex() function to the build system.
 
 2014-02-06  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
