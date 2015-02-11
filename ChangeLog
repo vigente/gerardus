@@ -1,3 +1,9 @@
+2015-02-11  Benjamin Villard  <b.0134@gmail.com>
+
+	- Added the offset for the position of the pixel coordinates 
+	in regards to the 'min' field. Previously the coordinates 
+	gave the centre of the voxel/pixel.  
+	
 2015-02-10  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/CMakeLists.txt: (0.2.7)
