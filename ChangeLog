@@ -1,5 +1,21 @@
 2015-02-11  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/scimat_save.m: (0.6.4)
+
+	- Rename variable scirunnrrd as scimat, as it's more clear for
+	other file formats that are not the Seg3D matlab format.
+
+	- Fix the help header, that was too Seg3D-oriented.
+
+	- When we save to Seg3D matlab format, remove the new rotation
+	matrix field, if necessary.
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.4.5)
+
+	- Remove fields from scirunnrrd that are unused in scimat.
+
+	- Add default rotation matrix field.
+
 	* matlab/FileFormatToolbox/scimat_im2scimat.m: (0.3.0)
 
 	- Add input argument for rotation matrix.
