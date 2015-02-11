@@ -1,37 +1,39 @@
-function scimat = scimat_im2scimat(im, res, offset)
+function scimat = scimat_im2scimat(im, res, offset, rotmat)
 % SCIMAT_IM2SCIMAT  Create SCIMAT struct from scratch.
 %
-% This function creates a struct with the correct format that the Gerardus
-% Toolbox uses for SCIMAT variables. This is the same format you obtain
-% when loading a .mat file using scimat_load(), and can be saved to a .mat
-% file using scimat_save(), that can be opened with Seg3D.
+% This function creates a struct with the scimat format (see "help scimat"
+% for details).
 %
-% SCIMAT = scimat_im2scimat(IM, RES, OFFSET)
+% SCIMAT = scimat_im2scimat(IM, RES, OFFSET, ROTMAT)
 %
 %   IM is a Matlab array with the image or segmentation. IM can be of class
 %   logical, (u)int8, (u)int16, (u)int32, (u)int64, single or double. IM
-%   cannot have more than 3 dimensions.
+%   can have 3 to 4 dimensions.
 %
-%   RES is a 3-vector with the voxel size. By default, RES = [1 1 1]. Note
-%   that:
+%   RES is a vector with the voxel size. By default, RES is 1.0 in each
+%   dimension.
+%
+%   OFFSET is a 3-vector with the coordinates of the *centre* of the first
+%   voxel in the image.
+%
+%   Note that the order of RES and OFFSET is the same as the axes in IM.
+%   E.g. for a 4D image
 %
 %     RES(1) --> rows     (y axis)
 %     RES(2) --> columns  (x axis)
 %     RES(3) --> slices   (z axis)
+%     RES(4) --> frames   (t axis)
 %
-%   OFFSET is a 3-vector with the coordinates of the *centre* of the first
-%   voxel in the image. The same correspondence with rows, columns and
-%   slices as for RES applies.
+%   ROTMAT is a rotation matrix. By default, ROTMAT=[], which means that no
+%   rotation is applied. This is a better solution than using an identity
+%   matrix, e.g. because a 3D image could represent a 2D+t or 3D image,
+%   which requires a (2,2)- or (3,3)-rotation matrix, respectively.
 %
-%   SCIMAT is the result of intersecting the volume with a plane, given as
-%   a SCIMAT struct. We use SCIMAT structs widely in Gerardus, because that
-%   way we have the image data and metainformation (e.g. voxel size)
-%   together in the same variable. For details on SCIMAT structs, see "help
-%   scimat".
+% See also: scimat.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2011-2014 University of Oxford
-% Version: 0.2.1
+% Copyright © 2011-2015 University of Oxford
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
@@ -59,15 +61,18 @@ function scimat = scimat_im2scimat(im, res, offset)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(1, 3);
+narginchk(1, 4);
 nargoutchk(0, 1);
 
 % defaults
 if (nargin < 2 || isempty(res))
-    res = [1 1 1];
+    res = ones(1, ndims(im));
 end
 if (nargin < 3 || isempty(offset))
-    offset = [0 0 0];
+    offset = zeros(1, ndims(im));
+end
+if (nargin < 4 || isempty(rotmat))
+    rotmat = [];
 end
 
 % create NRRD struct
@@ -87,19 +92,10 @@ for I = 1:3
     % left edge of first voxel
     scimat.axis(I).min = offset(I) - res(I) / 2;
     
-    % left edge of last voxel
-    scimat.axis(I).max = offset(I) + (size(im, I) - 1) * res(I);
-    
-    % unused
-    scimat.axis(I).center = 1;
-    scimat.axis(I).unit = 'no unit';
-    
 end
-
-% other
-scimat.axis(1).label = 'axis 2';
-scimat.axis(2).label = 'axis 1';
-scimat.axis(3).label = 'axis 3';
 
 % we need scimat.axis to be a column vector
 scimat.axis = scimat.axis';
+
+% add rotation matrix
+scimat.rotmat = rotmat;

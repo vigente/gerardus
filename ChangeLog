@@ -1,5 +1,12 @@
 2015-02-11  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/scimat_im2scimat.m: (0.3.0)
+
+	- Add input argument for rotation matrix.
+
+	- Remove unused fields that were a legacy from scinrrd. We don't
+	need them, and shouldn't be part of scimat.
+
 	* matlab/FiltersToolbox/scimat.m: (0.2.0)
 
 	- Rewrite, as we are going to be using rotation matrices and 3D+t
