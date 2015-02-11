@@ -140,9 +140,9 @@ end
 % the slices. Also we assume notation is the following: data(rows,columns,slice,time). 
 % As slice position is equal throughout time, T = 1;  
 
-    scimat.axis(1).min = dcminfo(1).ImagePositionPatient(2); % min Y position of the left edge of the first voxel 
-    scimat.axis(2).min = dcminfo(1).ImagePositionPatient(1); % min X position of the left edge of the first voxel 
-    scimat.axis(3).min = dcminfo(1).ImagePositionPatient(3); % min Z position of the left edge of the first voxel
+    scimat.axis(1).min = dcminfo(1).ImagePositionPatient(2) - res(1)/2; % min Y position of the left edge of the first voxel 
+    scimat.axis(2).min = dcminfo(1).ImagePositionPatient(1) - res(1)/2; % min X position of the left edge of the first voxel 
+    scimat.axis(3).min = dcminfo(1).ImagePositionPatient(3) - res(1)/2; % min Z position of the left edge of the first voxel
     if (ndims(scimat.data) > 3)
         scimat.axis(4).min = dcminfo(1,1).TriggerTime;% min of Trigger time is 0.  
     else
