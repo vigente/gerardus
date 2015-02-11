@@ -1,9 +1,9 @@
 2015-02-11  Benjamin Villard  <b.0134@gmail.com>
 
-	- Added the offset for the position of the pixel coordinates 
-	in regards to the 'min' field. Previously the coordinates 
-	gave the centre of the voxel/pixel.  
-	
+	- Added the offset for the position of the pixel coordinates in
+	regards to the 'min' field. Previously the coordinates gave the
+	centre of the voxel/pixel.
+
 2015-02-10  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/CMakeLists.txt: (0.2.7)
@@ -14,23 +14,24 @@
 
 	* matlab/DiffusionMRIToolbox/wild_bootstrapping_DTI.m (0.1.2)
 
-	- Now returns cone of uncertainty for 2nd and 3rd eigenvectors too.
+	- Now returns cone of uncertainty for 2nd and 3rd eigenvectors
+	too.
 
 2015-01-29  Benjamin Villard <b.016434@gmail.com>
 
 	* matlab/FilesFormatToolbox/dcm2scimat.m (0.2.0)
 
-	- Modified dcm2scimat.m Added temporal dimension to the axis properties. 
+	- Modified dcm2scimat.m Added temporal dimension to the axis
+	properties.
 
 2015-01-29  Benjamin Villard <b.016434@gmail.com>
 
 	* matlab/FilesFormatToolbox/dcm2scimat.m (0.1.0)
 
-	- Added function dcm2scimat.m. The function 
-	converts DICOM data structure to scimat format. 
-	Inputs fed are the dicom metainformation along with 
-	the dicom image files.
-	
+	- Added function dcm2scimat.m. The function converts DICOM data
+	structure to scimat format.  Inputs fed are the dicom
+	metainformation along with the dicom image files.
+
 2015-01-27  Ramon Casero  <rcasero@gmail.com>
 
 	* CMakeLists.txt: (0.9.5)
@@ -44,8 +45,8 @@
 
 	* matlab/DiffusionMRIToolbox/fit_DT.m (0.1.6)
 
-	- Modified the argument for skipping voxels. Can now be either
-	a scalar threshold or a mask.
+	- Modified the argument for skipping voxels. Can now be either a
+	scalar threshold or a mask.
 
 	* matlab/FiltersToolbox/forward_TV.m: (0.1.2)
 
