@@ -201,6 +201,12 @@ global_reference_frame.m
 	   and then computes the radial, circumferential, and longitudinal vectors
 	   based on this line.
 	
+wild_bootstrapping_DTI.m
+
+	 WILD_BOOTSTRAPPING_DTI Returns uncertainty measures from diffusion tensor
+	 images via wild bootstrapping. See Whitcher 2008 - Using the Wild 
+	 Bootstrap to Quantify Uncertainty in Diffusion Tensor Imaging
+	
 
 FileFormatToolbox
 -------------------------------------------------------------
@@ -215,6 +221,10 @@ dcm2metaimage.m
 	 DCM2METAIMAGE  Read a batch of DICOM files, collate them and save as a
 	 single MetaImage volume (one .mha and one .raw file)
 	
+dcm2scimat.m
+
+	 DCM2SCIMAT  converts dicom datastructure to scimat format.
+	
 im2metaimage.m
 
 	 IM2METAIMAGE  Read a batch of image files, collate them and save as a
@@ -223,6 +233,15 @@ im2metaimage.m
 imread_list.m
 
 	 IMREAD_LIST  Read list of image files into volume.
+	
+load_dcm.m
+
+	 LOAD_DCM  Load array of DICOM filenames as 3D+t image and metainformation
+	 matrix.
+	
+load_multi_dcm_dir.m
+
+	 LOAD_MULTI_DCM_DIR  Read metadata from DICOMDIR file.
 	
 match_file_lists.m
 
@@ -445,7 +464,8 @@ scimat_lconvhull_smoothing.m
 	
 scimat.m
 
-	 SCIMAT  Struct used in Gerardus to store 3D images and their metadata.
+	 SCIMAT  Struct used in Gerardus to store 2D, 3D or 3D+t images and axis
+	 metainformation.
 	
 scimat_ndgrid.m
 
@@ -943,6 +963,8 @@ vec2rotmat.m
 
 RegistrationToolbox
 -------------------------------------------------------------
+
+regdemons3d.m
 
 regdemons.m
 
