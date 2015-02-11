@@ -1,5 +1,17 @@
 2015-02-11  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat_crop.m: (0.3.0)
+
+	- Generalize function to 1D to 4D, as we are going to be using
+	3D+t volumes.
+
+	- Fix bugs from last commit.
+
+	- Ben added as author, not as doing modifications.
+
+	- Remove unused fields inherited from the scirunnrrd struct,
+	e.g. scimat.axis.max.
+
 	* matlab/FileFormatToolbox/scimat_save.m: (0.6.4)
 
 	- Rename variable scirunnrrd as scimat, as it's more clear for
