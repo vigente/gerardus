@@ -4,10 +4,9 @@ function scimat = scimat_load(file)
 %
 % SCIMAT = scimat_load(FILE)
 %
-%   This function loads the SCIMAT volume, removes the dummy dimension and
-%   corrects the row/column order so that if you do e.g.
-%   imagesc(scimat.data(:,:,50)), it produces the same image as the 50
-%   axial slice in Seg3D.
+%   This function loads the image and metainformation into a scimat struct.
+%   If necessary, it swaps rows and columns to follow Matlab's convention
+%   that (rows, columns) <=> (y, x).
 %
 %   FILE is a string with the path and name of the .mat, .mha, .lsm or .vmu
 %   file that contains the 2D or 3D image:
@@ -27,14 +26,14 @@ function scimat = scimat_load(file)
 %           containing only the image metadata, and a path to the file with
 %           the actual binary image data.
 %
-%   SCIMAT is the struct with the image data and metadata (see "help
+%   SCIMAT is the struct with the image data and metainformation (see "help
 %   scimat" for details).
 %
 % See also: scimat, scimat_save.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010-2014 University of Oxford
-% Version: 0.4.4
+% Copyright © 2010-2015 University of Oxford
+% Version: 0.4.5
 % $Rev$
 % $Date$
 % 
@@ -71,18 +70,27 @@ ext = lower(ext);
 
 switch lower(ext)
     
-    case '.mat' % Matlab file
+    case '.mat' % Matlab file in Seg3D scirunnrrd format
+        
         % load data
         scimat = load(file);
         
         % rename SCIMAT volume for convenience
         scimat = scimat.scirunnrrd;
         
-        % remove dummy dimension
+        % remove dummy dimension in old files created with Seg3D 1.x
         scimat = scimat_squeeze(scimat);
         
         % correct x-,y-coordinates
         scimat = scimat_seg3d2matlab(scimat);
+        
+        % remove extra metainformation that is not used
+        scimat = rmfield(scimat, 'property');
+        scimat.axis = rmfield(scimat.axis, ...
+            {'max', 'center', 'label', 'unit'});
+        
+        % empty rotation matrix
+        scimat.rotmat = [];
         
     case {'.mha', '.mhd'} % MetaImage file
         
@@ -207,17 +215,8 @@ switch lower(ext)
             scimat.axis(I).size = sz(I);
             scimat.axis(I).spacing = res(I);
             scimat.axis(I).min = offset(I) - res(I)/2;
-            scimat.axis(I).max = scimat.axis(I).min + (sz(I)-1)*res(I);
-            scimat.axis(I).center = 1;
         end
-        scimat.axis(1).label = 'axis 1';
-        scimat.axis(2).label = 'axis 2';
-        scimat.axis(3).label = 'axis 3';
-        scimat.axis(1).unit = 'no unit';
-        scimat.axis(2).unit = 'no unit';
-        scimat.axis(3).unit = 'no unit';
         scimat.axis = scimat.axis';
-        scimat.property = [];
         
         % now we need to permute the axis so that we have [row, col,
         % slice]-> [y, x, z]

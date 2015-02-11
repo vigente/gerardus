@@ -1,11 +1,7 @@
-function scirunnrrd = scimat_save(file, scirunnrrd, touint8, v73)
-% SCIMAT_SAVE  Save a SCIMAT struct to a Matlab or MetaImage format that
-% can be imported by Seg3D and Seg3D2.
+function scimat = scimat_save(file, scimat, touint8, v73)
+% SCIMAT_SAVE  Save a SCIMAT struct to several file formats.
 %
 % scimat_save(FILE, SCIMAT)
-%
-%   This function formats the SCIMAT volume and saves it to a .mat or .mha
-%   file that can be imported as a segmentation or image volume by Seg3D.
 %
 %   FILE is a string with the path and name of the output file. Currently,
 %   the following output formats are supported:
@@ -35,8 +31,8 @@ function scirunnrrd = scimat_save(file, scirunnrrd, touint8, v73)
 %           2^32-1 bytes. Binary file. Grayscale or RGB images.
 %           AdobeDeflate lessless compression.
 %
-%   SCIMAT is the struct with the image data and metadata (see "help
-%   scimat" for details on SCIMAT structs).
+%   SCIMAT is the struct with the image data and metainformation (see "help
+%   scimat" for details).
 %
 % scimat_save(FILE, SCIMAT, TOUINT8)
 %
@@ -63,13 +59,17 @@ function scirunnrrd = scimat_save(file, scirunnrrd, touint8, v73)
 %
 % SCIRUNNRRD = scimat_save(...)
 %
-%   SCIRUNNRRD gives the "scirunnrrd" struct actually saved to the file.
+%   In the '.mat' output format, SCIRUNNRRD gives the "scirunnrrd" struct
+%   actually saved to the file, which is a reformatted version of the input
+%   SCIMAT struct.
 %
-% See also: scimat_load.
+%   For the other output formats, SCIRUNNRRD=SCIMAT.
+%
+% See also: scimat, scimat_load.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010-2014 University of Oxford
-% Version: 0.6.3
+% Copyright © 2010-2015 University of Oxford
+% Version: 0.6.4
 % $Rev$
 % $Date$
 % 
@@ -114,8 +114,9 @@ end
 switch lower(ext)
     
     case '.mat'
+        
         % make x-,y-coordinates compatible with the Seg3D convention
-        scirunnrrd = scimat_seg3d2matlab(scirunnrrd);
+        scimat = scimat_seg3d2matlab(scimat);
         
         % Note: the following step has been skipped, as Seg3D2 doesn't
         % expect the dummy dimension
@@ -123,8 +124,22 @@ switch lower(ext)
         % requested
 %         scirunnrrd = scimat_unsqueeze(scirunnrrd, touint8);
         if (touint8)
-            scirunnrrd.data = uint8(scirunnrrd.data);
+            scimat.data = uint8(scimat.data);
         end
+        
+        % remove rotation matrix, if present
+        if (isfield(scimat, 'rotmat'))
+            scimat = rmfield(scimat, 'rotmat');
+        end
+        
+        % we don't add the other extra fields that Seg3D creates when you
+        % save to Matlab (e.g. scirunnrrd.axis.max) because they are not
+        % necessary to load an image in Seg3D
+        
+        % Seg3D needs that the struct is called scirunnrrd. Note that
+        % Matlab uses "lazy copying", so there should still be only one
+        % copy of the image in memory
+        scirunnrrd = scimat;
         
         % save data
         if (v73)
@@ -134,39 +149,40 @@ switch lower(ext)
         end
         
     case '.mha'
+        
         % swap rows and columns so that we have x-coordinates in the first
         % column, and y-coordinates in the second column, as expected by
         % the MetaImage format
-        scirunnrrd.data = permute(scirunnrrd.data, [2 1 3:ndims(scirunnrrd.data)]);
+        scimat.data = permute(scimat.data, [2 1 3:ndims(scimat.data)]);
         
         % save data, doing the same permutation of the axis values
-        writemetaimagefile(file, scirunnrrd.data, ...
-            [scirunnrrd.axis([2 1 3]).spacing], ...
-            [scirunnrrd.axis([2 1 3]).min]+[scirunnrrd.axis([2 1 3]).spacing]/2);
+        writemetaimagefile(file, scimat.data, ...
+            [scimat.axis([2 1 3]).spacing], ...
+            [scimat.axis([2 1 3]).min]+[scimat.axis([2 1 3]).spacing]/2);
         
     case '.png'
         
         % number of colour channels
-        numchannels = size(scirunnrrd.data, 3);
+        numchannels = size(scimat.data, 3);
         
         % bit depth
-        switch class(scirunnrrd.data)
+        switch class(scimat.data)
             case 'uint8'
                 bitdepth = 8;
         end
         
         % image offset
-        offset = scimat_index2world([1 1 1], scirunnrrd);
+        offset = scimat_index2world([1 1 1], scimat);
         
         % write the image to file, including metadata
         %
         % Note: there seems to be a bug in imwrite(), and XOffset, YOffset
         % and OffsetUnit will be created as "other" metadata tags, instead
         % of assigned to the official ones
-        imwrite(scirunnrrd.data, file, 'ResolutionUnit', 'meter', ...
+        imwrite(scimat.data, file, 'ResolutionUnit', 'meter', ...
             'Software', 'Matlab/Gerardus/scimat_save()', ...
-            'XResolution', 1 / scirunnrrd.axis(2).spacing, ...
-            'YResolution', 1 / scirunnrrd.axis(1).spacing, ...
+            'XResolution', 1 / scimat.axis(2).spacing, ...
+            'YResolution', 1 / scimat.axis(1).spacing, ...
             'BitDepth', bitdepth, ...
             'XOffset', sprintf('%0.13e', offset(1)), ...
             'YOffset', sprintf('%0.13e', offset(2)), ...
@@ -180,14 +196,14 @@ switch lower(ext)
         % images than 4 GB, so that we can save them to .png, if the user
         % tries to save to JPEG2000, this will give a segfault
         max32 = double(intmax('uint32'));
-        aux = zeros(1, class(scirunnrrd.data));
+        aux = zeros(1, class(scimat.data));
         s = whos('aux');
-        if ((numel(scirunnrrd.data) * s.bytes) > max32)
+        if ((numel(scimat.data) * s.bytes) > max32)
             error(message('MATLAB:imagesci:imwrite:tooMuchData'))
         end
 
         % save image to file
-        imwrite(scirunnrrd.data, file, 'Mode', 'lossless');
+        imwrite(scimat.data, file, 'Mode', 'lossless');
         
     case {'.tif', '.tiff'}
         
@@ -198,9 +214,9 @@ switch lower(ext)
         t = Tiff(file, 'w');
         
         % set tags
-        tagstruct.ImageLength = size(scirunnrrd.data, 1); % rows
-        tagstruct.ImageWidth = size(scirunnrrd.data, 2);  % columns
-        tagstruct.SamplesPerPixel = size(scirunnrrd.data, 3); % channels per pixel
+        tagstruct.ImageLength = size(scimat.data, 1); % rows
+        tagstruct.ImageWidth = size(scimat.data, 2);  % columns
+        tagstruct.SamplesPerPixel = size(scimat.data, 3); % channels per pixel
         tagstruct.Compression = Tiff.Compression.AdobeDeflate;
         switch tagstruct.SamplesPerPixel
             case 1 % grayscale image, black has intensity 0
@@ -210,7 +226,7 @@ switch lower(ext)
             otherwise
                 error('Input image is not grayscale or RGB')
         end
-        switch class(scirunnrrd.data)
+        switch class(scimat.data)
             case 'uint8'
                 tagstruct.BitsPerSample = 8;
             otherwise
@@ -219,12 +235,12 @@ switch lower(ext)
         tagstruct.PlanarConfiguration = Tiff.PlanarConfiguration.Chunky;
         tagstruct.Software = 'Gerardus/scimat_save()';
         tagstruct.ResolutionUnit = Tiff.ResolutionUnit.Centimeter; % resolution units are pixel/cm
-        tagstruct.XResolution = 1 / (scirunnrrd.axis(2).spacing * 100);
-        tagstruct.YResolution = 1 / (scirunnrrd.axis(1).spacing * 100);
+        tagstruct.XResolution = 1 / (scimat.axis(2).spacing * 100);
+        tagstruct.YResolution = 1 / (scimat.axis(1).spacing * 100);
         t.setTag(tagstruct);
         
         % write image data to file
-        t.write(scirunnrrd.data);
+        t.write(scimat.data);
         
         % close TIFF object
         t.close();
