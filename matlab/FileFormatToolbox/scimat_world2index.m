@@ -13,8 +13,15 @@ function idx = scimat_world2index(x, scimat, CHOP)
 %   (x, y, z)-order.
 %
 %   This function can also be applied to images that are not 4D, and in
-%   that case, idex and real world coordinates will have the same number of
-%   elements as dimensions the image has.
+%   that case, index and real world coordinates will have the same number
+%   of elements as dimensions the image has.
+%
+%   The relation between indices IDX and real world coordinates X is
+%
+%     X = s.*(IDX-1)*R + t
+%
+%   where s is the voxel size, R the rotation matrix, and t the
+%   image offset.
 %
 %   For points that are not within the data volume, the returned
 %   indices are "NaN".
@@ -53,9 +60,11 @@ function idx = scimat_world2index(x, scimat, CHOP)
 %
 % See also: scimat, scimat_index2world, scimat_load, scimat_im2scimat.
     
-% Author: Ramon Casero <rcasero@gmail.com>
+% Authors: Ramon Casero <rcasero@gmail.com>, 
+% Benjamin Villard <b.016434@gmail.com>,
+% Christopher Kelly  <christopher.kelly28@googlemail.com>
 % Copyright © 2009-2015 University of Oxford
-% Version: 0.4.1
+% Version: 0.5.0
 % $Rev$
 % $Date$
 % 
@@ -90,32 +99,35 @@ nargoutchk(0, 1);
 if (nargin < 3 || isempty(CHOP))
     CHOP = true;
 end
-
-if (size(x, 2) ~= ndims(scimat.data))
-    error('X must be a vector with one element per dimension in SCIMAT.data')
+if (~isfield(scimat, 'rotmat'))
+    scimat.rotmat = [];
 end
-
-% init output
-idx = zeros(size(x));
 
 % extract parameters
 xmin = [scimat.axis.min];
 dx = [scimat.axis.spacing];
 n = [scimat.axis.size];
 orig = xmin + dx/2;
+R = scimat.rotmat;
 
 % number of dimensions
-D = length(dx);
+D = length(scimat.axis);
+
+%% convert real world coordinates to indices
+
+% remove offset
+idx = x - repmat(orig([2 1 3:end]), size(x, 1), 1);
+
+% apply inverse rotation only to the spatial coordinates
+if (~isempty(R))
+    idx(:, 1:size(R, 1)) = idx(:, 1:size(R, 1)) * R';
+end
 
 % (x, y) => (y, x)
-x = x(:, [2 1 3:end]);
+idx = idx(:, [2 1 3:end]);
 
-% convert real world coordinates to indices. The reason for the loop is
-% that x may have more than 1 point to convert, and this is probably more
-% efficient than having to replicate orig and dx to fit the size of x
-for I = 1:D
-    idx(:, I) = (x(:, I) - orig(I)) / dx(I) + 1;
-end
+% i = x / dx + 1
+idx = idx ./ repmat(dx, size(idx, 1), 1) + 1;
 
 % find which coordinates are outside the volume
 if CHOP
