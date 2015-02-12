@@ -12,8 +12,15 @@ function x = scimat_index2world(idx, scimat, CHOP)
 %   (r, c) <-> (y, x), but point coordinates are given in the (x, y)-order.
 %
 %   This function can also be applied to images that are not 4D, and in
-%   that case, idex and real world coordinates will have the same number of
-%   elements as dimensions the image has.
+%   that case, index and real world coordinates will have the same number
+%   of elements as dimensions the image has.
+%
+%   The relation between indices IDX and real world coordinates X is
+%
+%     X = s.*(IDX-1)*R + t
+%
+%   where s is the voxel size, R the rotation matrix, and t the
+%   image offset.
 %
 %   For points that are not within the data volume, the returned
 %   coordinates are "NaN".
@@ -49,9 +56,11 @@ function x = scimat_index2world(idx, scimat, CHOP)
 %
 % See also: scimat, scimat_world2index, scimat_load, scimat_im2scimat.
 
-% Author: Ramon Casero <rcasero@gmail.com>
+% Authors: Ramon Casero <rcasero@gmail.com>, 
+% Benjamin Villard <b.016434@gmail.com>,
+% Christopher Kelly  <christopher.kelly28@googlemail.com>
 % Copyright © 2009-2015 University of Oxford
-% Version: 0.4.1
+% Version: 0.5.0
 % $Rev$
 % $Date$
 % 
@@ -86,19 +95,16 @@ nargoutchk(0, 1);
 if (nargin < 3 || isempty(CHOP))
     CHOP = true;
 end
-
-if (size(idx, 2) ~= ndims(scimat.data))
-    error('IDX must be a vector with one element per dimension in SCIMAT.data')
+if (~isfield(scimat, 'rotmat'))
+    scimat.rotmat = [];
 end
-
-% init output
-x = zeros(size(idx));
 
 % extract parameters
 xmin = [scimat.axis.min];
 dx = [scimat.axis.spacing];
 n = [scimat.axis.size];
 orig = xmin + dx/2;
+R = scimat.rotmat;
 
 % number of dimensions
 D = length(scimat.axis);
@@ -110,10 +116,18 @@ if CHOP
     end
 end
 
-% convert indices to real world coordinates
-for I = 1:D
-    x(:, I) = (idx(:, I) - 1) * dx(I) + orig(I);
-end
+%% convert indices to real world coordinates
+
+% x = (i-1) * dx
+x = (idx - 1) .* repmat(dx, size(idx, 1), 1);
 
 % (y, x) => (x, y)
 x = x(:, [2 1 3:end]);
+
+% apply rotation only to the spatial coordinates
+if (~isempty(R))
+    x(:, 1:size(R, 1)) = x(:, 1:size(R, 1)) * R;
+end
+
+% apply offset
+x = x + repmat(orig([2 1 3:end]), size(x, 1), 1);
