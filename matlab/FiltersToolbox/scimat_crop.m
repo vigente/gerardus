@@ -1,10 +1,11 @@
 function scimat = scimat_crop(scimat, from, to)
-% SCIMAT_CROP  Crop a SCIMAT image or segmentation volume.
+% SCIMAT_CROP  Crop a SCIMAT image or segmentation volume of any dimension.
 %
 % SCIMAT2 = scimat_crop(SCIMAT, FROM, TO)
 %
 %   SCIMAT is a struct with a metainfo-enriched image or segmentation (see
-%   "help scimat" for details).
+%   "help scimat" for details). The image can have any number of
+%   dimensions.
 %
 %   FROM, TO are vectors with the index coordinates that define the
 %   cropping box. The number of indices depend on the dimensionality of the
@@ -21,7 +22,10 @@ function scimat = scimat_crop(scimat, from, to)
 %     FROM=[50 75 1 1];
 %     TO=[100 89 128 10];
 %
-%   SCIMAT2 is the cropped volume.
+%   If FROM=[] and TO=[], or they are not given as input argument, then the
+%   image is not cropped.
+%
+%   SCIMAT2 is the output cropped volume.
 %
 % Example:
 %
@@ -33,7 +37,7 @@ function scimat = scimat_crop(scimat, from, to)
 
 % Authors: Ramon Casero <rcasero@gmail.com>, Benjamin Villard <b.016434@gmail.com>
 % Copyright © 2011-2015 University of Oxford
-% Version: 0.3.0
+% Version: 0.4.0
 % $Rev$
 % $Date$
 % 
@@ -61,13 +65,15 @@ function scimat = scimat_crop(scimat, from, to)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(3, 3);
+narginchk(1, 3);
 nargoutchk(0, 1);
 
-% we only work with up to 4D images
-MAXDIM = 4;
-if (ndims(scimat.data) > MAXDIM)
-    error('Image in SCIMAT must be 1D, 2D, 3D or 4D')
+% defaults
+if (nargin < 2)
+    from = [];
+end
+if (nargin < 3)
+    to = [];
 end
 
 % FROM and TO can be shorter than the number of dimensions of the image,
@@ -80,7 +86,7 @@ if (length(to) > ndims(scimat.data))
 end
 
 % default: extend "from" and "to" with dummy dimensions, if necessary, so
-% that they are 4D
+% that they are the same dimension as the image
 % E.g. in an image with size [256 512 128 10],
 %
 %     FROM=[50 75];
@@ -90,26 +96,42 @@ end
 %
 %     FROM=[50 75 1 1];
 %     TO=[100 89 128 10];
-%
-% In addition, a 2D image with size [256 512] can be cropped as if it were
-% a 4D image with size [256 512 1 1]
 sz = size(scimat.data);
-sz(length(sz)+1:MAXDIM) = 1;
-from(length(from)+1:MAXDIM) = 1;
-to(length(to)+1:MAXDIM) = sz(length(to)+1:MAXDIM);
+sz(length(sz)+1:ndims(scimat.data)) = 1;
+from(length(from)+1:ndims(scimat.data)) = 1;
+to(length(to)+1:ndims(scimat.data)) = sz(length(to)+1:end);
 
-% crop the image
-scimat.data = scimat.data(from(1):to(1), from(2):to(2), from(3):to(3), ...
-    from(4):to(4));
+% "bottom-left" coordinates of what is going to become the first voxel of
+% the volume after cropping
+%
+% swap X and Y coordinates, so that they match the scimat convention for
+% the axes: (r, c, s, f) <-> (y, x, y, t)
+xmin = scimat_index2world(from, scimat);
+xmin = xmin([2 1 3:end]) - [scimat.axis.spacing]/2;
 
-% correct the metainformation in the scimat volume
-for I = 1:ndims(scimat.data)
+% crop and correct metainformation in the scimat image
+for I = 1:length(scimat.axis)
+    
+    % crop one dimension of the image. We are going to be shifting
+    % circularly the dimensions of the image so that we always crop the
+    % first dimension
+    idx = cell(1, length(scimat.axis));
+    idx{1} = from(I):to(I);
+    idx(2:end) = {':'};
+    scimat.data = scimat.data(idx{:});
     
     % size
-    scimat.axis(I).size = size(scimat.data, I);
+    scimat.axis(I).size = size(scimat.data, 1);
     
     % "left" edge of first voxel
-    scimat.axis(I).min = scimat.axis(I).min ...
-        + (from(I) - 1) * scimat.axis(I).spacing;
+    scimat.axis(I).min = xmin(I);
+    
+    % circular shift of the dimensions of image so that we can crop along
+    % the first dimension in the next iteration
+    idx = 1:length(scimat.axis);
+    scimat.data = permute(scimat.data, idx([2:end 1]));
     
 end
+
+% Note: the last circular shift of the image dimension has already returned
+% the image to its original shape, so no need to do anything after the loop
