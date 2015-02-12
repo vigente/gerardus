@@ -1,3 +1,15 @@
+2015-02-12  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/scimat_crop.m: (0.4.0)
+
+	- Make the function work with any number of dimensions, using
+	permute() to shift circularly the dimensions of the image.
+
+	- Fix how the coordinates of the "botton-left" corner of the image
+	are computed. Now we use scimat_index2world, because once we
+	implement rotation matrices, a simple translation as we had before
+	will not be correct.
+
 2015-02-11  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/scimat_crop.m: (0.3.0)
