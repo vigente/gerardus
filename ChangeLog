@@ -5,6 +5,12 @@
 	- Now the user can directly provide a DICOM filename instead of
 	having to load the image and metadata separately.
 
+	- Convert units from mm and ms to metres and seconds.
+
+	- Transpose rotation matrix so that we can use it for
+	right-multiplication, as in Matlab points are usually given as row
+	vectors.
+
 	* matlab/FileFormatToolbox/scimat_index2world.m: (0.5.0)
 	* matlab/FileFormatToolbox/scimat_world2index.m: (0.5.0)
 	* matlab/FiltersToolbox/scimat.m: (0.2.1)
@@ -12,14 +18,6 @@
 	- Add rotation matrix.
 
 	- Work done together with Ben and Chris.
-
-	* matlab/FileFormatToolbox/dcm2scimat.m: (0.2.1)
-
-	- Convert units from mm and ms to metres and seconds.
-
-	- Transpose rotation matrix so that we can use it for
-	right-multiplication, as in Matlab points are usually given as row
-	vectors.
 
 	* matlab/FileFormatToolbox/scimat_index2world.m: (0.4.1)
 	* matlab/FileFormatToolbox/scimat_world2index.m: (0.4.1)
