@@ -223,7 +223,7 @@ dcm2metaimage.m
 	
 dcm2scimat.m
 
-	 DCM2SCIMAT  converts dicom datastructure to scimat format.
+	 DCM2SCIMAT  Converts dicom datastructure to scimat format.
 	
 im2metaimage.m
 
@@ -268,7 +268,7 @@ scimat_im2scimat.m
 	
 scimat_index2world.m
 
-	 scimat_index2world  Convert image indices to real world coordinates for
+	 SCIMAT_INDEX2WORLD  Convert image indices to real world coordinates for
 	 the SCIMAT image struct that we use in Gerardus.
 	
 scimat_load.m
@@ -294,9 +294,9 @@ scimat_world2index.m
 	 SCIMAT_WORLD2INDEX  Convert real world coordinates to image indices for
 	 the SCIMAT image struct that we use in Gerardus.
 	 
-	   Function scimat_world2index() converts the coordinates of a voxel given
-	   as real world coordinates [x, y, z] into index coordinates 
-	   [row, column, slice].
+	   Function SCIMAT_WORLD2INDEX() converts the coordinates of a voxel given
+	   as real world coordinates [x, y, z, t] into index coordinates 
+	   [row, column, slice, frame].
 	
 smoldyn2matlab.m
 
