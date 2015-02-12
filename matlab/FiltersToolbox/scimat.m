@@ -16,6 +16,14 @@
 %   * axis:   Axes metainformation (voxel size, offset and number of voxels).
 %   * rotmat: Rotation matrix.
 %
+%   The relation between indices IDX and real world coordinates X is
+%
+%     X = s.*(IDX-1)*R + t
+%
+%   where s is the voxel size, R the rotation matrix, and t the
+%   image offset.
+%
+%
 % -------------------------------------------------------------------------
 %
 %   In detail:
@@ -38,8 +46,9 @@
 %                of the first voxel's centre. The first voxel's centre
 %                coordinates is offset = min+spacing/2.
 %
-%   * rotmat: Rotation matrix. A (2, 2) or (3, 3)- matrix for images that
-%             are not aligned with the XY- or XYZ-Cartesian axes.
+%   * rotmat: Rotation matrix (right-multiplying). A (2, 2) or (3, 3)-
+%             matrix for images that are not aligned with the XY- or 
+%             XYZ-Cartesian axes.
 %
 %   Note: scimat.axis follows the Matlab convention that in an image
 %   (rows, cols) <=> (y, x), but scimat.rotmat is given for (x, y).
@@ -50,7 +59,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
