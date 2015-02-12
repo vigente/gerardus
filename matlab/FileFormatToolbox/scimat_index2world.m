@@ -1,36 +1,39 @@
 function x = scimat_index2world(idx, scimat, CHOP)
-% scimat_index2world  Convert image indices to real world coordinates for
+% SCIMAT_INDEX2WORLD  Convert image indices to real world coordinates for
 % the SCIMAT image struct that we use in Gerardus.
 %
-%   Function scimat_index2world() converts the coordinates of a voxel given
-%   as index coordinates [row, column, slice] into its real world
-%   coordinates [x, y, z].
+%   Function SCIMAT_INDEX2WORLD() converts the coordinates of a voxel given
+%   as index coordinates [row, column, slice, frame] into its real world
+%   coordinates [x, y, z, t].
 %
-%      [r, c, s] -> [x, y, z]
+%      [r, c, s, f] -> [x, y, z, t]
 %
-%   This agrees with Matlab's convention that images are expected to be
-%   (r, c, s) <-> (y, x, z), but point coordinates are given in the
-%   (x, y, z)-order.
+%   This agrees with Matlab's convention that images are expected to be 
+%   (r, c) <-> (y, x), but point coordinates are given in the (x, y)-order.
+%
+%   This function can also be applied to images that are not 4D, and in
+%   that case, idex and real world coordinates will have the same number of
+%   elements as dimensions the image has.
 %
 %   For points that are not within the data volume, the returned
 %   coordinates are "NaN".
 %
-% X = scimat_index2world(IDX, SCIMAT)
+% X = SCIMAT_INDEX2WORLD(IDX, SCIMAT)
 %
-%   IDX has the same size as X, and the voxel indices in 
-%   (row, column, slice)-order, that corresponds to (y, x, z)-order.
+%   IDX has one element per image dimension. If the image is 4D, IDX is
+%   given in (row, column, slice, frame)-order.
 %
-%   SCIMAT is a struct with the image space metadata, i.e. spacing, offset
-%   and orientation (see "help scimat" for details). SCIMAT.data (the fild
-%   that contains the image itself) is not used by the function, and thus
-%   can be present or absent. Note that Matlab will pass SCIMAT.data by
-%   reference, so passing the whole image does not require more memory or
-%   slow the function down.
+%   SCIMAT is a struct with the image and axis metadata, i.e. spacing,
+%   offset and orientation (see "help scimat" for details). SCIMAT.data
+%   (the field that contains the image itself) is not used by the function,
+%   and thus can be present or absent. Note that Matlab will pass
+%   SCIMAT.data by reference, so passing the whole image does not require
+%   more memory and does not slow the function down.
 %
 %   X is a 3-column matrix where each row contains the real world
-%   (x, y, z)-coordinates of a point.
+%   (x, y, z, t)-coordinates of a point.
 %
-% IDX = scimat_index2world(..., CHOP)
+% IDX = SCIMAT_INDEX2WORLD(..., CHOP)
 %
 %   CHOP is a flag to convert points outside the image volume to NaNs. By
 %   default, CHOP=true.
@@ -44,11 +47,11 @@ function x = scimat_index2world(idx, scimat, CHOP)
 %
 %     .0100, .0110, .0200
 %
-% See also: scimat_world2index, scimat_load, scimat_im2scimat.
+% See also: scimat, scimat_world2index, scimat_load, scimat_im2scimat.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2009-2014 University of Oxford
-% Version: 0.4.0
+% Copyright © 2009-2015 University of Oxford
+% Version: 0.4.1
 % $Rev$
 % $Date$
 % 
@@ -84,8 +87,8 @@ if (nargin < 3 || isempty(CHOP))
     CHOP = true;
 end
 
-if (size(idx, 2) ~= 3)
-    error('IDX must be a 3-column matrix, so that each row has the 3 indices of a voxel')
+if (size(idx, 2) ~= ndims(scimat.data))
+    error('IDX must be a vector with one element per dimension in SCIMAT.data')
 end
 
 % init output
@@ -97,15 +100,8 @@ dx = [scimat.axis.spacing];
 n = [scimat.axis.size];
 orig = xmin + dx/2;
 
-% remove dummy dimension, if present
-if (length(xmin) == 4)
-    xmin = xmin(2:end);
-    dx = dx(2:end);
-    orig = orig(2:end);
-end
-
-% number of dimensions (we expect D=3, but in case this gets more general)
-D = length(dx);
+% number of dimensions
+D = length(scimat.axis);
 
 % find coordinates that are outside the volume
 if CHOP
@@ -119,5 +115,5 @@ for I = 1:D
     x(:, I) = (idx(:, I) - 1) * dx(I) + orig(I);
 end
 
-% (y, x, z) => (x, y, z)
-x = x(:, [2 1 3]);
+% (y, x) => (x, y)
+x = x(:, [2 1 3:end]);
