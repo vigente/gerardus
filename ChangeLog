@@ -1,5 +1,10 @@
 2015-02-12  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/dcm2scimat.m: (0.3.0)
+
+	- Now the user can directly provide a DICOM filename instead of
+	having to load the image and metadata separately.
+
 	* matlab/FileFormatToolbox/scimat_index2world.m: (0.5.0)
 	* matlab/FileFormatToolbox/scimat_world2index.m: (0.5.0)
 	* matlab/FiltersToolbox/scimat.m: (0.2.1)
