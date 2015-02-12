@@ -223,7 +223,8 @@ dcm2metaimage.m
 	
 dcm2scimat.m
 
-	 DCM2SCIMAT  Converts dicom datastructure to scimat format.
+	 DCM2SCIMAT  Load DICOM file or convert DICOM image data into SCIMAT
+	 format.
 	
 im2metaimage.m
 
