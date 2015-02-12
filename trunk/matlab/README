@@ -442,7 +442,7 @@ scimat_centroids.m
 	
 scimat_crop.m
 
-	 SCIMAT_CROP  Crop a SCIMAT image or segmentation volume.
+	 SCIMAT_CROP  Crop a SCIMAT image or segmentation volume of any dimension.
 	
 scimat_estimate_bias_field.m
 
