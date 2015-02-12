@@ -1,5 +1,5 @@
 function scimat = dcm2scimat(dcm,dcminfo)
-% DCM2SCIMAT  converts dicom datastructure to scimat format.
+% DCM2SCIMAT  Converts dicom datastructure to scimat format.
 %
 % SCIMAT = DCM2SCIMAT(DCM, DCMINFO)
 %
@@ -10,37 +10,11 @@ function scimat = dcm2scimat(dcm,dcminfo)
 %   metainformation for the corresponding slice and time frame in the data
 %   set.
 %
-%   SCIMAT is a Struct used in Gerardus to store 3D images and their
-%   metadata. Please see scimat.m for more info. 
-%   
-%   SCIMAT is a struct wich returns 3 fields:    
-%   
-%           data:   An array containing the dicom images, in a volume format. Data
-%                   can be 2D, 3D, or 4D (3D + time). 
-%           axis:   A 4-vector with the following fields:
-%                   
-%                   size: Image size and temporal size (number of frames)
-%                    
-%                   spacing: Voxel size, i.e. spacing between voxel
-%                   centres. And temporal spacing (Nominal interval between
-%                   frames). 
-%                    
-%                   min: Coordinates of the "bottom-left" corner of the image, NOT
-%                       of the first voxel's centre. The first voxel's
-%                       centre. And 
-% 
-%           rotmat: A (3, 3)- matrix that gives the image orientation as a rotation
-%                   of the x, y, z Cartesian axes.
-%   
-%   The SCIMAT struct follows the Matlab convention that image arrays are
-%   sorted as (y, x, z)
-%
-%     axis(1) ==> rows ==> y axis
-%     axis(2) ==> columns ==> x axis
-%     axis(3) ==> slices
+%   SCIMAT is a struct used in Gerardus to store images and their metadata
+%   (see scimat.m for more details).
 % 
 % See also: scimat.m.
-%
+
 % Authors:Benjamin Villard <b.016434@gmail.com>
 % Copyright © 2014-2015 University of Oxford
 % Version: 0.2.0
@@ -72,8 +46,6 @@ function scimat = dcm2scimat(dcm,dcminfo)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see
 % <http://www.gnu.org/licenses/>.
-%   
-
 
 % check arguments
 narginchk(1, 2);
@@ -86,7 +58,6 @@ end
 if (nargin < 2 || isempty(dcminfo))
     dcminfo = [];
 end
-
 
 % data volume (Dicom Image)
 scimat.data = dcm;
