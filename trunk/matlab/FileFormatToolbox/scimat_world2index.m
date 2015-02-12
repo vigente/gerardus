@@ -2,15 +2,19 @@ function idx = scimat_world2index(x, scimat, CHOP)
 % SCIMAT_WORLD2INDEX  Convert real world coordinates to image indices for
 % the SCIMAT image struct that we use in Gerardus.
 % 
-%   Function scimat_world2index() converts the coordinates of a voxel given
-%   as real world coordinates [x, y, z] into index coordinates 
-%   [row, column, slice].
+%   Function SCIMAT_WORLD2INDEX() converts the coordinates of a voxel given
+%   as real world coordinates [x, y, z, t] into index coordinates 
+%   [row, column, slice, frame].
 %
-%      [x, y, z] -> [r, c, s]
+%      [x, y, z, t] -> [r, c, s, f]
 %
 %   This agrees with Matlab's convention that images are expected to be
 %   (r, c, s) <-> (y, x, z), but point coordinates are given in the
 %   (x, y, z)-order.
+%
+%   This function can also be applied to images that are not 4D, and in
+%   that case, idex and real world coordinates will have the same number of
+%   elements as dimensions the image has.
 %
 %   For points that are not within the data volume, the returned
 %   indices are "NaN".
@@ -18,7 +22,7 @@ function idx = scimat_world2index(x, scimat, CHOP)
 %   Note also that the indices are not rounded, to allow for sub-pixel
 %   accuracy. If integer indices are required, then just use round(idx).
 %
-% IDX = scimat_world2index(X, SCIMAT)
+% IDX = SCIMAT_WORLD2INDEX(X, SCIMAT)
 %
 %   X is a 3-column matrix where each row contains the real world
 %   (x,y,z)-coordinates of a point.
@@ -33,7 +37,7 @@ function idx = scimat_world2index(x, scimat, CHOP)
 %   reference, so passing the whole image does not require more memory or
 %   slow the function down.
 %
-% IDX = scimat_world2index(..., CHOP)
+% IDX = SCIMAT_WORLD2INDEX(..., CHOP)
 %
 %   CHOP is a flag to convert points outside the image volume to NaNs. By
 %   default, CHOP=true.
@@ -47,11 +51,11 @@ function idx = scimat_world2index(x, scimat, CHOP)
 %
 %     55   189   780
 %
-% See also: scimat_index2world, scimat_load, scimat_im2scimat.
+% See also: scimat, scimat_index2world, scimat_load, scimat_im2scimat.
     
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2009-2014 University of Oxford
-% Version: 0.4.0
+% Copyright © 2009-2015 University of Oxford
+% Version: 0.4.1
 % $Rev$
 % $Date$
 % 
@@ -87,8 +91,8 @@ if (nargin < 3 || isempty(CHOP))
     CHOP = true;
 end
 
-if (size(x, 2) ~= 3)
-    error('X must be a 3-column matrix, so that each row has the 3D coordinates of a point')
+if (size(x, 2) ~= ndims(scimat.data))
+    error('X must be a vector with one element per dimension in SCIMAT.data')
 end
 
 % init output
@@ -100,21 +104,11 @@ dx = [scimat.axis.spacing];
 n = [scimat.axis.size];
 orig = xmin + dx/2;
 
-% remove dummy dimension, if present
-if (length(xmin) == 4)
-    xmin = xmin(2:end);
-    dx = dx(2:end);
-    orig = orig(2:end);
-end
-
-% number of dimensions (we expect D=3, but in case this gets more general)
+% number of dimensions
 D = length(dx);
-if (D ~= 3)
-    error('Input SCIMAT volume expected to have 3 dimensions.')
-end
 
-% (x, y, z) => (y, x, z)
-x = x(:, [2 1 3]);
+% (x, y) => (y, x)
+x = x(:, [2 1 3:end]);
 
 % convert real world coordinates to indices. The reason for the loop is
 % that x may have more than 1 point to convert, and this is probably more

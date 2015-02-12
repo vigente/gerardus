@@ -1,5 +1,13 @@
 2015-02-12  Ramon Casero  <rcasero@gmail.com>
 
+	* FileFormatToolbox/scimat_index2world.m: (0.4.1)
+	* FileFormatToolbox/scimat_world2index.m: (0.4.1)
+
+	- Generalize from 3 to N-dimensions.
+
+	- Don't remove "dummy" dimensions. That was a thing of scirunnrrd,
+	and no longer applies to scimat structs.
+
 	* matlab/FiltersToolbox/scimat_crop.m: (0.4.0)
 
 	- Make the function work with any number of dimensions, using
