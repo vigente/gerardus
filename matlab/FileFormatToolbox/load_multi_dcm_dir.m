@@ -9,6 +9,7 @@ function [seriesData, dicomdirpath] = load_multi_dcm_dir(dicomdirpath)
 % DICOMDIR is a standard binary file provided with DICOM data, and has
 % information such as paths to files, and patient, study, series IDs, etc.
 % 
+% [SERIESDATA, DICOMDIRPATH] = LOAD_MULTI_DCM_DIR()
 % SERIESDATA = LOAD_MULTI_DCM_DIR(DICOMDIRPATH)
 %
 %   DICOMDIRPATH is a string with the path to the directory containing the
@@ -24,7 +25,7 @@ function [seriesData, dicomdirpath] = load_multi_dcm_dir(dicomdirpath)
 %
 % Modified by Christopher Kelly <christopher.kelly28@googlemail.com> and
 % Benjamin Villard <b.016434@gmail.com>, University of Oxford.
-% Copyright © 2014-2015 University of Oxford
+% Copyright Â© 2014-2015 University of Oxford
 % Version: 0.2.0
 % $Rev$
 % $Date$
