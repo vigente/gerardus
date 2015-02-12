@@ -6,6 +6,8 @@
 
 	- Add rotation matrix.
 
+	- Work done together with Ben and Chris.
+
 	* matlab/FileFormatToolbox/dcm2scimat.m: (0.2.1)
 
 	- Convert units from mm and ms to metres and seconds.
