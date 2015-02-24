@@ -30,7 +30,7 @@ function [I_interp, Tx, Ty] = regdemons(I_rigid, I_mov,Tx,Ty,iteration, range, s
 
 % Author: Adam Szmul <aszmul@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
