@@ -1,3 +1,37 @@
+2015-02-24  Adam Szmul  <aszmul@gmail.com>
+
+	* matlab\RegistrationToolbox\regdemons.m: (0.1.2)
+
+	- Added interpolation before registration
+
+
+	* matlab\RegistrationToolbox\regdemons3d.m: (0.1.1)
+
+	- Inverse transform added.
+
+	- Gaussian smoothing and interpolation by mex functions
+	to make it faster.
+
+	* Add matlab\ThirdPartyToolbox\ImGaussianToolbox: (0.1.0)
+
+	- MEX function: Fast Gaussian filtering of 1D, 2D greyscale 
+	/ color image or 3D image volume.
+
+	- By Dirk-Jan Kroon. Downloaded from 
+	http://uk.mathworks.com/matlabcentral/fileexchange/25397-imgaussian.
+
+
+	* Add matlab\ThirdPartyToolbox\Mirt3DMexinterpToolbox: (0.1.0)
+
+	- MEX function: Fast 3D linear interpolation of scalar or 	vector valued 3D images.
+
+	- By  Andriy Myronenko. Downloaded from 
+	http://uk.mathworks.com/matlabcentral/fileexchange/24177-3d-interpolation
+
+	* matlab/add_gerardus_paths.m: (0.3.2)
+
+	- ImGaussianToolbox and Mirt3DMexinterpToolbox added to the 	path.
+
 2015-02-12  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/dcm2scimat.m: (0.3.0)
