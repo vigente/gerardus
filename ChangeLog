@@ -1,3 +1,10 @@
+2015-02-25  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/get_gerardus_dependencies.m: (0.1.0)
+
+	- GET_GERARDUS_DEPENDENCIES Grab Gerardus files that a script
+	depends on.
+
 2015-02-24  Adam Szmul  <aszmul@gmail.com>
 
 	* matlab\RegistrationToolbox\regdemons.m: (0.1.2)
