@@ -1,3 +1,9 @@
+2015-02-25  Jo Bates <jobates81@gmail.com>
+
+	* Add matlab\DiffusionMRIToolbox\fit_DT_YHD_method.m: (0.1.0)
+
+	- fit diffusion tensor to dMRI data, using the Y=Hd method as described by Kingsley.
+
 2015-02-25  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/get_gerardus_dependencies.m: (0.1.0)
