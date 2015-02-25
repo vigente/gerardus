@@ -1,10 +1,9 @@
 function [I_interp, Tx, Ty, Tz, Txinv, Tyinv, Tzinv] = regdemons3d(I_rigid, I_mov, Tx, Ty, Tz, Txinv, Tyinv, Tzinv, iteration, range, sigma)
-
 % REGDEMONS Image registration using Thirion's Demons algorithm.
 %
 % This function implements the Demons algorithm in
 % Thirion, J.-P. (1998). Image matching as a diffusion process: an analogy
-% with Maxwell's demons. Medical Image Analysis, 2(3), 243–260.
+% with Maxwell's demons. Medical Image Analysis, 2(3), 243ï¿½260.
 %
 % [I_INTERP, TX, TY, TZ, TXINV, TYINV, TZINV] = REGDEMONS(I_RIGID, I_MOV, TX0, TY0, TZ0, TXINV0, TYINV0, TZINV0, ITERATION, HSIZE, SIGMA)
 %
@@ -34,10 +33,10 @@ function [I_interp, Tx, Ty, Tz, Txinv, Tyinv, Tzinv] = regdemons3d(I_rigid, I_mo
 %   TXINV, TYINV, TYINV are the inverse transform computed by the Demons algorithm.
 
 % Author: Adam Szmul <aszmul@gmail.com>
-% Copyright © 2015 University of Oxford
+% Copyright ï¿½ 2015 University of Oxford
 % Version: 0.1.1
-% $Rev: 1644 $
-% $Date: 2014-12-11 17:36:00 +0000 (Thu, 11 Dec 2014) $
+% $Rev$
+% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
