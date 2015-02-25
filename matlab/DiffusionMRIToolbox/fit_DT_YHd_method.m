@@ -29,8 +29,8 @@ function [DT, FA, ADC, EigVects, EigVals] = fit_DT_YHd_method(s, s0, dirdata, bd
 % Author: Joanne Bates <joanne.bates@eng.ox.ac.uk>
 % Copyright � 2015 University of Oxford
 % Version: 0.1.0
-% $Rev:  $
-% $Date:  $
+% $Rev$
+% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

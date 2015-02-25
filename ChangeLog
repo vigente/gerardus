@@ -1,3 +1,10 @@
+2015-02-25  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/DiffusionMRIToolbox/fit_DT_YHd_method.m: (0.1.0)
+	* matlab/RegistrationToolbox/regdemons3d.m: (0.1.1)
+
+	- Add missing subversion properties.
+
 2015-02-25  Jo Bates <jobates81@gmail.com>
 
 	* Add matlab\DiffusionMRIToolbox\fit_DT_YHD_method.m: (0.1.0)
