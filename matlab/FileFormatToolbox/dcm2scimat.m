@@ -30,7 +30,7 @@ function scimat = dcm2scimat(dcm, dcminfo)
 % Authors: Benjamin Villard <b.016434@gmail.com>,
 % Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.3.0
+% Version: 0.4.0
 % $Rev$
 % $Date$
 %
@@ -72,14 +72,94 @@ if (nargin == 1)
     dcminfo = dicominfo(filename);
 end
 
-%% image volume (Dicom Image)
-scimat.data = dcm;
+% check inputs
+if (size(dcm, 3) ~= size(dcminfo, 1))
+    error('Number of slices in DCM must be the same as number of rows in DCMINFO')
+end
+if (size(dcm, 4) ~= size(dcminfo, 2))
+    error('Number of frames in DCM must be the same as number of columns in DCMINFO')
+end
+
+% number of rows, columns, slices and frames
+NR = size(dcm, 1);
+NC = size(dcm, 2);
+NS = size(dcm, 3);
+NF = size(dcm, 4);
+
+%size of original position vector (should always be 3 for x,y,z)
+SV = size(dcminfo(1, 1).ImagePositionPatient, 1); 
+
+% Offset
+offset = dcminfo(1, 1).ImagePositionPatient;
+
+%% Check for uniform spacing
+% First make sure slices are ordered: 
+[~,locationOrder] = sort([dcminfo(:,1).SliceLocation]);
+dcminfo = dcminfo(locationOrder,:);
+dcm = dcm(:,:,locationOrder,:);
+
+% Check for uniformity in spacing 
+
+foo = zeros(SV, NS); % Pre-allocate space 
+
+% Store x,y,z position of upper left corner of image voxel (center of voxel) 
+% for all slices
+
+for I = 1:NS
+    foo(:, I) = dcminfo(I, 1).ImagePositionPatient(:); 
+end
+
+d = diff(foo, 1, 2); % get the difference between each point (x,y,z) in 
+                     % space from one slice to the next. 
+
+chkd = sqrt(sum(d.^2, 1)); % Get the norm between all the slices. (Norm of vectors)
+
+% Check if some slices are retaken, and if so, remove them
+idx = find(chkd ==0);
+chkd(idx) = [];
+dcm(:,:,idx,:) = [];
+dcminfo(:,:,idx,:) = [];
+
+% Check if same spacing between slices. % If No error is given then code
+% assumes volume is uniform and continues. 
+for R = 1:size(chkd,2)
+   
+    if round(chkd(R)) ~= round(mode(chkd))
+        error('Space between slices is non-uniform!')
+    end
+    
+end
+
+    
+
+%% Build scimat. 
+% At this point volume should be uniform. 
+
+%% rotation matrix [Builds Rotmat, and also checks if rotation matrix is orthonormal]. 
+rotmat = [ ...
+    dcminfo(1,1).ImageOrientationPatient(1:3),... % 1st column before transpose
+    dcminfo(1,1).ImageOrientationPatient(4:6),... % 2nd column
+    cross(dcminfo(1,1).ImageOrientationPatient(1:3), ... % 3rd column
+    dcminfo(1,1).ImageOrientationPatient(4:6)) ...
+    ]';
+
+% if (NS == 1) % one slice
+     
+% else % multiple slices    
+%     % 3rd column of rotation matrix (before transposing) scaled by the voxel
+%     % size
+%     rot3 = (dcminfo(end, 1).ImagePositionPatient ...
+%          - dcminfo(1, 1).ImagePositionPatient)'/(NS-1) * 1e-3;
+%     
+%     % voxel size in the slice dimension
+%     rot3 ./ rotmat(3, :)  
+% end
 
 %% image metadata
 scimat.axis(1).size = size(dcm,1);
 scimat.axis(2).size = size(dcm,2);
 scimat.axis(3).size = size(dcm,3);
-if (ndims(scimat.data) > 3)
+if (ndims(dcm) > 3)
     scimat.axis(4).size = size(dcm,4); 
 else
     scimat.axis(4).size = 1;
@@ -113,7 +193,7 @@ else
         end
     end
     %Check if data is temporal
-    if (ndims(scimat.data) > 3)
+    if (ndims(dcm) > 3)
         scimat.axis(4).spacing = dcminfo(1,2).TriggerTime * 1e-3; % units: seconds
     else
         scimat.axis(4).spacing = 1;
@@ -125,19 +205,26 @@ end
 % the slices. Also we assume notation is the following: data(rows,columns,slice,time). 
 % As slice position is equal throughout time, T = 1;  
 
-scimat.axis(1).min = dcminfo(1).ImagePositionPatient(2) * 1e-3 - scimat.axis(1).spacing/2; % min Y position of the left edge of the first voxel
-scimat.axis(2).min = dcminfo(1).ImagePositionPatient(1) * 1e-3 - scimat.axis(2).spacing/2; % min X position of the left edge of the first voxel
-scimat.axis(3).min = dcminfo(1).ImagePositionPatient(3) * 1e-3 - scimat.axis(3).spacing/2; % min Z position of the left edge of the first voxel
-if (ndims(scimat.data) > 3)
+scimat.axis(1).min = offset(2) * 1e-3 - scimat.axis(1).spacing/2; % min Y position of the left edge of the first voxel
+scimat.axis(2).min = offset(1) * 1e-3 - scimat.axis(2).spacing/2; % min X position of the left edge of the first voxel
+scimat.axis(3).min = offset(3) * 1e-3 - scimat.axis(3).spacing/2; % min Z position of the left edge of the first voxel
+if (ndims(dcm) > 3)
     scimat.axis(4).min = dcminfo(1,1).TriggerTime  * 1e-3;% min of Trigger time is 0.
 else
     scimat.axis(4).min = 0;% min of Trigger time is 0.
 end
 
-% Rotation Matrix. Same throughout space and time. 
-scimat.rotmat = [ dcminfo(1,1).ImageOrientationPatient(1:3),...
-    dcminfo(1,1).ImageOrientationPatient(4:6),...
-    cross(dcminfo(1,1).ImageOrientationPatient(1:3), ...
-    dcminfo(1,1).ImageOrientationPatient(4:6)) ]';
 
+
+
+%% create the scimat struct
+
+% image volume (Dicom Image)
+scimat.data = dcm;
+
+% Rotation Matrix. Same throughout space and time. 
+scimat.rotmat = rotmat;
+
+% Axis 
 scimat.axis = scimat.axis'; 
+
