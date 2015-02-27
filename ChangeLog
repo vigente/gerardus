@@ -1,3 +1,11 @@
+2015-02-27  Benjamin Villard  <b.016434@gmail.com>
+
+	* matlab/FileFormatToolbox/dcm2scimat.m: (0.4.0)
+
+	- Changed dcm2scimat to check for uniform spacing between the 
+	different slices given in the input. If non uniform dataset, 
+	a volume will not be produced, and an error will be given.
+ 
 2015-02-25  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/DiffusionMRIToolbox/fit_DT_YHd_method.m: (0.1.0)
