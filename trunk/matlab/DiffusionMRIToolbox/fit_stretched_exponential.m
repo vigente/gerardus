@@ -1,4 +1,4 @@
-function [AA, FD, gamma_all, A_all] = fit_stretched_exponential(I0, Ihigh, bval0, bvalhigh, mask)
+function [AA, FD, gamma_all, A_all, Npoints] = fit_stretched_exponential(I0, Ihigh, bval0, bvalhigh, mask, noise_thresh)
 % FIT_STRETCHED_EXPONENTIAL    Fit the stretched exponential model of 
 % diffusion to an image
 %
@@ -20,6 +20,8 @@ function [AA, FD, gamma_all, A_all] = fit_stretched_exponential(I0, Ihigh, bval0
 %       IHIGH is the attenuated images [row col slice direction shell]
 %           E.g. if you have 21 different directions and 3 shells, the data
 %           size would be [r c s 21 3]
+%           The function assumes the shells are in ascending order of
+%           b-value.
 %       BVAL0 is the b-matrix of I0, of size [3 3 rep]
 %       BVALHIGH is the b-matrix of Ihigh, of size [3 3 direction shell]
 %       MASK is the mask of voxels that you want to be fit with
@@ -28,20 +30,27 @@ function [AA, FD, gamma_all, A_all] = fit_stretched_exponential(I0, Ihigh, bval0
 %           using a nonlinear regression with bounds on parameters (very 
 %           slow). I have found that the nonlinear fit changes the AA and 
 %           FD by 2-3% in 3-shell data. (optional)
+%       NOISE_THRESH is the noise threshold for fitting the model. Only
+%           points in IHIGH that are above this value will be fit - the
+%           others will be ignored. For example, in fluid only the 
+%           innermost shells will be above the noise floor, so we only fit 
+%           them. But in tissue, more shells will be above the noise floor. 
+%           See the output variable NPOINTS. (optional, but recommended)
 %     
 %   Outputs:
 %       AA is Anomalous Anisotropy [r c s]
 %       FD is Fractal Dimension [r c s]
 %       GAMMA_ALL are the coefficients of gamma [r c s dir]
 %       A_ALL are the coefficients of A [r c s dir]
-%       
+%       NPOINTS is the number of fit shells at each voxel (see Hall 2008 
+%           Figure 3e)       
 %
 %   See also fit_DT
 
 
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.2
+% Version: 0.1.3
 % $Rev$
 % $Date$
 % 
@@ -69,22 +78,35 @@ function [AA, FD, gamma_all, A_all] = fit_stretched_exponential(I0, Ihigh, bval0
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(4, 5);
-nargoutchk(0, 4);
+narginchk(4, 6);
+nargoutchk(0, 5);
 
-if nargin < 5
+if (nargin < 5) || isempty(mask)
     mask = 0;
+else
+    mask = mask == 1; % convert to logical
 end
 
+sz = size(Ihigh);
+
+if (nargin < 6) || isempty(noise_thresh)
+   % assume there is just air in the top left corner
+    noise_thresh = mean(mean(mean(Ihigh(1:min(sz(1),10), 1:min(sz(2),10), 1:min(sz(3),10), 1,1))));
+end
 
 I0_mean = mean(I0, 4);
 
-sz = size(Ihigh);
 
 gamma_all = zeros(sz(1:4));
 A_all = zeros(sz(1:4));
 
 %mask = (I0_mean > 2E4) & (I0_mean ./ Ihigh(:,:,:,1,1) < 3);
+
+
+% as in Hall 2008, we only want to fit the linear regression where we
+% are above the noise floor
+Imin = min(Ihigh, [], 4);
+Npoints = sum(Imin > noise_thresh, 5);
 
 for dir = 1:sz(4) % for each direction
 
@@ -101,14 +123,25 @@ for dir = 1:sz(4) % for each direction
     
     Ivector = reshape(I_dir, [prod(sz(1:3)), sz(5)]);
     
-    % take the log for linear fitting
-    loglogsig = log(abs(log(Ivector)));
-    logb = log(b);
+    coeff = zeros(prod(sz(1:3)), 2);
+    
+    for n = 2:max(Npoints(:)) % n = number of points for linear fitting
+        idx = Npoints(:) == n;
+        
+        % take the log for linear fitting
+        loglogsig = log(abs(log(Ivector(idx, 1:n))));
+        logb = log(b(1:n));
 
-    b_array = [logb(:), ones(size(logb(:)))];
+        b_array = [logb(:), ones(size(logb(:)))];
 
-    % fit the linear model
-    coeff = (b_array \ loglogsig')';
+        % alternatively, fit the linear model using a weighted fit
+    %     w = zeros(3);
+    %     w(1,1) = 1;
+    %     w(2,2) = 0.5;
+    %     w(3,3) = 0.1;
+    %     coeff(idx,:) = (pinv(b_array' * (w.^2) * b_array) * b_array' * (w.^2) * (loglogsig'))';
+        coeff(idx, :) = (b_array \ loglogsig')';
+    end
     
     if max(mask(:)) == 1 % if the mask is not empty
     
@@ -127,8 +160,13 @@ for dir = 1:sz(4) % for each direction
         new_coeffs = zeros(size(Ivector,1), 3);
         old_coeffs = coeff(mask(:),:);
 
+        s = matlabpool('size');
+        if (s == 0) && (size(new_coeffs,1) > 100) % if there is a decent number of voxels
+            disp('Open matlab pool to use parallel processing')
+        end
+        
         parfor i = 1:size(new_coeffs,1)
-            disp(i)
+            
             x_guess = double([old_coeffs(i,1), exp(old_coeffs(i,2)), Ivector(i,1)]);
 
             modelfun = @(x) x(3) .* exp(- x(2) * (b.^x(1))) - Ivector(i,:);

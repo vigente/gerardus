@@ -1,4 +1,4 @@
-function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, method)
+function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, method, weighting)
 % FIT_DT    Fits the diffusion tensor model voxelwise to an image
 %           S = S0 exp(-bD)
 %
@@ -17,12 +17,16 @@ function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, metho
 %   alternatively be a mask of voxels to process.
 %
 %   METHOD is a string, and can take the following values:
-%       'linear' fits the tensor in the log domain
+%       'linear' fits the tensor in the log domain (default, recommended)
 %       'linear_constrained' also fits in the log domain, constrained
 %                            to be non-negative
 %       'nonlinear' fits in the signal domain
 %       'nonlinear_constrained' fits in the signal domain, constrained to
 %       be non-negative
+%
+%   WEIGHTING can be used to do a weighted linear tensor fit. It must be
+%   a vector of length N. This can help to minimise artefacts from linear
+%   fitting. (optional, not needed if SNR is good)
 %
 % Outputs:
 %
@@ -47,7 +51,7 @@ function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, metho
     
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright � 2014 University of Oxford
-% Version: 0.1.6
+% Version: 0.1.7
 % $Rev$
 % $Date$
 % 
@@ -75,15 +79,26 @@ function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, metho
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(2, 4);
+narginchk(2, 5);
 nargoutchk(0, 5);
+
+sz = size(im);
 
 if nargin < 3
     thresh_val = -inf;
 end
 
-if nargin < 4 % default method is linear least squares
+if (nargin < 4) || isempty(method)% default method is linear least squares
     method = 'linear';
+end
+
+perform_weighting = false;
+if nargin > 4
+    perform_weighting = true;
+    if length(weighting) ~= sz(end)
+        disp('Weighting vector is wrong length')
+        perform_weighting = false;
+    end
 end
 
 % check that a valid method has been given
@@ -92,7 +107,7 @@ if ~max([strcmp(method, 'linear'), strcmp(method, 'constrained_linear'),...
     disp('Unrecognised method, performing fast linear fitting')
 end
 
-sz = size(im);
+
 
 % handle a vector with the wrong orientation
 if (length(sz) == 2) && (sz(2) == 1)
@@ -124,6 +139,21 @@ imlog = reshape(imlog, [prod(sz(1:end-1)), sz(end)]);
 
 % Fit the tensor model (linear, unconstrained)
 M = (Bv \ -imlog')';
+
+% This is the same as (pinv(Bv) * (-imlog'))';
+% also same as (pinv(Bv' * Bv) * Bv' * (-imlog'))';
+% weighting (NxN) goes   ^ here      ^ and here
+if perform_weighting
+
+    W = eye(length(Bv));
+    W(W == 1) = weighting(:);
+    % weighted fit
+
+    M = (pinv(Bv' * (W.^2) * Bv) * Bv' * (W.^2) * (-imlog'))';
+end
+
+
+
 
 % if we want a different fit, here they are:
 if strcmp(method, 'constrained_linear')
