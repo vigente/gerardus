@@ -1,3 +1,13 @@
+2015-03-06  Benjamin Villard  <b.016434@gmail.com>
+	
+	* matlab/ThirdPartyToolbox/InfoTheoryToolbox
+	
+	- Added Information Theory toolbox provided on MATLAB Central by Michael Chen. 
+	This toolbox contains various matlab files to compute nmi (normalized mutual information),
+	and different entropy measures. File was obtained here: 
+	
+	http://uk.mathworks.com/matlabcentral/fileexchange/35625-information-theory-toolbox/content/nmi.m
+
 2014-03-06  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* matlab/DiffusionMRIToolbox/fit_DT.m (0.1.7)
