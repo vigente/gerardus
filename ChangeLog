@@ -1,3 +1,15 @@
+2014-03-06  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* matlab/DiffusionMRIToolbox/fit_DT.m (0.1.7)
+
+	- Can now perform a weighted linear tensor fit
+
+	* matlab/DiffusionMRIToolbox/fit_stretched_exponential.m (0.1.3)
+
+	- Now only fits the voxels that are above the noise floor (extra
+	input argument for noise threshold, and output argument for number
+	of shells fitted in each voxel).
+
 2015-02-27  Benjamin Villard  <b.016434@gmail.com>
 
 	* matlab/FileFormatToolbox/dcm2scimat.m: (0.4.0)
