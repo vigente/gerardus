@@ -1,4 +1,4 @@
-function scimat = dcm2scimat(dcm, dcminfo)
+function scimat = dcm2scimat(dcm, dcminfo,'mode')
 % DCM2SCIMAT  Load DICOM file or convert DICOM image data into SCIMAT
 % format.
 %
@@ -24,6 +24,17 @@ function scimat = dcm2scimat(dcm, dcminfo)
 %   DCMINFO is a matrix of structs. DCMINFO(slice, time frame) contains the
 %   metainformation for the corresponding slice and time frame in the data
 %   set.
+%   
+%   MODE is a string. The string can take on two options:
+%                         'volume': Creates a uniform volume 
+%                         'slice': Creates multiple scimat files of the
+%                         form: 
+%                                 scimat(s).data(:,:,1,:)
+%                                 scimat(s).axis(:,:,1,:)
+%                                 scimat(s).rotmat
+%                                     
+%    Note: If the volume is non uniform, the program automatically
+%    executes as a slice method. 
 % 
 % See also: scimat.m.
 
@@ -61,7 +72,7 @@ function scimat = dcm2scimat(dcm, dcminfo)
 % <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(1, 2);
+narginchk(1, 3);
 nargoutchk(0, 1);
 
 % if the user provides only one input argument, we assume that it is a
@@ -80,6 +91,7 @@ if (size(dcm, 4) ~= size(dcminfo, 2))
     error('Number of frames in DCM must be the same as number of columns in DCMINFO')
 end
 
+
 % number of rows, columns, slices and frames
 NR = size(dcm, 1);
 NC = size(dcm, 2);
@@ -92,6 +104,8 @@ SV = size(dcminfo(1, 1).ImagePositionPatient, 1);
 % Offset
 offset = dcminfo(1, 1).ImagePositionPatient;
 
+if strcompi(varargin{3},'volume')
+   
 %% Check for uniform spacing
 % First make sure slices are ordered: 
 [~,locationOrder] = sort([dcminfo(:,1).SliceLocation]);
@@ -130,7 +144,7 @@ for R = 1:size(chkd,2)
     
 end
 
-    
+end   
 
 %% Build scimat. 
 % At this point volume should be uniform. 
