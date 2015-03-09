@@ -1,3 +1,9 @@
+2015-03-09  Benjamin Villard  <b.016434@gmail.com>
+	
+	* matlab/FiltersToolbox/scimat_ndgrid
+	
+	- Modified scimat_ndgrid to allow for 2d->4D inputs.  
+
 2014-03-09  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* add matlab/test/test_tensor_fitting_methods.m (0.1.1)

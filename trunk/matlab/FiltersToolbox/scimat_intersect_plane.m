@@ -134,7 +134,7 @@ switch interp
         xi = grcs(1, idxin);
         yi = grcs(2, idxin);
         zi = grcs(3, idxin);
-        im(idxin) = interp3(scimat.data, yi, xi, zi, interp);
+        im(idxin) = interpn(scimat.data, yi, xi, zi, interp);
     otherwise
         error('Interpolation method not implemented')
 end
