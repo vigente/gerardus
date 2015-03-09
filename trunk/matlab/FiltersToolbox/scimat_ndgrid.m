@@ -1,10 +1,10 @@
-function [xg, yg, zg] = scimat_ndgrid(scimat, ri, ci, si)
-% SCIMAT_NDGRID  Generation of arrays for 3D SCIMAT image volumes.
+function [xg, yg, zg, tg] = scimat_ndgrid(scimat, ri, ci, si, fi)
+% SCIMAT_NDGRID  Generation of arrays for 2D to 4D SCIMAT image volumes.
 %
-% [XG, YG, ZG] = scimat_ndgrid(SCIMAT)
+% [XG, YG, ZG] = scimat_ndgrid(SCIMAT,RI,CI,SI,FI)
 %
 %   SCIMAT is a struct with an image volume (see "help scimat" for
-%   details).
+%   details). 
 %
 %   XG, YG, ZG are arrays with the x-, y-, z-coordinates of the voxels in
 %   SCIMAT.
@@ -12,18 +12,19 @@ function [xg, yg, zg] = scimat_ndgrid(scimat, ri, ci, si)
 %   Note that XG values change with columns, and YG values change with
 %   rows, to accommodate the usual coordinate frame convention.
 %
-% [XG, YG, ZG] = scimat_ndgrid(SCIMAT, RI, CI, SI)
+% [XG, YG, ZG] = scimat_ndgrid(SCIMAT, RI, CI, SI, FI)
 %
-%   RI, CI, SI are vectors of voxel indices (rows, columns and slices). The
-%   output grid will be generated only for the corresponding image block.
+%   RI, CI, SI, FI are vectors of voxel indices (rows, columns, slices and frames). 
+%   The output grid will be generated only for the corresponding image block.
 %   For example, RI=1:4, CI=3:6, SI=5:7 means that the grid of coordinates
 %   will be generated only for the block of voxels (1:4, 3:6, 5:7).
 %
-% See also: ndgrid.
+% See also: ndgrid and scimat_index2world.
 
 % Author: Ramon Casero <rcasero@gmail.com>
+% Modified by Ben Villard <b.016434@gmail.com>
 % Copyright © 2010,2014 University of Oxford
-% Version: 0.3.0
+% Version: 0.4.0
 % $Rev$
 % $Date$
 % 
@@ -51,31 +52,58 @@ function [xg, yg, zg] = scimat_ndgrid(scimat, ri, ci, si)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(1, 4);
-nargoutchk(0, 3);
+D = length(scimat.axis);
+narginchk(1, 5);
+nargoutchk(0, D);
 
-% squeeze the non-used first dimension of data
-scimat = scimat_squeeze(scimat);
+% simplify notation
+NR = size(scimat.data, 1);
+NC = size(scimat.data, 2);
+NS = size(scimat.data, 3);
+NF = size(scimat.data, 4);
 
-% defaults
+% defaults 
 if (nargin < 2 || isempty(ri))
-    ri = 1:size(scimat.data, 1);
+    ri = 1:NR; % Creates indices of data length (rows).
 end
 if (nargin < 3 || isempty(ci))
-    ci = 1:size(scimat.data, 2);
+    ci = 1:NC; % Creates indices of data length (columns).
 end
 if (nargin < 4 || isempty(si))
-    si = 1:size(scimat.data, 3);
+    si = 1:NS; % Creates indices of data length (number of slices).
+end
+if (nargin < 5 || isempty(fi))
+    fi = 1:NF; % Creates indices of data length (number of time frames).
 end
 
-% local variables
-res = [scimat.axis.spacing];
+% generate 3D grid of coordinates. X and Y have to be swapped so that the
+% grid has the right number of rows and columns
+if (D == 2)
+    
+    [rg, cg] = ndgrid(ri, ci);
+    xyzt = scimat_index2world([rg(:), cg(:)], scimat); % Converts indicies to world coordinates
+    xg = reshape(xyzt(:, 1), size(rg));
+    yg = reshape(xyzt(:, 2), size(cg));
+  
+elseif (D == 3)
+    
+    [rg, cg, sg] = ndgrid(ri, ci, si);
+    xyzt = scimat_index2world([rg(:), cg(:), sg(:)], scimat);% Converts indicies to world coordinates
+    xg = reshape(xyzt(:, 1), size(rg));
+    yg = reshape(xyzt(:, 2), size(cg));
+    zg = reshape(xyzt(:, 3), size(sg));
+  
+elseif (D == 4)
+    [rg, cg, sg, fg] = ndgrid(ri, ci, si, fi);
+    xyzt = scimat_index2world([rg(:), cg(:), sg(:), fg(:)], scimat);% Converts indicies to world coordinates
+    xg = reshape(xyzt(:, 1), size(rg));
+    yg = reshape(xyzt(:, 2), size(cg));
+    zg = reshape(xyzt(:, 3), size(sg));
+    tg = reshape(xyzt(:, 4), size(fg));
+    
+else
+    error('Wrong number of dimensions in scimat.data')
+end
 
-% convert indices to real world coordinates
-r = (ri - 1) * res(1) + scimat.axis(1).min + res(1)/2;
-c = (ci - 1) * res(2) + scimat.axis(2).min + res(2)/2;
-s = (si - 1) * res(3) + scimat.axis(3).min + res(3)/2;
 
-% generate 3D grid of coordinates: note the inversion of coordinates,
-% necessary so that xg will change with columns, and yg with rows
-[yg, xg, zg] = ndgrid(r, c, s);
+end
