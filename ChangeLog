@@ -1,3 +1,9 @@
+2014-03-09  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* add matlab/test/test_tensor_fitting_methods.m (0.1.1)
+
+	- Compares two methods of fitting the diffusion tensor to simulated data
+
 2015-03-06  Benjamin Villard  <b.016434@gmail.com>
 	
 	* matlab/ThirdPartyToolbox/InfoTheoryToolbox
