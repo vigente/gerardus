@@ -19,12 +19,12 @@ function [xg, yg, zg, tg] = scimat_ndgrid(scimat, ri, ci, si, fi)
 %   For example, RI=1:4, CI=3:6, SI=5:7 means that the grid of coordinates
 %   will be generated only for the block of voxels (1:4, 3:6, 5:7).
 %
-% See also: ndgrid and scimat_index2world.
+% See also: ndgrid, scimat_index2world.
 
-% Author: Ramon Casero <rcasero@gmail.com>
-% Modified by Ben Villard <b.016434@gmail.com>
-% Copyright © 2010,2014 University of Oxford
-% Version: 0.4.0
+% Author(s): Ramon Casero <rcasero@gmail.com>,
+% Ben Villard <b.016434@gmail.com>
+% Copyright © 2010-2015 University of Oxford
+% Version: 0.4.1
 % $Rev$
 % $Date$
 % 
@@ -81,21 +81,21 @@ end
 if (D == 2)
     
     [rg, cg] = ndgrid(ri, ci);
-    xyzt = scimat_index2world([rg(:), cg(:)], scimat); % Converts indicies to world coordinates
+    xyzt = scimat_index2world([rg(:), cg(:)], scimat); % Converts indices to world coordinates
     xg = reshape(xyzt(:, 1), size(rg));
     yg = reshape(xyzt(:, 2), size(cg));
   
 elseif (D == 3)
     
     [rg, cg, sg] = ndgrid(ri, ci, si);
-    xyzt = scimat_index2world([rg(:), cg(:), sg(:)], scimat);% Converts indicies to world coordinates
+    xyzt = scimat_index2world([rg(:), cg(:), sg(:)], scimat);% Converts indices to world coordinates
     xg = reshape(xyzt(:, 1), size(rg));
     yg = reshape(xyzt(:, 2), size(cg));
     zg = reshape(xyzt(:, 3), size(sg));
   
 elseif (D == 4)
     [rg, cg, sg, fg] = ndgrid(ri, ci, si, fi);
-    xyzt = scimat_index2world([rg(:), cg(:), sg(:), fg(:)], scimat);% Converts indicies to world coordinates
+    xyzt = scimat_index2world([rg(:), cg(:), sg(:), fg(:)], scimat);% Converts indices to world coordinates
     xg = reshape(xyzt(:, 1), size(rg));
     yg = reshape(xyzt(:, 2), size(cg));
     zg = reshape(xyzt(:, 3), size(sg));

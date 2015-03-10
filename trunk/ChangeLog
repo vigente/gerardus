@@ -1,5 +1,10 @@
 2015-03-10  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat_ndgrid.m: (0.4.1)
+
+	- Small changes. Fix copyright date, Ben as author ("Modified by"
+	is for third party software), typos.
+
 	* matlab/FileFormatToolbox/dcm2scimat.m: (0.4.1)
 
 	- Rename variable "foo" as "pos". foo (and bar) are "placeholder
@@ -12,10 +17,10 @@
 	- Add note to point at Jo's alternative method fit_DT_YHd_method.
 
 2015-03-09  Benjamin Villard  <b.016434@gmail.com>
-	
-	* matlab/FiltersToolbox/scimat_ndgrid
-	
-	- Modified scimat_ndgrid to allow for 2d->4D inputs.  
+
+	* matlab/FiltersToolbox/scimat_ndgrid: ()
+
+	- Modified scimat_ndgrid to allow for 2d->4D inputs.
 
 2014-03-09  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
@@ -24,13 +29,14 @@
 	- Compares two methods of fitting the diffusion tensor to simulated data
 
 2015-03-06  Benjamin Villard  <b.016434@gmail.com>
-	
-	* matlab/ThirdPartyToolbox/InfoTheoryToolbox
-	
-	- Added Information Theory toolbox provided on MATLAB Central by Michael Chen. 
-	This toolbox contains various matlab files to compute nmi (normalized mutual information),
-	and different entropy measures. File was obtained here: 
-	
+
+	* Add matlab/ThirdPartyToolbox/InfoTheoryToolbox
+
+	- Added Information Theory toolbox provided on MATLAB Central by
+	Michael Chen.  This toolbox contains various matlab files to
+	compute nmi (normalized mutual information), and different entropy
+	measures. File was obtained here:
+
 	http://uk.mathworks.com/matlabcentral/fileexchange/35625-information-theory-toolbox/content/nmi.m
 
 2014-03-06  Darryl McClymont  <darryl.mcclymont@gmail.com>
@@ -49,10 +55,10 @@
 
 	* matlab/FileFormatToolbox/dcm2scimat.m: (0.4.0)
 
-	- Changed dcm2scimat to check for uniform spacing between the 
-	different slices given in the input. If non uniform dataset, 
-	a volume will not be produced, and an error will be given.
- 
+	- Changed dcm2scimat to check for uniform spacing between the
+	different slices given in the input. If non uniform dataset, a
+	volume will not be produced, and an error will be given.
+
 2015-02-25  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/DiffusionMRIToolbox/fit_DT_YHd_method.m: (0.1.0)
