@@ -46,11 +46,13 @@ function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, metho
 % because log(1) = 0. In this case, just scale the whole thing up. The
 % function is invariant to scaling, other than S0 of course.
 %
-% See also dt2image
+% An alternative method is implemented in fit_DT_YHd_method.
+%
+% See also dt2image.
 
     
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
-% Copyright � 2014 University of Oxford
+% Copyright © 2014-2015 University of Oxford
 % Version: 0.1.7
 % $Rev$
 % $Date$

@@ -1,3 +1,9 @@
+2015-03-10  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/DiffusionMRIToolbox/fit_DT.m: (0.1.8)
+
+	- Add note to point at Jo's alternative method fit_DT_YHd_method.
+
 2015-03-09  Benjamin Villard  <b.016434@gmail.com>
 	
 	* matlab/FiltersToolbox/scimat_ndgrid
