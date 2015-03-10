@@ -41,7 +41,7 @@ function scimat = dcm2scimat(dcm, dcminfo,'mode')
 % Authors: Benjamin Villard <b.016434@gmail.com>,
 % Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.1
 % $Rev$
 % $Date$
 %
@@ -114,16 +114,16 @@ dcm = dcm(:,:,locationOrder,:);
 
 % Check for uniformity in spacing 
 
-foo = zeros(SV, NS); % Pre-allocate space 
+pos = zeros(SV, NS); % Pre-allocate space 
 
 % Store x,y,z position of upper left corner of image voxel (center of voxel) 
 % for all slices
 
 for I = 1:NS
-    foo(:, I) = dcminfo(I, 1).ImagePositionPatient(:); 
+    pos(:, I) = dcminfo(I, 1).ImagePositionPatient(:); 
 end
 
-d = diff(foo, 1, 2); % get the difference between each point (x,y,z) in 
+d = diff(pos, 1, 2); % get the difference between each point (x,y,z) in 
                      % space from one slice to the next. 
 
 chkd = sqrt(sum(d.^2, 1)); % Get the norm between all the slices. (Norm of vectors)
