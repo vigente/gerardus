@@ -18,7 +18,11 @@
 
 2015-03-09  Benjamin Villard  <b.016434@gmail.com>
 
-	* matlab/FiltersToolbox/scimat_ndgrid: ()
+	* matlab/FiltersToolbox/scimat_intersect_plane.m: (0.4.3)
+
+	- Replace interp3 by interpn.
+
+	* matlab/FiltersToolbox/scimat_ndgrid: (0.4.0)
 
 	- Modified scimat_ndgrid to allow for 2d->4D inputs.
 
