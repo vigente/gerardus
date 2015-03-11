@@ -1,4 +1,4 @@
-function scimat = dcm2scimat(dcm, dcminfo,'mode')
+function scimat = dcm2scimat(dcm, dcminfo,mode)
 % DCM2SCIMAT  Load DICOM file or convert DICOM image data into SCIMAT
 % format.
 %
@@ -41,7 +41,7 @@ function scimat = dcm2scimat(dcm, dcminfo,'mode')
 % Authors: Benjamin Villard <b.016434@gmail.com>,
 % Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.4.1
+% Version: 0.4.2
 % $Rev$
 % $Date$
 %
@@ -104,7 +104,7 @@ SV = size(dcminfo(1, 1).ImagePositionPatient, 1);
 % Offset
 offset = dcminfo(1, 1).ImagePositionPatient;
 
-if strcompi(varargin{3},'volume')
+if strcmpi(mode,'volume')
    
 %% Check for uniform spacing
 % First make sure slices are ordered: 

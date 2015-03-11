@@ -48,7 +48,7 @@ function tfc = elastix_compose_afftransf(tf1, tf2)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.2.2
+% Version: 0.2.3
 % $Rev$
 % $Date$
 % 
@@ -81,16 +81,16 @@ nargoutchk(0, 1);
 
 % if one of the transforms is empty, the composition returns the other
 % transform
-if (isempty(tf1.Transform))
+if (isempty(tf1) || (isstruct(tf1) && isempty(tf1.Transform)))
     tfc = tf2;
     return
-elseif (isempty(tf2.Transform))
+elseif (isempty(tf2) || (isstruct(tf2) && isempty(tf2.Transform)))
     tfc = tf1;
     return
 end
 
-if (~strcmp(tf1.HowToCombineTransforms, 'Compose') ...
-        || ~strcmp(tf2.HowToCombineTransforms, 'Compose'))
+if ((isstruct(tf1) && ~strcmp(tf1.HowToCombineTransforms, 'Compose')) ...
+        || (isstruct(tf2) && ~strcmp(tf2.HowToCombineTransforms, 'Compose')))
     error('HowToCombineTransforms must be ''Compose''')
 end
 
