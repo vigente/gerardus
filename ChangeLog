@@ -1,3 +1,13 @@
+2015-03-11  Benjamin Villard  <b.016434@gmail.com>
+
+	* matlab/ItkToolbox/elastix_compose_afftransf(0.2.3)
+
+	- corrected for minor bug to allow non struct inputs.
+	
+	* matlab/FiltersToolbox/dcm2scimat(0.2.4)
+	
+	- changed small error that checks for mode input.
+	
 2015-03-10  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/scimat_ndgrid.m: (0.4.1)
