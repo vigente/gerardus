@@ -46,9 +46,10 @@ function [im, gx, gy, gz, midx] = scimat_intersect_plane(scimat, m, v, interp)
 %     'nn' (default): nearest neighbour. Good for binary segmentation masks
 %     'linear': linear interpolation. Good for grayscale images
 
-% Authors: Ramon Casero <rcasero@gmail.com>, Pablo Lamata <pablo.lamata@dpag.ox.ac.uk>
-% Copyright © 2010-2014 University of Oxford
-% Version: 0.4.2
+% Authors: Ramon Casero <rcasero@gmail.com>, 
+% Pablo Lamata <pablo.lamata@dpag.ox.ac.uk>
+% Copyright © 2010-2015 University of Oxford
+% Version: 0.4.3
 % $Rev$
 % $Date$
 % 
