@@ -1,3 +1,18 @@
+2014-03-12  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* add matlab/DiffusionMRIToolbox/weighted_linear_fit.m (0.1.0)
+
+	- WEIGHTED_LINEAR_FIT fits the function Y = MX (matrices) such that the
+	residuals follow a gaussian distribution after having a certain function
+	applied to them. It is good when you have a nonlinear function that you 
+	can easily linearise, but you want a result closer to the nonlinear fit,
+	and you don’t know what weighting vector to use.
+
+	* matlab/DiffusionMRIToolbox/fit_stretched_exponential.m (0.1.4)
+
+	- Now uses weighted linear fit (see above). Also now has extra output for
+	S0. Jacobian is now used in non-linear fitting, speeding this up by around 20%.
+
 2015-03-11  Benjamin Villard  <b.016434@gmail.com>
 
 	* matlab/ItkToolbox/elastix_compose_afftransf(0.2.3)
