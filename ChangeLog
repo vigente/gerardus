@@ -1,3 +1,10 @@
+2014-03-23  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* add matlab/DiffusionMRIToolbox/fit_biexponential_tensor.m (0.1.1)
+
+	- Fits the function: S = S0_fast * e^(b*D_fast) + S0_slow e^(b*D_slow)
+	That is, two tensors on top of each other.
+
 2014-03-12  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* add matlab/DiffusionMRIToolbox/weighted_linear_fit.m (0.1.0)
