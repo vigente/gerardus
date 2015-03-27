@@ -47,7 +47,7 @@ function tfc = elastix_compose_afftransf(tf1, tf2)
 % See also: elastix, transformix, elastix_transf_imcoord2.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
+% Copyright © 2014-2015 University of Oxford
 % Version: 0.2.3
 % $Rev$
 % $Date$
