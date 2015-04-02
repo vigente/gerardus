@@ -17,12 +17,9 @@ function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, metho
 %   alternatively be a mask of voxels to process.
 %
 %   METHOD is a string, and can take the following values:
-%       'linear' fits the tensor in the log domain (default, recommended)
-%       'linear_constrained' also fits in the log domain, constrained
-%                            to be non-negative
-%       'nonlinear' fits in the signal domain
-%       'nonlinear_constrained' fits in the signal domain, constrained to
-%       be non-negative
+%       'linear' fits the tensor in the log domain (default)
+%       'nonlinear' fits the tensor in the signal domain (recommended for
+%       high b-values or when SNR is low)
 %
 %   WEIGHTING can be used to do a weighted linear tensor fit. It must be
 %   a vector of length N. This can help to minimise artefacts from linear
@@ -39,12 +36,9 @@ function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, metho
 %   VECTORFIELD is the primary, secondary and tertiary unit vectors, concatenated
 %	in the last dimension
 %
-%	EigVals are the eigenvalues corresponding to the vector field, concatenated
+%	EIGVALS are the eigenvalues corresponding to the vector field, concatenated
 %	in the last dimension
 %
-% Known limitations: linear constrained version won't work with 0 < S0 < 1,
-% because log(1) = 0. In this case, just scale the whole thing up. The
-% function is invariant to scaling, other than S0 of course.
 %
 % An alternative method is implemented in fit_DT_YHd_method.
 %
@@ -53,7 +47,7 @@ function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, metho
     
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.1.7
+% Version: 0.1.8
 % $Rev$
 % $Date$
 % 
@@ -104,8 +98,7 @@ if nargin > 4
 end
 
 % check that a valid method has been given
-if ~max([strcmp(method, 'linear'), strcmp(method, 'constrained_linear'),...
-        strcmp(method, 'nonlinear'), strcmp(method, 'constrained_nonlinear')])
+if ~max([strcmp(method, 'linear'), strcmp(method, 'nonlinear')])
     disp('Unrecognised method, performing fast linear fitting')
 end
 
@@ -141,6 +134,13 @@ imlog = reshape(imlog, [prod(sz(1:end-1)), sz(end)]);
 
 % Fit the tensor model (linear, unconstrained)
 M = (Bv \ -imlog')';
+% IDX = kmeans(imlog, 3);
+% M = zeros(size(imlog,1), 7);
+% for i = 1:3
+%     disp(num2str(i))
+%     M(IDX == i, :) = weighted_linear_fit(-imlog(IDX == i,:), Bv', @(z)exp(-z));
+% end
+%M = weighted_linear_fit(-imlog, Bv', @(z)exp(-z));
 
 % This is the same as (pinv(Bv) * (-imlog'))';
 % also same as (pinv(Bv' * Bv) * Bv' * (-imlog'))';
@@ -154,57 +154,54 @@ if perform_weighting
     M = (pinv(Bv' * (W.^2) * Bv) * Bv' * (W.^2) * (-imlog'))';
 end
 
-
-
-
-% if we want a different fit, here they are:
-if strcmp(method, 'constrained_linear')
-    
-    % right now this uses lsqnonneg, which is a bit slow. If necessary,
-    % this can be replaced by a faster constrained solver, like mexLasso in
-    % the sparse decomposition toolbox with sparsity = 0
-    for i = 1:size(M,1)
-        M(i,:) = lsqnonneg(Bv, -imlog(i,:)')';
-    end
- elseif strcmp(method, 'nonlinear')
-    imvector = reshape(im, [prod(sz(1:end-1)), sz(end)]);
-    modelfun = @(x,Bv) exp(-(x(1) * Bv(:,1) + x(2) * Bv(:,2) + ...
-            x(3) * Bv(:,3) + x(4) * Bv(:,4) + x(5) * Bv(:,5) + ...
-            x(6) * Bv(:,6) + x(7) * Bv(:,7)));
-    % we have to fit the model inside a loop because it can't be linearised
-    % note that here we could have alternatively used lsqnonlin, but I
-    % think that nlinfit is slightly faster
-    for i = 1:size(M,1)
-        x0 = M(i,:);
-        M(i,:) = nlinfit(Bv, imvector(i,:)', modelfun, x0);
-    end
-elseif strcmp(method, 'constrained_nonlinear')
-    imvector = reshape(im, [prod(sz(1:end-1)), sz(end)]);
-    options = optimset('display','off');
-    lb = zeros(1,7);% lower bounds are all zero
-    ub = zeros(1,7) + inf; % upper bounds are all inf
-    for i = 1:size(M,1)
-        
-        % this needs to be in the loop because it relies on i as well as x
-        modelfun = @(x) exp(-(x(1) * Bv(:,1) + x(2) * Bv(:,2) + ...
-                x(3) * Bv(:,3) + x(4) * Bv(:,4) + x(5) * Bv(:,5) + ...
-                x(6) * Bv(:,6) + x(7) * Bv(:,7)))...
-                - imvector(i, :)';
-            
-        x0 = M(i,:);
-        M(i,:) = lsqnonlin(modelfun, abs(x0), lb, ub, options);
-    end  
-end
-
 % convert log(S0) to S0
 M(:,7) = exp(M(:,7));
+M(isnan(M)) = 0;
+M(isinf(M)) = 0;
+
+% perform nonlinear fitting (if required)
+if strcmp(method, 'nonlinear')
+
+    I_vector = reshape(im, [prod(sz(1:end-1)), sz(end)]);
+    
+    if isscalar(thresh_val)
+        thresh_val = I_vector(:,1) > thresh_val;
+    else
+        thresh_val = logical(thresh_val);
+    end
+    
+    % declare variables for nonlinear fitting
+    I_nlfit = double(I_vector(thresh_val(:), :));
+    M_nl = double(M(thresh_val(:), :));
+    Bv = Bv(:,1:6)';
+
+    options = optimoptions('lsqcurvefit','Jacobian','on', 'DerivativeCheck', 'off', ...
+        'display', 'off', 'TypicalX', mean(M_nl));
+    % M = [xx,xy,xz,yy,yz,zz,S0]
+    lb = [0 -3E-3 -3E-3 0 -3E-3 0 0]; % cross terms are allowed to be -ve
+    ub = [zeros(1,6)+3E-3, inf];
+
+    
+    if (size(I_nlfit,1) > 1000) && (matlabpool('size') == 0)
+        disp('Open matlabpool for parallel processing')
+    end
+    
+    parfor i = 1:size(I_nlfit,1)
+
+        M_nl(i,:) = lsqcurvefit(@mono_exp_model, M_nl(i,:), Bv, I_nlfit(i,:), lb, ub, options);
+
+    end
 
 
+    M(thresh_val(:),:) = M_nl;
+    
+end
+    
+    
 % return the diffusion tensor
 DT = reshape(M, [sz(1:end-1), 7]);
 
-M(isnan(M)) = 0;
-M(isinf(M)) = 0;
+
 
 if nargout > 1 % if you want the FA, ADC, etc.
 
@@ -216,7 +213,7 @@ if nargout > 1 % if you want the FA, ADC, etc.
     VectorF3 = zeros(size(M,1), 3);
     EigVals = zeros(size(M,1), 3);
    
-    for i = 1:size(M,1)
+    parfor i = 1:size(M,1)
     
         if isscalar(thresh_val) % if thresh_val is a scalar, use it as a threshold
             if im(i) < thresh_val
@@ -279,4 +276,23 @@ if nargout > 1 % if you want the FA, ADC, etc.
     VectorField = cat(ndims(FA)+1, VectorF, VectorF2, VectorF3);
     
     EigVals = reshape(EigVals, [sz(1:end-1), 3]);
+end
+
+
+
+% the function to fit inside the parfor loop
+function [F, J] = mono_exp_model(x, Bv)
+
+F = x(7) * exp(-(x(1:6) * Bv));
+    
+if nargout > 1 % Jacobian
+    J = zeros(length(F), length(x));
+    
+    J(:,1) =  x(7) * -Bv(1,:) .* exp(-(x(1:6) * Bv));
+    J(:,2) =  x(7) * -Bv(2,:) .* exp(-(x(1:6) * Bv));
+    J(:,3) =  x(7) * -Bv(3,:) .* exp(-(x(1:6) * Bv));
+    J(:,4) =  x(7) * -Bv(4,:) .* exp(-(x(1:6) * Bv));
+    J(:,5) =  x(7) * -Bv(5,:) .* exp(-(x(1:6) * Bv));
+    J(:,6) =  x(7) * -Bv(6,:) .* exp(-(x(1:6) * Bv));        
+    J(:,7) = exp(-(x(1:6) * Bv));
 end
