@@ -49,13 +49,13 @@ nargoutchk(0, 2);
 
 
 % Let mex do the work for you
-if exist('forward_TV_mex', 'file')
-    [Dx, Dy, Dz, TV] = forward_TV_mex(double(I), 1);  
+if exist('forward_TV_aux', 'file')
+    [Dx, Dy, Dz, TV] = forward_TV_aux(double(I), 1);  
 else
     
     disp('Please compile the forward total variation transform for increased speed.')
-    disp('Just find the file forward_TV_mex.cpp and type:')
-    disp('mex forward_TV_mex.cpp')
+    disp('Just find the file forward_TV_aux.cpp and type:')
+    disp('mex forward_TV_aux.cpp')
     
     
     % This is the equivalent to the above mex function in Matlab, but the

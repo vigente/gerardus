@@ -1,7 +1,7 @@
 /*
  *
  *
- * FORWARD_TV_mex Total variation of a 3D image
+ * FORWARD_TV_aux Total variation of a 3D image
  *   This function should only be called by forward_TV.m
  
  
