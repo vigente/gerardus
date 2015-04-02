@@ -1,11 +1,27 @@
 2014-03-23  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
+	* matlab/DiffusionMRIToolbox/fit_DT (0.1.8)
+
+	- Combined constrained and nonlinear fitting section - if you are doing
+	nonlinear fitting, you might as well constrain it. Now the only options
+	are linear and nonlinear (linear by default). 
+	- Added support for parallelisation (i.e. parfor loops rather than for
+	loops)
+	- Added Jacobian to nonlinear fitting
+
+	* renamed matlab/FiltersToolbox/forward_TV_mex.cpp to 
+	/forward_TV_aux.cpp
+	* matlab/FiltersToolbox/forward_TV.m
+	- changed function calls accordingly 
+
+2015-03-23  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
 	* add matlab/DiffusionMRIToolbox/fit_biexponential_tensor.m (0.1.1)
 
 	- Fits the function: S = S0_fast * e^(b*D_fast) + S0_slow e^(b*D_slow)
 	That is, two tensors on top of each other.
 
-2014-03-12  Darryl McClymont  <darryl.mcclymont@gmail.com>
+2015-03-12  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* add matlab/DiffusionMRIToolbox/weighted_linear_fit.m (0.1.0)
 
@@ -58,7 +74,7 @@
 
 	- Modified scimat_ndgrid to allow for 2d->4D inputs.
 
-2014-03-09  Darryl McClymont  <darryl.mcclymont@gmail.com>
+2015-03-09  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* add matlab/test/test_tensor_fitting_methods.m (0.1.1)
 
@@ -75,7 +91,7 @@
 
 	http://uk.mathworks.com/matlabcentral/fileexchange/35625-information-theory-toolbox/content/nmi.m
 
-2014-03-06  Darryl McClymont  <darryl.mcclymont@gmail.com>
+2015-03-06  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* matlab/DiffusionMRIToolbox/fit_DT.m (0.1.7)
 
@@ -242,7 +258,7 @@
 
 	- Add Darryl's forward_TV_mex() function to the build system.
 
-2014-02-06  Darryl McClymont  <darryl.mcclymont@gmail.com>
+2015-02-06  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* matlab/DiffusionMRIToolbox/wild_bootstrapping_DTI.m (0.1.2)
 
@@ -273,7 +289,7 @@
 	because it's necessary to build GMP. Now we search for it, and
 	give a clear error message so that the user installs m4.
 
-2014-01-27  Darryl McClymont  <darryl.mcclymont@gmail.com>
+2015-01-27  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* matlab/DiffusionMRIToolbox/fit_DT.m (0.1.6)
 
@@ -310,7 +326,7 @@
 	- Modifications. Changed the output to include Dicomdirpath, and
 	added the SVM properties.
 
-2014-01-14  Darryl McClymont  <darryl.mcclymont@gmail.com>
+2015-01-14  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* Add matlab/DiffusionMRIToolbox/wild_bootstrapping_DTI.m (0.1.1)
 
@@ -318,7 +334,7 @@
 	wild bootstrapping. See Whitcher 2008 - Using the Wild Bootstrap
 	to Quantify Uncertainty in Diffusion Tensor Imaging
 
-2014-01-14  Christopher Kelly  <christopher.kelly28@googlemail.com>
+2015-01-14  Christopher Kelly  <christopher.kelly28@googlemail.com>
 
 	* matlab/FileFormatToolbox/load_multi_dcm_dir.m: (0.1.0)
 
