@@ -1,4 +1,10 @@
-2014-03-23  Darryl McClymont  <darryl.mcclymont@gmail.com>
+2015-04-09  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* add matlab/DiffusionMRIToolbox/fit_kurtosis_model.m (0.1.0)
+
+	- Fits the diffusion kurtosis model to diffusion MRI data.
+
+2015-03-23  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* matlab/DiffusionMRIToolbox/fit_DT (0.1.8)
 
