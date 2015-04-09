@@ -96,11 +96,11 @@ if (length(sz) == 2) && (sz(2) == 1)
 end
 
 % reshape image
-im_vector = reshape(im, [prod(sz(1:end-1)), sz(end)]);
+I_vector = reshape(im, [prod(sz(1:end-1)), sz(end)]);
 
 
 % normalise and take the log of the image to linearise the equation
-imlog = log(bsxfun(@rdivide, im_vector, im_vector(:,1)));
+imlog = log(bsxfun(@rdivide, I_vector, I_vector(:,1)));
 
 
 % get the bvalue
@@ -117,7 +117,7 @@ A_D = squeeze([B_mat(1,1,:), B_mat(2,2,:), B_mat(3,3,:), 2*B_mat(1,2,:), 2*B_mat
 
 A_K = squeeze([B_mat(1,1,:).^2, B_mat(2,2,:).^2, B_mat(3,3,:).^2, ...
     4*B_mat(1,1,:).*B_mat(1,2,:), 4*B_mat(1,1,:).*B_mat(1,3,:), 4*B_mat(1,2,:).*B_mat(2,2,:), ...
-    4*B_mat(1,1,:).*B_mat(1,3,:), 4*B_mat(2,2,:).*B_mat(2,3,:), 4*B_mat(2,3,:).*B_mat(3,3,:), ...
+    4*B_mat(1,3,:).*B_mat(3,3,:), 4*B_mat(2,2,:).*B_mat(2,3,:), 4*B_mat(2,3,:).*B_mat(3,3,:), ...
     2*B_mat(1,1,:).*B_mat(2,2,:) + 4*B_mat(1,2,:).*B_mat(1,2,:), ...
     2*B_mat(1,1,:).*B_mat(3,3,:) + 4*B_mat(1,3,:).*B_mat(1,3,:), ...
     2*B_mat(2,2,:).*B_mat(3,3,:) + 4*B_mat(2,3,:).*B_mat(2,3,:), ...
@@ -131,16 +131,20 @@ A_K = squeeze([B_mat(1,1,:).^2, B_mat(2,2,:).^2, B_mat(3,3,:).^2, ...
 
 A = [-bsxfun(@times, bvalue', A_D), 1/6 * bsxfun(@times, bvalue'.^2, A_K)];
 
-M = (pinv(A) * imlog')';
+% weighted fit
+W = diag(mean(I_vector));
+
+%M = (pinv(A) * imlog')';
+M = (pinv(A' * (W.^2) * A) * A' * (W.^2) * (imlog'))';
+% weighted version of M = (pinv(A) * imlog')';
 
 % add the S0 column
-M = [im_vector(:,1), M];
+M = [I_vector(:,1), M];
+
 
 % perform nonlinear fitting (if required)
 if strcmp(method, 'nonlinear')
 
-    I_vector = reshape(im, [prod(sz(1:end-1)), sz(end)]);
-    
     if isscalar(thresh_val)
         thresh_val = I_vector(:,1) > thresh_val;
     else
@@ -151,8 +155,13 @@ if strcmp(method, 'nonlinear')
     I_nlfit = double(I_vector(thresh_val(:), :));
     M_nl = double(M(thresh_val(:), :));
 
+    % get error
+    I_recon = bsxfun(@times, M_nl(:,1) , exp(A * M_nl(:,2:end)')');
+    rmse = sqrt(mean((I_nlfit(:) - I_recon(:)).^2));
+    disp(['RMSE from quick fit = ' num2str(rmse)])
+    
     options = optimoptions('lsqcurvefit','Jacobian','on', 'DerivativeCheck', 'off', ...
-        'display', 'off', 'TypicalX', mean(M_nl));
+        'display', 'off', 'MaxIter', 40);
 
     
     lb = [0 0 0 0 -1 -1 -1 ... % [S0 DTI
@@ -173,10 +182,14 @@ if strcmp(method, 'nonlinear')
     A = -A';
     
     parfor i = 1:size(I_nlfit,1)
-
+    
         M_nl(i,:) = lsqcurvefit(@DKI_model, M_nl(i,:), A, I_nlfit(i,:), lb, ub, options);
-
+        
     end
+    
+    I_recon = bsxfun(@times, M_nl(:,1) , exp(-A' * M_nl(:,2:end)')');
+    rmse = sqrt(mean((I_nlfit(:) - I_recon(:)).^2));
+    disp(['RMSE from slow fit = ' num2str(rmse)])
 
 
     M(thresh_val(:),:) = M_nl;
@@ -190,7 +203,7 @@ DKI = reshape(M, [sz(1:end-1), 22]);
 end
 
 
-function [ F,J ] = DKI_model( x, Bv )
+function [ F, J ] = DKI_model( x, Bv )
 
 F = x(1) * exp(-(x(2:end) * Bv));
     
@@ -200,9 +213,7 @@ if nargout > 1 % Jacobian
     
     J(:,1) = exp(-(x(2:end) * Bv));
 
-    for i = 2:size(J,2)
-        J(:,i) = - Bv(i-1,:) .*  F;
-    end
+    J(:,2:end) = -bsxfun(@times, Bv, F)';
     
 end
     
