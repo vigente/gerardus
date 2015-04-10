@@ -67,7 +67,7 @@ function [ M_weighted ] = weighted_linear_fit( Y, X, func, warnings_on )
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(4, 6);
+narginchk(3, 4);
 nargoutchk(0, 6);
 
 if nargin < 4
@@ -105,7 +105,7 @@ if size(Y,1) == 1
 else
     % get the variance - we want the variance of the residuals to be the 
     % same for all points on the curve
-    V = var(R);
+    V = mean(sqrt((R.^2) ./ ((Y-M*X).^2 + eps)));%var(R);
 end
 
 % define the weighting function

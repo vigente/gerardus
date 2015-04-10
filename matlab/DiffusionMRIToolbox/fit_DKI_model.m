@@ -24,18 +24,7 @@ function [ DKI ] = fit_DKI_model( im, B_mat, thresh_val, method)
 % Outputs:
 %
 %   DKI is the array of coefficients
-% 
-%   FA is the fractional anisotropy
-% 
-%   ADC is the apparent diffusion coefficient
-% 
-%   VECTORFIELD is the primary, secondary and tertiary unit vectors, concatenated
-%	in the last dimension
-%
-%	EIGVALS are the eigenvalues corresponding to the vector field, concatenated
-%	in the last dimension
-%
-%
+
 
     
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
@@ -73,7 +62,7 @@ function [ DKI ] = fit_DKI_model( im, B_mat, thresh_val, method)
 
 sz = size(im);
 
-if nargin < 3
+if (nargin < 3) || isempty(thresh_val)
     thresh_val = -inf;
 end
 
@@ -132,10 +121,18 @@ A_K = squeeze([B_mat(1,1,:).^2, B_mat(2,2,:).^2, B_mat(3,3,:).^2, ...
 A = [-bsxfun(@times, bvalue', A_D), 1/6 * bsxfun(@times, bvalue'.^2, A_K)];
 
 % weighted fit
-W = diag(mean(I_vector));
+%W = diag(mean(I_vector));
+
+IDX = kmeans(I_vector, 3);
+M = zeros(size(imlog,1), 21);
+for i = 1:3
+    disp(num2str(i))
+    M(IDX == i, :) = weighted_linear_fit(imlog(IDX == i,:), A', @(z)exp(z));
+end
+
 
 %M = (pinv(A) * imlog')';
-M = (pinv(A' * (W.^2) * A) * A' * (W.^2) * (imlog'))';
+%M = (pinv(A' * (W.^2) * A) * A' * (W.^2) * (imlog'))';
 % weighted version of M = (pinv(A) * imlog')';
 
 % add the S0 column
