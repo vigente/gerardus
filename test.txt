@@ -1,1 +1,4 @@
 Test
+Let's add some text to this file, 
+to see what happens to the commit email.
+
