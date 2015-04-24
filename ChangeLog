@@ -1,5 +1,10 @@
 2015-04-24  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/ItkToolbox/elastix_bspline_grid.m: (0.1.0)
+
+	- ELASTIX_BSPLINE_GRID Control point grid of B-spline
+	transformation.
+
 	* Add .gitattributes:
 
 	- File to configure how we manage line endings so that they are
