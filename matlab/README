@@ -564,6 +564,12 @@ elastix_affine_tform2param.m
 	 elastix_affine_tform2param  Convert Matlab tform affine transform to
 	 elastix parameter vector.
 	
+elastix_bspline_grid.m
+
+	 ELASTIX_BSPLINE_GRID  Control point grid of B-spline transformation.
+	
+elastix_bspline_param_mask.m
+
 elastix_compose_afftransf.m
 
 	 elastix_compose_afftransf  Composition of two 2D affine transforms.
