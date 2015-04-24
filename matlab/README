@@ -184,10 +184,25 @@ dt2image.m
 	 The suggested usage of this file is to easily check how well a diffusion
 	 tensor fits to your data. Eg:
 	
+fit_biexponential_tensor.m
+
+	FIT_BIEXPONENTIAL_TENSOR Fit the bi-exponential tensor model
+	 fits the function S = S0_fast * e^(b*D_fast) + S0_slow e^(b*D_slow)
+	
+fit_DKI_model.m
+
+	 FIT_DT    Fits the diffusion kurtosis model voxelwise to an image
+	           S = S0 exp(-(bD + 1/6 b^2 * K))
+	
 fit_DT.m
 
 	 FIT_DT    Fits the diffusion tensor model voxelwise to an image
 	           S = S0 exp(-bD)
+	
+fit_DT_YHd_method.m
+
+	FIT_DT_YHD_METHOD Calculates the diffusion tensor to a set of diffusion
+	MRI images
 	
 fit_stretched_exponential.m
 
@@ -200,6 +215,13 @@ global_reference_frame.m
 	   Fits a straight line through the center of the left ventricle cavity,
 	   and then computes the radial, circumferential, and longitudinal vectors
 	   based on this line.
+	
+weighted_linear_fit.m
+
+	WEIGHTED_LINEAR_FIT fits the function Y = MX (matrices) such that the
+	 residuals follow a gaussian distribution after having @func applied to
+	 them. I.e. func(Y) - func(MX) follows a gaussian with the same variance
+	 for each column of Y
 	
 wild_bootstrapping_DTI.m
 
@@ -469,7 +491,7 @@ scimat.m
 	
 scimat_ndgrid.m
 
-	 SCIMAT_NDGRID  Generation of arrays for 3D SCIMAT image volumes.
+	 SCIMAT_NDGRID  Generation of arrays for 2D to 4D SCIMAT image volumes.
 	
 scimat_optimal_intersecting_plane.m
 
@@ -962,6 +984,8 @@ RegistrationToolbox
 
 regdemons3d.m
 
+	 REGDEMONS Image registration using Thirion's Demons algorithm.
+	
 regdemons.m
 
 	 REGDEMONS Image registration using Thirion's Demons algorithm.
@@ -1011,8 +1035,6 @@ inhull.m
 	 usage: in = inhull(testpts,xyz,tess)
 	 usage: in = inhull(testpts,xyz,tess,tol)
 	
-isedm.m
-
 IsomapII.m
 
 	 ISOMAPII   Computes Isomap embedding using an advanced version of
@@ -1174,6 +1196,24 @@ ThirdPartyToolbox/ImGaussianToolbox
 -------------------------------------------------------------
 
 imgaussian.m
+
+
+ThirdPartyToolbox/InfoTheoryToolbox
+-------------------------------------------------------------
+
+conditionalEntropy.m
+
+entropy.m
+
+jointEntropy.m
+
+mutualInformation.m
+
+nmi.m
+
+nvi.m
+
+relativeEntropy.m
 
 
 ThirdPartyToolbox/iso2meshToolbox
