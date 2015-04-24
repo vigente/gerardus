@@ -1,3 +1,10 @@
+2015-04-24  Ramon Casero  <rcasero@gmail.com>
+
+	* Add .gitattributes:
+
+	- File to configure how we manage line endings so that they are
+	consistent between Linux, Windows and Mac OSX.
+
 2015-04-09  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* add matlab/DiffusionMRIToolbox/fit_kurtosis_model.m (0.1.0)
