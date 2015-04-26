@@ -19,16 +19,22 @@ function varargout = elastix_bspline_grid(t)
 %
 %   plot(gx(:), gy(:), 'o')
 %
-% If you want to see the position of the image with respect to the contro
+% If you want to see the position of the image with respect to the control
 % points:
 %
 %   hold on
-%   plot(t.Origin(1) + [0 t.Size(1)-1] * t.Spacing(1), ...
-%     t.Origin(2) + [0 t.Size(2)-1] * t.Spacing(2))
+%   box = [
+%       t.Origin
+%       t.Origin(1)+(t.Size(1)-1)*t.Spacing(1), t.Origin(2)
+%       t.Origin+(t.Size-1).*t.Spacing
+%       t.Origin(1), t.Origin(2)+(t.Size(2)-1)*t.Spacing(2)
+%       t.Origin
+%       ];
+%   plot(box(:, 1), box(:, 2), 'r', 'LineWidth', 2)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
