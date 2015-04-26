@@ -1,5 +1,10 @@
 2015-04-26  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ItkToolbox/elastix_bspline_grid.m: (0.1.2)
+
+	- Fix bug. I had forgotten to add a visualization example to the
+	help header.
+
 	* matlab/ItkToolbox/elastix_bspline_grid.m: (0.1.1)
 
 	- Fix bug. Rows/columns and X/Y coordinates were incorrect.
