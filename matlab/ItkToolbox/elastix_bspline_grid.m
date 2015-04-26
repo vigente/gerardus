@@ -18,10 +18,17 @@ function varargout = elastix_bspline_grid(t)
 % You can visualize the control point grid using
 %
 %   plot(gx(:), gy(:), 'o')
+%
+% If you want to see the position of the image with respect to the contro
+% points:
+%
+%   hold on
+%   plot(t.Origin(1) + [0 t.Size(1)-1] * t.Spacing(1), ...
+%     t.Origin(2) + [0 t.Size(2)-1] * t.Spacing(2))
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -60,19 +67,6 @@ end
 D = t.MovingImageDimension;
 nargoutchk(0, D);
 
-% switch X<->Y cells so that they suit the Matlab convention of X=columns
-% and Y=rows
-if (D > 1)
-    t.Size(1:2) = t.Size([2 1]);
-    t.Index(1:2) = t.Index([2 1]);
-    t.Spacing(1:2) = t.Spacing([2 1]);
-    t.Origin(1:2) = t.Origin([2 1]);
-    t.GridSize(1:2) = t.GridSize([2 1]);
-    t.GridIndex(1:2) = t.GridIndex([2 1]);
-    t.GridSpacing(1:2) = t.GridSpacing([2 1]);
-    t.GridOrigin(1:2) = t.GridOrigin([2 1]);
-end
-
 % coordinates of grid points, separated by dimension
 x = cell(D, 1);
 for I = 1:D
@@ -80,8 +74,9 @@ for I = 1:D
     x{I} = (0:t.GridSize(I)-1) * t.GridSpacing(I) + t.GridOrigin(I);
 end
 
-% generate the grid
-[varargout{1:D}] = ndgrid(x{:});
+% generate the grid (switch X<->Y cells so that they suit the Matlab
+% convention of X=columns and Y=rows)
+[varargout{[2 1 3:D]}] = ndgrid(x{[2 1 3:end]});
 
 % split control point displacements into one coordinate per cell
 dx = mat2cell(t.TransformParameters, 1, ...
@@ -89,7 +84,7 @@ dx = mat2cell(t.TransformParameters, 1, ...
 
 for I = 1:D
     % reshape the vector of coefficients to the same size as the grid
-    dx{I} = reshape(dx{I}, t.GridSize);
+    dx{I} = reshape(dx{I}, t.GridSize([2 1 3:end]));
     
     % add displacements to control points
     varargout{I} = varargout{I} + dx{I};
