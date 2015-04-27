@@ -31,10 +31,12 @@ function varargout = elastix_bspline_grid(t)
 %       t.Origin
 %       ];
 %   plot(box(:, 1), box(:, 2), 'r', 'LineWidth', 2)
+%
+% See also: elastix_bspline_grid2param.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.1.2
+% Version: 0.1.3
 % $Rev$
 % $Date$
 % 
@@ -89,8 +91,12 @@ dx = mat2cell(t.TransformParameters, 1, ...
     t.NumberOfParameters / D * ones(1, D));
 
 for I = 1:D
+    
     % reshape the vector of coefficients to the same size as the grid
-    dx{I} = reshape(dx{I}, t.GridSize([2 1 3:end]));
+    dx{I} = reshape(dx{I}, t.GridSize);
+    
+    % transpose cols<->rows to adapt to Matlab's convention
+    dx{I} = permute(dx{I}, [2 1 3:D]);
     
     % add displacements to control points
     varargout{I} = varargout{I} + dx{I};
