@@ -1,5 +1,11 @@
 2015-04-27  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/ItkToolbox/elastix_bspline_grid2param.m: (0.1.0)
+	* Add matlab/test/test_elastix_bspline_grid2param.m: (0.1.0)
+
+	- Convert control points from grid to TransformParameters vector
+	form.
+
 	* matlab/ItkToolbox/elastix_bspline_grid.m: (0.1.3)
 
 	- Fix bug. The displacement vector was being reshaped in the wrong
