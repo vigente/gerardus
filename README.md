@@ -29,7 +29,7 @@ Download and build
 
 The latest version of the code can be pulled from the master branch of this GitHub repository.
 
-Gerardus contains Matlab function that can be run directly without building any code. There are also C++ programs and C++ MEX files that need to be compiled and installed before they can be run. BuildInstructions explains how to do the latter.
+Gerardus contains Matlab functions that can be run directly without building any code. There are also C++ programs and C++ MEX files that need to be compiled and installed before they can be run. BuildInstructions explains how to do the latter.
 
 See the most updated list of all available functions:
 
