@@ -33,7 +33,7 @@ Gerardus contains Matlab function that can be run directly without building any 
 
 See the most updated list of all available functions:
 
-[Matlab functions](matlab/README)
-[shell scripts](shell-script/README)
-[java code](java/README)
-[C++/ITK command line programs](cpp/README)
+* [Matlab functions](matlab/README)
+* [shell scripts](shell-script/README)
+* [java code](java/README)
+* [C++/ITK command line programs](cpp/README)
