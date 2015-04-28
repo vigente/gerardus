@@ -1,3 +1,9 @@
+2015-04-28  Christopher Kelly <christopher.kelly28@googlemail.com>
+
+	* Add directory lib
+	
+	- fix bug when running add_geradus_paths.m, if directory doesn't exist
+
 2015-04-27  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ItkToolbox/elastix_bspline_grid2param.m: (0.1.0)
