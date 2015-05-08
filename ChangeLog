@@ -1,6 +1,9 @@
 2015-05-08  Ramon Casero  <rcasero@gmail.com>
 
-	* 
+	* matlab/CardiacToolbox/histology_preprocessing.m: (0.3.0)
+
+	- Add output argument for registration mask. This mask can be used
+	to speed up registration.
 
 2015-04-28  Christopher Kelly <christopher.kelly28@googlemail.com>
 

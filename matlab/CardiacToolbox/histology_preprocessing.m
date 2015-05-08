@@ -110,7 +110,6 @@ for I = 1:size(im, 3)
     
 end
 
-pause
 % compute a mask of the foreground
 mask = uint8(rgb2gray(im) > 2);
 
