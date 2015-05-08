@@ -1,4 +1,4 @@
-function [imref, im] = histology_preprocessing(imref, im)
+function [imref, im, mask] = histology_preprocessing(imref, im)
 % histology_preprocessing  Prepare slices for intra-histology registration.
 %
 % histology_preprocessing converts two histology images to grayscale,
@@ -6,18 +6,23 @@ function [imref, im] = histology_preprocessing(imref, im)
 % white), extends the histograms to cover the dynamic range, and then
 % matches the histograms. This prepares them to be registered.
 %
-% [IMREF2, IM2] = histology_preprocessing(IMREF, IM)
+% [IMREF2, IM2, MASK] = histology_preprocessing(IMREF, IM)
 %
 %   IMREF, IM are two input histology images (in RGB colour or grayscale
 %   format). When histograms are matched, IM is matched to IMREF.
 %
 %   IMREF2, IM2 are the output images after preprocessing.
 %
+%   MASK is a binary mask for IM2. This mask can be used to speed up
+%   registration (when a mask is provided to elastix, only pixels within
+%   the mask are used for the registration metric). The mask includes the
+%   tissue and a bit of background around it.
+%
 % See also: histology_intraframe_reg.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.2.0
+% Copyright © 2014-2015 University of Oxford
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
@@ -46,10 +51,10 @@ function [imref, im] = histology_preprocessing(imref, im)
 
 % check arguments
 narginchk(2, 2);
-nargoutchk(0, 2);
+nargoutchk(0, 3);
 
 % invert image intensities
-im = individual_image_preprocessing(im);
+[im, mask] = individual_image_preprocessing(im);
 imref = individual_image_preprocessing(imref);
 
 % match histograms to the central slice
@@ -72,7 +77,7 @@ end
 
 end
 
-function im = individual_image_preprocessing(im)
+function [im, mask] = individual_image_preprocessing(im)
 
 % loop image channels
 for I = 1:size(im, 3)
@@ -104,5 +109,17 @@ for I = 1:size(im, 3)
     im(:, :, I) = ch;
     
 end
+
+pause
+% compute a mask of the foreground
+mask = uint8(rgb2gray(im) > 2);
+
+% remove some background noise in the mask
+se = strel('disk', 1);
+mask = imerode(mask, se);
+
+% dilate mask to cover some background
+se = strel('disk', 10);
+mask = imdilate(mask, se);
 
 end

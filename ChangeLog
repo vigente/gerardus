@@ -1,7 +1,11 @@
+2015-05-08  Ramon Casero  <rcasero@gmail.com>
+
+	* 
+
 2015-04-28  Christopher Kelly <christopher.kelly28@googlemail.com>
 
 	* Add directories lib, lib/bin
-	
+
 	- fix bug when running add_geradus_paths.m, if directory doesn't exist
 
 2015-04-27  Ramon Casero  <rcasero@gmail.com>
