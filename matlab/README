@@ -573,6 +573,10 @@ elastix_bspline_grid.m
 
 	 ELASTIX_BSPLINE_GRID  Control point grid of B-spline transformation.
 	
+elastix_cat.m
+
+	 ELASTIX_CAT  Concatenation of elastix transforms.
+	
 elastix_compose_afftransf.m
 
 	 elastix_compose_afftransf  Composition of two 2D affine transforms.
