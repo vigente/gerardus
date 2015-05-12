@@ -1,3 +1,9 @@
+2015-05-12  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ItkToolbox/elastix_cat.m: (0.1.0)
+
+	- ELASTIX_CAT  Concatenation of elastix transforms.
+
 2015-05-08  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/CardiacToolbox/histology_preprocessing.m: (0.3.0)
