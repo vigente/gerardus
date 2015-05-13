@@ -1,4 +1,4 @@
-function t = elastix_cat(varargin)
+function varargin = elastix_cat(varargin)
 % ELASTIX_CAT  Concatenation of elastix transforms.
 %
 % Elastix allows for a list of transforms to be applied to an image. For
@@ -12,8 +12,8 @@ function t = elastix_cat(varargin)
 %    InitialTransformParametersFileName:  [1x1 struct]
 %                 HowToCombineTransforms: 'Compose'
 %
-% we can see that the InitialTransformParametersFileName points to another
-% transform, and field HowToCombineTransforms specifies that they will be
+% we can see that "InitialTransformParametersFileName" points to another
+% transform, and "HowToCombineTransforms" specifies that they will be
 % composed. The second transform could be, for example, a B-spline
 %
 %   T1.InitialTransformParametersFileName = 
@@ -26,6 +26,13 @@ function t = elastix_cat(varargin)
 % This second transform does not point any further transforms (although it
 % could, having a longer list). In this example, the translation is applied
 % first to the image, and then the B-spline.
+%
+% Note: It's a bit confusing that "InitialTransformParametersFileName"
+% points to the transform that is going to be applied to the image after
+% the current one. However, this makes sense because when we register A to
+% B in elastix, the transform returned is for coordinates from B to A. The
+% reason for this is that otherwise transforming an image could leave
+% "holes" after resampling.
 %
 % ELASTIX_CAT allows to concatenate a list of elastix transforms, each of
 % which can be a simple transform or a list of transforms.
@@ -41,7 +48,7 @@ function t = elastix_cat(varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
@@ -77,12 +84,12 @@ N = length(varargin);
 
 if (N == 0)
     
-    t = [];
+    varargin = [];
     return;
     
 elseif (N == 1)
     
-    t = varargin{1};
+    varargin = varargin{1};
     
 end
 
@@ -92,13 +99,14 @@ for I = N-1:-1:1
     varargin{I} = cat_2_transf(varargin{I}, varargin{I+1});
     
 end
+varargin = varargin{1};
 
 end
 
 %% local functions
 
 % cat_2_transf: add transform t2 at the end of transform t1
-function t = cat_2_transf(t1, t2)
+function t1 = cat_2_transf(t1, t2)
 
 % look for the end 
 str = 't1';
