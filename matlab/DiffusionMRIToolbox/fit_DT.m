@@ -133,14 +133,8 @@ Bv = [Bv, -ones(size(Bv,1), 1)];
 imlog = reshape(imlog, [prod(sz(1:end-1)), sz(end)]);
 
 % Fit the tensor model (linear, unconstrained)
-M = (Bv \ -imlog')';
-% IDX = kmeans(imlog, 3);
-% M = zeros(size(imlog,1), 7);
-% for i = 1:3
-%     disp(num2str(i))
-%     M(IDX == i, :) = weighted_linear_fit(-imlog(IDX == i,:), Bv', @(z)exp(-z));
-% end
-%M = weighted_linear_fit(-imlog, Bv', @(z)exp(-z));
+%M = (Bv \ -imlog')';
+M = weighted_linear_fit(-imlog, Bv', @(z)exp(-z), 0);
 
 % This is the same as (pinv(Bv) * (-imlog'))';
 % also same as (pinv(Bv' * Bv) * Bv' * (-imlog'))';
@@ -196,11 +190,14 @@ if strcmp(method, 'nonlinear')
     M(thresh_val(:),:) = M_nl;
     
 end
-    
+
+if isscalar(thresh_val) % if thresh_val is a scalar, use it as a threshold
+    thresh_val = M(:,7) > thresh_val;
+end
+            
     
 % return the diffusion tensor
 DT = reshape(M, [sz(1:end-1), 7]);
-
 
 
 if nargout > 1 % if you want the FA, ADC, etc.
@@ -215,50 +212,43 @@ if nargout > 1 % if you want the FA, ADC, etc.
    
     parfor i = 1:size(M,1)
     
-        if isscalar(thresh_val) % if thresh_val is a scalar, use it as a threshold
-            if im(i) < thresh_val
-                continue
-            end
-        else
-            if thresh_val(i) == 0 % otherwise use it as a mask
-                continue
-            end
+        if thresh_val(i)
+        
+            Mi = M(i,:);
+
+            % The DiffusionTensor (Remember it is a symetric matrix,
+            % thus for instance Dxy == Dyx)
+            DiffusionTensor=[Mi(1) Mi(2) Mi(3); Mi(2) Mi(4) Mi(5); Mi(3) Mi(5) Mi(6)];
+
+            % Calculate the eigenvalues and vectors, and sort the 
+            % eigenvalues from small to large
+            [EigenVectors,D]=eig(DiffusionTensor); 
+            EigenValues=diag(D);
+            [~,index]=sort(EigenValues); 
+            EigenValues=EigenValues(index); 
+            EigenVectors=EigenVectors(:,index);
+            EigenValues_old=EigenValues;
+
+            % Regulating of the eigen values (negative eigenvalues are
+            % due to noise and other non-idealities of MRI)
+            EigenValues=abs(EigenValues);
+
+            % Apparent Diffuse Coefficient
+            ADCv=(EigenValues(1)+EigenValues(2)+EigenValues(3))/3;
+
+            % Fractional Anistropy (2 different definitions exist)
+            % First FA definition:
+            %FAv=(1/sqrt(2))*( sqrt((EigenValues(1)-EigenValues(2)).^2+(EigenValues(2)-EigenValues(3)).^2+(EigenValues(1)-EigenValues(3)).^2)./sqrt(EigenValues(1).^2+EigenValues(2).^2+EigenValues(3).^2) );
+            % Second FA definition:
+            FA(i)=sqrt(1.5)*( sqrt((EigenValues(1)-ADCv).^2+(EigenValues(2)-ADCv).^2+(EigenValues(3)-ADCv).^2)./sqrt(EigenValues(1).^2+EigenValues(2).^2+EigenValues(3).^2) );
+            ADC(i)=ADCv;
+            VectorF(i,:)=EigenVectors(:,3)*EigenValues_old(3);
+            VectorF2(i,:)=EigenVectors(:,2)*EigenValues_old(2);
+            VectorF3(i,:)=EigenVectors(:,1)*EigenValues_old(1);
+
+            EigVals(i,:) = EigenValues_old;
+
         end
-        
-        Mi = M(i,:);
-
-        % The DiffusionTensor (Remember it is a symetric matrix,
-        % thus for instance Dxy == Dyx)
-        DiffusionTensor=[Mi(1) Mi(2) Mi(3); Mi(2) Mi(4) Mi(5); Mi(3) Mi(5) Mi(6)];
-
-        % Calculate the eigenvalues and vectors, and sort the 
-        % eigenvalues from small to large
-        [EigenVectors,D]=eig(DiffusionTensor); 
-        EigenValues=diag(D);
-        [~,index]=sort(EigenValues); 
-        EigenValues=EigenValues(index); 
-        EigenVectors=EigenVectors(:,index);
-        EigenValues_old=EigenValues;
-
-        % Regulating of the eigen values (negative eigenvalues are
-        % due to noise and other non-idealities of MRI)
-        EigenValues=abs(EigenValues);
-        
-        % Apparent Diffuse Coefficient
-        ADCv=(EigenValues(1)+EigenValues(2)+EigenValues(3))/3;
-
-        % Fractional Anistropy (2 different definitions exist)
-        % First FA definition:
-        %FAv=(1/sqrt(2))*( sqrt((EigenValues(1)-EigenValues(2)).^2+(EigenValues(2)-EigenValues(3)).^2+(EigenValues(1)-EigenValues(3)).^2)./sqrt(EigenValues(1).^2+EigenValues(2).^2+EigenValues(3).^2) );
-        % Second FA definition:
-        FA(i)=sqrt(1.5)*( sqrt((EigenValues(1)-ADCv).^2+(EigenValues(2)-ADCv).^2+(EigenValues(3)-ADCv).^2)./sqrt(EigenValues(1).^2+EigenValues(2).^2+EigenValues(3).^2) );
-        ADC(i)=ADCv;
-        VectorF(i,:)=EigenVectors(:,3)*EigenValues_old(3);
-        VectorF2(i,:)=EigenVectors(:,2)*EigenValues_old(2);
-        VectorF3(i,:)=EigenVectors(:,1)*EigenValues_old(1);
-        
-        EigVals(i,:) = EigenValues_old;
-    
     end
     
     % quick hack because reshape sz needs to be at least length 2
@@ -273,7 +263,7 @@ if nargout > 1 % if you want the FA, ADC, etc.
     VectorF2 = reshape(VectorF2, [sz(1:end-1), 3]);
     VectorF3 = reshape(VectorF3, [sz(1:end-1), 3]);
     
-    VectorField = cat(ndims(FA)+1, VectorF, VectorF2, VectorF3);
+    VectorField = cat(ndims(VectorF)+1, VectorF, VectorF2, VectorF3);
     
     EigVals = reshape(EigVals, [sz(1:end-1), 3]);
 end
