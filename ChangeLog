@@ -1,3 +1,10 @@
+2015-05-13  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/elastix_cat.m: (0.1.1)
+
+	- In help header, clarify why "InitialTransformParametersFileName"
+	points to the transform that is applied after the current one.
+
 2015-05-13  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* matlab/DiffusionMRIToolbox/fit_DKI_model.m
