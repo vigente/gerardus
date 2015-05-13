@@ -16,8 +16,8 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %
 % [T, MOVINGREG, ITERINFO] = elastix(REGPARAM, FIXED, MOVING, OPTS)
 %
-%   REGPARARM is a string with the path and name of a text file with the
-%   registration parameters for elastix, e.g.
+%   REGPARARM are the registration parameters for elastix, given either as
+%   a struct or a string with the path and name of a text file, e.g.
 %   '/path/to/ParametersTranslation2D.txt'.
 %
 %   FIXED, MOVING are the images to register. They can be given as file
