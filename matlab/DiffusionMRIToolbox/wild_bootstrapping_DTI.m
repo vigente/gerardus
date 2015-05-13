@@ -115,7 +115,7 @@ for n = 1:Nreps
     DT_reps(:,:,n) = DT2;
     FA_reps(:,1,n) = FA2;
     ADC_reps(:,1,n) = ADC2;
-    VectorField_reps(:,:,:,n) = VectorField2;
+    VectorField_reps(:,:,:,:,n) = VectorField2;
     EigVals_reps(:,:,:,n) = EigVals2;
     
 end
@@ -134,8 +134,8 @@ Angle_deviation_tertiary = zeros(size(FA_reps));
 
 for n = 1:Nreps
     % primary eigenvectors
-    v1 = real(squeeze(VectorField(:,1,1:3)));
-    v2 = real(squeeze(VectorField_reps(:,1,1:3,n)));
+    v1 = real(squeeze(VectorField(:,1,:,1)));
+    v2 = real(squeeze(VectorField_reps(:,1,:,1,n)));
     
     % ensure unit magnitude
     v1 = bsxfun(@rdivide, v1, sqrt(sum(v1.^2, 2))+eps);
@@ -145,8 +145,8 @@ for n = 1:Nreps
     Angle_deviation_primary(:,1,n) = acos(theta) / pi * 180;
     
     % secondary eigenvectors
-    v1 = real(squeeze(VectorField(:,1,4:6)));
-    v2 = real(squeeze(VectorField_reps(:,1,4:6,n)));
+    v1 = real(squeeze(VectorField(:,1,:,2)));
+    v2 = real(squeeze(VectorField_reps(:,1,:,2,n)));
     
     % ensure unit magnitude
     v1 = bsxfun(@rdivide, v1, sqrt(sum(v1.^2, 2))+eps);
@@ -156,8 +156,8 @@ for n = 1:Nreps
     Angle_deviation_secondary(:,1,n) = acos(theta) / pi * 180;
     
     % tertiary eigenvectors
-    v1 = real(squeeze(VectorField(:,1,7:9)));
-    v2 = real(squeeze(VectorField_reps(:,1,7:9,n)));
+    v1 = real(squeeze(VectorField(:,1,:,3)));
+    v2 = real(squeeze(VectorField_reps(:,1,:,3,n)));
     
     % ensure unit magnitude
     v1 = bsxfun(@rdivide, v1, sqrt(sum(v1.^2, 2))+eps);

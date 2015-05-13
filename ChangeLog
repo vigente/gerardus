@@ -1,6 +1,6 @@
 2015-04-09  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
-	* add matlab/DiffusionMRIToolbox/fit_kurtosis_model.m (0.1.0)
+	* add matlab/DiffusionMRIToolbox/fit_DKI_model.m (0.1.0)
 
 	- Fits the diffusion kurtosis model to diffusion MRI data.
 

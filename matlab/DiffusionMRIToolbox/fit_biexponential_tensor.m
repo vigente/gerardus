@@ -1,4 +1,4 @@
-function [M, ADC1, ADC2, FA1, FA2, VectorF1, VectorF2] = fit_biexponential_tensor(I, bval, mask)
+function [M, ADC1, ADC2, FA1, FA2, VectorF_fast, VectorF_slow, I_fit] = fit_biexponential_tensor(I, bval, mask)
 %FIT_BIEXPONENTIAL_TENSOR Fit the bi-exponential tensor model
 % fits the function S = S0_fast * e^(b*D_fast) + S0_slow e^(b*D_slow)
 %
@@ -60,7 +60,7 @@ function [M, ADC1, ADC2, FA1, FA2, VectorF1, VectorF2] = fit_biexponential_tenso
 
 % check arguments
 narginchk(2,3);
-nargoutchk(0, 7);
+nargoutchk(0, 8);
 
 sz = size(I);
 
@@ -226,16 +226,22 @@ if max(mask(:)) == 1
 
     M = zeros([prod(sz(1:end-1)), 14]);
     M(mask(:), :) = M_nl;
-    M = reshape(M, [sz(1:end-1), 14]);
-
+    
     FA1 = zeros(sz(1:end-1));
     FA1(mask(:)) = FA;
     ADC1 = zeros(sz(1:end-1));
     ADC1(mask(:)) = ADC;
-    VectorF1 = zeros([prod(sz(1:end-1)), 3]);
-    VectorF1(mask(:),:) = VectorF;
-    VectorF1 = reshape(VectorF1, [sz(1:end-1), 3]);
-
+    VectorF_1 = zeros([prod(sz(1:end-1)), 3]);
+    VectorF_1(mask(:),:) = VectorF;
+    VectorF_1 = reshape(VectorF_1, [sz(1:end-1), 3]);
+    VectorF_2 = zeros([prod(sz(1:end-1)), 3]);
+    VectorF_2(mask(:),:) = VectorF2;
+    VectorF_2 = reshape(VectorF_2, [sz(1:end-1), 3]);
+    VectorF_3 = zeros([prod(sz(1:end-1)), 3]);
+    VectorF_3(mask(:),:) = VectorF3;
+    VectorF_3 = reshape(VectorF_3, [sz(1:end-1), 3]);
+    
+    VectorF_fast = cat(ndims(VectorF_1)+1, VectorF_1, VectorF_2, VectorF_3);
 
     for i = 1:size(M_nl,1)
 
@@ -280,16 +286,26 @@ if max(mask(:)) == 1
     FA2(mask(:)) = FA;
     ADC2 = zeros(sz(1:end-1));
     ADC2(mask(:)) = ADC;
-    VectorF2 = zeros([prod(sz(1:end-1)), 3]);
-    VectorF2(mask(:),:) = VectorF;
-    VectorF2 = reshape(VectorF2, [sz(1:end-1), 3]);
-
+    VectorF_1 = zeros([prod(sz(1:end-1)), 3]);
+    VectorF_1(mask(:),:) = VectorF;
+    VectorF_1 = reshape(VectorF_1, [sz(1:end-1), 3]);
+    VectorF_2 = zeros([prod(sz(1:end-1)), 3]);
+    VectorF_2(mask(:),:) = VectorF2;
+    VectorF_2 = reshape(VectorF_2, [sz(1:end-1), 3]);
+    VectorF_3 = zeros([prod(sz(1:end-1)), 3]);
+    VectorF_3(mask(:),:) = VectorF3;
+    VectorF_3 = reshape(VectorF_3, [sz(1:end-1), 3]);
+    
+    VectorF_slow = cat(ndims(VectorF_1)+1, VectorF_1, VectorF_2, VectorF_3);
 
 
 end
 
+I_fit = bsxfun(@times, M(:,1), exp(-(M(:,2:7) * Bv))) + ...
+    bsxfun(@times, M(:,8), exp(-(M(:,9:14) * Bv)));
 
-M = reshape(M, [sz(1:3), 14]);
+M = reshape(M, [sz(1:end-1), 14]);
+I_fit = reshape(I_fit, sz);
 
 end
 

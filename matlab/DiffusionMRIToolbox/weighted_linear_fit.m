@@ -114,14 +114,18 @@ W = diag(V);
 % fit the weighted model
 M_weighted = (pinv(X * (W.^2) * X') * X * (W.^2) * Y')';
 
-if warnings_on
-    R_weighted = func(Y) - func(M_weighted * X);
+R_weighted = func(Y) - func(M_weighted * X);
 
+if warnings_on
     if sqrt(sum(R(:).^2)) < sqrt(sum(R_weighted(:).^2))
         disp(['Be careful, the weighting step increased your sum of squares from ' ...
             num2str(sqrt(sum(R(:).^2))) ' to ' num2str(sqrt(sum(R_weighted(:).^2)))])
         
     end
 end
+
+RMSE_unweighted = sum(R.^2, 2);
+RMSE_weighted = sum(R_weighted.^2,2);
+M_weighted(RMSE_unweighted < RMSE_weighted,:) = M(RMSE_unweighted < RMSE_weighted,:);
 
 end
