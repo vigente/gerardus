@@ -8,7 +8,9 @@ function varargout = elastix_bspline_grid(t)
 %
 %   GX, GY are matrices with the coordinates of the B-spline coefficients.
 %   This is a similar format to the output of NDGRID. They follow the
-%   Matlab convention that X->columns and Y->rows.
+%   Matlab convention that X->columns and Y->rows. Note that Elastix
+%   parameters follow the convention that X->rows, Y->columns, so they are
+%   internally transposed to produced GX, GY.
 %
 % [GX, GY, ..., GN] = ELASTIX_BSPLINE_GRID(T)
 % 
@@ -36,7 +38,7 @@ function varargout = elastix_bspline_grid(t)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.1.3
+% Version: 0.1.4
 % $Rev$
 % $Date$
 % 

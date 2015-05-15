@@ -1,3 +1,12 @@
+2015-05-15  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/elastix.m: (0.4.3)
+	* matlab/ItkToolbox/elastix_bspline_grid.m: (0.1.4)
+	* matlab/ItkToolbox/elastix_bspline_grid2param.m: (0.1.1)
+
+	- Clarify in the help header that elastix parameters x->rows,
+	y->columns.
+
 2015-05-13  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/elastix_cat.m: (0.1.1)
