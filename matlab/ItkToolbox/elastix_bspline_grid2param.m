@@ -7,6 +7,8 @@ function v = elastix_bspline_grid2param(varargin)
 %   GX, GY are matrices describing a grid of B-spline control points
 %   coordinates or displacements. This is a similar format to the output of
 %   NDGRID. They follow the Matlab convention that X->columns and Y->rows.
+%   Note that GX, GY will be transposed internally to follow Elastix
+%   convention that X->rows, Y->columns.
 %
 %   Important: Function elastix_bspline_grid produces control point
 %   coordinates, not displacements. So if you apply
@@ -45,7 +47,7 @@ function v = elastix_bspline_grid2param(varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 
