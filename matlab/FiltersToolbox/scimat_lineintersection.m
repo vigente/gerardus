@@ -11,8 +11,8 @@ function [intensities1, intensities2,intersectCoords] =  scimat_lineintersection
 % The user has the choice to specify the Slice and Frame wanted. 
 
 % Authors: Benjamin Villard <b.016434@gmail.com>, Christopher Kelly  <christopher.kelly28@googlemail.com>
-% Copyright © 2011-2015 University of Oxford
-% Version: 0.1.0
+% Copyright © 2015 University of Oxford
+% Version: 0.0.2
 % $Rev$
 % $Date$
 % 
