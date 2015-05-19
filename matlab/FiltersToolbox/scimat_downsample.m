@@ -86,6 +86,11 @@ if(ndims(scimat) == 3)
     scimat.axis(1).size = size(scimat.data,1);
     scimat.axis(2).size = size(scimat.data,2);
     scimat.axis(3).size = size(scimat.data,3);
+    
+    % Update spacing
+    scimat.axis(1).spacing = scimat.axis(1).spacing*2;
+    scimat.axis(2).spacing = scimat.axis(2).spacing*2;
+    scimat.axis(3).spacing = scimat.axis(3).spacing*2;
 
 elseif(ndims(scimat.data) == 2)
     
@@ -102,6 +107,11 @@ elseif(ndims(scimat.data) == 2)
     % Update scimat
     scimat.axis(1).size = size_out(1);
     scimat.axis(2).size = size_out(2);
+    
+    % Update spacing
+    scimat.axis(1).spacing = scimat.axis(1).spacing*2;
+    scimat.axis(2).spacing = scimat.axis(2).spacing*2;
+    scimat.axis(3).spacing = scimat.axis(3).spacing*2;
     
     % Recalculate image
     [x,y] = ndgrid(1.5:2:(size_out(1)*2)-.5, 1.5:2:(size_out(2)*2)-.5);
