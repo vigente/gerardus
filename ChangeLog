@@ -1,3 +1,10 @@
+﻿2015-05-20  Jack Allen <jack.allen@jesus.ox.ac.uk>
+
+	* Add matlab/ManifoldToolbox/trifacet_area3D (0.1.0)
+	
+	- Function to compute surface area of a 3D triangular mesh. 
+	It also can return the list of triangle side lengths and triangle areas.
+
 2015-05-15  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/elastix.m: (0.4.3)

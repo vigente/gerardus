@@ -1,5 +1,6 @@
 function [total_area, areas, sides] = trifacet_area3D(faces, vertices)
 % trifacet_area3D 
+% 
 %
 % Function to calculate the surface area of a 3D mesh of triangles. This
 % function uses Heron's forumla to calculate the sides of each triangle.
@@ -19,6 +20,8 @@ function [total_area, areas, sides] = trifacet_area3D(faces, vertices)
 %    
 
 % Author: Jack Allen <jack.allen@jesus.ox.ac.uk>
+%   Version: 0.1.0
+%
 % Adapted from: 
 %    TRIFACET_SIGNED_AREA  (Gerardus)
 %    Author: Ramon Casero <rcasero@gmail.com> 
