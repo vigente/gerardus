@@ -1,4 +1,16 @@
-﻿2015-05-20  Jack Allen <jack.allen@jesus.ox.ac.uk>
+﻿2015-05-20  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ThirdPartyToolbox/Conv2FFTToolbox:
+	* matlab/add_gerardus_paths.m: (0.3.3)
+
+	- Alternative to conv2() using the FFT. This is way much faster
+	for the convolution of two similarly sized images. Downloaded from
+
+	http://www.mathworks.com/matlabcentral/fileexchange/31012-2-d-convolution-using-the-fft
+
+	By David Young, 11 Apr 2011.
+
+2015-05-20  Jack Allen <jack.allen@jesus.ox.ac.uk>
 
 	* Add matlab/ManifoldToolbox/trifacet_area3D (0.1.0)
 	
