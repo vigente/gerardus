@@ -1,5 +1,10 @@
 ﻿2015-05-20  Ramon Casero  <rcasero@gmail.com>
 
+	* Add elastix_affine_struct2matrix.m: (0.1.0)
+
+	- Convert any type of affine transform from elastix struct format
+	to homogeneous coordinates matrix format.
+
 	* Add matlab/ThirdPartyToolbox/Conv2FFTToolbox:
 	* matlab/add_gerardus_paths.m: (0.3.3)
 
