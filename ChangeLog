@@ -1,4 +1,11 @@
-﻿2015-05-20  Ramon Casero  <rcasero@gmail.com>
+﻿2015-05-22  Ramon Casero  <rcasero@gmail.com>
+
+	* Add elastix_affine_matrix2struct.m: (0.1.0)
+
+	- ELASTIX_AFFINE_MATRIX2STRUCT Convert homogeneous coordinates
+	matrix format to elastix struct format.
+
+2015-05-20  Ramon Casero  <rcasero@gmail.com>
 
 	* Add elastix_affine_struct2matrix.m: (0.1.0)
 
