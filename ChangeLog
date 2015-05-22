@@ -1,6 +1,9 @@
 ﻿2015-05-22  Ramon Casero  <rcasero@gmail.com>
 
-	* matlab/ItkToolbox/elastix_affine_struct2matrix.m: 
+	* matlab/ItkToolbox/elastix_compose_afftransf.m: (0.2.4)
+
+	- Remove internal nested functions and replace them by
+	elastix_affine_matrix2struct() and elastix_affine_struct2matrix().
 
 	* Rename matlab/ItkToolbox/elastix_affine_tform2param.m as
 	matlab/ItkToolbox/elastix_affine_matrix2struct.m: (0.1.0)
