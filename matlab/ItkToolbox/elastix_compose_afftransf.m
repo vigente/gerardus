@@ -28,27 +28,31 @@ function tfc = elastix_compose_afftransf(tf1, tf2)
 %     'EulerTransform' (= Rigid transform)
 %     'TranslationTransform'
 %
-%     which can be centered anywhere else.
+%     which can be centered anywhere else. Note that if TF1 or TF2 point to
+%     any subsequent transforms with TF.InitialTransformParametersFileName,
+%     they will be ignored.
 %
 %   TFC is the composed transform. TFC is a matrix or struct depending on
 %   whether TFC1 is a matrix or struct, and it has the same centre of
-%   rotation. If TF1 is a struct, then TFC is given as the most flexible of
-%   the two types in TF1, TF2. For example, if TF1 is EulerTransform and
-%   TF2 is SimilarityTransform, TFC will be SimilarityTransform.
+%   rotation as TF1. If TF1 is a struct, then TFC is given as the most
+%   flexible of the two types in TF1, TF2. For example, if TF1 is
+%   an EulerTransform and TF2 is a SimilarityTransform, TFC will be
+%   a SimilarityTransform.
 %
 %   TFC has the same output size as TF2, which is logical, because TF2 is
 %   the last transform to be applied to the image. However, we keep the
 %   center of rotation of TF1.
 %
 %   transformix(TFC, IM) produces the same result in one step than
-%   transformix(TF2, transformix(TF1, IM)).
+%   transformix(TF2, transformix(TF1, IM)). That is, TF1 is applied first,
+%   and then TF2 is applied.
 %
 %
 % See also: elastix, transformix, elastix_transf_imcoord2.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.2.3
+% Version: 0.2.4
 % $Rev$
 % $Date$
 % 
@@ -94,160 +98,65 @@ if ((isstruct(tf1) && ~strcmp(tf1.HowToCombineTransforms, 'Compose')) ...
     error('HowToCombineTransforms must be ''Compose''')
 end
 
+if (isstruct(tf1.InitialTransformParametersFileName))
+    warning('TF1 is pointing to another transform in InitialTransformParametersFileName, that will be ignored')
+    tf1.InitialTransformParametersFileName = 'NoInitialTransform';
+end
+if (isstruct(tf2.InitialTransformParametersFileName))
+    warning('TF2 is pointing to another transform in InitialTransformParametersFileName, that will be ignored')
+    tf2.InitialTransformParametersFileName = 'NoInitialTransform';
+end
+
 % convert transforms to affine matrix with center of rotation = 0
-a1 = origin_affine(tf1);
-a2 = origin_affine(tf2);
+a1 = elastix_affine_struct2matrix(tf1);
+a2 = elastix_affine_struct2matrix(tf2);
 
 % compose transforms
 ac = a2 * a1;
 
 % format output transform and center on same center as first transform
-tfc = format_centered_output(ac, tf1, tf2);
-
-end
-
-function a = origin_affine(tf)
-
-% transform is provided as an elastix struct
-if (isstruct(tf))
-    
-    switch (tf.Transform)
-        
-        case 'SimilarityTransform'
-            
-            % transformation nomenclature
-            s =     tf.TransformParameters(1);
-            theta = tf.TransformParameters(2);
-            t =     tf.TransformParameters(3:4);
-            c =     tf.CenterOfRotationPoint;
-            
-        case 'EulerTransform'
-            
-            % transformation nomenclature
-            s =     1.0;
-            theta = tf.TransformParameters(1);
-            t =     tf.TransformParameters(2:3);
-            c =     tf.CenterOfRotationPoint;
-            
-        case 'TranslationTransform'
-            
-            % transformation nomenclature
-            s =     1.0;
-            theta = 0;
-            t =     tf.TransformParameters(1:2);
-            c =     tf.CenterOfRotationPoint;
-            
-        otherwise
-            
-            error('Transform not implemented')
-            
-    end
-    
-    % center transform on origin
-    R = [cos(theta) sin(theta);...
-        -sin(theta) cos(theta)];
-    t = t + c * (eye(2) - s * R);
-    
-    % create affine transform matrix
-    a = [s*R [0;0]; t 1];
-            
-else % transform is provided as an affine matrix
-    
-    if (any(size(tf) ~= [3 3]))
-        error('If TF is provided as an affine matrix, it must be a (3, 3)-matrix')
-    end
-    
-    % we don't need to do anything to the matrix
-    a = tf;
-    
-end
-
-end
-
-function tfc = format_centered_output(ac, tf1, tf2)
-
 if (isstruct(tf1)) % return composed transform as an elastix struct
     
     % use TF2 as a template for the output, because TF2 is the last
     % transform to be applied to the image
     tfc = tf2;
     
+    % but we use the rotation center of the first transform
+    tfc.CenterOfRotationPoint = tf1.CenterOfRotationPoint;
+    
     % the return type is the most flexible of the two transforms
     if (strcmp(tf1.Transform, 'AffineTransform') ...
             || strcmp(tf2.Transform, 'AffineTransform'))
         
-        error('AffineTransform not implemented')
+        tfc.Transform = 'AffineTransform';
         
     elseif (strcmp(tf1.Transform, 'SimilarityTransform') ...
             || strcmp(tf2.Transform, 'SimilarityTransform'))
 
-        % convert general affine matrix into similarity transform
-        % parameters
-        s = sqrt(ac(1, 1)^2 + ac(1, 2)^2);
-        t = ac(3, 1:2);
-        theta = atan2(ac(1, 2), ac(1, 1));
         
-        % center transform on same center as TF1
-        c = tf1.CenterOfRotationPoint;
-        R = [ cos(theta) sin(theta);...
-             -sin(theta) cos(theta)];
-        t = t - c * (eye(2) - s * R);
-
-        % assign parameters to output struct
-        tfc.TransformParameters(1) = s;
-        tfc.TransformParameters(2) = theta;
-        tfc.TransformParameters(3:4) = t;
-        tfc.CenterOfRotationPoint = c;
+        tfc.Transform = 'SimilarityTransform';
         
     elseif (strcmp(tf1.Transform, 'EulerTransform') ...
             || strcmp(tf2.Transform, 'EulerTransform')) % rigid transform
         
-        % convert general affine matrix into rigid transform
-        % parameters
-        s = 1.0;
-        t = ac(3, 1:2);
-        theta = atan2(ac(1, 2), ac(1, 1));
-        
-        % center transform on same center as TF1
-        c = tf1.CenterOfRotationPoint;
-        R = [ cos(theta) sin(theta);...
-             -sin(theta) cos(theta)];
-        t = t - c * (eye(2) - s * R);
-
-        % assign parameters to output struct
-        tfc.TransformParameters(1) = theta;
-        tfc.TransformParameters(2:3) = t;
-        tfc.CenterOfRotationPoint = c;
+        tfc.Transform = 'EulerTransform';
         
     elseif (strcmp(tf1.Transform, 'TranslationTransform') ...
             || strcmp(tf2.Transform, 'TranslationTransform'))
         
-        % convert general affine matrix into rigid transform
-        % parameters
-        s = 1.0;
-        t = ac(3, 1:2);
-        theta = 0;
-        
-        % center transform on same center as TF1
-        c = tf1.CenterOfRotationPoint;
-        R = [ cos(theta) sin(theta);...
-             -sin(theta) cos(theta)];
-        t = t - c * (eye(2) - s * R);
-
-        % assign parameters to output struct
-        tfc.TransformParameters(1:2) = t;
-        tfc.CenterOfRotationPoint = c;
+        tfc.Transform = 'TranslationTransform';
         
     else
             
         error('Unknow transform in TF1 or TF2')
             
     end
-    
+
+    % convert full affine matrix to elastix format
+    tfc = elastix_affine_matrix2struct(ac, tfc);
+
 else % return composed transform as a matrix
     
     tfc = ac;
     
-end
-
 end

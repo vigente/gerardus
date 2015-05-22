@@ -209,6 +209,8 @@ fit_stretched_exponential.m
 	 FIT_STRETCHED_EXPONENTIAL    Fit the stretched exponential model of 
 	 diffusion to an image
 	
+fit_stretched_exponential_tensor.m
+
 global_reference_frame.m
 
 	GLOBAL_REFERENCE_FRAME Returns unit vectors for the global reference frame
@@ -467,6 +469,18 @@ scimat_crop.m
 
 	 SCIMAT_CROP  Crop a SCIMAT image or segmentation volume of any dimension.
 	
+scimat_downsample.m
+
+	 SCIMAT_DOWNSAMPLE downsamples the scimat image (stored in scimat.data)
+	 by half. It first applies a gaussian filter in order to smooth the image
+	 and the proceeds to sample half of the original image. 
+	    
+	   Function SCIMAT_DOWNSAMPLE() takes a scimat struct as an input. It then
+	   proceeds to smooth the image in the scimat struct by applying a
+	   gaussian filter in either 2 or 3 dimensions, depending on the scimat
+	   struct dimensions. Once smoothed, the spacial locations of the voxels
+	   is recalcuated at half the sample frequency of the original image. 
+	
 scimat_estimate_bias_field.m
 
 	 SCIMAT_ESTIMATE_BIAS_FIELD  Estimate MRI bias field.
@@ -559,10 +573,15 @@ typicalpsf.m
 ItkToolbox
 -------------------------------------------------------------
 
-elastix_affine_tform2param.m
+elastix_affine_matrix2struct.m
 
-	 elastix_affine_tform2param  Convert Matlab tform affine transform to
-	 elastix parameter vector.
+	 ELASTIX_AFFINE_MATRIX2STRUCT  Convert homogeneous coordinates matrix
+	 format to elastix struct format.
+	
+elastix_affine_struct2matrix.m
+
+	 ELASTIX_AFFINE_STRUCT2MATRIX  Convert any type of affine transform from
+	 elastix struct format to homogeneous coordinates matrix format.
 	
 elastix_bspline_grid2param.m
 
@@ -741,6 +760,11 @@ tri_ccqp_smacof_nofold_sph_pip.m
 triconncomp.m
 
 	 TRICONNCOMP  Find connected components in mesh
+	
+trifacet_area3D.m
+
+	 trifacet_area3D 
+	 
 	
 trifacet_signed_area.m
 
@@ -1077,6 +1101,25 @@ tiff_read_header.m
 
 tightfig.m
 
+
+ThirdPartyToolbox/Conv2FFTToolbox
+-------------------------------------------------------------
+
+conv_fft2.m
+
+	CONV_FFT2 Two dimensional convolution via the FFT.
+	   Y = CONV_FFT2(X, M) performs the 2-D convolution of matrices X and M.
+	   If [mx,nx] = size(X) and [mm,nm] = size(M), then size(Y) =
+	   [mx+mm-1,nx+nm-1]. Values near the boundaries of the output array are
+	   calculated as if X was surrounded by a border of zero values.
+	
+exindex.m
+
+	EXINDEX extended array indexing
+	   ARROUT = EXINDEX(ARRIN, S1, S2, ...) indexes a virtual array made by
+	   extending ARRIN with zeros in all directions, using subscripts S1, S2
+	   etc.
+	
 
 ThirdPartyToolbox/FastMarchingToolbox
 -------------------------------------------------------------
