@@ -1,9 +1,13 @@
 ﻿2015-05-22  Ramon Casero  <rcasero@gmail.com>
 
-	* Add elastix_affine_matrix2struct.m: (0.1.0)
+	* matlab/ItkToolbox/elastix_affine_struct2matrix.m: 
 
-	- ELASTIX_AFFINE_MATRIX2STRUCT Convert homogeneous coordinates
-	matrix format to elastix struct format.
+	* Rename matlab/ItkToolbox/elastix_affine_tform2param.m as
+	matlab/ItkToolbox/elastix_affine_matrix2struct.m: (0.1.0)
+
+	- A tform is a structure used by Matlab. In reality, this function
+	converts the affine matrix contained inside the tform to the
+	elastix struct format.
 
 2015-05-20  Ramon Casero  <rcasero@gmail.com>
 
