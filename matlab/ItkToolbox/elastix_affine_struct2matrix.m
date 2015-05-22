@@ -13,10 +13,11 @@ function a = elastix_affine_struct2matrix(tf)
 %     'TranslationTransform'
 %
 %   It may also have an arbitrary TF.CenterOfRotationPoint, it doesn't need
-%   to be 0.
+%   to be 0. Subsequent transforms pointed at from
+%   TF.InitialTransformParametersFileName are ignored.
 %
 %   A is an affine transform matrix in homegeneous coordinates, referred to
-%   the center of coordinates = 0. The transform is computed as
+%   the centre of coordinates = 0. The transform is computed as
 %
 %     [y 1] = [x 1] * A
 %
