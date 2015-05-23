@@ -36,7 +36,7 @@ function [scimat] = scimat_downsample(scimat)
 % Authors: Benjamin Villard <b.016434@gmail.com>,
 % Vicente Grau  <vicente.grau@eng.ox.ac.uk>
 % Copyright © 2015 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
