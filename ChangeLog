@@ -1,5 +1,11 @@
 ﻿2015-05-24  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ElastixToolbox/elastix_cat.m: (0.2.0)
+
+	- Fix bug. The concatenation was in the opposite order. If we want
+	to apply T1 and T2 in that order, then
+	T2.InitialTransformParametersFileName = T1.
+
 	* Move elastix functions from ItkToolbox to new directory
 	ElastixToolbox.
 

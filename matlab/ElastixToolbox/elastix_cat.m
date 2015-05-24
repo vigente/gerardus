@@ -1,54 +1,49 @@
-function varargin = elastix_cat(varargin)
+function tfout = elastix_cat(varargin)
 % ELASTIX_CAT  Concatenation of elastix transforms.
 %
 % Elastix allows for a list of transforms to be applied to an image. For
-% example, if we have a translation transform
+% example, if we want to apply a translation transform followed by a
+% B-spline transform, we can use
 %
-%   T1 = 
-% 
-%                              Transform: 'TranslationTransform'
-%                     NumberOfParameters: 1
-%                    TransformParameters: [1x2 double]
-%    InitialTransformParametersFileName:  [1x1 struct]
-%                 HowToCombineTransforms: 'Compose'
-%
-% we can see that "InitialTransformParametersFileName" points to another
-% transform, and "HowToCombineTransforms" specifies that they will be
-% composed. The second transform could be, for example, a B-spline
-%
-%   T1.InitialTransformParametersFileName = 
+%   TF = 
 % 
 %                              Transform: 'BSplineTransform'
 %                     NumberOfParameters: 84
 %                    TransformParameters: [1x84 double]
-%     InitialTransformParametersFileName: 'NoInitialTransform'
+%     InitialTransformParametersFileName: [1x1 struct]
+%                 HowToCombineTransforms: 'Compose'
 %
-% This second transform does not point any further transforms (although it
-% could, having a longer list). In this example, the translation is applied
-% first to the image, and then the B-spline.
+%   with
 %
-% Note: It's a bit confusing that "InitialTransformParametersFileName"
-% points to the transform that is going to be applied to the image after
-% the current one. However, this makes sense because when we register A to
-% B in elastix, the transform returned is for coordinates from B to A. The
-% reason for this is that otherwise transforming an image could leave
-% "holes" after resampling.
+%   TF.InitialTransformParametersFileName = 
+% 
+%                              Transform: 'TranslationTransform'
+%                     NumberOfParameters: 1
+%                    TransformParameters: [1x2 double]
+%    InitialTransformParametersFileName:  'NoInitialTransform'
+%
 %
 % ELASTIX_CAT allows to concatenate a list of elastix transforms, each of
 % which can be a simple transform or a list of transforms.
 %
-% TOUT = ELASTIX_CAT(T1, ..., TN)
+% TFOUT = ELASTIX_CAT(TF1, ..., TFN)
 %
-%   T1, ..., TN is a list of N elastix transforms, each being a struct.
-%   Each transform can be simple, or be a concatenation of transforms using
-%   the InitialTransformParametersFileName field.
+%   TF1, ..., TFN is a list of N elastix transforms, each being a struct,
+%   that we want to apply to the image in that order. Each transform can be
+%   simple, or be a concatenation of transforms using the
+%   InitialTransformParametersFileName field.
 %
-%   TOUT is a struct with T1, ..., TN concatenated such that T1 is applied
-%   first to the image, then T2, etc, until TN.
+%   TFOUT is a struct with TF1, ..., TFN concatenated:
+%
+%   TFOUT = TFN
+%           TFN.InitialTransformParametersFileName = TF(N-1)
+%               TF(N-1).InitialTransformParametersFileName = TF(N-2)
+%                   ...
+%                    TF1.InitialTransformParametersFileName = 'NoInitialTransform'
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.1.1
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -84,22 +79,20 @@ N = length(varargin);
 
 if (N == 0)
     
-    varargin = [];
+    tfout = [];
     return;
-    
-elseif (N == 1)
-    
-    varargin = varargin{1};
     
 end
 
-% loop from the back of the list of transforms
-for I = N-1:-1:1
+% start from the beginning
+tfout = varargin{1};
+
+% travel the list of transforms
+for I = 2:N
     
-    varargin{I} = cat_2_transf(varargin{I}, varargin{I+1});
+    tfout = cat_2_transf(varargin{I}, tfout);
     
 end
-varargin = varargin{1};
 
 end
 
