@@ -1,4 +1,13 @@
-﻿2015-05-22  Ramon Casero  <rcasero@gmail.com>
+﻿2015-05-24  Ramon Casero  <rcasero@gmail.com>
+
+	* Move elastix functions from ItkToolbox to new directory
+	ElastixToolbox.
+
+	- Although elastix is based on ITK, the elastix_* and transformix
+	functions independently of ITK, and we don't need to build
+	anything.
+
+2015-05-22  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ItkToolbox/elastix_compose_afftransf.m: (0.2.4)
 
