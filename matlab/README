@@ -232,6 +232,69 @@ wild_bootstrapping_DTI.m
 	 Bootstrap to Quantify Uncertainty in Diffusion Tensor Imaging
 	
 
+ElastixToolbox
+-------------------------------------------------------------
+
+elastix_affine_matrix2struct.m
+
+	 ELASTIX_AFFINE_MATRIX2STRUCT  Convert homogeneous coordinates matrix
+	 format to elastix struct format.
+	
+elastix_affine_struct2matrix.m
+
+	 ELASTIX_AFFINE_STRUCT2MATRIX  Convert any type of affine transform from
+	 elastix struct format to homogeneous coordinates matrix format.
+	
+elastix_bspline_grid2param.m
+
+	 ELASTIX_BSPLINE_GRID2PARAM  Convert control points from grid to
+	 TransformParameters vector form.
+	
+elastix_bspline_grid.m
+
+	 ELASTIX_BSPLINE_GRID  Control point grid of B-spline transformation.
+	
+elastix_cat.m
+
+	 ELASTIX_CAT  Concatenation of elastix transforms.
+	
+elastix_compose_afftransf.m
+
+	 elastix_compose_afftransf  Composition of two 2D affine transforms.
+	
+elastix_delete_param_file.m
+
+	 elastix_delete_param_file  Delete nested transform files.
+	
+elastix.m
+
+	 elastix  Matlab interface to the image registration program "elastix".
+	
+elastix_read_file2param.m
+
+	 elastix_read_file2param  Read file with elastix parameters into struct.
+	 It accepts nested transform files.
+	
+elastix_read_reg_output.m
+
+	 elastix_read_reg_output  Read output of registration computed with
+	 elastix.
+	
+elastix_transf_imcoord2.m
+
+	 elastix_transf_imcoord  Convert 2D pixel coordinates using
+	 elastix/transformix transform.
+	
+elastix_write_param2file.m
+
+	 elastix_write_param2file  Write struct with elastix parameters to file.
+	 It accepts nested transform parameters.
+	
+transformix.m
+
+	 transformix  Matlab interface to the image warping program "transformix".
+	
+
 FileFormatToolbox
 -------------------------------------------------------------
 
@@ -573,61 +636,6 @@ typicalpsf.m
 ItkToolbox
 -------------------------------------------------------------
 
-elastix_affine_matrix2struct.m
-
-	 ELASTIX_AFFINE_MATRIX2STRUCT  Convert homogeneous coordinates matrix
-	 format to elastix struct format.
-	
-elastix_affine_struct2matrix.m
-
-	 ELASTIX_AFFINE_STRUCT2MATRIX  Convert any type of affine transform from
-	 elastix struct format to homogeneous coordinates matrix format.
-	
-elastix_bspline_grid2param.m
-
-	 ELASTIX_BSPLINE_GRID2PARAM  Convert control points from grid to
-	 TransformParameters vector form.
-	
-elastix_bspline_grid.m
-
-	 ELASTIX_BSPLINE_GRID  Control point grid of B-spline transformation.
-	
-elastix_cat.m
-
-	 ELASTIX_CAT  Concatenation of elastix transforms.
-	
-elastix_compose_afftransf.m
-
-	 elastix_compose_afftransf  Composition of two 2D affine transforms.
-	
-elastix_delete_param_file.m
-
-	 elastix_delete_param_file  Delete nested transform files.
-	
-elastix.m
-
-	 elastix  Matlab interface to the image registration program "elastix".
-	
-elastix_read_file2param.m
-
-	 elastix_read_file2param  Read file with elastix parameters into struct.
-	 It accepts nested transform files.
-	
-elastix_read_reg_output.m
-
-	 elastix_read_reg_output  Read output of registration computed with
-	 elastix.
-	
-elastix_transf_imcoord2.m
-
-	 elastix_transf_imcoord  Convert 2D pixel coordinates using
-	 elastix/transformix transform.
-	
-elastix_write_param2file.m
-
-	 elastix_write_param2file  Write struct with elastix parameters to file.
-	 It accepts nested transform parameters.
-	
 itk_imfilter.m
 
 	 ITK_IMFILTER  Run ITK filter on a 2D, 3D or 4D image.
@@ -641,10 +649,6 @@ itk_tri_rasterization.m
 
 	 ITK_TRI_RASTERIZATION  Rasterization of triangular mesh to binary
 	 segmentation
-	
-transformix.m
-
-	 transformix  Matlab interface to the image warping program "transformix".
 	
 
 ManifoldToolbox
