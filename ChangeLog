@@ -1,4 +1,35 @@
-﻿2015-05-24  Ramon Casero  <rcasero@gmail.com>
+﻿2015-05-26  Benjamin Villard  <b.016434@gmail.com>
+	* matlab/FiltersToolbox/scimat_lineintersection.m (0.1.0)
+	
+	- Added and promoted function to beta version and merged it to the master branch.
+	(Before promotion (Alpha version) function was in scimat_lineintersection branch of gerardus) 
+	This function returns the line intensities from two intersecting scimat files at
+	a specified resolution. 
+	
+	* matlab/FiltersToolbox/scimat_downsample.m (0.3.0)
+	
+	- Added and promoted function to beta version and merged it to the master branch.
+	(Before promotion (Alpha version) function was in scimat_lineintersection branch of gerardus)
+	This function  takes a scimat struct and downsamples the scimat image (stored in scimat.data)
+	by half. It first applies a Gaussian filter in order to smooth the image
+ 	and the proceeds to sample half of the original image. 
+	
+	* matlab/FiltersToolbox/scimat_upsample.m (0.2.0)
+	
+	- Added and promoted function to beta version and merged it to the master branch.
+	(Before promotion (Alpha version) function was in scimat_lineintersection branch of gerardus)
+	This function takes a scimat struct and a highre resolution image, and proceeds to replace the
+	scimat image (stored in scimat.data) by the image, as well as recalculates all the attributes
+	such that the scimat struct is sampled by twice. Used in conjunction with scimat_downsample.m.
+	
+	* matlab/FilesFormatToolbox/scimat_slice_GUI.m (0.1.0)
+	
+	- Added and promoted function to beta version and merged it to the master branch.
+	(Before promotion (Alpha version) function was in scimat_lineintersection branch of gerardus)
+	This function Create graphical user interface to view slices in scimat struct. 
+	Checkboxes allow for slice visibility to be turned on/off
+
+	2015-05-24  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/elastix_cat.m: (0.2.0)
 
