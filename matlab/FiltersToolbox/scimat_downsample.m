@@ -35,8 +35,9 @@ function [scimat] = scimat_downsample(scimat)
 %
 % Authors: Benjamin Villard <b.016434@gmail.com>,
 % Vicente Grau  <vicente.grau@eng.ox.ac.uk>
+% Christopher Kelly <christopher.kelly28@googlemail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.2.0
+% Version: 0.3.0
 % $Rev$
 % $Date$
 % 
@@ -126,8 +127,9 @@ elseif(ndims(scimat.data) == 2)
 	
     
     % Recalculate image
-    [x,y] = ndgrid(0:2:(size_out(1)*2), 0:2:(size_out(2)*2));
-    scimatout = interpn(scimat.data,x,y);
+    [x1,y1] = ndgrid(0:(origsze(1)-0.5),0:(origsze(2)-0.5)); % Creates original meshgrid so that the interpolation function knows where to start interpolating in space. 
+    [x2,y2] = ndgrid(0.5:2:(origsze(1)-1.5),0:2:(origsze(2)-1.5)); % Creates the downsampled grid.
+    scimatout = interpn(x1,y1,scimat.data,x2,y2);
     
     % Update scimat 
     scimat.data = scimatout;
@@ -137,8 +139,6 @@ elseif(ndims(scimat.data) == 2)
     scimat.axis(1).min  = coords(1,1,2) - ([scimat.axis(2).spacing]/2);
     scimat.axis(2).min  = coords(1,1,1) - ([scimat.axis(1).spacing]/2);
     scimat.axis(3).min  = coords(1,1,3) - ([scimat.axis(3).spacing]/2);
-
-    
     
 
     
