@@ -1,43 +1,47 @@
-function [scimat] = scimat_upsample(scimat,data)
+function [scimat] = scimat_upsample(scimat, data)
 
-% SCIMAT_UPSAMPLE upsample the scimat image (stored in scimat.data)
-% by twice. It first applies a gaussian filter in order to smooth the image
-% and the proceeds to sample half of the original image. 
+% SCIMAT_UPSAMPLE upsample takes the data image provided as an input,
+% updates the scimat struct with the higher resolution image, and proceeds
+% to update the scimat attributes in the scimat struct so that they are
+% twice the sampling of the scimat struct. 
 % 
 %   DISCLAIMER: Method has NOT been verified for 3D case. 
 %    
-%   Function SCIMAT_DOWNSAMPLE() takes a scimat struct as an input. It then
-%   proceeds to smooth the image in the scimat struct by applying a
-%   gaussian filter in either 2 or 3 dimensions, depending on the scimat
-%   struct dimensions. Once smoothed, the spacial locations of the voxels
-%   is recalcuated at half the sample frequency of the original image. 
+%   Function SCIMAT_UPSAMPLE() takes a scimat struct and a higher resolution 
+%   image as an input(The resolution should be twice the resolution of 
+%   scimat.data. The higher res image replaces the lower res one stored in 
+%   scimat.data. The offset (scimat.min) and spacing are then updated so
+%   that they are twice as much as the old scimat attributes.  
 %
-% [SCIMAT] = SCIMAT_DOWNSAMPLE(SCIMAT)
+% [SCIMAT] = SCIMAT_UPSAMPLE(SCIMAT, DATA)
 % 
 % SCIMAT (input) and SCIMAT (output) are both Struct used in Gerardus to 
 % store 2D, 3D or 3D+t images and axis metainformation. For more
 % information see scimat.m
 %
+% DATA (input) is the higher resolution image. (By twice the resolution of
+% the image stored in scimat.data.)
+%
 % Example: 
 %  
-% [scimatout] = SCIMAT_DOWNSAMPLE(scimatin)
+% [scimatout] = SCIMAT_DOWNSAMPLE(scimatin, HigherResImage)
 % 
 % scimatin = 
-% 
-%       axis: [3x1 struct]
-%       data: [128x128 double]
-%     rotmat: [3x3 double]
-%
-% scimatout = 
 % 
 %       axis: [3x1 struct]
 %       data: [64x64 double]
 %     rotmat: [3x3 double]
 %
+% scimatout = 
+% 
+%       axis: [3x1 struct]
+%       data: [128x128 double]
+%     rotmat: [3x3 double]
+%
 % Authors: Benjamin Villard <b.016434@gmail.com>,
 % Vicente Grau  <vicente.grau@eng.ox.ac.uk>
 % Copyright © 2015 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
