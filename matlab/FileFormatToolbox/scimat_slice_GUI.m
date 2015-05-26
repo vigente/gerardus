@@ -9,7 +9,7 @@ function scimat_slice_GUI(scimat)
   
 % Author: Christopher Kelly <christopher.kelly28@googlemail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.0.1
+% Version: 0.1.0
 % $Rev$
 % $Date$
 % 
