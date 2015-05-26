@@ -1,4 +1,14 @@
 ﻿2015-05-26  Benjamin Villard  <b.016434@gmail.com>
+	* matlab/FiltersToolbox/scimat_upsample.m (0.2.1)
+	
+	- Changed the header information as it was completely wrong. (It had the header 
+	information for scimat_downsample)
+	
+	* matlab/FilesFormatToolbox/scimat_slice_GUI.m (0.1.0)
+	- Changed the version of the function. It was still in alpha version. Updated it
+	to beta version 0.1.0
+	
+2015-05-26  Benjamin Villard  <b.016434@gmail.com>
 	* matlab/FiltersToolbox/scimat_lineintersection.m (0.1.0)
 	
 	- Added and promoted function to beta version and merged it to the master branch.
