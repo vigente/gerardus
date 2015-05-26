@@ -1,18 +1,40 @@
 function [intensities1, intensities2,intersectCoords] =  scimat_lineintersection(scimat1, scimat2, coords1, coords2, res)
 
-
 % SCIMAT_LINEINTERSECTION Returns the line intensities from two
 % intersecting scimat files at a specified resolution. 
 
 
-% This function operated on a Slice - by - Slice method: 
-% Scimat1.data and Scimat2.data are 2D datasets 
-% However the data is in 3D space.
-% The user has the choice to specify the Slice and Frame wanted. 
-
+%   This function operated on a Slice - by - Slice method: 
+%   Scimat1.data and Scimat2.data are 2D datasets 
+%   However the data is in 3D space.
+%   The user has the choice to specify the Slice and Frame wanted. 
+%
+%   Function SCIMAT_LINEINTERSECTION() takes two scimat structures
+%   along with their coordinates and a specified line resolution. It
+%   proceeds to calculate the line of intersection and interpolates the
+%   line intensities for both slices. It then returns the line
+%   intensities as the outputs. 
+%
+%   [INTENSITIES1,INTENSITIES2] = SCIMAT_LINEINTERSECTION(SCIMAT1,SCIMAT2,COORDS1,COORDS2,RES)
+%       
+%   INTENSITIES1,INTENSITIES2 are both the outputs. They are the
+%   interpolated line intensities derived from the line between the two 
+%   intersecting planes.
+%   
+%   SCIMAT1,SCIMAT2 (inputs) are both scimat structs
+%   
+%   COORDS1,COORDS2 (inputs) are the respective cartesian coordinates for
+%   scimat1 and scimat2
+% 
+%   RES is the resolution of the line intensity. It is in mm. A resolution
+%   of 1, (RES = 1) accounts for the spacing resolution found in the scimat
+%   struct (scimat.axis.spacing). i.e: RES = 1 is equal to a sample point
+%   on the line at every 0.0015mm. 
+% 
+%  
 % Authors: Benjamin Villard <b.016434@gmail.com>, Christopher Kelly  <christopher.kelly28@googlemail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.0.2
+% Version: 0.1.0
 % $Rev$
 % $Date$
 % 
