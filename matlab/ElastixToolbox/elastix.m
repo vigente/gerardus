@@ -16,8 +16,8 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %
 % [T, MOVINGREG, ITERINFO] = elastix(REGPARAM, FIXED, MOVING, OPTS)
 %
-%   REGPARARM is a string with the path and name of a text file with the
-%   registration parameters for elastix, e.g.
+%   REGPARARM are the registration parameters for elastix, given either as
+%   a struct or a string with the path and name of a text file, e.g.
 %   '/path/to/ParametersTranslation2D.txt'.
 %
 %   FIXED, MOVING are the images to register. They can be given as file
@@ -77,6 +77,19 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %                  ResultImagePixelType: 'unsigned char'
 %                   CompressResultImage: 'false'
 %
+%   The format of the transforms is:
+%
+%     'TranslationTransform': [tx ty].
+%     'EulerTransform':       [rotation(rad) tx ty].
+%     'BSplineTransform':     [dx1 dx2 ... dxN dy1 dy2 ... dyN]. These
+%                             values represent the displacement of the
+%                             control grid points, not their coordinates.
+%
+%   Note: In Elastix x -> rows, y -> columns, the opposite of Matlab's
+%   convention. If you use elastix_bspline_grid or
+%   elastix_bspline_grid2param, though, B-spline parameters are transposed
+%   to follow Matlab's convention.
+%
 %   Nested transforms: If T is a series of nested transforms, e.g.
 %
 %     ta.Transform = 'EulerTransform';
@@ -115,7 +128,7 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.4.2
+% Version: 0.4.3
 % $Rev$
 % $Date$
 % 

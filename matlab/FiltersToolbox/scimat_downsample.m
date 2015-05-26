@@ -120,7 +120,6 @@ elseif(ndims(scimat.data) == 2)
     scimat.axis(1).size = size_out(1);
     scimat.axis(2).size = size_out(2);
     
-    
     % Update spacing
     scimat.axis(1).spacing = (origspc(1))*2;
     scimat.axis(2).spacing = (origspc(2))*2;
@@ -139,8 +138,6 @@ elseif(ndims(scimat.data) == 2)
     scimat.axis(1).min  = coords(1,1,2) - ([scimat.axis(2).spacing]/2);
     scimat.axis(2).min  = coords(1,1,1) - ([scimat.axis(1).spacing]/2);
     scimat.axis(3).min  = coords(1,1,3) - ([scimat.axis(3).spacing]/2);
-    
-
     
 end
 end

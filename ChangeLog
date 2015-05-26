@@ -1,7 +1,100 @@
+﻿2015-05-24  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix_cat.m: (0.2.0)
+
+	- Fix bug. The concatenation was in the opposite order. If we want
+	to apply T1 and T2 in that order, then
+	T2.InitialTransformParametersFileName = T1.
+
+	* Move elastix functions from ItkToolbox to new directory
+	ElastixToolbox.
+
+	- Although elastix is based on ITK, the elastix_* and transformix
+	functions independently of ITK, and we don't need to build
+	anything.
+
+2015-05-22  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/elastix_compose_afftransf.m: (0.2.4)
+
+	- Remove internal nested functions and replace them by
+	elastix_affine_matrix2struct() and elastix_affine_struct2matrix().
+
+	* Rename matlab/ItkToolbox/elastix_affine_tform2param.m as
+	matlab/ItkToolbox/elastix_affine_matrix2struct.m: (0.1.0)
+
+	- A tform is a structure used by Matlab. In reality, this function
+	converts the affine matrix contained inside the tform to the
+	elastix struct format.
+
+2015-05-20  Ramon Casero  <rcasero@gmail.com>
+
+	* Add elastix_affine_struct2matrix.m: (0.1.0)
+
+	- Convert any type of affine transform from elastix struct format
+	to homogeneous coordinates matrix format.
+
+	* Add matlab/ThirdPartyToolbox/Conv2FFTToolbox:
+	* matlab/add_gerardus_paths.m: (0.3.3)
+
+	- Alternative to conv2() using the FFT. This is way much faster
+	for the convolution of two similarly sized images. Downloaded from
+
+	http://www.mathworks.com/matlabcentral/fileexchange/31012-2-d-convolution-using-the-fft
+
+	By David Young, 11 Apr 2011.
+
+2015-05-20  Jack Allen <jack.allen@jesus.ox.ac.uk>
+
+	* Add matlab/ManifoldToolbox/trifacet_area3D (0.1.0)
+	
+	- Function to compute surface area of a 3D triangular mesh. 
+	It also can return the list of triangle side lengths and triangle areas.
+
+2015-05-15  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/elastix.m: (0.4.3)
+	* matlab/ItkToolbox/elastix_bspline_grid.m: (0.1.4)
+	* matlab/ItkToolbox/elastix_bspline_grid2param.m: (0.1.1)
+
+	- Clarify in the help header that elastix parameters x->rows,
+	y->columns.
+
+2015-05-13  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ItkToolbox/elastix_cat.m: (0.1.1)
+
+	- In help header, clarify why "InitialTransformParametersFileName"
+	points to the transform that is applied after the current one.
+
+2015-05-13  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* matlab/DiffusionMRIToolbox/fit_DKI_model.m
+	* matlab/DiffusionMRIToolbox/fit_DT.m
+	* matlab/DiffusionMRIToolbox/fit_biexponential_tensor.m
+	* matlab/DiffusionMRIToolbox/fit_stretched_exponential_tensor.m
+	* matlab/DiffusionMRIToolbox/weighted_linear_fit.m
+	* matlab/DiffusionMRIToolbox/wild_bootstrapping_DTI.m
+
+	Various minor bug fixes (no major development)
+
+2015-05-12  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ItkToolbox/elastix_cat.m: (0.1.0)
+
+	- ELASTIX_CAT  Concatenation of elastix transforms.
+
+2015-05-08  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CardiacToolbox/histology_preprocessing.m: (0.3.0)
+
+	- Add output argument for registration mask. This mask can be used
+	to speed up registration.
+
 2015-04-28  Christopher Kelly <christopher.kelly28@googlemail.com>
 
 	* Add directories lib, lib/bin
-	
+
 	- fix bug when running add_geradus_paths.m, if directory doesn't exist
 
 2015-04-27  Ramon Casero  <rcasero@gmail.com>
@@ -43,7 +136,7 @@
 
 2015-04-09  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
-	* add matlab/DiffusionMRIToolbox/fit_kurtosis_model.m (0.1.0)
+	* add matlab/DiffusionMRIToolbox/fit_DKI_model.m (0.1.0)
 
 	- Fits the diffusion kurtosis model to diffusion MRI data.
 

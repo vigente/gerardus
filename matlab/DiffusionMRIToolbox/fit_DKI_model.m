@@ -1,4 +1,4 @@
-function [ DKI ] = fit_DKI_model( im, B_mat, thresh_val, method)
+function [ DKI, I_DKI ] = fit_DKI_model( im, B_mat, thresh_val, method)
 % FIT_DT    Fits the diffusion kurtosis model voxelwise to an image
 %           S = S0 exp(-(bD + 1/6 b^2 * K))
 %
@@ -121,15 +121,7 @@ A_K = squeeze([B_mat(1,1,:).^2, B_mat(2,2,:).^2, B_mat(3,3,:).^2, ...
 A = [-bsxfun(@times, bvalue', A_D), 1/6 * bsxfun(@times, bvalue'.^2, A_K)];
 
 % weighted fit
-%W = diag(mean(I_vector));
-
-IDX = kmeans(I_vector, 3);
-M = zeros(size(imlog,1), 21);
-for i = 1:3
-    disp(num2str(i))
-    M(IDX == i, :) = weighted_linear_fit(imlog(IDX == i,:), A', @(z)exp(z));
-end
-
+M = weighted_linear_fit(imlog, A', @(z)exp(z));
 
 %M = (pinv(A) * imlog')';
 %M = (pinv(A' * (W.^2) * A) * A' * (W.^2) * (imlog'))';
@@ -192,10 +184,12 @@ if strcmp(method, 'nonlinear')
     M(thresh_val(:),:) = M_nl;
     
 end
-    
+   
+I_DKI = bsxfun(@times, M(:,1), exp(-(M(:, 2:end) * A)));
     
 % reshape back again
 DKI = reshape(M, [sz(1:end-1), 22]);
+I_DKI = reshape(I_DKI, sz);
 
 end
 

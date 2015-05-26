@@ -209,6 +209,8 @@ fit_stretched_exponential.m
 	 FIT_STRETCHED_EXPONENTIAL    Fit the stretched exponential model of 
 	 diffusion to an image
 	
+fit_stretched_exponential_tensor.m
+
 global_reference_frame.m
 
 	GLOBAL_REFERENCE_FRAME Returns unit vectors for the global reference frame
@@ -228,6 +230,69 @@ wild_bootstrapping_DTI.m
 	 WILD_BOOTSTRAPPING_DTI Returns uncertainty measures from diffusion tensor
 	 images via wild bootstrapping. See Whitcher 2008 - Using the Wild 
 	 Bootstrap to Quantify Uncertainty in Diffusion Tensor Imaging
+	
+
+ElastixToolbox
+-------------------------------------------------------------
+
+elastix_affine_matrix2struct.m
+
+	 ELASTIX_AFFINE_MATRIX2STRUCT  Convert homogeneous coordinates matrix
+	 format to elastix struct format.
+	
+elastix_affine_struct2matrix.m
+
+	 ELASTIX_AFFINE_STRUCT2MATRIX  Convert any type of affine transform from
+	 elastix struct format to homogeneous coordinates matrix format.
+	
+elastix_bspline_grid2param.m
+
+	 ELASTIX_BSPLINE_GRID2PARAM  Convert control points from grid to
+	 TransformParameters vector form.
+	
+elastix_bspline_grid.m
+
+	 ELASTIX_BSPLINE_GRID  Control point grid of B-spline transformation.
+	
+elastix_cat.m
+
+	 ELASTIX_CAT  Concatenation of elastix transforms.
+	
+elastix_compose_afftransf.m
+
+	 elastix_compose_afftransf  Composition of two 2D affine transforms.
+	
+elastix_delete_param_file.m
+
+	 elastix_delete_param_file  Delete nested transform files.
+	
+elastix.m
+
+	 elastix  Matlab interface to the image registration program "elastix".
+	
+elastix_read_file2param.m
+
+	 elastix_read_file2param  Read file with elastix parameters into struct.
+	 It accepts nested transform files.
+	
+elastix_read_reg_output.m
+
+	 elastix_read_reg_output  Read output of registration computed with
+	 elastix.
+	
+elastix_transf_imcoord2.m
+
+	 elastix_transf_imcoord  Convert 2D pixel coordinates using
+	 elastix/transformix transform.
+	
+elastix_write_param2file.m
+
+	 elastix_write_param2file  Write struct with elastix parameters to file.
+	 It accepts nested transform parameters.
+	
+transformix.m
+
+	 transformix  Matlab interface to the image warping program "transformix".
 	
 
 FileFormatToolbox
@@ -467,6 +532,18 @@ scimat_crop.m
 
 	 SCIMAT_CROP  Crop a SCIMAT image or segmentation volume of any dimension.
 	
+scimat_downsample.m
+
+	 SCIMAT_DOWNSAMPLE downsamples the scimat image (stored in scimat.data)
+	 by half. It first applies a gaussian filter in order to smooth the image
+	 and the proceeds to sample half of the original image. 
+	    
+	   Function SCIMAT_DOWNSAMPLE() takes a scimat struct as an input. It then
+	   proceeds to smooth the image in the scimat struct by applying a
+	   gaussian filter in either 2 or 3 dimensions, depending on the scimat
+	   struct dimensions. Once smoothed, the spacial locations of the voxels
+	   is recalcuated at half the sample frequency of the original image. 
+	
 scimat_estimate_bias_field.m
 
 	 SCIMAT_ESTIMATE_BIAS_FIELD  Estimate MRI bias field.
@@ -559,52 +636,6 @@ typicalpsf.m
 ItkToolbox
 -------------------------------------------------------------
 
-elastix_affine_tform2param.m
-
-	 elastix_affine_tform2param  Convert Matlab tform affine transform to
-	 elastix parameter vector.
-	
-elastix_bspline_grid2param.m
-
-	 ELASTIX_BSPLINE_GRID2PARAM  Convert control points from grid to
-	 TransformParameters vector form.
-	
-elastix_bspline_grid.m
-
-	 ELASTIX_BSPLINE_GRID  Control point grid of B-spline transformation.
-	
-elastix_compose_afftransf.m
-
-	 elastix_compose_afftransf  Composition of two 2D affine transforms.
-	
-elastix_delete_param_file.m
-
-	 elastix_delete_param_file  Delete nested transform files.
-	
-elastix.m
-
-	 elastix  Matlab interface to the image registration program "elastix".
-	
-elastix_read_file2param.m
-
-	 elastix_read_file2param  Read file with elastix parameters into struct.
-	 It accepts nested transform files.
-	
-elastix_read_reg_output.m
-
-	 elastix_read_reg_output  Read output of registration computed with
-	 elastix.
-	
-elastix_transf_imcoord2.m
-
-	 elastix_transf_imcoord  Convert 2D pixel coordinates using
-	 elastix/transformix transform.
-	
-elastix_write_param2file.m
-
-	 elastix_write_param2file  Write struct with elastix parameters to file.
-	 It accepts nested transform parameters.
-	
 itk_imfilter.m
 
 	 ITK_IMFILTER  Run ITK filter on a 2D, 3D or 4D image.
@@ -618,10 +649,6 @@ itk_tri_rasterization.m
 
 	 ITK_TRI_RASTERIZATION  Rasterization of triangular mesh to binary
 	 segmentation
-	
-transformix.m
-
-	 transformix  Matlab interface to the image warping program "transformix".
 	
 
 ManifoldToolbox
@@ -737,6 +764,11 @@ tri_ccqp_smacof_nofold_sph_pip.m
 triconncomp.m
 
 	 TRICONNCOMP  Find connected components in mesh
+	
+trifacet_area3D.m
+
+	 trifacet_area3D 
+	 
 	
 trifacet_signed_area.m
 
@@ -1073,6 +1105,25 @@ tiff_read_header.m
 
 tightfig.m
 
+
+ThirdPartyToolbox/Conv2FFTToolbox
+-------------------------------------------------------------
+
+conv_fft2.m
+
+	CONV_FFT2 Two dimensional convolution via the FFT.
+	   Y = CONV_FFT2(X, M) performs the 2-D convolution of matrices X and M.
+	   If [mx,nx] = size(X) and [mm,nm] = size(M), then size(Y) =
+	   [mx+mm-1,nx+nm-1]. Values near the boundaries of the output array are
+	   calculated as if X was surrounded by a border of zero values.
+	
+exindex.m
+
+	EXINDEX extended array indexing
+	   ARROUT = EXINDEX(ARRIN, S1, S2, ...) indexes a virtual array made by
+	   extending ARRIN with zeros in all directions, using subscripts S1, S2
+	   etc.
+	
 
 ThirdPartyToolbox/FastMarchingToolbox
 -------------------------------------------------------------
