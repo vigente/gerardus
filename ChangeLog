@@ -1,4 +1,24 @@
-﻿2015-05-26  Benjamin Villard  <b.016434@gmail.com>
+﻿2015-05-26  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix_write_param2file.m: (0.2.3)
+
+	- Note in help header that the function works with sequences of
+	parameter structures too.
+
+	* matlab/ElastixToolbox/elastix.m: (0.4.4)
+	* matlab/ElastixToolbox/transformix.m: (0.2.5)
+	* matlab/ElastixToolbox/elastix_delete_param_file.m: (0.1.1)
+	* matlab/ElastixToolbox/elastix_read_reg_output.m: (0.2.3)
+	* matlab/ElastixToolbox/elastix_read_file2param.m: (0.2.4)
+	* matlab/ElastixToolbox/elastix_compose_afftransf.m: (0.2.5)
+
+	- Fix help header: 1) Description of transform sequences:
+	TB.InitialTransformParametersFileName = TA means that TA is
+	applied first. 2) they are a sequence, not "nested". ("Nested"
+	means that a function is local to another function). 3) lowercase
+	to uppercase for function names.
+
+2015-05-26  Benjamin Villard  <b.016434@gmail.com>
 	* matlab/FiltersToolbox/scimat_lineintersection.m (0.1.0)
 	
 	- Added and promoted function to beta version and merged it to the master branch.

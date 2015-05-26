@@ -1,10 +1,11 @@
 function elastix_delete_param_file(filename)
-% elastix_delete_param_file  Delete nested transform files.
+% ELASTIX_DELETE_PARAM_FILE  Delete sequence of transform files.
 %
-% elastix_delete_param_file deletes a transform parameter file, and all
-% nested transforms it points to.
+% ELASTIX_DELETE_PARAM_FILE deletes a transform parameter file. The
+% function is recursive, so if FILENAME points to another transform
+% parameter file, it will be deleted too, and so on.
 %
-% elastix_delete_param_file(FILENAME)
+% ELASTIX_DELETE_PARAM_FILE(FILENAME)
 %
 %   FILENAME is a string with the path and filename to a transform
 %   parameter file. This parameter file may point to another previous
@@ -14,8 +15,8 @@ function elastix_delete_param_file(filename)
 % elastix_read_file2param.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Copyright © 2014-2015 University of Oxford
+% Version: 0.1.1
 % $Rev$
 % $Date$
 % 

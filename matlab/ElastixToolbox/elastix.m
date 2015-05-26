@@ -90,18 +90,16 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %   elastix_bspline_grid2param, though, B-spline parameters are transposed
 %   to follow Matlab's convention.
 %
-%   Nested transforms: If T is a series of nested transforms, e.g.
-%
-%     ta.Transform = 'EulerTransform';
-%     ta.InitialTransformParametersFileName = tb;
+%   If T is a sequence of transforms, e.g.
 %
 %     tb.Transform = 'BSplineTransform';
-%     tb.InitialTransformParametersFileName = 'NoInitialTransform';
+%     tb.InitialTransformParametersFileName = ta;
 %
-%   tb is the "initial transform" of ta, but because ITK and elastix define
-%   the transform of an image in the inverse direction, in practice what
-%   happens is that ta is applied *first* to the image, and then tb is
-%   applied to the result.
+%     ta.Transform = 'EulerTransform';
+%     ta.InitialTransformParametersFileName = 'NoInitialTransform';
+%
+%   The EulerTransform (ta) is applied first to the image, followed by the
+%   BSplineTransform (tb).
 %
 %   MOVINGREG is the result of registering MOVING onto FIXED. MOVINGREG is
 %   the same type as MOVING (i.e. image array or path and filename). In the
@@ -127,8 +125,8 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 % elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.4.3
+% Copyright © 2014-2015 University of Oxford
+% Version: 0.4.4
 % $Rev$
 % $Date$
 % 

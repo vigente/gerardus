@@ -1,8 +1,8 @@
 function param = elastix_read_file2param(filename)
-% elastix_read_file2param  Read file with elastix parameters into struct.
+% ELASTIX_READ_FILE2PARAM  Read file with elastix parameters into struct.
 % It accepts nested transform files.
 %
-% PARAM = elastix_read_file2param(FILENAME)
+% PARAM = ELASTIX_READ_FILE2PARAM(FILENAME)
 %
 %   FILENAME is a string with the path and filename of a parameter file
 %   created by elastix (e.g. parameters for registration, or transformation
@@ -42,8 +42,8 @@ function param = elastix_read_file2param(filename)
 % See also: elastix_write_param2file.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.2.3
+% Copyright © 2014-2015 University of Oxford
+% Version: 0.2.4
 % $Rev$
 % $Date$
 % 

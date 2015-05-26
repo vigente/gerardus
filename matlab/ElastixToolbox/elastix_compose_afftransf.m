@@ -1,10 +1,10 @@
 function tfc = elastix_compose_afftransf(tf1, tf2)
-% elastix_compose_afftransf  Composition of two 2D affine transforms.
+% ELASTIX_COMPOSE_AFFTRANSF  Composition of two 2D affine transforms.
 %
-% elastix_compose_afftransf composes two 2D transforms from the affine
+% ELASTIX_COMPOSE_AFFTRANSF composes two 2D transforms from the affine
 % family, and produces another affine transform.
 %
-% TFC = elastix_compose_afftransf(TF1, TF2)
+% TFC = ELASTIX_COMPOSE_AFFTRANSF(TF1, TF2)
 %
 %   TF1, TF2 are two transforms to be applied in that order to an _image_
 %   (not to the coordinates of a voxel). TF1, TF2 can have the following
@@ -52,7 +52,7 @@ function tfc = elastix_compose_afftransf(tf1, tf2)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.2.4
+% Version: 0.2.5
 % $Rev$
 % $Date$
 % 
