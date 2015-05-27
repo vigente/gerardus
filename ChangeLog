@@ -1,4 +1,11 @@
-﻿2015-05-26  Ramon Casero  <rcasero@gmail.com>
+﻿2015-05-27  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix.m: (0.4.5)
+
+	- Help header: Note that t0 doesn't seem to work in conjunction
+	with masks.
+
+2015-05-26  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/elastix_write_param2file.m: (0.2.3)
 

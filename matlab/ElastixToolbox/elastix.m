@@ -40,10 +40,12 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %
 %     t0:      (def '') Struct or filename with an initial transform (see T
 %              below for format). t0 is applied to the image before the
-%              registration is run. Note that parameter
-%              InitialTransformParametersFileName allows to provide another
-%              transform that will be applied before t0, and so on
-%              iteratively.
+%              registration is run. Field
+%              t0.InitialTransformParametersFileName allows to provide
+%              another transform that will be applied before t0, and so on
+%              iteratively. Note: It seems that t0 does not work well in
+%              conjuction with masks, and it causes "Too many samples map
+%              outside moving image buffer".
 %
 %     fMask:   (def '') Mask for the fixed image. Only voxels == 1 are
 %              considered for the registration.
@@ -126,7 +128,7 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.4.4
+% Version: 0.4.5
 % $Rev$
 % $Date$
 % 
