@@ -42,12 +42,18 @@ function imout = transformix(t, im, opts)
 %       random filename in the temp directory is created. This option is
 %       ignored if the input/output images are given in array form.
 %
+%     AutoDefaultPixelValue: (def false) If true, it overrides
+%       t.DefaultPixelValue and estimates the typical colour of the image
+%       to fill in newly created background pixels. Note that different
+%       values are estimated per channel, so it works for coloured
+%       backgrounds.
+%
 % See also: elastix, elastix_read_file2param, elastix_write_param2file,
 % elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.2.5
+% Version: 0.2.6
 % $Rev$
 % $Date$
 % 
@@ -88,6 +94,14 @@ if (~isfield(opts, 'verbose') || isempty(opts.verbose))
 end
 if (~isfield(opts, 'outfile'))
     opts.outfile = '';
+end
+if (~isfield(opts, 'AutoDefaultPixelValue'))
+    opts.AutoDefaultPixelValue = false;
+end
+
+% override t.DefaultPixelValue?
+if (opts.AutoDefaultPixelValue)
+    t.DefaultPixelValue = 0;
 end
 
 if (isempty(t))
@@ -239,6 +253,23 @@ if (iscell(imfile))
 else
     imout = warp_image(tfile, imfile, ext, opts);
 end
+
+% smart estimation of background colour for newly added pixels
+if (opts.AutoDefaultPixelValue)
+    
+    % mask the newly added background pixels
+    idx = sum(imout, 3) == 0;
+    
+    % estimate typical intensity value in each channel, and use it to set
+    % in newly added background pixels
+    for CH = 1:size(imout, 3)
+        aux = imout(:, :, CH);
+        aux(idx) = median(aux(~idx));
+        imout(:, :, CH) = aux;
+    end
+end
+
+
 
 % format output
 if (ischar(im)) % input image given as path and filename

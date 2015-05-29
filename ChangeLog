@@ -1,4 +1,12 @@
-﻿2015-05-27  Ramon Casero  <rcasero@gmail.com>
+﻿2015-05-29  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/transformix.m: (0.2.6)
+
+	- Add optional parameter opts.AutoDefaultPixelValue, for automatic
+	estimation of the colour to give to pixels that are newly created
+	by transformix.
+
+2015-05-27  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/elastix.m: (0.4.5)
 
