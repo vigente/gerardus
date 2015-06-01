@@ -46,7 +46,7 @@ function tf = elastix_affine_matrix2struct(a, tf)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -76,6 +76,34 @@ function tf = elastix_affine_matrix2struct(a, tf)
 % check arguments
 narginchk(2, 2);
 nargoutchk(0, 1);
+
+% number of transforms
+N = size(a, 3);
+
+% if user provided only one struct template, make a duplicate for each
+% transform
+if (length(tf) == 1)
+    
+    tf(1:N) = tf;
+    
+elseif (length(tf) ~= N)
+    
+    error('TF must have one element or one element per matrix in A')
+    
+end
+
+% loop transforms
+for I = 1:N
+    
+    tf(I) = one_matrix2struct(a(:, :, I), tf(I));
+    
+end
+
+end
+
+%% auxiliary function
+% one_matrix2struct: convert a single matrix to struct form
+function tf = one_matrix2struct(a, tf)
 
 % split full affine matrix into blocks
 t = a(3, 1:2);
@@ -127,4 +155,6 @@ switch (tf.Transform)
         
         error('Transform not implemented')
         
+end
+
 end

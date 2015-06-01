@@ -39,11 +39,14 @@ function a = elastix_affine_struct2matrix(tf)
 %   for a translation transform:    [1 0]
 %                                   [0 1]
 %
+%   If TF is a vector of structures, A is an array where each A(:, :, I)
+%   corresponds to TP(I).
+%
 % See also: elastix_affine_matrix2struct.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % $Rev$
 % $Date$
 % 
@@ -73,6 +76,25 @@ function a = elastix_affine_struct2matrix(tf)
 % check arguments
 narginchk(1, 1);
 nargoutchk(0, 1);
+
+% number of input transforms
+N = length(tf);
+
+% init output
+a = zeros(3, 3, N);
+
+% loop each transform
+for I = 1:N
+    
+    a(:, :, I) = one_struct2matrix(tf(I));
+    
+end
+
+end
+
+%% auxiliary function
+% one_struct2matrix: convert a single transform to matrix form
+function a = one_struct2matrix(tf)
 
 switch (tf.Transform)
     
@@ -132,3 +154,5 @@ t = t + c * (eye(2) - A);
 
 % create affine transform matrix
 a = [A [0;0]; t 1];
+
+end

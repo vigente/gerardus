@@ -1,4 +1,12 @@
-﻿2015-05-29  Ramon Casero  <rcasero@gmail.com>
+﻿2015-06-01  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix_affine_matrix2struct.m: (0.2.0)
+	* matlab/ElastixToolbox/elastix_affine_struct2matrix.m: (0.2.0)
+
+	- Extend functions so that we can process N transforms instead of
+	only 1.
+
+2015-05-29  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/transformix.m: (0.2.6)
 
