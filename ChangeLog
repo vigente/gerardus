@@ -1,5 +1,11 @@
 ﻿2015-06-01  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ElastixToolbox/elastix_compose_afftransf.m: (0.2.6)
+	* matlab/test/test_elastix_compose_afftransf.m: (0.1.2)
+
+	- Fix bug. Transforms have to be composed as a1*a2 instead of
+	a2*a1.
+
 	* matlab/ElastixToolbox/elastix_affine_matrix2struct.m: (0.2.0)
 	* matlab/ElastixToolbox/elastix_affine_struct2matrix.m: (0.2.0)
 

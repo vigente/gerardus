@@ -1,8 +1,8 @@
 % test_elastix_compose_afftransf.m
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.1.1
+% Copyright © 2014-2015 University of Oxford
+% Version: 0.1.2
 % $Rev$
 % $Date$
 % 
@@ -58,6 +58,10 @@ axis xy equal
 t1.CenterOfRotationPoint = [38 25];
 t1.TransformParameters = [2 30/180*pi 20 10];
 
+% second transform
+t2.CenterOfRotationPoint = [30 40];
+t2.TransformParameters = [1.5 80/180*pi -15 -10];
+
 % transform image
 im2 = transformix(t1, im);
 
@@ -65,10 +69,6 @@ im2 = transformix(t1, im);
 subplot(2, 2, 2)
 imagesc(im2)
 axis xy equal
-
-% second transform
-t2.CenterOfRotationPoint = [30 40];
-t2.TransformParameters = [1.5 80/180*pi -15 -10];
 
 % transform im2
 im3 = transformix(t2, im2);
@@ -78,15 +78,18 @@ subplot(2, 2, 3)
 imagesc(im3)
 axis xy equal
 
-% compute combined transform
-tc = elastix_compose_afftransf(t1, t2);
+% compute combined transform (note that because elastix applies first the
+% last transform to the image, we have to compose the transforms in the
+% inverse order)
+tc = elastix_compose_afftransf(t2, t1);
 
 % transform im with the combined transform
 imc = transformix(tc, im);
 
 % plot output
+aux = imfuse(im3, imc);
 subplot(2, 2, 4)
-imagesc(imc)
+imagesc(aux)
 axis xy equal
 
 % apply the two transforms to the point on the top right corner
