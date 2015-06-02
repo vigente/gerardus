@@ -1,4 +1,13 @@
-﻿2015-06-01  Ramon Casero  <rcasero@gmail.com>
+﻿2015-06-03  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/trifacet_area3D.m: (0.1.1)
+
+	- Fix help header. Missing licence notice. Convert function name
+	to uppercase.
+
+	- Check number of input and output arguments.
+
+2015-06-01  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/elastix_compose_afftransf.m: (0.2.6)
 	* matlab/test/test_elastix_compose_afftransf.m: (0.1.2)
