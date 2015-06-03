@@ -33,6 +33,10 @@ function tfout = elastix_cat(varargin)
 %   simple, or be a concatenation of transforms using the
 %   InitialTransformParametersFileName field.
 %
+%   TF1(1:M), ..., TFN(1:M) can also be vectors of transforms, as long as
+%   all of them have the same number of elements. In that case, the
+%   concatenation is applied separately to each TF1(I), ..., TFN(I).
+%
 %   TFOUT is a struct with TF1, ..., TFN concatenated:
 %
 %   TFOUT = TFN
@@ -43,9 +47,7 @@ function tfout = elastix_cat(varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.2.1
-% $Rev$
-% $Date$
+% Version: 0.3.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -101,13 +103,27 @@ end
 % cat_2_transf: concatenate two transforms. t1 is the initial transform,
 % and it's followed by t2. The function returns t2 because in elastix,
 % t2.InitialTransformParametersFileName = t1
+%
+% Transforms can also be vectors of transforms, as long as they have the
+% same number of elements
 function t2 = cat_2_transf(t1, t2)
 
-% look for the end 
-str = 't2';
-while (isstruct(eval([str '.InitialTransformParametersFileName'])))
-    str = [str '.InitialTransformParametersFileName'];
+% check that if transforms are provided as vectors of transforms, they have
+% the same number of elements
+if (length(t1) ~= length(t2))
+    error('If vectors of transforms are provided, they must have the same number of elements')
 end
-eval([str '.InitialTransformParametersFileName = t1;']);
+
+% loop vector of transforms elements
+for I = 1:length(t1)
+    
+    % look for the end
+    str = ['t2(' num2str(I) ')'];
+    while (isstruct(eval([str '.InitialTransformParametersFileName'])))
+        str = [str '.InitialTransformParametersFileName'];
+    end
+    eval([str '.InitialTransformParametersFileName = t1(' num2str(I) ');']);
+    
+end
 
 end

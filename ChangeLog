@@ -1,5 +1,11 @@
 ﻿2015-06-03  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ElastixToolbox/elastix_cat.m: (0.3.0)
+
+	- Extend so that we can concatenate vectors of transforms,
+	tf1(1:M),...,tfN(1:M). In that case, all vectors must have the
+	same number of elements.
+
 	* matlab/ElastixToolbox/elastix_cat.m: (0.2.1)
 
 	- Fix bug. Order of the concatenated transforms was not correct.
