@@ -1,5 +1,9 @@
 ﻿2015-06-03  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ElastixToolbox/elastix_cat.m: (0.2.1)
+
+	- Fix bug. Order of the concatenated transforms was not correct.
+
 	* matlab/ManifoldToolbox/trifacet_area3D.m: (0.1.1)
 
 	- Fix help header. Missing licence notice. Convert function name

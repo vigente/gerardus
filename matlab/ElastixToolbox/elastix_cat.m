@@ -1,6 +1,9 @@
 function tfout = elastix_cat(varargin)
 % ELASTIX_CAT  Concatenation of elastix transforms.
 %
+% ELASTIX_CAT allows to concatenate a list of elastix transforms, each of
+% which can be a simple transform or a list of transforms.
+%
 % Elastix allows for a list of transforms to be applied to an image. For
 % example, if we want to apply a translation transform followed by a
 % B-spline transform, we can use
@@ -23,9 +26,6 @@ function tfout = elastix_cat(varargin)
 %    InitialTransformParametersFileName:  'NoInitialTransform'
 %
 %
-% ELASTIX_CAT allows to concatenate a list of elastix transforms, each of
-% which can be a simple transform or a list of transforms.
-%
 % TFOUT = ELASTIX_CAT(TF1, ..., TFN)
 %
 %   TF1, ..., TFN is a list of N elastix transforms, each being a struct,
@@ -43,7 +43,7 @@ function tfout = elastix_cat(varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % $Rev$
 % $Date$
 % 
@@ -84,13 +84,13 @@ if (N == 0)
     
 end
 
-% start from the beginning
+% start from the first input argument
 tfout = varargin{1};
 
 % travel the list of transforms
 for I = 2:N
     
-    tfout = cat_2_transf(varargin{I}, tfout);
+    tfout = cat_2_transf(tfout, varargin{I});
     
 end
 
@@ -98,14 +98,16 @@ end
 
 %% local functions
 
-% cat_2_transf: add transform t2 at the end of transform t1
-function t1 = cat_2_transf(t1, t2)
+% cat_2_transf: concatenate two transforms. t1 is the initial transform,
+% and it's followed by t2. The function returns t2 because in elastix,
+% t2.InitialTransformParametersFileName = t1
+function t2 = cat_2_transf(t1, t2)
 
 % look for the end 
-str = 't1';
+str = 't2';
 while (isstruct(eval([str '.InitialTransformParametersFileName'])))
     str = [str '.InitialTransformParametersFileName'];
 end
-eval([str '.InitialTransformParametersFileName = t2;']);
+eval([str '.InitialTransformParametersFileName = t1;']);
 
 end
