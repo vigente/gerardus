@@ -1,4 +1,10 @@
-﻿2015-06-03  Ramon Casero  <rcasero@gmail.com>
+﻿2015-06-04  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/README.md:
+
+	- Start small manual for the Elastix Toolbox.
+
+2015-06-03  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/elastix_cat.m: (0.3.0)
 
