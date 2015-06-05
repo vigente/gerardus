@@ -1,4 +1,12 @@
-﻿2015-06-04  Ramon Casero  <rcasero@gmail.com>
+﻿2015-06-05  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/README.md:
+	* matlab/ElastixToolbox/elastix_cat.m: (0.3.1)
+
+	- Add section "Devil in the details of composition of
+	transformations".
+
+2015-06-04  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/README.md:
 

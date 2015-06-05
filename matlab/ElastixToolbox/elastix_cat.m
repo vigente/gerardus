@@ -33,6 +33,25 @@ function tfout = elastix_cat(varargin)
 %   simple, or be a concatenation of transforms using the
 %   InitialTransformParametersFileName field.
 %
+%   Note: Counterintuitively, if you have a moving image IMM0, and apply a
+%   transform T0 to obtain IMM, and then register it to a fixed image IMF,
+%   to concatenate T1 and T0, T1 has to be the initial transform, so that
+%   T0.InitialTransformParametersFileName=T1.
+%
+%        T1 = elastix(REGPARAM, IMF, IMM);
+%        TTOT1 = elastix_cat(T1, T0);       
+%
+%   The reason is that elastix transforms map coordinates from fixed to
+%   moving space. However, if instead of applying T0 explicitly you provide
+%   it with parameter -t0, then the result will already have the
+%   concatenation in the more intuitive order
+%   TTOT2.InitialTransformParametersFileName=T0, and no explicit
+%   concatenation is necessary
+%
+%        OPT.t0 = T0;
+%        TTOT2 = elastix(REGPARAM, IMF, IMM0, OPT);
+%
+%
 %   TF1(1:M), ..., TFN(1:M) can also be vectors of transforms, as long as
 %   all of them have the same number of elements. In that case, the
 %   concatenation is applied separately to each TF1(I), ..., TFN(I).
@@ -47,7 +66,7 @@ function tfout = elastix_cat(varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
