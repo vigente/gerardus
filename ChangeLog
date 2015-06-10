@@ -1,4 +1,10 @@
-﻿2015-06-05  Ramon Casero  <rcasero@gmail.com>
+﻿2015-06-10  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/RegistrationToolbox/regmatchedfilt.m: (0.1.0)
+
+	- Matched filter registration.
+
+2015-06-05  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/README.md:
 	* matlab/ElastixToolbox/elastix_cat.m: (0.3.1)

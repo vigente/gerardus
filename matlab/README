@@ -778,8 +778,15 @@ triconncomp.m
 	
 trifacet_area3D.m
 
-	 trifacet_area3D 
+	 TRIFACET_AREA3D  Surface area of triangles in triangular mesh.
 	 
+	 Function to calculate the surface area of a 3D mesh of triangles. This
+	 function uses Heron's forumla to calculate the sides of each triangle.
+	 
+	 [TOTAL_AREA, AREAS, SIDES] = TRIFACET_AREA3D(FACES, VERTICES)
+	  
+	   FACES is a 3-column matrix. Each row of FACES contains the indices of
+	   one triangle in the mesh.
 	
 trifacet_signed_area.m
 
@@ -1041,6 +1048,10 @@ regdemons3d.m
 regdemons.m
 
 	 REGDEMONS Image registration using Thirion's Demons algorithm.
+	
+regmatchedfilt.m
+
+	 REGMATCHEDFILT  Matched filter registration.
 	
 
 ThirdPartyToolbox
