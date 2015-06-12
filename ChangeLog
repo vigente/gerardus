@@ -1,5 +1,9 @@
 ﻿2015-06-12  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/FiltersToolbox/imcmass.m: (0.1.0)
+
+	- Centre of mass of an image.
+
 	* Add matlab/ElastixToolbox/elastix_affine_crot.m: (0.1.0)
 
 	- ELASTIX_AFFINE_CROT Change centre of rotation of Elastix affine
