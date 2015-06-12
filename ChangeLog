@@ -1,4 +1,11 @@
-﻿2015-06-10  Ramon Casero  <rcasero@gmail.com>
+﻿2015-06-12  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ElastixToolbox/elastix_affine_crot.m: (0.1.0)
+
+	- ELASTIX_AFFINE_CROT Change centre of rotation of Elastix affine
+	transform.
+
+2015-06-10  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/RegistrationToolbox/regmatchedfilt.m: (0.1.0)
 

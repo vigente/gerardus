@@ -235,6 +235,11 @@ wild_bootstrapping_DTI.m
 ElastixToolbox
 -------------------------------------------------------------
 
+elastix_affine_crot.m
+
+	 ELASTIX_AFFINE_CROT  Change centre of rotation of Elastix affine
+	 transform.
+	
 elastix_affine_matrix2struct.m
 
 	 ELASTIX_AFFINE_MATRIX2STRUCT  Convert homogeneous coordinates matrix
@@ -491,6 +496,10 @@ imblend.m
 
 	 IMBLEND  Blend two image stacks to increase the apparent dynamic range
 	 and improve the signal to noise ratio
+	
+imcmass.m
+
+	 IMCMASS Centre of mass of an image.
 	
 img_tps_map.m
 
