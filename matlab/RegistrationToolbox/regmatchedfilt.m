@@ -15,8 +15,12 @@ function [tElx, cmax, imm] = regmatchedfilt(imf, imm, alpha)
 % of the transforms in Fourier space. This may work better or worse than
 % the matched filter, depending on the characteristics of the images.
 %
-% Matched filters and phase correlation use brute force for translations.
-% Matlab's angle optimization uses 
+% Matched filters and phase correlation in principle use brute force for
+% translations. Matlab's function imregcorr uses Keller (2005) to find the
+% angle and scale faster with a domain transform. However, when applied to
+% our histology images we find that the angle estimation fails
+% substantially. That's why we have implemented REGMATCHEDFILT with an
+% angle brute-force approach. It's slower, but it produces good matches.
 %
 % TELX = REGMATCHEDFILT(IMF, IMM)
 %
