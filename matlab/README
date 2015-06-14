@@ -499,7 +499,7 @@ imblend.m
 	
 imcmass.m
 
-	 IMCMASS Centre of mass of an image.
+	 IMCMASS  Centre of mass of an image.
 	
 img_tps_map.m
 
@@ -1060,7 +1060,7 @@ regdemons.m
 	
 regmatchedfilt.m
 
-	 REGMATCHEDFILT  Matched filter registration.
+	 REGMATCHEDFILT  Matched filter registration for translation and rotation.
 	
 
 ThirdPartyToolbox
