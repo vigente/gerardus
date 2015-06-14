@@ -1,5 +1,11 @@
 ﻿2015-06-14  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/vmu2png.m: (0.2.2)
+
+	- Fix bug. We were not setting ResolutionUnit to "meter", so it
+	was an undefined value in the file metadata, and conversion to
+	other formats gave erroneous resolution values.
+
 	* matlab/RegistrationToolbox/regmatchedfilt.m: (0.2.1)
 
 	- Fix bug. I had forgotten to update the output transform with the
