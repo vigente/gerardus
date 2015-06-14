@@ -1,5 +1,10 @@
 ﻿2015-06-14  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/RegistrationToolbox/regmatchedfilt.m: (0.2.1)
+
+	- Fix bug. I had forgotten to update the output transform with the
+	optimal angle.
+
 	* Add matlab/FiltersToolbox/imcmass.m: (0.1.0)
 
 	- IMCMASS  Centre of mass of an image.

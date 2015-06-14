@@ -51,7 +51,7 @@ function [tElx, cmax, imm] = regmatchedfilt(imf, imm, alpha)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -138,6 +138,9 @@ for I = 1:length(alpha)
     end
 
 end
+
+% set rotation to the best match
+tElx.TransformParameters(1) = alphaopt;
 
 % elastix transform for the translation only
 tElx2 = tElx;
