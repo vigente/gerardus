@@ -1,5 +1,5 @@
 function c = imcmass(im)
-% IMCMASS Centre of mass of an image.
+% IMCMASS  Centre of mass of an image.
 %
 % IMCMASS computes the centre of mass of a grayscale image weighting the
 % pixel coordinates by the pixel intensities.

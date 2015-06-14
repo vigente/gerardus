@@ -1,14 +1,14 @@
 ﻿2015-06-14  Ramon Casero  <rcasero@gmail.com>
 
+	* Add matlab/FiltersToolbox/imcmass.m: (0.1.0)
+
+	- IMCMASS  Centre of mass of an image.
+
 	* Add matlab/RegistrationToolbox/regmatchedfilt.m: (0.2.0)
 
 	- Extend registration to find rotation optimum too.
 
 2015-06-12  Ramon Casero  <rcasero@gmail.com>
-
-	* Add matlab/FiltersToolbox/imcmass.m: (0.1.0)
-
-	- IMCMASS  Centre of mass of an image.
 
 	* Add matlab/ElastixToolbox/elastix_affine_crot.m: (0.1.0)
 
