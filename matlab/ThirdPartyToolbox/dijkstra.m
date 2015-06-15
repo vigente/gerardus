@@ -90,7 +90,5 @@ function [d, p, d2] = dijkstra(g, s, t, g2)
 % http://code.google.com/p/gerardus/
 %
 % Version: 0.3.1
-% $Rev$
-% $Date$
 
 error('Compiled MEX function has not been found')

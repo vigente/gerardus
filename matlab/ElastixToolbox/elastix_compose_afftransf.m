@@ -63,8 +63,6 @@ function tfc = elastix_compose_afftransf(tf1, tf2)
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
 % Version: 0.2.6
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

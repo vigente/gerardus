@@ -34,8 +34,6 @@ function [m, v] = scimat_vertical_orientation_pca_basis(scimat)
 % Author: Ramon Casero.
 % Copyright © 2010,2014 University of Oxford
 % Version: 0.3.0
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

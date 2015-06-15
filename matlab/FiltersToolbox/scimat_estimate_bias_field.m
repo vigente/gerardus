@@ -114,8 +114,6 @@ function [scimat, sigma] = scimat_estimate_bias_field(scimat, x, a, sigma, FASTI
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011-2014 University of Oxford
 % Version: 0.2.1
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

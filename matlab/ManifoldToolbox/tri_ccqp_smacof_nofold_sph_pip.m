@@ -60,8 +60,6 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
 % Version: 0.2.5
-% $Rev$
-% $Date$
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

@@ -28,8 +28,6 @@ function idx = tri_find_nonmanifold_vertex(tri, x, scimat)
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013-2014 University of Oxford
 % Version: 0.2.0
-% $Rev$
-% $Date$
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

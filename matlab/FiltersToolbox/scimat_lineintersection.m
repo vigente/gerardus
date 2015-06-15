@@ -35,8 +35,6 @@ function [intensities1, intensities2,intersectCoords] =  scimat_lineintersection
 % Authors: Benjamin Villard <b.016434@gmail.com>, Christopher Kelly  <christopher.kelly28@googlemail.com>
 % Copyright © 2015 University of Oxford
 % Version: 0.1.0
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

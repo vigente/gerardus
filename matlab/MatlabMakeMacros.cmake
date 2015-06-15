@@ -5,8 +5,6 @@
 #
 # The file has been edited for project Gerardus
 # Version: 0.2.0
-# $Rev$
-# $Date$
 
 MACRO(LOAD_REQUIRED_PACKAGE Package)
   LOADPACKAGE(${Package})

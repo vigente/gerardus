@@ -47,8 +47,6 @@ function a = elastix_affine_struct2matrix(tf)
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
 % Version: 0.2.0
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

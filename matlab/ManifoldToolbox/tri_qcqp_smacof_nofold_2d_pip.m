@@ -59,8 +59,6 @@ function [con, bnd] = tri_qcqp_smacof_nofold_2d_pip(tri, ymin, ymax, amin, amax,
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
 % Version: 0.2.1
-% $Rev$
-% $Date$
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

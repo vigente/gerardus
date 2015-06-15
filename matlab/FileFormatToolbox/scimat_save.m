@@ -70,8 +70,6 @@ function scimat = scimat_save(file, scimat, touint8, v73)
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2015 University of Oxford
 % Version: 0.6.4
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

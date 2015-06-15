@@ -28,8 +28,6 @@ function [dx, dy, dxx, dyy, dxy] = scimat_gradients(scimat, method)
 % Author: Ramon Casero <rcasero@gmail.com>, Vicente Grau
 % Copyright © 2010,2014 University of Oxford
 % Version: 0.2.0
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

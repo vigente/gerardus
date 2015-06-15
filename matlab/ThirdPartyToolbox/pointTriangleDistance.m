@@ -25,8 +25,6 @@ function [dist,PP0] = pointTriangleDistance(TRI,P)
 % Minor modifications by Ramon Casero <rcasero@gmail.com> for the Gerardus
 % Project.
 % Version: 0.1.0
-% $Rev$
-% $Date$
 
 % Possible extention could be a version tailored not to return the distance
 % and additionally the closest point, but instead return only the closest

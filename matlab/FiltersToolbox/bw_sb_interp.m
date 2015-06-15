@@ -23,8 +23,6 @@ function thres_img=bw_sb_interp(data_SBintrp, inter_slice_no)
 % Author: Valentina Carapella <vcarapella@gmail.com>
 % Copyright © 2013 University of Oxford
 % Version: 0.1.0
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

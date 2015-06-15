@@ -15,8 +15,6 @@ function a = cgal_trifacet_area(tri, x)
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013 University of Oxford
 % Version: 0.1.0
-% $Rev$
-% $Date$
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

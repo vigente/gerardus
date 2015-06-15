@@ -129,8 +129,6 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
 % Version: 0.4.5
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
