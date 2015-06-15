@@ -17,10 +17,8 @@
 #  $ ./add_filter_template.sh AnisotropicDiffusionVesselEnhancementImageFilter advess
 
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2012 University of Oxford
-# Version: 0.1.3
-# $Rev$
-# $Date$
+# Copyright © 2012, 2015 University of Oxford
+# Version: 0.1.4
 #
 # University of Oxford means the Chancellor, Masters and Scholars of
 # the University of Oxford, having an administrative office at
@@ -80,10 +78,10 @@ sed -i -e "s/Copyright.*/Copyright © `date +%Y` University of Oxford/g" \
     Mex${filter}.hpp Mex${filter}.cpp
 sed -i 's/Version:.*/Version: 0.1.0/g' \
     Mex${filter}.hpp Mex${filter}.cpp
-sed -i 's/$Rev:.*/$Rev$/g' \
-    Mex${filter}.hpp Mex${filter}.cpp
-sed -i 's/$Date:.*/$Date$/g' \
-    Mex${filter}.hpp Mex${filter}.cpp
+# sed -i 's/$Rev:.*/$Rev$/g' \
+#     Mex${filter}.hpp Mex${filter}.cpp
+# sed -i 's/$Date:.*/$Date$/g' \
+#     Mex${filter}.hpp Mex${filter}.cpp
 sed -i -e "s/shortname = \"template\"/shortname = \"${shortname}\"/g" \
     Mex${filter}.hpp Mex${filter}.cpp
 
