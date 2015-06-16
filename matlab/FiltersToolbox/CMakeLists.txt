@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
 # Copyright © 2011-2015 University of Oxford
-# Version: 0.2.7
+# Version: 0.2.8
 #
 # University of Oxford means the Chancellor, Masters and Scholars of
 # the University of Oxford, having an administrative office at
@@ -49,10 +49,10 @@ add_mex_file(im2dmatrix im2dmatrix.cpp)
 include_directories(..)
 
 ################################################################
-## forward_TV_mex(): auxiliary function for forward_TV.m
+## forward_TV_aux(): auxiliary function for forward_TV.m
 ################################################################
 
-add_mex_file(forward_TV_mex forward_TV_mex.cpp)
+add_mex_file(forward_TV_aux forward_TV_aux.cpp)
 
 ################################################################
 ## deconvolve()
@@ -80,7 +80,7 @@ if(WIN32)
     bwregiongrow
     im2dmatrix
 #    deconvolve
-    forward_TV_mex
+    forward_TV_aux
     RUNTIME
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 else(WIN32)
@@ -88,7 +88,7 @@ else(WIN32)
     bwregiongrow
     im2dmatrix
 #    deconvolve
-    forward_TV_mex
+    forward_TV_aux
     LIBRARY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
 endif(WIN32)

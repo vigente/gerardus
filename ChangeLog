@@ -1,4 +1,11 @@
-﻿2015-06-14  Ramon Casero  <rcasero@gmail.com>
+﻿2015-06-16  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/CMakeLists.txt: (0.2.8)
+
+	- Fix bug. forward_TV_mex was renamed by Darryl to forward_TV_aux
+	some time ago, but this file still had the old name.
+
+2015-06-14  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/vmu2png.m: (0.2.2)
 
