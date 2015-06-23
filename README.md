@@ -5,7 +5,7 @@ About
 =============================================================================================================
 
 Gerardus is an ecclectic collection of Matlab toolboxes, bash scripts and C++ programs produced as a result
-of research carried out by post docs and students who collaborate with Dr Vicente Grau at the Institute of
+of research carried out by post docs and students who collaborate with Prof. Vicente Grau at the Institute of
 Biomedical Engineering, University of Oxford, UK.
 
 Our research is focused primarily on medical imaging and computational biology.
