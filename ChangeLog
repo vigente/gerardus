@@ -1,4 +1,10 @@
-﻿2015-06-16  Ramon Casero  <rcasero@gmail.com>
+﻿2015-06-24  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ElastixToolbox/elastix_colon.m: (0.1.0)
+
+	- ELASTIX_COLON  Colon operator for elastix transforms.
+
+2015-06-16  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/CMakeLists.txt: (0.2.8)
 

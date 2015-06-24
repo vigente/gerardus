@@ -263,6 +263,10 @@ elastix_cat.m
 
 	 ELASTIX_CAT  Concatenation of elastix transforms.
 	
+elastix_colon.m
+
+	 ELASTIX_COLON  Colon operator for elastix transforms.
+	
 elastix_compose_afftransf.m
 
 	 ELASTIX_COMPOSE_AFFTRANSF  Composition of two 2D affine transforms.
