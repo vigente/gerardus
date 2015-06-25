@@ -275,6 +275,10 @@ elastix_delete_param_file.m
 
 	 ELASTIX_DELETE_PARAM_FILE  Delete sequence of transform files.
 	
+elastix_length.m
+
+	 ELASTIX_LENGTH  Number of transform levels in an elastix series.
+	
 elastix.m
 
 	 elastix  Matlab interface to the image registration program "elastix".
