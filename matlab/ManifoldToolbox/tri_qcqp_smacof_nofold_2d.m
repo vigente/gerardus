@@ -63,8 +63,6 @@ function [lb, ub, w, A, rl, ru, qc] = tri_qcqp_smacof_nofold_2d(tri, ymin, ymax,
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
 % Version: 0.0.2
-% $Rev$
-% $Date$
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

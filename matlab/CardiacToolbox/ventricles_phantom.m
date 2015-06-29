@@ -21,8 +21,6 @@ function [im,lv,rv,myo] = ventricles_phantom(m,v)
 % Author: Christopher Kelly <christopher.kelly28@gmail.com>
 % Copyright © 2013 University of Oxford
 % Version: 0.1.0
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

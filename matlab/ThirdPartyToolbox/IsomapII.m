@@ -80,8 +80,6 @@ function [Y, R, E] = IsomapII(D, n_fcn, n_size, options)
 % Modified by Ramon Casero <rcasero@gmail.com>, University of Oxford.
 %
 % Version: 0.1.1
-% $Rev$
-% $Date$
 %
 % This file is distributed as a derivative work of a third-party function
 % with project Gerardus.

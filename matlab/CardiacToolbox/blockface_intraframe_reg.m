@@ -30,8 +30,6 @@ function [t, tParam, iterInfo, regParam] = blockface_intraframe_reg(pathstr, fil
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
 % Version: 0.4.1
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

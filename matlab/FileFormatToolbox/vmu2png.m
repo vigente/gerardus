@@ -19,10 +19,8 @@ function vmu2png(file, outfile)
 %   .vmu to .png.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.2.1
-% $Rev$
-% $Date$
+% Copyright © 2014-2015 University of Oxford
+% Version: 0.2.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -270,6 +268,11 @@ while ischar(tline)
 end
 fclose(fid);
 
+% specify that we are giving the resolution values in pixels/meter.
+% Otherwise image viewers and processors may assume dpi (dots per inch).
+metadata{end+1} = 'ResolutionUnit';
+metadata{end+1} = 'meter';
+
 % translate number of bits per pixel per channel to Matlab data type
 switch numBytesPerPixelPerChannel
     case 1
@@ -277,7 +280,6 @@ switch numBytesPerPixelPerChannel
     otherwise
         error('Unknown data type. File does not contain one byte per channel per pixel')
 end
-
 
 % read image data to an array with the appropriate pixel type
 % (note: '*uint8' is shorthand for 'uint8=>uint8')

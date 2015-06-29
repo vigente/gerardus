@@ -26,8 +26,6 @@ function [ rad, circ, long ] = global_reference_frame(LV_cavity, orientation, di
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright � 2014 University of Oxford
 % Version: 0.1.3
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

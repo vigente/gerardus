@@ -34,6 +34,10 @@ function filename = elastix_write_param2file(filename, param)
 %   FILENAME is the path and name of the text file with the parameters. The
 %   filename is generated with tempname to make sure that it's unique.
 %
+%   If PARAM.InitialTransformParametersFileName points to another structure
+%   or a sequence of structures, instead of 'NoInitialTransform', then the
+%   whole sequence of structures is saved to a sequence of files.
+%
 % ... = elastix_write_param2file(FILENAME, PARAM)
 %
 %   This syntax allows to decide the output filename, rather than letting
@@ -43,10 +47,8 @@ function filename = elastix_write_param2file(filename, param)
 % elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.2.2
-% $Rev$
-% $Date$
+% Copyright © 2014-2015 University of Oxford
+% Version: 0.2.3
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

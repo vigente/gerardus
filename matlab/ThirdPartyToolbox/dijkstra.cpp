@@ -90,8 +90,6 @@
  * http://code.google.com/p/gerardus/
  *
  * Version: 0.3.2
- * $Rev$
- * $Date$
  *
  **/
 

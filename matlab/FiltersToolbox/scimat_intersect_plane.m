@@ -49,9 +49,7 @@ function [im, gx, gy, gz, midx] = scimat_intersect_plane(scimat, m, v, interp)
 % Authors: Ramon Casero <rcasero@gmail.com>, 
 % Pablo Lamata <pablo.lamata@dpag.ox.ac.uk>
 % Copyright © 2010-2015 University of Oxford
-% Version: 0.4.3
-% $Rev$
-% $Date$
+% Version: 0.4.4
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -135,7 +133,7 @@ switch interp
         xi = grcs(1, idxin);
         yi = grcs(2, idxin);
         zi = grcs(3, idxin);
-        im(idxin) = interpn(scimat.data, yi, xi, zi, interp);
+        im(idxin) = interp3(scimat.data, yi, xi, zi, interp);
     otherwise
         error('Interpolation method not implemented')
 end

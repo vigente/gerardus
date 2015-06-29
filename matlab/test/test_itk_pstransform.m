@@ -5,7 +5,6 @@
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011-2013 University of Oxford
 % Version: 0.1.3
-% $Rev$
 % $Date: 2013-02-07 01:06:10 +0000 (Thu, 07 Feb 2013)$
 %
 % University of Oxford means the Chancellor, Masters and Scholars of

@@ -47,7 +47,6 @@ function [y, w] = pts_tps_map(s, t, x, w, FAST, PROGRESS)
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2006-2013 University of Oxford
 % Version: 0.7.1
-% $Rev$
 % $Date: 2013-02-06 23:59:10 +0000 (Wed, 06 Feb 2013)$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of

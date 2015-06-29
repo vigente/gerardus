@@ -16,8 +16,8 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %
 % [T, MOVINGREG, ITERINFO] = elastix(REGPARAM, FIXED, MOVING, OPTS)
 %
-%   REGPARARM is a string with the path and name of a text file with the
-%   registration parameters for elastix, e.g.
+%   REGPARARM are the registration parameters for elastix, given either as
+%   a struct or a string with the path and name of a text file, e.g.
 %   '/path/to/ParametersTranslation2D.txt'.
 %
 %   FIXED, MOVING are the images to register. They can be given as file
@@ -40,10 +40,12 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %
 %     t0:      (def '') Struct or filename with an initial transform (see T
 %              below for format). t0 is applied to the image before the
-%              registration is run. Note that parameter
-%              InitialTransformParametersFileName allows to provide another
-%              transform that will be applied before t0, and so on
-%              iteratively.
+%              registration is run. Field
+%              t0.InitialTransformParametersFileName allows to provide
+%              another transform that will be applied before t0, and so on
+%              iteratively. Note: It seems that t0 does not work well in
+%              conjuction with masks, and it causes "Too many samples map
+%              outside moving image buffer".
 %
 %     fMask:   (def '') Mask for the fixed image. Only voxels == 1 are
 %              considered for the registration.
@@ -77,18 +79,29 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %                  ResultImagePixelType: 'unsigned char'
 %                   CompressResultImage: 'false'
 %
-%   Nested transforms: If T is a series of nested transforms, e.g.
+%   The format of the transforms is:
 %
-%     ta.Transform = 'EulerTransform';
-%     ta.InitialTransformParametersFileName = tb;
+%     'TranslationTransform': [tx ty].
+%     'EulerTransform':       [rotation(rad) tx ty].
+%     'BSplineTransform':     [dx1 dx2 ... dxN dy1 dy2 ... dyN]. These
+%                             values represent the displacement of the
+%                             control grid points, not their coordinates.
+%
+%   Note: In Elastix x -> rows, y -> columns, the opposite of Matlab's
+%   convention. If you use elastix_bspline_grid or
+%   elastix_bspline_grid2param, though, B-spline parameters are transposed
+%   to follow Matlab's convention.
+%
+%   If T is a sequence of transforms, e.g.
 %
 %     tb.Transform = 'BSplineTransform';
-%     tb.InitialTransformParametersFileName = 'NoInitialTransform';
+%     tb.InitialTransformParametersFileName = ta;
 %
-%   tb is the "initial transform" of ta, but because ITK and elastix define
-%   the transform of an image in the inverse direction, in practice what
-%   happens is that ta is applied *first* to the image, and then tb is
-%   applied to the result.
+%     ta.Transform = 'EulerTransform';
+%     ta.InitialTransformParametersFileName = 'NoInitialTransform';
+%
+%   The EulerTransform (ta) is applied first to the image, followed by the
+%   BSplineTransform (tb).
 %
 %   MOVINGREG is the result of registering MOVING onto FIXED. MOVINGREG is
 %   the same type as MOVING (i.e. image array or path and filename). In the
@@ -114,10 +127,8 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 % elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.4.2
-% $Rev$
-% $Date$
+% Copyright © 2014-2015 University of Oxford
+% Version: 0.4.5
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
