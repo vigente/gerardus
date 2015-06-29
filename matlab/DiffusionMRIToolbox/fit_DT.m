@@ -47,7 +47,7 @@ function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, metho
     
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.1.8
+% Version: 0.1.9
 % $Rev$
 % $Date$
 % 
@@ -110,8 +110,27 @@ if (length(sz) == 2) && (sz(2) == 1)
     sz = size(im);
 end
 
+
+% reshape to a matrix
+im_matrix = reshape(im, [prod(sz(1:end-1)), sz(end)]);
+
+% get the mask
+if isscalar(thresh_val)
+    mask = im_matrix(:,1) > thresh_val;
+else
+    mask = logical(thresh_val);
+end
+
+if ~any(mask(:))
+    error('The mask is empty')
+end
+
+% take only the voxels inside the mask
+I = im_matrix(mask(:), :);
+
+
 % take the log of the image to linearise the equation
-imlog = log(im);
+imlog = log(I);
 
 % Sort all b matrices in to a vector Bv=[Bxx,2*Bxy,2*Bxz,Byy,2*Byz,Bzz];
 Bv=squeeze([b(1,1,:),2*b(1,2,:),2*b(1,3,:),b(2,2,:),2*b(2,3,:),b(3,3,:)])';
@@ -129,8 +148,7 @@ Bv=squeeze([b(1,1,:),2*b(1,2,:),2*b(1,3,:),b(2,2,:),2*b(2,3,:),b(3,3,:)])';
 % Slog = [Bv, -1] * [M; -log(S0)]
 Bv = [Bv, -ones(size(Bv,1), 1)];
 
-% reshape Ilog so we can use the efficient \ operator
-imlog = reshape(imlog, [prod(sz(1:end-1)), sz(end)]);
+
 
 % Fit the tensor model (linear, unconstrained)
 %M = (Bv \ -imlog')';
@@ -156,116 +174,120 @@ M(isinf(M)) = 0;
 % perform nonlinear fitting (if required)
 if strcmp(method, 'nonlinear')
 
-    I_vector = reshape(im, [prod(sz(1:end-1)), sz(end)]);
+    % make sure you have doubles
+    I = double(I);
+    M = double(M);
     
-    if isscalar(thresh_val)
-        thresh_val = I_vector(:,1) > thresh_val;
-    else
-        thresh_val = logical(thresh_val);
-    end
-    
-    % declare variables for nonlinear fitting
-    I_nlfit = double(I_vector(thresh_val(:), :));
-    M_nl = double(M(thresh_val(:), :));
     Bv = Bv(:,1:6)';
 
     options = optimoptions('lsqcurvefit','Jacobian','on', 'DerivativeCheck', 'off', ...
-        'display', 'off', 'TypicalX', mean(M_nl));
+        'display', 'off', 'TypicalX', mean(M,1));
     % M = [xx,xy,xz,yy,yz,zz,S0]
     lb = [0 -3E-3 -3E-3 0 -3E-3 0 0]; % cross terms are allowed to be -ve
     ub = [zeros(1,6)+3E-3, inf];
 
     
-    if (size(I_nlfit,1) > 1000) && (matlabpool('size') == 0)
+    if (size(I,1) > 1000) && (matlabpool('size') == 0)
         disp('Open matlabpool for parallel processing')
     end
     
-    parfor i = 1:size(I_nlfit,1)
+    parfor i = 1:size(I,1)
 
-        M_nl(i,:) = lsqcurvefit(@mono_exp_model, M_nl(i,:), Bv, I_nlfit(i,:), lb, ub, options);
+        M(i,:) = lsqcurvefit(@mono_exp_model, M(i,:), Bv, I(i,:), lb, ub, options);
 
     end
 
-
-    M(thresh_val(:),:) = M_nl;
     
 end
 
-if isscalar(thresh_val) % if thresh_val is a scalar, use it as a threshold
-    thresh_val = M(:,7) > thresh_val;
-end
-            
-    
-% return the diffusion tensor
-DT = reshape(M, [sz(1:end-1), 7]);
 
+% return the diffusion tensor (fill with zeros in parts outside mask)
+DT = zeros([prod(sz(1:end-1)), 7]);
+DT(mask, :) = M;
+DT = reshape(DT, [sz(1:end-1), 7]);
+    
 
 if nargout > 1 % if you want the FA, ADC, etc.
 
     % initialise variables
-    FA = zeros(size(M,1), 1);
-    ADC = zeros(size(M,1),1);
-    VectorF = zeros(size(M,1), 3);
-    VectorF2 = zeros(size(M,1), 3);
-    VectorF3 = zeros(size(M,1), 3);
-    EigVals = zeros(size(M,1), 3);
+    FA_mask = zeros(size(M,1), 1);
+    ADC_mask = zeros(size(M,1),1);
+    VectorF_mask = zeros(size(M,1), 3);
+    VectorF2_mask = zeros(size(M,1), 3);
+    VectorF3_mask = zeros(size(M,1), 3);
+    EigVals_mask = zeros(size(M,1), 3);
    
     parfor i = 1:size(M,1)
-    
-        if thresh_val(i)
+     
+        Mi = M(i,:);
+
+        % The DiffusionTensor (Remember it is a symetric matrix,
+        % thus for instance Dxy == Dyx)
+        DiffusionTensor=[Mi(1) Mi(2) Mi(3); Mi(2) Mi(4) Mi(5); Mi(3) Mi(5) Mi(6)];
+
+        % Calculate the eigenvalues and vectors, and sort the 
+        % eigenvalues from small to large
+        [EigenVectors,D]=eig(DiffusionTensor); 
+        EigenValues=diag(D);
+        [~,index]=sort(EigenValues); 
+        EigenValues=EigenValues(index); 
+        EigenVectors=EigenVectors(:,index);
+        EigenValues_old=EigenValues;
+
+        % Regulating of the eigen values (negative eigenvalues are
+        % due to noise and other non-idealities of MRI)
+        EigenValues=abs(EigenValues);
+
+        % Apparent Diffuse Coefficient
+        ADCv = mean(EigenValues);%(EigenValues(1)+EigenValues(2)+EigenValues(3))/3;
+
+        % Fractional Anistropy (2 different definitions exist)
+        % First FA definition:
+        %FAv=(1/sqrt(2))*( sqrt((EigenValues(1)-EigenValues(2)).^2+(EigenValues(2)-EigenValues(3)).^2+(EigenValues(1)-EigenValues(3)).^2)./sqrt(EigenValues(1).^2+EigenValues(2).^2+EigenValues(3).^2) );
+        % Second FA definition:
+        FA_mask(i)=sqrt(1.5)*( sqrt((EigenValues(1)-ADCv).^2+(EigenValues(2)-ADCv).^2+(EigenValues(3)-ADCv).^2)./sqrt(EigenValues(1).^2+EigenValues(2).^2+EigenValues(3).^2) );
+        ADC_mask(i)=ADCv;
+        VectorF_mask(i,:)=EigenVectors(:,3)*EigenValues_old(3);
+        VectorF2_mask(i,:)=EigenVectors(:,2)*EigenValues_old(2);
+        VectorF3_mask(i,:)=EigenVectors(:,1)*EigenValues_old(1);
+
+        EigVals_mask(i,:) = EigenValues_old([3 2 1]);
+
         
-            Mi = M(i,:);
-
-            % The DiffusionTensor (Remember it is a symetric matrix,
-            % thus for instance Dxy == Dyx)
-            DiffusionTensor=[Mi(1) Mi(2) Mi(3); Mi(2) Mi(4) Mi(5); Mi(3) Mi(5) Mi(6)];
-
-            % Calculate the eigenvalues and vectors, and sort the 
-            % eigenvalues from small to large
-            [EigenVectors,D]=eig(DiffusionTensor); 
-            EigenValues=diag(D);
-            [~,index]=sort(EigenValues); 
-            EigenValues=EigenValues(index); 
-            EigenVectors=EigenVectors(:,index);
-            EigenValues_old=EigenValues;
-
-            % Regulating of the eigen values (negative eigenvalues are
-            % due to noise and other non-idealities of MRI)
-            EigenValues=abs(EigenValues);
-
-            % Apparent Diffuse Coefficient
-            ADCv=(EigenValues(1)+EigenValues(2)+EigenValues(3))/3;
-
-            % Fractional Anistropy (2 different definitions exist)
-            % First FA definition:
-            %FAv=(1/sqrt(2))*( sqrt((EigenValues(1)-EigenValues(2)).^2+(EigenValues(2)-EigenValues(3)).^2+(EigenValues(1)-EigenValues(3)).^2)./sqrt(EigenValues(1).^2+EigenValues(2).^2+EigenValues(3).^2) );
-            % Second FA definition:
-            FA(i)=sqrt(1.5)*( sqrt((EigenValues(1)-ADCv).^2+(EigenValues(2)-ADCv).^2+(EigenValues(3)-ADCv).^2)./sqrt(EigenValues(1).^2+EigenValues(2).^2+EigenValues(3).^2) );
-            ADC(i)=ADCv;
-            VectorF(i,:)=EigenVectors(:,3)*EigenValues_old(3);
-            VectorF2(i,:)=EigenVectors(:,2)*EigenValues_old(2);
-            VectorF3(i,:)=EigenVectors(:,1)*EigenValues_old(1);
-
-            EigVals(i,:) = EigenValues_old;
-
-        end
     end
+    
+    
+    
+    % reshape to match input dimensions, with zero filling outside the mask
+    VectorF = zeros([prod(sz(1:end-1)), 3]);
+    VectorF(mask(:), :) = VectorF_mask;
+    VectorF = reshape(VectorF, [sz(1:end-1), 3]);
+    VectorF2 = zeros([prod(sz(1:end-1)), 3]);
+    VectorF2(mask(:), :) = VectorF2_mask;
+    VectorF2 = reshape(VectorF2, [sz(1:end-1), 3]);
+    VectorF3 = zeros([prod(sz(1:end-1)), 3]);
+    VectorF3(mask(:), :) = VectorF3_mask;
+    VectorF3 = reshape(VectorF3, [sz(1:end-1), 3]);
+    VectorField = cat(ndims(VectorF)+1, VectorF, VectorF2, VectorF3);
+    
+    EigVals = zeros([prod(sz(1:end-1)), 3]);
+    EigVals(mask(:), :) = EigVals_mask;
+    EigVals = reshape(EigVals, [sz(1:end-1), 3]);
     
     % quick hack because reshape sz needs to be at least length 2
     if length(sz) == 2
         sz = [sz(1), 1, sz(2)];
     end
     
-    % reshape to match input dimensions
+    FA = zeros([prod(sz(1:end-1)), 1]);
+    FA(mask(:)) = FA_mask;
     FA = reshape(FA, sz(1:end-1));
+    ADC = zeros([prod(sz(1:end-1)), 1]);
+    ADC(mask(:)) = ADC_mask;
     ADC = reshape(ADC, sz(1:end-1));
-    VectorF = reshape(VectorF, [sz(1:end-1), 3]);
-    VectorF2 = reshape(VectorF2, [sz(1:end-1), 3]);
-    VectorF3 = reshape(VectorF3, [sz(1:end-1), 3]);
     
-    VectorField = cat(ndims(VectorF)+1, VectorF, VectorF2, VectorF3);
     
-    EigVals = reshape(EigVals, [sz(1:end-1), 3]);
+    
 end
 
 
