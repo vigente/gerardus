@@ -116,6 +116,10 @@ S2norm = cross(S2v2,S2v1); % Get the orthogonal vector.
 
 LineDir = cross(S1norm,S2norm);
 
+if norm(LineDir) < 1e-15
+    intensities1 = [];
+    intensities2 = [];
+else
 % make a vector unitary by dividing it with it's norm (length). 
 % for F = 1:size(LineDir,4)   
 %     LineDir./sqrt(sum(LineDir.^2));
@@ -264,11 +268,11 @@ intensities1 = interp2( coords1(:,:,1),coords1(:,:,2),...
 [coords2(:,:,1),coords2(:,:,2),coords2(:,:,3)] = meshgrid(coords2(1,:,1),coords2(:,1,2),coords2(1,1,3));                    
                     
 intensities2 = interp2( coords2(:,:,1),coords2(:,:,2),...
-                        double(scimat2.data),Pmaxp2(:,1),Pmaxp2(:,2)); 
+                        double(scimat2.data),Pmaxp2(:,1),Pmaxp2(:,2),'spline'); 
           
 
  % NEEDED FOR CHRIS' PLOT FUNCTION (validation)
 intersectCoords = Pmaxp2*scimat2.rotmat;
-
+end
 
 end

@@ -1,4 +1,4 @@
-function z = nmi(x, y)
+function v = nmi(x, y)
 % Compute nomalized mutual information I(x,y)/sqrt(H(x)*H(y)).
 % Written by Michael Chen (sth4nth@gmail.com).
     assert(numel(x) == numel(y));
@@ -29,4 +29,4 @@ function z = nmi(x, y)
 
     % normalized mutual information
     v = sqrt((MI/Hx)*(MI/Hy)) ;
-endfunction    
+end

@@ -195,7 +195,7 @@ if isempty(dcminfo(1,1).SliceLocation) % Slice Location is empty --> Pixel (2D)
     end
 else
     % Slice Thickness is NOT empty --> Voxel (3D)
-    scimat.axis(1).spacing = dcminfo(1,1).PixelSpacing(1) * 1e-3; % units: m
+     scimat.axis(1).spacing = dcminfo(1,1).PixelSpacing(1) * 1e-3; % units: m
     scimat.axis(2).spacing = dcminfo(1,1).PixelSpacing(2) * 1e-3; % units: m
     %Check if multiple slices or whether data is just one slice but
     %temporal.
