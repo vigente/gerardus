@@ -1,4 +1,11 @@
-﻿2015-06-25  Ramon Casero  <rcasero@gmail.com>
+﻿2015-07-01  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FindMatlab.cmake: (0.2.10)
+
+	- Find Matlab version without having to run matlab (solves
+	Gerardus issue #50).
+
+2015-06-25  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ElastixToolbox/elastix_length.m: (0.1.0)
 

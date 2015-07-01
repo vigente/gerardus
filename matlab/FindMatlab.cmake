@@ -17,7 +17,7 @@
 # (Note that the original file does work for Ubuntu Natty)
 #
 # Author: Ramon Casero <rcasero@gmail.com>, Tom Doel
-# Version: 0.2.9
+# Version: 0.2.10
 #
 # The original file was copied from an Ubuntu Linux install
 # /usr/share/cmake-2.8/Modules/FindMatlab.cmake
@@ -108,7 +108,7 @@ IF(WIN32)
     "${MATLAB_ROOT}/extern/include"
     )
 
-ELSE(WIN32)
+ELSE(WIN32) # Linux or Mac
 
   IF((NOT DEFINED MATLAB_ROOT) 
       OR ("${MATLAB_ROOT}" STREQUAL ""))
@@ -143,15 +143,32 @@ ELSE(WIN32)
   endif(NOT MATLAB_BINARY)
     
   # Get Matlab version
-  EXECUTE_PROCESS(
-    COMMAND "${MATLAB_BINARY}" -nosplash -nodesktop -nojvm -r "version, exit"
-    COMMAND grep ans -A 2
-    COMMAND tail -n 1
-    COMMAND awk "{print $2}"
-    COMMAND tr -d "()"
-    COMMAND xargs echo -n
+
+  # first, try to read it from the mbuild script, as this doesn't
+  # require to run Matlab. This is faster, and does not require a
+  # network connection to the licence server when Matlab is set up to
+  # run with a licence server
+  execute_process(
+    COMMAND grep " ver='" "${MATLAB_ROOT}/bin/mbuild"
+    COMMAND awk -F "'" "{ print $2 }"
     OUTPUT_VARIABLE MATLAB_VERSION
     )
+
+  # if we cannot read it from the mbuild script, then launch Matlab
+  # and run the "version" function
+  if (NOT MATLAB_VERSION)
+    
+    execute_process(
+      COMMAND "${MATLAB_BINARY}" -nosplash -nodesktop -nojvm -r "version, exit"
+      COMMAND grep ans -A 2
+      COMMAND tail -n 1
+      COMMAND awk "{print $2}"
+      COMMAND tr -d "()"
+      COMMAND xargs echo -n
+      OUTPUT_VARIABLE MATLAB_VERSION
+      )
+    
+  endif(NOT MATLAB_VERSION)
 
   # Check if this is a Mac
   IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
