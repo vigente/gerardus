@@ -32,8 +32,6 @@ function scimat = scimat_surface2seg(scimat, tri, x)
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
 % Version: 0.1.1
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

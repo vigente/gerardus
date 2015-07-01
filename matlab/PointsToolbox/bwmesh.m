@@ -54,8 +54,6 @@ function [tri, triboundary] = bwmesh(im, res)
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011-2014 University of Oxford
 % Version: 0.1.8
-% $Rev$
-% $Date$
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

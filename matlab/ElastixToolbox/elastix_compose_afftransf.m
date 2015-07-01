@@ -1,14 +1,28 @@
 function tfc = elastix_compose_afftransf(tf1, tf2)
-% elastix_compose_afftransf  Composition of two 2D affine transforms.
+% ELASTIX_COMPOSE_AFFTRANSF  Composition of two 2D affine transforms.
 %
-% elastix_compose_afftransf composes two 2D transforms from the affine
+% ELASTIX_COMPOSE_AFFTRANSF composes two 2D transforms from the affine
 % family, and produces another affine transform.
 %
-% TFC = elastix_compose_afftransf(TF1, TF2)
+% TFC = ELASTIX_COMPOSE_AFFTRANSF(TF1, TF2)
 %
-%   TF1, TF2 are two transforms to be applied in that order to an _image_
-%   (not to the coordinates of a voxel). TF1, TF2 can have the following
-%   formats:
+%   TF1, TF2 are two affine transforms to be applied in that order to an
+%   _image_ (not to point coordinates). E.g. TF1 is a translation
+%   transform, and TF2 is a rigid transform.
+%
+%   IMPORTANT: In elastix,
+%
+%       TF2.InitialTransformParametersFileName = TF1
+%
+%   means that TF1 is the initial transform, followed by TF2. However, if
+%   you want to manually apply the transforms to the image, you have to do
+%   in the inverse order to obtain the same result (except for accumulated
+%   interpolation errors):
+%
+%       IM2 = transformix(TF2, IM);
+%       IM3 = transformix(TF1, IM2);
+%
+%   TF1, TF2 can have the following formats:
 %
 %   * (3, 3)-matrices with the Matlab tform convention (help affine2d and
 %     projective2d for details) to map coordinates in homogeneous
@@ -23,7 +37,7 @@ function tfc = elastix_compose_afftransf(tf1, tf2)
 %
 %   * struct format produced by elastix (see help elastix for details):
 %
-%     'AffineTransform' (not implemented yet)
+%     'AffineTransform'
 %     'SimilarityTransform'
 %     'EulerTransform' (= Rigid transform)
 %     'TranslationTransform'
@@ -43,18 +57,12 @@ function tfc = elastix_compose_afftransf(tf1, tf2)
 %   the last transform to be applied to the image. However, we keep the
 %   center of rotation of TF1.
 %
-%   transformix(TFC, IM) produces the same result in one step than
-%   transformix(TF2, transformix(TF1, IM)). That is, TF1 is applied first,
-%   and then TF2 is applied.
-%
 %
 % See also: elastix, transformix, elastix_transf_imcoord2.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.2.4
-% $Rev$
-% $Date$
+% Version: 0.2.6
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -112,7 +120,7 @@ a1 = elastix_affine_struct2matrix(tf1);
 a2 = elastix_affine_struct2matrix(tf2);
 
 % compose transforms
-ac = a2 * a1;
+ac = a1 * a2;
 
 % format output transform and center on same center as first transform
 if (isstruct(tf1)) % return composed transform as an elastix struct

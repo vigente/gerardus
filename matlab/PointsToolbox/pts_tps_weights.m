@@ -48,7 +48,6 @@ function w = pts_tps_weights(s, t)
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2006-2013 University of Oxford
 % Version: 0.5.1
-% $Rev$
 % $Date: 2013-02-06 23:49:35 +0000 (Wed, 06 Feb 2013)$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of

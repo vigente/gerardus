@@ -14,18 +14,16 @@ function imout = transformix(t, im, opts)
 %   registration program. See help to elastix for details. If T is empty,
 %   the input image IM is returned.
 %
-%   Nested transforms: If T is a series of nested transforms, e.g.
-%
-%     ta.Transform = 'EulerTransform';
-%     ta.InitialTransformParametersFileName = tb;
+%   If T is a sequence of transforms, e.g.
 %
 %     tb.Transform = 'BSplineTransform';
-%     tb.InitialTransformParametersFileName = 'NoInitialTransform';
+%     tb.InitialTransformParametersFileName = ta;
 %
-%   tb is the "initial transform" of ta, but because ITK and elastix define
-%   the transform of an image in the inverse direction, in practice what
-%   happens is that ta is applied *first* to the image, and then tb is
-%   applied to the result.
+%     ta.Transform = 'EulerTransform';
+%     ta.InitialTransformParametersFileName = 'NoInitialTransform';
+%
+%   The EulerTransform (ta) is applied first to the image, followed by the
+%   BSplineTransform (tb).
 %
 %   The input image can be provided either as a string with the path and
 %   filename (FILENAMEIN) or as an image array (IMIN). The output will have
@@ -44,14 +42,18 @@ function imout = transformix(t, im, opts)
 %       random filename in the temp directory is created. This option is
 %       ignored if the input/output images are given in array form.
 %
+%     AutoDefaultPixelValue: (def false) If true, it overrides
+%       t.DefaultPixelValue and estimates the typical colour of the image
+%       to fill in newly created background pixels. Note that different
+%       values are estimated per channel, so it works for coloured
+%       backgrounds.
+%
 % See also: elastix, elastix_read_file2param, elastix_write_param2file,
 % elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.2.4
-% $Rev$
-% $Date$
+% Copyright © 2014-2015 University of Oxford
+% Version: 0.2.6
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -90,6 +92,14 @@ if (~isfield(opts, 'verbose') || isempty(opts.verbose))
 end
 if (~isfield(opts, 'outfile'))
     opts.outfile = '';
+end
+if (~isfield(opts, 'AutoDefaultPixelValue'))
+    opts.AutoDefaultPixelValue = false;
+end
+
+% override t.DefaultPixelValue?
+if (opts.AutoDefaultPixelValue)
+    t.DefaultPixelValue = 0;
 end
 
 if (isempty(t))
@@ -241,6 +251,23 @@ if (iscell(imfile))
 else
     imout = warp_image(tfile, imfile, ext, opts);
 end
+
+% smart estimation of background colour for newly added pixels
+if (opts.AutoDefaultPixelValue)
+    
+    % mask the newly added background pixels
+    idx = sum(imout, 3) == 0;
+    
+    % estimate typical intensity value in each channel, and use it to set
+    % in newly added background pixels
+    for CH = 1:size(imout, 3)
+        aux = imout(:, :, CH);
+        aux(idx) = median(aux(~idx));
+        imout(:, :, CH) = aux;
+    end
+end
+
+
 
 % format output
 if (ischar(im)) % input image given as path and filename

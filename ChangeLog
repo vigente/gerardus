@@ -1,42 +1,190 @@
-﻿2015-05-26  Benjamin Villard  <b.016434@gmail.com>
-	* matlab/FiltersToolbox/scimat_upsample.m (0.2.1)
-	
-	- Changed the header information as it was completely wrong. (It had the header 
-	information for scimat_downsample)
-	
-	* matlab/FilesFormatToolbox/scimat_slice_GUI.m (0.1.0)
-	- Changed the version of the function. It was still in alpha version. Updated it
-	to beta version 0.1.0
-	
+﻿2015-06-25  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ElastixToolbox/elastix_length.m: (0.1.0)
+
+	- ELASTIX_LENGTH Number of transform levels in an elastix series.
+
+2015-06-24  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ElastixToolbox/elastix_colon.m: (0.1.0)
+
+	- ELASTIX_COLON  Colon operator for elastix transforms.
+
+2015-06-16  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/CMakeLists.txt: (0.2.8)
+
+	- Fix bug. forward_TV_mex was renamed by Darryl to forward_TV_aux
+	some time ago, but this file still had the old name.
+
+2015-06-14  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/vmu2png.m: (0.2.2)
+
+	- Fix bug. We were not setting ResolutionUnit to "meter", so it
+	was an undefined value in the file metadata, and conversion to
+	other formats gave erroneous resolution values.
+
+	* matlab/RegistrationToolbox/regmatchedfilt.m: (0.2.1)
+
+	- Fix bug. I had forgotten to update the output transform with the
+	optimal angle.
+
+	* Add matlab/FiltersToolbox/imcmass.m: (0.1.0)
+
+	- IMCMASS  Centre of mass of an image.
+
+	* Add matlab/RegistrationToolbox/regmatchedfilt.m: (0.2.0)
+
+	- Extend registration to find rotation optimum too.
+
+2015-06-12  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ElastixToolbox/elastix_affine_crot.m: (0.1.0)
+
+	- ELASTIX_AFFINE_CROT Change centre of rotation of Elastix affine
+	transform.
+
+2015-06-10  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/RegistrationToolbox/regmatchedfilt.m: (0.1.0)
+
+	- Matched filter registration.
+
+2015-06-05  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/README.md:
+	* matlab/ElastixToolbox/elastix_cat.m: (0.3.1)
+
+	- Add info about the order of concatenating transforms depending
+	on whether we use -t0 or apply the initial transform
+	explicitly. Add section "Devil in the details of composition of
+	transformations".
+
+2015-06-04  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/README.md:
+
+	- Start small manual for the Elastix Toolbox.
+
+2015-06-03  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix_cat.m: (0.3.0)
+
+	- Extend so that we can concatenate vectors of transforms,
+	tf1(1:M),...,tfN(1:M). In that case, all vectors must have the
+	same number of elements.
+
+	* matlab/ElastixToolbox/elastix_cat.m: (0.2.1)
+
+	- Fix bug. Order of the concatenated transforms was not correct.
+
+	* matlab/ManifoldToolbox/trifacet_area3D.m: (0.1.1)
+
+	- Fix help header. Missing licence notice. Convert function name
+	to uppercase.
+
+	- Check number of input and output arguments.
+
+2015-06-01  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix_compose_afftransf.m: (0.2.6)
+	* matlab/test/test_elastix_compose_afftransf.m: (0.1.2)
+
+	- Fix bug. Transforms have to be composed as a1*a2 instead of
+	a2*a1.
+
+	* matlab/ElastixToolbox/elastix_affine_matrix2struct.m: (0.2.0)
+	* matlab/ElastixToolbox/elastix_affine_struct2matrix.m: (0.2.0)
+
+	- Extend functions so that we can process N transforms instead of
+	only 1.
+
+2015-05-29  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/transformix.m: (0.2.6)
+
+	- Add optional parameter opts.AutoDefaultPixelValue, for automatic
+	estimation of the colour to give to pixels that are newly created
+	by transformix.
+
+2015-05-27  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix.m: (0.4.5)
+
+	- Help header: Note that t0 doesn't seem to work in conjunction
+	with masks.
+
+2015-05-26  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix_write_param2file.m: (0.2.3)
+
+	- Note in help header that the function works with sequences of
+	parameter structures too.
+
+	* matlab/ElastixToolbox/elastix.m: (0.4.4)
+	* matlab/ElastixToolbox/transformix.m: (0.2.5)
+	* matlab/ElastixToolbox/elastix_delete_param_file.m: (0.1.1)
+	* matlab/ElastixToolbox/elastix_read_reg_output.m: (0.2.3)
+	* matlab/ElastixToolbox/elastix_read_file2param.m: (0.2.4)
+	* matlab/ElastixToolbox/elastix_compose_afftransf.m: (0.2.5)
+
+	- Fix help header: 1) Description of transform sequences:
+	TB.InitialTransformParametersFileName = TA means that TA is
+	applied first. 2) they are a sequence, not "nested". ("Nested"
+	means that a function is local to another function). 3) lowercase
+	to uppercase for function names.
+
 2015-05-26  Benjamin Villard  <b.016434@gmail.com>
-	* matlab/FiltersToolbox/scimat_lineintersection.m (0.1.0)
-	
-	- Added and promoted function to beta version and merged it to the master branch.
-	(Before promotion (Alpha version) function was in scimat_lineintersection branch of gerardus) 
-	This function returns the line intensities from two intersecting scimat files at
-	a specified resolution. 
-	
-	* matlab/FiltersToolbox/scimat_downsample.m (0.3.0)
-	
-	- Added and promoted function to beta version and merged it to the master branch.
-	(Before promotion (Alpha version) function was in scimat_lineintersection branch of gerardus)
-	This function  takes a scimat struct and downsamples the scimat image (stored in scimat.data)
-	by half. It first applies a Gaussian filter in order to smooth the image
- 	and the proceeds to sample half of the original image. 
-	
-	* matlab/FiltersToolbox/scimat_upsample.m (0.2.0)
-	
-	- Added and promoted function to beta version and merged it to the master branch.
-	(Before promotion (Alpha version) function was in scimat_lineintersection branch of gerardus)
-	This function takes a scimat struct and a highre resolution image, and proceeds to replace the
-	scimat image (stored in scimat.data) by the image, as well as recalculates all the attributes
-	such that the scimat struct is sampled by twice. Used in conjunction with scimat_downsample.m.
-	
+	* matlab/FiltersToolbox/scimat_upsample.m (0.2.1)
+
+	- Changed the header information as it was completely wrong. (It
+	had the header information for scimat_downsample)
+
 	* matlab/FilesFormatToolbox/scimat_slice_GUI.m (0.1.0)
-	
-	- Added and promoted function to beta version and merged it to the master branch.
-	(Before promotion (Alpha version) function was in scimat_lineintersection branch of gerardus)
-	This function Create graphical user interface to view slices in scimat struct. 
+
+	- Changed the version of the function. It was still in alpha
+	version. Updated it to beta version 0.1.0
+
+	* matlab/FiltersToolbox/scimat_lineintersection.m (0.1.0)
+
+	- Added and promoted function to beta version and merged it to the
+	master branch.
+	(Before promotion (Alpha version) function was in
+	scimat_lineintersection branch of gerardus) This function returns
+	the line intensities from two intersecting scimat files at a
+	specified resolution.
+
+	* matlab/FiltersToolbox/scimat_downsample.m (0.3.0)
+
+	- Added and promoted function to beta version and merged it to the
+	master branch.
+	(Before promotion (Alpha version) function was in
+	scimat_lineintersection branch of gerardus) This function takes a
+	scimat struct and downsamples the scimat image (stored in
+	scimat.data) by half. It first applies a Gaussian filter in order
+	to smooth the image and the proceeds to sample half of the
+	original image.
+
+	* matlab/FiltersToolbox/scimat_upsample.m (0.2.0)
+
+	- Added and promoted function to beta version and merged it to the
+	master branch.
+	(Before promotion (Alpha version) function was in
+	scimat_lineintersection branch of gerardus) This function takes a
+	scimat struct and a highre resolution image, and proceeds to
+	replace the scimat image (stored in scimat.data) by the image, as
+	well as recalculates all the attributes such that the scimat
+	struct is sampled by twice. Used in conjunction with
+	scimat_downsample.m.
+
+	* matlab/FilesFormatToolbox/scimat_slice_GUI.m (0.1.0)
+
+	- Added and promoted function to beta version and merged it to the
+	master branch.
+	(Before promotion (Alpha version) function was in
+	scimat_lineintersection branch of gerardus) This function Create
+	graphical user interface to view slices in scimat struct.
 	Checkboxes allow for slice visibility to be turned on/off
 
 	2015-05-24  Ramon Casero  <rcasero@gmail.com>

@@ -36,8 +36,6 @@ function scimat = scimat_tri_to_raster(tri, x, scimat, raster)
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013-2014 University of Oxford
 % Version: 0.2.2
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

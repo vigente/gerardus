@@ -1,4 +1,4 @@
-function [M, ADC1, ADC2, FA1, FA2, VectorF_fast, VectorF_slow, I_fit] = fit_biexponential_tensor(I, bval, mask)
+function [M, ADC1, ADC2, FA1, FA2, VectorF_fast, VectorF_slow, EigVals_fast, EigVals_slow, I_fit] = fit_biexponential_tensor(I, bval, mask)
 %FIT_BIEXPONENTIAL_TENSOR Fit the bi-exponential tensor model
 % fits the function S = S0_fast * e^(b*D_fast) + S0_slow e^(b*D_slow)
 %
@@ -24,16 +24,19 @@ function [M, ADC1, ADC2, FA1, FA2, VectorF_fast, VectorF_slow, I_fit] = fit_biex
 %   ADC1, ADC2 are the ADC maps for the fast and slow component
 %   respectively
 %
-%   FA1, FA2 are the FA maps (bear in mind that FA2 might be very noisy)
+%   FA1, FA2 are the FA maps (bear in mind that FA2 might be very noisy in
+%   regions with Gaussian diffusion)
 %
-%   VECTORF1, VECTORF2 are eigenvector fields for fast and slow components
+%   VECTORF_FAST, VECTORF_SLOW are eigenvector fields for fast and slow 
+%   components
+%
+%   EIGVALS_FAST, EIGVALS_SLOW are the eigenvalues for the fast and slow
+%   components
 %
 %
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.1.1
-% $Rev$
-% $Date$
+% Version: 0.1.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -60,7 +63,7 @@ function [M, ADC1, ADC2, FA1, FA2, VectorF_fast, VectorF_slow, I_fit] = fit_biex
 
 % check arguments
 narginchk(2,3);
-nargoutchk(0, 8);
+nargoutchk(0, 10);
 
 sz = size(I);
 
@@ -243,6 +246,11 @@ if max(mask(:)) == 1
     
     VectorF_fast = cat(ndims(VectorF_1)+1, VectorF_1, VectorF_2, VectorF_3);
 
+    EigVals_fast = zeros([prod(sz(1:end-1)), 3]);
+    EigVals_fast(mask(:),:) = EigVals;
+    EigVals_fast = reshape(EigVals_fast, [sz(1:end-1), 3]);
+    
+    
     for i = 1:size(M_nl,1)
 
 
@@ -298,6 +306,10 @@ if max(mask(:)) == 1
     
     VectorF_slow = cat(ndims(VectorF_1)+1, VectorF_1, VectorF_2, VectorF_3);
 
+    EigVals_slow = zeros([prod(sz(1:end-1)), 3]);
+    EigVals_slow(mask(:),:) = EigVals;
+    EigVals_slow = reshape(EigVals_slow, [sz(1:end-1), 3]);
+    
 
 end
 

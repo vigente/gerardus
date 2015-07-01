@@ -1,8 +1,8 @@
 function [t, im, iterInfo] = elastix_read_reg_output(outdir)
-% elastix_read_reg_output  Read output of registration computed with
+% ELASTIX_READ_REG_OUTPUT  Read output of registration computed with
 % elastix.
 %
-% [T, IM, ITERINFO] = elastix_read_reg_output(OUTDIR)
+% [T, IM, ITERINFO] = ELASTIX_READ_REG_OUTPUT(OUTDIR)
 %
 %   OUTDIR is a string with the path to the output directory created by
 %   elastix.
@@ -19,10 +19,8 @@ function [t, im, iterInfo] = elastix_read_reg_output(outdir)
 % See also: elastix, blockface_find_frame_shifts.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.2.2
-% $Rev$
-% $Date$
+% Copyright © 2014-2015 University of Oxford
+% Version: 0.2.3
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

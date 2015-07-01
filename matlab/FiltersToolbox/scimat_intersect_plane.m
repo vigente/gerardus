@@ -50,8 +50,6 @@ function [im, gx, gy, gz, midx] = scimat_intersect_plane(scimat, m, v, interp)
 % Pablo Lamata <pablo.lamata@dpag.ox.ac.uk>
 % Copyright © 2010-2015 University of Oxford
 % Version: 0.4.4
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

@@ -1,4 +1,4 @@
-function [ M_weighted ] = weighted_linear_fit( Y, X, func, warnings_on )
+function [ M_weighted, V ] = weighted_linear_fit( Y, X, func, warnings_on)
 %WEIGHTED_LINEAR_FIT fits the function Y = MX (matrices) such that the
 % residuals follow a gaussian distribution after having @func applied to
 % them. I.e. func(Y) - func(MX) follows a gaussian with the same variance
@@ -15,6 +15,7 @@ function [ M_weighted ] = weighted_linear_fit( Y, X, func, warnings_on )
 %
 % Output:
 %   M_WEIGHTED: [m * k] array, containing the model coefficients.
+%   V are the weights
 %   
 % Example usage: 
 %     x = 0:10:1000;
@@ -40,8 +41,6 @@ function [ M_weighted ] = weighted_linear_fit( Y, X, func, warnings_on )
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright © 2015 University of Oxford
 % Version: 0.1.0
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -67,8 +66,8 @@ function [ M_weighted ] = weighted_linear_fit( Y, X, func, warnings_on )
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(3, 4);
-nargoutchk(0, 6);
+narginchk(3, 5);
+nargoutchk(0, 2);
 
 if nargin < 4
     warnings_on = 1;
@@ -100,6 +99,7 @@ R = func(Y) - func(M*X);
 
 % if we have only 1 sample, weight by the ratio of the root mean square
 % error in the linear space to the real space
+
 if size(Y,1) == 1
     V = sqrt((R.^2) ./ ((Y-M*X).^2 + eps));
 else

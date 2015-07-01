@@ -25,8 +25,6 @@ function [xg, yg, zg, tg] = scimat_ndgrid(scimat, ri, ci, si, fi)
 % Ben Villard <b.016434@gmail.com>
 % Copyright © 2010-2015 University of Oxford
 % Version: 0.4.1
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

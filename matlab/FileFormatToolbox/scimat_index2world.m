@@ -61,8 +61,6 @@ function x = scimat_index2world(idx, scimat, CHOP)
 % Christopher Kelly  <christopher.kelly28@googlemail.com>
 % Copyright © 2009-2015 University of Oxford
 % Version: 0.5.0
-% $Rev$
-% $Date$
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
