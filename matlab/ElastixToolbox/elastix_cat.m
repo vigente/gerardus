@@ -66,7 +66,7 @@ function tfout = elastix_cat(varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.3.1
+% Version: 0.3.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -125,12 +125,24 @@ end
 %
 % Transforms can also be vectors of transforms, as long as they have the
 % same number of elements
+%
+% If a transform is empty, the other one is returned. For vectors of
+% transforms, it's a bit of a problem, because it's not possible to have a
+% vector of []. Instead, we can have a cell array {[], [], ..., []}
 function t2 = cat_2_transf(t1, t2)
 
 % check that if transforms are provided as vectors of transforms, they have
 % the same number of elements
 if (length(t1) ~= length(t2))
     error('If vectors of transforms are provided, they must have the same number of elements')
+end
+
+% if a transform is empty, return the other one
+if (isempty(t1) || iscell(t1))
+    return;
+elseif (isempty(t2) || iscell(t2))
+    t2 = t1;
+    return
 end
 
 % loop vector of transforms elements

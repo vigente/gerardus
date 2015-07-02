@@ -1,4 +1,11 @@
-﻿2015-07-01  Ramon Casero  <rcasero@gmail.com>
+﻿2015-07-02  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix_cat.m: (0.3.2)
+
+	- Fix bug. Function broke when one of the input transforms was
+	empty or a cell vector of empties.
+
+2015-07-01  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FindMatlab.cmake: (0.2.10)
 
