@@ -41,7 +41,7 @@ function t = elastix_colon(t, idx)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -70,7 +70,7 @@ function t = elastix_colon(t, idx)
 narginchk(2, 2);
 nargoutchk(0, 1);
 
-% number of transforms in each level
+% number of images
 N = length(t);
 
 % put every transform level into a cell
@@ -89,7 +89,9 @@ while (true)
     end
     
     % remove the top level
-    t(:) = t(:).InitialTransformParametersFileName;
+    for I = 1:N
+        t(I) = t(I).InitialTransformParametersFileName;
+    end
     
 end
 

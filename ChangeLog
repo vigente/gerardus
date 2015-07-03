@@ -1,4 +1,12 @@
-﻿2015-07-02  Ramon Casero  <rcasero@gmail.com>
+﻿2015-07-03  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix_colon.m: (0.1.1)
+
+	- Fix bug. If you wanted to extract more than one level, the
+	second level repeated the same transform for every image, instead
+	of the real ones.
+
+2015-07-02  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/elastix_cat.m: (0.3.2)
 
