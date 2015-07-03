@@ -1,5 +1,10 @@
 ﻿2015-07-03  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ElastixToolbox/elastix_colon.m: (0.1.2)
+
+	- Fix bug. If not all the levels were the same transform, the
+	function gave an error when trying to remove the top level.
+
 	* matlab/ElastixToolbox/elastix_colon.m: (0.1.1)
 
 	- Fix bug. If you wanted to extract more than one level, the

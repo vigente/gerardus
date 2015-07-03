@@ -41,7 +41,7 @@ function t = elastix_colon(t, idx)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -89,9 +89,11 @@ while (true)
     end
     
     % remove the top level
+    clear taux
     for I = 1:N
-        t(I) = t(I).InitialTransformParametersFileName;
+        taux(I) = t(I).InitialTransformParametersFileName;
     end
+    t = taux;
     
 end
 
