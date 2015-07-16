@@ -181,9 +181,11 @@ if strcmp(method, 'nonlinear')
 
     M(thresh_val(:),:) = M_nl;
     
+    % change A back
+    A = A';
 end
    
-I_DKI = bsxfun(@times, M(:,1), exp(-(M(:, 2:end) * A)));
+I_DKI = bsxfun(@times, M(:,1), exp(-(M(:, 2:end) * A')));
     
 % reshape back again
 DKI = reshape(M, [sz(1:end-1), 22]);

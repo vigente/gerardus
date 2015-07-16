@@ -72,7 +72,7 @@ end
 
 
 % save memory and time by fitting in vector form
-I = reshape(I, [prod(sz(1:3)), sz(4)]);
+I = reshape(I, [prod(sz(1:end-1)), sz(end)]);
 
 Ivector = I(Mask(:), :);
 

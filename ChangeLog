@@ -1,4 +1,15 @@
-﻿2015-07-03  Ramon Casero  <rcasero@gmail.com>
+2015-05-13  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* Add matlab/DiffusionMRIToolbox/view_tensors.m (0.1.1)
+
+	- VIEW_TENSORS  Renders diffusion tensors in 3D, colour coded by HA
+
+	* matlab/DiffusionMRIToolbox/wild_bootstrapping_DTI.m (0.1.2)
+	* matlab/DiffusionMRIToolbox/fit_DKI_model.m (0.1.0)
+
+	- Minor bug fixes
+
+2015-07-03  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/elastix_colon.m: (0.1.2)
 
