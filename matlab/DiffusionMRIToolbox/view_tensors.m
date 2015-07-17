@@ -57,16 +57,7 @@ if nargin < 3
     delta = 1.5E-3; % spacing between tensors
 end
 
-% Jet colourmap
-ha = HA / 90;
-C = zeros([numel(ha), 3]);
-for i = 1:size(C,1)
-    if isnan(ha(i))
-        C(i,:) = [0.8 0.8 0.8];
-    else
-        C(i,:) = [red(ha(i)), green(ha(i)), blue(ha(i))];
-    end
-end
+
 
 % convert from 6x1 to 3x3 tensor representation
 DT_33 = zeros([3 3 size(D,1) size(D,2)]);
@@ -91,12 +82,19 @@ elseif length(sz)==4
     nx=sz(3);ny=sz(4);
 end
 
-r = 0;
+ha = HA / 90;
+
 hold on;
 for i=1:nx
     for j=1:ny
         
-        r = r + 1;
+        % Jet colourmap
+        if isnan(ha(i,j))
+            C = [0.8 0.8 0.8];
+        else
+            C = [red(ha(i,j)), green(ha(i,j)), blue(ha(i,j))];
+        end
+        
         
         % get the eigenvectors of the tensor
         [v,l]=eig(round(DT_33(:,:,i,j)*1E7)/1E7);
@@ -117,7 +115,7 @@ for i=1:nx
         Y=Y+(j-1)*delta*2;
         
         % display the ellipsoid
-        surf(real(X),real(Y),real(Z), 'faceColor', C(r,:), 'EdgeAlpha', 0, 'EdgeColor', 'none');
+        surf(real(X),real(Y),real(Z), 'faceColor', C, 'EdgeAlpha', 0, 'EdgeColor', 'none');
             
     end
 end
