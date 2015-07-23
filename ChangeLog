@@ -1,4 +1,12 @@
-2015-05-13  Darryl McClymont  <darryl.mcclymont@gmail.com>
+﻿2015-07-23 Nicolas Basty <nicolas.basty@eng.ox.ac.uk>
+	* Add matlab\FiltersToolbox\im2col3.m (0.1.0)
+	- IM2COL3 rearranges 3D image blocks into columns
+
+	* Add matlab\FiltersToolbox\col2im3.m (0.1.0)
+	- COL2IM3 rearranges matrix columns into a 3D image
+
+
+2015-07-20 Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* Add matlab/DiffusionMRIToolbox/view_tensors.m (0.1.1)
 
