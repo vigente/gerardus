@@ -1,4 +1,11 @@
-﻿2015-07-28  Ramon Casero  <rcasero@gmail.com>
+2015-07-28 Darryl McClymont  <darryl.mcclymont@gmail.com>
+	
+	* matlab/FiltersToolbox/forward_TV.m (0.1.3)
+	* matlab/FiltersToolbox/inverse_TV.m (0.1.1)
+
+	- Now works in 1 dimension.
+
+2015-07-28  Ramon Casero  <rcasero@gmail.com>
 
 	* Add shell-script/imresize-meta.sh: (0.1.0)
 
