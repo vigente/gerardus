@@ -46,6 +46,11 @@ function [ res ] = inverse_TV( y )
 narginchk(1,1);
 nargoutchk(0, 1);
 
+if isvector(y)
+    res = y([end,1:end-1]) - y;
+    %res(1) = -y(1);
+    return
+end
 
 
 res = adjDx(y(:,:,:,1)) + adjDy(y(:,:,:,2)) + adjDz(y(:,:,:,3));
@@ -54,21 +59,21 @@ res = adjDx(y(:,:,:,1)) + adjDy(y(:,:,:,2)) + adjDz(y(:,:,:,3));
 end
 
 function res = adjDy(x)
-    res = x(:,[1,1:end-1],:) - x;
-    res(:,1,:) = -x(:,1,:);
-    res(:,end,:) = x(:,end-1,:);
+    res = x(:,[end,1:end-1],:) - x;
+    %res(:,1,:) = -x(:,1,:);
+    %res(:,end,:) = x(:,end-1,:);
 end
 
 function res = adjDx(x)
-    res = x([1,1:end-1],:,:) - x;
-    res(1,:,:) = -x(1,:,:);
-    res(end,:,:) = x(end-1,:,:);
+    res = x([end,1:end-1],:,:) - x;
+    %res(1,:,:) = -x(1,:,:);
+    %res(end,:,:) = x(end-1,:,:);
 end
 
 function res = adjDz(x)
-    res = x(:,:,[1,1:end-1]) - x;
-    res(:,:,1) = -x(:,:,1);
-    res(:,:,end) = x(:,:,end-1);
+    res = x(:,:,[end,1:end-1]) - x;
+    %res(:,:,1) = -x(:,:,1);
+    %res(:,:,end) = x(:,:,end-1);
 end
 
 

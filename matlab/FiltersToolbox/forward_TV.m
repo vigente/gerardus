@@ -16,7 +16,7 @@ function [ TV, TV_grad ] = forward_TV( I )
 
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.2
+% Version: 0.1.3
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -45,23 +45,24 @@ function [ TV, TV_grad ] = forward_TV( I )
 narginchk(1,1);
 nargoutchk(0, 2);
 
+if isvector(I)
+    TV_grad = I([2:end,1]) - I;
+    TV = sum(abs(TV_grad));
+    return
+end
+
 
 % Let mex do the work for you
-if exist('forward_TV_aux', 'file')
+if exist('forward_TV_aux', 'file') && isreal(I)
     [Dx, Dy, Dz, TV] = forward_TV_aux(double(I), 1);  
 else
-    
-    disp('Please compile the forward total variation transform for increased speed.')
-    disp('Just find the file forward_TV_aux.cpp and type:')
-    disp('mex forward_TV_aux.cpp')
-    
     
     % This is the equivalent to the above mex function in Matlab, but the
     % mex file is faster
 
-    Dx = I([2:end,end],:,:) - I;
-    Dy = I(:,[2:end,end],:) - I;
-    Dz = I(:,:,[2:end,end]) - I;
+    Dx = I([2:end,1],:,:) - I;
+    Dy = I(:,[2:end,1],:) - I;
+    Dz = I(:,:,[2:end,1]) - I;
     
 
     TV = sum(abs(Dx(:)) + abs(Dy(:)) + abs(Dz(:)));
