@@ -7,3 +7,8 @@ This shell scripts provides the following main functions:
 images2avi.sh
 
 	Create an AVI video from a stack of images.
+
+imresize-meta.s
+
+	Resize images changing also spacing metainformation to
+	preserve print size.

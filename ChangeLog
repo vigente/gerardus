@@ -1,8 +1,18 @@
-﻿2015-07-23 Nicolas Basty <nicolas.basty@eng.ox.ac.uk>
-	* Add matlab\FiltersToolbox\im2col3.m (0.1.0)
+﻿2015-07-28  Ramon Casero  <rcasero@gmail.com>
+
+	* Add shell-script/imresize-meta.sh: (0.1.0)
+
+	- Script to resize image files, changing the pixel spacing
+	accordingly so that the real world print size remains the same.
+
+2015-07-23 Nicolas Basty <nicolas.basty@eng.ox.ac.uk>
+
+	* Add matlab\FiltersToolbox\im2col3.m: (0.1.0)
+
 	- IM2COL3 rearranges 3D image blocks into columns
 
-	* Add matlab\FiltersToolbox\col2im3.m (0.1.0)
+	* Add matlab\FiltersToolbox\col2im3.m: (0.1.0)
+
 	- COL2IM3 rearranges matrix columns into a 3D image
 
 
