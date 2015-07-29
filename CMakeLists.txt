@@ -109,6 +109,10 @@ if(NOT WIN32)
     set(GCC_VERSION_REQUIRED_BY_MATLAB "4.7")
   elseif("${MATLAB_VERSION}" MATCHES "R2014a")
     set(GCC_VERSION_REQUIRED_BY_MATLAB "4.7")
+  elseif("${MATLAB_VERSION}" MATCHES "R2014b")
+    set(GCC_VERSION_REQUIRED_BY_MATLAB "4.7")
+  elseif("${MATLAB_VERSION}" MATCHES "R2015a")
+    set(GCC_VERSION_REQUIRED_BY_MATLAB "4.7")
   else()
     message(FATAL_ERROR 
       "I do not know which version of gcc/g++ is needed for Matlab ${MATLAB_VERSION}.\nPlease update gerardus/CMakeLists.txt with this information.")
@@ -439,7 +443,7 @@ if(NOT ITK_FOUND)
   else(WIN32)
     # to make things easier for the user, we are going to build ITK
     
-    set(ITK_TARBALL_URL "http://sourceforge.net/projects/itk/files/itk/4.3/InsightToolkit-4.3.1.tar.gz/download")
+    set(ITK_TARBALL_URL "http://downloads.sourceforge.net/project/itk/itk/4.3")
     set(ITK_TARBALL_FILENAME "${CMAKE_BINARY_DIR}/InsightToolkit-4.3.1.tar.gz")
     set(ITK_SOURCE_DIR "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/InsightToolkit-4.3.1")
 
