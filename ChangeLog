@@ -1,3 +1,12 @@
+2015-07-29 Ben Villard <b.016434@gmail.com>
+
+	* CMakelists.txt
+	* matlab/FindMatlab.cmake
+
+	- Added the compiler information for the latest MATLAB version (2015Ra)
+	- Changed the tarball url for ITK, as the source forge one was obsolete.
+	- created a “dummy” project in FindMatlab.cmake
+
 2015-07-28 Darryl McClymont  <darryl.mcclymont@gmail.com>
 	
 	* matlab/FiltersToolbox/forward_TV.m (0.1.3)
