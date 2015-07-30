@@ -18,13 +18,17 @@ function scimat = scimat_load(file)
 %          .mha file can be pure text, containing only the image metadata,
 %          and a path to the file with the actual binary image data, or it
 %          can contain both text metadata and binary image within the same
-%          file.
+%          file (http://www.itk.org/Wiki/ITK/MetaIO/Documentation).
 %
 %     .lsm: Carl Zeiss microscopy image format. Binary file.
 %
 %     .vmu: Hamamatsu Uncompressed Virtual Microscope Specimen. Text file
 %           containing only the image metadata, and a path to the file with
 %           the actual binary image data.
+%
+%     .tif: TIFF (Tagged Image File Format).
+%
+%     .png: PNG (Portable Network Graphics) format.
 %
 %   SCIMAT is the struct with the image data and metainformation (see "help
 %   scimat" for details).
@@ -33,7 +37,7 @@ function scimat = scimat_load(file)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2015 University of Oxford
-% Version: 0.4.5
+% Version: 0.4.6
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -98,13 +102,16 @@ switch lower(ext)
             error(['Cannot open file: ' file])
         end
         
-        % default values for the text header
+        % default values for variables that we are trying to read from the
+        % text header
         N = [];
         sz = [];
         data_type = [];
         offset = [];
         res = [];
         msb = [];
+        nchannel = 1;
+        rotmat = [];
         rawfile = [];
         
         % process text header, and stop if we get to the raw data
@@ -128,6 +135,10 @@ switch lower(ext)
             if isempty(idx), break, end
             
             switch getlabel(tline, idx)
+                case 'objecttype'
+                    if (~strcmpi(strtrim(tline(idx+1:end)), 'Image'))
+                        error('ObjectType ~= Image. Functionality not implemented')
+                    end
                 case 'ndims'
                     N = getnumval(tline, idx);
                 case 'dimsize'
@@ -153,18 +164,37 @@ switch lower(ext)
                         otherwise
                             error('Unrecognized ElementType')
                     end
-                case 'offset'
+                case {'offset', 'position', 'origin'}
                     offset = getnumval(tline, idx);
                 case 'elementspacing'
                     res = getnumval(tline, idx);
+                    if (all(res == 0))
+                        warning('File provides ElementSpacing(:) == 0. This is a physical impossibility. Changing to ElementSpacing(:) = 1')
+                        res(:) = 1;
+                    end
                 case 'elementbyteordermsb'
                     msb = strcmpi(strtrim(tline(idx+1:end)), 'true');
+                case 'elementnumberofchannels'
+                    nchannel = getnumval(tline, idx);
                 case 'elementdatafile'
                     rawfile = strtrim(tline(idx+1:end));
                     break;
                 case 'compresseddata'
                     if strcmpi(strtrim(tline(idx+1:end)), 'true')
                         error('Cannot read compressed MHA data')
+                    end
+                case {'orientation', 'transformmatrix', 'rotation'}
+                    % orientation of X axis, orientation of Y axis, ...
+                    rotmat = getnumval(tline, idx);
+                    rotmat = reshape(rotmat, [N, N])';
+                case 'centerofrotation'
+                    rotc = getnumval(tline, idx);
+                    if (any(rotc ~= 0))
+                        error('Image has center of rotation different from 0. That option has not been implemented yet in this reader')
+                    end
+                case 'headersize'
+                    if (getnumval(tline, idx) ~= -1)
+                        error('HeaderSize ~= -1. Functionality not implemented')
                     end
                 otherwise
                     warning(['Unrecognized line: ' tline])
@@ -184,30 +214,43 @@ switch lower(ext)
             fclose(fid);
             
             % open raw file to read
-            fid=fopen([pathstr filesep rawfile], 'r');
-            if (fid<=0)
+            fid = fopen([pathstr filesep rawfile], 'r');
+            if (fid <= 0)
                 error(['Cannot open file: ' pathstr filesep rawfile])
             end
         end
         
         % read all the raw data into a vector, because we cannot read it
         % into a 3D volume
-        scimat.data = fread(fid, prod(sz), [data_type '=>' data_type]);
+        scimat.data = fread(fid, prod(sz) * nchannel, ...
+            [data_type '=>' data_type]);
         
         % reshape the data to create the data volume
-        scimat.data = reshape(scimat.data, sz);
+        scimat.data = reshape(scimat.data, [nchannel sz]);
         
+        % rearrange dimensions so that channels are the 5th dimension
+        scimat.data = permute(scimat.data, [2 3 4 5 1]);
+
         % permute the X and Y coordinates
-        scimat.data = permute(scimat.data, [2 1 3]);
-        
+        scimat.data = permute(scimat.data, [2 1 3:ndims(scimat.data)]);
+
         % close file
         fclose(fid);
         
-        % check that we have enough data to create the output struct
-        if (isempty(sz) || isempty(res) || isempty(offset))
-            error('Incomplete header in .mha file')
+        % defaults
+        if (isempty(offset))
+            offset = zeros(1, N);
         end
-        
+        if (isempty(res))
+            res = ones(1, N);
+        end
+        if (isempty(sz))
+            sz = size(scimat.data);
+        end
+        if (isempty(rotmat))
+            rotmat = eye(N);
+        end
+
         % create output struct (we have read sz, res, etc in x, y, z order)
         for I = 1:N
             scimat.axis(I).size = sz(I);
@@ -219,6 +262,9 @@ switch lower(ext)
         % now we need to permute the axis so that we have [row, col,
         % slice]-> [y, x, z]
         scimat.axis([1 2]) = scimat.axis([2 1]);
+        
+        % rotation matrix
+        scimat.rotmat = rotmat;
         
     case '.lsm' % Carl Zeiss LSM format
         
@@ -363,6 +409,37 @@ switch lower(ext)
         
         % create SCI MAT struct
         scimat = scimat_im2scimat(im, res, offset);
+        
+    case {'.png', '.tif'}
+        
+        % read image pixels
+        scimat.data = imread(file);
+        
+        % we assume image oriented parallel to Cartesian axes
+        scimat.rotmat = eye(2);
+        
+        % read image metadata header
+        info = imfinfo(file);
+        
+        % spacing units
+        switch (info.ResolutionUnit)
+            case 'Centimeter'
+                
+                unit = 1e-2;
+                
+            otherwise
+                
+                error('Unknown ResolutionUnit')
+                
+        end
+        
+        % set scimat axes values
+        scimat.axis(1).size = size(scimat.data, 1);
+        scimat.axis(2).size = size(scimat.data, 2);
+        scimat.axis(1).spacing = unit ./ info.YResolution;
+        scimat.axis(2).spacing = unit ./ info.XResolution;
+        scimat.axis(1).min = -0.5 * scimat.axis(1).spacing;
+        scimat.axis(2).min = -0.5 * scimat.axis(2).spacing;
         
     otherwise
         

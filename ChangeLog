@@ -1,3 +1,24 @@
+2015-07-30  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.4.6)
+
+	- Read PNG, TIFF files.
+
+	- Now we can have scimat with number of channels
+	('ElementNumberOfChannels') and rotation matrix ('Orientation',
+	'TransformMatrix', 'Rotation').
+
+	- Deal with synomyms for MetaImage tag 'Offset'.
+
+	- Deal with minor MetaImage tags: 'ObjectType', 'HeaderSize'.
+
+	- Explicitly check that 'CenterOfRotation' is 0. We cannot deal
+	with other centers of rotation yet.
+
+	- If file reports ElementSpacing(:) == 0, replace by
+	ElementSpacing(:) == 1.0 to potentially avoid problems with
+	ITK/Elastix registration.
+
 2015-07-29 Ben Villard <b.016434@gmail.com>
 
 	* CMakelists.txt
@@ -8,7 +29,7 @@
 	- created a “dummy” project in FindMatlab.cmake
 
 2015-07-28 Darryl McClymont  <darryl.mcclymont@gmail.com>
-	
+
 	* matlab/FiltersToolbox/forward_TV.m (0.1.3)
 	* matlab/FiltersToolbox/inverse_TV.m (0.1.1)
 
