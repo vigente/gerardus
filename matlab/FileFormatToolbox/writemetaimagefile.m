@@ -1,18 +1,20 @@
-function writemetaimagefile(filename, img, resolution, offset)
-% WRITEMETAIMAGEFILE  Write a MetaImage file (.mha) with both header and data
+function writemetaimagefile(filename, img, resolution, offset, orientation)
+% WRITEMETAIMAGEFILE  Write a MetaImage file (.mha) with both header and
+% data.
 %
-% WRITEMETAIMAGEFILE(FILENAME, IMG, RESOLUTION, DATA_TYPE, OFFSET)
+% WRITEMETAIMAGEFILE(FILENAME, IMG, RESOLUTION, DATA_TYPE, OFFSET, ORIENTATION)
 %
 %   FILENAME is the path and name of the file to be written, e.g.
 %   'foo.mha'.
 %
-%   IMG is a 3D matrix that contains the image volume. The index-coordinate
+%   IMG is an array that contains the image. The index-coordinate
 %   correspondence must be:
 %
-%     [row, col, slice] -> [x, y, z]
+%     [row, col, slice, frame, channel] -> [x, y, z, t, channel]
 %
 %   which is different from the Matlab standard for images, where rows
-%   correspond to the y-coordinate.
+%   correspond to the y-coordinate. This is also different from the
+%   Gerardus "scimat" image specification (see "help scimat").
 %
 %   RESOLUTION is a 3-vector with the voxel size in the 3 directions. The
 %   order must be [dx, dy, dz].
@@ -21,10 +23,19 @@ function writemetaimagefile(filename, img, resolution, offset)
 %   coordinates) of the centre of the first voxel in the volume. For
 %   example, OFFSET=[0.014552, 0.010486, 0.00142]. By default, 
 %   OFFSET=[0 0 0]. The order must be the same as in RESOLUTION.
+%
+%   ORIENTATION is a vector with a linearized rotation matrix. E.g. for 3
+%   dimensions ORIENTATION=[X(1:3) Y(1:3) Z(1:3)] means that the rotation
+%   matrix is 
+%                      [X(1:3)]
+%                      [Y(1:3)]
+%                      [Z(1:3)]
+%
+% See also scimat.
 
 % Author(s): Ramon Casero <rcasero@gmail.com> and Vicente Grau
-% Copyright © 2012 University of Oxford
-% Version: 0.1.4
+% Copyright © 2012, 2015 University of Oxford
+% Version: 0.2.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -51,140 +62,102 @@ function writemetaimagefile(filename, img, resolution, offset)
 
 
 % check arguments
-error(nargchk(2, 4, nargin, 'struct'));
-error(nargoutchk(0, 0, nargout, 'struct'));
+narginchk(2, 5);
+nargoutchk(0, 0);
+
+% [row, col, slice, frame, channel]
+if (ndims(img) < 2 || ndims(img) > 5)
+    error('IMG dimension must be 2, 3, 4 or 5')
+end
+
+% number of physical dimensions (i.e. excluding channels because MetaImage
+% treats them separately, and time frames because we haven't implemented
+% writing time series yet)
+D = min([ndims(img) 3]);
 
 % defaults
 if (nargin < 3 || isempty(resolution))
-    resolution = [1.0 1.0 1.0];
+    resolution = ones(1, D);
 end
 if (nargin < 4 || isempty(offset))
-    offset = [0.0 0.0 0.0];
+    offset = zeros(1, D);
+end
+if (nargin < 5 || isempty(orientation))
+    orientation = eye(D);
+    orientation = orientation(:)';
 end
 
 % get image size
 img_size = size(img);
 
+% TODO: writing time series not implemented
+if (length(img_size) >= 4 && img_size(4) > 1)
+    error('Writing of time series not implemented')
+end
+
+% number of channels
+if (length(img_size) < 5)
+    nchannel = 1;
+else
+    nchannel = img_size(5);
+end
+
 % get pixel type
 data_type = class(img);
 
 % open file for writing
-fid=fopen(filename, 'w');
-if(fid<=0) 
+fid = fopen(filename, 'w');
+if(fid <= 0) 
     fprintf('Could not open file: %s\n', filename);
 end
 
-ndims=numel(img_size);
+% number of spatial physical dimensions
+fprintf(fid, 'NDims = %d\n', D);
 
-if(ndims == 2)
-    fprintf(fid, 'NDims = 2\n');
+aux = num2cell(img_size(1:D));
+fprintf(fid, ['DimSize =' repmat(' %d', 1, D) '\n'], aux{:});
 
-    fprintf(fid, 'DimSize = %d %d\n', ...
-        img_size(1), img_size(2));
+fprintf(fid, 'ElementNumberOfChannels = %d\n', nchannel);
 
-    switch data_type
-        case {'logical', 'uint8'}
-            fprintf(fid, 'ElementType = MET_UCHAR\n');
-        case 'int8'
-            fprintf(fid, 'ElementType = MET_CHAR\n');
-        case 'uint16'
-            fprintf(fid, 'ElementType = MET_USHORT\n');
-        case 'int16'
-            fprintf(fid, 'ElementType = MET_SHORT\n');
-        case 'uint32'
-            fprintf(fid, 'ElementType = MET_UINT\n');
-        case 'int32'
-            fprintf(fid, 'ElementType = MET_INT\n');
-        case 'single'
-            fprintf(fid, 'ElementType = MET_FLOAT\n');
-        case 'double'
-            fprintf(fid, 'ElementType = MET_DOUBLE\n');
-        otherwise
-            error('Unrecognized data type')
-    end
-
-    fprintf(fid, 'Offset = %1.12e %1.12e\n', ...
-        offset(1), offset(2));
-
-    fprintf(fid, 'ElementSpacing = %1.12e %1.12e\n', ...
-        resolution(1), resolution(2));
-
-elseif(ndims == 3)
-    fprintf(fid, 'NDims = 3\n');
-
-    fprintf(fid, 'DimSize = %d %d %d\n', ...
-        img_size(1), img_size(2), img_size(3));
-
-    switch data_type
-        case {'logical', 'uint8'}
-            fprintf(fid, 'ElementType = MET_UCHAR\n');
-        case 'int8'
-            fprintf(fid, 'ElementType = MET_CHAR\n');
-        case 'uint16'
-            fprintf(fid, 'ElementType = MET_USHORT\n');
-        case 'int16'
-            fprintf(fid, 'ElementType = MET_SHORT\n');
-        case 'uint32'
-            fprintf(fid, 'ElementType = MET_UINT\n');
-        case 'int32'
-            fprintf(fid, 'ElementType = MET_INT\n');
-        case 'single'
-            fprintf(fid, 'ElementType = MET_FLOAT\n');
-        case 'double'
-            fprintf(fid, 'ElementType = MET_DOUBLE\n');
-        otherwise
-            error('Unrecognized data type')
-    end
-
-    fprintf(fid, 'Offset = %1.12e %1.12e %1.12e\n', ...
-        offset(1), offset(2), offset(3));
-
-    fprintf(fid, 'ElementSpacing = %1.12e %1.12e %1.12e\n', ...
-        resolution(1), resolution(2), resolution(3));
-
-elseif(ndims==4)
-    fprintf(fid, 'NDims = 4\n');
-
-    fprintf(fid, 'DimSize = %d %d %d %d\n', ...
-        img_size(1), img_size(2), img_size(3), img_size(4));
-
-    switch data_type
-        case {'logical', 'uint8'}
-            fprintf(fid, 'ElementType = MET_UCHAR\n');
-        case 'int8'
-            fprintf(fid, 'ElementType = MET_CHAR\n');
-        case 'uint16'
-            fprintf(fid, 'ElementType = MET_USHORT\n');
-        case 'int16'
-            fprintf(fid, 'ElementType = MET_SHORT\n');
-        case 'uint32'
-            fprintf(fid, 'ElementType = MET_UINT\n');
-        case 'int32'
-            fprintf(fid, 'ElementType = MET_INT\n');
-        case 'single'
-            fprintf(fid, 'ElementType = MET_FLOAT\n');
-        case 'double'
-            fprintf(fid, 'ElementType = MET_DOUBLE\n');
-        otherwise
-            error('Unrecognized data type')
-    end
-
-    fprintf(fid, 'Offset = %1.12e %1.12e %1.12e\n', ...
-        offset(1), offset(2), offset(3));
-
-    fprintf(fid, 'ElementSpacing = %1.12e %1.12e %1.12e %1.12e\n', ...
-        resolution(1), resolution(2), resolution(3), resolution(4));
-    
-else
-    
-    error('Unsupported number of dimensions')
-       
+switch data_type
+    case {'logical', 'uint8'}
+        fprintf(fid, 'ElementType = MET_UCHAR\n');
+    case 'int8'
+        fprintf(fid, 'ElementType = MET_CHAR\n');
+    case 'uint16'
+        fprintf(fid, 'ElementType = MET_USHORT\n');
+    case 'int16'
+        fprintf(fid, 'ElementType = MET_SHORT\n');
+    case 'uint32'
+        fprintf(fid, 'ElementType = MET_UINT\n');
+    case 'int32'
+        fprintf(fid, 'ElementType = MET_INT\n');
+    case 'single'
+        fprintf(fid, 'ElementType = MET_FLOAT\n');
+    case 'double'
+        fprintf(fid, 'ElementType = MET_DOUBLE\n');
+    otherwise
+        error('Unrecognized data type')
 end
+
+aux = num2cell(offset);
+fprintf(fid, ['Offset =' repmat(' %1.12e', 1, D) '\n'], aux{:});
+
+aux = num2cell(orientation);
+fprintf(fid, ['Orientation =' repmat(' %1.12e', 1, D^2) '\n'], aux{:});
+
+aux = num2cell(resolution);
+fprintf(fid, ['ElementSpacing =' repmat(' %1.12e', 1, D) '\n'], aux{:});
 
 fprintf(fid, 'ElementByteOrderMSB = False\n');
 
 fprintf(fid, 'ElementDataFile = LOCAL\n');
 
+% rearrange dimensions so that channels go from 5th to 1st dimension
+if (ndims(img) >= 5)
+    img = permute(img, [5 1:4]);
+end
+        
 % write image data to file
 fwrite(fid, img, data_type);
 

@@ -11,7 +11,8 @@ function scimat = scimat_save(file, scimat, touint8, v73)
 %
 %     .mha: Uncompressed MetaImage file (developed for the ITK and VTK
 %           libraries). The .mha file contains both text metadata and
-%           binary image within the same file.
+%           binary image within the same file
+%           (http://www.itk.org/Wiki/ITK/MetaIO/Documentation).
 %
 %     .png: Portable Network Graphics. PNG uses lossless compression.
 %           Binary file. In principle, Matlab limits the image size to
@@ -69,7 +70,7 @@ function scimat = scimat_save(file, scimat, touint8, v73)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2015 University of Oxford
-% Version: 0.6.4
+% Version: 0.6.5
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -152,11 +153,25 @@ switch lower(ext)
         % column, and y-coordinates in the second column, as expected by
         % the MetaImage format
         scimat.data = permute(scimat.data, [2 1 3:ndims(scimat.data)]);
+        scimat.axis = scimat.axis([2 1 3:length(scimat.axis)]);
         
-        % save data, doing the same permutation of the axis values
+        % number of physical dimensions, excluding time frames and channels
+        D = min([3 length(scimat.axis)]);
+        
+        % rotation matrix
+        if (~isfield(scimat, 'rotmat'))
+            rotmat = eye(D);
+        else
+            % Matlab indexes first rows, but MetaImage expects columns
+            % first
+            rotmat = scimat.rotmat';
+        end
+        
+        % save data
         writemetaimagefile(file, scimat.data, ...
-            [scimat.axis([2 1 3]).spacing], ...
-            [scimat.axis([2 1 3]).min]+[scimat.axis([2 1 3]).spacing]/2);
+            [scimat.axis.spacing], ...
+            [scimat.axis.min] + [scimat.axis.spacing]/2, ...
+            rotmat(:)');
         
     case '.png'
         

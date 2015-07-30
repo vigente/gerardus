@@ -1,5 +1,23 @@
 2015-07-30  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/scimat_save.m: (0.6.5)
+
+	- Now we can write rotation matrices to MetaImage files.
+
+	* matlab/FileFormatToolbox/writemetaimagefile.m: (0.2.0)
+
+	- Add input argument for rotation matrix, and deal with images
+	with more than one channel.
+
+	- Deal with cases for resolution, offset when image has 2 to 4
+	dimensions (before, we always assumed 3 dimensions).
+
+	- Replace separate blocks of code for 2D, 3D and 4D images with a
+	single block of code for any number of dimensions. This makes the
+	code much shorter.
+
+	- Update to new syntax of narginchk, nargoutchk.
+
 	* matlab/FileFormatToolbox/scimat_load.m: (0.4.6)
 
 	- Read PNG, TIFF files.
