@@ -20,7 +20,7 @@ function [t, im, iterInfo] = elastix_read_reg_output(outdir)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.2.3
+% Version: 0.2.4
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -56,18 +56,16 @@ t = elastix_read_file2param([outdir filesep 'TransformParameters.0.txt']);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% result.0.png
+%% result.0.tif, result.0.dcm
 
 % read result image
 if (nargout > 1)
     
     % the result file can be in many different formats
-    resultfile = dir([outdir filesep 'result.0.*']);
+    resultfile = dir([outdir filesep 'result.0.' t.ResultImageFormat]);
     
     if (isempty(resultfile))
-        error(['No image result file: ' outdir filesep 'result.0.*'])
-    end
-    if (length(resultfile) > 1)
-        error(['More than one result file: ' outdir filesep 'result.0.*'])
+        error(['No image result file: ' outdir filesep 'result.0.' t.ResultImageFormat])
     end
     
     % read the image

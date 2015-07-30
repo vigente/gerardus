@@ -1,8 +1,15 @@
 2015-07-30  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ElastixToolbox/elastix_read_reg_output.m: (0.2.4)
+
+	- Fix bug. If the images format is .tif, elastix produces both a
+	.tif and .dcm file. To avoid this kind of problems, now we are
+	more specific when looking for the output image file.
+
 	* matlab/FiltersToolbox/scimat.m: (0.2.2)
 
-	- Add multi-channel images to the standard (e.g. RGB images).
+	- Add multi-channel images to the scimat standard (e.g. RGB
+	images).
 
 	* matlab/FileFormatToolbox/scimat_save.m: (0.6.5)
 
