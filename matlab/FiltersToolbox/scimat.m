@@ -28,7 +28,7 @@
 %
 %   In detail:
 %
-%   * data:   A 2D to 4D array that contains the image/segmentation voxels.
+%   * data:   A 2D to 5D array that contains the image/segmentation voxels.
 %
 %   * axis:   Axes metainformation. A 1 to 4-vector, depending on the
 %             number of dimensions of the image.
@@ -37,6 +37,7 @@
 %     axis(2) ==> columns
 %     axis(3) ==> slices
 %     axis(4) ==> time frames
+%     axis(5) ==> channels (e.g. RGB images)
 %
 %     Each axis element contains the fields:
 %
@@ -59,7 +60,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

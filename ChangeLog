@@ -1,5 +1,9 @@
 2015-07-30  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat.m: (0.2.2)
+
+	- Add multi-channel images to the standard (e.g. RGB images).
+
 	* matlab/FileFormatToolbox/scimat_save.m: (0.6.5)
 
 	- Now we can write rotation matrices to MetaImage files.
