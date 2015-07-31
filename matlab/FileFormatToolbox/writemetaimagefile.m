@@ -35,7 +35,7 @@ function writemetaimagefile(filename, img, resolution, offset, orientation)
 
 % Author(s): Ramon Casero <rcasero@gmail.com> and Vicente Grau
 % Copyright © 2012, 2015 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -73,7 +73,11 @@ end
 % number of physical dimensions (i.e. excluding channels because MetaImage
 % treats them separately, and time frames because we haven't implemented
 % writing time series yet)
-D = min([ndims(img) 3]);
+if (nargin >= 3)
+    D = length(resolution);
+else
+    D = min([ndims(img) 3]);
+end
 
 % defaults
 if (nargin < 3 || isempty(resolution))
@@ -81,10 +85,18 @@ if (nargin < 3 || isempty(resolution))
 end
 if (nargin < 4 || isempty(offset))
     offset = zeros(1, D);
+else
+    if (length(offset) ~= D)
+        error('OFFSET must have the same dimensions as RESOLUTION')
+    end
 end
 if (nargin < 5 || isempty(orientation))
     orientation = eye(D);
     orientation = orientation(:)';
+else
+    if (length(orientation) ~= D^2)
+        error('ORIENTATION must be a vector with D^2 elements, if D is the number of elements in RESOLUTION')
+    end
 end
 
 % get image size

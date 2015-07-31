@@ -1,5 +1,10 @@
 2015-07-31  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/writemetaimagefile.m: (0.2.1)
+
+	- Fix bug. When input image is 2D and in colour, the dimension has
+	to be 2 (not 3) with 3 channels.
+
 	* matlab/FileFormatToolbox/scimat_load.m: (0.5.0)
 
 	- Add input optional parameter 'HeaderOnly'.
