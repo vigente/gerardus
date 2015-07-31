@@ -70,7 +70,7 @@ function scimat = scimat_save(file, scimat, touint8, v73)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2015 University of Oxford
-% Version: 0.6.5
+% Version: 0.6.6
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -184,8 +184,11 @@ switch lower(ext)
                 bitdepth = 8;
         end
         
+        % spatial dimensions of the image (without frames or channels)
+        D = length(scimat.axis);
+        
         % image offset
-        offset = scimat_index2world([1 1 1], scimat);
+        offset = scimat_index2world(ones(1, D), scimat);
         
         % write the image to file, including metadata
         %

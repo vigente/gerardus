@@ -1,5 +1,10 @@
 2015-07-31  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/scimat_save.m: (0.6.6)
+
+	- Fix bug. When input image was 2D, the function threw an error
+	because it assumed that all images were 3D.
+
 	* matlab/FileFormatToolbox/writemetaimagefile.m: (0.2.1)
 
 	- Fix bug. When input image is 2D and in colour, the dimension has
