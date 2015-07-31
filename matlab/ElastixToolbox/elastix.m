@@ -5,14 +5,13 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %
 %   http://elastix.isi.uu.nl/
 %
-% Command-line "elastix" is a powerful rigid and nonrigid registration
-% program, but it requires that input images are provided as files, and
-% returns the results (transform parameters, registered image, etc) as
-% files in a directory. This is not so convenient when using Matlab, so
-% this interface function allows to pass images either as filenames or as
-% image arrays, and transparently takes care of creating temporary files
-% and directories, reading the result to Matlab variables, and cleaning up
-% afterwards.
+% Command-line "elastix" is a powerful image registration program, but it
+% requires that input images are provided as files, and returns the results
+% (transform parameters, registered image, etc) as files in a directory.
+% This is not so convenient when using Matlab, so this interface function
+% allows to pass images either as filenames or as image arrays, and
+% transparently takes care of creating temporary files and directories,
+% reading the result to Matlab variables, and cleaning up afterwards.
 %
 % [T, MOVINGREG, ITERINFO] = elastix(REGPARAM, FIXED, MOVING, OPTS)
 %
@@ -128,7 +127,7 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.4.5
+% Version: 0.4.6
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -299,10 +298,8 @@ end
 
 if (ischar(moving))
     
-    % output registered image can have a different extension from the
-    % moving image, so we have to check what's the actuall full name of the
-    % output file
-    regfile = dir([tempoutdir filesep 'result.0.*']);
+    % check that the registration produced the expected output image
+    regfile = dir([tempoutdir filesep 'result.0.' auxParam.ResultImageFormat]);
     if (isempty(regfile))
         error('Elastix did not produce an output registration')
     end
@@ -381,79 +378,115 @@ end
 % processed by elastix
 function [filename, delete_tempfile] = create_temp_file_if_array_image(file)
 
-if (isempty(file))
+if (isempty(file)) % no filename provided by the user
     
     % this option is useful for the fixed and moving masks, when they are
     % not provided by the user, and thus file==''
     filename = '';
     delete_tempfile = false;
 
-elseif (ischar(file))
+elseif (ischar(file)) % user has provided a filename
 
-    % read image header
-    info = imfinfo(file);
+    [~, ~, ext] = fileparts(file);
     
-    switch (info.ColorType)
-        case 'truecolor'
+    %% read file metadata block (we need to know whether the image is
+    %% grayscale or colour    
+    switch (ext) % type of input file
+        
+        case {'.mha', '.mhd'} % MetaImage format from ITK
             
-            % input image is a color RGB image. We need to create a temp
-            % file for each channel
-            
-            % load image
-            im = imread(file);
-            
-            % create temp files to save the channels of the image
-            delete_tempfile = true;
-            nchan = size(im, 3);
-            filename = cell(1, nchan);
-            for I = 1:nchan
-                % create a temp file for the image
-                [pathstr, name] = fileparts(tempname);
-                filename{I} = [pathstr filesep name '.png'];
-                imwrite(im(:, :, I), filename{I});
+            % open file to read
+            fid = fopen(file, 'r');
+            if (fid <= 0)
+                error(['Cannot open file: ' file])
             end
             
-        case 'grayscale'
+            % initialize variable to save number of channels
+            nchannel = [];
             
-            % input is a filename already, and image is grayscale. Thus we
-            % don't need to create a temp file
-            delete_tempfile = false;
-            filename = file;
+            % process text header, and stop if we get to the raw data
+            while (true)
+                
+                % read text header line
+                tline = fgetl(fid);
+                
+                % if end of text header stop reading
+                % Warning: this only works if the first voxel=0. Otherwise, we
+                % would read some voxels as part of a header line. To avoid it,
+                % we now break after finding ElementDataFile
+                if (tline(1) == 0), break, end
+                
+                % find location of "=" sign
+                idx = strfind(tline, '=');
+                if isempty(idx), break, end
+                
+                switch getlabel(tline, idx)
+                    case 'elementnumberofchannels'
+                        nchannel = getnumval(tline, idx);
+                        break
+                end
+                
+            end
             
-        otherwise
+            % close file
+            fclose(fid);
             
-            error('Image in input file is neither RGB nor grayscale')
+        otherwise % '.png', '.tif'
+    
+            % read image header
+            info = imfinfo(file);
+            
+            % number of image channels
+            nchannel = info.SamplesPerPixel;
+            
+    end
+    
+    %% channel splitting block (grayscale images just go through untouched, but
+    %% colour images need to be read and split into one file per channel)
+    if (nchannel == 1) % grayscale
+            
+        % input is a filename already, and image is grayscale. Thus we
+        % don't need to create a temp file
+        delete_tempfile = false;
+        filename = file;
+            
+    elseif (nchannel > 1) % 2 or more channels (e.g. RGB has 3 channels)
+            
+        % we need to create a temp file for each channel
+        
+        % load image
+        scimat = scimat_load(file);
+        
+        % create temp files to save the channels of the image
+        delete_tempfile = true;
+        filename = cell(1, nchannel);
+        for I = 1:nchannel
+            
+            % create a temp filename for the image
+            [pathstr, name] = fileparts(tempname);
+            filename{I} = [pathstr filesep name ext];
+            
+            % extract one channel
+            scichan = scimat;
+            scichan.data = scichan.data(:, :, :, :, I);
+            
+            % write the channel to temp file
+            scimat_save(filename{I}, scichan);
+            
+        end
+            
+    else
+        
+        error('Image has less than one channel?')
+        
     end
     
     
 else
     
-    % if image is colour, it needs to be split into channels
-    nchan = size(file, 3);
-    delete_tempfile = true;
-    if (nchan == 1)
-        % grayscale image
+end % if (isempty(file))
 
-        % create a temp file for the image
-        [pathstr, name] = fileparts(tempname);
-        filename = [pathstr filesep name '.png'];
-        imwrite(file, filename);
-    else
-        % image with more than one channel, e.g. RGB image
-        
-        filename = cell(1, nchan);
-        for I = 1:nchan
-            % create a temp file for the image
-            [pathstr, name] = fileparts(tempname);
-            filename{I} = [pathstr filesep name '.png'];
-            imwrite(file(:, :, I), filename{I});
-        end
-    end
-    
-    
-end
-
-end
+end % function ... = create_temp_file_if_array_image(...)
 
 % create_temp_file_if_struct
 %
@@ -502,4 +535,12 @@ else
     delete(filename)
 end
 
+end
+
+% helper function to parse lines of .mha header
+function s = getlabel(s, idx)
+s = lower(strtrim(s(1:idx-1)));
+end
+function n = getnumval(s, idx)
+n = str2num(s(idx+1:end));
 end

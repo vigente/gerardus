@@ -1,5 +1,18 @@
 2015-07-31  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ElastixToolbox/elastix.m: (0.4.6)
+
+	- Accept input .mha/.mhd images.
+
+	- Deal with colour images better. Now images can have any number
+	of channels, and they are split into the corresponding number of
+	temporal files. The temporal files are no longer PNG, but the same
+	format as the input images.
+
+	- Fix bug. If the images format is .tif, elastix produces both a
+	.tif and .dcm file. To avoid this kind of problems, now we are
+	more specific when looking for the output image file.
+
 	* matlab/FileFormatToolbox/scimat_save.m: (0.6.6)
 
 	- Fix bug. When input image was 2D, the function threw an error
