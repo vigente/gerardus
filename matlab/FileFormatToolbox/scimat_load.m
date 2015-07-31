@@ -37,7 +37,7 @@ function scimat = scimat_load(file)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2015 University of Oxford
-% Version: 0.4.6
+% Version: 0.4.7
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -432,6 +432,11 @@ switch lower(ext)
                 error('Unknown ResolutionUnit')
                 
         end
+        
+        % shift dimensions so that number of channels is at 5th dimension,
+        % to comply with the scimat format
+        scimat.data = reshape(scimat.data, ...
+            [size(scimat.data, 1) size(scimat.data, 2) 1 1 size(scimat.data, 3)]);
         
         % set scimat axes values
         scimat.axis(1).size = size(scimat.data, 1);

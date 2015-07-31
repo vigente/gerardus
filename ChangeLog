@@ -1,3 +1,10 @@
+2015-07-31  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.4.7)
+
+	- Fix bug. When reading colour TIFF, PNG files, channels need to
+	go in the 5th dimension of scimat.data.
+
 2015-07-30  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/elastix_read_reg_output.m: (0.2.4)
