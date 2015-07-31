@@ -1,5 +1,9 @@
 2015-07-31  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.0)
+
+	- Add input optional parameter 'HeaderOnly'.
+
 	* matlab/FileFormatToolbox/scimat_load.m: (0.4.7)
 
 	- Fix bug. When reading colour TIFF, PNG files, channels need to

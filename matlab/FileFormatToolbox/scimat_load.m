@@ -1,8 +1,8 @@
-function scimat = scimat_load(file)
+function scimat = scimat_load(file, varargin)
 % SCIMAT_LOAD  Load an image into a SCIMAT struct from a Matlab, MetaImage,
-% Carl Zeiss LSM or Hamamatsu VMU file.
+% Carl Zeiss LSM, Hamamatsu VMU, PNG or TIFF file.
 %
-% SCIMAT = scimat_load(FILE)
+% SCIMAT = SCIMAT_LOAD(FILE)
 %
 %   This function loads the image and metainformation into a scimat struct.
 %   If necessary, it swaps rows and columns to follow Matlab's convention
@@ -33,11 +33,21 @@ function scimat = scimat_load(file)
 %   SCIMAT is the struct with the image data and metainformation (see "help
 %   scimat" for details).
 %
+% ... = SCIMAT_LOAD(FILE, parameter, value, ...)
+%
+%   The function can be followed by parameter/value pairs to modify the
+%   behaviour of the function. Currently, the only one implemented is
+%
+%   'HeaderOnly': (def false) Read only the metainformation from the file,
+%       stopping before reading the image itself. This returns
+%       SCIMAT.data = [], and can save time when the intensities are not
+%       required. (Currently only used for .mha/.mhd files).
+%
 % See also: scimat, scimat_save.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2015 University of Oxford
-% Version: 0.4.7
+% Version: 0.5.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -63,8 +73,14 @@ function scimat = scimat_load(file)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(1, 1);
 nargoutchk(0, 1);
+
+% parse input arguments
+parser = inputParser;
+addRequired(parser, 'file', @isstr);
+addParameter(parser, 'HeaderOnly', false , @islogical);
+parser.parse(file, varargin{:});
+headerOnly = parser.Results.HeaderOnly;
 
 % extract extension of filename in lower case
 [pathstr, ~, ext] = fileparts(file);
@@ -97,8 +113,8 @@ switch lower(ext)
     case {'.mha', '.mhd'} % MetaImage file
         
         % open file to read
-        fid=fopen(file, 'r');
-        if (fid<=0)
+        fid = fopen(file, 'r');
+        if (fid <= 0)
             error(['Cannot open file: ' file])
         end
         
@@ -115,7 +131,8 @@ switch lower(ext)
         rawfile = [];
         
         % process text header, and stop if we get to the raw data
-        while 1
+        while (true)
+            
             % read text header line
             tline = fgetl(fid);
             
@@ -220,19 +237,27 @@ switch lower(ext)
             end
         end
         
-        % read all the raw data into a vector, because we cannot read it
-        % into a 3D volume
-        scimat.data = fread(fid, prod(sz) * nchannel, ...
-            [data_type '=>' data_type]);
-        
-        % reshape the data to create the data volume
-        scimat.data = reshape(scimat.data, [nchannel sz]);
-        
-        % rearrange dimensions so that channels are the 5th dimension
-        scimat.data = permute(scimat.data, [2 3 4 5 1]);
-
-        % permute the X and Y coordinates
-        scimat.data = permute(scimat.data, [2 1 3:ndims(scimat.data)]);
+        if (headerOnly) % don't waste time reading the data
+            
+            scimat.data = [];
+            
+        else % read the image data
+            
+            % read all the raw data into a vector, because we cannot read
+            % it into a 3D volume
+            scimat.data = fread(fid, prod(sz) * nchannel, ...
+                [data_type '=>' data_type]);
+            
+            % reshape the data to create the data volume
+            scimat.data = reshape(scimat.data, [nchannel sz]);
+            
+            % rearrange dimensions so that channels are the 5th dimension
+            scimat.data = permute(scimat.data, [2 3 4 5 1]);
+            
+            % permute the X and Y coordinates
+            scimat.data = permute(scimat.data, [2 1 3:ndims(scimat.data)]);
+            
+        end
 
         % close file
         fclose(fid);
