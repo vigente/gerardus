@@ -25,19 +25,34 @@
 %
 %
 % -------------------------------------------------------------------------
-%
 %   In detail:
+% -------------------------------------------------------------------------
 %
-%   * data:   A 2D to 5D array that contains the image/segmentation voxels.
+%   There are two dimension values of interest associated to a SCIMAT
+%   struct:
 %
-%   * axis:   Axes metainformation. A 1 to 4-vector, depending on the
-%             number of dimensions of the image.
+%   * Number of spatial dimensions: 2 or 3 for 2D or 3D images,
+%     respectively. This determines the size of the rotation matrix.
+%
+%   * Number of axes: 1 to 5 (see below 'data' field).
+%
+%   A SCIMAT struct has the following fields:
+%
+%   * data:   A 2D to 5D array that contains the image/segmentation voxels,
+%     with the following index convention
+%
+%     data(:,,,,) ==> rows
+%     data(,:,,,) ==> columns
+%     data(,,:,,) ==> slices
+%     data(,,,:,) ==> time frames
+%     data(,,,,:) ==> channels (e.g. RGB images)
+%
+%   * axis:   Axes metainformation. A 1 to 4-vector:
 %
 %     axis(1) ==> rows
 %     axis(2) ==> columns
 %     axis(3) ==> slices
 %     axis(4) ==> time frames
-%     axis(5) ==> channels (e.g. RGB images)
 %
 %     Each axis element contains the fields:
 %
@@ -49,7 +64,9 @@
 %
 %   * rotmat: Rotation matrix (right-multiplying). A (2, 2) or (3, 3)-
 %             matrix for images that are not aligned with the XY- or 
-%             XYZ-Cartesian axes.
+%             XYZ-Cartesian axes. The size of the rotation matrix depends
+%             on the number of spatial dimensions, not on the number of
+%             axes.
 %
 %   Note: scimat.axis follows the Matlab convention that in an image
 %   (rows, cols) <=> (y, x), but scimat.rotmat is given for (x, y).
@@ -60,7 +77,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.2.2
+% Version: 0.2.3
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
