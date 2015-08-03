@@ -1,5 +1,10 @@
 2015-08-03  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/scimat_im2scimat.m: (0.3.1)
+
+	- Extend to SCIMAT images with 2D or 3D, and with frames and
+	channels.
+
 	* matlab/FiltersToolbox/scimat.m: (0.2.3)
 
 	- Explain better the difference between number of spatial

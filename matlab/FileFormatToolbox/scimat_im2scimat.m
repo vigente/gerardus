@@ -4,14 +4,14 @@ function scimat = scimat_im2scimat(im, res, offset, rotmat)
 % This function creates a struct with the scimat format (see "help scimat"
 % for details).
 %
-% SCIMAT = scimat_im2scimat(IM, RES, OFFSET, ROTMAT)
+% SCIMAT = SCIMAT_IM2SCIMAT(IM, RES, OFFSET, ROTMAT)
 %
 %   IM is a Matlab array with the image or segmentation. IM can be of class
 %   logical, (u)int8, (u)int16, (u)int32, (u)int64, single or double. IM
 %   can have 3 to 4 dimensions.
 %
-%   RES is a vector with the voxel size. By default, RES is 1.0 in each
-%   dimension.
+%   RES is a vector with the voxel size and time increment between frames.
+%   By default, RES is 1.0 in each dimension.
 %
 %   OFFSET is a 3-vector with the coordinates of the *centre* of the first
 %   voxel in the image.
@@ -24,16 +24,14 @@ function scimat = scimat_im2scimat(im, res, offset, rotmat)
 %     RES(3) --> slices   (z axis)
 %     RES(4) --> frames   (t axis)
 %
-%   ROTMAT is a rotation matrix. By default, ROTMAT=[], which means that no
-%   rotation is applied. This is a better solution than using an identity
-%   matrix, e.g. because a 3D image could represent a 2D+t or 3D image,
-%   which requires a (2,2)- or (3,3)-rotation matrix, respectively.
+%   ROTMAT is a rotation matrix. By default, ROTMAT is a (2, 2)- or (3,
+%   3)-identity matrix, depending on the dimensions of IM.
 %
 % See also: scimat.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011-2015 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -63,23 +61,50 @@ narginchk(1, 4);
 nargoutchk(0, 1);
 
 % defaults
-if (nargin < 2 || isempty(res))
-    res = ones(1, ndims(im));
+
+% Daxis: number of axes in the data (channels doesn't have an axis, so it's
+% only rows, cols, slices, frames
+if (ndims(im) > 5)
+    error('IM can have up to 5 dimensions (row, col, slice, frame, channel)')
 end
-if (nargin < 3 || isempty(offset))
-    offset = zeros(1, ndims(im));
-end
-if (nargin < 4 || isempty(rotmat))
-    rotmat = [];
+Daxis = min(4, ndims(im));
+    
+% Dx: number of spatial dimensions (2 or 3)
+if (size(im, 3) == 1)
+    Dx = 2;
+else
+    Dx = 3;
 end
 
-% create NRRD struct
+% defaults
+if (nargin < 2 || isempty(res))
+    res = ones(1, Daxis);
+end
+if (nargin < 3 || isempty(offset))
+    offset = zeros(1, Daxis);
+end
+if (nargin < 4 || isempty(rotmat))
+    rotmat = eye(Dx);
+end
+
+% check inputs
+if (Daxis < 1 || Daxis > 4)
+    error('RES must have between 1 and 4 elements')
+end
+if (length(offset) ~= Daxis)
+    error('OFFSET must have the same number of elements as RES')
+end
+if ((size(rotmat, 1) ~= size(rotmat, 2)) || (size(rotmat, 1) ~= Dx))
+    error('ROTMAT must be a (Dx, Dx)-matrix, where Dx=2 for 2D images and Dx=3 for 3D images')
+end
+
+% create SCIMAT struct
 
 % data volume
 scimat.data = im;
 
-% loop some of the fields
-for I = 1:3
+% loop the axes
+for I = 1:Daxis
     
     % data volume size
     scimat.axis(I).size = size(im, I);
