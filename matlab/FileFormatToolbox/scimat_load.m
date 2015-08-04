@@ -14,11 +14,11 @@ function scimat = scimat_load(file, varargin)
 %     .mat: Matlab binary file with a "scirunnrrd" struct (see below for
 %           details).
 %
-%     .mha: MetaImage file (developed for the ITK and VTK libraries). The
-%          .mha file can be pure text, containing only the image metadata,
-%          and a path to the file with the actual binary image data, or it
-%          can contain both text metadata and binary image within the same
-%          file (http://www.itk.org/Wiki/ITK/MetaIO/Documentation).
+%     .mha/.mhd: MetaImage file (developed for the ITK and VTK libraries).
+%          The .mha/.mhd file can be pure text, and point to .raw file with
+%          the image, or contain both the header and the binary data.
+%          Compressed and uncompressed images are supported
+%          (http://www.itk.org/Wiki/ITK/MetaIO/Documentation).
 %
 %     .lsm: Carl Zeiss microscopy image format. Binary file.
 %
@@ -47,7 +47,7 @@ function scimat = scimat_load(file, varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2015 University of Oxford
-% Version: 0.5.0
+% Version: 0.5.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -125,10 +125,11 @@ switch lower(ext)
         data_type = [];
         offset = [];
         res = [];
-        msb = [];
         nchannel = 1;
         rotmat = [];
         rawfile = [];
+        dataIsCompressed = [];
+        compressedSize = [];
         
         % process text header, and stop if we get to the raw data
         while (true)
@@ -152,15 +153,15 @@ switch lower(ext)
             if isempty(idx), break, end
             
             switch getlabel(tline, idx)
-                case 'objecttype'
+                case 'ObjectType'
                     if (~strcmpi(strtrim(tline(idx+1:end)), 'Image'))
                         error('ObjectType ~= Image. Functionality not implemented')
                     end
-                case 'ndims'
+                case 'NDims'
                     N = getnumval(tline, idx);
-                case 'dimsize'
+                case 'DimSize'
                     sz = getnumval(tline, idx);
-                case 'elementtype'
+                case 'ElementType'
                     switch lower(strtrim(tline(idx+1:end)))
                         case 'met_uchar'
                             data_type = 'uint8';
@@ -181,38 +182,50 @@ switch lower(ext)
                         otherwise
                             error('Unrecognized ElementType')
                     end
-                case {'offset', 'position', 'origin'}
+                case {'Offset', 'Position', 'Origin'}
                     offset = getnumval(tline, idx);
-                case 'elementspacing'
+                case 'ElementSpacing'
                     res = getnumval(tline, idx);
                     if (all(res == 0))
                         warning('File provides ElementSpacing(:) == 0. This is a physical impossibility. Changing to ElementSpacing(:) = 1')
                         res(:) = 1;
                     end
-                case 'elementbyteordermsb'
-                    msb = strcmpi(strtrim(tline(idx+1:end)), 'true');
-                case 'elementnumberofchannels'
+                case 'ElementByteOrderMSB'
+                    if (getnumval(tline, idx) ~= true)
+                        error('ElementByteOrderMSB = False. Functionality not implemented')
+                    end
+                case 'BinaryDataByteOrderMSB'
+                    if (getnumval(tline, idx) ~= true)
+                        error('BinaryDataByteOrderMSB = False. Functionality not implemented')
+                    end
+                case 'ElementNumberOfChannels'
                     nchannel = getnumval(tline, idx);
-                case 'elementdatafile'
+                case 'ElementDataFile'
                     rawfile = strtrim(tline(idx+1:end));
                     break;
-                case 'compresseddata'
-                    if strcmpi(strtrim(tline(idx+1:end)), 'true')
-                        error('Cannot read compressed MHA data')
-                    end
-                case {'orientation', 'transformmatrix', 'rotation'}
+                case 'CompressedData'
+                    dataIsCompressed = strcmpi(strtrim(tline(idx+1:end)), 'true');
+                case {'Orientation', 'TransformMatrix', 'Rotation'}
                     % orientation of X axis, orientation of Y axis, ...
                     rotmat = getnumval(tline, idx);
                     rotmat = reshape(rotmat, [N, N])';
-                case 'centerofrotation'
+                case 'CenterOfRotation'
                     rotc = getnumval(tline, idx);
                     if (any(rotc ~= 0))
                         error('Image has center of rotation different from 0. That option has not been implemented yet in this reader')
                     end
-                case 'headersize'
+                case 'HeaderSize'
                     if (getnumval(tline, idx) ~= -1)
                         error('HeaderSize ~= -1. Functionality not implemented')
                     end
+                case 'BinaryData'
+                    if (getnumval(tline, idx) ~= true)
+                        error('BinaryData = False. Functionality not implemented')
+                    end
+                case 'AnatomicalOrientation'
+                    % ignore
+                case 'CompressedDataSize'
+                    compressedSize = getnumval(tline, idx);
                 otherwise
                     warning(['Unrecognized line: ' tline])
             end
@@ -243,10 +256,34 @@ switch lower(ext)
             
         else % read the image data
             
-            % read all the raw data into a vector, because we cannot read
-            % it into a 3D volume
-            scimat.data = fread(fid, prod(sz) * nchannel, ...
-                [data_type '=>' data_type]);
+            
+            % read data, and decompress if necessary
+            if (dataIsCompressed)
+                
+                % read all the raw data into a vector
+                if (isempty(compressedSize))
+                    
+                    warning('File did not provide CompressedDataSize. Trying to read to the end of file')
+                    scimat.data = fread(fid, prod(sz) * nchannel, ...
+                        [data_type '=>' data_type]);
+                    
+                else
+                    
+                    scimat.data = fread(fid, compressedSize, ...
+                        [data_type '=>' data_type]);
+                    
+                end
+
+                % decompress the data
+                scimat.data = zlib_decompress(scimat.data, data_type);
+                
+            else
+                
+                % read all the raw data into a vector
+                scimat.data = fread(fid, prod(sz) * nchannel, ...
+                    [data_type '=>' data_type]);
+
+            end
             
             % reshape the data to create the data volume
             scimat.data = reshape(scimat.data, [nchannel sz]);
@@ -478,9 +515,32 @@ end
 
 end
 
+%% Auxiliary functions
+
+% MHA file headers have lines like e.g. 
+%   BinaryData = True
+% These two functions getlabel() and getnumval() extract the left and right
+% sides of the "=", respectively. The latter also converts the string to
+% numerical values. If you don't expect a numerical value, don't use
+% getnumval(), and instead just get that part of the string.
 function s = getlabel(s, idx)
-s = lower(strtrim(s(1:idx-1)));
+s = strtrim(s(1:idx-1));
 end
 function n = getnumval(s, idx)
 n = str2num(s(idx+1:end));
+end
+
+% Decompress compressed MHA images. Code copied from mha_read_volume() by
+% Dirk-Jan Kroon, 10 Nov 2010 (Updated 23 Feb 2011)
+% http://uk.mathworks.com/matlabcentral/fileexchange/29344-read-medical-data-3d/content/mha/mha_read_volume.m
+function M = zlib_decompress(Z,DataType)
+
+import com.mathworks.mlwidgets.io.InterruptibleStreamCopier
+a=java.io.ByteArrayInputStream(Z);
+b=java.util.zip.InflaterInputStream(a);
+isc = InterruptibleStreamCopier.getInterruptibleStreamCopier;
+c = java.io.ByteArrayOutputStream;
+isc.copyStream(b,c);
+M=typecast(c.toByteArray,DataType);
+
 end

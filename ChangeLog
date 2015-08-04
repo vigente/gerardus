@@ -1,5 +1,17 @@
 2015-08-04  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.1)
+
+	- Support reading compressed .mha/.mhd files. Thanks to function
+	provided in mha_read_volume() by Dirk-Jan Kroon, 10 Nov 2010
+	(Updated 23 Feb 2011)
+	http://uk.mathworks.com/matlabcentral/fileexchange/29344-read-medical-data-3d/content/mha/mha_read_volume.m
+
+	- In .mha/.mhd code, write labels as 'ObjectType' instead of
+	'objecttype' to improve readability of code.
+
+	- In .mha/.mhd code, recognise and process a couple more labels.
+
 	* matlab/ElastixToolbox/elastix.m: (0.5.0)
 
 	- Accept SCIMAT structs as inputs. This allows to provide images
