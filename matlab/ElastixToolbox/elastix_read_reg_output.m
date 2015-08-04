@@ -1,8 +1,8 @@
-function [t, im, iterInfo] = elastix_read_reg_output(outdir)
+function [t, scimat, iterInfo] = elastix_read_reg_output(outdir)
 % ELASTIX_READ_REG_OUTPUT  Read output of registration computed with
 % elastix.
 %
-% [T, IM, ITERINFO] = ELASTIX_READ_REG_OUTPUT(OUTDIR)
+% [T, SCIMAT, ITERINFO] = ELASTIX_READ_REG_OUTPUT(OUTDIR)
 %
 %   OUTDIR is a string with the path to the output directory created by
 %   elastix.
@@ -10,8 +10,10 @@ function [t, im, iterInfo] = elastix_read_reg_output(outdir)
 %   T is a struct with the contents of the parameter transform file
 %   (OUTDIR/TransformParameters.0.txt). See elastix for details.
 %
-%   IM is the result image of the elastix registration (e.g.
-%   OUTDIR/result.0.png, OUTDIR/result.0.jpg).
+%   SCIMAT is a struct containing the image and metadata that results from
+%   the elastix registration (e.g. OUTDIR/result.0.png,
+%   OUTDIR/result.0.mha, OUTDIR/result.0.jpg). See "help scimat" for
+%   details on the SCIMAt format.
 %
 %   ITERINFO is a struct with the details of the elastix optimization
 %   (OUTDIR/IterationInfo.0.R0.txt). See elastix for details.
@@ -20,7 +22,7 @@ function [t, im, iterInfo] = elastix_read_reg_output(outdir)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.2.4
+% Version: 0.3.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -57,6 +59,7 @@ t = elastix_read_file2param([outdir filesep 'TransformParameters.0.txt']);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% result.0.png
 %% result.0.tif, result.0.dcm
+%% result.0.mha
 
 % read result image
 if (nargout > 1)
@@ -69,14 +72,14 @@ if (nargout > 1)
     end
     
     % read the image
-    im = imread([outdir filesep resultfile.name]);
+    scimat = scimat_load([outdir filesep resultfile.name]);
     
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% IterationInfo.0.R0.txt
 
-% read result image
+% read optimization info file
 if (nargout > 2)
     
     % the result file can be in many different formats

@@ -1,5 +1,10 @@
 2015-08-04  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ElastixToolbox/elastix_read_reg_output.m: (0.3.0)
+
+	- Change output from IM to SCIMAT. This way, the output is not
+	only the image, but also contains the metadata.
+
 	* matlab/FileFormatToolbox/scimat_load.m: (0.5.1)
 
 	- Support reading compressed .mha/.mhd files. Thanks to function
