@@ -70,7 +70,7 @@ function scimat = scimat_save(file, scimat, touint8, v73)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2015 University of Oxford
-% Version: 0.6.6
+% Version: 0.6.7
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -175,27 +175,38 @@ switch lower(ext)
         
     case '.png'
         
-        % number of colour channels
-        numchannels = size(scimat.data, 3);
+        if (size(scimat.data, 3) > 1)
+            error('PNG image must be 2D')
+        end
+        if (size(scimat.data, 4) > 1)
+            error('PNG image must have only 1 frame. Time series not implemented')
+        end
         
         % bit depth
         switch class(scimat.data)
             case 'uint8'
                 bitdepth = 8;
+            otherwise
+                error('Pixel type not implemented')
         end
         
-        % spatial dimensions of the image (without frames or channels)
+        % spatial dimensions of the image (without channels)
         D = length(scimat.axis);
         
         % image offset
         offset = scimat_index2world(ones(1, D), scimat);
+        
+        if (any(offset ~= 0.0))
+            error('Matlab does not support writing an offset ~= 0 to PNG format')
+        end
         
         % write the image to file, including metadata
         %
         % Note: there seems to be a bug in imwrite(), and XOffset, YOffset
         % and OffsetUnit will be created as "other" metadata tags, instead
         % of assigned to the official ones
-        imwrite(scimat.data, file, 'ResolutionUnit', 'meter', ...
+        imwrite(squeeze(scimat.data), file, ...
+            'ResolutionUnit', 'meter', ...
             'Software', 'Matlab/Gerardus/scimat_save()', ...
             'XResolution', 1 / scimat.axis(2).spacing, ...
             'YResolution', 1 / scimat.axis(1).spacing, ...
@@ -225,6 +236,16 @@ switch lower(ext)
         
         % "Exporting Image Data and Metadata to TIFF Files"
         % http://www.mathworks.com/help/matlab/import_export/exporting-to-images.html#br_c_iz-6
+        
+        if (size(scimat.data, 3) > 1)
+            error('TIF image must be 2D')
+        end
+        if (size(scimat.data, 4) > 1)
+            error('TIF image must have only 1 frame. Time series not implemented')
+        end
+        
+        % move channels from 5th to 3rd dimension
+        scimat.data = squeeze(scimat.data);
         
         % create new TIFF file
         t = Tiff(file, 'w');

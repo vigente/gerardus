@@ -1,5 +1,10 @@
 2015-08-04  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/scimat_save.m: (0.6.7)
+
+	- Fix bug. For PNG and TIFF output formats. scimat.data channels
+	are now 5th instead of 3rd dimension.
+
 	* matlab/ElastixToolbox/elastix.m: (0.5.1)
 
 	- Fix bug. When deleting temp files, we no longer store the names
