@@ -1,3 +1,10 @@
+2015-08-04  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix.m: (0.5.0)
+
+	- Accept SCIMAT structs as inputs. This allows to provide images
+	in physical coordinates (i.e. with spacing and offset values).
+
 2015-08-03  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scimat_im2scimat.m: (0.3.1)

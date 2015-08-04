@@ -19,14 +19,18 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %   a struct or a string with the path and name of a text file, e.g.
 %   '/path/to/ParametersTranslation2D.txt'.
 %
-%   FIXED, MOVING are the images to register. They can be given as file
-%   names or as image arrays, e.g. 'im1.png' or im = checkerboard(10).
+%   FIXED, MOVING are the images to register. They can be given as:
+%
+%     * file names (e.g. 'im1.mha', 'im2.tif')
+%     * scimat structs (see "help scimat" for details)
+%     * image arrays (e.g. im = checkerboard(10))
+%
 %   Images can have one channel (grayscale) or more (e.g. RGB colour
 %   images). In the case of multi-channel images, we use the "multi-image"
-%   feature in elastix (see section 6.1.1 "Image registration with
-%   multiple metrics and/or images" in the elastix manual), with all
-%   channels contributing equally to the combined cost function. FIXED and
-%   MOVING must have the same number of channels.
+%   feature in elastix (see section 6.1.1 "Image registration with multiple
+%   metrics and/or images" in the elastix manual), with all channels
+%   contributing equally to the combined cost function. FIXED and MOVING
+%   must have the same number of channels.
 %
 %   OPTS is a struct where the fields contain options for the algorithm:
 %
@@ -127,7 +131,7 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.4.6
+% Version: 0.5.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -191,32 +195,25 @@ end
 
 % if images are given as arrays instead of filenames, we need to create 
 % temporary files with the images so that elastix can work with them
-[fixedfile, delete_fixedfile] = create_temp_file_if_array_image(fixed);
-[movingfile, delete_movingfile] = create_temp_file_if_array_image(moving);
+[fixedfile, delete_fixedfile] = create_temp_file_if_array_image(fixed, '.mha');
+[movingfile, delete_movingfile] = create_temp_file_if_array_image(moving, '.mha');
 
 % check that fixed and moving images have the same number of channels
-if (iscell(fixedfile) && ~iscell(movingfile))
-    error('Fixed and moving image must have the same number of channels')
-end
-if (iscell(fixedfile) && ...
-        (length(fixedfile) ~= length(movingfile)))
+if (size(fixedfile, 1) ~= size(movingfile, 1))
     error('Fixed and moving image must have the same number of channels')
 end
 
 % check that registration parameters are correct for multichannel images
-if (iscell(fixedfile))
+if (size(fixedfile, 1) > 1)
     auxParam = elastix_read_file2param(paramfile);
     if (~strcmp(auxParam.Registration, 'MultiMetricMultiResolutionRegistration'))
         error('Multi-channel image registration requires regParam.Registration = ''MultiMetricMultiResolutionRegistration''.')
     end
-%     if ((auxParam.FixedImagePyramid, ))
-%         error('Multi-channel image registration requires regParam.Registration = ''MultiMetricMultiResolutionRegistration''.')
-%     end
 end
 
 % ditto for the fixed and moving masks
-[fMaskfile, delete_fMaskfile] = create_temp_file_if_array_image(opts.fMask);
-[mMaskfile, delete_mMaskfile] = create_temp_file_if_array_image(opts.mMask);
+[fMaskfile, delete_fMaskfile] = create_temp_file_if_array_image(opts.fMask, '.mha');
+[mMaskfile, delete_mMaskfile] = create_temp_file_if_array_image(opts.mMask, '.mha');
 
 if (ischar(moving))
     
@@ -246,19 +243,11 @@ end
 
 % create text string with the command to run elastix
 comm = 'elastix ';
-if (iscell(fixedfile)) % multi-channel images
-    for I = 1:length(fixedfile)
-        comm = [...
-            comm ...
-            ' -f' num2str(I-1) ' ' fixedfile{I} ...
-            ' -m' num2str(I-1) ' ' movingfile{I} ...
-            ];
-    end
-else % single channel (grayscale) images
+for I = 1:size(fixedfile, 1)
     comm = [...
         comm ...
-        ' -f ' fixedfile ...
-        ' -m ' movingfile ...
+        ' -f' num2str(I-1) ' ' fixedfile(I, :) ...
+        ' -m' num2str(I-1) ' ' movingfile(I, :) ...
         ];
 end
 comm = [...
@@ -376,22 +365,30 @@ end
 % check whether an input image is provided as an array or as a path to a
 % file. If the former, then save the image to a temp file so that it can be
 % processed by elastix
-function [filename, delete_tempfile] = create_temp_file_if_array_image(file)
+%
+% file: filename or array with the input image
+% extOut: extension of the temp files we use internally
+function [filename, delete_tempfile] = create_temp_file_if_array_image(file, extTemp)
 
-if (isempty(file)) % no filename provided by the user
+if (isempty(file)) % no filename or array provided by the user
     
     % this option is useful for the fixed and moving masks, when they are
     % not provided by the user, and thus file==''
     filename = '';
     delete_tempfile = false;
-
-elseif (ischar(file)) % user has provided a filename
-
-    [~, ~, ext] = fileparts(file);
     
-    %% read file metadata block (we need to know whether the image is
-    %% grayscale or colour    
-    switch (ext) % type of input file
+    return
+    
+end
+
+% find number of channels
+if (ischar(file)) % user has provided a filename
+
+    [~, ~, extIn] = fileparts(file);
+    
+    % read file metadata block (we need to know whether the image is
+    % grayscale or colour    
+    switch (extIn) % type of input file
         
         case {'.mha', '.mhd'} % MetaImage format from ITK
             
@@ -441,50 +438,62 @@ elseif (ischar(file)) % user has provided a filename
             
     end
     
-    %% channel splitting block (grayscale images just go through untouched, but
-    %% colour images need to be read and split into one file per channel)
-    if (nchannel == 1) % grayscale
-            
-        % input is a filename already, and image is grayscale. Thus we
-        % don't need to create a temp file
-        delete_tempfile = false;
-        filename = file;
-            
-    elseif (nchannel > 1) % 2 or more channels (e.g. RGB has 3 channels)
-            
-        % we need to create a temp file for each channel
-        
-        % load image
-        scimat = scimat_load(file);
-        
-        % create temp files to save the channels of the image
-        delete_tempfile = true;
-        filename = cell(1, nchannel);
-        for I = 1:nchannel
-            
-            % create a temp filename for the image
-            [pathstr, name] = fileparts(tempname);
-            filename{I} = [pathstr filesep name ext];
-            
-            % extract one channel
-            scichan = scimat;
-            scichan.data = scichan.data(:, :, :, :, I);
-            
-            % write the channel to temp file
-            scimat_save(filename{I}, scichan);
-            
-        end
-            
-    else
-        
-        error('Image has less than one channel?')
-        
-    end
+elseif (isstruct(file)) % image is a scimat struct
     
+        nchannel = size(file.data, 5);
+        
+else % image is an array
     
-else
+        nchannel = size(file, 3);
     
-end % if (isempty(file))
+end % find number of channels
+
+% deal with every type of input image (array, filename, 1 or more
+% channels...). If it's a grayscale file, then we don't need to do
+% anything, because we can just use that file. Otherwise, we read a file
+% into a scimat struct, so that we can later write the channels to
+% separate files
+if (nchannel == 1 && ischar(file)) % grayscale image provided in a file
+    
+    % input is a filename already, and image is grayscale. Thus we don't
+    % need to create a temp file
+    delete_tempfile = false;
+    filename = file;
+    
+    return
+
+elseif (ischar(file)) % filename, more than one channel
+    
+    % load image
+    file = scimat_load(file);
+    
+elseif (~isstruct(file)) % array, but no metainformation (no scimat)
+    
+    % convert the array to a scimat struct
+    file = scimat_im2scimat(file);
+    
+end
+
+% if we reach this point, the image is in a scimat struct. We are going to
+% save each channel into a separate file (whether its 1 channel or more)
+    
+% create temp files to save the channels of the image
+delete_tempfile = true;
+filename = char(zeros(nchannel, length(tempname) + length(extTemp), 'uint8'));
+for I = 1:nchannel
+    
+    % create a temp filename for the image
+    [pathstr, name] = fileparts(tempname);
+    filename(I, :) = [pathstr filesep name extTemp];
+    
+    % extract one channel
+    scichan = file;
+    scichan.data = scichan.data(:, :, :, :, I);
+    
+    % write the channel to temp file
+    scimat_save(filename(I, :), scichan);
+    
+end
 
 end % function ... = create_temp_file_if_array_image(...)
 
