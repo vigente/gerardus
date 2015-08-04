@@ -1,5 +1,10 @@
 2015-08-04  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ElastixToolbox/elastix.m: (0.5.1)
+
+	- Fix bug. When deleting temp files, we no longer store the names
+	in a cell array, but as a matrix, with one filename per row.
+
 	* matlab/ElastixToolbox/elastix_read_reg_output.m: (0.3.0)
 
 	- Change output from IM to SCIMAT. This way, the output is not
