@@ -1,5 +1,10 @@
 2015-08-05  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ElastixToolbox/elastix.m: (0.5.2)
+
+	- If .png/.tif files doesn't provide SamplesPerPixel tag, compute
+	number of channels from BitDepth.
+
 	* matlab/FileFormatToolbox/scimat_load.m: (0.5.2)
 
 	- Add 'meter' as a valid resolution unit for .tif/.png files.

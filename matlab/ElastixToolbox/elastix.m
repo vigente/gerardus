@@ -131,7 +131,7 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.5.1
+% Version: 0.5.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -418,7 +418,7 @@ if (ischar(file)) % user has provided a filename
                 if isempty(idx), break, end
                 
                 switch getlabel(tline, idx)
-                    case 'elementnumberofchannels'
+                    case 'ElementNumberOfChannels'
                         nchannel = getnumval(tline, idx);
                         break
                 end
@@ -434,7 +434,14 @@ if (ischar(file)) % user has provided a filename
             info = imfinfo(file);
             
             % number of image channels
-            nchannel = info.SamplesPerPixel;
+            if (isfield(info, 'SamplesPerPixel'))
+                nchannel = info.SamplesPerPixel;
+            elseif (isfield(info, 'BitDepth'))
+                nchannel = info.BitDepth / 8;
+            else
+                warning('File does not provide information about number of channels. Assuming 1 channel')
+                nchannel = 1;
+            end
             
     end
     
@@ -544,7 +551,7 @@ end
 
 % helper function to parse lines of .mha header
 function s = getlabel(s, idx)
-s = lower(strtrim(s(1:idx-1)));
+s = strtrim(s(1:idx-1));
 end
 function n = getnumval(s, idx)
 n = str2num(s(idx+1:end));
