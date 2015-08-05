@@ -1,3 +1,9 @@
+2015-08-05  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.2)
+
+	- Add 'meter' as a valid resolution unit for .tif/.png files.
+
 2015-08-04  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scimat_save.m: (0.6.7)

@@ -47,7 +47,7 @@ function scimat = scimat_load(file, varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2015 University of Oxford
-% Version: 0.5.1
+% Version: 0.5.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -489,9 +489,13 @@ switch lower(ext)
                 
                 unit = 1e-2;
                 
+            case 'meter'
+                
+                unit = 1;
+                
             otherwise
                 
-                error('Unknown ResolutionUnit')
+                error(['I do not know how to deal with the ResolutionUnit provided by this file: ' info.ResolutionUnit])
                 
         end
         
