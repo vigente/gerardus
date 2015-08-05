@@ -131,7 +131,7 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.5.2
+% Version: 0.5.3
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -477,7 +477,8 @@ elseif (ischar(file)) % filename, more than one channel
 elseif (~isstruct(file)) % array, but no metainformation (no scimat)
     
     % convert the array to a scimat struct
-    file = scimat_im2scimat(file);
+    file = scimat_im2scimat(reshape(file, ...
+        size(file, 1), size(file, 2), 1, 1, nchannel));
     
 end
 
@@ -487,6 +488,8 @@ end
 % create temp files to save the channels of the image
 delete_tempfile = true;
 filename = char(zeros(nchannel, length(tempname) + length(extTemp), 'uint8'));
+scichan = file;
+scichan.axis = scichan.axis(1:2);
 for I = 1:nchannel
     
     % create a temp filename for the image
@@ -494,8 +497,7 @@ for I = 1:nchannel
     filename(I, :) = [pathstr filesep name extTemp];
     
     % extract one channel
-    scichan = file;
-    scichan.data = scichan.data(:, :, :, :, I);
+    scichan.data = file.data(:, :, :, :, I);
     
     % write the channel to temp file
     scimat_save(filename(I, :), scichan);
