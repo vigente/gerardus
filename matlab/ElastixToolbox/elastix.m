@@ -107,14 +107,14 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 %   BSplineTransform (tb).
 %
 %   MOVINGREG is the result of registering MOVING onto FIXED. MOVINGREG is
-%   the same type as MOVING (i.e. image array or path and filename). In the
-%   path and filename case, an image file will we created with path and
-%   name MOVINGREG=PARAM.outfile. If PARAM.outfile is not provided or
-%   empty, then the registered image is deleted and MOVINGREG=''. For
-%   multi-channel images (e.g. RGB colour images), MOVINGREG will
-%   correspond to the first channel only, as this is the output provided by
-%   elastix. To obtain the multi-channel result, it is necessary to apply
-%   the transform to MOVING with transformix().
+%   the same type as MOVING (i.e. image array, scimat struct or path and
+%   filename). In the path and filename case, an image file will we created
+%   with path and name MOVINGREG=PARAM.outfile. If PARAM.outfile is not
+%   provided or empty, then the registered image is deleted and
+%   MOVINGREG=''. For multi-channel images (e.g. RGB colour images),
+%   MOVINGREG will correspond to the first channel only, as this is the
+%   output provided by elastix. To obtain the multi-channel result, it is
+%   necessary to apply the transform to MOVING with transformix().
 %
 %   ITERINFO is a struct with the details of the elastix optimization
 %   (OUTDIR/IterationInfo.0.R0.txt), e.g.
