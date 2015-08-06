@@ -47,7 +47,7 @@ function scimat = scimat_load(file, varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2015 University of Oxford
-% Version: 0.5.2
+% Version: 0.5.3
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -484,6 +484,10 @@ switch lower(ext)
         info = imfinfo(file);
         
         % spacing units
+        if (~isfield(info, 'ResolutionUnit') || isempty(info.ResolutionUnit))
+            warning('File does not provide ResolutionUnit. Assuming ''meter''')
+            info.ResolutionUnit = 'meter';
+        end
         switch (info.ResolutionUnit)
             case 'Centimeter'
                 
@@ -503,6 +507,16 @@ switch lower(ext)
         % to comply with the scimat format
         scimat.data = reshape(scimat.data, ...
             [size(scimat.data, 1) size(scimat.data, 2) 1 1 size(scimat.data, 3)]);
+
+        % checking missing fields
+        if (~isfield(info, 'XResolution') || isempty(info.XResolution))
+            warning('File does not provide XResolution. Assuming ''1.0''')
+            info.XResolution = 1.0;
+        end
+        if (~isfield(info, 'YResolution') || isempty(info.YResolution))
+            warning('File does not provide YResolution. Assuming ''1.0''')
+            info.YResolution = 1.0;
+        end
         
         % set scimat axes values
         scimat.axis(1).size = size(scimat.data, 1);

@@ -1,5 +1,11 @@
 2015-08-06  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.3)
+
+	- Fix bug. When the file header doesn't provide ResolutionUnit,
+	XResolution or YResolution, the function now gives a warning, and
+	chooses defaults, instead of failing.
+
 	* matlab/ElastixToolbox/transformix.m: (0.3.0)
 
 	- Now input image can be in scimat format, so transforms can be in
