@@ -1,5 +1,10 @@
 2015-08-06  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ElastixToolbox/transformix.m: (0.3.0)
+
+	- Now input image can be in scimat format, so transforms can be in
+	physical coordinates. Better support for .png/.tif/.mha files.
+
 	* matlab/ElastixToolbox/elastix.m: (0.5.3)
 
 	- Fix bug. When the input image was in array form, we kept the
