@@ -1,7 +1,7 @@
 function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
-% elastix  Matlab interface to the image registration program "elastix".
+% ELASTIX  Matlab interface to the image registration program "elastix".
 %
-% elastix is a simple interface to the command line program "elastix"
+% ELASTIX is a simple interface to the command line program "elastix"
 %
 %   http://elastix.isi.uu.nl/
 %
@@ -13,7 +13,7 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 % transparently takes care of creating temporary files and directories,
 % reading the result to Matlab variables, and cleaning up afterwards.
 %
-% [T, MOVINGREG, ITERINFO] = elastix(REGPARAM, FIXED, MOVING, OPTS)
+% [T, MOVINGREG, ITERINFO] = ELASTIX(REGPARAM, FIXED, MOVING, OPTS)
 %
 %   REGPARARM are the registration parameters for elastix, given either as
 %   a struct or a string with the path and name of a text file, e.g.
