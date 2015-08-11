@@ -1,3 +1,13 @@
+2015-08-11  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/RegistrationToolbox/regmatchedfilt.m: (0.3.0)
+
+	- Input images now can be in scimat format, so we can work with
+	physical units.
+
+	- Fix bug. CenterOfRotation is in (x,y) format, but we were using
+	(row,col) format.
+
 2015-08-06  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scimat_load.m: (0.5.3)
