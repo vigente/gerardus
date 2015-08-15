@@ -1,15 +1,17 @@
 function [imref, im, mask] = histology_preprocessing(imref, im)
-% histology_preprocessing  Prepare slices for intra-histology registration.
+% HISTOLOGY_PREPROCESSING  Prepare slices for intra-histology registration.
 %
-% histology_preprocessing converts two histology images to grayscale,
-% inverts and thresholds (so that the background is black instead of
+% HISTOLOGY_PREPROCESSING converts two histology images to grayscale,
+% inverts and thresholds them (so that the background is black instead of
 % white), extends the histograms to cover the dynamic range, and then
 % matches the histograms. This prepares them to be registered.
 %
-% [IMREF2, IM2, MASK] = histology_preprocessing(IMREF, IM)
+% [IMREF2, IM2, MASK] = HISTOLOGY_PREPROCESSING(IMREF, IM)
 %
 %   IMREF, IM are two input histology images (in RGB colour or grayscale
-%   format). When histograms are matched, IM is matched to IMREF.
+%   format). The images can be provided as plain arrays (row, col,
+%   channel), or as scimat format structs (see "help scimat" for details).
+%   This function matches IM to IMREF.
 %
 %   IMREF2, IM2 are the output images after preprocessing.
 %
@@ -22,7 +24,7 @@ function [imref, im, mask] = histology_preprocessing(imref, im)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -51,6 +53,18 @@ function [imref, im, mask] = histology_preprocessing(imref, im)
 narginchk(2, 2);
 nargoutchk(0, 3);
 
+% save copy if inputs are provided as scimat struct
+imrefIsStruct = isstruct(imref);
+imIsStruct = isstruct(im);
+if (imrefIsStruct)
+    imref0 = imref;
+    imref = squeeze(imref.data);
+end
+if (imIsStruct)
+    im0 = im;
+    im = squeeze(im.data);
+end
+
 % invert image intensities
 [im, mask] = individual_image_preprocessing(im);
 imref = individual_image_preprocessing(imref);
@@ -71,6 +85,18 @@ for I = 1:size(im, 3)
     imref(:, :, I) = chref;
     im(:, :, I) = ch;
     
+end
+
+% if inputs were scimat structs, recover metadata
+if (imrefIsStruct)
+    imref0.data = reshape(imref, size(imref, 1), size(imref, 2), 1, 1, size(imref, 3));
+    imref = imref0;
+end
+if (imIsStruct)
+    im0.data = reshape(im, size(im, 1), size(im, 2), 1, 1, size(im, 3));
+    im = im0;
+    im0.data = mask;
+    mask = im0;
 end
 
 end

@@ -95,7 +95,7 @@ histology_intraframe_reg.m
 	
 histology_preprocessing.m
 
-	 histology_preprocessing  Prepare slices for intra-histology registration.
+	 HISTOLOGY_PREPROCESSING  Prepare slices for intra-histology registration.
 	
 is_lv_on_the_left.m
 
@@ -285,7 +285,7 @@ elastix_length.m
 	
 elastix.m
 
-	 elastix  Matlab interface to the image registration program "elastix".
+	 ELASTIX  Matlab interface to the image registration program "elastix".
 	
 elastix_read_file2param.m
 
@@ -319,7 +319,7 @@ elastix_write_param2file.m
 	
 transformix.m
 
-	 transformix  Matlab interface to the image warping program "transformix".
+	 TRANSFORMIX  Matlab interface to the image warping program "transformix".
 	
 
 FileFormatToolbox
