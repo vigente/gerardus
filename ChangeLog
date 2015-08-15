@@ -1,3 +1,18 @@
+2015-08-15  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.4)
+
+	- For .png/.tif files, scimat.rotmat gets created last, so that
+	the fields are in the same order as with other functions. Matlab
+	gives an error if you try to do scimat(I) = scimat_other and the
+	fields are not in the same order. A proper solution to this would
+	be to reorder the fields automatically, but this is a quick fix
+	that works for the moment.
+
+	* matlab/CardiacToolbox/histology_preprocessing.m: (0.3.1)
+
+	- Accept inputs given in scimat format.
+
 2015-08-11  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/RegistrationToolbox/regmatchedfilt.m: (0.3.0)

@@ -47,7 +47,7 @@ function scimat = scimat_load(file, varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2015 University of Oxford
-% Version: 0.5.3
+% Version: 0.5.4
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -477,9 +477,6 @@ switch lower(ext)
         % read image pixels
         scimat.data = imread(file);
         
-        % we assume image oriented parallel to Cartesian axes
-        scimat.rotmat = eye(2);
-        
         % read image metadata header
         info = imfinfo(file);
         
@@ -525,6 +522,9 @@ switch lower(ext)
         scimat.axis(2).spacing = unit ./ info.XResolution;
         scimat.axis(1).min = -0.5 * scimat.axis(1).spacing;
         scimat.axis(2).min = -0.5 * scimat.axis(2).spacing;
+        
+        % we assume image oriented parallel to Cartesian axes
+        scimat.rotmat = eye(2);
         
     otherwise
         
