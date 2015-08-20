@@ -1,3 +1,11 @@
+2015-08-21  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CardiacToolbox/histology_preprocessing.m: (0.4.0)
+
+	- Now we can process a stack of images, and the inputs can be
+	filenames as well as scimats or arrays. Converting to grayscale is
+	optional. Some general rewriting of the function.
+
 2015-08-15  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scimat_load.m: (0.5.4)
