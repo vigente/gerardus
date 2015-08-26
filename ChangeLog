@@ -1,3 +1,18 @@
+2015-08-26 Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* matlab/DiffusionMRIToolbox/weighted_linear_fit.m (0.1.1)
+
+	- Parameters now passed through a struct rather than individual
+	arguments.
+	- Now can use a unique weighting vector for each signal (but this
+	is slower)
+	- Now gives the option of weighting by Y^2, which may be used for
+	signals with noise following a Rician distribution.
+
+	* matlab/DiffusionMRIToolbox/fit_DT.m (0.1.10)
+
+	- Modified to work with the new version of weighted_linear_fit.
+
 2015-08-21  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/CardiacToolbox/histology_preprocessing.m: (0.4.0)

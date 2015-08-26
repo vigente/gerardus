@@ -47,7 +47,7 @@ function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, metho
     
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.1.9
+% Version: 0.1.10
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -126,6 +126,15 @@ end
 % take only the voxels inside the mask
 I = im_matrix(mask(:), :);
 
+if ~isreal(I)
+    warning('Some voxels are complex. Taking magnitude.')
+    I = abs(I);
+end
+
+if min(I(:)) <= 0
+    warning('Some voxels were negative or zero. Taking magnitude.')
+    I = abs(I + eps);
+end
 
 % take the log of the image to linearise the equation
 imlog = log(I);
@@ -150,8 +159,6 @@ Bv = [Bv, -ones(size(Bv,1), 1)];
 
 % Fit the tensor model (linear, unconstrained)
 %M = (Bv \ -imlog')';
-M = weighted_linear_fit(-imlog, Bv', @(z)exp(-z), 0);
-
 % This is the same as (pinv(Bv) * (-imlog'))';
 % also same as (pinv(Bv' * Bv) * Bv' * (-imlog'))';
 % weighting (NxN) goes   ^ here      ^ and here
@@ -159,9 +166,12 @@ if perform_weighting
 
     W = eye(length(Bv));
     W(W == 1) = weighting(:);
-    % weighted fit
-
     M = (pinv(Bv' * (W.^2) * Bv) * Bv' * (W.^2) * (-imlog'))';
+else
+    param.rician = 1;
+    param.unique_weights = 1;
+    param.verbose = 0;
+    M = weighted_linear_fit(-imlog, Bv', @(z)exp(-z), param);
 end
 
 % convert log(S0) to S0
