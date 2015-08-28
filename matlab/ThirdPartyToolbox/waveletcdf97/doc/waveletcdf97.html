@@ -1,0 +1,355 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="description" content="Easy MATLAB function performs the 
+CDF 9/7 wavelet transform. ">
+<meta name="keywords" content="matlab, wavelets, dwt">
+<title>waveletcdf97</title>
+<style>
+a {color: blue;}
+
+body {background-color: white; margin:10px;}
+
+h2 {color: #990000; font-size: medium;}
+
+pre.codeinput {margin-left: 30px;}
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+
+pre.codeoutput {color: gray; font-style: italic;}
+
+p,h1,h2,div {
+  width: 600px;
+  max-width: 600px;
+  width:expression(document.body.clientWidth > 620 ? "600px": "auto" );
+}
+</style></head><body bgcolor="white">
+
+<table border="0" cellpadding="0"><tr><td colspan="2">
+<font style="color: #990000;font-size: x-large"><b>waveletcdf97</b></font></td></tr>
+<tr><td width="25">&nbsp;</td>
+<td><font size="2">by Pascal Getreuer</font></td></tr></table>
+
+<p>The M<font size="2">ATLAB</font> function <tt>waveletcdf97</tt> included in this package is a self-contained M-function for applying the Cohen-Daubechies-Feauveau 9/7 (CDF 9/7) wavelet transform.  This wavelet is an especially effective biorthogonal wavelet, used by the FBI for fingerprint compression and selected for the JPEG2000 standard <a href="#References" style="text-decoration:none">[1]</a>.</p>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Usage">Function Usage</a></li>
+<li><a href="#Demos">Demos</a></li>
+<li><a href="#Tests">Tests</a></li>
+<li><a href="#Implementation">Implementation</a></li>
+<li><a href="#References">References</a></li>
+</ul>
+
+<h2 id="Usage">Function Usage</h2>
+<p><tt>Y = waveletcdf97(X, L)</tt> decomposes
+<tt>X</tt> with <tt>L</tt> stages of the CDF 9/7 wavelet.  For the
+inverse transform, <tt>waveletcdf97(X, -L)</tt> inverts <tt>L</tt>
+stages.  Filter boundary handling is half-sample symmetric.</p>
+
+<p><tt>X</tt> may be of any size; it need not have size divisible by 2<sup><tt>L</tt></sup>.  For example, if <tt>X</tt> has length 9, one stage of decomposition produces a lowpass subband of length 5 and a highpass subband of length 4.  Transforms of any length have perfect reconstruction (exact inversion).</p>
+
+<p>If <tt>X</tt> is a matrix, <tt>waveletcdf97</tt> performs a (tensor) 2D wavelet transform.  If <tt>X</tt> has three dimensions, the 2D transform is applied along the first two dimensions.</p>
+
+<h2 id="Demos">Demos</h2>
+<p>This package includes a demo program, <tt>waveletcdf97_demo</tt>, that uses <tt>waveletcdf97</tt> for signal approximation.  Signal approximation is the problem of representing a signal with as few components as possible.  This is similar to lossy image compression, but ignoring the problems of quantization and encoding.</p>
+
+<p>Wavelets are particularly efficient for approximating piecewise-smooth signals.  This first demo uses the CDF 9/7 wavelet to represent a piecewise-smooth signal.</p>
+
+<pre class="codeinput">
+NumComponents = 40;              <span class="comment">% Approximation with 40 components</span>
+
+<span class="comment">%%% Construct the test signal %%%</span>
+N = 512;                         <span class="comment">% Signal length</span>
+t = linspace(-1.7,1.7,N);
+X = sign(t).*exp(-t.^4);
+
+<span class="comment">%%% Wavelet approximation %%%</span>
+Level = 9;                       <span class="comment">% Use 9 levels of decomposition</span>
+Y = waveletcdf97(X,Level);       <span class="comment">% Transform the signal</span>
+Y = keep(Y,NumComponents);       <span class="comment">% Keep only 40 components</span>
+R = waveletcdf97(Y,-Level);      <span class="comment">% Invert to obtain the approximation</span>
+norm(X-R)                        <span class="comment">% Compute RMS error</span>
+
+<span class="comment">%%% Fourier approximation %%%</span>
+Y = fft(X);                      <span class="comment">% Transform</span>
+Y = keep(Y,NumComponents);       <span class="comment">% Keep only 40 components</span>
+R2 = real(ifft(Y));              <span class="comment">% Invert</span>
+norm(X-R2)                       <span class="comment">% Compute RMS error</span>
+</pre>
+
+<p>The figure below shows the resulting wavelet approximation using only 40 out of 512 components.  Fourier approximation with 40 components is shown for comparison.  The wavelet approximation has RMS error of 0.014 while the Fourier approximation has RMS error of 2.244.</p>
+
+<p style="text-align:center"><img width="471" height="371" src="waveletcdf97_01.png"></p>
+
+<p>The second demo applies <tt>waveletcdf97</tt> to image approximation.  First, the input image is converted from RGB to the JPEG Y'CbCr colorspace.  The Y'CbCr image is transformed using <tt>waveletcdf97</tt>, all but the largest transform coefficients are set to zero, and then inverse transformed.</p>
+
+<pre class="codeinput">
+X = double(imread(<span class="string">'palm.jpg'</span>))/255;   <span class="comment">% Load the demo image</span>
+subplot(2,1,1);
+image(X);
+axis <span class="string">image</span>
+
+X = RGBToYCbCr(X);                    <span class="comment">% Convert to Y'CbCr</span>
+L = 6;
+Y = waveletcdf97(X,L);                <span class="comment">% Transform the image</span>
+
+R = waveletcdf97(keep(Y,1/40),-L);    <span class="comment">% 40:1 approximation</span>
+subplot(2,2,3);
+image(YCbCrToRGB(R));
+axis <span class="string">image</span>
+
+R = waveletcdf97(keep(Y,1/80),-L);    <span class="comment">% 80:1 approximation</span>
+subplot(2,2,4);
+image(YCbCrToRGB(R));
+axis <span class="string">image</span>
+
+</pre>
+
+<p style="text-align:center">
+<img width="468" height="377" src="waveletcdf97_02.jpg">
+</p>
+
+<h2 id="Tests">Tests</h2>
+<p>In the first test, a random signal <tt>X</tt> is transformed one stage, then inverse transformed, and the result is compared to the original.  Analytically, the transform is exactly inverted--the scheme is said to have &quot;perfect reconstruction.&quot; This test verifies that this property holds to machine precision.</p>
+
+<pre class="codeinput">
+Runs = 100;                    <span class="comment">% Number of runs to average</span>
+N = ceil(logspace(...          <span class="comment">% Lengths to test</span>
+   log10(15),log10(300),15));  
+
+<span class="keyword">for</span> k = 1:length(N)     
+   <span class="comment">% Create random input matrices</span>
+   X = rand(N(k),1,Runs);
+   <span class="comment">% Forward transform followed by inverse</span>
+   R = waveletcdf97(waveletcdf97(X,1),-1);
+   <span class="comment">% Compute the average error</span>
+   AvgError(k) = mean(max(abs(permute(X - R,[1,3,2])),[],1));
+   fprintf(<span class="string">'  length(X) = %3d   Error = %.2e\n'</span>,N(k),AvgError(k));
+<span class="keyword">end</span>
+
+plot(N,AvgError,<span class="string">'.-'</span>);
+</pre>
+
+<p>Code output:</p>
+
+<p style="text-align:center">
+<img width="328" height="249" src="waveletcdf97_03.png">
+</p>
+
+<pre class="codeoutput">
+  length(X) =  15   Error = 3.34e-016
+  length(X) =  19   Error = 3.45e-016
+  length(X) =  24   Error = 4.25e-016
+  length(X) =  29   Error = 4.30e-016
+  length(X) =  36   Error = 4.63e-016
+  length(X) =  44   Error = 4.91e-016
+  length(X) =  55   Error = 5.00e-016
+  length(X) =  68   Error = 5.53e-016
+  length(X) =  84   Error = 5.55e-016
+  length(X) = 103   Error = 5.99e-016
+  length(X) = 128   Error = 5.90e-016
+  length(X) = 158   Error = 6.58e-016
+  length(X) = 196   Error = 6.90e-016
+  length(X) = 243   Error = 7.17e-016
+  length(X) = 300   Error = 7.00e-016
+</pre>
+
+<p>The CDF 9/7 wavelet is designed such that where the input signal is locally a polynomial of cubic degree or lower, the resulting detail (highpass) coefficients are equal to zero.  A wavelet is said to have &quot;<i>N</i> vanishing moments&quot; if it has this property on polynomials up to degree <i>N</i>-1, so CDF 9/7 has 4 vanishing moments.  This test transforms a piecewise polynomial signal and displays the largest detail coefficient magnitudes, verifying that the vanishing moments hold to reasonable accuracy.</p>
+
+<pre class="codeinput">
+N = 64;
+t = (0:N-1)/N;
+X = [t.^0,t.^1,t.^2,t.^3];
+Y = waveletcdf97(X,1);
+
+norm(Y(2*N+2:2.5*N-2),inf)   <span class="comment">% Largest detail coefficient from t^0</span>
+norm(Y(2.5*N+2:3*N-2),inf)   <span class="comment">% Largest detail coefficient from t^1</span>
+norm(Y(3*N+2:3.5*N-2),inf)   <span class="comment">% Largest detail coefficient from t^2</span>
+norm(Y(3.5*N+2:4*N-2),inf)   <span class="comment">% Largest detail coefficient from t^3</span>
+
+subplot(2,1,1);
+plot(X);
+subplot(2,1,2);
+plot(Y(2*N+1:4*N));
+</pre>
+
+<p>Code output:</p>
+
+<p style="text-align:center">
+<img width="417" height="293" src="waveletcdf97_04.png">
+</p>
+
+<pre class="codeoutput">
+  Locally constant    Largest detail coefficient = 1.41e-012
+  Locally linear      Largest detail coefficient = 1.30e-012
+  Locally quadratic   Largest detail coefficient = 1.20e-012
+  Locally cubic       Largest detail coefficient = 1.11e-012
+</pre>
+
+<h2 id="Implementation">Implementation</h2>
+<p>The code is written specialized for the CDF 9/7 wavelet in lifting
+scheme implementation.  Sweldens' lifting scheme <a href="#References"
+style="text-decoration:none">[2]</a> represents a wavelet transform as
+a sequence of predict and update steps.  Let <i>X</i>=[<i>X</i>(1),
+<i>X</i>(2), ... <i>X</i>(2<i>N</i>)] be an array of length 2<i>N</i>.
+The lifting scheme begins with the &quot;polyphase
+decomposition,&quot; splitting <i>X</i> into two subbands, each of
+length
+<i>N</i>:</p>
+
+<p style="text-align:center">
+<i>X<sub>o</sub></i>=[<i>X</i>(1),<i>X</i>(3),<i>X</i>(5),...
+<i>X</i>(2<i>N</i>-1)], &nbsp;
+<tr><td><i>X<sub>e</sub></i>=[<i>X</i>(2),<i>X</i>(4),<i>X</i>(6),
+... <i>X</i>(2<i>N</i>)].</p>
+
+<p>Since <i>X<sub>o</sub></i> and <i>X<sub>e</sub></i> can be merged
+to recover <i>X</i>, no information has been lost.</p>
+
+<p>Next, the scheme performs lifting steps on the subbands
+<i>X<sub>o</sub></i> and <i>X<sub>e</sub></i>.  Let <i>p</i> be 
+a filter, then</p>
+
+<p style="text-align:center">
+<i>X<sub>e</sub></i>'=
+<i>X<sub>e</sub></i> + <i>p</i>*<i>X<sub>o</sub></i></p>
+
+<p>is called a &quot;prediction&quot; step, where * denotes
+convolution.  Similarly, <i>X<sub>o</sub></i>'=
+<i>X<sub>o</sub></i> + <i>u</i>*<i>X<sub>e</sub></i>
+is called an &quot;update&quot; step.  Notice that
+<i>X<sub>e</sub></i> can always be recovered from
+<i>X<sub>e</sub></i>' with
+</p>
+
+<p style="text-align:center">
+<i>X<sub>e</sub></i>'=
+<i>X<sub>e</sub></i> - <i>p</i>*<i>X<sub>o</sub></i>.</p>
+
+<p>This simple relationship between a forward step and an inverse step
+is the key to the lifting scheme: any sequence of prediction and
+update steps can be &quot;undone&quot; to recover
+<i>X<sub>o</sub></i> and <i>X<sub>e</sub></i>.</p>
+
+<p>Any FIR wavelet transform can be factored into a sequence of
+lifting steps <a href="#References"
+style="text-decoration:none">[3]</a>.  For the CDF 9/7 wavelet, the
+lifting scheme decomposition used in <tt>waveletcdf97</tt> is</p>
+
+<p style="text-align:center">
+<table align="center" border="0"><tr><td>
+<i>X<sub>o</sub></i> = [<i>X</i>(1),<i>X</i>(3),<i>X</i>(5),...
+<i>X</i>(2<i>N</i>-1)] <br>
+<tr><td><i>X<sub>e</sub></i> = [<i>X</i>(2),<i>X</i>(4),<i>X</i>(6),
+... <i>X</i>(2<i>N</i>)] <br>
+<i>X<sub>e</sub></i><sup>1</sup>(<i>n</i>) =
+<i>X<sub>e</sub></i>(<i>n</i>) + 
+<font face="symbol">a</font>(<i>X<sub>o</sub></i>(<i>n</i>+1)
++ <i>X<sub>o</sub></i>(<i>n</i>)) <br>
+<i>X<sub>o</sub></i><sup>1</sup>(<i>n</i>) =
+<i>X<sub>o</sub></i>(<i>n</i>) + 
+<font face="symbol">b</font>(<i>X<sub>e</sub></i><sup>1</sup>(<i>n</i>)
++ <i>X<sub>e</sub></i><sup>1</sup>(<i>n</i>-1)) <br>
+<i>X<sub>e</sub></i><sup>2</sup>(<i>n</i>) =
+<i>X<sub>e</sub></i><sup>1</sup>(<i>n</i>) + 
+<font face="symbol">d</font>(<i>X<sub>o</sub></i><sup>1</sup>(<i>n</i>+1)
++ <i>X<sub>o</sub></i><sup>1</sup>(<i>n</i>)) <br>
+<i>X<sub>o</sub></i><sup>2</sup>(<i>n</i>) =
+<i>X<sub>o</sub></i><sup>2</sup>(<i>n</i>) + 
+<font face="symbol">g</font>(<i>X<sub>e</sub></i><sup>2</sup>(<i>n</i>)
++ <i>X<sub>e</sub></i><sup>2</sup>(<i>n</i>-1))
+</tr></td></table>
+</p>
+
+<p>The subbands are then normalized with
+<i>X<sub>o</sub></i><sup>3</sup> = <font face="symbol">k</font>
+<i>X<sub>o</sub></i><sup>2</sup> and
+<i>X<sub>e</sub></i><sup>3</sup> = 
+<font face="symbol">k</font><sup>-1</sup>
+<i>X<sub>e</sub></i><sup>2</sup>.  For a multi-level decomposition,
+the algorithm above is repeated with
+<i>X</i> = <i>X<sub>o</sub></i><sup>3</sup>.The numbers 
+<font face="symbol">a</font>, <font face="symbol">b</font>, 
+<font face="symbol">d</font>, <font face="symbol">g</font>, 
+<font face="symbol">k</font> are irrational values approximately 
+equal to
+</p>
+
+<p style="text-align:center">
+<table align="center" border="0"><tr><td>
+<font face="symbol">a &#xBB;</font> -1.58613432,<br>
+<font face="symbol">b &#xBB;</font> -0.05298011854,<br>
+<font face="symbol">d &#xBB;</font> 0.8829110762,<br>
+<font face="symbol">g &#xBB;</font> 0.4435068522,<br>
+<font face="symbol">k &#xBB;</font> 1.149604398.
+</tr></td></table>
+</p>
+
+<p>The inverse CDF 9/7 transform is done by performing the lifting
+steps in the reverse order and with <font face="symbol">a</font>,
+<font face="symbol">b</font>, <font face="symbol">d</font>, <font
+face="symbol">g</font> negated.</p>
+
+<p>What if <i>X</i> has odd length 2<i>N</i>-1?  The trick is to
+extrapolate one extra element <i>X</i>(2<i>N</i>)=<font
+face="symbol">x</font> in such a way that transforming the augmented
+<i>X</i> has
+<i>X<sub>e</sub></i><sup>3</sup>(<i>N</i>)=0.  This zero element can
+then be thrown away without losing information.  The result is a
+decomposition with <i>N</i> elements in
+<i>X<sub>o</sub></i><sup>3</sup> and <i>N</i>-1 elements in
+<i>X<sub>e</sub></i><sup>3</sup> for a total of 2<i>N</i>-1 elements;
+the decomposition is nonredundant.  To invert an odd-length transform,
+append the zero element <i>X<sub>e</sub></i><sup>3</sup>(<i>N</i>)=0
+and proceed with the usual even-length inverse transform.</p>
+
+<p>The formula for the extrapolated element <font face="symbol">x</font>
+such that <i>X<sub>e</sub></i><sup>3</sup>(<i>N</i>)=0 is a linear
+function of the elements of <i>X</i> that depends on the filter
+boundary handling.  For the half-sample symmetric boundary handling
+used in <tt>waveletcdf97</tt>, the extrapolation is</p>
+
+<p style="text-align:center">
+<table border="0" align="center"><tr><td>
+<font face="symbol">x</font> = 
+</td><td>
+<table border="0">
+<tr><td align="center">
+<font face="symbol">-</font>2
+</td></tr>
+<tr><td align="center"><hr noshade="1" color="black" size="1">
+1 + 2<font face="symbol">bd</font></td></tr>
+</table>
+</td><td>
+[<font face="symbol">abd</font> <i>X</i>(2<i>N</i>-3)
++ <font face="symbol">bd</font> <i>X</i>(2<i>N</i>-2)
++ (<font face="symbol">a</font>
++ 3<font face="symbol">abd</font>
++ <font face="symbol">d</font>) <i>X</i>(2<i>N</i>-1)].
+</td></tr></table>
+</p>
+
+<h2 id="References">References</h2>
+<p><table border="0" cellpadding="6">
+<tr><td>[1] M. Unser and T. Blu.
+&quot;Mathematical Properties of the JPEG2000 Wavelet Filters.&quot;
+<i>IEEE Trans. on Image Proc.</i>, vol. 12, no. 9, Sep. 2003.</td></tr>
+<tr><td>[2] W. Sweldens.  <a
+href="http://cm.bell-labs.com/who/wim/papers/papers.html#lift2">
+&quot;The Lifting Scheme: A Construction of Second Generation
+Wavelets.&quot;</a> <i>SIAM J. Mathematical Analysis</i>, vol. 29,
+no. 2, pp. 511-546, 1997.</td></tr>
+<tr><td>[3] I. Daubechies and W. Sweldens.  
+<a href="http://cm.bell-labs.com/who/wim/papers/factor">
+&quot;Factoring Wavelet Transforms into Lifting Steps.&quot;</a>
+1996.</td></tr>
+</table>
+</p>
+
+<br>
+<br>
+</body>
+</html>
