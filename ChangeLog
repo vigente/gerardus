@@ -1,3 +1,10 @@
+2015-08-28 Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* Add matlab/FiltersToolbox/waveletcdf97_3D.m (0.1.0)
+
+	- An extension of Pascal Getreuer’s Cohen–Daubechies–Feauveau 9/7
+	wavelet code to handle 3D images. 
+
 2015-08-26 Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* matlab/DiffusionMRIToolbox/weighted_linear_fit.m (0.1.1)
