@@ -7,6 +7,11 @@
 	http://www.getreuer.info/home/waveletcdf97 
 	on 2015-03-26.
 
+	* Add matlab/ThirdPartyToolbox/waveletcdf97/waveletcdf97_3D.m
+
+	- An extension of Pascal Getreuer’s Cohen–Daubechies–Feauveau 9/7
+	wavelet code to handle 3D images.
+
 2015-08-26 Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* matlab/DiffusionMRIToolbox/weighted_linear_fit.m (0.1.1)
