@@ -47,7 +47,7 @@ function scimat = scimat_load(file, varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2015 University of Oxford
-% Version: 0.5.4
+% Version: 0.5.6
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -256,9 +256,16 @@ switch lower(ext)
             
         else % read the image data
             
-            
             % read data, and decompress if necessary
             if (dataIsCompressed)
+                
+                % reposition the reading pointer. In principle, it should be
+                % after the last \n (ASCII 10, LF new line feed) after
+                % "ElementDataFile = LOCAL". However, if the first byte of the
+                % image data is ASCII 13 (CR = carriage return), then fgetl
+                % will have interpreted LF+CR as the end of line, and the
+                % pointer will be one byte too far ahead
+                fseek(fid, -compressedSize, 'eof');
                 
                 % read all the raw data into a vector
                 if (isempty(compressedSize))
@@ -279,9 +286,22 @@ switch lower(ext)
                 
             else
                 
+                % reposition the reading pointer. In principle, it should be
+                % after the last \n (ASCII 10, LF new line feed) after
+                % "ElementDataFile = LOCAL". However, if the first byte of the
+                % image data is ASCII 13 (CR = carriage return), then fgetl
+                % will have interpreted LF+CR as the end of line, and the
+                % pointer will be one byte too far ahead
+                fseek(fid, -prod(sz) * nchannel, 'eof');
+                
                 % read all the raw data into a vector
                 scimat.data = fread(fid, prod(sz) * nchannel, ...
                     [data_type '=>' data_type]);
+                if (length(scimat.data) ~= prod(sz) * nchannel)
+                    error(['We read ' num2str(length(scimat.data)) ...
+                        ' byte from the file instead of ' ...
+                        num2str(prod(sz) * nchannel) ' byte'])
+                end
 
             end
             

@@ -1,3 +1,12 @@
+2015-09-03  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.5)
+
+	- Fix bug. For.mha/.mhd files, if the first byte of the raw data
+	was ASCII 13 (CR = carriage return), then fgetl combined it with
+	the last \n (ASCII 10, LF new line feed) after "ElementDataFile =
+	LOCAL", so it read one byte too few.
+
 2015-09-02  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/writemetaimagefile.m: (0.2.2)
