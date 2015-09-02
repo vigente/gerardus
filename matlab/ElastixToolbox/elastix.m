@@ -131,7 +131,7 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.5.3
+% Version: 0.5.4
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -186,12 +186,11 @@ if (nargin < 4 || isempty(opts) || ~isfield(opts, 'mMask'))
     opts.mMask = '';
 end
 
-% if tranformation parameters are given as a struct, we need to create a
-% temp file so that elastix can load them
-[paramfile, delete_paramfile] = create_temp_file_if_struct(regParam);
-
-% ditto for the initial transform
-[t0file, delete_t0file] = create_temp_file_if_struct(opts.t0);
+% input parameters and initial transform can be either filename or struct.
+% We want to have both, as we need the file for elastix, and the struct for
+% some checks in this function
+[regParam, paramfile, delete_paramfile] = filename_struct_param(regParam);
+[opts.t0, t0file, delete_t0file] = filename_struct_param(opts.t0);
 
 % if images are given as arrays instead of filenames, we need to create 
 % temporary files with the images so that elastix can work with them
@@ -205,13 +204,13 @@ end
 
 % check that registration parameters are correct for multichannel images
 if (size(fixedfile, 1) > 1)
-    auxParam = elastix_read_file2param(paramfile);
-    if (~strcmp(auxParam.Registration, 'MultiMetricMultiResolutionRegistration'))
+    if (~strcmp(regParam.Registration, 'MultiMetricMultiResolutionRegistration'))
         error('Multi-channel image registration requires regParam.Registration = ''MultiMetricMultiResolutionRegistration''.')
     end
 end
 
-% ditto for the fixed and moving masks
+% if masks are given as arrays instead of filenames, we need to create 
+% temporary files with the images so that elastix can work with them
 [fMaskfile, delete_fMaskfile] = create_temp_file_if_array_image(opts.fMask, '.mha');
 [mMaskfile, delete_mMaskfile] = create_temp_file_if_array_image(opts.mMask, '.mha');
 
@@ -246,8 +245,8 @@ comm = 'elastix ';
 for I = 1:size(fixedfile, 1)
     comm = [...
         comm ...
-        ' -f' num2str(I-1) ' ' fixedfile(I, :) ...
-        ' -m' num2str(I-1) ' ' movingfile(I, :) ...
+        ' -f' num2str(I-1) ' "' fixedfile(I, :) '"' ...
+        ' -m' num2str(I-1) ' "' movingfile(I, :) '"' ...
         ];
 end
 comm = [...
@@ -264,13 +263,13 @@ end
 if (~isempty(opts.fMask))
     comm = [...
         comm ...
-        ' -fMask ' fMaskfile ...
+        ' -fMask "' fMaskfile '"' ...
         ];
 end
 if (~isempty(opts.mMask))
     comm = [...
         comm ...
-        ' -mMask ' mMaskfile ...
+        ' -mMask "' mMaskfile '"' ...
         ];
 end
 
@@ -288,7 +287,7 @@ end
 if (ischar(moving))
     
     % check that the registration produced the expected output image
-    regfile = dir([tempoutdir filesep 'result.0.' auxParam.ResultImageFormat]);
+    regfile = dir([tempoutdir filesep 'result.0.' regParam.ResultImageFormat]);
     if (isempty(regfile))
         error('Elastix did not produce an output registration')
     end
@@ -360,7 +359,10 @@ rmdir(tempoutdir, 's')
 
 end
 
-% create_temp_file_if_array_image
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% nested functions
+
+%% create_temp_file_if_array_image()
 %
 % check whether an input image is provided as an array or as a path to a
 % file. If the former, then save the image to a temp file so that it can be
@@ -506,31 +508,48 @@ end
 
 end % function ... = create_temp_file_if_array_image(...)
 
-% create_temp_file_if_struct
+%% filename_struct_param()
 %
-% check whether parameters are provided as a struct or file. If struct,
-% then save them to a temp file
-function [filename, delete_tempfile] = create_temp_file_if_struct(param)
+% parameters can be provided as a struct or filename. This function deals
+% with both cases. If it's a struct, it writes it to a temp file. If it's a
+% filename, it loads the file as a struct.
+%
+% Input:
+%
+%   param: filename or scimat struct
+%
+% Output:
+%
+%   param: always a scimat struct
+%
+%   filename: always a filename
+%
+%   delete_tempfile: whether the param file has to be deleted when we are
+%          done with it. That's the case when we had to create a temp file.
+function [param, filename, delete_tempfile] = filename_struct_param(param)
 
 if (isempty(param))
 
     % nothing provided. This is useful for T0, as the user will not always
     % provide an initial transform
-    delete_tempfile = false;
     filename = '';
+    delete_tempfile = false;
     
 elseif (isstruct(param))
 
     % create a temp file for the parameter file
-    delete_tempfile = true;
     filename = elastix_write_param2file('', param);
+    delete_tempfile = true;
     
 elseif (ischar(param))
     
+    % we read the file
+    param = elastix_read_file2param(param);
+    
     % we are going to use the file provided by the user, and will not
     % delete it afterwards
-    delete_tempfile = false;
     filename = param;
+    delete_tempfile = false;
     
 else
     
@@ -540,7 +559,7 @@ end
 
 end
 
-% delete_image
+%% delete_image()
 %
 % delete one or more files containing the channels of an image
 function delete_image(filename)

@@ -1,3 +1,18 @@
+2015-09-02  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix.m: (0.5.4)
+
+	- If input images are filenames, don't first load them to memory
+	to write them as temp files again. Use the original files
+	directly. This speeds things up.
+
+	- Internally, we want to keep both a struct with the registration
+	parameters to do some checks and a file to pass to elastix.
+
+	- Fix bug. When filenames contained whitespaces, the call to
+	elastix on the command line would fail. Now filename passed to
+	command line in "".
+
 2015-08-28 Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* Delete matlab/ThirdPartyToolbox/waveletcdf97
