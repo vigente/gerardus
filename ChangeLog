@@ -1,5 +1,10 @@
 2015-09-02  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FileFormatToolbox/writemetaimagefile.m: (0.2.2)
+
+	- If output file cannot be open, give an error instead of just a
+	message.
+
 	* matlab/ElastixToolbox/elastix.m: (0.5.4)
 
 	- If input images are filenames, don't first load them to memory

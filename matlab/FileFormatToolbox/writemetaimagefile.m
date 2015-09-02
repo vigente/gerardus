@@ -35,7 +35,7 @@ function writemetaimagefile(filename, img, resolution, offset, orientation)
 
 % Author(s): Ramon Casero <rcasero@gmail.com> and Vicente Grau
 % Copyright © 2012, 2015 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -120,7 +120,7 @@ data_type = class(img);
 % open file for writing
 fid = fopen(filename, 'w');
 if(fid <= 0) 
-    fprintf('Could not open file: %s\n', filename);
+    error(['Could not open file: ' filename]);
 end
 
 % number of spatial physical dimensions
