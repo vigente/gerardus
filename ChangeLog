@@ -1,10 +1,14 @@
 2015-08-28 Darryl McClymont  <darryl.mcclymont@gmail.com>
 
+	* Delete matlab/ThirdPartyToolbox/waveletcdf97
+
+	- Toolbox has no licence, so we cannot redistribute it.
+
 	* Add matlab/ThirdPartyToolbox/waveletcdf97/
 
-	- This tool computes the Cohen–Daubechies–Feauveau 9/7 (CDF 9/7) 
-	wavelet transform. It was downloaded from 
-	http://www.getreuer.info/home/waveletcdf97 
+	- This tool computes the Cohen–Daubechies–Feauveau 9/7 (CDF 9/7)
+	wavelet transform. It was downloaded from
+	http://www.getreuer.info/home/waveletcdf97
 	on 2015-03-26.
 
 	* Add matlab/ThirdPartyToolbox/waveletcdf97/waveletcdf97_3D.m
