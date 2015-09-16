@@ -1,38 +1,32 @@
-function imout = transformix(t, im, opts)
-% transformix  Matlab interface to the image warping program "transformix".
+function sciout = transformix(t, scimat, opts)
+% TRANSFORMIX  Matlab interface to the image warping program "transformix".
 %
-% transformix is a simple interface to the command line program
+% TRANSFORMIX is a simple interface to the command line program
 % "transformix"
 %
 %   http://elastix.isi.uu.nl/
 %
-% FILENAMEOUT = transformix(T, FILENAMEIN)
-% IMOUT = transformix(T, IMIN)
+% FILENAMEOUT = TRANSFORMIX(T, FILENAMEIN)
+% IMOUT = TRANSFORMIX(T, IMIN)
+% SCIOUT = TRANSFORMIX(T, SCIMAT)
 %
 %   T is a struct, or the path and name of a text file with the transform
 %   parameters. Typically, this is the output of a call to elastix, the
-%   registration program. See help to elastix for details. If T is empty,
+%   registration program. See "help elastix" for details. If T is empty,
 %   the input image IM is returned.
 %
-%   If T is a sequence of transforms, e.g.
-%
-%     tb.Transform = 'BSplineTransform';
-%     tb.InitialTransformParametersFileName = ta;
-%
-%     ta.Transform = 'EulerTransform';
-%     ta.InitialTransformParametersFileName = 'NoInitialTransform';
-%
-%   The EulerTransform (ta) is applied first to the image, followed by the
-%   BSplineTransform (tb).
-%
 %   The input image can be provided either as a string with the path and
-%   filename (FILENAMEIN) or as an image array (IMIN). The output will have
-%   the same format (i.e. a path to an output file, or an image array). The
-%   input image can be grayscale (1 channel) or colour RGB (3 channels).
+%   filename (FILENAMEIN), as an image array (IMIN) or as a scimat struct
+%   (SCIMAT). The output will have the same format (i.e. a path to an
+%   output file, an image array or a scimat struct). The input image can be
+%   grayscale (1 channel) or colour RGB (3 channels). The input image can
+%   have metadata (i.e. pixel size and offset) if provided in the image
+%   file header (e.g. .mha/.mhd, .png, .tif formats) or in the scimat
+%   struct (see "help scimat" for details).
 %
-%   FILENAMEOUT or IMOUT is the output transformed image.
+%   FILENAMEOUT, IMOUT or SCIOUT is the output transformed image.
 %
-% ... = transformix(..., OPTS)
+% ... = TRANSFORMIX(..., OPTS)
 %
 %   OPTS is a struct with options:
 %
@@ -53,7 +47,7 @@ function imout = transformix(t, im, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.2.6
+% Version: 0.3.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -102,16 +96,148 @@ if (opts.AutoDefaultPixelValue)
     t.DefaultPixelValue = 0;
 end
 
+% preprocess transform
 if (isempty(t))
     
     % if the transform is empty, we return the input image
-    imout = im;
+    sciout = scimat;
     return
+    
+elseif (ischar(t))
+    
+    % if the transform is provided as a file, read it into a struct
+    t = elastix_read_file2param(t);
 
-elseif (isstruct(t))
+end
+
+% extension of output file
+if (isfield(t, 'ResultImageFormat'))
+
+    % if user has provided an explicit extension for the output file,
+    % that's what elastix is going to produce for the output
+    ext = ['.' t.ResultImageFormat];
+    
+else % output format has to be deduced
+    
+    if (ischar(scimat)) % input image given as path and filename
+    
+        % if the user has not provided an extension for the output file, it
+        % will have the same as the input
+        [~, ~, ext] = fileparts(scimat);
+        
+    else % input image given as an array
+        
+        % opts.outfile is ignored
+        % default output file format
+        ext = '.mha';
+        
+    end
+    
+end
+
+% input image format
+if (ischar(scimat))
+    imType = 'char';
+elseif (isstruct(scimat))
+    imType = 'scimat';
+else
+    imType = 'array';
+end
+
+% input image preprocessing depending on its type
+switch (imType) 
+    
+    case 'char' % if image is provided as a path and filename
+
+        % if user has not provided an output filename, we generate a random
+        % one. If he has provided one, we use it
+        if (isempty(opts.outfile))
+            
+            opts.outfile = [tempname ext];
+            
+        end
+        
+        % read image
+        scimat = scimat_load(scimat);
+    
+    case 'array' % if image is provided as plain array, without metadata
+    
+        % convert to scimat format
+        scimat = scimat_im2scimat(scimat);
+    
+end
+
+% number of channels
+nchannel = size(scimat.data, 5);
+
+% name for a temp filename to save and transform each channel
+tmpfilename = [tempname ext];
+
+% auxiliary variable to keep one channel at a time
+scich = scimat;
+
+% loop channels
+for I = 1:nchannel
+    
+    % extract channel from full image
+    scich.data = scimat.data(:, :, :, :, I);
+    
+    % smart estimation of background colour for newly added pixels
+    if (opts.AutoDefaultPixelValue)
+        
+        % we assume as background the typical intensity voxel for this
+        % channel
+        t.DefaultPixelValue = median(scich.data(:));
+        
+    end
+    
+    % save channel to temp file
+    scimat_save(tmpfilename, scich);
+    
+    % apply transform to channel
+    sciaux = warp_image(t, tmpfilename, ext, opts);
+    
+    % aggregate channel
+    if (I == 1)
+        sciout = sciaux;
+    else
+        sciout.data(:, :, :, :, I) = sciaux.data;
+    end
+end
+
+% format output
+switch (imType) 
+    
+    case 'char' % input image given as path and filename
+        
+        % write image to output file
+        scimat_save(opts.outfile, sciout);
+        
+        % return to user the path and name of result file
+        sciout = opts.outfile;
+        
+    case 'array' % input image given as plain array
+        
+        sciout = sciout.data;
+end
+
+% clean up temp file
+delete(tmpfilename)
+
+end
+
+% warp_image: auxiliary function to warp one channel of the image
+function sciout = warp_image(t, imfile, ext, opts)
+
+% create temp directory for the output
+outdir = tempname;
+mkdir(outdir)
+
+% process the transform parameters
+if (isstruct(t))
     
     % if the transformation parameters are provided as a struct, create a
-    % text file with them, so that we can pass it to transformix
+    % temporary text file with them, so that we can pass it to transformix
     tfile = elastix_write_param2file([], t);
     delete_tfile = true;
     
@@ -127,181 +253,6 @@ else
     error('T must be a struct, or a path and filename')
     
 end
-
-% extension of output file
-if (isfield(t, 'ResultImageFormat'))
-
-    % if user has provided an explicit extension for the output file,
-    % that's what elastix is going to produce for the output
-    ext = ['.' t.ResultImageFormat];
-    
-else % output format has to be deduced
-    
-    if (ischar(im)) % input image given as path and filename
-    
-        % if the user has not provided an extension for the output file, it
-        % will have the same as the input
-        [~, ~, ext] = fileparts(im);
-        
-    else % input image given as an array
-        
-        % opts.outfile is ignored
-        % for temp file with the image, we'll use the PNG format
-        ext = '.png';
-        
-    end
-    
-end
-
-% if image is provided as a path and filename
-if (ischar(im))
-
-    % clarify nomeclature
-    imfile = im;
-    
-    % if user has not provided an output filename, we generate a random
-    % one. If he has provided one, we use it
-    if (isempty(opts.outfile))
-
-        opts.outfile = [tempname ext];
-        
-    end
-    
-    % read image header
-    info = imfinfo(imfile);
-    
-    switch (info.ColorType)
-        case 'truecolor'
-            
-            % load image
-            imaux = imread(imfile);
-            
-            % Elastix only processes the first channel, and ignores the
-            % rest. Thus, we need to create 3 temp files, one per channel.            
-            % We overwrite the name of the original colour file, as we are
-            % not going to use it. We'll need to delete the temp files when
-            % we finish with them
-            delete_imfile = true;
-            clear imfile
-            imfile{1} = [tempname ext];
-            imfile{2} = [tempname ext];
-            imfile{3} = [tempname ext];
-            imwrite(imaux(:, :, 1), imfile{1});
-            imwrite(imaux(:, :, 2), imfile{2});
-            imwrite(imaux(:, :, 3), imfile{3});
-            
-        case 'grayscale'
-            
-            % input is a filename already, and image is grayscale. Thus we
-            % don't need to create a temp file
-            delete_imfile = false;
-            
-        otherwise
-            
-            error('Image in input file is neither RGB nor grayscale')
-    end
-    
-else % if the image is provided as an image array, we write it to a temp 
-     % so that it can be read by transformix
-    
-    % if image is colour
-    if (size(im, 3) == 3)
-
-        % Elastix only processes the first channel, and ignores the
-        % rest. Thus, we need to create 3 temp files, one per channel.
-        % We'll need to delete the temp files when we finish with them
-        delete_imfile = true;
-        imfile{1} = [tempname ext];
-        imfile{2} = [tempname ext];
-        imfile{3} = [tempname ext];
-        imwrite(im(:, :, 1), imfile{1});
-        imwrite(im(:, :, 2), imfile{2});
-        imwrite(im(:, :, 3), imfile{3});
-        
-    elseif (size(im, 3) == 1) % image is grayscale
-
-        % only one channel, so we simply need to save the image array to a
-        % temp file that can be deleted after transformix processes it
-        delete_imfile = true;
-        imfile = [tempname ext];
-        imwrite(im, imfile);
-        
-    else
-        
-        error('IM must be grayscale (1 channel) or RGB (3 channels)')
-        
-    end
-    
-end
-
-% init output image
-switch (t.ResultImagePixelType)
-    case 'unsigned char'
-        imout = zeros([t.Size([2 1]) length(imfile)], 'uint8');
-    otherwise
-        error(['ResultImagePixelType = ' t.ResultImagePixelType ...
-            ' not implemented'])
-end
-
-% apply transformation to each image channel separatedly
-if (iscell(imfile))
-    for CH = 1:length(imfile)
-        imout(:, :, CH) = warp_image(tfile, imfile{CH}, ext, opts);
-    end
-else
-    imout = warp_image(tfile, imfile, ext, opts);
-end
-
-% smart estimation of background colour for newly added pixels
-if (opts.AutoDefaultPixelValue)
-    
-    % mask the newly added background pixels
-    idx = sum(imout, 3) == 0;
-    
-    % estimate typical intensity value in each channel, and use it to set
-    % in newly added background pixels
-    for CH = 1:size(imout, 3)
-        aux = imout(:, :, CH);
-        aux(idx) = median(aux(~idx));
-        imout(:, :, CH) = aux;
-    end
-end
-
-
-
-% format output
-if (ischar(im)) % input image given as path and filename
-
-    % write image to output file
-    imwrite(imout, opts.outfile);
-    
-    % return to user the path and name of result file
-    imout = opts.outfile;
-    
-end
-
-% clean up temp files
-if (delete_tfile)
-    elastix_delete_param_file(tfile)
-end
-if (delete_imfile)
-    if (iscell(imfile))
-        for CH = 1:length(imfile)
-            delete(imfile{CH})
-        end
-    else
-        delete(imfile)
-    end
-end
-
-end
-
-% warp_image: auxiliary function to warp one channel of the image
-function imout = warp_image(tfile, imfile, ext, opts)
-
-% create temp directory for the output
-outdir = tempname;
-mkdir(outdir)
 
 % apply transformation to image
 if (opts.verbose)
@@ -321,17 +272,15 @@ if (status ~= 0)
     error('Transformation failed')
 end
 
-% check that the output transformed image was created
-resultfile = dir([outdir filesep 'result' ext]);
-if (isempty(resultfile))
-    error(['transformix did not produce an output image in directory ' outdir])
-end
-resultfile = [outdir filesep resultfile.name];
-
-% read result image into memory
-imout = imread(resultfile);
+% read output image
+sciout = scimat_load([outdir filesep 'result' ext]);
 
 % clean up temp directory
 rmdir(outdir, 's')
+
+% delete temp files
+if (delete_tfile)
+    elastix_delete_param_file(tfile)
+end
 
 end

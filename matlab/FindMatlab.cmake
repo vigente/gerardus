@@ -35,6 +35,10 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
+# This dummy "project" directive is necessary so that CMAKE_SYSTEM_NAME gets initialized. FindMatlab.cmake
+# cannot be run after project(GERARDUS) because it creates an infinite loop
+project(FindMatlab)
+
 SET(MATLAB_FOUND 0)
 IF(WIN32)
 
@@ -124,7 +128,7 @@ ELSE(WIN32) # Linux or Mac
     # get path to the Matlab root directory
     execute_process(
       COMMAND which matlab
-      COMMAND xargs readlink -m
+      COMMAND xargs readlink
       COMMAND xargs dirname
       COMMAND xargs dirname
       COMMAND xargs echo -n

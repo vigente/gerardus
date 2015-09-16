@@ -25,22 +25,26 @@ function [tElx, cmax, imm] = regmatchedfilt(imf, imm, alpha)
 % TELX = REGMATCHEDFILT(IMF, IMM)
 %
 %   IMF, IMM are two grayscale images, not necessarily of the same size.
-%   IMF is the fixed image, and IMM is the moving image.
+%   IMF is the fixed image, and IMM is the moving image. The images can be
+%   provided as arrays or, if physical units are required, as SCIMAT
+%   structs (see "help scimat"). When arrays are used, then we assume pixel
+%   size = [1 1], offset = [0 0].
 %
-%   TELX is the transform in Elastix format that register IMM onto IMF.
+%   TELX is the transform in Elastix format that registers IMM onto IMF.
 %
 % TELX = REGMATCHEDFILT(..., ALPHA)
 %
-%   ALPHA is a vector of rotation angles. The translation optimum is found
-%   for each ALPHA(i) value. The ALPHA(i) with the best match is chosen as
-%   the optimal angle.
+%   ALPHA is a vector of rotation angles. The centre of rotation is
+%   computed internally as the centre of mass of IMM. The translation
+%   optimum is found for each ALPHA(i) value. The ALPHA(i) with the best
+%   match is chosen as the optimal angle.
 %
 % [TELX, CMAX, IMMREG] = REGMATCHEDFILT(...)
 %
 %   CMAX is a scalar with the value of the convolution peak.
 %
 %   IMMREG is the image resulting from applying the translation transform
-%   to IMM.
+%   to IMM. It has the same size and pixel size as IMF.
 %
 %
 % Y Keller, "Pseduo-polar based estimation of large translations rotations
@@ -51,7 +55,7 @@ function [tElx, cmax, imm] = regmatchedfilt(imf, imm, alpha)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.2.1
+% Version: 0.3.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -80,15 +84,24 @@ function [tElx, cmax, imm] = regmatchedfilt(imf, imm, alpha)
 narginchk(2, 3);
 nargoutchk(0, 3);
 
-if (size(imm, 3) == 3)
-    imm = rgb2gray(imm);
-elseif (size(imm, 3) ~= 1)
-    error('IMM must be a grayscale image')
+% convert images to scimat structs, so that we can use pixel size and
+% offset
+if (~isstruct(imf))
+    imf = scimat_im2scimat(imf);
 end
-if (size(imf, 3) == 3)
-    imf = rgb2gray(imf);
-elseif (size(imf, 3) ~= 1)
-    error('IMF must be a grayscale image')
+if (~isstruct(imm))
+    imm = scimat_im2scimat(imm);
+end
+
+if (size(imm.data, 5) == 3)
+    imm.data = rgb2gray(squeeze(imm.data));
+elseif (size(imm.data, 5) ~= 1)
+    error('IMM must be a grayscale or RGB image')
+end
+if (size(imf.data, 5) == 3)
+    imf.data = rgb2gray(squeeze(imf.data));
+elseif (size(imf.data, 5) ~= 1)
+    error('IMF must be a grayscale or RGB image')
 end
 
 % defaults
@@ -97,16 +110,17 @@ if (nargin < 3)
 end
 
 % coordinates of the center of mass of the image. We are going to use this
-% as the centre of rotation
-cm = imcmass(single(imm));
+% as the centre of rotation. Units are (row, col) pixels, not physical
+% coordinates
+cm = imcmass(single(imm.data));
 
 % if we convolve imf with itself, then the convolution peak would be in the
 % center of the image. An (N,M)-image convolved with itself produces a
 % (2*N-1,2*M-1) convolution. The center of that convolution is at (N,M)
-conv_centre = size(imf);
+conv_centre = size(imf.data);
 
 % template for the elastix transform for the rotation only
-tElx = elastix_transform(imf, imm, cm);
+tElx = elastix_transform(imf.data, imm.data, cm([2 1]));
 
 % loop angle values
 cmax = -Inf; % convolution maximum for any angle so far
@@ -116,13 +130,13 @@ for I = 1:length(alpha)
     tElx.TransformParameters(1) = alpha(I);
     
     % apply rotation to the moving image
-    imm2 = transformix(tElx, imm);
+    imm2 = transformix(tElx, imm.data);
     
     % convolution of both images
-    aux = conv_fft2(single(imm2), single(imf(end:-1:1, end:-1:1)), 'full');
+    aux = conv_fft2(single(imm2), single(imf.data(end:-1:1, end:-1:1)), 'full');
     
     % maximum of current convolution
-    auxmax = max(aux(:));
+    [auxmax, idx] = max(aux(:));
     
     % if we have improved on the convolution maximum, we keep the current
     % angle as best so far
@@ -133,7 +147,7 @@ for I = 1:length(alpha)
         alphaopt = alpha(I);
         
         % coordinates of convolution maximum (in row, col format)
-        [ropt, copt] = find(aux == cmax);
+        [ropt, copt] = ind2sub(size(aux), idx);
         
     end
 
@@ -150,6 +164,13 @@ tElx2.TransformParameters(2:3) = [copt, ropt] - conv_centre([2 1]);
 % combine the rotation and translation
 tElx = elastix_compose_afftransf(tElx2, tElx);
 
+% convert pixel to physical units
+tElx.TransformParameters(2:3) = tElx.TransformParameters(2:3) ...
+    .* [imf.axis([2 1]).spacing];
+tElx.Spacing = [imf.axis([2 1]).spacing];
+tElx.CenterOfRotationPoint = tElx.CenterOfRotationPoint ...
+    .* [imf.axis([2 1]).spacing];
+
 % if requested by the user, transform the moving image according to the
 % registration solution
 if (nargout > 2)
@@ -162,7 +183,7 @@ end
 
 %% elastix_transform:
 %  imf, imm: fixed and moving images
-%  t: translation
+%  rotc: centre of translation in (x, y) format
 function tElx = elastix_transform(imf, imm, rotc)
 
 % set up the translation transform to align the histology to the
@@ -186,7 +207,7 @@ tElx.CenterOfRotationPoint = rotc;
 tElx.ResampleInterpolator = 'FinalLinearInterpolator';
 tElx.Resampler = 'DefaultResampler';
 tElx.DefaultPixelValue = median(imm(:));
-tElx.ResultImageFormat = 'png';
+tElx.ResultImageFormat = 'mha';
 tElx.ResultImagePixelType = 'unsigned char';
 tElx.CompressResultImage = 'true';
 

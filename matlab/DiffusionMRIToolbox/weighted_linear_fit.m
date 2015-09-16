@@ -1,21 +1,27 @@
-function [ M_weighted, V ] = weighted_linear_fit( Y, X, func, warnings_on)
+function [ M_weighted] = weighted_linear_fit( Y, X, func, param )
 %WEIGHTED_LINEAR_FIT fits the function Y = MX (matrices) such that the
-% residuals follow a gaussian distribution after having @func applied to
-% them. I.e. func(Y) - func(MX) follows a gaussian with the same variance
-% for each column of Y
+% residuals are minimised after having @func applied to them. 
+% I.e. func(Y) - func(MX) is the problem we are really trying to
+% solve.
 %
 % Inputs:
-%   Y: [m * n] array, the signal you are trying to fit
+%   Y: [m * n] array, the signal you are trying to fit (linearised)
 %   X: [k * n] array, the x values for the signal. If you want a y
 %       intercept, you can add a row of ones to X.
-%   func: The function to get from Y to some other signal that you want a
-%       least square fit in. For example, func = @(z) exp(z);
-%   WARNINGS_ON is optional (default true), it tells you if something bad
-%       is happening. 
+%   func: The function to transform Y back into the signal that you really 
+%       want to fit. See example below.
+%   param: A structure containing:
+%       verbose (logical - default false)
+%       unique_weights (logical - default true) computes a different 
+%           weighting matrix for each signal (use when there is a diverse 
+%           range of coefficients)
+%       rician (logical - default false) defines the weighting matrix as
+%           X.^2 (param.unique must be true). See "Weighted linear least
+%           squares estimation of diffusion MRI parameters: strengths, 
+%           limitations, and pitfalls"
 %
 % Output:
 %   M_WEIGHTED: [m * k] array, containing the model coefficients.
-%   V are the weights
 %   
 % Example usage: 
 %     x = 0:10:1000;
@@ -27,7 +33,8 @@ function [ M_weighted, V ] = weighted_linear_fit( Y, X, func, warnings_on)
 %     % instead, try a weighted fit
 %     func = @(z) exp(z);
 %     Y = log(y);
-%     M_weighted = weighted_linear_fit( Y, x, func, 1 );
+%     param.verbose = 1; param.unique_weights = 1; param.rician = 1;
+%     M_weighted = weighted_linear_fit( Y, x, func, param);
 %     M_weighted should equal -0.01.
 % 
 %
@@ -39,8 +46,8 @@ function [ M_weighted, V ] = weighted_linear_fit( Y, X, func, warnings_on)
 
 
 % Author: Darryl McClymont <darryl.mcclymont@gmail.com>
-% Copyright © 2015 University of Oxford
-% Version: 0.1.0
+% Copyright ? 2015 University of Oxford
+% Version: 0.1.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -66,66 +73,107 @@ function [ M_weighted, V ] = weighted_linear_fit( Y, X, func, warnings_on)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(3, 5);
+narginchk(3, 4);
 nargoutchk(0, 2);
 
+
+
 if nargin < 4
-    warnings_on = 1;
+    verbose = 0;
+    unique_weights = 1;
+    rician = 0;
+else
+    if isfield(param, 'verbose')
+        verbose = param.verbose;
+    else
+        verbose = 0;
+    end
+    if isfield(param, 'unique_weights')
+        unique_weights = param.unique_weights;
+    else
+        unique_weights = 1;
+    end
+    if isfield(param, 'rician')
+        rician = param.rician;
+    else
+        rician = 0;
+    end
 end
+    
 
 % check if the variables are the right orientation
 if size(Y,2) == size(X,2)
     % great, we have the right orientation
 elseif size(Y,1) == size(X,2)
-    if warnings_on, disp('Y has the wrong orientation'), end;
-    Y = Y';
+    if verbose, disp('Y has the wrong orientation'), end;
+    Y = Y.';
 elseif size(Y,2) == size(X,1)
-    if warnings_on, disp('X has the wrong orientation'), end;
-    X = X';
+    if verbose, disp('X has the wrong orientation'), end;
+    X = X.';
 elseif size(Y,1) == size(X,1)
-    if warnings_on, disp('X and Y have the wrong orientation'), end;
-    X = X';
-    Y = Y';
+    if verbose, disp('X and Y have the wrong orientation'), end;
+    X = X.';
+    Y = Y.';
 else
     error('Incorrect variable sizes')
 end
     
+% turn off warnings (the / operator can generate them)
+warn_state = warning;
+warning off;
     
-% fit the model
-M = (pinv(X') * Y')';
+% fit the model without weighting
+M = Y / X;
 
 % get the residuals
-R = func(Y) - func(M*X);
+MX = M*X;
+R = Y - MX;
+fY = func(Y);
+Rf = fY - func(MX);
 
-% if we have only 1 sample, weight by the ratio of the root mean square
-% error in the linear space to the real space
 
-if size(Y,1) == 1
-    V = sqrt((R.^2) ./ ((Y-M*X).^2 + eps));
+if unique_weights || (size(Y,1) == 1)
+    M_weighted = zeros(size(M));
+    parfor i = 1:size(Y, 1)
+        if rician
+            V = fY(i,:).^2; % or possibly not ^2
+        else
+            % weight by the ratio of the root mean square error in the linear space to the real space
+            V = sqrt((Rf(i,:).^2) ./ (R(i,:).^2 + eps));
+        end
+        W = diag(V);
+        M_weighted(i,:) = ((X * (W.^2) * X') \ (X * (W.^2) * Y(i,:)'))';
+    end
+
 else
-    % get the variance - we want the variance of the residuals to be the 
-    % same for all points on the curve
-    V = mean(sqrt((R.^2) ./ ((Y-M*X).^2 + eps)));%var(R);
+
+    % just an average over the repetitions
+    V = mean(sqrt((Rf.^2) ./ (R.^2 + eps)), 1);
+    
+    % define the weighting function
+    W = diag(V);
+    % fit the weighted model
+    M_weighted = ((X * (W.^2) * X') \ (X * (W.^2) * Y'))';
+
 end
 
-% define the weighting function
-W = diag(V);
+% return warning state to original condition
+warning(warn_state)
 
-% fit the weighted model
-M_weighted = (pinv(X * (W.^2) * X') * X * (W.^2) * Y')';
 
-R_weighted = func(Y) - func(M_weighted * X);
+R_weighted = fY - func(M_weighted * X);
 
-if warnings_on
-    if sqrt(sum(R(:).^2)) < sqrt(sum(R_weighted(:).^2))
+if verbose
+    if sqrt(sum(Rf(:).^2)) < sqrt(sum(R_weighted(:).^2))
         disp(['Be careful, the weighting step increased your sum of squares from ' ...
-            num2str(sqrt(sum(R(:).^2))) ' to ' num2str(sqrt(sum(R_weighted(:).^2)))])
+            num2str(sqrt(sum(Rf(:).^2))) ' to ' num2str(sqrt(sum(R_weighted(:).^2)))])
         
     end
 end
 
-RMSE_unweighted = sum(R.^2, 2);
+RMSE_unweighted = sum(Rf.^2, 2);
 RMSE_weighted = sum(R_weighted.^2,2);
 M_weighted(RMSE_unweighted < RMSE_weighted,:) = M(RMSE_unweighted < RMSE_weighted,:);
+
 
 end

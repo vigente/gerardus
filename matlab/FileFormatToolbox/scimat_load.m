@@ -1,8 +1,8 @@
-function scimat = scimat_load(file)
+function scimat = scimat_load(file, varargin)
 % SCIMAT_LOAD  Load an image into a SCIMAT struct from a Matlab, MetaImage,
-% Carl Zeiss LSM or Hamamatsu VMU file.
+% Carl Zeiss LSM, Hamamatsu VMU, PNG or TIFF file.
 %
-% SCIMAT = scimat_load(FILE)
+% SCIMAT = SCIMAT_LOAD(FILE)
 %
 %   This function loads the image and metainformation into a scimat struct.
 %   If necessary, it swaps rows and columns to follow Matlab's convention
@@ -14,11 +14,11 @@ function scimat = scimat_load(file)
 %     .mat: Matlab binary file with a "scirunnrrd" struct (see below for
 %           details).
 %
-%     .mha: MetaImage file (developed for the ITK and VTK libraries). The
-%          .mha file can be pure text, containing only the image metadata,
-%          and a path to the file with the actual binary image data, or it
-%          can contain both text metadata and binary image within the same
-%          file.
+%     .mha/.mhd: MetaImage file (developed for the ITK and VTK libraries).
+%          The .mha/.mhd file can be pure text, and point to .raw file with
+%          the image, or contain both the header and the binary data.
+%          Compressed and uncompressed images are supported
+%          (http://www.itk.org/Wiki/ITK/MetaIO/Documentation).
 %
 %     .lsm: Carl Zeiss microscopy image format. Binary file.
 %
@@ -26,14 +26,28 @@ function scimat = scimat_load(file)
 %           containing only the image metadata, and a path to the file with
 %           the actual binary image data.
 %
+%     .tif: TIFF (Tagged Image File Format).
+%
+%     .png: PNG (Portable Network Graphics) format.
+%
 %   SCIMAT is the struct with the image data and metainformation (see "help
 %   scimat" for details).
+%
+% ... = SCIMAT_LOAD(FILE, parameter, value, ...)
+%
+%   The function can be followed by parameter/value pairs to modify the
+%   behaviour of the function. Currently, the only one implemented is
+%
+%   'HeaderOnly': (def false) Read only the metainformation from the file,
+%       stopping before reading the image itself. This returns
+%       SCIMAT.data = [], and can save time when the intensities are not
+%       required. (Currently only used for .mha/.mhd files).
 %
 % See also: scimat, scimat_save.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2015 University of Oxford
-% Version: 0.4.5
+% Version: 0.5.6
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -59,8 +73,14 @@ function scimat = scimat_load(file)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(1, 1);
 nargoutchk(0, 1);
+
+% parse input arguments
+parser = inputParser;
+addRequired(parser, 'file', @isstr);
+addParameter(parser, 'HeaderOnly', false , @islogical);
+parser.parse(file, varargin{:});
+headerOnly = parser.Results.HeaderOnly;
 
 % extract extension of filename in lower case
 [pathstr, ~, ext] = fileparts(file);
@@ -93,22 +113,27 @@ switch lower(ext)
     case {'.mha', '.mhd'} % MetaImage file
         
         % open file to read
-        fid=fopen(file, 'r');
-        if (fid<=0)
+        fid = fopen(file, 'r');
+        if (fid <= 0)
             error(['Cannot open file: ' file])
         end
         
-        % default values for the text header
+        % default values for variables that we are trying to read from the
+        % text header
         N = [];
         sz = [];
         data_type = [];
         offset = [];
         res = [];
-        msb = [];
+        nchannel = 1;
+        rotmat = [];
         rawfile = [];
+        dataIsCompressed = [];
+        compressedSize = [];
         
         % process text header, and stop if we get to the raw data
-        while 1
+        while (true)
+            
             % read text header line
             tline = fgetl(fid);
             
@@ -128,11 +153,15 @@ switch lower(ext)
             if isempty(idx), break, end
             
             switch getlabel(tline, idx)
-                case 'ndims'
+                case 'ObjectType'
+                    if (~strcmpi(strtrim(tline(idx+1:end)), 'Image'))
+                        error('ObjectType ~= Image. Functionality not implemented')
+                    end
+                case 'NDims'
                     N = getnumval(tline, idx);
-                case 'dimsize'
+                case 'DimSize'
                     sz = getnumval(tline, idx);
-                case 'elementtype'
+                case 'ElementType'
                     switch lower(strtrim(tline(idx+1:end)))
                         case 'met_uchar'
                             data_type = 'uint8';
@@ -153,19 +182,50 @@ switch lower(ext)
                         otherwise
                             error('Unrecognized ElementType')
                     end
-                case 'offset'
+                case {'Offset', 'Position', 'Origin'}
                     offset = getnumval(tline, idx);
-                case 'elementspacing'
+                case 'ElementSpacing'
                     res = getnumval(tline, idx);
-                case 'elementbyteordermsb'
-                    msb = strcmpi(strtrim(tline(idx+1:end)), 'true');
-                case 'elementdatafile'
+                    if (all(res == 0))
+                        warning('File provides ElementSpacing(:) == 0. This is a physical impossibility. Changing to ElementSpacing(:) = 1')
+                        res(:) = 1;
+                    end
+                case 'ElementByteOrderMSB'
+                    if (getnumval(tline, idx) ~= true)
+                        error('ElementByteOrderMSB = False. Functionality not implemented')
+                    end
+                case 'BinaryDataByteOrderMSB'
+                    if (getnumval(tline, idx) ~= true)
+                        error('BinaryDataByteOrderMSB = False. Functionality not implemented')
+                    end
+                case 'ElementNumberOfChannels'
+                    nchannel = getnumval(tline, idx);
+                case 'ElementDataFile'
                     rawfile = strtrim(tline(idx+1:end));
                     break;
-                case 'compresseddata'
-                    if strcmpi(strtrim(tline(idx+1:end)), 'true')
-                        error('Cannot read compressed MHA data')
+                case 'CompressedData'
+                    dataIsCompressed = strcmpi(strtrim(tline(idx+1:end)), 'true');
+                case {'Orientation', 'TransformMatrix', 'Rotation'}
+                    % orientation of X axis, orientation of Y axis, ...
+                    rotmat = getnumval(tline, idx);
+                    rotmat = reshape(rotmat, [N, N])';
+                case 'CenterOfRotation'
+                    rotc = getnumval(tline, idx);
+                    if (any(rotc ~= 0))
+                        error('Image has center of rotation different from 0. That option has not been implemented yet in this reader')
                     end
+                case 'HeaderSize'
+                    if (getnumval(tline, idx) ~= -1)
+                        error('HeaderSize ~= -1. Functionality not implemented')
+                    end
+                case 'BinaryData'
+                    if (getnumval(tline, idx) ~= true)
+                        error('BinaryData = False. Functionality not implemented')
+                    end
+                case 'AnatomicalOrientation'
+                    % ignore
+                case 'CompressedDataSize'
+                    compressedSize = getnumval(tline, idx);
                 otherwise
                     warning(['Unrecognized line: ' tline])
             end
@@ -184,30 +244,95 @@ switch lower(ext)
             fclose(fid);
             
             % open raw file to read
-            fid=fopen([pathstr filesep rawfile], 'r');
-            if (fid<=0)
+            fid = fopen([pathstr filesep rawfile], 'r');
+            if (fid <= 0)
                 error(['Cannot open file: ' pathstr filesep rawfile])
             end
         end
         
-        % read all the raw data into a vector, because we cannot read it
-        % into a 3D volume
-        scimat.data = fread(fid, prod(sz), [data_type '=>' data_type]);
-        
-        % reshape the data to create the data volume
-        scimat.data = reshape(scimat.data, sz);
-        
-        % permute the X and Y coordinates
-        scimat.data = permute(scimat.data, [2 1 3]);
-        
+        if (headerOnly) % don't waste time reading the data
+            
+            scimat.data = [];
+            
+        else % read the image data
+            
+            % read data, and decompress if necessary
+            if (dataIsCompressed)
+                
+                % reposition the reading pointer. In principle, it should be
+                % after the last \n (ASCII 10, LF new line feed) after
+                % "ElementDataFile = LOCAL". However, if the first byte of the
+                % image data is ASCII 13 (CR = carriage return), then fgetl
+                % will have interpreted LF+CR as the end of line, and the
+                % pointer will be one byte too far ahead
+                fseek(fid, -compressedSize, 'eof');
+                
+                % read all the raw data into a vector
+                if (isempty(compressedSize))
+                    
+                    warning('File did not provide CompressedDataSize. Trying to read to the end of file')
+                    scimat.data = fread(fid, prod(sz) * nchannel, ...
+                        [data_type '=>' data_type]);
+                    
+                else
+                    
+                    scimat.data = fread(fid, compressedSize, ...
+                        [data_type '=>' data_type]);
+                    
+                end
+
+                % decompress the data
+                scimat.data = zlib_decompress(scimat.data, data_type);
+                
+            else
+                
+                % reposition the reading pointer. In principle, it should be
+                % after the last \n (ASCII 10, LF new line feed) after
+                % "ElementDataFile = LOCAL". However, if the first byte of the
+                % image data is ASCII 13 (CR = carriage return), then fgetl
+                % will have interpreted LF+CR as the end of line, and the
+                % pointer will be one byte too far ahead
+                fseek(fid, -prod(sz) * nchannel, 'eof');
+                
+                % read all the raw data into a vector
+                scimat.data = fread(fid, prod(sz) * nchannel, ...
+                    [data_type '=>' data_type]);
+                if (length(scimat.data) ~= prod(sz) * nchannel)
+                    error(['We read ' num2str(length(scimat.data)) ...
+                        ' byte from the file instead of ' ...
+                        num2str(prod(sz) * nchannel) ' byte'])
+                end
+
+            end
+            
+            % reshape the data to create the data volume
+            scimat.data = reshape(scimat.data, [nchannel sz]);
+            
+            % rearrange dimensions so that channels are the 5th dimension
+            scimat.data = permute(scimat.data, [2 3 4 5 1]);
+            
+            % permute the X and Y coordinates
+            scimat.data = permute(scimat.data, [2 1 3:ndims(scimat.data)]);
+            
+        end
+
         % close file
         fclose(fid);
         
-        % check that we have enough data to create the output struct
-        if (isempty(sz) || isempty(res) || isempty(offset))
-            error('Incomplete header in .mha file')
+        % defaults
+        if (isempty(offset))
+            offset = zeros(1, N);
         end
-        
+        if (isempty(res))
+            res = ones(1, N);
+        end
+        if (isempty(sz))
+            sz = size(scimat.data);
+        end
+        if (isempty(rotmat))
+            rotmat = eye(N);
+        end
+
         % create output struct (we have read sz, res, etc in x, y, z order)
         for I = 1:N
             scimat.axis(I).size = sz(I);
@@ -219,6 +344,9 @@ switch lower(ext)
         % now we need to permute the axis so that we have [row, col,
         % slice]-> [y, x, z]
         scimat.axis([1 2]) = scimat.axis([2 1]);
+        
+        % rotation matrix
+        scimat.rotmat = rotmat;
         
     case '.lsm' % Carl Zeiss LSM format
         
@@ -364,6 +492,60 @@ switch lower(ext)
         % create SCI MAT struct
         scimat = scimat_im2scimat(im, res, offset);
         
+    case {'.png', '.tif'}
+        
+        % read image pixels
+        scimat.data = imread(file);
+        
+        % read image metadata header
+        info = imfinfo(file);
+        
+        % spacing units
+        if (~isfield(info, 'ResolutionUnit') || isempty(info.ResolutionUnit))
+            warning('File does not provide ResolutionUnit. Assuming ''meter''')
+            info.ResolutionUnit = 'meter';
+        end
+        switch (info.ResolutionUnit)
+            case 'Centimeter'
+                
+                unit = 1e-2;
+                
+            case 'meter'
+                
+                unit = 1;
+                
+            otherwise
+                
+                error(['I do not know how to deal with the ResolutionUnit provided by this file: ' info.ResolutionUnit])
+                
+        end
+        
+        % shift dimensions so that number of channels is at 5th dimension,
+        % to comply with the scimat format
+        scimat.data = reshape(scimat.data, ...
+            [size(scimat.data, 1) size(scimat.data, 2) 1 1 size(scimat.data, 3)]);
+
+        % checking missing fields
+        if (~isfield(info, 'XResolution') || isempty(info.XResolution))
+            warning('File does not provide XResolution. Assuming ''1.0''')
+            info.XResolution = 1.0;
+        end
+        if (~isfield(info, 'YResolution') || isempty(info.YResolution))
+            warning('File does not provide YResolution. Assuming ''1.0''')
+            info.YResolution = 1.0;
+        end
+        
+        % set scimat axes values
+        scimat.axis(1).size = size(scimat.data, 1);
+        scimat.axis(2).size = size(scimat.data, 2);
+        scimat.axis(1).spacing = unit ./ info.YResolution;
+        scimat.axis(2).spacing = unit ./ info.XResolution;
+        scimat.axis(1).min = -0.5 * scimat.axis(1).spacing;
+        scimat.axis(2).min = -0.5 * scimat.axis(2).spacing;
+        
+        % we assume image oriented parallel to Cartesian axes
+        scimat.rotmat = eye(2);
+        
     otherwise
         
         error('Invalid file extension')
@@ -371,9 +553,32 @@ end
 
 end
 
+%% Auxiliary functions
+
+% MHA file headers have lines like e.g. 
+%   BinaryData = True
+% These two functions getlabel() and getnumval() extract the left and right
+% sides of the "=", respectively. The latter also converts the string to
+% numerical values. If you don't expect a numerical value, don't use
+% getnumval(), and instead just get that part of the string.
 function s = getlabel(s, idx)
-s = lower(strtrim(s(1:idx-1)));
+s = strtrim(s(1:idx-1));
 end
 function n = getnumval(s, idx)
 n = str2num(s(idx+1:end));
+end
+
+% Decompress compressed MHA images. Code copied from mha_read_volume() by
+% Dirk-Jan Kroon, 10 Nov 2010 (Updated 23 Feb 2011)
+% http://uk.mathworks.com/matlabcentral/fileexchange/29344-read-medical-data-3d/content/mha/mha_read_volume.m
+function M = zlib_decompress(Z,DataType)
+
+import com.mathworks.mlwidgets.io.InterruptibleStreamCopier
+a=java.io.ByteArrayInputStream(Z);
+b=java.util.zip.InflaterInputStream(a);
+isc = InterruptibleStreamCopier.getInterruptibleStreamCopier;
+c = java.io.ByteArrayOutputStream;
+isc.copyStream(b,c);
+M=typecast(c.toByteArray,DataType);
+
 end

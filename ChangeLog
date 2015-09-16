@@ -1,8 +1,288 @@
-﻿2015-07-23 Nicolas Basty <nicolas.basty@eng.ox.ac.uk>
-	* Add matlab\FiltersToolbox\im2col3.m (0.1.0)
+2015-09-03  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.5)
+
+	- Fix bug. For.mha/.mhd files, if the first byte of the raw data
+	was ASCII 13 (CR = carriage return), then fgetl combined it with
+	the last \n (ASCII 10, LF new line feed) after "ElementDataFile =
+	LOCAL", so it read one byte too few.
+
+2015-09-02  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/writemetaimagefile.m: (0.2.2)
+
+	- If output file cannot be open, give an error instead of just a
+	message.
+
+	* matlab/ElastixToolbox/elastix.m: (0.5.4)
+
+	- If input images are filenames, don't first load them to memory
+	to write them as temp files again. Use the original files
+	directly. This speeds things up.
+
+	- Internally, we want to keep both a struct with the registration
+	parameters to do some checks and a file to pass to elastix.
+
+	- Fix bug. When filenames contained whitespaces, the call to
+	elastix on the command line would fail. Now filename passed to
+	command line in "".
+
+2015-08-28 Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* Delete matlab/ThirdPartyToolbox/waveletcdf97
+
+	- Toolbox has no licence, so we cannot redistribute it.
+
+	* Add matlab/ThirdPartyToolbox/waveletcdf97/
+
+	- This tool computes the Cohen–Daubechies–Feauveau 9/7 (CDF 9/7)
+	wavelet transform. It was downloaded from
+	http://www.getreuer.info/home/waveletcdf97
+	on 2015-03-26.
+
+	* Add matlab/ThirdPartyToolbox/waveletcdf97/waveletcdf97_3D.m
+
+	- An extension of Pascal Getreuer’s Cohen–Daubechies–Feauveau 9/7
+	wavelet code to handle 3D images.
+
+2015-08-26 Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* matlab/DiffusionMRIToolbox/weighted_linear_fit.m (0.1.1)
+
+	- Parameters now passed through a struct rather than individual
+	arguments.
+	- Now can use a unique weighting vector for each signal (but this
+	is slower)
+	- Now gives the option of weighting by Y^2, which may be used for
+	signals with noise following a Rician distribution.
+
+	* matlab/DiffusionMRIToolbox/fit_DT.m (0.1.10)
+
+	- Modified to work with the new version of weighted_linear_fit.
+
+2015-08-21  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CardiacToolbox/histology_preprocessing.m: (0.4.0)
+
+	- Now we can process a stack of images, and the inputs can be
+	filenames as well as scimats or arrays. Converting to grayscale is
+	optional. Some general rewriting of the function.
+
+2015-08-15  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.4)
+
+	- For .png/.tif files, scimat.rotmat gets created last, so that
+	the fields are in the same order as with other functions. Matlab
+	gives an error if you try to do scimat(I) = scimat_other and the
+	fields are not in the same order. A proper solution to this would
+	be to reorder the fields automatically, but this is a quick fix
+	that works for the moment.
+
+	* matlab/CardiacToolbox/histology_preprocessing.m: (0.3.1)
+
+	- Accept inputs given in scimat format.
+
+2015-08-11  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/RegistrationToolbox/regmatchedfilt.m: (0.3.0)
+
+	- Input images now can be in scimat format, so we can work with
+	physical units.
+
+	- Fix bug. CenterOfRotation is in (x,y) format, but we were using
+	(row,col) format.
+
+2015-08-06  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.3)
+
+	- Fix bug. When the file header doesn't provide ResolutionUnit,
+	XResolution or YResolution, the function now gives a warning, and
+	chooses defaults, instead of failing.
+
+	* matlab/ElastixToolbox/transformix.m: (0.3.0)
+
+	- Now input image can be in scimat format, so transforms can be in
+	physical coordinates. Better support for .png/.tif/.mha files.
+
+	* matlab/ElastixToolbox/elastix.m: (0.5.3)
+
+	- Fix bug. When the input image was in array form, we kept the
+	channels in dimension 3 instead of 5 in the conversion to scimat.
+
+2015-08-05  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix.m: (0.5.2)
+
+	- If .png/.tif files doesn't provide SamplesPerPixel tag, compute
+	number of channels from BitDepth.
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.2)
+
+	- Add 'meter' as a valid resolution unit for .tif/.png files.
+
+2015-08-04  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_save.m: (0.6.7)
+
+	- Fix bug. For PNG and TIFF output formats. scimat.data channels
+	are now 5th instead of 3rd dimension.
+
+	* matlab/ElastixToolbox/elastix.m: (0.5.1)
+
+	- Fix bug. When deleting temp files, we no longer store the names
+	in a cell array, but as a matrix, with one filename per row.
+
+	* matlab/ElastixToolbox/elastix_read_reg_output.m: (0.3.0)
+
+	- Change output from IM to SCIMAT. This way, the output is not
+	only the image, but also contains the metadata.
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.1)
+
+	- Support reading compressed .mha/.mhd files. Thanks to function
+	provided in mha_read_volume() by Dirk-Jan Kroon, 10 Nov 2010
+	(Updated 23 Feb 2011)
+	http://uk.mathworks.com/matlabcentral/fileexchange/29344-read-medical-data-3d/content/mha/mha_read_volume.m
+
+	- In .mha/.mhd code, write labels as 'ObjectType' instead of
+	'objecttype' to improve readability of code.
+
+	- In .mha/.mhd code, recognise and process a couple more labels.
+
+	* matlab/ElastixToolbox/elastix.m: (0.5.0)
+
+	- Accept SCIMAT structs as inputs. This allows to provide images
+	in physical coordinates (i.e. with spacing and offset values).
+
+2015-08-03  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_im2scimat.m: (0.3.1)
+
+	- Extend to SCIMAT images with 2D or 3D, and with frames and
+	channels.
+
+	* matlab/FiltersToolbox/scimat.m: (0.2.3)
+
+	- Explain better the difference between number of spatial
+	dimensions and number of axes.
+
+2015-07-31  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix.m: (0.4.6)
+
+	- Accept input .mha/.mhd images.
+
+	- Deal with colour images better. Now images can have any number
+	of channels, and they are split into the corresponding number of
+	temporal files. The temporal files are no longer PNG, but the same
+	format as the input images.
+
+	- Fix bug. If the images format is .tif, elastix produces both a
+	.tif and .dcm file. To avoid this kind of problems, now we are
+	more specific when looking for the output image file.
+
+	* matlab/FileFormatToolbox/scimat_save.m: (0.6.6)
+
+	- Fix bug. When input image was 2D, the function threw an error
+	because it assumed that all images were 3D.
+
+	* matlab/FileFormatToolbox/writemetaimagefile.m: (0.2.1)
+
+	- Fix bug. When input image is 2D and in colour, the dimension has
+	to be 2 (not 3) with 3 channels.
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.0)
+
+	- Add input optional parameter 'HeaderOnly'.
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.4.7)
+
+	- Fix bug. When reading colour TIFF, PNG files, channels need to
+	go in the 5th dimension of scimat.data.
+
+2015-07-30  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix_read_reg_output.m: (0.2.4)
+
+	- Fix bug. If the images format is .tif, elastix produces both a
+	.tif and .dcm file. To avoid this kind of problems, now we are
+	more specific when looking for the output image file.
+
+	* matlab/FiltersToolbox/scimat.m: (0.2.2)
+
+	- Add multi-channel images to the scimat standard (e.g. RGB
+	images).
+
+	* matlab/FileFormatToolbox/scimat_save.m: (0.6.5)
+
+	- Now we can write rotation matrices to MetaImage files.
+
+	* matlab/FileFormatToolbox/writemetaimagefile.m: (0.2.0)
+
+	- Add input argument for rotation matrix, and deal with images
+	with more than one channel.
+
+	- Deal with cases for resolution, offset when image has 2 to 4
+	dimensions (before, we always assumed 3 dimensions).
+
+	- Replace separate blocks of code for 2D, 3D and 4D images with a
+	single block of code for any number of dimensions. This makes the
+	code much shorter.
+
+	- Update to new syntax of narginchk, nargoutchk.
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.4.6)
+
+	- Read PNG, TIFF files.
+
+	- Now we can have scimat with number of channels
+	('ElementNumberOfChannels') and rotation matrix ('Orientation',
+	'TransformMatrix', 'Rotation').
+
+	- Deal with synomyms for MetaImage tag 'Offset'.
+
+	- Deal with minor MetaImage tags: 'ObjectType', 'HeaderSize'.
+
+	- Explicitly check that 'CenterOfRotation' is 0. We cannot deal
+	with other centers of rotation yet.
+
+	- If file reports ElementSpacing(:) == 0, replace by
+	ElementSpacing(:) == 1.0 to potentially avoid problems with
+	ITK/Elastix registration.
+
+2015-07-29 Ben Villard <b.016434@gmail.com>
+
+	* CMakelists.txt
+	* matlab/FindMatlab.cmake
+
+	- Added the compiler information for the latest MATLAB version (2015Ra)
+	- Changed the tarball url for ITK, as the source forge one was obsolete.
+	- created a “dummy” project in FindMatlab.cmake
+
+2015-07-28 Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* matlab/FiltersToolbox/forward_TV.m (0.1.3)
+	* matlab/FiltersToolbox/inverse_TV.m (0.1.1)
+
+	- Now works in 1 dimension.
+
+2015-07-28  Ramon Casero  <rcasero@gmail.com>
+
+	* Add shell-script/imresize-meta.sh: (0.1.0)
+
+	- Script to resize image files, changing the pixel spacing
+	accordingly so that the real world print size remains the same.
+
+2015-07-23 Nicolas Basty <nicolas.basty@eng.ox.ac.uk>
+
+	* Add matlab\FiltersToolbox\im2col3.m: (0.1.0)
+
 	- IM2COL3 rearranges 3D image blocks into columns
 
-	* Add matlab\FiltersToolbox\col2im3.m (0.1.0)
+	* Add matlab\FiltersToolbox\col2im3.m: (0.1.0)
+
 	- COL2IM3 rearranges matrix columns into a 3D image
 
 
