@@ -1,4 +1,4 @@
-function [reshaped3D2D] = im2col3_edit2(varargin)
+function [reshaped3D2D] = im2col3(varargin)
 %IM2COL3 rearranges 3D image blocks into columns. 
 
 % 16 September 2015
