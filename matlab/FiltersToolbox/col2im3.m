@@ -1,4 +1,4 @@
-function [threeD] = col2im3_edit2(col,mat,block,kind)
+function [threeD] = col2im3(col,mat,block,kind)
 %COL2IM3 rearranges matrix columns into a 3D image
 
 % 16 September 2015
