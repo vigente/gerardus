@@ -5,6 +5,14 @@
 	- Displays a 2D slice of a 3D image with a quiver plot
 	overlaid on top.
 
+	* Add matlab/FiltersToolbox/forward_TGV.m (0.0.1)
+
+	- Second order total generalised variation of an image (up to 3D)
+
+	* Add matlab/FiltersToolbox/inverse_TGV.m (0.0.1)
+
+	- Returns the residuals of 2nd order total generalised variation
+
 2015-09-03  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scimat_load.m: (0.5.5)
