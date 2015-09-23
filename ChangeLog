@@ -1,3 +1,10 @@
+2015-09-23 Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* Add matlab/DiffusionMRIToolbox/quiver_image.m (0.0.1)
+
+	- Displays a 2D slice of a 3D image with a quiver plot
+	overlaid on top.
+
 2015-09-03  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scimat_load.m: (0.5.5)
