@@ -47,7 +47,7 @@ function xout = transformix_pts(t, x, opts)
 %
 %     outfile: path and filename to output image. If none is provided, a
 %       random filename in the temp directory is created. This option is
-%       ignored if the input/output images are given in array form.
+%       ignored if the input points are given in array form.
 %
 % See also: transformix, elastix, elastix_read_file2param,
 % elastix_write_param2file, elastix_read_reg_output.
