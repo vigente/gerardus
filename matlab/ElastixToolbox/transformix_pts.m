@@ -33,11 +33,15 @@ function xout = transformix_pts(t, x, opts)
 %
 %     <index, point>
 %     <number of points>
-%     point1 x point1 y [point1 z]
-%     point2 x point2 y [point2 z]
+%     point1_x point1_y [point1_z]
+%     point2_x point2_y [point2_z]
 %     . . .
 %
 %   FILENAMEOUT, or XOUT is the output transformed points.
+%
+% TODO: Transformix output provides 6 decimal digits for the coordinates.
+% Maybe it'd be better to read the indices, and the convert to real-world
+% coordinates ourselves.
 %
 % ... = TRANSFORMIX_PTS(..., OPTS)
 %
@@ -54,7 +58,7 @@ function xout = transformix_pts(t, x, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -136,8 +140,8 @@ if (isnumeric(x))
     fprintf(fid, '%d\n', size(x, 1));
     fclose(fid);
     
-    % write points
-    dlmwrite(xfile, x, '-append');
+    % write points, using Matlab's long format precission
+    dlmwrite(xfile, x, 'delimiter', ' ', '-append', 'precision', '%.15f');
     
     % we'll delete the temp file at the end of the function
     delete_xfile = true;
@@ -255,7 +259,8 @@ elseif (ischar(x))
     fclose(fid);
     
     % write points
-    dlmwrite(opts.outfile, xout, '-append');
+    dlmwrite(opts.outfile, xout, 'delimiter', ' ', '-append', ...
+        'precision', '%.15f');
     
     % we provide at the output the name of the file, not the array itself
     xout = opts.outfile;
