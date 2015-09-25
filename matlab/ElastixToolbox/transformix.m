@@ -12,8 +12,8 @@ function sciout = transformix(t, scimat, opts)
 %
 %   T is a struct, or the path and name of a text file with the transform
 %   parameters. Typically, this is the output of a call to elastix, the
-%   registration program. See "help elastix" for details. If T is empty,
-%   the input image IM is returned.
+%   registration program. See "help elastix" for details. If T is empty, no
+%   transformation is applied to the input.
 %
 %   The input image can be provided either as a string with the path and
 %   filename (FILENAMEIN), as an image array (IMIN) or as a scimat struct
@@ -47,7 +47,7 @@ function sciout = transformix(t, scimat, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -78,10 +78,10 @@ nargoutchk(0, 1);
 
 % defaults
 if (nargin < 3 || isempty(opts))
-    % capture the elastix output so that it's not output on the screen
-    opts.verbose = 0;
+    opts = struct;
 end
 if (~isfield(opts, 'verbose') || isempty(opts.verbose))
+    % capture the elastix output so that it's not output on the screen
     opts.verbose = 0;
 end
 if (~isfield(opts, 'outfile'))
@@ -105,7 +105,8 @@ if (isempty(t))
     
 elseif (ischar(t))
     
-    % if the transform is provided as a file, read it into a struct
+    % if the transform is provided as a file, read it into a struct so that
+    % we can access its fields, and possibly modify them
     t = elastix_read_file2param(t);
 
 end
@@ -225,6 +226,10 @@ end
 delete(tmpfilename)
 
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% nested functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % warp_image: auxiliary function to warp one channel of the image
 function sciout = warp_image(t, imfile, ext, opts)

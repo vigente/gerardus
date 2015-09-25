@@ -1,6 +1,6 @@
 2015-09-25  Ramon Casero  <rcasero@gmail.com>
 
-	* matlab/ElastixToolbox/transformix_pts.m: (0.3.1)
+	* matlab/ElastixToolbox/transformix.m: (0.3.1)
 
 	- Minor, some comments and the way opts is initialized.
 
