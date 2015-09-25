@@ -1,3 +1,10 @@
+2015-09-25  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ElastixToolbox/transformix_pts.m: (0.1.0)
+
+	- Matlab interface to the image warping program "transformix", but
+	for point transformation.
+
 2015-09-23 Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* Add matlab/DiffusionMRIToolbox/quiver_image.m (0.0.1)

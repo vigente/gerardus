@@ -218,6 +218,11 @@ global_reference_frame.m
 	   and then computes the radial, circumferential, and longitudinal vectors
 	   based on this line.
 	
+quiver_image.m
+
+	QUIVER_IMAGE Displays a 2D slice of a 3D image with a quiver plot
+	   overlaid on top.
+	
 view_tensors.m
 
 	 VIEW_TENSORS    Renders diffusion tensors in 3D, colour coded by HA
@@ -225,9 +230,9 @@ view_tensors.m
 weighted_linear_fit.m
 
 	WEIGHTED_LINEAR_FIT fits the function Y = MX (matrices) such that the
-	 residuals follow a gaussian distribution after having @func applied to
-	 them. I.e. func(Y) - func(MX) follows a gaussian with the same variance
-	 for each column of Y
+	 residuals are minimised after having @func applied to them. 
+	 I.e. func(Y) - func(MX) is the problem we are really trying to
+	 solve.
 	
 wild_bootstrapping_DTI.m
 
@@ -320,6 +325,11 @@ elastix_write_param2file.m
 transformix.m
 
 	 TRANSFORMIX  Matlab interface to the image warping program "transformix".
+	
+transformix_pts.m
+
+	 TRANSFORMIX_PTS  Matlab interface to the image warping program
+	 "transformix", but for point transformation.
 	
 
 FileFormatToolbox
@@ -491,6 +501,8 @@ correct_light_blobs_in_microscope_mosaic.m
 	 CORRECT_LIGHT_BLOBS_IN_MICROSCOPE_MOSAIC  Correct the colour blob created
 	 by the microscope's light in each tile of a mosaic, e.g. for histology.
 	
+forward_TGV.m
+
 forward_TV_2D.m
 
 	FORWARD_TV_2D Total variation of a 2D image
@@ -536,6 +548,10 @@ im_modes.m
 
 	 IM_MODES  Estimate typical values (modes) of foreground/background
 	 intensities in a greyscale image.
+	
+inverse_TGV.m
+
+	INVERSE_TGV Returns the residuals of 2nd order total generalised variation
 	
 inverse_TV_2D.m
 

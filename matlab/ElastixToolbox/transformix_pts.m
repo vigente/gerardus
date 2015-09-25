@@ -1,32 +1,45 @@
-function sciout = transformix(t, scimat, opts)
-% TRANSFORMIX  Matlab interface to the image warping program "transformix".
+function xout = transformix_pts(t, x, opts)
+% TRANSFORMIX_PTS  Matlab interface to the image warping program
+% "transformix", but for point transformation.
 %
-% TRANSFORMIX is a simple interface to the command line program
-% "transformix"
+% TRANSFORMIX_PTS is a simple interface to the command line program
+% "transformix", but for point coordinates inputs, instead of images
 %
 %   http://elastix.isi.uu.nl/
 %
-% FILENAMEOUT = TRANSFORMIX(T, FILENAMEIN)
-% IMOUT = TRANSFORMIX(T, IMIN)
-% SCIOUT = TRANSFORMIX(T, SCIMAT)
+% FILENAMEOUT = TRANSFORMIX_PTS(T, FILENAMEIN)
+% XOUT = TRANSFORMIX_PTS(T, X)
 %
 %   T is a struct, or the path and name of a text file with the transform
 %   parameters. Typically, this is the output of a call to elastix, the
-%   registration program. See "help elastix" for details. If T is empty,
-%   the input image IM is returned.
+%   registration program. See "help elastix" for details. If T is empty, no
+%   transformation is applied to the input.
 %
-%   The input image can be provided either as a string with the path and
-%   filename (FILENAMEIN), as an image array (IMIN) or as a scimat struct
-%   (SCIMAT). The output will have the same format (i.e. a path to an
-%   output file, an image array or a scimat struct). The input image can be
-%   grayscale (1 channel) or colour RGB (3 channels). The input image can
-%   have metadata (i.e. pixel size and offset) if provided in the image
-%   file header (e.g. .mha/.mhd, .png, .tif formats) or in the scimat
-%   struct (see "help scimat" for details).
+%   The input points can be provided either as a string with the path and
+%   filename (FILENAMEIN), or as an array with point coordinates (X). The
+%   output will have the same format as the input.
 %
-%   FILENAMEOUT, IMOUT or SCIOUT is the output transformed image.
+%   Note 1: If points are provided as an array X, we expect real world
+%   coordinates. If they are provided as a file FILENAMEIN, then they can
+%   be provided in real world coordinates or as voxel indices.
 %
-% ... = TRANSFORMIX(..., OPTS)
+%   Note 2: Counterintuitively, the input points are expected to be in the
+%   *fixed* image space, and get mapped onto the moving image. This is
+%   because of the way that transforms are defined in elastix.
+%
+%   If the points are provided in file FILENAMEIN, the file format expected
+%   by transformix is, according to section 4.2 of the Elastix Manual v4.7
+%   (http://elastix.isi.uu.nl/download/elastix_manual_v4.7.pdf)
+%
+%     <index, point>
+%     <number of points>
+%     point1 x point1 y [point1 z]
+%     point2 x point2 y [point2 z]
+%     . . .
+%
+%   FILENAMEOUT, or XOUT is the output transformed points.
+%
+% ... = TRANSFORMIX_PTS(..., OPTS)
 %
 %   OPTS is a struct with options:
 %
@@ -36,18 +49,12 @@ function sciout = transformix(t, scimat, opts)
 %       random filename in the temp directory is created. This option is
 %       ignored if the input/output images are given in array form.
 %
-%     AutoDefaultPixelValue: (def false) If true, it overrides
-%       t.DefaultPixelValue and estimates the typical colour of the image
-%       to fill in newly created background pixels. Note that different
-%       values are estimated per channel, so it works for coloured
-%       backgrounds.
-%
-% See also: elastix, elastix_read_file2param, elastix_write_param2file,
-% elastix_read_reg_output.
+% See also: transformix, elastix, elastix_read_file2param,
+% elastix_write_param2file, elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014-2015 University of Oxford
-% Version: 0.3.0
+% Copyright © 2015 University of Oxford
+% Version: 0.1.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -78,156 +85,15 @@ nargoutchk(0, 1);
 
 % defaults
 if (nargin < 3 || isempty(opts))
-    % capture the elastix output so that it's not output on the screen
-    opts.verbose = 0;
+    opts = struct;
 end
 if (~isfield(opts, 'verbose') || isempty(opts.verbose))
+    % capture the elastix output so that it's not output on the screen
     opts.verbose = 0;
 end
 if (~isfield(opts, 'outfile'))
     opts.outfile = '';
 end
-if (~isfield(opts, 'AutoDefaultPixelValue'))
-    opts.AutoDefaultPixelValue = false;
-end
-
-% override t.DefaultPixelValue?
-if (opts.AutoDefaultPixelValue)
-    t.DefaultPixelValue = 0;
-end
-
-% preprocess transform
-if (isempty(t))
-    
-    % if the transform is empty, we return the input image
-    sciout = scimat;
-    return
-    
-elseif (ischar(t))
-    
-    % if the transform is provided as a file, read it into a struct
-    t = elastix_read_file2param(t);
-
-end
-
-% extension of output file
-if (isfield(t, 'ResultImageFormat'))
-
-    % if user has provided an explicit extension for the output file,
-    % that's what elastix is going to produce for the output
-    ext = ['.' t.ResultImageFormat];
-    
-else % output format has to be deduced
-    
-    if (ischar(scimat)) % input image given as path and filename
-    
-        % if the user has not provided an extension for the output file, it
-        % will have the same as the input
-        [~, ~, ext] = fileparts(scimat);
-        
-    else % input image given as an array
-        
-        % opts.outfile is ignored
-        % default output file format
-        ext = '.mha';
-        
-    end
-    
-end
-
-% input image format
-if (ischar(scimat))
-    imType = 'char';
-elseif (isstruct(scimat))
-    imType = 'scimat';
-else
-    imType = 'array';
-end
-
-% input image preprocessing depending on its type
-switch (imType) 
-    
-    case 'char' % if image is provided as a path and filename
-
-        % if user has not provided an output filename, we generate a random
-        % one. If he has provided one, we use it
-        if (isempty(opts.outfile))
-            
-            opts.outfile = [tempname ext];
-            
-        end
-        
-        % read image
-        scimat = scimat_load(scimat);
-    
-    case 'array' % if image is provided as plain array, without metadata
-    
-        % convert to scimat format
-        scimat = scimat_im2scimat(scimat);
-    
-end
-
-% number of channels
-nchannel = size(scimat.data, 5);
-
-% name for a temp filename to save and transform each channel
-tmpfilename = [tempname ext];
-
-% auxiliary variable to keep one channel at a time
-scich = scimat;
-
-% loop channels
-for I = 1:nchannel
-    
-    % extract channel from full image
-    scich.data = scimat.data(:, :, :, :, I);
-    
-    % smart estimation of background colour for newly added pixels
-    if (opts.AutoDefaultPixelValue)
-        
-        % we assume as background the typical intensity voxel for this
-        % channel
-        t.DefaultPixelValue = median(scich.data(:));
-        
-    end
-    
-    % save channel to temp file
-    scimat_save(tmpfilename, scich);
-    
-    % apply transform to channel
-    sciaux = warp_image(t, tmpfilename, ext, opts);
-    
-    % aggregate channel
-    if (I == 1)
-        sciout = sciaux;
-    else
-        sciout.data(:, :, :, :, I) = sciaux.data;
-    end
-end
-
-% format output
-switch (imType) 
-    
-    case 'char' % input image given as path and filename
-        
-        % write image to output file
-        scimat_save(opts.outfile, sciout);
-        
-        % return to user the path and name of result file
-        sciout = opts.outfile;
-        
-    case 'array' % input image given as plain array
-        
-        sciout = sciout.data;
-end
-
-% clean up temp file
-delete(tmpfilename)
-
-end
-
-% warp_image: auxiliary function to warp one channel of the image
-function sciout = warp_image(t, imfile, ext, opts)
 
 % create temp directory for the output
 outdir = tempname;
@@ -250,21 +116,80 @@ elseif (ischar(t))
     
 else
     
-    error('T must be a struct, or a path and filename')
+    error('T must be a struct, or a filename')
     
 end
 
-% apply transformation to image
+% process the input points
+if (isnumeric(x))
+    
+    % if points are provided as an array, we need to create a temp file for
+    % transformix
+    xfile = [tempname '.txt'];
+    fid = fopen(xfile, 'w');
+    if (fid == -1)
+        error(['Cannot open temp file to write X: ' xfile]);
+    end
+    
+    % write header according to transformix format
+    fprintf(fid, 'point\n');
+    fprintf(fid, '%d\n', size(x, 1));
+    fclose(fid);
+    
+    % write points
+    dlmwrite(xfile, x, '-append');
+    
+    % we'll delete the temp file at the end of the function
+    delete_xfile = true;
+    
+    % number and dimension of input points
+    N = size(x, 1);
+    D = size(x, 2);
+    
+elseif (ischar(x))
+    
+    % if user provides the points in a file, we won't delete it at the end
+    % of the function
+    xfile = x;
+    delete_xfile = false;
+    
+    % number of input points
+    fid = fopen(xfile, 'r');
+    if (fid == -1)
+        error(['Cannot read file with X points: ' xfile]);
+    end
+    tline = fgetl(fid); % 'point' or 'index'
+    if (~strcmp(tline, 'point') && ~strcmp(tline, 'index'))
+        error('First line of points file must be either "point" or "index"')
+    end
+    tline = fgetl(fid); % number of points
+    N = str2double(tline);
+    if (isnan(N))
+        error('Second line of points file must be a scalar with the number of input points')
+    end
+    tline = fgetl(fid); % first point
+    
+    % dimension of input points
+    D = size(str2num(tline), 2);
+    fclose(fid);
+    
+else
+    
+    error('X must be an array or a filename');
+    
+end
+
+%% apply transformation to image
 if (opts.verbose)
     status = system(['transformix'...
         ' -tp ' tfile ...
-        ' -in ' imfile ...
+        ' -def ' xfile ...
         ' -out ' outdir ...
         ]);
 else
     [status, ~] = system(['transformix'...
         ' -tp ' tfile ...
-        ' -in ' imfile ...
+        ' -def ' xfile ...
         ' -out ' outdir ...
         ]);
 end
@@ -272,8 +197,72 @@ if (status ~= 0)
     error('Transformation failed')
 end
 
-% read output image
-sciout = scimat_load([outdir filesep 'result' ext]);
+%% read warped points as an array
+
+% open file with the results
+fid = fopen([outdir filesep 'outputpoints.txt'], 'r');
+if (fid == -1)
+    error(['Cannot open file to read transformed points: ' outdir ...
+        filesep 'outputpoints.txt']);
+end
+
+% init array for the warped points
+xout = zeros(N, D);
+
+% read line by line (one point per line)
+for I = 1:N
+    
+    % each line from output file looks a bit like this
+    % Point   0       ; InputIndex = [ 1582 0 ]       ; InputPoint = [ 0.014450 0.000000 ]    ; OutputIndexFixed = [ 1423 -363 ]      ; OutputPoint = [ 0.012998 -0.003333 ]  ; Deformation = [ -0.001452 -0.003333 ]
+    tline = fgetl(fid);
+    
+    % keep only the OutputPoint coordinates
+    tline = regexp(tline, 'OutputPoint = \[.*?\]', 'match');
+    tline = regexp(tline{1}, '\d.*\d', 'match');
+    tline = tline{1};
+    
+    % convert to numeric format
+    xout(I, :) = str2num(tline);
+    
+end
+fclose(fid);
+
+%% format output
+
+if (isnumeric(x))
+    
+    % the output is already the numeric array, nothing to do here
+    
+elseif (ischar(x))
+    
+    % we need to create a file with the points
+    
+    % if the user has not provided a name for the output file
+    if (isempty(opts.outfile))
+        
+        % we create one in the temp directory
+        opts.outfile = [tempname '.txt'];
+        
+    end
+    fid = fopen(opts.outfile, 'w');
+    if (fid == -1)
+        error(['Cannot open temp file to write XOUT: ' opts.outfile]);
+    end
+    
+    % write header according to transformix format
+    fprintf(fid, 'point\n');
+    fprintf(fid, '%d\n', N);
+    fclose(fid);
+    
+    % write points
+    dlmwrite(opts.outfile, xout, '-append');
+    
+    % we provide at the output the name of the file, not the array itself
+    xout = opts.outfile;
+    
+end
+
+%% clean up
 
 % clean up temp directory
 rmdir(outdir, 's')
@@ -282,5 +271,6 @@ rmdir(outdir, 's')
 if (delete_tfile)
     elastix_delete_param_file(tfile)
 end
-
+if (delete_xfile)
+    delete(xfile)
 end
