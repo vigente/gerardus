@@ -391,6 +391,10 @@ scimat_im2scimat.m
 
 	 SCIMAT_IM2SCIMAT  Create SCIMAT struct from scratch.
 	
+scimat_imagesc.m
+
+	 SCIMAT_IMAGESC  Display 2D image in real world coordinate axes.
+	
 scimat_index2world.m
 
 	 SCIMAT_INDEX2WORLD  Convert image indices to real world coordinates for

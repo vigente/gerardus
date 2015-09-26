@@ -1,11 +1,18 @@
+2015-09-26  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/FileFormatToolbox/scimat_imagesc.m: (0.1.0)
+
+	- Display 2D image in real world coordinate axes.
+
 2015-09-25  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/transformix_pts.m: (0.1.1)
 
 	- Fix bug. The delimiter in the points files has to be ' ' instead
-	of ',', otherwise transformix fails to read the points without an
-	error message. Also, increase the precision of the numbers we
-	write to 15 digits.
+	of ',', otherwise transformix fails to read the points (without
+	giving an error message). Also, increase the precision of the
+	numbers we write to 15 digits. This has limited value, because
+	transformix output coordinates only have 6 digits, anyway.
 
 	* matlab/ElastixToolbox/transformix.m: (0.3.1)
 
