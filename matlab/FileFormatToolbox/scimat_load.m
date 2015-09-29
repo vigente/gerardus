@@ -41,13 +41,13 @@ function scimat = scimat_load(file, varargin)
 %   'HeaderOnly': (def false) Read only the metainformation from the file,
 %       stopping before reading the image itself. This returns
 %       SCIMAT.data = [], and can save time when the intensities are not
-%       required. (Currently only used for .mha/.mhd files).
+%       required. (Currently only used for .mha/.mhd, .tif, .png files).
 %
 % See also: scimat, scimat_save.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2015 University of Oxford
-% Version: 0.5.6
+% Version: 0.5.7
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -494,12 +494,26 @@ switch lower(ext)
         
     case {'.png', '.tif'}
         
-        % read image pixels
-        scimat.data = imread(file);
-        
         % read image metadata header
         info = imfinfo(file);
         
+        if (headerOnly)
+            
+            scimat.data = [];
+            
+        else
+        
+            % read image pixels
+            scimat.data = imread(file);
+            
+            % shift dimensions so that number of channels is at 5th
+            % dimension, to comply with the scimat format
+            scimat.data = reshape(scimat.data, ...
+                [size(scimat.data, 1) size(scimat.data, 2) 1 1 ...
+                size(scimat.data, 3)]);
+            
+        end
+
         % spacing units
         if (~isfield(info, 'ResolutionUnit') || isempty(info.ResolutionUnit))
             warning('File does not provide ResolutionUnit. Assuming ''meter''')
@@ -520,11 +534,6 @@ switch lower(ext)
                 
         end
         
-        % shift dimensions so that number of channels is at 5th dimension,
-        % to comply with the scimat format
-        scimat.data = reshape(scimat.data, ...
-            [size(scimat.data, 1) size(scimat.data, 2) 1 1 size(scimat.data, 3)]);
-
         % checking missing fields
         if (~isfield(info, 'XResolution') || isempty(info.XResolution))
             warning('File does not provide XResolution. Assuming ''1.0''')
@@ -536,14 +545,14 @@ switch lower(ext)
         end
         
         % set scimat axes values
-        scimat.axis(1).size = size(scimat.data, 1);
-        scimat.axis(2).size = size(scimat.data, 2);
+        scimat.axis(1).size = info.Height;
+        scimat.axis(2).size = info.Width;
         scimat.axis(1).spacing = unit ./ info.YResolution;
         scimat.axis(2).spacing = unit ./ info.XResolution;
         scimat.axis(1).min = -0.5 * scimat.axis(1).spacing;
         scimat.axis(2).min = -0.5 * scimat.axis(2).spacing;
         
-        % we assume image oriented parallel to Cartesian axes
+        % we assume that the image is oriented parallel to Cartesian axes
         scimat.rotmat = eye(2);
         
     otherwise

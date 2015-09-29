@@ -1,3 +1,11 @@
+2015-09-29  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.7)
+
+	- Allow to load metadata only for .tif/.png files, without the
+	actual image. (This speeds things up a lot when you don't need the
+	image).
+
 2015-09-26  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/FileFormatToolbox/scimat_imagesc.m: (0.1.0)
