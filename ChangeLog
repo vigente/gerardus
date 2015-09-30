@@ -1,3 +1,10 @@
+2015-09-30  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/FileFormatToolbox/scimat_scimat2imref.m: (0.1.0)
+
+	- SCIMAT_SCIMAT2IMREF Matlab's image reference frame from SCIMAT
+	metadata.
+
 2015-09-29  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scimat_load.m: (0.5.7)

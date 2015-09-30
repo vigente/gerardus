@@ -409,6 +409,10 @@ scimat_save.m
 
 	 SCIMAT_SAVE  Save a SCIMAT struct to several file formats.
 	
+scimat_scimat2imref.m
+
+	 SCIMAT_SCIMAT2IMREF  Matlab's image reference frame from SCIMAT metadata.
+	
 scimat_seg3d2matlab.m
 
 	 SCIMAT_SEG3D2MATLAB  Correct dimensions of data loaded from a *.mat file
