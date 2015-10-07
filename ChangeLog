@@ -1,3 +1,18 @@
+2015-10-07  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ThirdPartyToolbox/rotateXLabels.m:
+
+	- Rotate x-tick labels to any angle, preserving font settings and
+	coping with resize, zoom, pan etc.
+
+	- Note that as of R2014b this functionality is built into MATLAB
+	axes using the 'XTickLabelRotation' property.
+
+	- By Ben Tordoff, 01 Jun 2010 (Updated 08 Oct 2014), downloaded
+	from
+
+	http://www.mathworks.com/matlabcentral/fileexchange/27812-rotatexlabels--ax--angle--varargin--
+
 2015-09-30  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/FileFormatToolbox/scimat_scimat2imref.m: (0.1.0)
