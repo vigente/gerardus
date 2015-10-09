@@ -5,7 +5,7 @@ function [imref, im, mask] = histology_preprocessing(imref, im, opts)
 % inverts and thresholds them (so that the background is black instead of
 % white), extends the histograms to cover the dynamic range, and then
 % matches the histograms to a reference slice. This prepares the slices for
-% successful intra-histology registration using transfdiffreg().
+% successful intra-histology registration.
 %
 % [IMREF2, IM2, MASK] = HISTOLOGY_PREPROCESSING(IMREF, IM)
 %
@@ -46,11 +46,11 @@ function [imref, im, mask] = histology_preprocessing(imref, im, opts)
 %              to grayscale.
 %
 %
-% See also: transfdiffreg.
+% See also: regmatchedfilt, transfdiffreg.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2015 University of Oxford
-% Version: 0.4.0
+% Version: 0.4.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -114,29 +114,33 @@ end
 % convert IMREF to a plain array if it's not already
 if (ischar(imref)) % filename
 
-    imref = scimat_load(imref);
+    imrefMat = scimat_load(imref);
+    imrefMat = imrefMat.data;
+    imrefType = 'filename';
 
 end
 if (isstruct(imref)) % scimat struct
     
-    imref = imref.data;
+    imrefMat = imref.data;
+    imrefType = 'scimat';
     
-else
+else % array
     
     % move channels to 5th index, so that it's the same format as IM.data
-    imref = reshape(imref, size(imref, 1), size(imref, 2), 1, 1, size(imref, 3));
+    imrefMat = reshape(imref, size(imref, 1), size(imref, 2), 1, 1, size(imref, 3));
+    imrefType = 'array';
     
 end
 
 % grayscale conversion of IMREF, if requested by user
 if (opts.Grayscale)
     
-    imref = rgb2gray(squeeze(imref));
+    imrefMat = rgb2gray(squeeze(imrefMat));
     
 end
 
 % preprocessing of IMREF
-imref = individual_image_preprocessing(imref);
+imrefMat = individual_image_preprocessing(imrefMat);
 
 % if images are provided as filenames, either the user must provide an
 % output directory, or we generate a temp one with a random name
@@ -195,7 +199,7 @@ for I = 1:N
     [im0.data, mask0.data] = individual_image_preprocessing(im0.data);
 
     % match IM histogram to IMREF
-    im0.data = match_histograms(imref, im0.data);
+    im0.data = match_histograms(imrefMat, im0.data);
     
     % convert processed images to output format
     switch (imType)
@@ -221,6 +225,25 @@ for I = 1:N
             
     end
     
+    
+end
+
+% convert processed images to output format
+switch (imrefType)
+    
+    case  'filename' % filename
+
+        error('Not implemented yet')
+        
+    case 'scimat' % scimat struct
+        
+        imref.data = imrefMat;
+        
+    case 'array' % plain array
+        
+        imref = reshape(imrefMat, ...
+            [size(imrefMat, 1) size(imrefMat, 2) 1 size(imrefMat, 5)]);
+        
 end
 
 end

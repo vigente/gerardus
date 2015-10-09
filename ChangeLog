@@ -1,3 +1,10 @@
+2015-10-09  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CardiacToolbox/histology_preprocessing.m: (0.4.2)
+
+	- Now the reference image is output in the same format as at the
+	input. Internally, now it's always processed as an array.
+
 2015-10-07  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ThirdPartyToolbox/rotateXLabels.m:
