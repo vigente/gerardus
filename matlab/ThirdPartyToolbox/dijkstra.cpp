@@ -89,7 +89,7 @@
  *
  * http://code.google.com/p/gerardus/
  *
- * Version: 0.3.2
+ * Version: 0.4.0
  *
  **/
 
@@ -1140,7 +1140,7 @@ void mexFunction(int          nlhs,
   }
   
   // allocate space for the output full distance matrix
-  plhs[0] = mxCreateDoubleMatrix(MS, M, mxREAL);
+  plhs[0] = mxCreateDoubleMatrix(M, MS, mxREAL);
   D = mxGetPr(plhs[0]);
   if (plhs[0] == NULL) {
     mexErrMsgTxt("Memory allocation for D output failed");
@@ -1148,7 +1148,7 @@ void mexFunction(int          nlhs,
 
   if (nrhs > 3) { // if input secondary sparse distance matrix
     // allocate space for the output secondary full distance matrix
-    plhs[2] = mxCreateDoubleMatrix(MS, M, mxREAL);
+    plhs[2] = mxCreateDoubleMatrix(M, MS, mxREAL);
     if (plhs[2] == NULL) {
       mexErrMsgTxt("Memory allocation for D2 output failed");
     }
@@ -1162,7 +1162,7 @@ void mexFunction(int          nlhs,
   }
   
   // predecessors output
-  plhs[1] = mxCreateDoubleMatrix(MS, M, mxREAL);
+  plhs[1] = mxCreateDoubleMatrix(M, MS, mxREAL);
   if (plhs[1] == NULL) {
     mexErrMsgTxt("Memory allocation for P output failed");
   }
@@ -1256,25 +1256,25 @@ void mexFunction(int          nlhs,
     
     for (j=0; j<M; j++) {
       // copy distance values and predecessor indices to output 
-      *(D + j*MS + i) = *(Dsmall + j);
-      *(P + j*MS + i) = *(Psmall + j) + 1;
+      *(D + i*M + j) = *(Dsmall + j);
+      *(P + i*M + j) = *(Psmall + j) + 1;
     }
 
     // fix bug: the original algorithm returns a distance
     // SMALL=2.22045e-16 between each node and itself, because of the
     // way the algorithm is initialized. This distance should be zero
-    *(D + S*MS + i) = 0.0;
+    *(D + i*M + S) = 0.0;
 
     if ((nrhs > 3) && (nlhs > 2)) {
       for (j=0; j<M; j++) {
 	// copy distance values and predecessor indices to output 
-	*(D2 + j*MS + i) = *(D2small + j);
+	*(D2 + i*M + j) = *(D2small + j);
       }
 
       // fix bug: the original algorithm returns a distance
       // SMALL=2.22045e-16 between each node and itself, because of the
       // way the algorithm is initialized. This distance should be zero
-      *(D2 + S*MS + i) = 0.0;
+      *(D2 + i*M + S) = 0.0;
     }
     
     /* -------------------------------------------------------------------------------------------------

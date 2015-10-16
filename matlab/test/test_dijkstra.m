@@ -1,8 +1,8 @@
 % test_dijkstra.m
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2012 University of Oxford
-% Version: 0.3.1
+% Copyright © 2012, 2015 University of Oxford
+% Version: 0.3.3
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -45,26 +45,26 @@ d = [...
       14   0   2   0   9   0];
   
 % run disjkstra's algorithm on first node
-[dd, p] = dijkstra(sparse(d), 1)
+[dd, p] = dijkstra(sparse(d'), 1)
 
-% dd =
+% dd' =
 % 
 %      0     7     9    20    20    11
 % 
-% p =
+% p' =
 % 
 %      0     1     1     3     6     3
 
 % query several source nodes at the same time
-[dd, p] = dijkstra(sparse(d), [1 3 6])
+[dd, p] = dijkstra(sparse(d'), [1 3 6])
 
-% dd =
+% dd' =
 % 
 %     0     7     9    20    20    11
 %     9    10     0    11    11     2
 %    11    12     2    13     9     0
 % 
-% p =
+% p' =
 % 
 %      0     1     1     3     6     3
 %      3     3     0     3     6     3
@@ -75,13 +75,13 @@ d = [...
 
 % query a source node, but we are only interested in the path to a single
 % target node
-[dd, p] = dijkstra(sparse(d), 1, 3)
+[dd, p] = dijkstra(sparse(d'), 1, 3)
 
-% dd =
+% dd' =
 % 
 %     0     7     9    20   Inf    11
 % 
-% p =
+% p' =
 % 
 %      0     1     1     3   NaN     3
 
@@ -101,14 +101,49 @@ d2 = [...
        0   0   0  14   0  15; ...
        6   0   9   0  15   0];
 
-[dd, p, dd2] = dijkstra(sparse(d), 1:6, 1:6, sparse(d2))
+[dd, p, dd2] = dijkstra(sparse(d'), 1:6, 1:6, sparse(d2))
 
 % dd2 =
 % 
-%     0    10     7    16    31    16
-%    10     0     2    11    26    11
-%     7     2     0     9    24     9
-%    16    11     9     0    14    18
-%    31    25    24    14     0    15
-%    16    11     9    18    15     0
-   
+%      0    10     7    16    31    16
+%     10     0     2    11    25    11
+%      7     2     0     9    24     9
+%     16    11     9     0    14    18
+%     31    26    24    14     0    15
+%     16    11     9    18    15     0
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Dijkstra with non-symmetric input matrix
+
+% we start with a symmetric matrix
+d = [...
+    %  1   2   3   4   5   6
+       0   7   9   0   0  14; ...
+       7   0  10  15   0   0; ...
+       9  10   0  11   0   2; ...
+       0  15  11   0   6   0; ...
+       0   0   0   6   0   9; ...
+      14   0   2   0   9   0];
+
+% the path from 1 to 5 is 1, 3, 6, 5, and has cost 20
+[dd, p] = dijkstra(sparse(d'), 1);
+dd(5)
+graphpred2path(p', 5)
+
+% in the opposite direction, same path, 5, 6, 3, 1
+[dd, p] = dijkstra(sparse(d'), 5);
+dd(1)
+graphpred2path(p', 1)
+
+% change the distance from 6 to 5 to be very expensive, so that the best
+% path now is 1, 3, 4, 5, with cost 26
+d(6, 5) = 20;
+[dd, p] = dijkstra(sparse(d'), 1);
+dd(5)
+graphpred2path(p', 5)
+  
+% note that in the opposite direction nothing has changed, because the
+% matrix is asymmetric
+[dd, p] = dijkstra(sparse(d'), 5);
+dd(1)
+graphpred2path(p', 1)

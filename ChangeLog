@@ -1,3 +1,22 @@
+2015-10-16  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ThirdPartyToolbox/dijkstra.m: (0.4.0)
+	* matlab/ThirdPartyToolbox/dijkstra.cpp: (0.4.0)
+	* matlab/test/test_dijkstra.m: (0.3.3)
+
+	- Fix bug. The adjacency-distance matrix input to dijkstra()
+	should be transposed, i.e. (j,i) is the distance from i to j,
+	because of how the corresponding MEX file is implemented. We have
+	changed the interface rather than transposing internally, because
+	in that case we would have to make a copy of a potentially large
+	matrix. It's better to let the user transpose the matrix on the
+	Matlab side, and that way not have both the matrix and its
+	transpose in memory.
+
+	Reported by Matthew Morena, issue 89
+
+	https://github.com/rcasero/gerardus/issues/89
+
 2015-10-09  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/CardiacToolbox/histology_preprocessing.m: (0.4.2)

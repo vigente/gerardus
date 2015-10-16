@@ -6,24 +6,25 @@ function [d, p, d2] = dijkstra(g, s, t, g2)
 %   This function computes the shortest distance tree(s) from one (or more)
 %   source node(s) in a graph.
 %
-%   G is a sparse matrix where element (i,j) contains the cost of going
+%   G is a sparse matrix where element (j,i) contains the cost of going
 %   from node i to node j in the graph. That is, G contains the edge
 %   weights or distances between nodes.
 %
-%   G doesn't need to be symmetric. The connections from node i are given
-%   by column G(:, i). Thus, it's possible that e.g. G(2,5)=1.5, but
+%   Note: It's more intuitive to have (i,j) as the distance from i to j,
+%   but this is a limitation of the MEX implementation that we are reusing.
+%   We don't want to transpose the matrix internally, because then we'll
+%   have to make a copy of a potentially large matrix.
+%
+%   G doesn't need to be symmetric. It's possible that e.g. G(2,5)=1.5, but
 %   G(5,2)=0.0.
 %
-%   Note: Matlab's convention is that the absence of an element in a sparse
-%   matrix means edge weight = 0. However, in this function, the lack of an
-%   entry in the sparse matrix is understood as a lack of edge (or edge
-%   weight = Inf).
+%   Note: Zeros in G are taken as a lack of edge, not as a distance 0.
 %
 %   S is a vector with a list of source node indices. A shortest path tree
 %   will be computed for each one of the nodes in S.
 %
-%   D, P are matrices where each row corresponds to a source node in S. D
-%   is the shortest distance from each target node to the source node.
+%   D, P are matrices where each column corresponds to a source node in S.
+%   D is the shortest distance from each target node to the source node.
 %
 %   P is the predecessor of each node in the shortest path tree.
 %
@@ -89,6 +90,6 @@ function [d, p, d2] = dijkstra(g, s, t, g2)
 %
 % http://code.google.com/p/gerardus/
 %
-% Version: 0.3.1
+% Version: 0.4.0
 
 error('Compiled MEX function has not been found')
