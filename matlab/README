@@ -177,6 +177,10 @@ cgal_tri_simplify.m
 DiffusionMRIToolbox
 -------------------------------------------------------------
 
+add_Rician_noise_to_simulated_dMRI_data.m
+
+	ADD_RICIAN_NOISE_TO_SIMULATED_DMRI_DATA adds Rician noise to 	simulated MRI_signals.
+
 dt2image.m
 
 	 DT2IMAGE Inverts the transform in fit_DT
