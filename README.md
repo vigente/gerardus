@@ -37,3 +37,9 @@ See the most updated list of all available functions:
 * [shell scripts](shell-script/README)
 * [java code](java/README)
 * [C++/ITK command line programs](cpp/README)
+
+=============================================================================================================
+Papers
+=============================================================================================================
+The code for the following published papers can be found in the folder here: https://github.com/rcasero/gerardus/tree/papers
+
