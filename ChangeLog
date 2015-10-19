@@ -2,6 +2,12 @@
 	
 	* matlab/DiffusionMRIToolbox/add_Rician_noise_to_simulated_dMRI_data
 
+	- changed to allow any dimension of data
+
+2015-10-19 Jo Bates <jobates81@gmail.com>
+	
+	* matlab/DiffusionMRIToolbox/add_Rician_noise_to_simulated_dMRI_data
+
 	- Allows Rician noise with known SNR to be added to simulated data
 
 2015-10-16  Ramon Casero  <rcasero@gmail.com>

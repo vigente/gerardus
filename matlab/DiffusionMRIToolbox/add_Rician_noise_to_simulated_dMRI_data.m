@@ -35,9 +35,9 @@ function [ MRI_signal_noisy ] = add_Rician_noise_to_simulated_dMRI_data( MRI_sig
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-no_of_directions =  size(MRI_signal,1); 
-N1 = (1/SNR).*randn(no_of_directions,1);
-N2 = (1/SNR).*randn(no_of_directions,1);
+no_of_directions =  size(MRI_signal); 
+N1 = (1/SNR).*randn(no_of_directions);
+N2 = (1/SNR).*randn(no_of_directions);
 
 MRI_signal_noisy = abs(MRI_signal + N1 + 1i.*N2);
 end
