@@ -41,5 +41,5 @@ See the most updated list of all available functions:
 =============================================================================================================
 Papers
 =============================================================================================================
-The code for the following published papers can be found in the folder here: https://github.com/rcasero/gerardus/tree/papers
+The code for published papers can be found in the folder here: https://github.com/rcasero/gerardus/tree/papers
 
