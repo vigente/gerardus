@@ -1,11 +1,27 @@
-﻿2015-10-19 Jo Bates <jobates81@gmail.com>
-	
+2015-10-23  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ThirdPartyToolbox/ExportFigureToolbox:
+	* matlab/add_gerardus_paths.m: (0.3.5)
+
+	- Add export_fig by by Yair Altman 11 Apr 2009 (Updated 05 Oct
+	2015). Downloaded from
+
+	http://uk.mathworks.com/matlabcentral/fileexchange/23629-export-fig
+
+	This function saves a figure or single axes to one or more vector
+	and/or bitmap file formats, and/or outputs a rasterized version to
+	the workspace. This function is especially suited to exporting
+	figures for use in publications and presentations, because of the
+	high quality and portability of media produced.
+
+﻿2015-10-19  Jo Bates  <jobates81@gmail.com>
+
 	* matlab/DiffusionMRIToolbox/add_Rician_noise_to_simulated_dMRI_data
 
 	- changed to allow any dimension of data
 
-2015-10-19 Jo Bates <jobates81@gmail.com>
-	
+2015-10-19  Jo Bates  <jobates81@gmail.com>
+
 	* matlab/DiffusionMRIToolbox/add_Rician_noise_to_simulated_dMRI_data
 
 	- Allows Rician noise with known SNR to be added to simulated data
