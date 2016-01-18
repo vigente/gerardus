@@ -1,3 +1,22 @@
+2015-01-18  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	renamed:    doc/docinfo/doc.m -> doc/docinfo/doc_guidelines.m
+
+	- This conflicted with the inbuilt “doc” function.	
+
+	modified:   matlab/DiffusionMRIToolbox/fit_DKI_model.m
+	modified:   matlab/DiffusionMRIToolbox/fit_DT.m
+	modified:   matlab/DiffusionMRIToolbox/fit_biexponential_tensor.m
+	modified:   matlab/DiffusionMRIToolbox/fit_stretched_exponential.m
+	modified:   matlab/DiffusionMRIToolbox/fit_stretched_exponential_tensor.m
+	modified:   matlab/DiffusionMRIToolbox/quiver_image.m
+	modified:   matlab/DiffusionMRIToolbox/weighted_linear_fit.m
+	modified:   matlab/FiltersToolbox/forward_TGV.m
+	modified:   matlab/FiltersToolbox/forward_TV.m
+	modified:   matlab/FiltersToolbox/inverse_TGV.m
+
+	- Lots of minor bug fixes.
+
 2015-10-23  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ThirdPartyToolbox/ExportFigureToolbox:

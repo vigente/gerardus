@@ -327,27 +327,30 @@ end
 % the function to fit inside the parfor loop
 function [F, J] = bi_exp_model(x, Bv)
 
+DT1 = exp(-(x(2:7) * Bv));
+DT2 = exp(-(x(9:14) * Bv));
 
-F = x(1) * exp(-(x(2:7) * Bv)) + ...
-    x(8) * exp(-(x(9:14) * Bv));
+F = x(1) * DT1 + ...
+    x(8) * DT2;
     
 if nargout > 1 % Jacobian (speeds up by 3x)
     J = zeros(length(F), length(x));
-    J(:,1) = exp(-(x(2:7) * Bv));
-    J(:,2) =  x(1) * -Bv(1,:) .* exp(-(x(2:7) * Bv));
-    J(:,3) =  x(1) * -Bv(2,:) .* exp(-(x(2:7) * Bv));
-    J(:,4) =  x(1) * -Bv(3,:) .* exp(-(x(2:7) * Bv));
-    J(:,5) =  x(1) * -Bv(4,:) .* exp(-(x(2:7) * Bv));
-    J(:,6) =  x(1) * -Bv(5,:) .* exp(-(x(2:7) * Bv));
-    J(:,7) =  x(1) * -Bv(6,:) .* exp(-(x(2:7) * Bv));
+    
+    J(:,1) = DT1;
+    J(:,2) =  x(1) * -Bv(1,:) .* DT1;
+    J(:,3) =  x(1) * -Bv(2,:) .* DT1;
+    J(:,4) =  x(1) * -Bv(3,:) .* DT1;
+    J(:,5) =  x(1) * -Bv(4,:) .* DT1;
+    J(:,6) =  x(1) * -Bv(5,:) .* DT1;
+    J(:,7) =  x(1) * -Bv(6,:) .* DT1;
         
-    J(:,8) = exp(-(x(9:14) * Bv));
-    J(:,9) =  x(8) * -Bv(1,:) .* exp(-(x(9:14) * Bv));
-    J(:,10) =  x(8) * -Bv(2,:) .* exp(-(x(9:14) * Bv));
-    J(:,11) =  x(8) * -Bv(3,:) .* exp(-(x(9:14) * Bv));
-    J(:,12) =  x(8) * -Bv(4,:) .* exp(-(x(9:14) * Bv));
-    J(:,13) =  x(8) * -Bv(5,:) .* exp(-(x(9:14) * Bv));
-    J(:,14) =  x(8) * -Bv(6,:) .* exp(-(x(9:14) * Bv));
+    J(:,8) = DT2;
+    J(:,9) =  x(8) * -Bv(1,:) .* DT2;
+    J(:,10) =  x(8) * -Bv(2,:) .* DT2;
+    J(:,11) =  x(8) * -Bv(3,:) .* DT2;
+    J(:,12) =  x(8) * -Bv(4,:) .* DT2;
+    J(:,13) =  x(8) * -Bv(5,:) .* DT2;
+    J(:,14) =  x(8) * -Bv(6,:) .* DT2;
 end
     
     

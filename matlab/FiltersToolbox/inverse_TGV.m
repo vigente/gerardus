@@ -78,5 +78,6 @@ elseif N == 3
            (Dz(:, :, [end, 1:end-1]) - Dz)) / 3;
     
 else
-    error('I can only handle 2D or 3D images')
+    error(['I can only handle 2D or 3D images, and the last dimension is ' ...
+    'concatenated dxx, dxy, etc'])
 end

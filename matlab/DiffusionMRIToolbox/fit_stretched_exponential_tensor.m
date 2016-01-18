@@ -55,7 +55,7 @@ if (length(sz) == 2) && (sz(2) == 1)
 end
 
 % take the log of the image to linearise the equation
-imlog = log(im);
+imlog = log(abs(im));
 
 % Sort all b matrices in to a vector Bv=[Bxx,2*Bxy,2*Bxz,Byy,2*Byz,Bzz];
 Bv=squeeze([b(1,1,:),2*b(1,2,:),2*b(1,3,:),b(2,2,:),2*b(2,3,:),b(3,3,:)])';

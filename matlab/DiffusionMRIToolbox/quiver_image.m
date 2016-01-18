@@ -95,7 +95,7 @@ hold on;
 quiver(X,Y, VEC(:,:,dim_order1(1)), VEC(:,:,dim_order1(2)), 'w');
 
 % to symmetrise:
-% quiver(X,Y, -VEC(:,:,dim_order1(1)), -VEC(:,:,dim_order1(2)), 'k');
+% quiver(X,Y, -VEC(:,:,dim_order1(1)), -VEC(:,:,dim_order1(2)), 'w');
 
 
 end

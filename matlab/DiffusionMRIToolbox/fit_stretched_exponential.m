@@ -141,8 +141,8 @@ for dir = 1:sz(4) % for each direction
         
         I_idx = Ivector(idx,1:n);
         
-        % take the log for linear fitting
-        loglogsig = log(abs(log(eps + bsxfun(@rdivide, I_idx, S0_idx))));
+        % take the log (twice) for linear fitting
+        loglogsig = log(abs(log(abs(eps + bsxfun(@rdivide, I_idx, S0_idx)))));
         logb = log(b(1:n));
 
         b_array = [logb(:), ones(size(logb(:)))];

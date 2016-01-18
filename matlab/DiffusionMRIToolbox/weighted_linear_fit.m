@@ -120,7 +120,7 @@ end
     
 % turn off warnings (the / operator can generate them)
 warn_state = warning;
-warning off;
+%warning off;
     
 % fit the model without weighting
 M = Y / X;

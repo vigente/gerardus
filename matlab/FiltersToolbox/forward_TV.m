@@ -1,4 +1,4 @@
-function [ TV, TV_grad ] = forward_TV( I )
+function [ TV , TV_grad] = forward_TV( I )
 %FORWARD_TV Total variation of a 3D image
 %   Returns the sum of finite differences in 3D, and the residuals
 %

@@ -41,6 +41,7 @@ function [ TGV, TGV_grad ] = forward_TGV( I )
 % res = inverse_TGV(TGV_grad);
 % Note that the residuals are all zero (ignoring edge effects)
 % this is because the second derivative of a quadratic is a constant
+% so you don't need to subtract anything to make it sparser
 
 % check arguments
 narginchk(1,1);

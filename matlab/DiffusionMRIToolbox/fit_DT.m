@@ -34,7 +34,7 @@ function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, metho
 %   ADC is the apparent diffusion coefficient
 % 
 %   VECTORFIELD is the primary, secondary and tertiary unit vectors, concatenated
-%	in the last dimension
+%	in the last dimension ([r c s xyz v1v2v3])
 %
 %	EIGVALS are the eigenvalues corresponding to the vector field, concatenated
 %	in the last dimension
@@ -131,16 +131,19 @@ if ~isreal(I)
     I = abs(I);
 end
 
-if min(I(:)) <= 0
-    warning('Some voxels were negative or zero. Taking magnitude.')
-    I = abs(I + eps);
+b_value = b(1,1,:) + b(2,2,:) + b(3,3,:);
+if min(b_value) > 50
+    warning('Did you forget to include a b=0 image? The function doesn''t assume you divided it out')
 end
 
+
 % take the log of the image to linearise the equation
-imlog = log(I);
+imlog = log(abs(I));
 
 % Sort all b matrices in to a vector Bv=[Bxx,2*Bxy,2*Bxz,Byy,2*Byz,Bzz];
 Bv=squeeze([b(1,1,:),2*b(1,2,:),2*b(1,3,:),b(2,2,:),2*b(2,3,:),b(3,3,:)])';
+
+
 
 % If you have unit vectors and b values instead of b matrices, do this:
 % b=zeros([3 3 size(unit_vectors,1)]);
