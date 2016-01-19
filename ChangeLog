@@ -1,21 +1,14 @@
-2015-01-18  Darryl McClymont  <darryl.mcclymont@gmail.com>
+﻿2016-01-19 Jo Bates <jobates81@gmail.com>
+	*matlab/DiffusionMRIToolbox/dt_from_smoldyn_pt1
+	*matlab/DiffusionMRIToolbox/dt_from_smoldyn_pt2
+	*matlab/DiffusionMRIToolbox/dt_from_smoldyn_pt3
 
-	renamed:    doc/docinfo/doc.m -> doc/docinfo/doc_guidelines.m
+	- added these 3 functions which calculate the diffusion tensor from the smoldyn data
 
-	- This conflicted with the inbuilt “doc” function.	
+	*matlab/FileFormatToolbox/smoldyn2matlab
 
-	modified:   matlab/DiffusionMRIToolbox/fit_DKI_model.m
-	modified:   matlab/DiffusionMRIToolbox/fit_DT.m
-	modified:   matlab/DiffusionMRIToolbox/fit_biexponential_tensor.m
-	modified:   matlab/DiffusionMRIToolbox/fit_stretched_exponential.m
-	modified:   matlab/DiffusionMRIToolbox/fit_stretched_exponential_tensor.m
-	modified:   matlab/DiffusionMRIToolbox/quiver_image.m
-	modified:   matlab/DiffusionMRIToolbox/weighted_linear_fit.m
-	modified:   matlab/FiltersToolbox/forward_TGV.m
-	modified:   matlab/FiltersToolbox/forward_TV.m
-	modified:   matlab/FiltersToolbox/inverse_TGV.m
-
-	- Lots of minor bug fixes.
+	- amended to include cutting down the data to only those molecules which finish
+	inside the voxel to be analysed to reduce the data to be saved.
 
 2015-10-23  Ramon Casero  <rcasero@gmail.com>
 
@@ -40,6 +33,7 @@
 	- changed to allow any dimension of data
 
 2015-10-19  Jo Bates  <jobates81@gmail.com>
+
 
 	* matlab/DiffusionMRIToolbox/add_Rician_noise_to_simulated_dMRI_data
 

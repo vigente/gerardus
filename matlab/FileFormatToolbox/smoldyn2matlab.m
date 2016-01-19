@@ -1,4 +1,4 @@
-function [ ] = smoldyn2matlab( n )
+function [ ] = smoldyn2matlab( n, voxel_size, actual_voxel_size)
 %SMOLDYN2MATLAB imports and converts Smoldyn molecule trajectory into
 %Matlab format.
 %
@@ -14,16 +14,19 @@ function [ ] = smoldyn2matlab( n )
 %   very large (many GBs), and if greater than approximately 6GB, Matlab
 %   will fail to import the text file. To avoid this problem, create
 %   multiple molecule types within Smoldyn and save the trajectories of
-%   each as a separate txt file.
+%   each as a separate txt file. Only those molecules which finish in the
+%   voxel to be analysed are saved, which saves some space.
 %
-% SMOLDYN2MATLAB(N)
+% SMOLDYN2MATLAB(N, voxel_size, actual_voxel_size)
 %
 % N is the number of trajectory files to be converted.
+% voxel_size is the 1D length of the side of the volume simulated in um (assumed to be isotropic)
+% actual_voxel_size is the 1D length of the side of the volume to be
+% analysed (in um) (assumed to be isotropic)
 
 % Author: Jo Bates <jobates81@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
-% 
+%  
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
 % Wellington Square, Oxford OX1 2JD, UK. 
@@ -72,11 +75,26 @@ for i = 1:n
 
     % rearrange order of matrix to be (molecules, xyz, timestep)
     positions = permute(positions,[2 3 1]);
-    eval(sprintf('positions%d = positions', i));
-    filetosave = sprintf('positions%d.mat', i);
     
+    % exclude those outside the voxels
+    % check for molecules finishing outside of voxel
+    keep1 = positions(:,1,end)<= (voxel_size - ((voxel_size-actual_voxel_size)/2));
+    keep2 = positions(:,1,end)>= (voxel_size - actual_voxel_size)/2;
+    keep3 = positions(:,2,end)<= (voxel_size - ((voxel_size-actual_voxel_size)/2));
+    keep4 = positions(:,2,end)>= (voxel_size - actual_voxel_size)/2;
+    keep5 = positions(:,3,end)<= (voxel_size - ((voxel_size-actual_voxel_size)/2));
+    keep6 = positions(:,3,end)>= (voxel_size - actual_voxel_size)/2;
+    % create a vector of 0s (discard) & 1s (keep)
+    keep_molecule = keep1.*keep2.*keep3.*keep4.*keep5.*keep6;
+    % make 0s into nan
+    keep_molecule(keep_molecule==0) = nan;
+    positions(:,1,1) = positions(:,1,1).*keep_molecule;
+    % remove NaNs
+    positions = positions(isfinite(positions(:,1)),:,:);
+
     % save matlab file as positionsi.mat
-    save(filetosave, sprintf('positions%d', i), '-v7.3');
+    filetosave = sprintf('positions%d.mat', i);
+    save(filetosave, 'positions', '-v7.3');
     clearvars -except i
 end
 
