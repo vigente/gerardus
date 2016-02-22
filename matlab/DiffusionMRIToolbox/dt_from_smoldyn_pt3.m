@@ -1,4 +1,4 @@
-function [ DT, FA, ADC, eVal, eVect, angle ] = DT_from_Smolydn_pt3( MRI_signal, gradient_directions, bvalue )
+function [ DT, FA, ADC, eVal, eVect, angle ] = dt_from_smoldyn_pt3( MRI_signal, gradient_directions, bvalue )
 %DT_FROM_SMOLDYN_PT3 Calculates DT from MRI signal
 %  
 % PART 3 OF THE CALCULATION OF THE DIFFUSION TENSOR FROM THE SMOLDYN MODEL DATA

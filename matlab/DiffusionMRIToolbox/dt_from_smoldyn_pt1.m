@@ -1,4 +1,4 @@
-function [ positions, voxel_size, step_time, delta, Delta ] = DT_from_Smolydn_pt1( positions, voxel_size, actual_voxel_size, step_time, delta, Delta )
+function [ positions, voxel_size, step_time, delta, Delta ] = dt_from_smoldyn_pt1( positions, voxel_size, actual_voxel_size, step_time, delta, Delta )
 %DT_FROM_SMOLDYN_PT1 Cuts down the positions data to only that needed.
 %
 % PART 1 OF THE CALCULATION OF THE DIFFUSION TENSOR FROM THE SMOLDYN MODEL DATA

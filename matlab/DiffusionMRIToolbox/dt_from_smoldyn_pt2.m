@@ -1,4 +1,4 @@
-function [ MRI_signal, bvalue ] = DT_from_Smolydn_pt2( positions, voxel_size, step_time, delta, Delta, gradient_directions, gradient_strength, bvalue )
+function [ MRI_signal, bvalue ] = dt_from_smoldyn_pt2( positions, voxel_size, step_time, delta, Delta, gradient_directions, gradient_strength, bvalue )
 %DT_FROM_SMOLDYN_PT2 Calculates the MRI signal
 %
 % PART 2 OF THE CALCULATION OF THE DIFFUSION TENSOR FROM THE SMOLDYN MODEL DATA
