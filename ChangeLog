@@ -1,5 +1,12 @@
 ﻿2016-05-11 Nicolas Basty <nicolas.basty@eng.ox.ac.uk>
 
+	* add matlab\FileFormatToolbox\scimat_resample.m
+	
+	- Adding this function that I wrote to resample scimat files. I'm using it to extract slices of volumes or profiles of images.
+
+
+2016-05-11 Nicolas Basty <nicolas.basty@eng.ox.ac.uk>
+
 	*matlab\FiltersToolbox\im2col3.m: (0.2)
 	*matlab\FiltersToolbox\im2col3.m: (0.2)
 
