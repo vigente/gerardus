@@ -73,8 +73,8 @@ if strcmp(kind,'distinct')
         slab = image3D(:,:,slicenum:slicenum+blocksize_z-1);
         % cuts out a slab of dimensions of a 2D slice and height of blocksize
         
-        for edgy=1:blocksize_x:(size(image3D,1)) %"edg" for edge in x, y & z directions
-            for edgx=1:blocksize_y:(size(image3D,2))
+        for edgx=1:blocksize_x:(size(image3D,1)) %"edg" for edge in x, y & z directions
+            for edgy=1:blocksize_y:(size(image3D,2))
                 for edgz=1:blocksize_z
                     
                     reshaped3D2D(blocksize_x*blocksize_y*(edgz-1)+1:blocksize_x*blocksize_y*edgz,bl)=...
@@ -98,11 +98,11 @@ if strcmp(kind,'sliding')
         slab = image3D(:,:,slicenum:slicenum+blocksize_z-1);
         % cuts out a slab of dimensions of a 2D slice and height of blocksize        
         
-        for edgy=1:1:(size(image3D,1)- blocksize_x +1) 
+        for edgx=1:1:(size(image3D,1)- blocksize_x +1) 
             %"edg" for edge of the cube in x, y & z directions
             %loop ends when the last cube reaches the end
 
-            for edgx=1:1:(size(image3D,2)- blocksize_y +1)
+            for edgy=1:1:(size(image3D,2)- blocksize_y +1)
                 for edgz=1:blocksize_z                    
         
                     reshaped3D2D(blocksize_x*blocksize_y*(edgz-1)+1:blocksize_x*blocksize_y*edgz,bl)=...

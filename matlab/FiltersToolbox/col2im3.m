@@ -73,7 +73,7 @@ for slabn = 1:Number_of_blocks_Z
 end
 
 elseif strcmp(kind, 'sliding') % sliding
-    threeD = reshape(col(floor(end/2),:),mat(1)-block(1)+1,mat(2)-block(2)+1,(size(col,2)/(mat(1)-block(1)+1))/(mat(2)-block(2)+1));
+    threeD = reshape(col(ceil(end/2),:),mat(1)-block(1)+1,mat(2)-block(2)+1,(size(col,2)/(mat(1)-block(1)+1))/(mat(2)-block(2)+1));
     %might need to find another way of finding the representative intensity
 else
     error(message('images:col2im:unknownBlockType', deblank(kind)))

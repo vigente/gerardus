@@ -1,4 +1,11 @@
-﻿2016-01-19 Jo Bates <jobates81@gmail.com>
+﻿2016-05-11 Nicolas Basty <nicolas.basty@eng.ox.ac.uk>
+
+	*matlab\FiltersToolbox\im2col3.m: (0.2)
+	*matlab\FiltersToolbox\im2col3.m: (0.2)
+
+	- Fixed a bug where X and Y were the wrong way round. Did not notice at first because I always used the same X & Y.
+
+2016-01-19 Jo Bates <jobates81@gmail.com>
 	*matlab/DiffusionMRIToolbox/dt_from_smoldyn_pt1
 	*matlab/DiffusionMRIToolbox/dt_from_smoldyn_pt2
 	*matlab/DiffusionMRIToolbox/dt_from_smoldyn_pt3
