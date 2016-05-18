@@ -12,3 +12,9 @@ imresize-meta.s
 
 	Resize images changing also spacing metainformation to
 	preserve print size.
+
+pre-commit-git-diff-docx
+
+	Small git hook to automatically create a copy of each .docx
+	file in Markdown format so that we can keep track of the
+	changes to Word documents.
