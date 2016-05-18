@@ -1,0 +1,42 @@
+#!/bin/bash
+# Author: Ramon Casero <rcasero@gmail.com>
+# Version: 0.1.0
+
+# Small script to automatically create a copy of each .docx file in
+# Markdown format so that we can keep track of the changes to Word
+# documents.
+#
+# This script requires pandoc to be installed in the system.
+
+# abort commit if pandoc is not installed
+pandoc -v >/dev/null 2>&1 || { 
+    echo >&2 "I require pandoc to keep track of changes in .docx files but it's not installed. Aborting."; 
+    exit 1; 
+}
+
+# go to the top directory of this project, because filenames will be
+# referred to that location
+cd `git rev-parse --show-toplevel`
+
+# create a Markdown copy of every .docx file that is committed
+for file in `git diff --cached --name-only | grep \.docx`
+do
+    # name of Markdown file
+    mdfile="${file%.docx}.md"
+    echo Creating Markdown copy of "$file"
+    #echo "$mdfile"
+
+    # convert .docx file to Markdown
+    pandoc "$file" -o "$mdfile" || {
+    	echo "Conversion to Markdown failed";
+    	exit 1;
+    }
+
+    # add Markdown file to the commit
+    echo Adding to the commit "$mdfile"
+    git add "$mdfile" || {
+    	echo "Git cannot add Markdown file to the commit";
+    	exit 1;
+    }
+
+done

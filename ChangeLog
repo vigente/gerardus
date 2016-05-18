@@ -1,4 +1,12 @@
-﻿2016-05-11 Nicolas Basty <nicolas.basty@eng.ox.ac.uk>
+﻿2016-05-18  Ramon Casero  <rcasero@gmail.com>
+
+	* Add shell-script/pre-commit-git-diff-docx: (0.1.0)
+
+	- Git script to create a copy of .docx files in Markdown format
+	(.md) before the commit. That way, automatic diff emails will show
+	the differences in the Word document.
+
+2016-05-11 Nicolas Basty <nicolas.basty@eng.ox.ac.uk>
 
 	* add matlab\FileFormatToolbox\scimat_resample.m
 	
