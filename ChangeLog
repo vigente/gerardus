@@ -2,7 +2,7 @@
 
 	* Add shell-script/pre-commit-git-diff-docx: (0.1.0)
 
-	- Git script to create a copy of .docx files in Markdown format
+	- Git hook to create a copy of .docx files in Markdown format
 	(.md) before the commit. That way, automatic diff emails will show
 	the differences in the Word document.
 
