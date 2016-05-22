@@ -8,13 +8,14 @@ images2avi.sh
 
 	Create an AVI video from a stack of images.
 
-imresize-meta.s
+imresize-meta.sh
 
 	Resize images changing also spacing metainformation to
 	preserve print size.
 
-pre-commit-git-diff-docx
+pre-commit-git-diff-docx.sh
+post-commit-git-diff-docx.sh
 
-	Small git hook to automatically create a copy of each .docx
-	file in Markdown format so that we can keep track of the
-	changes to Word documents.
+	Two git hooks working together to automatically create a
+	Markdown copy (.md) of each .docx file so that we can keep
+	track of the changes to Word documents.
