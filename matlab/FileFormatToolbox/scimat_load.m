@@ -165,20 +165,28 @@ switch lower(ext)
                     switch lower(strtrim(tline(idx+1:end)))
                         case 'met_uchar'
                             data_type = 'uint8';
+                            data_size = 1;
                         case 'met_char'
                             data_type = 'int8';
+                            data_size = 1;
                         case 'met_ushort'
                             data_type = 'uint16';
+                            data_size = 2;
                         case 'met_short'
                             data_type = 'int16';
+                            data_size = 2;
                         case 'met_uint'
                             data_type = 'uint32';
+                            data_size = 4;
                         case 'met_int'
                             data_type = 'int32';
+                            data_size = 4;
                         case 'met_float'
                             data_type = 'single';
+                            data_size = 5;
                         case 'met_double'
                             data_type = 'double';
+                            data_size = 6;
                         otherwise
                             error('Unrecognized ElementType')
                     end
@@ -292,7 +300,7 @@ switch lower(ext)
                 % image data is ASCII 13 (CR = carriage return), then fgetl
                 % will have interpreted LF+CR as the end of line, and the
                 % pointer will be one byte too far ahead
-                fseek(fid, -prod(sz) * nchannel, 'eof');
+                fseek(fid, -prod(sz) * nchannel * data_size, 'eof');
                 
                 % read all the raw data into a vector
                 scimat.data = fread(fid, prod(sz) * nchannel, ...
