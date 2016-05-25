@@ -1,4 +1,10 @@
-Ôªø2016-05-18  Ramon Casero  <rcasero@gmail.com>
+2016-05-25  Hao Xu  <hao.xu@eng.ox.ac.uk>
+
+	* Delete common.svnprops.
+
+	- It was for the old subversion repository.
+
+2016-05-18  Ramon Casero  <rcasero@gmail.com>
 
 	* Add shell-script/pre-commit-git-diff-docx: (0.1.0)
 
@@ -48,7 +54,7 @@
 	figures for use in publications and presentations, because of the
 	high quality and portability of media produced.
 
-Ôªø2015-10-19  Jo Bates  <jobates81@gmail.com>
+?2015-10-19  Jo Bates  <jobates81@gmail.com>
 
 	* matlab/DiffusionMRIToolbox/add_Rician_noise_to_simulated_dMRI_data
 
@@ -194,14 +200,14 @@
 
 	* Add matlab/ThirdPartyToolbox/waveletcdf97/
 
-	- This tool computes the Cohen‚ÄìDaubechies‚ÄìFeauveau 9/7 (CDF 9/7)
+	- This tool computes the CohenñDaubechiesñFeauveau 9/7 (CDF 9/7)
 	wavelet transform. It was downloaded from
 	http://www.getreuer.info/home/waveletcdf97
 	on 2015-03-26.
 
 	* Add matlab/ThirdPartyToolbox/waveletcdf97/waveletcdf97_3D.m
 
-	- An extension of Pascal Getreuer‚Äôs Cohen‚ÄìDaubechies‚ÄìFeauveau 9/7
+	- An extension of Pascal Getreuerís CohenñDaubechiesñFeauveau 9/7
 	wavelet code to handle 3D images.
 
 2015-08-26 Darryl McClymont  <darryl.mcclymont@gmail.com>
@@ -418,7 +424,7 @@
 
 	- Added the compiler information for the latest MATLAB version (2015Ra)
 	- Changed the tarball url for ITK, as the source forge one was obsolete.
-	- created a ‚Äúdummy‚Äù project in FindMatlab.cmake
+	- created a ìdummyî project in FindMatlab.cmake
 
 2015-07-28 Darryl McClymont  <darryl.mcclymont@gmail.com>
 
@@ -845,7 +851,7 @@
 	residuals follow a gaussian distribution after having a certain function
 	applied to them. It is good when you have a nonlinear function that you 
 	can easily linearise, but you want a result closer to the nonlinear fit,
-	and you don‚Äôt know what weighting vector to use.
+	and you donít know what weighting vector to use.
 
 	* matlab/DiffusionMRIToolbox/fit_stretched_exponential.m (0.1.4)
 
@@ -1233,7 +1239,7 @@
 	
 	* FiltersToolbox/bwrmsmallcomp.m (0.1.3)
 
-	- previous change broke Ramon‚Äôs existing code - output class
+	- previous change broke Ramonís existing code - output class
 	  now matches input class
 
 2014-12-08  Darryl McClymont  <darryl.mcclymont@gmail.com>
@@ -1260,7 +1266,7 @@
 
 	* FiltersToolbox/imagesc_nD.m (0.1.0)
 
-	- minor. User can now supply an empty array for the ‚Äòcol‚Äô variable
+	- minor. User can now supply an empty array for the ëcolí variable
 
 2014-12-02  Ramon Casero  <rcasero@gmail.com>
 
@@ -1839,7 +1845,7 @@
 
 	* matlab/CardiacToolbox/blockface_intraframe_reg.m: (0.4.1)
 
-	- 90¬∫ Blockface needs a larger value of Scales.
+	- 90∫ Blockface needs a larger value of Scales.
 
 	* Add matlab/ItkToolbox/elastix_compose_transf.m: (0.1.0)
 	* Add matlab/test/test_elastix_compose_transf.m: (0.1.0)
@@ -2483,7 +2489,7 @@
 	* Add matlab/CardiacToolbox/correct_blockface_perspective.m (0.1.0)
 
 	- CORRECT_BLOCKFACE_PERSPECTIVE Transform Bewster angle blockface
-	image onto 90¬∫ projection.
+	image onto 90∫ projection.
 
 2014-06-05  Ramon Casero  <rcasero@gmail.com>
 
@@ -3186,7 +3192,7 @@ edit e
 	* Add cpp/src/third-party/scipoptsuite-3.0.2:
 
 	- Solving Constraint Integer Programs library, Konrad-Zuse-Zentrum
-	f√ºr Informationstechnik Berlin, Division Scientific Computing,
+	f¸r Informationstechnik Berlin, Division Scientific Computing,
 	Department Optimization.
 
 	- This is SCIP Optimization Suite, that includes SCIP, SoPlex,
@@ -3818,7 +3824,7 @@ edit e
 
 	* matlab/ManifoldToolbox/dmatrix_mesh.m: (0.3.0)
 
-	- Add Fast Marching method. Gabriel Peyre‚Äôs implementation of
+	- Add Fast Marching method. Gabriel Peyreís implementation of
 	Kimmel and Sethian (1998), that uses Fibonacci heaps implemented
 	by John-Mark Gurney.
 
@@ -4641,7 +4647,7 @@ edit e
 
 	* matlab/ManifoldToolbox/surface_tridomain.m: (0.1.1)
 
-	- Fix bug. Remove repeated points at lon=-180¬∫ and lon=180.
+	- Fix bug. Remove repeated points at lon=-180∫ and lon=180.
 
 2013-06-27  Ramon Casero  <rcasero@gmail.com>
 
@@ -11004,7 +11010,7 @@ edit e
 
 	- Fix bug. DICOM frames are loaded into Matlab with X-coordinates
 	along columns, but they were written along rows, so the image
-	volume was rotated 90¬∫.
+	volume was rotated 90∫.
 
 2010-06-21  Ramon Casero  <rcasero@gmail.com>
 
@@ -11037,7 +11043,7 @@ edit e
 
 	- Attempt to recompute the image resolution when the image is
 	rotated. Imagine we have a 2D image with 1x2 resolution, and
-	rotate it 90¬∫. With the current code, the rotated image would
+	rotate it 90∫. With the current code, the rotated image would
 	still have 1x2 resolution, but it would make sense that it changes
 	to 2x1. Anyway, I need to test the new code, and have no time now,
 	so I'm leaving the code commented out to work on it later.
@@ -11248,9 +11254,9 @@ edit e
 
 	- Major bug fix. Input transformation was all mixed up. Now the
 	input transformation is expected to be in the intuitive
-	direction. For example, if you want to rotate the volume 30¬∫
+	direction. For example, if you want to rotate the volume 30∫
 	clockwise, your transformation should rotate the Cartesian system
-	30¬∫ clockwise too.
+	30∫ clockwise too.
 
 	- Add input argument to select autocrop, so that the output volume
 	will tightly enclose the selected voxels in a segmentation mask,
