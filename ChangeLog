@@ -1,5 +1,9 @@
 2016-06-27  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CardiacToolbox/blockface_intraframe_reg.m: (0.4.3)
+
+	- Fix bug. Typo in field name in a struct.
+
 	* Add .gitignore:
 
 	- To prevent getting lots of clutter in "git status".

@@ -28,8 +28,8 @@ function [t, tParam, iterInfo, regParam] = blockface_intraframe_reg(pathstr, fil
 % % See also: elastix, elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.4.1
+% Copyright © 2014, 2016 University of Oxford
+% Version: 0.4.3
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -100,7 +100,7 @@ iterInfo(1:length(files)) = iterInfo;
 tParam(1).TransformParameters(:) = 0;
 iterInfo(1).ItNr(:) = 0;
 iterInfo(1).Metric(:) = 0;
-iterInfo(1).stepSize(:) = 0;
+iterInfo(1).StepSize(:) = 0;
 iterInfo(1).Gradient(:) = 0;
 iterInfo(1).Time(:) = 0;
 
@@ -109,7 +109,7 @@ iterInfo(1).Time(:) = 0;
 % (factor of ~0.93) using parfor to run 4 registrations on 1 processor at
 % the same time than 1 registration on 4 processors
 for I = 2:length(fixed)
-    
+
     % display frame number
     if (DEBUG)
         disp(['Registering frame ' moving(I).name ' -> ' fixed(I).name])
@@ -167,7 +167,7 @@ if (DEBUG)
     imshowpair(im1, im2, 'Scaling', 'joint');
     subplot(2, 1, 2)
     hold off
-    imshowpair(im1, im2_reg, 'Scaling', 'joint');
+    imshowpair(im1, im2_reg.data, 'Scaling', 'joint');
 end
 
 end
