@@ -1,8 +1,8 @@
 function [x, y, xidx, yidx] = match_file_lists(x, y, xnameidx, ynameidx)
-% match_file_lists  Remove elements from a file list that are not in
-% another.
+% MATCH_FILE_LISTS  Sort and match two lists of filenames by chosen tokens,
+% removing filenames whose token is not in both lists.
 %
-% [X2, Y2, XIDX, YIDX] = match_file_lists(X, Y, XNAMEIDX, YNAMEIDX)
+% [X2, Y2, XIDX, YIDX] = MATCH_FILE_LISTS(X, Y, XNAMEIDX, YNAMEIDX)
 %
 %   X, Y are file lists obtained with dir(). X, Y are arrays of structs
 %   with a field X.name, Y.name for the filenames.
@@ -36,7 +36,7 @@ function [x, y, xidx, yidx] = match_file_lists(x, y, xnameidx, ynameidx)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -73,17 +73,29 @@ if (nargin < 4)
     ynameidx = [];
 end
 
-% convert list of filenames to char array
-xs = cat(1, x.name);
-ys = cat(1, y.name);
+% crop the filenames, if requested, and create a matrix from it
+if (~isempty(xnameidx))
+    xs = char(zeros(length(x), length(xnameidx)));
+    for I = 1:length(x)
+        xs(I, :) = x(I).name(xnameidx);
+    end
+else
+    xs = cat(1, x.name);
+end
+if (~isempty(ynameidx))
+    ys = char(zeros(length(y), length(ynameidx)));
+    for I = 1:length(y)
+        ys(I, :) = y(I).name(ynameidx);
+    end
+else
+    ys = cat(1, y.name);
+end
 
-% crop to the part of the filename that we have to match
-if (~isempty(xs))
-    xs = xs(:, xnameidx);
-end
-if (~isempty(ys))
-    ys = ys(:, ynameidx);
-end
+% sort lists alphabetically
+[xs, idx] = sortrows(xs);
+x = x(idx);
+[ys, idx] = sortrows(ys);
+y = y(idx);
 
 % find elements of first list that are also in the second list
 xidx = ismember(xs, ys, 'rows');
