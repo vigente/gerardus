@@ -1,0 +1,15 @@
+*~
+*.o
+*.so
+*.so.*
+*.lo
+*.mexa64
+bin
+include
+programs
+cpp/src/third-party/gmp-5.1.2
+cpp/src/third-party/mpfr-3.1.2
+cpp/src/third-party/CGAL-4.2/include/CGAL/compiler_config.h
+cpp/src/third-party/boost_1_49_0.tar.gz
+cpp/src/third-party/boost_1_49_0
+matlab/pathdef.m

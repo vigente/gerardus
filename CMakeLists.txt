@@ -1,8 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2011-2015 University of Oxford
-# Version: 0.9.5
-# $Rev$
-# $Date$
+# Copyright © 2011-2016 University of Oxford
+# Version: 0.9.6
 #
 # University of Oxford means the Chancellor, Masters and Scholars of
 # the University of Oxford, having an administrative office at
@@ -112,6 +110,8 @@ if(NOT WIN32)
   elseif("${MATLAB_VERSION}" MATCHES "R2014b")
     set(GCC_VERSION_REQUIRED_BY_MATLAB "4.7")
   elseif("${MATLAB_VERSION}" MATCHES "R2015a")
+    set(GCC_VERSION_REQUIRED_BY_MATLAB "4.7")
+  elseif("${MATLAB_VERSION}" MATCHES "R2015b")
     set(GCC_VERSION_REQUIRED_BY_MATLAB "4.7")
   else()
     message(FATAL_ERROR 

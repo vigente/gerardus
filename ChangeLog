@@ -1,3 +1,35 @@
+2016-07-06  Ramon Casero  <rcasero@gmail.com>
+
+	* .gitattributes:
+
+	- Protect .mha from automatic changes in end of line characters by
+	telling git that they are always binary.
+
+2016-06-29  Ramon Casero  <rcasero@gmail.com>
+
+	* FileFormatToolbox/match_file_lists.m: (0.2.0)
+
+	- Sort the lists alphabetically.
+
+	- Fix bug so that filenames in a list can have different formats
+	and lengths as long as they have the same token in the same place.
+
+2016-06-27  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CardiacToolbox/blockface_intraframe_reg.m: (0.4.3)
+
+	- Fix bug. Typo in field name in a struct.
+
+	* Add .gitignore:
+
+	- To prevent getting lots of clutter in "git status".
+
+2016-05-27  Ramon Casero  <rcasero@gmail.com>
+
+	* CMakeLists.txt: (0.9.6)
+
+	- Add g++ version for Matlab2015b.
+
 2016-05-25  Hao Xu  <hao.xu@eng.ox.ac.uk>
 
 	* Delete common.svnprops.
