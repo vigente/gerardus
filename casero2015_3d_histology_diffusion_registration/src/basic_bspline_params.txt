@@ -1,0 +1,103 @@
+//ImageTypes
+(FixedInternalImagePixelType "float")
+(FixedImageDimension 2)
+(MovingInternalImagePixelType "float")
+(MovingImageDimension 2)
+
+//Components
+(Registration "MultiResolutionRegistration")
+(FixedImagePyramid "FixedSmoothingImagePyramid")
+(MovingImagePyramid "MovingSmoothingImagePyramid")
+(Interpolator "BSplineInterpolator")
+(Metric "AdvancedMeanSquares")
+(Optimizer "RegularStepGradientDescent")
+(ResampleInterpolator "FinalBSplineInterpolator")
+(Resampler "DefaultResampler")
+(Transform "BSplineTransform")
+(UseDirectionCosines "true")
+(BSplineTransformSplineOrder 3)
+(UseCyclicTransform "false")
+
+// Initial alignment of the images
+(AutomaticTransformInitialization "false")
+(AutomaticTransformInitializationMethod "GeometricalCenter")
+
+// Erosion of the mask prevents the border / edge of the mask taken
+// into account. This can be useful for example for ultrasound images,
+// where you don't want to take into account values outside the US-beam,
+// but where you also don't want to match the edge / border of this
+// beam. For example for MRI's of the head, the borders of the head may
+// be wanted to match, and there erosion should be avoided.  
+(ErodeMask "false")
+
+(NumberOfResolutions 1)
+// the grid spacing of the B-spline transform for each dimension
+(FinalGridSpacingInVoxels 256.0)
+(GridSpacingSchedule 1.0)
+
+(HowToCombineTransforms "Compose")
+
+// Optimizer parameters
+
+// Maximum number of iterations in each resolution level
+//(MaximumNumberOfIterations 2000)
+// SP: Param_a in each resolution level. a_k = a/(A+k+1)^alpha
+//(SP_a 400.0)
+// SP: Param_A in each resolution level. a_k = a/(A+k+1)^alpha
+//(SP_A 200.0)
+// SP: Param_alpha in each resolution level. a_k = a/(A+k+1)^alpha
+//(SP_alpha 0.602)
+
+//Maximum step size of the RSGD optimizer for each resolution level.
+// The higher you set this, the more aggressive steps are taken.
+//(MaximumStepLength 4.0 2.0 2.0)
+(MaximumStepLength 50.0)
+
+//Minimum step size of the RSGD optimizer for each resolution level.
+// The lower you set this, the more accurate the final result.
+//(MinimumStepLength 0.5 0.05 0.05)
+(MinimumStepLength 0.05)
+
+//Minimum magnitude of the gradient (stopping criterion) for the RSGD optimizer:
+// The lower you set this, the more accurate the final result may be.
+//(MinimumGradientMagnitude 0.00000001 0.00000001 0.00000001)
+(MinimumGradientMagnitude 0.00000001)
+
+// Number of grey level bins in each resolution level:
+(NumberOfHistogramBins 128)
+(FixedLimitRangeRatio 0.0)
+(MovingLimitRangeRatio 0.0)
+//(FixedKernelBSplineOrder 3)
+//(MovingKernelBSplineOrder 3)
+
+// Number of spatial samples used to compute the mutual information in
+// each resolution level:
+
+// "RandomCoordinate" works well with the StandardGradientDescent and
+// AdaptiveStochasticGradientDescent optimisers,
+//(ImageSampler "RandomCoordinate")
+(ImageSampler "Full")
+//(NumberOfSpatialSamples 1.5e6)
+(FixedImageBSplineInterpolationOrder 1)
+(UseRandomSampleRegion "false")
+//(SampleRegionSize 50.0) // (mm)
+//(CheckNumberOfSamples "true")
+//(NewSamplesEveryIteration "true")
+
+// Order of B-Spline interpolation used in each resolution level:
+(BSplineInterpolationOrder 1)
+
+// Order of B-Spline interpolation used for applying the final deformation:
+(FinalBSplineInterpolationOrder 3)
+
+// Default pixel value for pixels that come from outside the picture:
+(DefaultPixelValue 0)
+
+// Output
+(WriteResultImage "true")
+(WriteResultImageAfterEachResolution "false")
+(WriteTransformParametersEachIteration "false")
+(WriteTransformParametersEachResolution "true")
+(ResultImagePixelType "unsigned char")
+(ResultImageFormat "png")
+(CompressResultImage "true")

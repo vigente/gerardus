@@ -1,0 +1,106 @@
+//ImageTypes
+(FixedInternalImagePixelType "float")
+(FixedImageDimension 2)
+(MovingInternalImagePixelType "float")
+(MovingImageDimension 2)
+
+//Components
+(Registration "MultiResolutionRegistration")
+(FixedImagePyramid "FixedSmoothingImagePyramid")
+(MovingImagePyramid "MovingSmoothingImagePyramid")
+(Interpolator "LinearInterpolator")
+(Metric "AdvancedMeanSquares")
+//(Metric "AdvancedNormalizedCorrelation")
+//(Metric "AdvancedMattesMutualInformation")
+(Optimizer "AdaptiveStochasticGradientDescent")
+//(Optimizer "StandardGradientDescent")
+(ResampleInterpolator "FinalLinearInterpolator")
+(Resampler "DefaultResampler")
+(Transform "BSplineTransform")
+(BSplineTransformSplineOrder 3)
+(UseDirectionCosines "true")
+(UseCyclicTransform "false")
+
+// Initial alignment of the images
+(AutomaticTransformInitialization "false")
+(AutomaticTransformInitializationMethod "GeometricalCenter")
+
+// Erosion of the mask prevents the border / edge of the mask taken
+// into account. This can be useful for example for ultrasound images,
+// where you don't want to take into account values outside the US-beam,
+// but where you also don't want to match the edge / border of this
+// beam. For example for MRI's of the head, the borders of the head may
+// be wanted to match, and there erosion should be avoided.  
+(ErodeMask "false")
+
+// Number of levels in the multi-resolution pyramid strategy
+// Warning: If ImagePyramidSchedule is specified with one number 
+// for both X and Y, then it's ignored and a default schedule used instead
+
+(NumberOfResolutions 2)
+(ImagePyramidSchedule 16 16 1 1)
+
+// Avoid "Too many samples map outside moving image buffer" errors
+(RequiredRatioOfValidSamples 0.05)
+
+// the grid spacing of the B-spline transform for each dimension
+(FinalGridSpacingInVoxels 50)
+(GridSpacingSchedule 16 1)
+
+(HowToCombineTransforms "Compose")
+
+// width of a band of control points at the border of the B-spline 
+// coefficient image that should remain passive during optimisation.
+// Can be specified for each resolution. The default is zero for 
+// all resolutions. A value of 4 will avoid all deformations at the 
+// edge of the image. Make sure that 
+// 2*PassiveEdgeWidth < ControlPointGridSize in each dimension.
+//(PassiveEdgeWidth 4)
+
+// Optimizer parameters
+
+(MaximumNumberOfIterations 250)
+//(SP_alpha 0.6)
+//(SP_A 50.0)
+//(SP_a 100.0)
+
+// Metric parameters
+
+// AdvancedMeanSquares: Normalize image intensities
+(UseNormalization "true")
+
+// AdvancedMattesMutualInformation: Number of grey level bins in each
+// resolution level 
+(NumberOfHistogramBins 32)
+(NumberOfFixedHistogramBins 32)
+(NumberOfMovingHistogramBins 32)
+
+// "RandomCoordinate" works well with the StandardGradientDescent and
+// AdaptiveStochasticGradientDescent optimisers,
+//(ImageSampler "Full")
+
+(ImageSampler "RandomSparseMask")
+//(ImageSampler "RandomCoordinate")
+(NewSamplesEveryIteration "true")
+(MaximumNumberOfSamplingAttempts 10)
+//(NumberOfSpatialSamples 7851)
+//(UseRandomSampleRegion "false")
+//(SampleRegionSize 50.0) // (mm)
+(CheckNumberOfSamples "true")
+
+// AdvancedMattesMutualInformation parameters
+(UseFastAndLowMemoryVersion "true")
+(UseJacobianPreconditioning "true")
+(FiniteDifferenceDerivative "false")
+
+// Default pixel value for pixels that come from outside the picture:
+(DefaultPixelValue 0)
+
+// Output
+(WriteResultImage "true")
+(WriteResultImageAfterEachResolution "false")
+(WriteTransformParametersEachIteration "false")
+(WriteTransformParametersEachResolution "true")
+(ResultImagePixelType "unsigned char")
+(ResultImageFormat "mha")
+(CompressResultImage "false")
