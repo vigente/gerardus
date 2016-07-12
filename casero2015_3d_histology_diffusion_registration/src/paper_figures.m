@@ -2,7 +2,7 @@
 %
 % Script to generate the plots/figures used in the paper.
 %
-% Version: 0.2.19
+% Version: 0.2.20
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2016 University of Oxford
 % 
@@ -41,6 +41,7 @@ PROJDIR = '/home/orie1416/Software/casero2015_3d_histology_diffusion_registratio
 DOCDIR = [PROJDIR filesep 'doc'];
 FIGDIR = [DOCDIR filesep 'figures'];
 SRCDIR = [PROJDIR filesep 'src'];
+RESDIR = [SRCDIR filesep 'results'];
 
 MOUSE = 'Q53';
 
@@ -121,6 +122,17 @@ ylabel('slice position')
 % save figure
 saveas(gca, [FIGDIR filesep 'registration-diffusion-toy-translation-ground-truth.png'])
 
+% save as CSV for Elsevier's Interactive Plots
+csvfile = [FIGDIR filesep 'fig4a-registration-diffusion-toy-translation-ground-truth.csv'];
+fid = fopen(csvfile, 'w');
+fprintf(fid, '%s,%s,%s\n', ...
+    'slice index', 'slice position (ground truth)', ...
+    'slice position (noisy)');
+fclose(fid);   
+dlmwrite(csvfile, ...
+    [(0:N-1)', t0', t'], '-append', 'delimiter', ',','precision', '%.3E');
+system(['sed -i ''s/E+/E/g'' ' csvfile]);
+
 % compute registration between slices
 fprev = -diff(t);
 fpos = -diff(t(end:-1:1));
@@ -177,6 +189,17 @@ ylabel('slice position')
 % save figure
 saveas(gca, [FIGDIR filesep 'registration-diffusion-toy-translation-iter-5.png'])
 
+% save as CSV for Elsevier's Interactive Plots
+csvfile = [FIGDIR filesep 'fig4b-registration-diffusion-toy-translation-iter-5.csv'];
+fid = fopen(csvfile, 'w');
+fprintf(fid, '%s,%s,%s\n', ...
+    'slice index', 'slice position (ground truth)', ...
+    'slice position (noisy)');
+fclose(fid);   
+dlmwrite(csvfile, ...
+    [(0:N-1)', t0', (t + ftot)'], '-append', 'delimiter', ',','precision', '%.3E');
+system(['sed -i ''s/E+/E/g'' ' csvfile]);
+
 %% run more iterations until achieving optimal reconstruction
 for I = 6:42
 
@@ -215,7 +238,18 @@ ylabel('slice position')
 % save figure
 saveas(gca, [FIGDIR filesep 'registration-diffusion-toy-translation-iter-42.png'])
 
-%% run more iterations until achieving optimal reconstruction
+% save as CSV for Elsevier's Interactive Plots
+csvfile = [FIGDIR filesep 'fig4c-registration-diffusion-toy-translation-iter-42.csv'];
+fid = fopen(csvfile, 'w');
+fprintf(fid, '%s,%s,%s\n', ...
+    'slice index', 'slice position (ground truth)', ...
+    'slice position (noisy)');
+fclose(fid);   
+dlmwrite(csvfile, ...
+    [(0:N-1)', t0', (t + ftot)'], '-append', 'delimiter', ',','precision', '%.3E');
+system(['sed -i ''s/E+/E/g'' ' csvfile]);
+
+% run more iterations until achieving optimal reconstruction
 for I = 43:1000
 
     % impose Neumann conditions at the extremes, i.e. 2*delta(0,1) and
@@ -252,6 +286,17 @@ ylabel('slice position')
 
 % save figure
 saveas(gca, [FIGDIR filesep 'registration-diffusion-toy-translation-iter-1000.png'])
+
+% save as CSV for Elsevier's Interactive Plots
+csvfile = [FIGDIR filesep 'fig4d-registration-diffusion-toy-translation-iter-1000.csv'];
+fid = fopen(csvfile, 'w');
+fprintf(fid, '%s,%s,%s\n', ...
+    'slice index', 'slice position (ground truth)', ...
+    'slice position (noisy)');
+fclose(fid);   
+dlmwrite(csvfile, ...
+    [(0:N-1)', t0', (t + ftot)'], '-append', 'delimiter', ',','precision', '%.3E');
+system(['sed -i ''s/E+/E/g'' ' csvfile]);
 
 %% run more iterations until achieving optimal reconstruction
 for I = 1001:7000
@@ -291,6 +336,17 @@ ylabel('slice position')
 % save figure
 saveas(gca, [FIGDIR filesep 'registration-diffusion-toy-translation-iter-7000.png'])
 
+% save as CSV for Elsevier's Interactive Plots
+csvfile = [FIGDIR filesep 'fig4e-registration-diffusion-toy-translation-iter-7000.csv'];
+fid = fopen(csvfile, 'w');
+fprintf(fid, '%s,%s,%s\n', ...
+    'slice index', 'slice position (ground truth)', ...
+    'slice position (noisy)');
+fclose(fid);   
+dlmwrite(csvfile, ...
+    [(0:N-1)', t0', (t + ftot)'], '-append', 'delimiter', ',','precision', '%.3E');
+system(['sed -i ''s/E+/E/g'' ' csvfile]);
+
 %% plot reconstruction error
 hold off
 semilogx(err, 'k', 'LineWidth', 2)
@@ -300,6 +356,16 @@ ylabel('error')
 
 % save figure
 saveas(gca, [FIGDIR filesep 'registration-diffusion-toy-translation-err.png'])
+
+% save as CSV for Elsevier's Interactive Plots
+csvfile = [FIGDIR filesep 'fig4f-registration-diffusion-toy-translation-err.csv'];
+fid = fopen(csvfile, 'w');
+fprintf(fid, '%s,%s\n', ...
+    'diffusion iteration', 'error');
+fclose(fid);   
+dlmwrite(csvfile, ...
+    [(1:7000)', err'], '-append', 'delimiter', ',','precision', '%.3E');
+system(['sed -i ''s/E+/E/g'' ' csvfile]);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% common code to all virtual slices sections
@@ -988,8 +1054,8 @@ end
 %% load error results:
 
 % low-res 4 B-spline registrations, 5 diffusions each
-err_h2bf_nobf = load([SRCDIR filesep 'err_Q53_blockface_histology_t_NoBlockfaceIntra_HistologySiriusRedLoRes.mat']);
-err_h2h_nobf = load([SRCDIR filesep 'err_Q53_intra_histology_t_NoBlockfaceIntra_HistologySiriusRedLoRes.mat']);
+err_h2bf_nobf = load([RESDIR filesep 'err_Q53_blockface_histology_t_NoBlockfaceIntra_HistologySiriusRedLoRes.mat']);
+err_h2h_nobf = load([RESDIR filesep 'err_Q53_intra_histology_t_NoBlockfaceIntra_HistologySiriusRedLoRes.mat']);
 
 % tidy up variables
 err_h2bf_nobf = err_h2bf_nobf.err;
@@ -1034,7 +1100,27 @@ text(75, 2.1, 'direction of registration', 'FontSize', 18)
 ah = annotation('textarrow', [.85 .5], [.8 .8]);
 axis([0 150 0 2.4])
 
+% save figure
 saveas(gca, [FIGDIR filesep 'err_Q53_blockface_histology_t_NoBlockfaceIntra_HistologySiriusRedLoRes_by_slice.tif'])
+
+% save as CSV for Elsevier's Interactive Plots
+csvfile = [FIGDIR filesep 'fig6a-err_Q53_blockface_histology_t_NoBlockface_by_slice.csv'];
+fid = fopen(csvfile, 'w');
+fprintf(fid, '%s,%s,%s,%s,%s\n', ...
+    'Slice index', ...
+    'Rigid refinement median landmark error', ...
+    'B-spline refinement median  landmark error', ...
+    'Rigid refinement max  landmark error', ...
+    'B-spline refinement max  landmark error');
+fclose(fid);   
+dlmwrite(csvfile, ...
+    [idx' ...
+     cellfun(@(x) median(x(:, 5), 1), err_h2bf_nobf(idx))' * 1e3 ...
+     cellfun(@(x) median(x(:, 1), 1), err_h2bf_nobf(idx))' * 1e3 ...
+     cellfun(@(x) prctile(x(:, 5), 100, 1), err_h2bf_nobf(idx))' * 1e3 ...
+     cellfun(@(x) prctile(x(:, 1), 100, 1), err_h2bf_nobf(idx))' * 1e3 ...
+    ], '-append', 'delimiter', ',','precision', '%.3E');
+system(['sed -i ''s/E+/E/g'' ' csvfile]);
 
 %% histo-histo
 
@@ -1067,8 +1153,27 @@ text(75, 0.4, 'direction of registration', 'FontSize', 18)
 ah = annotation('textarrow', [.85 .5], [.65 .65]);
 axis([0 150 0 0.575])
 
+% save figure
 saveas(gca, [FIGDIR filesep 'err_Q53_intra_histology_t_NoBlockfaceIntra_HistologySiriusRedLoRes_by_slice.tif'])
 
+% save as CSV for Elsevier's Interactive Plots
+csvfile = [FIGDIR filesep 'fig6b-err_Q53_intra_histology_t_NoBlockface_by_slice.csv'];
+fid = fopen(csvfile, 'w');
+fprintf(fid, '%s,%s,%s,%s,%s\n', ...
+    'Slice index', ...
+    'Rigid refinement median landmark error', ...
+    'B-spline refinement median  landmark error', ...
+    'Rigid refinement max  landmark error', ...
+    'B-spline refinement max  landmark error');
+fclose(fid);   
+dlmwrite(csvfile, ...
+    [idx' ...
+     cellfun(@(x) median(x(:, 5), 1), err_h2h_nobf(idx))' * 1e3 ...
+     cellfun(@(x) median(x(:, 1), 1), err_h2h_nobf(idx))' * 1e3 ...
+     cellfun(@(x) prctile(x(:, 5), 100, 1), err_h2h_nobf(idx))' * 1e3 ...
+     cellfun(@(x) prctile(x(:, 1), 100, 1), err_h2h_nobf(idx))' * 1e3 ...
+    ], '-append', 'delimiter', ',','precision', '%.3E');
+system(['sed -i ''s/E+/E/g'' ' csvfile]);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% reconstruction validation (using blockface as external reference)
@@ -1076,8 +1181,8 @@ saveas(gca, [FIGDIR filesep 'err_Q53_intra_histology_t_NoBlockfaceIntra_Histolog
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % low-res 4 B-spline registrations, 5 diffusions
-err_h2bf = load([SRCDIR filesep 'err_Q53_blockface_histology_t_Intra_HistologySiriusRedLoRes.mat']);
-err_h2h = load([SRCDIR filesep 'err_Q53_intra_histology_t_Intra_HistologySiriusRedLoRes.mat']);
+err_h2bf = load([RESDIR filesep 'err_Q53_blockface_histology_t_Intra_HistologySiriusRedLoRes.mat']);
+err_h2h = load([RESDIR filesep 'err_Q53_intra_histology_t_Intra_HistologySiriusRedLoRes.mat']);
 
 % tidy up variables
 err_h2bf = err_h2bf.err;
@@ -1120,7 +1225,27 @@ xlabel('Slice index')
 ylabel('Landmark distance error (mm)')
 axis([0 150 0 2.4])
 
+% save figure
 saveas(gca, [FIGDIR filesep 'err_Q53_blockface_histology_t_Intra_HistologySiriusRedLoRes_by_slice.tif'])
+
+% save as CSV for Elsevier's Interactive Plots
+csvfile = [FIGDIR filesep 'fig6c-err_Q53_blockface_histology_t_Intra_by_slice.csv'];
+fid = fopen(csvfile, 'w');
+fprintf(fid, '%s,%s,%s,%s,%s\n', ...
+    'Slice index', ...
+    'Rigid refinement median landmark error', ...
+    'B-spline refinement median  landmark error', ...
+    'Rigid refinement max  landmark error', ...
+    'B-spline refinement max  landmark error');
+fclose(fid);   
+dlmwrite(csvfile, ...
+    [idx' ...
+     cellfun(@(x) median(x(:, 5), 1), err_h2bf(idx))' * 1e3 ...
+     cellfun(@(x) median(x(:, 1), 1), err_h2bf(idx))' * 1e3 ...
+     cellfun(@(x) prctile(x(:, 5), 100, 1), err_h2bf(idx))' * 1e3 ...
+     cellfun(@(x) prctile(x(:, 1), 100, 1), err_h2bf(idx))' * 1e3 ...
+    ], '-append', 'delimiter', ',','precision', '%.3E');
+system(['sed -i ''s/E+/E/g'' ' csvfile]);
 
 %% histo-histo
 
@@ -1151,8 +1276,27 @@ xlabel('Slice index')
 ylabel('Landmark distance error (mm)')
 axis([0 150 0 0.575])
 
+% save figure
 saveas(gca, [FIGDIR filesep 'err_Q53_intra_histology_t_Intra_HistologySiriusRedLoRes_by_slice.tif'])
 
+% save as CSV for Elsevier's Interactive Plots
+csvfile = [FIGDIR filesep 'fig6d-err_Q53_intra_histology_t_Intra_by_slice.csv'];
+fid = fopen(csvfile, 'w');
+fprintf(fid, '%s,%s,%s,%s,%s\n', ...
+    'Slice index', ...
+    'Rigid refinement median landmark error', ...
+    'B-spline refinement median  landmark error', ...
+    'Rigid refinement max  landmark error', ...
+    'B-spline refinement max  landmark error');
+fclose(fid);   
+dlmwrite(csvfile, ...
+    [idx' ...
+     cellfun(@(x) median(x(:, 5), 1), err_h2h(idx))' * 1e3 ...
+     cellfun(@(x) median(x(:, 1), 1), err_h2h(idx))' * 1e3 ...
+     cellfun(@(x) prctile(x(:, 5), 100, 1), err_h2h(idx))' * 1e3 ...
+     cellfun(@(x) prctile(x(:, 1), 100, 1), err_h2h(idx))' * 1e3 ...
+    ], '-append', 'delimiter', ',','precision', '%.3E');
+system(['sed -i ''s/E+/E/g'' ' csvfile]);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% reconstruction validation (using blockface as external reference)
@@ -1162,20 +1306,20 @@ saveas(gca, [FIGDIR filesep 'err_Q53_intra_histology_t_Intra_HistologySiriusRedL
 %% load error results:
 
 % low-res 4 B-spline registrations, 5 diffusions
-err_h2bf = load([SRCDIR filesep 'err_Q53_blockface_histology_t_Intra_HistologySiriusRedLoRes.mat']);
-err_h2h = load([SRCDIR filesep 'err_Q53_intra_histology_t_Intra_HistologySiriusRedLoRes.mat']);
+err_h2bf = load([RESDIR filesep 'err_Q53_blockface_histology_t_Intra_HistologySiriusRedLoRes.mat']);
+err_h2h = load([RESDIR filesep 'err_Q53_intra_histology_t_Intra_HistologySiriusRedLoRes.mat']);
 
 % low-res 20 B-spline registrations, 1 diffusion (i.e. no diffusion)
-err_h2bf_nodiff = load([SRCDIR filesep 'err_Q53_blockface_histology_t_IntraNoDiff_HistologySiriusRedLoRes.mat']);
-err_h2h_nodiff = load([SRCDIR filesep 'err_Q53_intra_histology_t_IntraNoDiff_HistologySiriusRedLoRes.mat']);
+err_h2bf_nodiff = load([RESDIR filesep 'err_Q53_blockface_histology_t_IntraNoDiff_HistologySiriusRedLoRes.mat']);
+err_h2h_nodiff = load([RESDIR filesep 'err_Q53_intra_histology_t_IntraNoDiff_HistologySiriusRedLoRes.mat']);
 
 % low-res 1 B-spline registration, several levels of diffusion
-err_h2bf_onlydiff = load([SRCDIR filesep 'err_Q53_blockface_histology_t_IntraOnlyDiff_HistologySiriusRedLoRes.mat']);
-err_h2h_onlydiff = load([SRCDIR filesep 'err_Q53_intra_histology_t_IntraOnlyDiff_HistologySiriusRedLoRes.mat']);
+err_h2bf_onlydiff = load([RESDIR filesep 'err_Q53_blockface_histology_t_IntraOnlyDiff_HistologySiriusRedLoRes.mat']);
+err_h2h_onlydiff = load([RESDIR filesep 'err_Q53_intra_histology_t_IntraOnlyDiff_HistologySiriusRedLoRes.mat']);
 
 % % hi-res 4 B-spline registrations, 100 diffusions each
-% err_h2bf_hires = load([SRCDIR filesep 'err_Q53_blockface_histology_t_Total_HistologySiriusRed_LV_FreeWall.mat']);
-% err_h2h_hires = load([SRCDIR filesep 'err_Q53_intra_histology_t_Total_HistologySiriusRed_LV_FreeWall.mat']);
+% err_h2bf_hires = load([RESDIR filesep 'err_Q53_blockface_histology_t_Total_HistologySiriusRed_LV_FreeWall.mat']);
+% err_h2h_hires = load([RESDIR filesep 'err_Q53_intra_histology_t_Total_HistologySiriusRed_LV_FreeWall.mat']);
 
 % tidy up variables
 MaxDiffIter_onlydiff = err_h2h_onlydiff.MaxDiffIter;
