@@ -1,12 +1,12 @@
-function [t, tParam, iterInfo, regParam] = blockface_intraframe_reg(pathstr, files)
-% blockface_intraframe_reg  Register consecutive frames in a list of
+function [t, tParam, iterInfo, regParam] = blockface_intraframe_reg(pathstr, files, idx)
+% BLOCKFACE_INTRAFRAME_REG  Register consecutive frames in a list of
 % blockface images.
 %
-% blockface_intraframe_reg takes a list of files with blockface images, and
+% BLOCKFACE_INTRAFRAME_REG takes a list of files with blockface images, and
 % registers each file(I) to file(I-1), using a similarity transformation to
 % account for small translation and zoom-in/zoom-out movements.
 %
-% [T, TPARAM, ITERINFO, REGPARAM] = blockface_intraframe_reg(PATHSTR, FILES)
+% [T, TPARAM, ITERINFO, REGPARAM] = BLOCKFACE_INTRAFRAME_REG(PATHSTR, FILES)
 %
 %   PATHSTR is the full path to the files. If empty, PATHTOFILES='.'.
 %
@@ -25,11 +25,26 @@ function [t, tParam, iterInfo, regParam] = blockface_intraframe_reg(pathstr, fil
 %   REGPARAM is a struct with the registration parameters generated
 %   internally by the function.
 %
-% % See also: elastix, elastix_read_reg_output.
+% ... = BLOCKFACE_INTRAFRAME_REG(..., IDX)
+%
+%   IDX is a vector of file indices. Registrations will only be computed
+%   for IDX files:
+%
+%     files(IDX(1)) -> files(IDX(1) - 1)
+%     files(IDX(2)) -> files(IDX(2) - 1)
+%     ...
+%     files(IDX(end)) -> files(IDX(end) - 1)
+%
+%   For example, IDX = [32 57]
+%
+%     files(32) -> files(31)
+%     files(57) -> files(56)
+%
+% See also: elastix, elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014, 2016 University of Oxford
-% Version: 0.4.3
+% Version: 0.5.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -57,7 +72,7 @@ function [t, tParam, iterInfo, regParam] = blockface_intraframe_reg(pathstr, fil
 DEBUG = 0;
 
 % check arguments
-narginchk(2, 2);
+narginchk(2, 3);
 nargoutchk(0, 4);
 
 if (length(files) < 2)
@@ -68,6 +83,9 @@ end
 if (isempty(pathstr))
     pathstr = '.';
 end
+if ((nargin < 3) || isempty(idx))
+    idx = 1:length(files);
+end
 
 % create a struct with the registration parameters
 regParam = generate_registration_parameters([pathstr filesep files(1).name]);
@@ -75,45 +93,50 @@ regParam = generate_registration_parameters([pathstr filesep files(1).name]);
 % expand list of files names to clarify notation
 fixed = files(1:end-1);
 moving = files(2:end);
+idx = idx - 1;
 
 % memory allocation for output
 switch (regParam.Transform)
     case 'SimilarityTransform'
         t = zeros(length(files), 4);
+        t(:, 1) = 1;
     otherwise
         error('Transform not implemented')
 end
 
 % register 2nd frame onto 1st frame to obtain a param struct that we can
 % use as reference
-[tParam, iterInfo] = frame_registration(...
-    [pathstr filesep fixed(1).name], ...
-    [pathstr filesep moving(1).name], ...
+[tParamAux, iterInfoAux] = frame_registration(...
+    [pathstr filesep fixed(idx(1)).name], ...
+    [pathstr filesep moving(idx(1)).name], ...
     regParam, DEBUG);
-t(2, :) = tParam.TransformParameters;
+t(idx(1)+1, :) = tParamAux.TransformParameters;
 
 % Allocate memory for the rest
-tParam(1:length(files)) = tParam;
-iterInfo(1:length(files)) = iterInfo;
+tParamIdentity = tParamAux;
+tParamIdentity.TransformParameters = [1 0 0 0];
+tParam(1:length(files)) = tParamIdentity;
+tParam(idx(1)+1) = tParamAux;
 
-% frame 1 is the reference and doesn't get registered to anything
-tParam(1).TransformParameters(:) = 0;
-iterInfo(1).ItNr(:) = 0;
-iterInfo(1).Metric(:) = 0;
-iterInfo(1).StepSize(:) = 0;
-iterInfo(1).Gradient(:) = 0;
-iterInfo(1).Time(:) = 0;
+iterInfoIdentity = iterInfoAux;
+iterInfoIdentity.ItNr(:) = 0;
+iterInfoIdentity.Metric(:) = 0;
+iterInfoIdentity.StepSize(:) = 0;
+iterInfoIdentity.Gradient(:) = 0;
+iterInfoIdentity.Time(:) = 0;
+iterInfo(1:length(files)) = iterInfoIdentity;
+iterInfo(idx(1)+1) = iterInfoAux;
 
 % iterate images that we have to register
 % note: even though elastix uses parallel processing, it is slightly faster
 % (factor of ~0.93) using parfor to run 4 registrations on 1 processor at
 % the same time than 1 registration on 4 processors
-for I = 2:length(fixed)
+for I = idx
 
     % display frame number
-    if (DEBUG)
+%     if (DEBUG)
         disp(['Registering frame ' moving(I).name ' -> ' fixed(I).name])
-    end
+%     end
     
     % register I+1 frame onto I frame
     [tParam(I+1), iterInfo(I+1)] = frame_registration(...

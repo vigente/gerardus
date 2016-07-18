@@ -1,3 +1,16 @@
+2016-07-18  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CardiacToolbox/blockface_intraframe_reg.m: (0.5.0)
+
+	- Add IDX input argument so that we can select which slices to
+	register to the previous one, rather than having to register every
+	I to I-1.
+
+2016-07-11  Ramon Casero  <rcasero@gmail.com>
+
+	* Normalize all the line endings in the repository, so that we
+	don't have a mix of CRLF for Windows and LF for linux.
+
 2016-07-06  Ramon Casero  <rcasero@gmail.com>
 
 	* .gitattributes:
