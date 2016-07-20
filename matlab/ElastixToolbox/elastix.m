@@ -330,26 +330,6 @@ else
     
 end
 
-% If multi-channel registration, use transformix to get other channel
-% images (elastix only returns a single channel image after multi-channel registration)
-% For now, only when elastix is given a structure.
-if ndims(movingfile)>1 && (~ischar(moving))
-    for i=2:size(movingfile,1)
-        % Use tranformix to register other channel
-        [status, ~] = system(['transformix -in ' movingfile(i,:) ' -out ' tempoutdir  ' -tp ' tempoutdir filesep 'TransformParameters.0.txt']);
-
-        % the result file can be in many different formats
-        resultfile = dir([tempoutdir filesep 'result.' t.ResultImageFormat]);
-        if (isempty(resultfile))
-            error(['No image result file for additional channels: ' outdir filesep 'result.' t.ResultImageFormat])
-        end
-        % read the image
-        movingRegTemp = scimat_load([tempoutdir filesep resultfile.name]);
-        movingReg.data= cat(5, movingReg.data, movingRegTemp.data);
-        delete_image([tempoutdir filesep resultfile.name]);
-    end
-end
-    
 % delete temp files and directories
 if (delete_fixedfile)
     delete_image(fixedfile)
@@ -511,11 +491,7 @@ end
 delete_tempfile = true;
 filename = char(zeros(nchannel, length(tempname) + length(extTemp), 'uint8'));
 scichan = file;
-if size(scichan.data,3)==1  % Truncate time dimension but avoid discarding z-axis if present 
-    scichan.axis = scichan.axis(1:2);
-else
-    scichan.axis = scichan.axis(1:3);
-end
+scichan.axis = scichan.axis(1:2);
 for I = 1:nchannel
     
     % create a temp filename for the image
@@ -567,13 +543,13 @@ elseif (isstruct(param))
     
 elseif (ischar(param))
     
-    % we are going to use the file provided by the user, and will not
-    % delete it afterwards
-    filename = ['"' param '"'];
-    delete_tempfile = false;
-
     % we read the file
     param = elastix_read_file2param(param);
+    
+    % we are going to use the file provided by the user, and will not
+    % delete it afterwards
+    filename = param;
+    delete_tempfile = false;
     
 else
     
