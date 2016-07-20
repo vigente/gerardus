@@ -1,4 +1,4 @@
-function blockface_correct_frame_shifts(indir, files, t, idxprop, idxnoprop, outdir)
+function blockface_correct_frame_shifts(indir, files, t, idxnoprop, outdir)
 % blockface_correct_frame_shifts  Correct shift between blockface image
 % frames.
 %
@@ -25,11 +25,6 @@ function blockface_correct_frame_shifts(indir, files, t, idxprop, idxnoprop, out
 %   T is a struct array where T(I) is the correction that registers image I
 %   to image I-1. T can be obtained with blockface_intraframe_reg.
 %
-%   IDXPROP is a vector with a list of indices of frames that need to be
-%   corrected, and whose correction has to propagate to subsequent frames.
-%   For example, if the camera is moved a bit at frame I=30, that
-%   displacement is going to show up in all frames from I=30 onwards.
-%
 %   IDXNOPROP is a vector with a list of indices of frames that need to be
 %   corrected, but whose correction does not propagate. For example, if the
 %   microtome tray is not pushed all the way in in frame I=30, that doesn't
@@ -44,8 +39,8 @@ function blockface_correct_frame_shifts(indir, files, t, idxprop, idxnoprop, out
 % See also: blockface_intraframe_reg.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.1.1
+% Copyright © 2014, 2016 University of Oxford
+% Version: 0.2.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -71,7 +66,7 @@ function blockface_correct_frame_shifts(indir, files, t, idxprop, idxnoprop, out
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(6, 6);
+narginchk(5, 5);
 nargoutchk(0, 0);
 
 % safety to prevent us from overwriting the source files
@@ -97,32 +92,37 @@ tAcc = t(1);
 % clear up transform for first frame
 tAcc(1).TransformParameters = [1 0 0 0];
 
-% accumulate transforms that propagate
-for I = 2:length(t)
+% for transforms that do not propagate, we need to cancel them with an
+% inverse transform in the next slice
+for I = idxnoprop
     
-    % if this frame needs to be corrected
-    if (~isempty(idxprop) && I == idxprop(1))
-        
-        % update the accumulated transform with the transform for this
-        % frame
-        tAcc(I) = elastix_compose_afftransf(tAcc(I-1), t(I));
-        
-        % remove the first element of the index queue
-        idxprop = idxprop(2:end);
-        
-    else 
-        
-        tAcc(I) = tAcc(I-1);
-        
+    % if the slice is the last in the stack, there's no next slice to
+    % cancel the transform with
+    if (I == length(files))
+        continue
     end
+    
+    % the next slice must have no transformation, otherwise the list of
+    % indices is wrong
+    if any(t(I+1).TransformParameters ~= [1 0 0 0])
+        error(['T(' num2str(I) ') does not propagate, but T(' ...
+            num2str(I+1) ') = ' num2str(t(I+1).TransformParameters) ...
+            ' ~= [1 0 0 0]'])
+    end
+    
+    % cancel the transformation
+    tMatrix = elastix_affine_struct2matrix(t(I));
+    t(I+1) = elastix_affine_matrix2struct(inv(tMatrix), t(I+1));
     
 end
 
-% add transforms that do not propagate
-for I = idxnoprop
-   
-    tAcc(I) = elastix_compose_afftransf(tAcc(I), t(I));
+% accumulate transforms
+for I = 2:length(t)
     
+    % update the accumulated transform with the transform for this
+    % frame
+    tAcc(I) = elastix_compose_afftransf(tAcc(I-1), t(I));
+        
 end
 
 % correct frames

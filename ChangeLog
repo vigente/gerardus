@@ -1,5 +1,13 @@
 2016-07-20  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/CardiacToolbox/blockface_correct_frame_shifts.m: (0.2.0)
+
+	- Fix bug. Affine transformations are not commutative, so it was
+	incorrect to first accumulate the transformations that propagate,
+	and then add on top the transformations that don't propagate. Now,
+	for non-propagating transformation T at slice I, we add T^-1 at
+	slice I+1, to cancel it.
+
 	* matlab/FileFormatToolbox/scimat_load.m: (0.5.8)
 
 	- If the file extension is not one of the special cases (.mat,
