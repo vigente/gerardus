@@ -1,6 +1,6 @@
 function scimat = scimat_load(file, varargin)
 % SCIMAT_LOAD  Load an image into a SCIMAT struct from a Matlab, MetaImage,
-% Carl Zeiss LSM, Hamamatsu VMU, PNG or TIFF file.
+% Carl Zeiss LSM, Hamamatsu VMU or regular graphics file (PNG, TIFF, etc).
 %
 % SCIMAT = SCIMAT_LOAD(FILE)
 %
@@ -8,8 +8,8 @@ function scimat = scimat_load(file, varargin)
 %   If necessary, it swaps rows and columns to follow Matlab's convention
 %   that (rows, columns) <=> (y, x).
 %
-%   FILE is a string with the path and name of the .mat, .mha, .lsm or .vmu
-%   file that contains the 2D or 3D image:
+%   FILE is a string with the path and name of the file that contains the
+%   2D or 3D image:
 %
 %     .mat: Matlab binary file with a "scirunnrrd" struct (see below for
 %           details).
@@ -26,9 +26,9 @@ function scimat = scimat_load(file, varargin)
 %           containing only the image metadata, and a path to the file with
 %           the actual binary image data.
 %
-%     .tif: TIFF (Tagged Image File Format).
-%
-%     .png: PNG (Portable Network Graphics) format.
+%     Otherwise the file is assumed to be a regular graphics file, e.g.
+%     .tif, .png, .jpg, .bmp, etc. Any file that imread() can read is
+%     valid.
 %
 %   SCIMAT is the struct with the image data and metainformation (see "help
 %   scimat" for details).
@@ -46,8 +46,8 @@ function scimat = scimat_load(file, varargin)
 % See also: scimat, scimat_save.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010-2015 University of Oxford
-% Version: 0.5.7
+% Copyright © 2010-2016 University of Oxford
+% Version: 0.5.8
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -500,7 +500,7 @@ switch lower(ext)
         % create SCI MAT struct
         scimat = scimat_im2scimat(im, res, offset);
         
-    case {'.png', '.tif'}
+    otherwise % we assume it's a normal image (.tif, .png, .bmp, etc)
         
         % read image metadata header
         info = imfinfo(file);
@@ -563,9 +563,6 @@ switch lower(ext)
         % we assume that the image is oriented parallel to Cartesian axes
         scimat.rotmat = eye(2);
         
-    otherwise
-        
-        error('Invalid file extension')
 end
 
 end

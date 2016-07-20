@@ -1,3 +1,12 @@
+2016-07-20  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.8)
+
+	- If the file extension is not one of the special cases (.mat,
+	.mha.mhd, .lsm, .vmu), try to read the file with imread. Before,
+	we only attempted this for .png and .tif files, but there's no
+	reason why we should be restricted that way.
+
 2016-07-18  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/CardiacToolbox/blockface_intraframe_reg.m: (0.5.0)
