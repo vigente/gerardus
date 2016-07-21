@@ -40,7 +40,7 @@ function blockface_correct_frame_shifts(indir, files, t, idxnoprop, outdir)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014, 2016 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -105,9 +105,8 @@ for I = idxnoprop
     % the next slice must have no transformation, otherwise the list of
     % indices is wrong
     if any(t(I+1).TransformParameters ~= [1 0 0 0])
-        error(['T(' num2str(I) ') does not propagate, but T(' ...
-            num2str(I+1) ') = ' num2str(t(I+1).TransformParameters) ...
-            ' ~= [1 0 0 0]'])
+        error(['User says that T(' num2str(I) ') does not propagate, but T(' ...
+            num2str(I+1) ') ~= [1 0 0 0]'])
     end
     
     % cancel the transformation
@@ -143,6 +142,9 @@ for I = 1:length(files)
         % copy result to file
         copytogreyfile(fileout, ...
             [outdir filesep files(I).name]);
+        
+        % delete the temp result file
+        delete(fileout);
         
     end
     
