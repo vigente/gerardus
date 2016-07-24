@@ -15,7 +15,10 @@ function blockface_correct_frame_shifts(indir, files, t, idxnoprop, outdir)
 % transformix. Corrected images are saved with the same name as input
 % images, but to a different directory.
 %
-% blockface_correct_frame_shifts(INDIR, FILES, T, IDXPROP, IDXNOPROP, OUTDIR)
+% The transformation of images uses a "parfor" loop, so the function can
+% take advantage of multiple cores.
+%
+% blockface_correct_frame_shifts(INDIR, FILES, T, IDXNOPROP, OUTDIR)
 %
 %   INDIR is a string with the directory where the input files are kept.
 %
@@ -40,7 +43,7 @@ function blockface_correct_frame_shifts(indir, files, t, idxnoprop, outdir)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014, 2016 University of Oxford
-% Version: 0.2.1
+% Version: 0.2.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -125,7 +128,7 @@ for I = 2:length(t)
 end
 
 % correct frames
-for I = 1:length(files)
+parfor I = 1:length(files)
     
     % is the transform the identity?
     if (all(tAcc(I).TransformParameters == [1 0 0 0]))

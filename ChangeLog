@@ -1,4 +1,16 @@
+2016-07-24  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CardiacToolbox/blockface_correct_frame_shifts.m: (0.2.2)
+
+	- Loop to produce output images is now parallel (parfor). It makes
+	things faster.
+
 2016-07-21  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CardiacToolbox/blockface_correct_frame_shifts.m: (0.2.2)
+
+	- Put transformation of images into a parfor loop, to make use of
+	multiple cores.
 
 	* matlab/CardiacToolbox/blockface_correct_frame_shifts.m: (0.2.1)
 
