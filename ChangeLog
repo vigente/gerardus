@@ -1,3 +1,12 @@
+2016-09-06  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ThirdPartyToolbox/stlwrite.m:
+
+	- Export a variety of inputs (patch, surface) to an STL triangular
+	mesh. by Sven 30 Jul 2008 (Updated 30 Mar 2015).
+
+	https://www.mathworks.com/matlabcentral/fileexchange/20922-stlwrite-filename--varargin-
+
 2016-07-24  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/CardiacToolbox/blockface_correct_frame_shifts.m: (0.2.2)
