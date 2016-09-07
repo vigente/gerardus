@@ -47,7 +47,7 @@ function scimat = scimat_load(file, varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2016 University of Oxford
-% Version: 0.5.8
+% Version: 0.5.9
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -103,9 +103,16 @@ switch lower(ext)
         scimat = scimat_seg3d2matlab(scimat);
         
         % remove extra metainformation that is not used
-        scimat = rmfield(scimat, 'property');
-        scimat.axis = rmfield(scimat.axis, ...
-            {'max', 'center', 'label', 'unit'});
+        if isfield(scimat, 'property')
+            scimat = rmfield(scimat, 'property');
+        end
+        if isfield(scimat, 'axis')
+            for f = {'max', 'center', 'label', 'unit'}
+                if isfield(scimat.axis, f)
+                    scimat.axis = rmfield(scimat.axis, f);
+                end
+            end
+        end
         
         % empty rotation matrix
         scimat.rotmat = [];

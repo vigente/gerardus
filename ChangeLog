@@ -1,3 +1,12 @@
+2016-09-07  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.9)
+
+	- Fix bug. When the scimat struct didn't have the field
+	scimat.property, the function crashed when trying to delete
+	it. Now it only deletes the field if it exists. I have extended
+	this check to fields that are removed in scimat.axis too.
+
 2016-09-06  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/ThirdPartyToolbox/stlwrite.m:
