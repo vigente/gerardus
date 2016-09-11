@@ -1,17 +1,18 @@
-function [scimat] = scimat_downsample(scimat)
-% SCIMAT_DOWNSAMPLE downsamples the scimat image (stored in scimat.data)
-% by half. It first applies a gaussian filter in order to smooth the image
+function scimat = scimat_downsample(scimat)
+% SCIMAT_DOWNSAMPLE Downsample scimat image by x2.
+%
+% It first applies a gaussian filter in order to smooth the image
 % and the proceeds to sample half of the original image. 
 % 
-%   DISCLAIMER: Method has NOT been verified for 3D case. 
+% DISCLAIMER: Method has NOT been verified for 3D case. 
 %    
-%   Function SCIMAT_DOWNSAMPLE() takes a scimat struct as an input. It then
-%   proceeds to smooth the image in the scimat struct by applying a
-%   gaussian filter in either 2 or 3 dimensions, depending on the scimat
-%   struct dimensions. Once smoothed, the spacial locations of the voxels
-%   is recalcuated at half the sample frequency of the original image. 
+% Function SCIMAT_DOWNSAMPLE() takes a scimat struct as an input. It then
+% proceeds to smooth the image in the scimat struct by applying a gaussian
+% filter in either 2 or 3 dimensions, depending on the scimat struct
+% dimensions. Once smoothed, the spacial locations of the voxels is
+% recalcuated at half the sample frequency of the original image.
 %
-% [SCIMAT] = SCIMAT_DOWNSAMPLE(SCIMAT)
+% SCIMAT = SCIMAT_DOWNSAMPLE(SCIMAT)
 % 
 % SCIMAT (input) and SCIMAT (output) are both Struct used in Gerardus to 
 % store 2D, 3D or 3D+t images and axis metainformation. For more
@@ -19,7 +20,7 @@ function [scimat] = scimat_downsample(scimat)
 %
 % Example: 
 %  
-% [scimatout] = SCIMAT_DOWNSAMPLE(scimatin)
+% scimatout = SCIMAT_DOWNSAMPLE(scimatin)
 % 
 % scimatin = 
 % 
@@ -32,12 +33,12 @@ function [scimat] = scimat_downsample(scimat)
 %       axis: [3x1 struct]
 %       data: [64x64 double]
 %     rotmat: [3x3 double]
-%
+
 % Authors: Benjamin Villard <b.016434@gmail.com>,
 % Vicente Grau  <vicente.grau@eng.ox.ac.uk>
 % Christopher Kelly <christopher.kelly28@googlemail.com>
-% Copyright © 2015 University of Oxford
-% Version: 0.3.0
+% Copyright © 2015-2016 University of Oxford
+% Version: 0.3.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

@@ -1,5 +1,11 @@
 2016-09-11  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat_downsample.m: (0.3.1)
+	* matlab/FileFormatToolbox/scimat_resample.m: (0.1.1)
+
+	- Small edits to help header to make them have the format expected
+	by update_README.sh.
+
 	* Delete stlread.m, stlwrite.m, license-stlwrite.txt:
 
 	- Redundant with GraphToolbox.

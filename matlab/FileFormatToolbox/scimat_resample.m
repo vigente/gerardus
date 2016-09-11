@@ -1,16 +1,21 @@
 function out = scimat_resample(inp,out,kind)
-
 % SCIMAT_RESAMPLE resamples a scimat file given an input and output scimat.
-% intended for mapping 2D slices in 3D volume or extract 2D
+%
+% Intended for mapping 2D slices in 3D volume or extract 2D
 % slices from 3D volume. Also works nicely between 1D and 2D to extract
 % profiles, for example.
-% inp is the input scimat file
-% out is the target scimat file
-% kind is a string, deciding on the kind of interpolation/averaging
+%
+% OUT = SCIMAT_RESAMPLE(INP, OUT, KIND)
+%
+%   INP is the input scimat file
+%
+%   OUT is the target scimat file
+%
+%   KIND is a string, deciding on the kind of interpolation/averaging
 
 % Author: Nicolas Basty <nicolas.basty@eng.ox.ac.uk>
-% Copyright ??? 2016 University of Oxford
-% Version: 0.1
+% Copyright Â© 2016 University of Oxford
+% Version: 0.1.1
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -68,7 +73,7 @@ To = scimat2transform(inp); %gets transform from input image mapping IDX to RW
 Ti = scimat2transform(out);  %gets transform from target image mapping IDX to RW
 T = pinv(To) * Ti; %combining gives IDXin to IDXout
 
-% create grid of output´s indices
+% create grid of outputï¿½s indices
 if numel(out.data)>2
     [X, Y, Z] = ndgrid(1:size(out.data,1), 1:size(out.data,2), 1:size(out.data,3));
 elseif  numel(out.data)<3

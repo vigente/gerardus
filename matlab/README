@@ -62,7 +62,7 @@ blockface_equalise_illumination.m
 	
 blockface_intraframe_reg.m
 
-	 blockface_intraframe_reg  Register consecutive frames in a list of
+	 BLOCKFACE_INTRAFRAME_REG  Register consecutive frames in a list of
 	 blockface images.
 	
 correct_rv_crescent_tips.m
@@ -413,10 +413,12 @@ scimat_index2world.m
 scimat_load.m
 
 	 SCIMAT_LOAD  Load an image into a SCIMAT struct from a Matlab, MetaImage,
-	 Carl Zeiss LSM, Hamamatsu VMU, PNG or TIFF file.
+	 Carl Zeiss LSM, Hamamatsu VMU or regular graphics file (PNG, TIFF, etc).
 	
 scimat_resample.m
 
+	 SCIMAT_RESAMPLE resamples a scimat file given an input and output scimat.
+	
 scimat_save.m
 
 	 SCIMAT_SAVE  Save a SCIMAT struct to several file formats.
@@ -611,17 +613,7 @@ scimat_crop.m
 	
 scimat_downsample.m
 
-	 SCIMAT_DOWNSAMPLE downsamples the scimat image (stored in scimat.data)
-	 by half. It first applies a gaussian filter in order to smooth the image
-	 and the proceeds to sample half of the original image. 
-	 
-	   DISCLAIMER: Method has NOT been verified for 3D case. 
-	    
-	   Function SCIMAT_DOWNSAMPLE() takes a scimat struct as an input. It then
-	   proceeds to smooth the image in the scimat struct by applying a
-	   gaussian filter in either 2 or 3 dimensions, depending on the scimat
-	   struct dimensions. Once smoothed, the spacial locations of the voxels
-	   is recalcuated at half the sample frequency of the original image. 
+	 SCIMAT_DOWNSAMPLE Downsample scimat image by x2.
 	
 scimat_estimate_bias_field.m
 
@@ -664,6 +656,10 @@ scimat_papillary_muscles.m
 scimat_regionprops.m
 
 	 SCIMAT_REGIONPROPS  Measure properties of image regions on each slice.
+	
+scimat_resize3.m
+
+	 SCIMAT_RESIZE3 Resize a 3D scimat image.
 	
 scimat_seg2label_stats.m
 
@@ -1188,6 +1184,8 @@ L2_distance.m
 	
 loaddcmdir.m
 
+	function [dcmSeries, dcmPatient, SeriesList, SeriesListNumInfo, ImageInfos, SeriesInfos] = loaddcmdir(dicomdirpath)
+	
 pointTriangleDistance.m
 
 	 POINTTRIANGLEDISTANCE  Calculate distance between a point and a triangle
@@ -1201,6 +1199,10 @@ sphereFit.m
 
 tiff_read_header.m
 
+	 This function tiff_read_header can be used to read the header(s) of
+	 complex tiff files. It implements a part of the Tiff version 5 and 6
+	 specifications.
+	
 tightfig.m
 
 
@@ -1417,6 +1419,221 @@ vol3d.m
 	 tune the texture mapping technique. This function is best used with
 	 fast OpenGL hardware.
 	
+
+ThirdPartyToolbox/GraphToolbox
+-------------------------------------------------------------
+
+adjacency2incidence.m
+
+adjmatrix2list.m
+
+batch_levelsets_meshes.m
+
+build_euclidean_weight_matrix.m
+
+build_graph_from_image.m
+
+check_face_vertex.m
+
+check_incircle_edge.m
+
+check_incircle.m
+
+compile_mex.m
+
+compute_boundary.m
+
+compute_combinatorial_laplacian.m
+
+compute_curvature.m
+
+compute_delaunay.m
+
+compute_diffusion_geometry.m
+
+compute_diffusion_kernel.m
+
+compute_distance_graph.m
+
+compute_dual_graph.m
+
+compute_edge_face_ring.m
+
+compute_edges.m
+
+compute_face_ring.m
+
+compute_geometric_laplacian.m
+
+compute_laplacian_curve.m
+
+compute_levelset_mesh.m
+
+compute_mesh_gradient.m
+
+compute_mesh_laplacian.m
+
+compute_mesh_local_covariance.m
+
+compute_mesh_weight.m
+
+compute_normal.m
+
+compute_orthocenter.m
+
+compute_orthoproj_triangulation.m
+
+compute_parameterization.m
+
+compute_rotation.m
+
+compute_semidual_graph.m
+
+compute_traveling_salesman.m
+
+compute_triangulation_angles.m
+
+compute_vertex_face_ring.m
+
+compute_vertex_ring.m
+
+compute_voronoi_mesh.m
+
+content.m
+
+	 Toolbox graph - A toolbox to process graph and triangulated meshes
+	
+convert_gim2mesh.m
+
+griddata_arbitrary.m
+
+incidence2adjacency.m
+
+load_gim.m
+
+load_graph.m
+
+mesh_flip_faces.m
+
+mesh_previewer.m
+
+mesh_wrapper.m
+
+metro_wrapper.m
+
+perform_delaunay_flipping.m
+
+perform_dijkstra.m
+
+perform_dijkstra_path_extraction.m
+
+perform_dijkstra_propagation.m
+
+perform_dijkstra_propagation_old.m
+
+perform_dijkstra_propagation_slow.m
+
+perform_faces_reorientation.m
+
+perform_floyd_algorithm.m
+
+perform_lloyd_iteration.m
+
+perform_mesh_heat_diffusion.m
+
+perform_mesh_simplification.m
+
+perform_mesh_smoothing.m
+
+perform_normal_displacement.m
+
+perform_point_picking.m
+
+perform_saturation.m
+
+perform_triangle_flipping.m
+
+plot_dijkstra.m
+
+plot_edges.m
+
+plot_geometry_image.m
+
+plot_graph.m
+
+plot_mesh.m
+
+plot_silouhette.m
+
+plot_spherical_triangulation.m
+
+progressive_mesh.m
+
+publish_html.m
+
+qslim.m
+
+	QSLIM - Mesh simplification, wrapper function for Garland's QSLIM executable program
+	 function [NFV,smf_fname] = qslim(FV,varargin);
+	 varargin should be entered in pairs '<option>','<arg>'.
+	 Valid pairs used in this wrapper are:
+	
+read_gim.m
+
+read_mesh.m
+
+read_mfile.m
+
+read_obj.m
+
+read_off.m
+
+read_ply.m
+
+read_smf.m
+
+read_tet.m
+
+read_vtk.m
+
+read_wrl.m
+
+reverse_orientation.m
+
+select3d.m
+
+	SELECT3D(H) Determines the selected point in 3-D data space.
+	  P = SELECT3D determines the point, P, in data space corresponding 
+	  to the current selection position. P is a point on the first 
+	  patch or surface face intersected along the selection ray. If no 
+	  face is encountered along the selection ray, P returns empty.
+	
+tet2tri.m
+
+toolbox_graph.m
+
+triangulate.m
+
+	 triangulate - interface to 'triangle' library. 
+	
+triangulation2adjacency.m
+
+triangulation_isequal.m
+
+write_gim.m
+
+write_mesh.m
+
+write_obj.m
+
+write_off.m
+
+write_ply.m
+
+write_smf.m
+
+write_wrl.m
+
 
 ThirdPartyToolbox/ImGaussianToolbox
 -------------------------------------------------------------
