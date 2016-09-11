@@ -1,4 +1,25 @@
+2016-09-11  Ramon Casero  <rcasero@gmail.com>
+
+	* Add ThirdPartyToolbox/GraphToolbox:
+	* add_gerardus_paths.m: (0.3.6)
+
+	- Add Toolbox Graph, by Gabriel Peyre 26 Jun 2004 (Updated 19 Jul
+	2009.
+
+	A toolbox to perform computations on graph. We are particularly
+	interested in functions to write/read meshes in .off format to
+	interact with Meshlab.
+
+	http://uk.mathworks.com/matlabcentral/fileexchange/5355-toolbox-graph
+
 2016-09-07  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m: (0.8.0)
+
+	- Simplify code removing the attempts at cleaning non-manifold
+	vertices. I think the code was buggy, and was producing
+	non-manifold meshes. Better clean the meshes up manually with
+	meshlab.
 
 	* matlab/FileFormatToolbox/scimat_load.m: (0.5.9)
 

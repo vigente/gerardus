@@ -1,0 +1,179 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests
+END
+test_spherical_triangulation_drawing.m
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_spherical_triangulation_drawing.m
+END
+test_mesh_simplification.m
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_mesh_simplification.m
+END
+test_image_approx_refinement.m
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_image_approx_refinement.m
+END
+test_laplacian_curve.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_laplacian_curve.m
+END
+test_mesh_processing.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_mesh_processing.m
+END
+test_mex.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_mex.m
+END
+test_image_approx_thining.m
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_image_approx_thining.m
+END
+test_flattening.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_flattening.m
+END
+test_drawing.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_drawing.m
+END
+test_constrained_delaunay.m
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_constrained_delaunay.m
+END
+test_mesh.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_mesh.m
+END
+test_levelset_mesh.m
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_levelset_mesh.m
+END
+test_face_reorientation.m
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_face_reorientation.m
+END
+test_diffusion_wavelets.m
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_diffusion_wavelets.m
+END
+test_spectra.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_spectra.m
+END
+test_compression.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_compression.m
+END
+test_dijkstra_astar.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_dijkstra_astar.m
+END
+test_wave_equation.m
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_wave_equation.m
+END
+test_duality.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_duality.m
+END
+test_dijkstra.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_dijkstra.m
+END
+test_grid_data.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_grid_data.m
+END
+test_filling_holes.m
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_filling_holes.m
+END
+test_parameterization.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_parameterization.m
+END
+test_tets.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_tets.m
+END
+test_curvature.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_curvature.m
+END
+test_compression_fixed.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_compression_fixed.m
+END
+test_lloyd.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_lloyd.m
+END
+test_mesh_smoothing.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_mesh_smoothing.m
+END
+test_free_boundary.m
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svnroot/matlabcompanion/!svn/ver/1/toolbox/toolbox_graph/tests/test_free_boundary.m
+END
