@@ -1,5 +1,9 @@
 2016-09-11  Ramon Casero  <rcasero@gmail.com>
 
+	* Delete stlread.m, stlwrite.m, license-stlwrite.txt:
+
+	- Redundant with GraphToolbox.
+
 	* Add ThirdPartyToolbox/GraphToolbox:
 	* add_gerardus_paths.m: (0.3.6)
 
