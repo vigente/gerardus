@@ -14,9 +14,9 @@ function scimat = scimat_downsample(scimat)
 %
 % SCIMAT = SCIMAT_DOWNSAMPLE(SCIMAT)
 % 
-% SCIMAT (input) and SCIMAT (output) are both Struct used in Gerardus to 
+% SCIMAT (input) and SCIMAT (output) are both structs used in Gerardus to 
 % store 2D, 3D or 3D+t images and axis metainformation. For more
-% information see scimat.m
+% information, see "help scimat".
 %
 % Example: 
 %  
@@ -33,12 +33,14 @@ function scimat = scimat_downsample(scimat)
 %       axis: [3x1 struct]
 %       data: [64x64 double]
 %     rotmat: [3x3 double]
+%
+% See also: scimat_resize3, scimat_resample.
 
 % Authors: Benjamin Villard <b.016434@gmail.com>,
 % Vicente Grau  <vicente.grau@eng.ox.ac.uk>
 % Christopher Kelly <christopher.kelly28@googlemail.com>
 % Copyright © 2015-2016 University of Oxford
-% Version: 0.3.1
+% Version: 0.3.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at

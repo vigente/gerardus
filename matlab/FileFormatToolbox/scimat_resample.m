@@ -12,10 +12,12 @@ function out = scimat_resample(inp,out,kind)
 %   OUT is the target scimat file
 %
 %   KIND is a string, deciding on the kind of interpolation/averaging
+%
+% See also: scimat_resize3, scimat_downsample.
 
 % Author: Nicolas Basty <nicolas.basty@eng.ox.ac.uk>
 % Copyright © 2016 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
