@@ -8,14 +8,10 @@ function [tri, x, scimat] = scimat_lconvhull_smoothing(scimat, rad, raster)
 %   assumed to have one closed surface only.
 %
 %   An alpha-shape of the coordinates of all perimeter voxels is computed.
-%   The boundary of the alpha-shape is a triangular mesh. Non-manifold
-%   vertices are identified and removed iteratively, until all vertices are
-%   manifold.
+%   The boundary of the alpha-shape is a triangular mesh. 
 %
-%   All vertices that were identified as non-manifold are removed from the
-%   list of perimeter voxels, and the alpha-shape is recomputed. This
-%   process is repeated iteratively until the result is an alpha-shape with
-%   only manifold vertices.
+%   The function gives a warning if the output mesh contains non-manifold
+%   vertices. These can be removed with an external program, e.g. meshlab.
 %
 %   RAD is a scalar with the radius of the alpha shape, i.e. the size of
 %   the convex hull neighbourhood. When the convex hull is computed, only
@@ -55,8 +51,8 @@ function [tri, x, scimat] = scimat_lconvhull_smoothing(scimat, rad, raster)
 % cgal_alpha_shape3, cgal_fixed_alpha_shape3, scimat_tri_to_raster.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2012-2014 University of Oxford
-% Version: 0.7.2
+% Copyright © 2012-2014, 2016 University of Oxford
+% Version: 0.8.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -112,84 +108,42 @@ scimat.data = bwperim(scimat.data);
 x = scimat_index2world([r c s], scimat);
 clear r c s
 
-% matrix to keep track of the non-manifold vertices that we are going
-% to remove
-xremoved = [];
+% % matrix to keep track of the non-manifold vertices that we are going
+% % to remove
+% xremoved = [];
 
-% loop to remove potential troublesome vertices
-while (true)
-    
-    % coordinates of segmented voxels
-    [r, c, s] = ind2sub(size(scimat.data), find(scimat.data));
-    x = scimat_index2world([r c s], scimat);
-    clear r c s
-    
-    % remove vertices that have been found to be non-manifold in the
-    % past
-    if ~isempty(xremoved)
-        x = setdiff(x, xremoved, 'rows');
+% coordinates of segmented voxels
+[r, c, s] = ind2sub(size(scimat.data), find(scimat.data));
+x = scimat_index2world([r c s], scimat);
+clear r c s
+
+% compute alpha shape
+try
+    [~, s] = alphavol(x, rad);
+catch err
+    % "Error computing the Delaunay triangulation. The points may be
+    % coplanar or collinear"
+    %
+    % Just exit the function leaving the input segmentation untouched
+    if (strcmp(err.identifier,'MATLAB:delaunay:EmptyDelaunay3DErrId'))
+        return
+    else
+        % display any other errors as usual
+        rethrow(err);
     end
-    
-    % compute alpha shape
-    try
-        [~, s] = alphavol(x, rad);
-    catch err
-        % "Error computing the Delaunay triangulation. The points may be
-        % coplanar or collinear"
-        %
-        % Just exit the function leaving the input segmentation untouched
-        if (strcmp(err.identifier,'MATLAB:delaunay:EmptyDelaunay3DErrId'))
-            return
-        else
-            % display any other errors as usual
-            rethrow(err);
-        end
-    end
-    tri = s.bnd;
-    clear s
-    
-    % remove vertices that are not connected to any triangles
-    [tri, x] = tri_squeeze(tri, x);
-    
-    % number of non-manifold vertices so far
-    nnonmani = size(xremoved, 1);
-    
-    % remove vertices until there are no non-manifold vertices
-    while (true)
-        
-        % find non-manifold vertices
-        idx = tri_find_nonmanifold_vertex(tri, x, scimat);
-        
-        % stop if all vertices are now manifold
-        if isempty(idx)
-            break
-        end
-        
-        % keep track of removed vertices
-        xremoved = [xremoved; x(idx, :)];
-        
-        % remove non-manifold vertices
-        [tri, x] = remove_vertex_from_tri(tri, x, idx);
-        
-    end
-    
-    % if no more non-manifold vertices have been found with respect to
-    % the previous iteration, we have finished cleaning up the mesh
-    if (nnonmani == size(xremoved, 1))
-        break
-    end
-    
-    
 end
-
-% DEBUG
-% disp(['Number of non-manifoled vertices removed: ' num2str(nnonmani)])
-
+tri = s.bnd;
+clear s
+    
+% remove vertices that are not connected to any triangles, because they
+% are inside the local convex hull, not on its surface
+[tri, x] = tri_squeeze(tri, x);
+    
 % label connected components
 [ncomp, trilab, xlab] = triconncomp(tri, x);
 
-% DEBUG
-% plot the mesh colouring triangles according to their label
+% % DEBUG
+% % plot the mesh colouring triangles according to their label
 % hold off
 % trisurf(tri, x(:, 1), x(:, 2), x(:, 3), trilab)
 % axis equal
@@ -204,10 +158,10 @@ idx = find(xlab ~= idx);
 % delete smaller components
 [tri, x] = remove_vertex_from_tri(tri, x, idx);
 
-% double-check that there aren't any non-manifold vertices
+% check whether there are non-manifold vertices
 idx = tri_find_nonmanifold_vertex(tri, x, scimat);
 if ~isempty(idx)
-    warning(['Assertion fail. Non-manifold vertices: ' num2str(length(idx))])
+    warning(['Non-manifold vertices: ' num2str(length(idx))])
 end
 
 % % DEBUG: plot alpha shape's surface

@@ -1,5 +1,10 @@
 2016-09-12  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m (0.8.0)
+
+	- No longer remove non-manifold vertices. We leave that to an
+	external program like meshlab.
+
 	* Add matlab/FiltersToolbox/scimat_resize3.m: (0.1.0)
 	* matlab/FiltersToolbox/scimat_downsample.m: (0.3.2)
 	* matlab/FileFormatToolbox/scimat_resample.m: (0.1.2)
