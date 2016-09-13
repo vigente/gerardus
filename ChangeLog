@@ -1,3 +1,9 @@
+2016-09-13  Ramon Casero  <rcasero@gmail.com>
+
+	* .gitignore: Some of the directories needed a "/" before their
+	name, so that they refer to the directory at the root of gerardus,
+	instead of every directory or file with the same name.
+
 2016-09-12  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FiltersToolbox/scimat_lconvhull_smoothing.m (0.8.0)
