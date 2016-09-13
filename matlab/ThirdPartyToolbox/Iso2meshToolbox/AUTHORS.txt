@@ -1,0 +1,21 @@
+The author of "Iso2mesh" toolbox is Qianqian Fang. 
+Qianqian is currently an Assistant Professor at the
+Department of Bioengineering of Northeastern University.
+
+Address: Dept. of Bioengineering
+         Northeastern University
+         360 Huntington Ave, Boston, MA 02115
+URL: http://nmr.mgh.harvard.edu/~fangq/
+Email: <q.fang at neu.edu> or <fangqq at gmail.com>
+
+
+Other people had also contributed to this toolbox, they include
+
+- Aslak Grinsted <ag at glaciology.net>
+- Hang Si <si at wias-berlin.de>
+- Pierre Alliez <pierre.alliez at sophia.inria.fr>
+- Laurent Rineau <laurent.rineau__CGAL at normalesup.org>
+- Donghyeon Kim <danielkim at gist.ac.kr>
+- Blake Johnson <bjohnso at bbn.com>
+- Niclas Borlin <Niclas.Borlin at cs.umu.se>
+- Peter Varga <peter.varga at charite.de>

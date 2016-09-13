@@ -1,0 +1,138 @@
+   #[1]iso2mesh: a Matlab/Octave-based mesh generator
+
+How to obtain iso2mesh
+
+          1. [2]Download the latest release
+
+          2. [3]Download Development Snapshot from SVN (not fully tested)
+
+                2.1. [4]Anonymous SVN Access
+
+                2.2. [5]Developer SVN Access
+
+          3. [6]Important Note on Licenses
+
+1. Download the latest release
+
+iso2mesh 2013 (1.5.0), codenamed [7]Laba Porridge
+
+   Please download the latest v1.5.0 release at our
+   [8]registration/download page. We are greatly appreciated if you can
+   tell us a little bit about you and your related research by
+   [9]registering your copy of iso2mesh.
+     * Release date: July 16, 2013
+     * This software is supported on [os-icons3.png]
+
+iso2mesh 1.4.9, codenamed Laba Porridge (beta)
+
+   Please download the stable v1.4.9 release at our
+   [10]registration/download page.
+     * Release date: Jan. 20, 2013
+
+2. Download Development Snapshot from SVN (not fully tested)
+
+   If you want to get the latest development branch of iso2mesh, you have
+   to download it from our subversion (SVN) repository. You have to be
+   aware that an SVN snapshot is not a stable release. It may contain
+   partially implemented features and, thus, cause crash or erroneous
+   results.
+
+   First, make sure you have installed an SVN client on your system. If
+   your system is a Debian-based GNU/Linux system (such as Ubuntu, Knoppix
+   etc), you can install SVN by
+ sudo apt-get install subversion
+
+   if you are using a Redhat-based GNU/Linux system (such as Fedora,
+   CentOS etc), you can do this by
+ su -c 'yum install subversion'
+
+   If your operating system is Windows, we recommend you installing
+   [11]TortoiseSVN.
+
+2.1. Anonymous SVN Access
+
+   The latest code snapshot can be checked out from project's [12]SVN
+   repository. It can be checked out anonymously by the following command.
+
+ svn checkout svn://svn.code.sf.net/p/iso2mesh/code/trunk/iso2mesh iso2mesh
+
+   After checking out the code, you need to set up the path based on the
+   [13]installation instructions. Then you can start matlab or octave, and
+   run the example scripts under the sample directory.
+
+2.2. Developer SVN Access
+
+   If you are one of the developers who have SVN write-permission, you can
+   checkout the latest code with the same command above.
+
+   You will have to [14]register an account and ask the [15]project
+   maintainer to grant you SVN permission).
+
+   Once checkout, you can simply make changes or debug your changes in
+   your local copy. If your local changes have passed review by other
+   co-developers, you can then commit your changes back to the SVN
+   repository by
+
+ cd /path/to/iso2mesh/local/copy
+ svn commit -m "a short summary of your changes"
+
+3. Important Note on Licenses
+
+   The iso2mesh toolbox is licensed under [16]GNU Public License (GPL).
+   However, it included a number of external tools (under bin/ directory)
+   to perform certain functionality by means of [17]pipelines. These
+   external tools are subjected to their upstream licenses and are not
+   necessarily GPL (or GPL compatible). The complete list of these
+   external commands and their author info and licenses can be found from
+   the [18]README page.
+
+   Particularly, the 3D meshing tool, tetgen, is licensed under a non-free
+   license: it can be freely used, modified, redistributed only for
+   research and academic purposes, any commercial utility of tetgen
+   requires a permission from its [19]original author. iso2mesh calls
+   tetgen in the background to produce 3D mesh, that means if anyone needs
+   to uses the 3D mesh produced by iso2mesh in a commercial product, you
+   MUST contact the author of tetgen to get permission. Processing binary
+   images and produce surfaces are not subject to this limitation.
+
+   In additional to the licenses, if you use this tool in your research,
+   we are greatly appreciated if you can add iso2mesh to your references:
+
+ Qianqian Fang, iso2mesh: a matlab-based 3D tetrahedral mesh generator, URL: [20]http://iso2mesh.sourceforge.net, 2008
+
+   or
+
+ Qianqian Fang and David Boas, "Tetrahedral mesh generation from volumetric binary and gray-scale images,"
+ Proceedings of IEEE International Symposium on Biomedical Imaging 2009, pp. 1142-1145, 2009
+
+   If you used cgalsurf or cgalmesh options in your mesh preparation, you
+   should also acknowledge [21]CGAL publications. If you generated your
+   mesh with the tetgen module in iso2mesh instead of CGAL mesher, you may
+   need to [22]acknowledge tetgen in your publications, you can find more
+   references from [23]this link.
+
+References
+
+   1. http://iso2mesh.sourceforge.net/cgi-bin/index.cgi?action=rss
+   2. http://iso2mesh.sourceforge.net/cgi-bin/index.cgi?Download#Download_the_latest_release
+   3. http://iso2mesh.sourceforge.net/cgi-bin/index.cgi?Download#Download_Development_Snapshot_from_SVN_not_fully_tested
+   4. http://iso2mesh.sourceforge.net/cgi-bin/index.cgi?Download#Anonymous_SVN_Access
+   5. http://iso2mesh.sourceforge.net/cgi-bin/index.cgi?Download#Developer_SVN_Access
+   6. http://iso2mesh.sourceforge.net/cgi-bin/index.cgi?Download#Important_Note_on_Licenses
+   7. http://en.wikipedia.org/wiki/Laba_Congee
+   8. http://iso2mesh.sourceforge.net/cgi-bin/index.cgi?register/iso2mesh
+   9. http://iso2mesh.sourceforge.net/cgi-bin/index.cgi?action=edit&id=register/iso2mesh
+  10. http://iso2mesh.sourceforge.net/cgi-bin/index.cgi?register/iso2mesh
+  11. http://tortoisesvn.net/downloads
+  12. http://sourceforge.net/p/iso2mesh/code/404/tree/
+  13. http://iso2mesh.sourceforge.net/cgi-bin/index.cgi?Doc/Installation
+  14. https://sourceforge.net/user/registration
+  15. http://sourceforge.net/users/fangq
+  16. http://www.gnu.org/licenses/gpl-2.0.html
+  17. http://en.wikipedia.org/wiki/Unix_pipe
+  18. http://iso2mesh.sourceforge.net/cgi-bin/index.cgi?Doc/README#Acknowledgement
+  19. http://www.wias-berlin.de/~si
+  20. http://iso2mesh.sourceforge.net/
+  21. http://www.cgal.org/bibliography.html
+  22. http://tetgen.berlios.de/reference.html
+  23. http://iso2mesh.sourceforge.net/cgi-bin/index.cgi?Doc/References

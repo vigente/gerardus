@@ -1,5 +1,15 @@
 2016-09-13  Ramon Casero  <rcasero@gmail.com>
 
+	* Update matlab/ThirdPartyToolbox/Iso2meshToolbox to latest version
+	* add_gerardus_paths.m: (0.3.7)
+
+	- iso2mesh-1.7.9 for linux64 by Qianqian Fang <q.fang at neu.edu>
+
+	- https://sourceforge.net/projects/iso2mesh/files/iso2mesh/1.7.9%20%28Deviled%20Egg-beta%29/
+
+	* Rename matlab/ThirdPartyToolbox/iso2meshToolbox as
+	matlab/ThirdPartyToolbox/Iso2meshToolbox.
+
 	* .gitignore: Some of the directories needed a "/" before their
 	name, so that they refer to the directory at the root of gerardus,
 	instead of every directory or file with the same name.
