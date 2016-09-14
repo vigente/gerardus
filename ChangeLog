@@ -1,3 +1,8 @@
+2016-09-14  Ramon Casero  <rcasero@gmail.com>
+
+	* .gitignore: Add list of files that are automatically generated
+	by the CMake build system, so git shouldn't track them.
+
 2016-09-13  Ramon Casero  <rcasero@gmail.com>
 
 	* Update matlab/ThirdPartyToolbox/Iso2meshToolbox to latest version
