@@ -1,3 +1,10 @@
+2016-09-14  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FiltersToolbox/scimat_resize3.m (0.1.1): Specify that the
+	inputs SZ and SIGMA are in [row, col, slice] order, so that they
+	agree with the SCIMAT format, and then swap rows and columns
+	internally to match the resize3D format.
+
 2016-09-13  Ramon Casero  <rcasero@gmail.com>
 
 	* Update matlab/ThirdPartyToolbox/Iso2meshToolbox to latest version

@@ -16,20 +16,22 @@ function scimat2 = scimat_resize3(scimat, sz, sigma)
 %   SCIMAT, SCIMAT2 are the input and output scimat structs that contain
 %   the image to be resized (see "help scimat" for details).
 %
-%   SZ is a 3-vector with the size of the output SCIMAT2.
+%   SZ is a 3-vector with the size of the output SCIMAT2 in [row col slice]
+%   order.
 %
-%   SIGMA is a 3-vector with the standard deviation (in pixel units) of the
-%   Gaussian low-pass filter used for anti-aliasing. The more decimation,
-%   the larger SIGMA should be to avoid aliasing artifacts. On the other
-%   hand, too much blurring will degrade the result unnecessarily. By
-%   default, SIGMA = size(SCIMAT.data) ./ size(SCIMAT2.data).
+%   SIGMA is a 3-vector with the standard deviation (in pixel units, [row
+%   col slice] order) of the Gaussian low-pass filter used for
+%   anti-aliasing. The more decimation, the larger SIGMA should be to avoid
+%   aliasing artifacts. On the other hand, too much blurring will degrade
+%   the result unnecessarily. By default, SIGMA = size(SCIMAT.data) ./
+%   size(SCIMAT2.data), but often it's better to have less blurring.
 %   
 % 
 % See also: scimat_resample, scimat_downsample.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2016 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -70,6 +72,10 @@ end
 if (nargin < 3 || isempty(sigma))
     sigma = size(scimat.data) ./ sz;
 end
+
+% convert from row/column to x/y to match the format of resize3DImage
+sz(1:2) = sz([2 1]);
+sigma(1:2) = sigma([2 1]);
     
 % temp names for internal use files to resize the image
 infile = [tempname '.mha'];
