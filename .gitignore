@@ -2,8 +2,12 @@
 *.o
 *.so
 *.so.*
+*.dll
+*.lib
 *.lo
 *.mexa64
+*.mexw64
+*.tar.gz
 /bin
 /include
 /programs
@@ -22,3 +26,4 @@
 /matlab/FileFormatToolbox/requiredMCRProducts.txt
 /matlab/FileFormatToolbox/run_vmu2png.sh
 /matlab/FileFormatToolbox/vmu2png
+/cpp/src/third-party/boost_1_44_0

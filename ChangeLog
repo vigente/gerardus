@@ -1,3 +1,8 @@
+2016-09-19  Ramon Casero  <rcasero@gmail.com>
+
+	* .gitignore: Add extensions of Windows library and directory for 
+	Boost libraries.
+
 2016-09-14  Ramon Casero  <rcasero@gmail.com>
 
 	* .gitignore: Add list of files that are automatically generated
