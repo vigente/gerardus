@@ -102,13 +102,14 @@ function [y, stopCondition, sigma, sigma0, t] ...
 %
 %   SCIP_OPTS is a struct with parameters to tweak the SCIP algorithm.
 %
-%     'scipbin': (defaults = 'scip-3.1.0.linux.x86_64.gnu.opt.spx' (Linux),
-%                            'scip-3.1.0.darwin.x86_64.gnu.opt.spx' (Mac),
-%                            'scip-3.1.0.mingw.x86_64.intel.opt.spx.exe' (Win))
+%     'scipbin': (defaults = 'scip.linux.x86_64.gnu.opt.spx' (Linux),
+%                            'scip.darwin.x86_64.gnu.opt.spx' (Mac),
+%                            'scip.mingw.x86_64.intel.opt.spx.exe' (Win))
 %                Name of the SCIP binary/executable. This binary should be
 %                available in the system path. E.g. place it in
 %                gerardus/programs. The binaries/executable can be
-%                downloaded from http://scip.zib.de/#download.
+%                downloaded from http://scip.zib.de/#download. You may need
+%                to rename them so that they fit the expected filenames.
 %
 %     'display_verblevel': (default 4) verbosity level of output (0: SCIP
 %                quiet mode).
@@ -148,8 +149,8 @@ function [y, stopCondition, sigma, sigma0, t] ...
 % See also: cmdscale, qcqp_smacof, tri_sphparam.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.4.3
+% Copyright © 2014, 2016 University of Oxford
+% Version: 0.4.4
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -250,11 +251,11 @@ if (nargin < 8 || isempty(scip_opts) || ~isfield(scip_opts, 'scipbin'))
     
     % default name of the SCIP binary depending on the architecture
     if (isunix)
-        SCIPBIN = 'scip-3.1.0.linux.x86_64.gnu.opt.spx';
+        SCIPBIN = 'scip.linux.x86_64.gnu.opt.spx';
     elseif (ismac)
-        SCIPBIN = 'scip-3.1.0.darwin.x86_64.gnu.opt.spx';
+        SCIPBIN = 'scip.darwin.x86_64.gnu.opt.spx';
     elseif (ispc)
-        SCIPBIN = 'scip-3.1.0.mingw.x86_64.intel.opt.spx.exe';
+        SCIPBIN = 'scip.mingw.x86_64.intel.opt.spx.exe';
     else
         error('Operating system not recognized: I do not know what is the default name for the SCIP binary')
     end

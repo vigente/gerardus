@@ -1,6 +1,13 @@
+2016-09-20  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/cons_smacof_pip.m (0.4.4): Change expected
+	names for SCIP binary. We remove the version number so that we
+	don't need to be changing it every time they release a new
+	version.
+
 2016-09-19  Ramon Casero  <rcasero@gmail.com>
 
-	* .gitignore: Add extensions of Windows library and directory for 
+	* .gitignore: Add extensions of Windows library and directory for
 	Boost libraries.
 
 2016-09-14  Ramon Casero  <rcasero@gmail.com>
