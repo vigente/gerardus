@@ -1,5 +1,15 @@
 2016-09-20  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m (0.3.0):
+	Improve the constraint that says that the points have to be within
+	a box that encloses the sphere. Now we form the box enclosing the
+	fixed vertices of the component.
+
+	The reason for this change is that a negative triangle can flip by
+	sending a vertex to a far away point on the sphere. With a smaller
+	box, we prevent this from happening. A smaller box of possible
+	solutions also accelerates the solver.
+
 	* matlab/PointsToolbox/cons_smacof_pip.m (0.4.4): Change expected
 	names for SCIP binary. We remove the version number so that we
 	don't need to be changing it every time they release a new

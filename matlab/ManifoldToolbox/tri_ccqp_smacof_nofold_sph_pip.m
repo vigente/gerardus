@@ -40,10 +40,11 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 %   vertex is a fixed vertex (i.e. with known constant coordinates). By
 %   default, all vertices are assumed to be free.
 %
-%   Y is an (N, 3)-matrix that provides the coordinates of the fixed
-%   vertices as Y(ISFREE, :). The values Y(~ISFREE, :) are simply ignored.
-%   Thus, Y doesn't need to be provided if all vertices are free. If
-%   there's at least a fixed vertex, then Y must be provided.
+%   Y is an (N, 3)-matrix that provides the coordinates of the free
+%   vertices as Y(ISFREE, :) and fixed vertices as Y(~ISFREE, :). Free
+%   vertices are simply ignored. Thus, Y doesn't need to be provided if all
+%   vertices are free. If there's at least a fixed vertex, then Y must be
+%   provided.
 %
 %   FEASTOL is an scalar with the feasibility tolerance for constraints in
 %   SCIP. In SCIP, a constraint f(x) >= b is fulfilled when 
@@ -58,8 +59,8 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 %   SCIP solver.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.2.5
+% Copyright © 2014, 2016 University of Oxford
+% Version: 0.3.0
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -160,11 +161,34 @@ if any(vmin < 10 * feastol)
     error('VMIN is too close to FEASTOL, and this may generate solutions with tiny negative areas/volumes. Scale your problem so that constraint limits can be larger')
 end
 
-%% Upper and lower bounds for the objective function variables
+%% Upper and lower bounds for the objective function variables.
+
+% We know that the solution has to be within a box that contains all the
+% boundary vertices. 
+%
+% Note that the convex full of the boundary vertices wouldn't work, because
+% the sphere may fall outside the convex full
 
 % init output
 bnd = cell(1, 2*Nfree+1);
 bnd{1} = 'Bounds';
+
+% compute box that encloses the fixed vertices. If there are not enough
+% non-colinear vertices to form a box, we use a box that encloses the
+% sphere
+if (rank(y(~isFree, :)) < 3)
+
+    % not enough fixed vertices
+    ymin = [-R -R -R];
+    ymax = [ R  R  R];
+    
+else
+    
+    % there are enough fixed vertices
+    ymin = min(y(~isFree, :));
+    ymax = max(y(~isFree, :));
+    
+end
 
 % variables bounds, lb<=nu<=ub
 idx = find(isFree);
@@ -173,17 +197,17 @@ for I = 1:Nfree
     % bounds for x-coordinate
     bnd{3*I-1} = sprintf(...
         ' %.15g <= x%d <= %.15g', ...
-        -R, idx(I), R);
+        ymin(1), idx(I), ymax(1));
 
     % bounds for y-coordinate
     bnd{3*I} = sprintf(...
         ' %.15g <= y%d <= %.15g', ...
-        -R, idx(I), R);
+        ymin(2), idx(I), ymax(2));
     
     % bounds for z-coordinate
     bnd{3*I+1} = sprintf(...
         ' %.15g <= z%d <= %.15g', ...
-        -R, idx(I), R);
+        ymin(3), idx(I), ymax(3));
     
 end
 
