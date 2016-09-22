@@ -1,3 +1,7 @@
+2016-09-22  Ramon Casero  <rcasero@gmail.com>
+
+	* tri_sphparam.m (0.5.1): Fix bug. Bad concatenation of vectors.
+
 2016-09-20  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m (0.3.0):

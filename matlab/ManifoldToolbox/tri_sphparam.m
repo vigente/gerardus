@@ -187,8 +187,8 @@ function [y, yIsValid, stopCondition, sigma, sigma0, t] = tri_sphparam(method, d
 % See also: cmdscale, cons_smacof_pip, qcqp_smacof.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014 University of Oxford
-% Version: 0.5.0
+% Copyright © 2014, 2016 University of Oxford
+% Version: 0.5.1
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -744,7 +744,7 @@ nn(idx) = true;
 [~, idx] = max(arrayfun(@length, cc));
 
 % add the other components to the neighbourhood
-nn([cc{[1:idx-1 idx+1:end]}]) = true;
+nn(cat(1, cc{[1:idx-1 idx+1:end]})) = true;
 
 % triangles that triangulate the local neighbourhood
 idxtrinn = sum(ismember(tri, find(nn)), 2) == 3;
