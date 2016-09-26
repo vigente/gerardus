@@ -150,7 +150,7 @@ function [y, stopCondition, sigma, sigma0, t] ...
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014, 2016 University of Oxford
-% Version: 0.4.4
+% Version: 0.4.5
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -454,7 +454,7 @@ objfunq{1} = [' obj: ' objfunq{1}];
 [~, aux] = fileparts(tempname);
 pipfilename = [tempdir 'model-' aux '.pip']; % PIP model
 solfilename = [tempdir 'model-' aux '.sol']; % output solution
-sol0filename = [tempdir 'model-' aux '.sol']; % initial guess
+sol0filename = [tempdir 'model-' aux '.sol0']; % initial guess
 
 % init stopCondition
 stopCondition = [];
@@ -560,6 +560,11 @@ for I = 1:smacof_opts.MaxIter
     % read solution
     [aux, status] = read_solution(solfilename, size(y));
     
+    % delete temp files
+    if (exist(pipfilename, 'file')), delete(pipfilename); end
+    if (exist(solfilename, 'file')), delete(solfilename); end
+    if (exist(sol0filename, 'file')), delete(sol0filename); end
+    
     % if SCIP cannot find a valid solution (e.g. we set a too short time
     % limit or it doesn't exist), then we cannot update the current
     % solution. This also means that we need to stop the optimization,
@@ -579,6 +584,19 @@ for I = 1:smacof_opts.MaxIter
     % we only have to update the positions of the free vertices. The values
     % for fixed vertices in aux are all 0, so they need to be ignored
     y(isFree, :) = aux(isFree, :);
+    
+    % check that no two vertices are overlapping. Duplicated vertices cause
+    % errors in the SMACOF algorithm because they create dy=0 components,
+    % that produce Inf values in B = mwdx ./ dy;. Ideally, we would like
+    % to move one of them a bit so that they don't overlap, while
+    % maintaining the positive orientation of the triangles they are
+    % involved with. However, we don't have the triangulation in this
+    % function, and leave that for future work. For the time being, we are
+    % going to consider overlapping vertices as a failed solution, and exit
+    if (size(unique(y, 'rows'), 1) ~= N)
+        stopCondition{end+1} = 'Duplicated vertex/vertices';
+        break
+    end
     
     % recompute distances between vertices in the current solution
     dy = dmatrix_con(dx, y);
@@ -744,7 +762,7 @@ end
 %    point), including the points that are not free points
 %
 % file: path and file name of the solution file.
-function write_solution(file, y, isFree)
+function write_solution(file, y)
 
 % size of full solution configuration
 sz = size(y);
@@ -777,16 +795,22 @@ end
 for I = 1:sz(1)
     
     % write x-coordinate
-    fprintf(fid, '%s%d\t\f.16\t%s\n', 'x', I, y(I, 1), '(obj:0)');
+    fprintf(fid, '%s%d\t%.16e\t%s\n', 'x', I, y(I, 1), '(obj:0)');
 
     % write y-coordinate
-    fprintf(fid, '%s%d\t\f.16\t%s\n', 'y', I, y(I, 2), '(obj:0)');
+    fprintf(fid, '%s%d\t%.16e\t%s\n', 'y', I, y(I, 2), '(obj:0)');
     
     % write z-coordinate
     if (sz(2) == 3)
-        fprintf(fid, '%s%d\t\f.16\t%s\n', 'z', I, y(I, 3), '(obj:0)');
+        fprintf(fid, '%s%d\t%.16e\t%s\n', 'z', I, y(I, 3), '(obj:0)');
     end
     
+end
+
+% close file
+st = fclose(fid);
+if (st == -1)
+    error(['Cannot close file ' file ' after writing solution'])
 end
 
 end
