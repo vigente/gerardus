@@ -60,7 +60,7 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014, 2016 University of Oxford
-% Version: 0.3.0
+% Version: 0.3.1
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -161,6 +161,10 @@ if any(vmin < 10 * feastol)
     error('VMIN is too close to FEASTOL, and this may generate solutions with tiny negative areas/volumes. Scale your problem so that constraint limits can be larger')
 end
 
+if (any(isnan(y(:))))
+    error('NaN values in Y')
+end
+
 %% Upper and lower bounds for the objective function variables.
 
 % We know that the solution has to be within a box that contains all the
@@ -173,20 +177,20 @@ end
 bnd = cell(1, 2*Nfree+1);
 bnd{1} = 'Bounds';
 
-% compute box that encloses the fixed vertices. If there are not enough
+% compute box that encloses the vertices. If there are not enough
 % non-colinear vertices to form a box, we use a box that encloses the
 % sphere
 if (rank(y(~isFree, :)) < 3)
 
-    % not enough fixed vertices
+    % not enough vertices
     ymin = [-R -R -R];
     ymax = [ R  R  R];
     
 else
     
-    % there are enough fixed vertices
-    ymin = min(y(~isFree, :));
-    ymax = max(y(~isFree, :));
+    % there are enough vertices
+    ymin = min(y);
+    ymax = max(y);
     
 end
 
@@ -402,7 +406,7 @@ for I = 1:Nfree
     
     con{count} = sprintf( ...
         ' c%d: x%d^2 + y%d^2 + z%d^2 = %.15g', ...
-        count, idx(I), idx(I), idx(I), R^2);
+        count-1, idx(I), idx(I), idx(I), R^2);
     count = count + 1;
     
 end
