@@ -1,0 +1,441 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>TriangleRayIntersection</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-09-30"><meta name="DC.source" content="TriangleRayIntersection.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#3">Transpose inputs if needed</a></li><li><a href="#4">In case of single points clone them to the same size as the rest</a></li><li><a href="#5">Check if all the sizes match</a></li><li><a href="#6">Read user preferences</a></li><li><a href="#7">Set up border parameter</a></li><li><a href="#8">initialize default output</a></li><li><a href="#9">Find faces parallel to the ray</a></li><li><a href="#10">Different behavior depending on one or two sided triangles</a></li><li><a href="#11">Test where along the line the line/plane intersection occurs</a></li><li><a href="#12">calculate intersection coordinates if requested</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> [intersect, t, u, v, xcoor] = TriangleRayIntersection (<span class="keyword">...</span>
+  orig, dir, vert0, vert1, vert2, varargin)
+</pre><pre class="codeinput"><span class="comment">% Ray/triangle intersection using the algorithm proposed by M&ouml;ller and</span>
+<span class="comment">% Trumbore (1997), implemented as highly vectorized MATLAB code.</span>
+<span class="comment">%</span>
+<span class="comment">% Algorithm:</span>
+<span class="comment">%  Function solves</span>
+<span class="comment">%        |t|</span>
+<span class="comment">%    M * |u| = (o-v0)</span>
+<span class="comment">%        |v|</span>
+<span class="comment">%  for [t; u; v] where M = [-d, v1-v0, v2-v0]. u,v are barycentric coordinates</span>
+<span class="comment">%  and t - the distance from the ray origin in |d| units</span>
+<span class="comment">%  ray/triangle intersect if u&gt;=0, v&gt;=0 and u+v&lt;=1</span>
+<span class="comment">%</span>
+<span class="comment">% Note:</span>
+<span class="comment">%  The algorithm is able to solve several types of problems:</span>
+<span class="comment">%  * many faces / single ray  intersection</span>
+<span class="comment">%  * one  face  / many   rays intersection</span>
+<span class="comment">%  * one  face  / one    ray  intersection</span>
+<span class="comment">%  * many faces / many   rays intersection</span>
+<span class="comment">%  In order to allow that to happen all imput arrays are expected in Nx3</span>
+<span class="comment">%  format, where N is number of vertices or rays. In most cases number of</span>
+<span class="comment">%  vertices is different than number of rays, so one of the imputs will</span>
+<span class="comment">%  have to be cloned to have the right size. Use "repmat(A,size(B,1),1)".</span>
+<span class="comment">%</span>
+<span class="comment">% Input (all arrays in in Nx3 format, where N is number of vertices or rays):</span>
+<span class="comment">%  * orig : ray's origin</span>
+<span class="comment">%  * dir  : ray's direction</span>
+<span class="comment">%  * vert0, vert1, vert2: vertices of the triangle</span>
+<span class="comment">%  * options: aditional customization options</span>
+<span class="comment">%    * options.triangle - 'one sided' or 'two sided' (default) - how to treat</span>
+<span class="comment">%        triangles. In 'one sided' version only intersections in single</span>
+<span class="comment">%        direction are counted and intersections with back facing</span>
+<span class="comment">%           tringles are ignored</span>
+<span class="comment">%    * options.ray - 'ray' (default) or 'segment' - how to treat ray as an</span>
+<span class="comment">%        infinite line (ray) or as line segment defined by a vector</span>
+<span class="comment">%    * option.border - controls border handling. If 'normal'(default)</span>
+<span class="comment">%        border points are included, but can be easily lost due to</span>
+<span class="comment">%        rounding errors. If option.border='inclusive' borders points are</span>
+<span class="comment">%        included, with a margin of option.eps. If option.border='exclusive'</span>
+<span class="comment">%        borders points are excluded, with margin of option.eps.</span>
+<span class="comment">%    * options.epsilon (default = 1e-5)</span>
+<span class="comment">%</span>
+<span class="comment">% Output:</span>
+<span class="comment">%   * Intersect - boolean array of length N</span>
+<span class="comment">%   * t   - distance from the ray origin to the intersection point in |dir|</span>
+<span class="comment">%   * u,v - barycentric coordinates of the intersection point units</span>
+<span class="comment">%   * xcoor - intersection coordinates</span>
+<span class="comment">%</span>
+<span class="comment">% Based on:</span>
+<span class="comment">%  *"Fast, minimum storage ray-triangle intersection". Tomas M&ouml;ller and</span>
+<span class="comment">%    Ben Trumbore. Journal of Graphics Tools, 2(1):21--28, 1997.</span>
+<span class="comment">%    http://www.graphics.cornell.edu/pubs/1997/MT97.pdf</span>
+<span class="comment">%  * http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/raytri/</span>
+<span class="comment">%  * http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/raytri/raytri.c</span>
+<span class="comment">%</span>
+<span class="comment">% Author:</span>
+<span class="comment">%    Jarek Tuszynski (jaroslaw.w.tuszynski@leidos.com)</span>
+<span class="comment">%</span>
+<span class="comment">% License: BSD license (http://en.wikipedia.org/wiki/BSD_licenses)</span>
+</pre><h2>Transpose inputs if needed<a name="3"></a></h2><pre class="codeinput"><span class="keyword">if</span> (size(orig ,1)==3 &amp;&amp; size(orig ,2)~=3), orig =orig' ; <span class="keyword">end</span>
+<span class="keyword">if</span> (size(dir  ,1)==3 &amp;&amp; size(dir  ,2)~=3), dir  =dir'  ; <span class="keyword">end</span>
+<span class="keyword">if</span> (size(vert0,1)==3 &amp;&amp; size(vert0,2)~=3), vert0=vert0'; <span class="keyword">end</span>
+<span class="keyword">if</span> (size(vert1,1)==3 &amp;&amp; size(vert1,2)~=3), vert1=vert1'; <span class="keyword">end</span>
+<span class="keyword">if</span> (size(vert2,1)==3 &amp;&amp; size(vert2,2)~=3), vert2=vert2'; <span class="keyword">end</span>
+</pre><pre class="codeoutput error">Error using TriangleRayIntersection (line 63)
+Not enough input arguments.</pre><h2>In case of single points clone them to the same size as the rest<a name="4"></a></h2><pre class="codeinput">N = max([size(orig,1), size(dir,1), size(vert0,1), size(vert1,1), size(vert2,1)]);
+<span class="keyword">if</span> (size(orig ,1)==1 &amp;&amp; N&gt;1 &amp;&amp; size(orig ,2)==3), orig  = repmat(orig , N, 1); <span class="keyword">end</span>
+<span class="keyword">if</span> (size(dir  ,1)==1 &amp;&amp; N&gt;1 &amp;&amp; size(dir  ,2)==3), dir   = repmat(dir  , N, 1); <span class="keyword">end</span>
+<span class="keyword">if</span> (size(vert0,1)==1 &amp;&amp; N&gt;1 &amp;&amp; size(vert0,2)==3), vert0 = repmat(vert0, N, 1); <span class="keyword">end</span>
+<span class="keyword">if</span> (size(vert1,1)==1 &amp;&amp; N&gt;1 &amp;&amp; size(vert1,2)==3), vert1 = repmat(vert1, N, 1); <span class="keyword">end</span>
+<span class="keyword">if</span> (size(vert2,1)==1 &amp;&amp; N&gt;1 &amp;&amp; size(vert2,2)==3), vert2 = repmat(vert2, N, 1); <span class="keyword">end</span>
+</pre><h2>Check if all the sizes match<a name="5"></a></h2><pre class="codeinput">SameSize = (any(size(orig)==size(vert0)) &amp;&amp; <span class="keyword">...</span>
+  any(size(orig)==size(vert1)) &amp;&amp; <span class="keyword">...</span>
+  any(size(orig)==size(vert2)) &amp;&amp; <span class="keyword">...</span>
+  any(size(orig)==size(dir  )) );
+assert(SameSize &amp;&amp; size(orig,2)==3, <span class="keyword">...</span>
+  <span class="string">'All input vectors have to be in Nx3 format.'</span>);
+</pre><h2>Read user preferences<a name="6"></a></h2><pre class="codeinput">eps      = 1e-5;
+triangle = <span class="string">'two sided'</span>;
+lineType = <span class="string">'ray'</span>;
+border   = <span class="string">'normal'</span>;
+nVarargs = length(varargin);
+k = 1;
+<span class="keyword">if</span> nVarargs&gt;0 &amp;&amp; isstruct(varargin{1})
+  <span class="comment">% This section is provided for backward compability only</span>
+  options = varargin{1};
+  <span class="keyword">if</span> (isfield(options, <span class="string">'eps'</span>     )), eps      = options.eps;      <span class="keyword">end</span>
+  <span class="keyword">if</span> (isfield(options, <span class="string">'triangle'</span>)), triangle = options.triangle; <span class="keyword">end</span>
+  <span class="keyword">if</span> (isfield(options, <span class="string">'ray'</span>     )), lineType = options.ray;      <span class="keyword">end</span>
+  <span class="keyword">if</span> (isfield(options, <span class="string">'border'</span>  )), border   = options.border;   <span class="keyword">end</span>
+<span class="keyword">else</span>
+  <span class="keyword">while</span> (k&lt;=nVarargs)
+    assert(ischar(varargin{k}), <span class="string">'Incorrect input parameters'</span>)
+    <span class="keyword">switch</span> lower(varargin{k})
+      <span class="keyword">case</span> <span class="string">'eps'</span>
+        eps = abs(varargin{k+1});
+        k = k+1;
+      <span class="keyword">case</span> <span class="string">'triangle'</span>
+        triangle = strtrim(varargin{k+1});
+        k = k+1;
+      <span class="keyword">case</span> <span class="string">'border'</span>
+        border = strtrim(varargin{k+1});
+        k = k+1;
+      <span class="keyword">case</span> <span class="string">'linetype'</span>
+        lineType = strtrim(varargin{k+1});
+        k = k+1;
+    <span class="keyword">end</span>
+    k = k+1;
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2>Set up border parameter<a name="7"></a></h2><pre class="codeinput"><span class="keyword">switch</span> border
+  <span class="keyword">case</span> <span class="string">'normal'</span>
+    zero=0.0;
+  <span class="keyword">case</span> <span class="string">'inclusive'</span>
+    zero=eps;
+  <span class="keyword">case</span> <span class="string">'exclusive'</span>
+    zero=-eps;
+  <span class="keyword">otherwise</span>
+    error(<span class="string">'Border parameter must be either "normal", "inclusive" or "exclusive"'</span>)
+<span class="keyword">end</span>
+</pre><h2>initialize default output<a name="8"></a></h2><pre class="codeinput">intersect = false(size(orig,1),1); <span class="comment">% by default there are no intersections</span>
+t = inf+zeros(size(orig,1),1); u=t; v=t;
+</pre><h2>Find faces parallel to the ray<a name="9"></a></h2><pre class="codeinput">edge1 = vert1-vert0;          <span class="comment">% find vectors for two edges sharing vert0</span>
+edge2 = vert2-vert0;
+tvec  = orig -vert0;          <span class="comment">% distance from vert0 to ray origin</span>
+pvec  = cross(dir, edge2,2);  <span class="comment">% begin calculating determinant - also used to calculate U parameter</span>
+det   = sum(edge1.*pvec,2);   <span class="comment">% determinant of the matrix M = dot(edge1,pvec)</span>
+parallel = (abs(det)&lt;eps);    <span class="comment">% if determinant is near zero then ray lies in the plane of the triangle</span>
+<span class="keyword">if</span> all(parallel), <span class="keyword">return</span>; <span class="keyword">end</span> <span class="comment">% if all parallel than no intersections</span>
+</pre><h2>Different behavior depending on one or two sided triangles<a name="10"></a></h2><pre class="codeinput"><span class="keyword">switch</span> triangle
+  <span class="keyword">case</span> <span class="string">'two sided'</span>                           <span class="comment">% treats triangles as two sided</span>
+    det(parallel) = 1;                       <span class="comment">% change to avoid division by zero</span>
+    u  = sum(tvec.*pvec,2)./det;             <span class="comment">% calculate 1st barycentric coordinate</span>
+    ok = (~parallel &amp; u&gt;=-zero &amp; u&lt;=1.0+zero);<span class="comment">% mask which allows performing next 2 operations only when needed</span>
+    <span class="keyword">if</span> ~any(ok), <span class="keyword">return</span>; <span class="keyword">end</span>                 <span class="comment">% if all line/plane intersections are outside the triangle than no intersections</span>
+    qvec = cross(tvec(ok,:), edge1(ok,:),2); <span class="comment">% prepare to test V parameter</span>
+    v(ok,:) = sum(dir(ok,:).*qvec,2) ./ det(ok,:);  <span class="comment">% calculate 2nd barycentric coordinate</span>
+    intersect = (ok &amp; v&gt;=-zero &amp; u+v&lt;=1.0+zero); <span class="comment">% test if line/plane intersection is within the triangle</span>
+    <span class="keyword">if</span> (nargout==1 &amp;&amp; strcmpi(lineType,<span class="string">'line'</span>)), <span class="keyword">return</span>; <span class="keyword">end</span>
+    t(ok,:) = sum(edge2(ok,:).*qvec,2)./det(ok,:);
+
+  <span class="keyword">case</span> <span class="string">'one sided'</span>                           <span class="comment">% treats triangles as one sided</span>
+    u = sum(tvec.*pvec,2);                   <span class="comment">% calculate U parameter used to test bounds</span>
+    ok = (det&gt;eps &amp; u&gt;=-zero &amp; u&lt;=det*(1+zero));<span class="comment">% mask which allows performing next 2 operations only when needed</span>
+    <span class="keyword">if</span> ~any(ok), <span class="keyword">return</span>; <span class="keyword">end</span>                 <span class="comment">% if all ray/plane intersections are outside the triangle than no intersections</span>
+    qvec = cross(tvec(ok,:), edge1(ok,:),2); <span class="comment">% prepare to test V parameter</span>
+    v(ok,:) = sum(dir(ok,:).*qvec,2);        <span class="comment">% calculate V parameter used to test bounds</span>
+    intersect = (ok &amp; v&gt;=-zero &amp; u+v&lt;=det*(1+zero));
+    <span class="keyword">if</span> (nargout==1 &amp;&amp; strcmpi(lineType,<span class="string">'line'</span>)), <span class="keyword">return</span>; <span class="keyword">end</span>
+    t(ok,:)  = sum(edge2(ok,:).*qvec,2);
+    inv_det = zeros(size(det));
+    inv_det(ok,:) = 1./det(ok,:);
+    t = t.*inv_det;  <span class="comment">% calculate t - distance from origin to the intersection in |d| units</span>
+    u = u.*inv_det;
+    v = v.*inv_det;
+
+  <span class="keyword">otherwise</span>
+    error(<span class="string">'Triangle parameter must be either "one sided" or "two sided"'</span>);
+<span class="keyword">end</span>
+</pre><h2>Test where along the line the line/plane intersection occurs<a name="11"></a></h2><pre class="codeinput"><span class="keyword">switch</span> lineType
+  <span class="keyword">case</span> <span class="string">'line'</span>      <span class="comment">% infinite line</span>
+    <span class="comment">% do nothing</span>
+  <span class="keyword">case</span> <span class="string">'ray'</span>       <span class="comment">% ray is bound on one side</span>
+    intersect = (intersect &amp; t&gt;=-zero); <span class="comment">% intersection on the correct side of the origin</span>
+  <span class="keyword">case</span> <span class="string">'segment'</span>   <span class="comment">% segment is bound on two sides</span>
+    intersect = (intersect &amp; t&gt;=-zero &amp; t&lt;=1.0+zero); <span class="comment">% intersection between origin and destination</span>
+  <span class="keyword">otherwise</span>
+    error(<span class="string">'lineType parameter must be either "line", "ray" or "segment"'</span>);
+<span class="keyword">end</span>
+</pre><h2>calculate intersection coordinates if requested<a name="12"></a></h2><pre class="codeinput"><span class="keyword">if</span> (nargout&gt;4)
+  xcoor = zeros(size(orig));
+  ok = intersect;
+  xcoor(ok,:) = orig(ok,:) + edge1(ok,:).*u + edge2(ok,:).*v;
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function [intersect, t, u, v, xcoor] = TriangleRayIntersection (...
+  orig, dir, vert0, vert1, vert2, varargin)
+% Ray/triangle intersection using the algorithm proposed by Möller and
+% Trumbore (1997), implemented as highly vectorized MATLAB code.
+%
+% Algorithm:
+%  Function solves
+%        |t|
+%    M * |u| = (o-v0)
+%        |v|
+%  for [t; u; v] where M = [-d, v1-v0, v2-v0]. u,v are barycentric coordinates
+%  and t - the distance from the ray origin in |d| units
+%  ray/triangle intersect if u>=0, v>=0 and u+v<=1
+%
+% Note:
+%  The algorithm is able to solve several types of problems:
+%  * many faces / single ray  intersection
+%  * one  face  / many   rays intersection
+%  * one  face  / one    ray  intersection
+%  * many faces / many   rays intersection
+%  In order to allow that to happen all imput arrays are expected in Nx3
+%  format, where N is number of vertices or rays. In most cases number of
+%  vertices is different than number of rays, so one of the imputs will
+%  have to be cloned to have the right size. Use "repmat(A,size(B,1),1)".
+%
+% Input (all arrays in in Nx3 format, where N is number of vertices or rays):
+%  * orig : ray's origin
+%  * dir  : ray's direction
+%  * vert0, vert1, vert2: vertices of the triangle
+%  * options: aditional customization options
+%    * options.triangle - 'one sided' or 'two sided' (default) - how to treat
+%        triangles. In 'one sided' version only intersections in single
+%        direction are counted and intersections with back facing
+%           tringles are ignored
+%    * options.ray - 'ray' (default) or 'segment' - how to treat ray as an
+%        infinite line (ray) or as line segment defined by a vector
+%    * option.border - controls border handling. If 'normal'(default)
+%        border points are included, but can be easily lost due to
+%        rounding errors. If option.border='inclusive' borders points are
+%        included, with a margin of option.eps. If option.border='exclusive'
+%        borders points are excluded, with margin of option.eps.
+%    * options.epsilon (default = 1e-5)
+%
+% Output:
+%   * Intersect - boolean array of length N
+%   * t   - distance from the ray origin to the intersection point in |dir|
+%   * u,v - barycentric coordinates of the intersection point units
+%   * xcoor - intersection coordinates
+%
+% Based on:
+%  *"Fast, minimum storage ray-triangle intersection". Tomas Möller and
+%    Ben Trumbore. Journal of Graphics Tools, 2(1):21REPLACE_WITH_DASH_DASH28, 1997.
+%    http://www.graphics.cornell.edu/pubs/1997/MT97.pdf
+%  * http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/raytri/
+%  * http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/raytri/raytri.c
+%
+% Author:
+%    Jarek Tuszynski (jaroslaw.w.tuszynski@leidos.com)
+%
+% License: BSD license (http://en.wikipedia.org/wiki/BSD_licenses)
+
+%% Transpose inputs if needed
+if (size(orig ,1)==3 && size(orig ,2)~=3), orig =orig' ; end
+if (size(dir  ,1)==3 && size(dir  ,2)~=3), dir  =dir'  ; end
+if (size(vert0,1)==3 && size(vert0,2)~=3), vert0=vert0'; end
+if (size(vert1,1)==3 && size(vert1,2)~=3), vert1=vert1'; end
+if (size(vert2,1)==3 && size(vert2,2)~=3), vert2=vert2'; end
+
+%% In case of single points clone them to the same size as the rest
+N = max([size(orig,1), size(dir,1), size(vert0,1), size(vert1,1), size(vert2,1)]);
+if (size(orig ,1)==1 && N>1 && size(orig ,2)==3), orig  = repmat(orig , N, 1); end
+if (size(dir  ,1)==1 && N>1 && size(dir  ,2)==3), dir   = repmat(dir  , N, 1); end
+if (size(vert0,1)==1 && N>1 && size(vert0,2)==3), vert0 = repmat(vert0, N, 1); end
+if (size(vert1,1)==1 && N>1 && size(vert1,2)==3), vert1 = repmat(vert1, N, 1); end
+if (size(vert2,1)==1 && N>1 && size(vert2,2)==3), vert2 = repmat(vert2, N, 1); end
+
+%% Check if all the sizes match
+SameSize = (any(size(orig)==size(vert0)) && ...
+  any(size(orig)==size(vert1)) && ...
+  any(size(orig)==size(vert2)) && ...
+  any(size(orig)==size(dir  )) );
+assert(SameSize && size(orig,2)==3, ...
+  'All input vectors have to be in Nx3 format.');
+
+%% Read user preferences
+eps      = 1e-5;
+triangle = 'two sided';
+lineType = 'ray';
+border   = 'normal';
+nVarargs = length(varargin);
+k = 1;
+if nVarargs>0 && isstruct(varargin{1})
+  % This section is provided for backward compability only
+  options = varargin{1};
+  if (isfield(options, 'eps'     )), eps      = options.eps;      end
+  if (isfield(options, 'triangle')), triangle = options.triangle; end
+  if (isfield(options, 'ray'     )), lineType = options.ray;      end
+  if (isfield(options, 'border'  )), border   = options.border;   end
+else
+  while (k<=nVarargs)
+    assert(ischar(varargin{k}), 'Incorrect input parameters')
+    switch lower(varargin{k})
+      case 'eps'
+        eps = abs(varargin{k+1});
+        k = k+1;
+      case 'triangle'
+        triangle = strtrim(varargin{k+1});
+        k = k+1;
+      case 'border'
+        border = strtrim(varargin{k+1});
+        k = k+1;
+      case 'linetype'
+        lineType = strtrim(varargin{k+1});
+        k = k+1;
+    end
+    k = k+1;
+  end
+end
+
+%% Set up border parameter
+switch border
+  case 'normal'
+    zero=0.0;
+  case 'inclusive'
+    zero=eps;
+  case 'exclusive'
+    zero=-eps;
+  otherwise
+    error('Border parameter must be either "normal", "inclusive" or "exclusive"')
+end
+
+%% initialize default output
+intersect = false(size(orig,1),1); % by default there are no intersections
+t = inf+zeros(size(orig,1),1); u=t; v=t;
+
+%% Find faces parallel to the ray
+edge1 = vert1-vert0;          % find vectors for two edges sharing vert0
+edge2 = vert2-vert0;
+tvec  = orig -vert0;          % distance from vert0 to ray origin
+pvec  = cross(dir, edge2,2);  % begin calculating determinant - also used to calculate U parameter
+det   = sum(edge1.*pvec,2);   % determinant of the matrix M = dot(edge1,pvec)
+parallel = (abs(det)<eps);    % if determinant is near zero then ray lies in the plane of the triangle
+if all(parallel), return; end % if all parallel than no intersections
+
+%% Different behavior depending on one or two sided triangles
+switch triangle
+  case 'two sided'                           % treats triangles as two sided
+    det(parallel) = 1;                       % change to avoid division by zero
+    u  = sum(tvec.*pvec,2)./det;             % calculate 1st barycentric coordinate
+    ok = (~parallel & u>=-zero & u<=1.0+zero);% mask which allows performing next 2 operations only when needed
+    if ~any(ok), return; end                 % if all line/plane intersections are outside the triangle than no intersections
+    qvec = cross(tvec(ok,:), edge1(ok,:),2); % prepare to test V parameter
+    v(ok,:) = sum(dir(ok,:).*qvec,2) ./ det(ok,:);  % calculate 2nd barycentric coordinate
+    intersect = (ok & v>=-zero & u+v<=1.0+zero); % test if line/plane intersection is within the triangle
+    if (nargout==1 && strcmpi(lineType,'line')), return; end
+    t(ok,:) = sum(edge2(ok,:).*qvec,2)./det(ok,:);
+    
+  case 'one sided'                           % treats triangles as one sided
+    u = sum(tvec.*pvec,2);                   % calculate U parameter used to test bounds
+    ok = (det>eps & u>=-zero & u<=det*(1+zero));% mask which allows performing next 2 operations only when needed
+    if ~any(ok), return; end                 % if all ray/plane intersections are outside the triangle than no intersections
+    qvec = cross(tvec(ok,:), edge1(ok,:),2); % prepare to test V parameter
+    v(ok,:) = sum(dir(ok,:).*qvec,2);        % calculate V parameter used to test bounds
+    intersect = (ok & v>=-zero & u+v<=det*(1+zero));
+    if (nargout==1 && strcmpi(lineType,'line')), return; end
+    t(ok,:)  = sum(edge2(ok,:).*qvec,2);
+    inv_det = zeros(size(det));
+    inv_det(ok,:) = 1./det(ok,:);
+    t = t.*inv_det;  % calculate t - distance from origin to the intersection in |d| units
+    u = u.*inv_det;
+    v = v.*inv_det;
+    
+  otherwise
+    error('Triangle parameter must be either "one sided" or "two sided"');
+end
+
+%% Test where along the line the line/plane intersection occurs
+switch lineType
+  case 'line'      % infinite line
+    % do nothing
+  case 'ray'       % ray is bound on one side
+    intersect = (intersect & t>=-zero); % intersection on the correct side of the origin
+  case 'segment'   % segment is bound on two sides
+    intersect = (intersect & t>=-zero & t<=1.0+zero); % intersection between origin and destination
+  otherwise
+    error('lineType parameter must be either "line", "ray" or "segment"');
+end
+
+%% calculate intersection coordinates if requested
+if (nargout>4)
+  xcoor = zeros(size(orig));
+  ok = intersect;
+  xcoor(ok,:) = orig(ok,:) + edge1(ok,:).*u + edge2(ok,:).*v;
+end
+##### SOURCE END #####
+--></body></html>

@@ -60,7 +60,7 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014, 2016 University of Oxford
-% Version: 0.3.1
+% Version: 0.4.0
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -180,19 +180,7 @@ bnd{1} = 'Bounds';
 % compute box that encloses the vertices. If there are not enough
 % non-colinear vertices to form a box, we use a box that encloses the
 % sphere
-if (rank(y(~isFree, :)) < 3)
-
-    % not enough vertices
-    ymin = [-R -R -R];
-    ymax = [ R  R  R];
-    
-else
-    
-    % there are enough vertices
-    ymin = min(y);
-    ymax = max(y);
-    
-end
+[ymin, ymax] = bounds_box(y, R);
 
 % variables bounds, lb<=nu<=ub
 idx = find(isFree);
@@ -409,4 +397,100 @@ for I = 1:Nfree
         count-1, idx(I), idx(I), idx(I), R^2);
     count = count + 1;
     
+end
+
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Auxiliary functions
+
+% compute a box to limit the space of solutions
+%
+% If we have a triangulation that has vertices e.g. around the North Pole,
+% but not on the North Pole itself, if we just fit the box to the vertices,
+% we "chop off" a bit of the sphere around the North Pole. So we need to
+% check for those cases, and have the box include the whole spherical caps
+% accordingly.
+function [ymin, ymax] = bounds_box(y, R)
+
+% number of vertices
+N = size(y, 1);
+
+% initialise output
+ymin = nan(1, 3);
+ymax = nan(1, 3);
+
+% convex hull triangulation of the mesh plus centre of sphere
+trih = delaunayTriangulation([y(:, 1); 0], [y(:, 2); 0], [y(:, 3); 0]);
+trih = freeBoundary(trih);
+
+% remove the triangles that connect with the centre of the sphere (vertex
+% N+1 in the triangulation). We are only going to check for intersections
+% with triangles on the sphere surface
+[I, J] = find(trih == N + 1);
+trih(I, :) = [];
+
+% does any of the triangles intersect the positive X axis?
+dirX = [1 0 0];
+intersects = TriangleRayIntersection([0 0 0], dirX, ...
+    y(trih(:, 1), :), y(trih(:, 2), :), y(trih(:, 3), :), ...
+    'planeType', 'two sided', 'lineType', 'ray');
+if (any(intersects))
+    ymax(1) = R;
+else
+    ymax(1) = max(y(:, 1));
+end
+
+% does any of the triangles intersect the negative X axis?
+intersects = TriangleRayIntersection([0 0 0], -dirX, ...
+    y(trih(:, 1), :), y(trih(:, 2), :), y(trih(:, 3), :), ...
+    'planeType', 'two sided', 'lineType', 'ray');
+if (any(intersects))
+    ymin(1) = -R;
+else
+    ymin(1) = min(y(:, 1));
+end
+
+% does any of the triangles intersect the positive Y axis?
+dirY = [0 1 0];
+intersects = TriangleRayIntersection([0 0 0], dirY, ...
+    y(trih(:, 1), :), y(trih(:, 2), :), y(trih(:, 3), :), ...
+    'planeType', 'two sided', 'lineType', 'ray');
+if (any(intersects))
+    ymax(2) = R;
+else
+    ymax(2) = max(y(:, 2));
+end
+
+% does any of the triangles intersect the negative Y axis?
+intersects = TriangleRayIntersection([0 0 0], -dirY, ...
+    y(trih(:, 1), :), y(trih(:, 2), :), y(trih(:, 3), :), ...
+    'planeType', 'two sided', 'lineType', 'ray');
+if (any(intersects))
+    ymin(2) = -R;
+else
+    ymin(2) = min(y(:, 2));
+end
+
+% does any of the triangles intersect the positive Z axis?
+dirZ = [0 0 1];
+intersects = TriangleRayIntersection([0 0 0], dirZ, ...
+    y(trih(:, 1), :), y(trih(:, 2), :), y(trih(:, 3), :), ...
+    'planeType', 'two sided', 'lineType', 'ray');
+if (any(intersects))
+    ymax(3) = R;
+else
+    ymax(3) = max(y(:, 3));
+end
+
+% does any of the triangles intersect the negative X axis?
+intersects = TriangleRayIntersection([0 0 0], -dirZ, ...
+    y(trih(:, 1), :), y(trih(:, 2), :), y(trih(:, 3), :), ...
+    'planeType', 'two sided', 'lineType', 'ray');
+if (any(intersects))
+    ymin(3) = -R;
+else
+    ymin(3) = min(y(:, 3));
+end
+
 end
