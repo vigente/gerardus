@@ -11,7 +11,7 @@
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2013-2016 University of Oxford
-% Version: 0.3.7
+% Version: 0.3.8
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -71,6 +71,7 @@ toolboxes = { ...
     ['ThirdPartyToolbox' filesep 'SpharmToolbox/code/C_sources'], ...
     ['ThirdPartyToolbox' filesep 'sphsplineToolbox'], ...
     ['ThirdPartyToolbox' filesep 'TiffreadToolbox'] ...
+    ['ThirdPartyToolbox' filesep 'TriangleRayIntersectionToolbox'] ...
     };
 
 % current Matlab paths

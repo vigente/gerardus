@@ -1,0 +1,508 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Tutorial and tests of TriangleRayIntersection function</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-10-03"><meta name="DC.source" content="TriangleRayIntersection_tutorial.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Tutorial and tests of TriangleRayIntersection function</h1><!--introduction--><p><b>By Jarek Tuszynski</b> (<a href="mailto:jaroslaw.w.tuszynski@leidos.com">jaroslaw.w.tuszynski@leidos.com</a>)</p><p>Ray/triangle intersection using the algorithm proposed by M&ouml;ller and Trumbore (1997), implemented as highly vectorized MATLAB code.</p><p><b>Note</b> :  The algorithm is able to solve several types of problems:</p><div><ul><li>many faces / single ray  intersection</li><li>one  face  / many   rays intersection</li><li>one  face  / one    ray  intersection</li><li>many faces / many   rays intersection</li></ul></div><p>In order to allow that to happen all input arrays are expected in Nx3 format, where N is number of vertices or rays. In most cases number of vertices is different than number of rays, so one of the inputs will have to be cloned to have the right size. Use "repmat(A,size(B,1),1)" function.</p><p><b>Input</b> (all arrays in in Nx3 format, where N is number of vertices or rays):</p><div><ol><li>orig : ray's origin</li><li>dir  : ray's direction</li><li>vert0, vert1, vert2: vertices of the triangle mesh</li><li>aditional named parameters include</li></ol></div><div><ul><li>planeType - 'one sided' or 'two sided' (default) - how to treat        triangles. In 'one sided' version only intersections in single        direction are counted and intersections with back facing        tringles are ignored</li><li>lineType - 'ray' (default), 'line' or 'segment' - how to treat rays:        (1) 'line' means infinite (on both sides) line;        (2) 'ray' means infinite (on one side) ray comming out of origin;        (3) 'segment' means line segment bounded on both sides</li><li>border - controls border handling:        (1) 'normal'(default) border - triangle is exactly as defined.           Intersections with border points can be easily lost due to           rounding errors.        (2) 'inclusive' border - triangle is marginally larger.           Intersections with border points are always captured but can           lead to double counting when working with surfaces.        (3) 'exclusive' border - triangle is marginally smaller.           Intersections with border points are not captured and can           lead to under-counting when working with surfaces.</li><li>epsilon - (default = 1e-5) controls border size</li><li>fullReturn - (default = false) controls returned variables t, u, v,        and xcoor</li></ul></div><p><b>Output:</b></p><div><ul><li>Intersect - boolean array of length N</li><li>t   - distance from the ray origin to the intersection point in <tt>dir</tt></li><li>u,v - barycentric coordinates of the intersection point units</li><li>xcoor - carthesian coordinates of the intersection point</li></ul></div><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Algorithm</a></li><li><a href="#2">References</a></li><li><a href="#3">Licence</a></li><li><a href="#4">Create small surface and perform intersection with a ray (many faces / single ray type problem)</a></li><li><a href="#6">Create the same surface with much more elements and perform intersection with a ray</a></li><li><a href="#7">Triangulate a sphere and display it</a></li><li><a href="#8">Add face normals</a></li><li><a href="#9">Intersect different types of lines with different surfaces</a></li><li><a href="#10">Example with many rays and many triangles (many faces / many rays type problem)</a></li><li><a href="#11">Using option.border to customize border handling</a></li><li><a href="#13">Test the intersection point location</a></li><li><a href="#14">Test PointInsideVolume function</a></li></ul></div><h2>Algorithm<a name="1"></a></h2><p>Function solves:</p><p><img src="TriangleRayIntersection_tutorial_eq30159.png" alt="$$\left[\begin{array}{ccc} -d_{x} &amp; v1_{x}-v0_{x} &amp; v2_{x}-v0_{x} \\ -d_{y} &amp; v1_{y}-v0_{y} &amp; v2_{y}-v0_{y} \\ -d_{z} &amp; v1_{z}-v0_{z} &amp; v2_{z}-v0_{z} \end{array}\right]\*\left[\begin{array}{c} t \\ u \\ v \end{array} \right]=\left[\begin{array}{c} o_{x}-v0_{x} \\ o_{y}-v0_{y} \\ o_{z}-v0_{z} \end{array}\right]$$"></p><p>for   <img src="TriangleRayIntersection_tutorial_eq37553.png" alt="$\left[\begin{array}{c} t \\ u \\ v \end{array} \right]$">.</p><p>Variables <i>u</i> , <i>v</i> are barycentric coordinates and <i>t/|d|</i> is the distance from the intersection point to the ray origin. Ray and triangle intersect if <i>u&gt;=0, v&gt;=0</i> and <i>u+v&lt;=1</i> .</p><h2>References<a name="2"></a></h2><p>Based on</p><div><ul><li>"Fast, minimum storage ray-triangle intersection". Tomas M&ouml;ller and    Ben Trumbore. Journal of Graphics Tools, 2(1):21--28, 1997.    <a href="http://www.graphics.cornell.edu/pubs/1997/MT97.pdf">http://www.graphics.cornell.edu/pubs/1997/MT97.pdf</a></li><li><a href="http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/raytri/">http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/raytri/</a></li><li><a href="http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/raytri/raytri.c">http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/raytri/raytri.c</a></li></ul></div><h2>Licence<a name="3"></a></h2><p><b>The function is distributed under BSD License</b></p><pre class="codeinput">format <span class="string">compact</span>; <span class="comment">% viewing preference</span>
+clear <span class="string">variables</span>; close <span class="string">all</span>;
+type(<span class="string">'license.txt'</span>)
+</pre><pre class="codeoutput">
+Copyright (c) 2011, Jaroslaw Tuszynski
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions are 
+met:
+
+    * Redistributions of source code must retain the above copyright 
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright 
+      notice, this list of conditions and the following disclaimer in 
+      the documentation and/or other materials provided with the distribution
+      
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+POSSIBILITY OF SUCH DAMAGE.
+</pre><h2>Create small surface and perform intersection with a ray (many faces / single ray type problem)<a name="4"></a></h2><pre class="codeinput">n=20;
+[x,y] = meshgrid(1:n,1:n);    <span class="comment">% create 2D mesh of points</span>
+faces = delaunay(x,y);        <span class="comment">% triangulate it using Delaunay algorithm</span>
+z     = peaks(n);             <span class="comment">% sample function defined on a grid of the same dimenision</span>
+vertices = [x(:) y(:) z(:)];  <span class="comment">% vertices stored as Nx3 matrix</span>
+orig  = [0.25*n 0 2];         <span class="comment">% ray's origin</span>
+dir   = [0.5 *n n 0];         <span class="comment">% ray's direction</span>
+vert1 = vertices(faces(:,1),:);
+vert2 = vertices(faces(:,2),:);
+vert3 = vertices(faces(:,3),:);
+tic;
+intersect = TriangleRayIntersection(orig, dir, vert1, vert2, vert3);
+fprintf(<span class="string">'Number of: faces=%i, points=%i, intresections=%i; time=%f sec\n'</span>, <span class="keyword">...</span>
+  size(faces,1), size(vertices,1), sum(intersect), toc);
+</pre><pre class="codeoutput">Number of: faces=722, points=400, intresections=4; time=0.001513 sec
+</pre><p><b>Display the results: Surface in blue, line in light read and intersected triangles in dark red</b></p><pre class="codeinput">figure(1); clf;
+trisurf(faces,x,y,z, intersect*1.0,<span class="string">'FaceAlpha'</span>, 0.9)
+hold <span class="string">on</span>;
+line(<span class="string">'XData'</span>,orig(1)+[0 dir(1)],<span class="string">'YData'</span>,orig(2)+[0 dir(2)],<span class="string">'ZData'</span>,<span class="keyword">...</span>
+  orig(3)+[0 dir(3)],<span class="string">'Color'</span>,<span class="string">'r'</span>,<span class="string">'LineWidth'</span>,3)
+set(gca, <span class="string">'CameraPosition'</span>, [106.2478  -35.9079  136.4875])
+<span class="comment">%set(gco,'EdgeColor','none');</span>
+</pre><img vspace="5" hspace="5" src="TriangleRayIntersection_tutorial_01.png" alt=""> <h2>Create the same surface with much more elements and perform intersection with a ray<a name="6"></a></h2><p><b>number of intersections should remain the same</b></p><pre class="codeinput">n=500;
+[x,y] = meshgrid(1:n,1:n);    <span class="comment">% create 2D mesh of points</span>
+faces = delaunay(x,y);        <span class="comment">% triangulate it using Delaunay algorithm</span>
+z     = peaks(n);             <span class="comment">% sample function defined on a grid of the same dimenision</span>
+vertices = [x(:) y(:) z(:)];  <span class="comment">% vertices stored as Nx3 matrix</span>
+orig  = [0.25*n 0 2];         <span class="comment">% ray's origin</span>
+dir   = [0.5 *n n 0];         <span class="comment">% ray's direction</span>
+vert1 = vertices(faces(:,1),:);
+vert2 = vertices(faces(:,2),:);
+vert3 = vertices(faces(:,3),:);
+tic;
+intersect = TriangleRayIntersection(orig, dir, vert1, vert2, vert3);
+fprintf(<span class="string">'Number of: faces=%i, points=%i, intresections=%i; time=%f sec\n'</span>, <span class="keyword">...</span>
+  size(faces,1), size(vertices,1), sum(intersect), toc);
+</pre><pre class="codeoutput">Number of: faces=498002, points=250000, intresections=4; time=0.087737 sec
+</pre><h2>Triangulate a sphere and display it<a name="7"></a></h2><pre class="codeinput">n=50;
+[x,y,z] = sphere(n);
+DT = delaunayTriangulation(x(:), y(:), z(:));
+[faces, vertices] = freeBoundary(DT);
+figure(1); clf;
+trisurf(faces, vertices(:,1),vertices(:,2),vertices(:,3),<span class="string">'FaceAlpha'</span>, 0.5)
+axis <span class="string">equal</span>
+orig  = [0 0 0];          <span class="comment">% ray's origin</span>
+dir   = [1 1 1]/2;        <span class="comment">% ray's direction</span>
+line(<span class="string">'XData'</span>,orig(1)+[0 dir(1)],<span class="string">'YData'</span>,orig(2)+[0 dir(2)],<span class="string">'ZData'</span>,<span class="keyword">...</span>
+  orig(3)+[0 dir(3)],<span class="string">'Color'</span>,<span class="string">'r'</span>,<span class="string">'LineWidth'</span>,3)
+</pre><pre class="codeoutput">Warning: Duplicate data points have been detected and removed.
+ The Triangulation indices are defined with respect to the unique set of points
+ in delaunayTriangulation property X. 
+</pre><img vspace="5" hspace="5" src="TriangleRayIntersection_tutorial_02.png" alt=""> <h2>Add face normals<a name="8"></a></h2><p>Each triangle has 2 sides. Sides can be distingish from each other by calculating surface normal (<a href="http://en.wikipedia.org/wiki/Surface_normal">http://en.wikipedia.org/wiki/Surface_normal</a>) in case of our sphere all surface normals are pointing outwards</p><pre class="codeinput">hold <span class="string">on</span>
+vert1 = vertices(faces(:,1),:);
+vert2 = vertices(faces(:,2),:);
+vert3 = vertices(faces(:,3),:);
+faceCenter = (vert1+vert2+vert3)/3;
+faceNormal = cross(vert2-vert1, vert3-vert1,2);
+quiver3(faceCenter(:,1),faceCenter(:,2),faceCenter(:,3),<span class="keyword">...</span>
+  faceNormal(:,1),faceNormal(:,2),faceNormal(:,3),3);
+</pre><img vspace="5" hspace="5" src="TriangleRayIntersection_tutorial_03.png" alt=""> <h2>Intersect different types of lines with different surfaces<a name="9"></a></h2><p>this section varies 'lineType' and 'triangle' parameters</p><pre class="codeinput">TestSet = {
+  <span class="string">'lineType'</span>, <span class="string">'planeType'</span>, <span class="string">'comment'</span>;
+  <span class="string">'line'</span>,    <span class="string">'two sided'</span>, <span class="string">'infinite line intersects at 2 places'</span>;
+  <span class="string">'ray'</span>,     <span class="string">'two sided'</span>, <span class="string">'ray comming from the center intersects at 1 place'</span>;
+  <span class="string">'segment'</span>, <span class="string">'two sided'</span>, <span class="string">'this segment is wholy within the sphere so no intersections'</span>;
+  <span class="string">'ray'</span>,     <span class="string">'one sided'</span>, [<span class="string">'same ray does not intersect with one sided '</span><span class="keyword">...</span>
+  <span class="string">'sphere if the ray points oposite to face normal'</span>];
+  };
+
+fprintf(<span class="string">'| %8s | %9s | %7s | %s\n%s\n'</span>,TestSet{1,1}, TestSet{1,2}, <span class="keyword">...</span>
+  <span class="string">'# found'</span>, TestSet{1,3}, repmat(<span class="string">'-'</span>,1, 65))
+<span class="keyword">for</span> i = 2:size(TestSet,1)
+  intersect = TriangleRayIntersection(orig, dir, vert1, vert2, vert3,<span class="keyword">...</span>
+    <span class="string">'lineType'</span>, TestSet{i,1}, <span class="string">'planeType'</span>, TestSet{i,2});
+  fprintf(<span class="string">'| %8s | %9s | %7d | %s\n'</span>,TestSet{i,1}, TestSet{i,2}, <span class="keyword">...</span>
+    sum(intersect), TestSet{i,3})
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">| lineType | planeType | # found | comment
+-----------------------------------------------------------------
+|     line | two sided |       2 | infinite line intersects at 2 places
+|      ray | two sided |       1 | ray comming from the center intersects at 1 place
+|  segment | two sided |       0 | this segment is wholy within the sphere so no intersections
+|      ray | one sided |       0 | same ray does not intersect with one sided sphere if the ray points oposite to face normal
+</pre><h2>Example with many rays and many triangles (many faces / many rays type problem)<a name="10"></a></h2><p><b>So far all examples were of a single ray and many triangles. However one can as well have one triangle and many rays, or many rays and many triangles. Example below calculates intersections between faces and rays goint through the center of each face. Since each intersection is in the same relative point t, u and v returned are very similar. Plot shows intersection points</b></p><pre class="codeinput">faceCenter = (vert1+vert2+vert3)/3;
+Orig  = repmat(orig,size(vert1,1),1); <span class="comment">% Clone it until the same size as vert1</span>
+[intersect, t, u, v, xcoor] = TriangleRayIntersection(Orig, <span class="keyword">...</span>
+  2*(faceCenter-Orig), vert1, vert2, vert3);
+fprintf(<span class="string">'Number of: faces=%i, intresections=%i\n'</span>, size(faces,1), sum(intersect));
+fprintf(<span class="string">'mean t=%f+-%f\n'</span>, mean(t), std(t));
+fprintf(<span class="string">'mean u=%f+-%f\n'</span>, mean(u), std(u));
+fprintf(<span class="string">'mean v=%f+-%f\n'</span>, mean(v), std(v));
+figure(1); clf;
+plot3(xcoor(:,1), xcoor(:,2), xcoor(:,3), <span class="string">'o'</span>)
+</pre><pre class="codeoutput">Number of: faces=4900, intresections=4900
+mean t=0.500000+-0.000000
+mean u=0.333333+-0.000000
+mean v=0.333333+-0.000000
+</pre><img vspace="5" hspace="5" src="TriangleRayIntersection_tutorial_04.png" alt=""> <h2>Using option.border to customize border handling<a name="11"></a></h2><p><b>Create simple tetrahedral and add a ray passing through one of the vertices</b></p><pre class="codeinput">[x,y] = pol2cart((0:2)'*2*pi/3,1);
+vertices = [0 0 1; x y [0; 0; 0]];
+faces    = [1 2 3; 1 3 4; 1 4 2; 2 3 4];
+figure(1); clf;
+trisurf(faces, vertices(:,1),vertices(:,2),vertices(:,3),<span class="string">'FaceAlpha'</span>, 0.5);
+view([3 1 1])
+axis <span class="string">equal</span>
+vert1 = vertices(faces(:,1),:);
+vert2 = vertices(faces(:,2),:);
+vert3 = vertices(faces(:,3),:);
+orig  = [0 0 0.5];                    <span class="comment">% ray's origin</span>
+dir   = [0 0 1];                      <span class="comment">% ray's destination</span>
+hold <span class="string">on</span>;
+line(<span class="string">'XData'</span>,orig(1)+[0 dir(1)],<span class="string">'YData'</span>,orig(2)+[0 dir(2)],<span class="string">'ZData'</span>,<span class="keyword">...</span>
+  orig(3)+[0 dir(3)],<span class="string">'Color'</span>,<span class="string">'r'</span>,<span class="string">'LineWidth'</span>,3)
+</pre><img vspace="5" hspace="5" src="TriangleRayIntersection_tutorial_05.png" alt=""> <p><b>option.border controls border handling:</b></p><div><ul><li>border = 'normal' - border points are included, but can be easily   lost due to rounding errors</li><li>border = 'inclusive' - border points are included, with margin   of option.eps</li><li>border = 'exclusive' - border points are excluded, with margin   of option.eps</li></ul></div><pre class="codeinput">intersect1 = TriangleRayIntersection(orig, dir, vert1, vert2, vert3, <span class="keyword">...</span>
+  <span class="string">'lineType'</span> , <span class="string">'ray'</span>, <span class="string">'border'</span>, <span class="string">'normal'</span> );
+
+intersect2 = TriangleRayIntersection(orig, dir, vert1, vert2, vert3, <span class="keyword">...</span>
+  <span class="string">'lineType'</span> , <span class="string">'ray'</span>, <span class="string">'border'</span>, <span class="string">'inclusive'</span> );
+
+intersect3 = TriangleRayIntersection(orig, dir, vert1, vert2, vert3, <span class="keyword">...</span>
+  <span class="string">'lineType'</span> , <span class="string">'ray'</span>, <span class="string">'border'</span>, <span class="string">'exclusive'</span> );
+fprintf(<span class="string">'Number of intersections with border: normal=%i, inclusive=%i, exclusive=%i\n'</span>,<span class="keyword">...</span>
+  sum(intersect1), sum(intersect2), sum(intersect3));
+</pre><pre class="codeoutput">Number of intersections with border: normal=3, inclusive=3, exclusive=0
+</pre><h2>Test the intersection point location<a name="13"></a></h2><p>using the same figure</p><pre class="codeinput">figure(1); clf;
+trisurf(faces, vertices(:,1),vertices(:,2),vertices(:,3),<span class="string">'FaceAlpha'</span>, 0.5);
+view([3 1 1])
+axis <span class="string">equal</span>
+orig  = [1 1 -1]*0.1;                   <span class="comment">% ray's origin</span>
+dir   = [0 0 1];                        <span class="comment">% ray's destination</span>
+hold <span class="string">on</span>;
+line(<span class="string">'XData'</span>,orig(1)+[0 dir(1)],<span class="string">'YData'</span>,orig(2)+[0 dir(2)],<span class="string">'ZData'</span>,<span class="keyword">...</span>
+  orig(3)+[0 dir(3)],<span class="string">'Color'</span>,<span class="string">'r'</span>,<span class="string">'LineWidth'</span>,3)
+[intersect,~,~,~,xcoor] = TriangleRayIntersection(orig, dir, <span class="keyword">...</span>
+  vert1, vert2, vert3, <span class="string">'lineType'</span> , <span class="string">'line'</span>);
+scatter3(xcoor(intersect,1), xcoor(intersect,2), xcoor(intersect,3), 100, <span class="string">'b'</span>, <span class="string">'o'</span>, <span class="string">'filled'</span>)
+</pre><img vspace="5" hspace="5" src="TriangleRayIntersection_tutorial_06.png" alt=""> <h2>Test PointInsideVolume function<a name="14"></a></h2><p>PointInsideVolume function is an example of TriangleRayIntersection use</p><pre class="codeinput">load <span class="string">tetmesh</span>;
+TR = triangulation(tet,X);
+[faces, vertices] = freeBoundary(TR);
+n = 10000;
+points = 80*rand(n,3) - repmat([40 40 0], n, 1);
+in = PointInsideVolume(points, faces, vertices);
+clf;
+trisurf(faces,vertices(:,1),vertices(:,2),vertices(:,3), <span class="keyword">...</span>
+       <span class="string">'FaceColor'</span>,<span class="string">'yellow'</span>,<span class="string">'FaceAlpha'</span>, 0.2);
+hold <span class="string">on</span>
+scatter3(points( in,1), points( in,2), points( in,3),30, <span class="string">'r'</span>, <span class="string">'fill'</span>);
+scatter3(points(~in,1), points(~in,2), points(~in,3), 3, <span class="string">'b'</span>, <span class="string">'fill'</span>);
+legend({<span class="string">'volume'</span>, <span class="string">'points inside'</span>, <span class="string">'points outside'</span>}, <span class="string">'Location'</span>, <span class="string">'southoutside'</span>)
+</pre><img vspace="5" hspace="5" src="TriangleRayIntersection_tutorial_07.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Tutorial and tests of TriangleRayIntersection function
+% *By Jarek Tuszynski* (jaroslaw.w.tuszynski@leidos.com)
+%
+% Ray/triangle intersection using the algorithm proposed by Möller and
+% Trumbore (1997), implemented as highly vectorized MATLAB code.
+%
+% *Note* :
+%  The algorithm is able to solve several types of problems:
+%
+% * many faces / single ray  intersection
+% * one  face  / many   rays intersection
+% * one  face  / one    ray  intersection
+% * many faces / many   rays intersection
+%
+% In order to allow that to happen all input arrays are expected in Nx3
+% format, where N is number of vertices or rays. In most cases number of
+% vertices is different than number of rays, so one of the inputs will
+% have to be cloned to have the right size. Use "repmat(A,size(B,1),1)" function.
+%
+% *Input* (all arrays in in Nx3 format, where N is number of vertices or rays):
+%
+% # orig : ray's origin
+% # dir  : ray's direction
+% # vert0, vert1, vert2: vertices of the triangle mesh
+% # aditional named parameters include
+%
+% * planeType - 'one sided' or 'two sided' (default) - how to treat
+%        triangles. In 'one sided' version only intersections in single
+%        direction are counted and intersections with back facing
+%        tringles are ignored
+% * lineType - 'ray' (default), 'line' or 'segment' - how to treat rays:
+%        (1) 'line' means infinite (on both sides) line; 
+%        (2) 'ray' means infinite (on one side) ray comming out of origin; 
+%        (3) 'segment' means line segment bounded on both sides
+% * border - controls border handling:
+%        (1) 'normal'(default) border - triangle is exactly as defined. 
+%           Intersections with border points can be easily lost due to
+%           rounding errors. 
+%        (2) 'inclusive' border - triangle is marginally larger.
+%           Intersections with border points are always captured but can
+%           lead to double counting when working with surfaces.
+%        (3) 'exclusive' border - triangle is marginally smaller. 
+%           Intersections with border points are not captured and can
+%           lead to under-counting when working with surfaces.
+% * epsilon - (default = 1e-5) controls border size
+% * fullReturn - (default = false) controls returned variables t, u, v, 
+%        and xcoor
+%
+%
+% *Output:*
+%
+% * Intersect - boolean array of length N
+% * t   - distance from the ray origin to the intersection point in |dir|
+% * u,v - barycentric coordinates of the intersection point units
+% * xcoor - carthesian coordinates of the intersection point
+%
+%
+%% Algorithm
+% Function solves:
+%
+% $$\left[\begin{array}{ccc} -d_{x} & v1_{x}-v0_{x} & v2_{x}-v0_{x} \\ -d_{y} & v1_{y}-v0_{y} & v2_{y}-v0_{y} \\ -d_{z} & v1_{z}-v0_{z} & v2_{z}-v0_{z} \end{array}\right]\*\left[\begin{array}{c} t \\ u \\ v \end{array} \right]=\left[\begin{array}{c} o_{x}-v0_{x} \\ o_{y}-v0_{y} \\ o_{z}-v0_{z} \end{array}\right]$$
+%
+% for   $\left[\begin{array}{c} t \\ u \\ v \end{array} \right]$.
+%
+% Variables _u_ , _v_ are barycentric coordinates and _t/|d|_ is the distance
+% from the intersection point to the ray origin.
+% Ray and triangle intersect if _u>=0, v>=0_ and _u+v<=1_ .
+%
+%% References
+% Based on
+%
+% * "Fast, minimum storage ray-triangle intersection". Tomas Möller and
+%    Ben Trumbore. Journal of Graphics Tools, 2(1):21REPLACE_WITH_DASH_DASH28, 1997.
+%    http://www.graphics.cornell.edu/pubs/1997/MT97.pdf
+% * http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/raytri/
+% * http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/raytri/raytri.c
+%
+%% Licence
+% *The function is distributed under BSD License*
+format compact; % viewing preference
+clear variables; close all;
+type('license.txt')
+
+%% Create small surface and perform intersection with a ray (many faces / single ray type problem)
+n=20;
+[x,y] = meshgrid(1:n,1:n);    % create 2D mesh of points
+faces = delaunay(x,y);        % triangulate it using Delaunay algorithm
+z     = peaks(n);             % sample function defined on a grid of the same dimenision
+vertices = [x(:) y(:) z(:)];  % vertices stored as Nx3 matrix
+orig  = [0.25*n 0 2];         % ray's origin
+dir   = [0.5 *n n 0];         % ray's direction
+vert1 = vertices(faces(:,1),:);
+vert2 = vertices(faces(:,2),:);
+vert3 = vertices(faces(:,3),:);
+tic;
+intersect = TriangleRayIntersection(orig, dir, vert1, vert2, vert3);
+fprintf('Number of: faces=%i, points=%i, intresections=%i; time=%f sec\n', ...
+  size(faces,1), size(vertices,1), sum(intersect), toc);
+
+%%
+% *Display the results: Surface in blue, line in light read and intersected
+% triangles in dark red*
+figure(1); clf;
+trisurf(faces,x,y,z, intersect*1.0,'FaceAlpha', 0.9)
+hold on;
+line('XData',orig(1)+[0 dir(1)],'YData',orig(2)+[0 dir(2)],'ZData',...
+  orig(3)+[0 dir(3)],'Color','r','LineWidth',3)
+set(gca, 'CameraPosition', [106.2478  -35.9079  136.4875])
+%set(gco,'EdgeColor','none');
+
+%% Create the same surface with much more elements and perform intersection with a ray
+% *number of intersections should remain the same*
+n=500;
+[x,y] = meshgrid(1:n,1:n);    % create 2D mesh of points
+faces = delaunay(x,y);        % triangulate it using Delaunay algorithm
+z     = peaks(n);             % sample function defined on a grid of the same dimenision
+vertices = [x(:) y(:) z(:)];  % vertices stored as Nx3 matrix
+orig  = [0.25*n 0 2];         % ray's origin
+dir   = [0.5 *n n 0];         % ray's direction
+vert1 = vertices(faces(:,1),:);
+vert2 = vertices(faces(:,2),:);
+vert3 = vertices(faces(:,3),:);
+tic;
+intersect = TriangleRayIntersection(orig, dir, vert1, vert2, vert3);
+fprintf('Number of: faces=%i, points=%i, intresections=%i; time=%f sec\n', ...
+  size(faces,1), size(vertices,1), sum(intersect), toc);
+
+%% Triangulate a sphere and display it
+n=50;
+[x,y,z] = sphere(n);
+DT = delaunayTriangulation(x(:), y(:), z(:));
+[faces, vertices] = freeBoundary(DT);
+figure(1); clf;
+trisurf(faces, vertices(:,1),vertices(:,2),vertices(:,3),'FaceAlpha', 0.5)
+axis equal
+orig  = [0 0 0];          % ray's origin
+dir   = [1 1 1]/2;        % ray's direction
+line('XData',orig(1)+[0 dir(1)],'YData',orig(2)+[0 dir(2)],'ZData',...
+  orig(3)+[0 dir(3)],'Color','r','LineWidth',3)
+
+%% Add face normals
+% Each triangle has 2 sides. Sides can be distingish from each other by
+% calculating surface normal (http://en.wikipedia.org/wiki/Surface_normal)
+% in case of our sphere all surface normals are pointing outwards
+hold on
+vert1 = vertices(faces(:,1),:);
+vert2 = vertices(faces(:,2),:);
+vert3 = vertices(faces(:,3),:);
+faceCenter = (vert1+vert2+vert3)/3;
+faceNormal = cross(vert2-vert1, vert3-vert1,2);
+quiver3(faceCenter(:,1),faceCenter(:,2),faceCenter(:,3),...
+  faceNormal(:,1),faceNormal(:,2),faceNormal(:,3),3);
+
+%% Intersect different types of lines with different surfaces
+% this section varies 'lineType' and 'triangle' parameters
+TestSet = {
+  'lineType', 'planeType', 'comment';
+  'line',    'two sided', 'infinite line intersects at 2 places';
+  'ray',     'two sided', 'ray comming from the center intersects at 1 place';
+  'segment', 'two sided', 'this segment is wholy within the sphere so no intersections';
+  'ray',     'one sided', ['same ray does not intersect with one sided '...
+  'sphere if the ray points oposite to face normal'];
+  };
+
+fprintf('| %8s | %9s | %7s | %s\n%s\n',TestSet{1,1}, TestSet{1,2}, ...
+  '# found', TestSet{1,3}, repmat('-',1, 65))
+for i = 2:size(TestSet,1)
+  intersect = TriangleRayIntersection(orig, dir, vert1, vert2, vert3,...
+    'lineType', TestSet{i,1}, 'planeType', TestSet{i,2});
+  fprintf('| %8s | %9s | %7d | %s\n',TestSet{i,1}, TestSet{i,2}, ...
+    sum(intersect), TestSet{i,3})
+end
+
+%% Example with many rays and many triangles (many faces / many rays type problem)
+% *So far all examples were of a single ray and many triangles. However
+% one can as well have one triangle and many rays, or many rays and many 
+% triangles. Example below calculates intersections between faces and rays 
+% goint through the center of each face. Since each intersection is in the 
+% same relative point t, u and v returned are very similar. Plot shows 
+% intersection points*
+faceCenter = (vert1+vert2+vert3)/3;
+Orig  = repmat(orig,size(vert1,1),1); % Clone it until the same size as vert1
+[intersect, t, u, v, xcoor] = TriangleRayIntersection(Orig, ...
+  2*(faceCenter-Orig), vert1, vert2, vert3);
+fprintf('Number of: faces=%i, intresections=%i\n', size(faces,1), sum(intersect));
+fprintf('mean t=%f+-%f\n', mean(t), std(t));
+fprintf('mean u=%f+-%f\n', mean(u), std(u));
+fprintf('mean v=%f+-%f\n', mean(v), std(v));
+figure(1); clf;
+plot3(xcoor(:,1), xcoor(:,2), xcoor(:,3), 'o')
+
+%% Using option.border to customize border handling
+% *Create simple tetrahedral and add a ray passing through one of the
+% vertices*
+[x,y] = pol2cart((0:2)'*2*pi/3,1);
+vertices = [0 0 1; x y [0; 0; 0]];
+faces    = [1 2 3; 1 3 4; 1 4 2; 2 3 4];
+figure(1); clf;
+trisurf(faces, vertices(:,1),vertices(:,2),vertices(:,3),'FaceAlpha', 0.5);
+view([3 1 1])
+axis equal
+vert1 = vertices(faces(:,1),:);
+vert2 = vertices(faces(:,2),:);
+vert3 = vertices(faces(:,3),:);
+orig  = [0 0 0.5];                    % ray's origin
+dir   = [0 0 1];                      % ray's destination
+hold on;
+line('XData',orig(1)+[0 dir(1)],'YData',orig(2)+[0 dir(2)],'ZData',...
+  orig(3)+[0 dir(3)],'Color','r','LineWidth',3)
+
+%%
+% *option.border controls border handling:*
+%
+% * border = 'normal' - border points are included, but can be easily
+%   lost due to rounding errors
+% * border = 'inclusive' - border points are included, with margin
+%   of option.eps
+% * border = 'exclusive' - border points are excluded, with margin
+%   of option.eps
+
+intersect1 = TriangleRayIntersection(orig, dir, vert1, vert2, vert3, ...
+  'lineType' , 'ray', 'border', 'normal' );
+
+intersect2 = TriangleRayIntersection(orig, dir, vert1, vert2, vert3, ...
+  'lineType' , 'ray', 'border', 'inclusive' );
+
+intersect3 = TriangleRayIntersection(orig, dir, vert1, vert2, vert3, ...
+  'lineType' , 'ray', 'border', 'exclusive' );
+fprintf('Number of intersections with border: normal=%i, inclusive=%i, exclusive=%i\n',...
+  sum(intersect1), sum(intersect2), sum(intersect3));
+
+%% Test the intersection point location
+% using the same figure
+figure(1); clf;
+trisurf(faces, vertices(:,1),vertices(:,2),vertices(:,3),'FaceAlpha', 0.5);
+view([3 1 1])
+axis equal
+orig  = [1 1 -1]*0.1;                   % ray's origin
+dir   = [0 0 1];                        % ray's destination
+hold on;
+line('XData',orig(1)+[0 dir(1)],'YData',orig(2)+[0 dir(2)],'ZData',...
+  orig(3)+[0 dir(3)],'Color','r','LineWidth',3)
+[intersect,~,~,~,xcoor] = TriangleRayIntersection(orig, dir, ...
+  vert1, vert2, vert3, 'lineType' , 'line');
+scatter3(xcoor(intersect,1), xcoor(intersect,2), xcoor(intersect,3), 100, 'b', 'o', 'filled')
+
+%% Test PointInsideVolume function
+% PointInsideVolume function is an example of TriangleRayIntersection use
+load tetmesh;
+TR = triangulation(tet,X);
+[faces, vertices] = freeBoundary(TR);
+n = 10000;
+points = 80*rand(n,3) - repmat([40 40 0], n, 1);
+in = PointInsideVolume(points, faces, vertices);
+clf;
+trisurf(faces,vertices(:,1),vertices(:,2),vertices(:,3), ...
+       'FaceColor','yellow','FaceAlpha', 0.2);
+hold on
+scatter3(points( in,1), points( in,2), points( in,3),30, 'r', 'fill');
+scatter3(points(~in,1), points(~in,2), points(~in,3), 3, 'b', 'fill');
+legend({'volume', 'points inside', 'points outside'}, 'Location', 'southoutside')
+##### SOURCE END #####
+--></body></html>

@@ -1,3 +1,36 @@
+2016-09-27  Ramon Casero  <rcasero@gmail.com>
+
+	* ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m (0.4.0): Change
+	the way we compute the box that bounds where the vertices can move
+	to. Now we compute the convex hull of the component we are
+	unfolding, and take into account whether it intersects any of the
+	Cartesian axes. If it does, the box extends to the radius of the
+	sphere. This is to avoid chopping off part of the sphere where the
+	vertices could move to.
+
+	* Add matlab/ThirdPartyToolbox/TriangleRayIntersectionToolbox:
+	* matlab/add_gerardus_paths.m (0.3.8):
+
+	- Toolbox to compute intersections with triangulations. We use it
+	in the new box computation in tri_ccqp_smacof_nofold_sph_pip.m. By
+	Jaroslaw Tuszynski, 29 Sep 2011 (Updated 15 Jun 2016)
+
+	http://uk.mathworks.com/matlabcentral/fileexchange/33073-triangle-ray-intersection
+
+2016-09-26  Ramon Casero  <rcasero@gmail.com>
+
+	* PointsToolbox/cons_smacof_pip.m (0.4.5): Don't use the same file
+	for initial and computed solutions. Delete model and solution
+	files after being used, to avoid cluttering /tmp. Fix bug with the
+	format string when writing the initial solution to file. Close
+	file after writing it.
+
+	* ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m (0.3.1): Check
+	that there are no NaN values in input Y. Reduce search space for
+	solution to box that encloses the points. Correct the index of a
+	group of constraints (it had no practical effect, but it was
+	jumping one number).
+
 2016-09-22  Ramon Casero  <rcasero@gmail.com>
 
 	* tri_sphparam.m (0.5.1): Fix bug. Bad concatenation of vectors.
