@@ -1,12 +1,16 @@
 2016-09-27  Ramon Casero  <rcasero@gmail.com>
 
-	* ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m (0.4.0): Change
-	the way we compute the box that bounds where the vertices can move
-	to. Now we compute the convex hull of the component we are
-	unfolding, and take into account whether it intersects any of the
-	Cartesian axes. If it does, the box extends to the radius of the
-	sphere. This is to avoid chopping off part of the sphere where the
-	vertices could move to.
+	* Delete matlab/ManifoldToolbox/tri_sphparam.m: Move to
+	private-gerardus. Paper not published yet, and function needs
+	substantial rewriting.
+
+	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m (0.4.0):
+	Change the way we compute the box that bounds where the vertices
+	can move to. Now we compute the convex hull of the component we
+	are unfolding, and take into account whether it intersects any of
+	the Cartesian axes. If it does, the box extends to the radius of
+	the sphere. This is to avoid chopping off part of the sphere where
+	the vertices could move to.
 
 	* Add matlab/ThirdPartyToolbox/TriangleRayIntersectionToolbox:
 	* matlab/add_gerardus_paths.m (0.3.8):
