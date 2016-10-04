@@ -807,6 +807,11 @@ smdscale.m
 
 	 SMDSCALE  Local neighbourhood Multidimensional scaling on a sphere
 	
+sphtri_foldcc.m
+
+	 SPHTRI_FOLDCC  Find connected components of groups of vertices causing a
+	 fold on the sphere
+	
 sphtri_signed_vol.m
 
 	 SPHTRI_SIGNED_VOL  Signed volume of the elements of a sphere partitioned
@@ -1606,6 +1611,10 @@ select3d.m
 	
 tet2tri.m
 
+toolbox_graph.m
+
+	 toolbox_graph - a toolbox for graph manipulation and plotting.
+	
 triangulate.m
 
 	 triangulate - interface to 'triangle' library. 
