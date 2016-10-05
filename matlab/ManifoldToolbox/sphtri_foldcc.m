@@ -1,4 +1,4 @@
-function [cc, vGoodIdx, vBadIdx] = sphtri_foldcc(tri, x, volTriMin, dcon)
+function [cc, vBadIdx] = sphtri_foldcc(tri, x, volTriMin, dcon)
 % SPHTRI_FOLDCC  Find connected components of groups of vertices causing a
 % fold on the sphere
 %
@@ -7,15 +7,14 @@ function [cc, vGoodIdx, vBadIdx] = sphtri_foldcc(tri, x, volTriMin, dcon)
 % it's useful to also consider very small positive triangles as bad, see
 % VOLTRIMIN below).
 %
-% Initially, good vertices are those shared only by good triangles. A
-% vertex shared by at least one bad triangle is considered bad.
+% A vertex shared by at least one bad triangle is considered a bad vertex.
 %
-% Furthermore, good vertices that are completely surrounded by bad vertices
-% are also considered bad vertices. The reason is that a fold that folds
-% again can produce good triangles, but in order to deal with the fold, all
-% vertices need to be dealt with.
+% Additionally, good vertices that are completely surrounded by bad
+% vertices are also considered bad vertices. The reason is that a fold that
+% folds again can produce good triangles, but in order to deal with the
+% fold, all vertices need to be dealt with.
 %
-% [CC, vGoodIdx, vBadIdx] = SPHTRI_FOLDCC(TRI, X, VOLTRIMIN,  DCON)
+% [CC, vBadIdx] = SPHTRI_FOLDCC(TRI, X, VOLTRIMIN,  DCON)
 %
 %   TRI is a 3-column matrix. Each row contains the 3 nodes that form one
 %   triangular facet in the mesh.
@@ -23,7 +22,8 @@ function [cc, vGoodIdx, vBadIdx] = sphtri_foldcc(tri, x, volTriMin, dcon)
 %   X is a 3-column matrix. X(i, :) contains the xyz-coordinates of the
 %   i-th node in the mesh.
 %
-%   VOLTRIMIN is the treshold for bad triangles. A triangle t is bad if the
+%   VOLTRIMIN is the treshold for bad triangles. It can be a scalar or a
+%   vector with one element per triangle in TRI. A triangle t is bad if the
 %   volume of the tetrahedron formed by the triangle and the centre of the
 %   sphere is < VOLTRIMIN. By default, VOLTRIMIN = 0.
 %
@@ -33,12 +33,11 @@ function [cc, vGoodIdx, vBadIdx] = sphtri_foldcc(tri, x, volTriMin, dcon)
 %   CC is a cell vector. Each element contains a list of bad vertices
 %   connected to each other.
 %
-%   vGoodIdx, vBadIdx are boolean indices of the good and bad vertices,
-%   respectively.
+%   vBadIdx are boolean indices of the bad vertices
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2016 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -66,7 +65,7 @@ function [cc, vGoodIdx, vBadIdx] = sphtri_foldcc(tri, x, volTriMin, dcon)
 
 % check arguments
 narginchk(2, 4);
-nargoutchk(0, 3);
+nargoutchk(0, 2);
 
 % defaults
 if ((nargin < 3) || isempty(volTriMin))
@@ -87,32 +86,24 @@ N = size(x, 1);
 % of coordinates
 volTri = sphtri_signed_vol(tri, x);
 
-% list of well-oriented triangles (and that are not too small), bool
+% list of triangles that are flipped or too small, bool
 % format
-triGoodIdx = (volTri >= volTriMin);
+triBadIdx = (volTri < volTriMin);
 
-% list of vertices in good triangles and bad triangles, respectively (note
-% that a vertex can be shared by both a good and bad triangle)
-vTriGood = unique(tri(triGoodIdx, :));
-vTriBad = unique(tri(~triGoodIdx, :));
-vTriGoodIdx = false(N, 1);
-vTriGoodIdx(vTriGood) = true;
-vTriBadIdx = false(N, 1);
-vTriBadIdx(vTriBad) = true;
-
-% fixed vertices are those shared exclusively by good triangles. Those
-% don't need to be untangled. If a vertex is e.g. in a good triangle and a
-% bad triangle, it's a bad vertex. We call bad vertices "free" because they
-% need untangling)
-vGoodIdx = vTriGoodIdx & (~vTriBadIdx);
-vBadIdx = vTriBadIdx;
+% list of vertices in bad triangles. These are the vertices that need
+% untangling, because they are part of the fold (even if they are shared by
+% good and bad triangles)
+vTriBad = unique(tri(triBadIdx, :));
+vBadIdx = false(N, 1);
+vBadIdx(vTriBad) = true;
 
 %% remove good vertices within a fold (a fold that folds again may produce
 %% good triangles)
 
 % duplicate adjacency matrix and remove the edges connected to bad vertices
 dconGood = dcon;
-dconGood(vBadIdx, vBadIdx) = 0;
+dconGood(vBadIdx, :) = 0;
+dconGood(:, vBadIdx) = 0;
 
 % connected components of the good vertices graph
 [~, cc] = graphcc(dconGood);
@@ -125,7 +116,6 @@ len = cellfun(@length, cc);
 % to bad
 idx = (len < max(len));
 vWithinFold = cat(1, cc{idx});
-vGoodIdx(vWithinFold) = false;
 vBadIdx(vWithinFold) = true;
 
 clear dconGood
@@ -134,8 +124,7 @@ clear dconGood
 
 % adjacency matrix of bad vertices
 dconBad = sparse(size(dcon, 1), size(dcon, 2));
-dconBad(vBadIdx, :) = dcon(vBadIdx, :);
-dconBad(:, vBadIdx) = dcon(:, vBadIdx);
+dconBad(vBadIdx, vBadIdx) = dcon(vBadIdx, vBadIdx);
 
 % connected components of the bad vertices graph
 [~, cc] = graphcc(dconBad);
