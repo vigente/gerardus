@@ -1,4 +1,4 @@
-function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree, y, feastol)
+function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, lmax, isFree, y, feastol)
 % TRI_CCQP_SMACOF_NOFOLD_SPH_PIP  Constraints in PIP format for CCQP-SMACOF
 % to ensure that 2D triangules on the sphere preserve positive orientation.
 %
@@ -7,7 +7,7 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 % without fold-overs or, equivalently, untangle a projection of a mesh on a
 % sphere.
 %
-% [CON, BND] = tri_qcqp_smacof_nofold_2d_pip(TRI, R, VMIN, VMAX)
+% [CON, BND] = tri_qcqp_smacof_nofold_2d_pip(TRI, R, VMIN, VMAX, LMAX)
 %
 %   TRI is a 3-column matrix with a surface mesh triangulation. Each row
 %   gives the indices of one triangle. The mesh needs to be a 2D manifold,
@@ -21,6 +21,9 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 %   tetrahedron. If they are scalars, then the same value is used for all
 %   tetrahedra. Otherwise, they must be column vectors, with one element
 %   per tetrahedron in the mesh.
+%
+%   LMAX is a scalar with the maximum length allowed for any edge in the
+%   output parametrization. By default, LMAX=2*R.
 %
 %   BND is a cell array with the variable bounds in PIP format. E.g.
 %
@@ -60,7 +63,7 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014, 2016 University of Oxford
-% Version: 0.4.0
+% Version: 0.5.0
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -87,7 +90,7 @@ function [con, bnd] = tri_ccqp_smacof_nofold_sph_pip(tri, R, vmin, vmax, isFree,
 % <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(4, 7);
+narginchk(4, 8);
 nargoutchk(0, 2);
 
 %% Input arguments
@@ -118,7 +121,10 @@ if (size(vmax, 1) ~= Ntri)
     error('VMAX must be a scalar or a column vector with one element per triangle')
 end
 
-if (nargin < 5 || isempty(isFree))
+if (nargin < 5 || isempty(lmax))
+    lmax = 2*R;
+end
+if (nargin < 6 || isempty(isFree))
     % if the user doesn't specify which vertices are free and which ones
     % are fixed, we assume that all vertices are free
     isFree = true(N, 1);
@@ -139,7 +145,7 @@ end
 
 if (any(~isFree))
     
-    if (nargin < 6)
+    if (nargin < 7)
         error('If any vertices are non-free, then initial configuration Y must be provided')
     end
     
@@ -150,7 +156,7 @@ if (any(~isFree))
     
 end
 
-if (nargin < 7 || isempty(feastol))
+if (nargin < 8 || isempty(feastol))
     % feasibility tolerance for constraints in SCIP
     feastol = 1e-6;
 end
@@ -385,6 +391,39 @@ end
 
 % remove empty cells not used for constraints
 con(count:end) = [];
+
+%% Maximum length of edges at the output parametrization
+
+% list of edges, without duplication
+edges = unique(sort([tri(:, 1:2); tri(:, 2:3); tri(:, [3 1])], 2, 'ascend'), 'rows');
+
+% the length of the edges is
+% (xa-xb)^2 + (ya-yb)^2 + (ya-yb)^2 <= lmax^2
+%
+% This expands to
+% xa^2 - 2xa xb + xb^2 + ... + <= lmax^2
+%
+% Because we know that the points are on the sphere, x^2+y^2+z^2=R^2,
+% we can simplify to
+% - 2xa xb - 2ya yb - 2za zb <= lmax^2 - 2R^2
+%
+% - xa xb - ya yb - za zb <= (lmax^2)/2 - 2R^2
+
+for I = 1:size(edges, 1)
+    
+    con{count} = sprintf( ...
+        [' c%d: - x%d x%d ' ...
+        '- y%d y%d ' ...
+        '- z%d z%d ' ...
+        '<= %.15g'], ...
+        count-1, ...
+        edges(I, 1), edges(I, 2), ...
+        edges(I, 1), edges(I, 2), ...
+        edges(I, 1), edges(I, 2), ...
+        (lmax^2)/2 - R^2);
+    count = count + 1;
+    
+end
 
 %% Radius constraints
 
