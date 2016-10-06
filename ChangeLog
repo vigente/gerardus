@@ -1,3 +1,9 @@
+2016-10-06  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/sphtri_foldcc.m (0.2.1): Fix
+	bug. Function broke if there were no good vertices within any
+	fold.
+
 2016-10-05  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/sphtri_foldcc.m (0.2.0): Fix bug. The

@@ -37,7 +37,7 @@ function [cc, vBadIdx] = sphtri_foldcc(tri, x, volTriMin, dcon)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2016 University of Oxford
-% Version: 0.2.0
+% Version: 0.2.1
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -108,15 +108,20 @@ dconGood(:, vBadIdx) = 0;
 % connected components of the good vertices graph
 [~, cc] = graphcc(dconGood);
 
-% number of vertices in each component
-len = cellfun(@length, cc);
 
-% we keep only the largest component, assuming that the rest are good
-% vertices within a fold. Change the labelling of those vertices from good
-% to bad
-idx = (len < max(len));
-vWithinFold = cat(1, cc{idx});
-vBadIdx(vWithinFold) = true;
+if (~isempty(cc))
+
+    % number of vertices in each component
+    len = cellfun(@length, cc);
+    
+    % we keep only the largest component, assuming that the rest are good
+    % vertices within a fold. Change the labelling of those vertices from good
+    % to bad
+    idx = (len < max(len));
+    vWithinFold = cat(1, cc{idx});
+    vBadIdx(vWithinFold) = true;
+    
+end
 
 clear dconGood
 
