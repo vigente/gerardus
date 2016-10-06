@@ -1,4 +1,4 @@
-function [cc, vBadIdx] = sphtri_foldcc(tri, x, volTriMin, dcon)
+function [cc, vBadIdx] = sphtri_foldcc(tri, x, volTriMin, dcon, isManuallyGood)
 % SPHTRI_FOLDCC  Find connected components of groups of vertices causing a
 % fold on the sphere
 %
@@ -14,7 +14,7 @@ function [cc, vBadIdx] = sphtri_foldcc(tri, x, volTriMin, dcon)
 % folds again can produce good triangles, but in order to deal with the
 % fold, all vertices need to be dealt with.
 %
-% [CC, vBadIdx] = SPHTRI_FOLDCC(TRI, X, VOLTRIMIN,  DCON)
+% [CC, vBadIdx] = SPHTRI_FOLDCC(TRI, X, VOLTRIMIN,  DCON, ISMANUALLYGOOD)
 %
 %   TRI is a 3-column matrix. Each row contains the 3 nodes that form one
 %   triangular facet in the mesh.
@@ -30,6 +30,10 @@ function [cc, vBadIdx] = sphtri_foldcc(tri, x, volTriMin, dcon)
 %   DCON is the adjacency matrix of TRI. If it is not provided, it is
 %   computed internally.
 %
+%   ISMANUALLYGOOD is a vector with vertices that the user wants to label
+%   as "good" even if they are shared by any bad flipped triangles. By
+%   default, ISMANUALLYGOOD=[] and is ignored.
+%
 %   CC is a cell vector. Each element contains a list of bad vertices
 %   connected to each other.
 %
@@ -37,7 +41,7 @@ function [cc, vBadIdx] = sphtri_foldcc(tri, x, volTriMin, dcon)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2016 University of Oxford
-% Version: 0.2.1
+% Version: 0.3.0
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -64,7 +68,7 @@ function [cc, vBadIdx] = sphtri_foldcc(tri, x, volTriMin, dcon)
 % <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(2, 4);
+narginchk(2, 5);
 nargoutchk(0, 2);
 
 % defaults
@@ -75,6 +79,9 @@ end
 % if the user hasn't provided the adjacency matrix, we compute it
 if (nargin < 4 || isempty(dcon))
     dcon = dmatrix_mesh(tri);
+end
+if (nargin < 5)
+    isManuallyGood = [];
 end
 
 %% partition mesh into good and bad vertices
@@ -96,6 +103,12 @@ triBadIdx = (volTri < volTriMin);
 vTriBad = unique(tri(triBadIdx, :));
 vBadIdx = false(N, 1);
 vBadIdx(vTriBad) = true;
+
+% the user may want to override the automatic detection, and label some
+% vertices as good
+if (~isempty(isManuallyGood))
+    vBadIdx(isManuallyGood) = false;
+end
 
 %% remove good vertices within a fold (a fold that folds again may produce
 %% good triangles)

@@ -1,5 +1,9 @@
 2016-10-06  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ManifoldToolbox/sphtri_foldcc.m (0.3.0): New input
+	isManuallyGood, to manually label vertices as good, even if they
+	belong to a bad triangle.
+
 	* matlab/ManifoldToolbox/sphtri_foldcc.m (0.2.1): Fix
 	bug. Function broke if there were no good vertices within any
 	fold.
