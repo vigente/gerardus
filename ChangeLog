@@ -1,3 +1,12 @@
+2016-10-08  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m (0.5.1):
+	Fix bug. Edge length constraints: we can ignore edges where both
+	vertices are fixed. But if one or two vertices are free, we have
+	to write the constraint accordingly (for free vertices we use
+	variable names, and for fixed vertices we use the numerical value
+	of their coordinates).
+
 2016-10-07  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m (0.5.0):
