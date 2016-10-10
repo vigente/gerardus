@@ -31,7 +31,7 @@ function [y, stopCondition, sigma, sigma0, t] ...
 %   http://polip.zib.de/pipformat.php
 %
 %
-% [Y, STOPCONDITION, SIGMA, SIGMA0, T] = cons_smacof_pip(D, Y0, ISFREE, BND, [], CON)
+% [Y, STOPCONDITION, SIGMA, SIGMA0, T] = CONS_SMACOF_PIP(D, Y0, ISFREE, BND, [], CON)
 %
 %   D is an (N, N)-distance matrix, with distances between the points in an
 %   N-point configuration. D can be full or sparse. D(i,j)=0 means that
@@ -84,7 +84,7 @@ function [y, stopCondition, sigma, sigma0, t] ...
 %   T is a vector with the time between the beginning of the algorithm and
 %   each iteration. Units in seconds.
 %
-% Y = cons_smacof_pip(..., SMACOF_OPTS, SCIP_OPTS)
+% Y = CONS_SMACOF_PIP(..., SMACOF_OPTS, SCIP_OPTS)
 %
 %   SMACOF_OPTS is a struct with parameters to tweak the SMACOF algorithm.
 %
