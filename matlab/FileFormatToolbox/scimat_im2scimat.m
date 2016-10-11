@@ -31,7 +31,7 @@ function scimat = scimat_im2scimat(im, res, offset, rotmat)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2011-2015 University of Oxford
-% Version: 0.3.1
+% Version: 0.3.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -64,24 +64,33 @@ nargoutchk(0, 1);
 
 % Daxis: number of axes in the data (channels doesn't have an axis, so it's
 % only rows, cols, slices, frames
-if (ndims(im) > 5)
+%
+% if RES or OFFSET are provided, they are going to determine the dimensions
+% of the image. This is so that we can have a 2D slice in 3D space. If no
+% RES or OFFSET are provided, then we use the dimension of the image
+if (nargin > 1 && ~isempty(res))
+    Daxis = length(res);
+elseif (nargin > 2 && ~isempty(offset))
+    Daxis = length(offset);
+else
+    Daxis = min(4, ndims(im));
+end
+if (Daxis > 5)
     error('IM can have up to 5 dimensions (row, col, slice, frame, channel)')
 end
-Daxis = min(4, ndims(im));
     
-% Dx: number of spatial dimensions (2 or 3)
-if (size(im, 3) == 1)
-    Dx = 2;
-else
-    Dx = 3;
-end
-
 % defaults
 if (nargin < 2 || isempty(res))
     res = ones(1, Daxis);
 end
 if (nargin < 3 || isempty(offset))
     offset = zeros(1, Daxis);
+end
+if (Daxis == 2)
+    % Dx: number of spatial dimensions (2 or 3)
+    Dx = 2;
+else
+    Dx = 3;
 end
 if (nargin < 4 || isempty(rotmat))
     rotmat = eye(Dx);
@@ -91,12 +100,14 @@ end
 if (Daxis < 1 || Daxis > 4)
     error('RES must have between 1 and 4 elements')
 end
-if (length(offset) ~= Daxis)
+% if (length(offset) ~= Daxis)
+if (length(offset) ~= length(res))
+
     error('OFFSET must have the same number of elements as RES')
 end
-if ((size(rotmat, 1) ~= size(rotmat, 2)) || (size(rotmat, 1) ~= Dx))
-    error('ROTMAT must be a (Dx, Dx)-matrix, where Dx=2 for 2D images and Dx=3 for 3D images')
-end
+% if ((size(rotmat, 1) ~= size(rotmat, 2)) || (size(rotmat, 1) ~= Dx))
+%     error('ROTMAT must be a (Dx, Dx)-matrix, where Dx=2 for 2D images and Dx=3 for 3D images')
+% end
 
 % create SCIMAT struct
 
