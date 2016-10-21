@@ -1,3 +1,10 @@
+2016-10-21  Nicolas Basty  <nicolas.basty@eng.ox.ac.uk>
+
+	* matlab\FileFormatToolbox\scimat_varian2scimat.m
+	This function converts data from varian scanners, which follow an odd convention, 
+	into scimat format. Either stacks of 2D images or single 3D images. For example to visualise 2D data 
+	using the scimat_slice_GUI.
+
 2016-10-11  Nicolas Basty  <nicolas.basty@eng.ox.ac.uk>
 
 	* matlab\FileFormatToolbox\scimat_im2scimat.m
