@@ -47,7 +47,7 @@ function scimat = scimat_load(file, varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2016 University of Oxford
-% Version: 0.5.9
+% Version: 0.5.10
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -511,6 +511,13 @@ switch lower(ext)
         
         % read image metadata header
         info = imfinfo(file);
+        
+        % if the image has a thumbnail, we discard the thumbnail
+        if (length(info) > 1)
+            
+            info = info(1);
+            
+        end
         
         if (headerOnly)
             
