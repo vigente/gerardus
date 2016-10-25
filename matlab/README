@@ -369,6 +369,11 @@ imread_list.m
 
 	 IMREAD_LIST  Read list of image files into volume.
 	
+im_resize.m
+
+	 IM_RESIZE Resize a list of image files (.tif, .png, etc) with ImageMagick
+	 convert, directly file to file
+	
 load_dcm.m
 
 	 LOAD_DCM  Load array of DICOM filenames as 3D+t image and metainformation
@@ -441,6 +446,8 @@ scimat_tiff2scimat.m
 
 	 SCIMAT_TIFF2SCIMAT  Create SCIMAT struct from TIFF stack.
 	
+scimat_varian2scimat.m
+
 scimat_world2index.m
 
 	 SCIMAT_WORLD2INDEX  Convert real world coordinates to image indices for
@@ -778,6 +785,10 @@ dmatrix_sphmesh.m
 graphcc.m
 
 	 GRAPHCC  Split a graph into connected components.
+	
+graph_gclosure.m
+
+	 GRAPH_GCLOSURE Geodetic closure of a subset of vertices on a graph.
 	
 lmdscale.m
 

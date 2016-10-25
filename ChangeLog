@@ -1,3 +1,9 @@
+2016-10-25  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/FileFormatToolbox/im_resize.m (0.1.0): IM_RESIZE
+	Resize a list of image files (.tif, .png, etc) with ImageMagick
+	convert, directly file to file.
+
 2016-10-24  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/FileFormatToolbox/scimat_load.m: (0.5.10) Fix bug. When
