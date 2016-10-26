@@ -1,3 +1,9 @@
+2016-10-26  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix.m (0.5.5): Fix bug. When regParam
+	was given as a filename, the filename was replaced by a struct
+	before making a copy of the filename.
+
 2016-10-25  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/FileFormatToolbox/im_resize.m (0.1.0): IM_RESIZE

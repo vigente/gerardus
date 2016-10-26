@@ -130,8 +130,8 @@ function [t, movingReg, iterInfo] = elastix(regParam, fixed, moving, opts)
 % elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2014-2015 University of Oxford
-% Version: 0.5.4
+% Copyright © 2014-2016 University of Oxford
+% Version: 0.5.5
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -543,13 +543,13 @@ elseif (isstruct(param))
     
 elseif (ischar(param))
     
-    % we read the file
-    param = elastix_read_file2param(param);
-    
     % we are going to use the file provided by the user, and will not
     % delete it afterwards
     filename = param;
     delete_tempfile = false;
+    
+    % we read the file into a struct
+    param = elastix_read_file2param(param);
     
 else
     
