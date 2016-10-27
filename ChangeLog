@@ -1,3 +1,9 @@
+2016-10-27  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ElastixToolbox/elastix_fitgeotrans.m (0.1.0):
+	Transformix struct for image transformation obtained from matching
+	two sets of landmarks.
+
 2016-10-26  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/elastix.m (0.5.5): Fix bug. When regParam
