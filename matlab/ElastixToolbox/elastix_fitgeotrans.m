@@ -1,4 +1,4 @@
-function tElx = elastix_fitgeotrans(movingPoints, fixedPoints, transform, sz, spacing, origin)
+function tElx = elastix_fitgeotrans(movingPoints, fixedPoints, transform, sz, spacing, origin, alpha)
 % ELASTIX_FITGEOTRANS  Transformix struct for image transformation obtained
 % from matching two sets of landmarks
 %
@@ -35,11 +35,34 @@ function tElx = elastix_fitgeotrans(movingPoints, fixedPoints, transform, sz, sp
 %   ORIGIN = [offx, offy] is a vector with the coordinates of the first
 %   pixel in the output image.
 %
+% TELX = ELASTIX_FITGEOTRANS(..., ALPHA)
+%
+%   ALPHA is a scalar in [0.0, 1.0]. ALPHA=1.0 (default) means that the
+%   full deformation corresponding to the map MOVINGPOINTS->FIXEDPOINTS is
+%   applied to the image. ALPHA=0.0 means no deformation is applied.
+%   Intermediate values represent intermediate deformations. If the full
+%   affine transformation is given by the matrix A, then the transformation
+%   applied is (Alexa 2002)
+%
+%   B = expm(ALPHA*logm(A))
+%
+%   Note that Alexa's method may produce transformations that are complex.
+%   In that case, the function returns an error.
+%
+%   This parameter allows, e.g. that both images "meet in the middle".
+%   Suppose that by mapping the landmarks X -> Y we can align image IM1 to
+%   IM2. With ALPHA=0.5, we can deform IM1 halfway towards IM2, and IM2
+%   halfway towards IM1.
+%
+% Alexa, M (2002) "Linear combination of transformations", Proceedings of
+% the 29th annual conference on Computer graphics and interactive
+% techniques, SIGGRAPH '02, pp. 380-387.
+%
 % See also: transformix, elastix, fitgeotrans.
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2016 University of Oxford
-% Version: 0.1.0
+% Version: 0.2.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -65,8 +88,16 @@ function tElx = elastix_fitgeotrans(movingPoints, fixedPoints, transform, sz, sp
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(6, 6);
+narginchk(6, 7);
 nargoutchk(0, 1);
+
+% defaults
+if (nargin < 7 || isempty(alpha))
+    alpha = 1.0;
+end
+if (alpha < 0.0 || alpha > 1.0)
+    error('ALPHA must be in [0.0, 1.0]')
+end
 
 % dimensions of the image and points
 D = size(fixedPoints, 2);
@@ -79,8 +110,6 @@ end
 
 % compute Matlab transform between two sets of points
 tform = fitgeotrans(movingPoints, fixedPoints, transform);
-
-% 'affine'
 
 % basic Elastix transformation struct
 tElx.Transform = [];
@@ -118,9 +147,20 @@ switch (transform)
                    
 end
 
+% compute full deformation to apply to image
+A = inv(tform.T);
+
+% apply partial deformation
+if (alpha < 1.0)
+    A = expm(alpha * logm(A));
+end
+if (any(~isreal(A)))
+    error('Unexpected error: A should be real')
+end
+
 % convert Matlab's transformation matrix to Elastix vector of parameters
 % and put it into the basic struct just created
 %
 % Note that image transformations use the inverse of points
 % transformations, to avoid leaving "holes" when interpolating the image
-tElx = elastix_affine_matrix2struct(inv(tform.T), tElx);
+tElx = elastix_affine_matrix2struct(A, tElx);

@@ -1,5 +1,9 @@
 2016-10-27  Ramon Casero  <rcasero@gmail.com>
 
+	* matlab/ElastixToolbox/elastix_fitgeotrans.m (0.2.0): Add input
+	argument alpha, to allow partial deformations of the image,
+	following Alexa 2002.
+
 	* Add matlab/ElastixToolbox/elastix_fitgeotrans.m (0.1.0):
 	Transformix struct for image transformation obtained from matching
 	two sets of landmarks.
