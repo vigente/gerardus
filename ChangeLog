@@ -1,3 +1,8 @@
+2016-10-31  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/FileFormatToolbox/nuimagesc.m (0.1.0): NUIMAGESC
+	imagesc() with non-uniform pixel spacing.
+
 2016-10-27  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/elastix_fitgeotrans.m (0.2.0): Add input
