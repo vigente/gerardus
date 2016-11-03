@@ -1,3 +1,9 @@
+2016-11-03  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix_compose_afftransf.m (0.2.7): Fix
+	bug. Make sure that tfc.NumberOfParameters is correct at the
+	output.
+
 2016-10-31  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/FileFormatToolbox/nuimagesc.m (0.1.0): NUIMAGESC
