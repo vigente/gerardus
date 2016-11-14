@@ -1,3 +1,28 @@
+2016-11-14  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* Minor changes and some new functions for processing diffusion images:
+
+	modified:   matlab/DiffusionMRIToolbox/weighted_linear_fit.m
+	modified:   matlab/DiffusionMRIToolbox/wild_bootstrapping_DTI.m
+	modified:   matlab/FiltersToolbox/forward_TV.m
+	modified:   matlab/DiffusionMRIToolbox/quiver_image.m
+	modified:   matlab/DiffusionMRIToolbox/fit_DKI_model.m
+	modified:   matlab/DiffusionMRIToolbox/fit_DT.m
+	modified:   matlab/DiffusionMRIToolbox/fit_biexponential_tensor.m
+	new file:   matlab/DiffusionMRIToolbox/fit_triexponential_tensor.m
+	new file:   matlab/DiffusionMRIToolbox/plot_diffusion_profiles.m
+	new file:   matlab/CardiacToolbox/mask2LV_cavity.m
+	new file:   matlab/DiffusionMRIToolbox/dt2params.m
+	
+	* Added some tools for kurtosis tensor processing:
+
+	new file:   matlab/DiffusionMRIToolbox/rotate_tensor.m
+	new file:   matlab/DiffusionMRIToolbox/kurtosis_3333_to_66.m
+	new file:   matlab/DiffusionMRIToolbox/kurtosis_66_to_3333.m
+	new file:   matlab/DiffusionMRIToolbox/kurtosis_ijkl_to_rc.m
+	new file:   matlab/DiffusionMRIToolbox/tensor2vector.m
+	new file:   matlab/DiffusionMRIToolbox/vector2tensor.m
+
 2016-11-03  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/elastix_compose_afftransf.m (0.2.7): Fix

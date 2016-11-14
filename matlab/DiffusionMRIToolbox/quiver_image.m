@@ -1,4 +1,4 @@
-function [ h ] = quiver_image( IM, VEC, orient, ix )
+function [ h ] = quiver_image( IM, VEC, orient, ix , VEC2)
 %QUIVER_IMAGE Displays a 2D slice of a 3D image with a quiver plot
 %   overlaid on top.
 %
@@ -9,6 +9,8 @@ function [ h ] = quiver_image( IM, VEC, orient, ix )
 %       ORIENT: which plane do you want to display? A string of 'r', 'c', 
 %           or 's'
 %       IX: the index of the row/column/slice to display (integer)
+%       VEC2: if you want to have a second vector field on top, put it here
+%           (but it gets a bit crowded)
 %
 %   Output: 
 %       H: figure handle
@@ -69,8 +71,11 @@ if nargin < 4
     ix = ceil(size(IM,dim_to_collapse)/2);
     
 end
-            
+  
 
+
+
+VEC(isinf(VEC)) = 0;
 
 % reshape the image and vector field such that the collapseable dimension
 % is at the end
@@ -83,19 +88,37 @@ dim_order = [setdiff(1:4, dim_to_collapse), dim_to_collapse];
 VEC = permute(VEC, dim_order);
 VEC = VEC(:,:,:,ix);
 
-[X, Y] = ndgrid(1:size(IM,1), 1:size(IM,2));
+if nargin > 4
+    VEC2 = permute(VEC2, dim_order);
+    VEC2 = VEC2(:,:,:,ix);
+end
+
+xstep = size(IM,1)/size(VEC,1);
+ystep = size(IM,2)/size(VEC,2);
+
+[X, Y] = ndgrid(xstep/2:xstep:size(IM,1), ystep/2:ystep:size(IM,2));
 
 AxesHandle = gca;
 if ~isempty(get(AxesHandle, 'Children')) % if the current axis is not empty
     figure;
 end
-h = imagesc(IM');
+h = imagesc(IM);
 colormap jet
 hold on; 
-quiver(X,Y, VEC(:,:,dim_order1(1)), VEC(:,:,dim_order1(2)), 'w');
 
-% to symmetrise:
-% quiver(X,Y, -VEC(:,:,dim_order1(1)), -VEC(:,:,dim_order1(2)), 'w');
+% set the top left voxel to something high, so that the others are scaled
+% better
+VEC(1,1,dim_order1(1)) = max(VEC(:)) * 2;
+
+quiver(Y,X, VEC(:,:,dim_order1(2)), VEC(:,:,dim_order1(1)), 'k', 'LineWidth', 1.2);
+quiver(Y,X, -VEC(:,:,dim_order1(2)), -VEC(:,:,dim_order1(1)), 'k', 'LineWidth', 1.2);
+
+if nargin > 4
+    quiver(Y,X, VEC2(:,:,dim_order1(2)), VEC2(:,:,dim_order1(1)), 'w', 'LineWidth', 1.2);
+    quiver(Y,X, -VEC2(:,:,dim_order1(2)), -VEC2(:,:,dim_order1(1)), 'w', 'LineWidth', 1.2);
+end
+
+axis image
 
 
 end

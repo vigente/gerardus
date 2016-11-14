@@ -47,13 +47,14 @@ nargoutchk(0, 2);
 
 if isvector(I)
     TV_grad = I([2:end,1]) - I;
-    TV = sum(abs(TV_grad));
+    %TV = sum(abs(TV_grad));
+    TV = sum(abs(real(TV_grad))) + sum(abs(imag(TV_grad)));
     return
 end
 
 
 % Let mex do the work for you
-if exist('forward_TV_aux', 'file') && isreal(I)
+if 0%exist('forward_TV_aux', 'file') && isreal(I)
     [Dx, Dy, Dz, TV] = forward_TV_aux(double(I), 1);  
 else
     
@@ -65,13 +66,17 @@ else
     Dz = I(:,:,[2:end,1]) - I;
     
 
-    TV = sum(abs(Dx(:)) + abs(Dy(:)) + abs(Dz(:)));
+    %TV = sum(abs(Dx(:)) + abs(Dy(:)) + abs(Dz(:))); 
+    TV = sum(abs(real(Dx(:))) + abs(real(Dy(:))) + abs(real(Dz(:))) + ...
+             abs(imag(Dx(:))) + abs(imag(Dy(:))) + abs(imag(Dz(:))) );
+        
 
 end
 
-% concatenate the derivative
-TV_grad = cat(4,Dx,Dy,Dz);
-
+if nargout == 2
+    % concatenate the derivative
+    TV_grad = cat(4,Dx,Dy,Dz);
+end
 
 end
 

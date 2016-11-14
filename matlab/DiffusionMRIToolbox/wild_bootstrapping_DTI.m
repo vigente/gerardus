@@ -1,4 +1,4 @@
-function [COU, FA_STD, ADC_STD] = wild_bootstrapping_DTI( I, bval, Mask, Nreps )
+function [COU, FA_STD, ADC_STD] = wild_bootstrapping_DTI( I, bval, Mask, Nreps, DT, VectorField )
 % WILD_BOOTSTRAPPING_DTI Returns uncertainty measures from diffusion tensor
 % images via wild bootstrapping. See Whitcher 2008 - Using the Wild 
 % Bootstrap to Quantify Uncertainty in Diffusion Tensor Imaging
@@ -15,6 +15,9 @@ function [COU, FA_STD, ADC_STD] = wild_bootstrapping_DTI( I, bval, Mask, Nreps )
 %   dimensions of I. 
 %
 %   NREPS is the number of Monte Carlo repetitions (default 1000)
+%
+%   DT and VectorField are optional - if you have a ground truth that you
+%   want to compare against, instead of the input signal.
 %
 % Outputs:
 %
@@ -57,13 +60,13 @@ function [COU, FA_STD, ADC_STD] = wild_bootstrapping_DTI( I, bval, Mask, Nreps )
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(2,4);
+narginchk(2,6);
 nargoutchk(0, 3);
 
 sz = size(I);
 
 if nargin < 3
-    Mask = zeros(sz(1:end-1));
+    Mask = ones(sz(1:end-1));
 end
 
 if nargin < 4
@@ -74,28 +77,34 @@ end
 % save memory and time by fitting in vector form
 I = reshape(I, [prod(sz(1:end-1)), sz(end)]);
 
+if isscalar(Mask)
+    Mask = I(:,1) >= Mask;
+end
+
+    
 Ivector = I(Mask(:), :);
 
-% fit the tensor
-[DT, FA, ADC, VectorField, EigVals] = fit_DT(Ivector, bval);
-
+% if we haven't been given a ground truth, fit the tensor
+if nargin < 5
+    [DT, ~, ~, VectorField, ~] = fit_DT(Ivector, bval);
+end
 
 % Model fitted image
 Ifit = dt2image(DT, bval);
 % Residuals
 Resids = Ivector - Ifit;
 
-DT_reps = zeros([size(DT), Nreps]);
-FA_reps = zeros([size(FA), Nreps]);
-ADC_reps = zeros([size(ADC), Nreps]);
-VectorField_reps = zeros([size(VectorField), Nreps]);
-EigVals_reps = zeros([size(EigVals), Nreps]);
+% DT_reps = zeros([size(DT), Nreps]);
+% FA_reps = zeros([size(FA), Nreps]);
+% ADC_reps = zeros([size(ADC), Nreps]);
+% VectorField_reps = zeros([size(VectorField), Nreps]);
+% EigVals_reps = zeros([size(EigVals), Nreps]);
 
 
 
 % for N iterations, randomly multiply the residuals by 1 or -1 and compute
 % parameters
-for n = 1:Nreps
+for n = Nreps:-1:1
     if rem(n, 10) == 0 
         fprintf('%d, ', n);
     end
@@ -108,15 +117,15 @@ for n = 1:Nreps
 
     Inew = Ifit + Resids_to_add;
 
-    [DT2, FA2, ADC2, VectorField2, EigVals2] = fit_DT(Inew, bval);
+    [~, FA2, ADC2, VectorField2, ~] = fit_DT(Inew, bval);
     
     VectorField2 = real(VectorField2);
     
-    DT_reps(:,:,n) = DT2;
+    %DT_reps(:,:,n) = DT2;
     FA_reps(:,1,n) = FA2;
     ADC_reps(:,1,n) = ADC2;
     VectorField_reps(:,:,:,n) = VectorField2;
-    EigVals_reps(:,:,n) = EigVals2;
+    %EigVals_reps(:,:,n) = EigVals2;
     
 end
 
@@ -185,6 +194,8 @@ COU_tertiary = zeros(size(Mask));
 COU_tertiary(Mask) = prctile(Angle_deviation_tertiary, 95, 3);
 
 n = ndims(COU_primary);
+if (n == 2) && (size(COU_primary,2) == 1), n = 1; end % ndims gives a vector 2
+
 COU = cat(n+1, COU_primary, COU_secondary, COU_tertiary);
 
 

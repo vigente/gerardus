@@ -174,7 +174,7 @@ else
     param.rician = 1;
     param.unique_weights = 1;
     param.verbose = 0;
-    M = weighted_linear_fit(-imlog, Bv', @(z)exp(-z), param);
+    M = weighted_linear_fit(-imlog, Bv', @(z)exp(-z), param);%M = (Bv \ -imlog')';%
 end
 
 % convert log(S0) to S0
@@ -191,16 +191,21 @@ if strcmp(method, 'nonlinear')
     
     Bv = Bv(:,1:6)';
 
-    options = optimoptions('lsqcurvefit','Jacobian','on', 'DerivativeCheck', 'off', ...
+    options = optimoptions('lsqcurvefit','Jacobian', 'on', 'DerivativeCheck', 'off', ...
         'display', 'off', 'TypicalX', mean(M,1));
     % M = [xx,xy,xz,yy,yz,zz,S0]
     lb = [0 -3E-3 -3E-3 0 -3E-3 0 0]; % cross terms are allowed to be -ve
     ub = [zeros(1,6)+3E-3, inf];
 
+    v = ver('MATLAB');
     
-    if (size(I,1) > 1000) && (matlabpool('size') == 0)
-        disp('Open matlabpool for parallel processing')
+    if (size(I,1) > 1000) && (str2double(v.Version) <= 8.1)
+        if (matlabpool('size') == 0)
+            disp('You should open matlabpool if you want parallel processing')
+        end
     end
+    
+    
     
     parfor i = 1:size(I,1)
 
@@ -258,9 +263,12 @@ if nargout > 1 % if you want the FA, ADC, etc.
         % Second FA definition:
         FA_mask(i)=sqrt(1.5)*( sqrt((EigenValues(1)-ADCv).^2+(EigenValues(2)-ADCv).^2+(EigenValues(3)-ADCv).^2)./sqrt(EigenValues(1).^2+EigenValues(2).^2+EigenValues(3).^2) );
         ADC_mask(i)=ADCv;
-        VectorF_mask(i,:)=EigenVectors(:,3)*EigenValues_old(3);
-        VectorF2_mask(i,:)=EigenVectors(:,2)*EigenValues_old(2);
-        VectorF3_mask(i,:)=EigenVectors(:,1)*EigenValues_old(1);
+%         VectorF_mask(i,:)=EigenVectors(:,3)*EigenValues_old(3);
+%         VectorF2_mask(i,:)=EigenVectors(:,2)*EigenValues_old(2);
+%         VectorF3_mask(i,:)=EigenVectors(:,1)*EigenValues_old(1);
+        VectorF_mask(i,:)=EigenVectors(:,3);
+        VectorF2_mask(i,:)=EigenVectors(:,2);
+        VectorF3_mask(i,:)=EigenVectors(:,1);
 
         EigVals_mask(i,:) = EigenValues_old([3 2 1]);
 
