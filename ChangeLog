@@ -1,3 +1,15 @@
+2016-11-17  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	*  matlab/FileFormatToolbox/scimat_slice_GUI.m (0.1.1)
+	Fix bug. The GUI uses the matlab function surface, which wants corner
+	coordinates. It was being given pixel centres, so the whole image was 
+	off by half a pixel.
+
+	* matlab/FileFormatToolbox/scimat_varian2scimat.m (0.1.1)
+	Fix bug when gap between slices is not zero - it is now added to the 
+	slice thickness, which is obviously not the same thing as having thicker
+	slices, but at least the slice centres are in the right place now.
+
 2016-11-14  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	* Minor changes and some new functions for processing diffusion images:

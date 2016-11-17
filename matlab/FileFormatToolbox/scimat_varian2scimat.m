@@ -5,7 +5,7 @@ function scimat = scimat_varian2scimat(path)
 % This function creates a struct with the scimat format (see "help scimat"
 % for details) for data from Varian MR scanners. The output is a vector of scimat structures,
 % one per 2D slice or a single scimat for 3D images. Depends on the size of the input
-% image data. It follows some odd conventions for the rotations that only 
+% image data. It follows some odd conventions for the rotations that only
 % became clear with the manual at hand which is not available online.
 %
 % SCIMAT = SCIMAT_VARIAN2SCIMAT(PATH)
@@ -13,13 +13,13 @@ function scimat = scimat_varian2scimat(path)
 %   PATH is a string of the path pointing the folder containing the image
 %   data and the metainformation which is in the "procpar" file. The path
 %   should end in .fid and the folder should contain a file called procpar
-%   and another called image_mag.
+%   and another called image_mag.nii
 
 % Author(s): Nicolas Basty <nicolas.basty@eng.ox.ac.uk>
 % Darryl McClymont <darryl.mcclymont@cardiov.ox.ac.uk>
 % Irvin Teh <irvin.teh@cardiov.ox.ac.uk>
-% Copyright © 2016 University of Oxford
-% Version: 0.1
+% Copyright ? 2016 University of Oxford
+% Version: 0.1.1
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -57,7 +57,15 @@ else
 end
 
 % Euler angles & generate rotation matrix
-psi = props.psi;
+if numel(props.psi) == 1;
+    psi = props.psi;
+    % c = 1;
+elseif numel(props.psi) > 1;
+    
+    psi = props.psi(end);
+    
+end
+
 phi = props.phi;
 theta = props.theta;
 rotm = rotatematrix_varian(psi,theta,phi);
@@ -65,7 +73,7 @@ rotm = rotatematrix_varian(psi,theta,phi);
 % Resolution
 di = props.x_res;
 dj = props.y_res;
-dk = props.z_res;
+dk = props.z_res + props.gap * 10;
 
 % Field of view size in mm
 FOVi = props.x_dim * di;
@@ -139,7 +147,7 @@ params = search_procpar_nested([path_full '/procpar'],...
     'rf1off','rf2off','rf3off','flip1','flip2','flip3','nshells',...
     'cs_flag','petable_array','petable_array2','nvnom','nvnom2','idx_array',...
     'bvalrr','bvalpp','bvalss','bvalrp','bvalrs','bvalsp','bvalue','cs_speedup','max_bval','mean_bval','image',...
-    'pro','ppe','ppe2','nnav','dro2','dpe2','dsl2','anglelist','numblades','bladewiden'...
+    'pro','ppe','ppe2','nnav','dro2','dpe2','dsl2','anglelist','numblades','bladewiden', 'gap'...
     );
 
 params.nro=params.np/2;
