@@ -40,7 +40,7 @@ function xout = transformix_pts(t, x, opts)
 %   FILENAMEOUT, or XOUT is the output transformed points.
 %
 % TODO: Transformix output provides 6 decimal digits for the coordinates.
-% Maybe it'd be better to read the indices, and the convert to real-world
+% Maybe it'd be better to read the indices, and then convert to real-world
 % coordinates ourselves.
 %
 % ... = TRANSFORMIX_PTS(..., OPTS)
@@ -57,8 +57,8 @@ function xout = transformix_pts(t, x, opts)
 % elastix_write_param2file, elastix_read_reg_output.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2015 University of Oxford
-% Version: 0.1.1
+% Copyright © 2015-2016 University of Oxford
+% Version: 0.1.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -222,8 +222,8 @@ for I = 1:N
     
     % keep only the OutputPoint coordinates
     tline = regexp(tline, 'OutputPoint = \[.*?\]', 'match');
-    tline = regexp(tline{1}, '\d.*\d', 'match');
-    tline = tline{1};
+    tline = regexp(tline{1}, '\[.*?\]', 'match');
+    tline = tline{1}(2:end-1);
     
     % convert to numeric format
     xout(I, :) = str2num(tline);
