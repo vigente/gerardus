@@ -105,7 +105,7 @@ imlog = log(abs(bsxfun(@rdivide, I_vector, I_vector(:,b0))));
 bvalue = squeeze(B_mat(1,1,:) + B_mat(2,2,:) + B_mat(3,3,:))';
 
 % normalise the B matrix
-B_mat_norm = B_mat ./ repmat(permute(bvalue, [3,1,2]), [3 3 1]);
+B_mat_norm = B_mat ./ repmat(permute(bvalue + eps, [3,1,2]), [3 3 1]);
 
 
 % define A matrix
@@ -135,7 +135,7 @@ A_K = squeeze([B_mat_norm(1,1,:).^2, B_mat_norm(2,2,:).^2, B_mat_norm(3,3,:).^2,
 
 A = [-bsxfun(@times, bvalue', A_D), 1/6 * bsxfun(@times, bvalue'.^2, A_K)];
 
-% only keep b values less than 3000 in the linear fit
+% only keep b values less than 5000 in the linear fit
 lin_bvals = bvalue < 5000;
 
 % weighted fit
@@ -160,7 +160,7 @@ if strcmp(method, 'nonlinear')
     % get error
     I_recon = bsxfun(@times, M(:,1) , exp(M(:,2:end) * A'));
     rmse_lin = sqrt(mean((I_vector(:) - I_recon(:)).^2));
-    disp(['RMSE from quick fit = ' num2str(rmse_lin)])
+    %disp(['RMSE from quick fit = ' num2str(rmse_lin)])
     
     options = optimoptions('lsqcurvefit','Jacobian','on', 'DerivativeCheck', 'off', ...
         'display', 'off', 'MaxIter', 40);
@@ -184,9 +184,9 @@ if strcmp(method, 'nonlinear')
     A_hat = -A';
     
     parfor i = 1:size(I_vector,1)
-    
-        M(i,:) = lsqcurvefit(@DKI_model, M(i,:), A_hat, I_vector(i,:), lb, ub, options);
         
+        M(i,:) = lsqcurvefit(@DKI_model, M(i,:), A_hat, I_vector(i,:), lb, ub, options);
+
     end
     
     
@@ -194,12 +194,27 @@ if strcmp(method, 'nonlinear')
     rmse = sqrt(mean((I_vector(:) - I_recon(:)).^2));
     
     bad_fits = rmse > rmse_lin;
-    disp(['Number of bad fits: ' num2str(sum(bad_fits(:)))])
+    %disp(['Number of bad fits: ' num2str(sum(bad_fits(:)))])
     M(bad_fits,:) = M_lin(bad_fits,:);
     
-    disp(['RMSE from slow fit = ' num2str(rmse)])
+    %disp(['RMSE from slow fit = ' num2str(rmse)])
     
 end
+
+if nargout == 1
+    % quick hack because reshape sz needs to be at least length 2
+    if length(sz) == 2
+        sz = [sz(1), 1, sz(2)];
+    end
+
+    % fill regions outside mask with zeros, and reshape
+    DKI = zeros(prod(sz(1:end-1)), 22);
+    DKI(thresh_val(:), :) = M;
+    DKI = reshape(DKI, [sz(1:end-1), 22]);
+    
+    return
+end
+
 
 % compute the returned signal
 I_DKI = bsxfun(@times, M(:,1), exp(M(:, 2:end) * A'));
@@ -319,6 +334,11 @@ for v = 1:size(M,1)
 
 end
 
+% quick hack because reshape sz needs to be at least length 2
+if length(sz) == 2
+    sz = [sz(1), 1, sz(2)];
+end
+
 % fill regions outside mask with zeros, and reshape
 DKI = zeros(prod(sz(1:end-1)), 22);
 DKI(thresh_val(:), :) = M;
@@ -330,18 +350,23 @@ I_DKI = reshape(IDKI, sz);
 
 K_ADC = zeros(size(thresh_val));
 K_ADC(thresh_val) = ADC;
+K_ADC = reshape(K_ADC, sz(1:end-1));
 
 K_AKC = zeros(size(thresh_val));
 K_AKC(thresh_val) = AKC;
+K_AKC = reshape(K_AKC, sz(1:end-1));
 
 Kv1 = zeros(size(thresh_val));
 Kv1(thresh_val) = K_v1;
+Kv1 = reshape(Kv1, sz(1:end-1));
 
 Kv2 = zeros(size(thresh_val));
 Kv2(thresh_val) = K_v2;
+Kv2 = reshape(Kv2, sz(1:end-1));
 
 Kv3 = zeros(size(thresh_val));
 Kv3(thresh_val) = K_v3;
+Kv3 = reshape(Kv3, sz(1:end-1));
 
 
 

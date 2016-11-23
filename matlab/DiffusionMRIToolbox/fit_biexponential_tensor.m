@@ -80,19 +80,21 @@ mask = logical(mask);
 bval_trace = squeeze(bval(1,1,:) + bval(2,2,:) + bval(3,3,:));
 fast_bvals = bval_trace < 1000;
 
-DT_fast = reshape(fit_DT(I(:,:,:,fast_bvals), bval(:,:,fast_bvals)), [prod(sz(1:3)), 7]);
+Ivector = reshape(I, [prod(sz(1:end-1)), sz(end)]);
+
+
+DT_fast = reshape(fit_DT(Ivector(:,fast_bvals), bval(:,:,fast_bvals)), [prod(sz(1:end-1)), 7]);
 
 % likewise, fit another tensor to anything about 1000 for the slow
 % component
 slow_bvals = bval_trace > 1000;
 
-DT_slow = reshape(fit_DT(I(:,:,:,slow_bvals), bval(:,:,slow_bvals)), [prod(sz(1:3)), 7]);
+DT_slow = reshape(fit_DT(Ivector(:,slow_bvals), bval(:,:,slow_bvals)), [prod(sz(1:end-1)), 7]);
 
 
-I_fast = reshape(dt2image(DT_fast, bval), [prod(sz(1:3)), sz(4)]);
-I_slow = reshape(dt2image(DT_slow, bval), [prod(sz(1:3)), sz(4)]);
+I_fast = dt2image(DT_fast, bval);
+I_slow = dt2image(DT_slow, bval);
 
-Ivector = reshape(I, [prod(sz(1:3)), sz(4)]);
 
 DT_fast = DT_fast(:, [7, 1:6]); % put S0 first
 DT_slow = DT_slow(:, [7, 1:6]);

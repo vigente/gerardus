@@ -9,7 +9,7 @@ function scimat_slice_GUI(scimat)
   
 % Author: Christopher Kelly <christopher.kelly28@googlemail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.1.0
+% Version: 0.1.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -46,9 +46,25 @@ handles.ha = axes('Units','normalized','Position',[0.1,0.1,0.5,0.8]);
 % generate original surface visualizations and create checkboxes
 for i = 1:numel(scimat)
    
-    [coordsX,coordsY,coordsZ] = scimat_ndgrid(scimat(i));
+    % we need the in-plane indices to be 'min', but the slice-selection
+    % index to be 'offset' (in the middle of the slice)
+    im_to_display = double(scimat(i).data(:,:,1,1));
+    
+    % this adds a row and columns of zeros, but they never get displayed
+    im_to_display(end+1, end+1) = 0; 
+    
+    [Nr, Nc, ~] = scimat(i).axis.size; % assume one slice per scimat element
+    [R, C, S] = ndgrid(0.5:Nr+0.5, 0.5:Nc+0.5, 1); % the corners in x and y, center of z
+    
+    xyz = scimat_index2world([R(:), C(:), S(:)], scimat(i));
+
+    X = reshape(xyz(:,1), size(R));
+    Y = reshape(xyz(:,2), size(C));
+    Z = reshape(xyz(:,3), size(S));
+
+    
     axes(handles.ha);
-    handles.im(i) = surface(coordsX,coordsY,coordsZ,double(scimat(i).data(:,:,1,1)),'edgecolor','none');
+    handles.im(i) = surface(X,Y,Z,im_to_display,'edgecolor','none');
     axis equal; grid on;
     colormap gray;
     
