@@ -1,5 +1,4 @@
 function scimat = scimat_varian2scimat(path)
-
 % SCIMAT_VARIAN2SCIMAT Create SCIMAT struct from data obtained from Varian MR system.
 %
 % This function creates a struct with the scimat format (see "help scimat"
@@ -19,7 +18,7 @@ function scimat = scimat_varian2scimat(path)
 % Darryl McClymont <darryl.mcclymont@cardiov.ox.ac.uk>
 % Irvin Teh <irvin.teh@cardiov.ox.ac.uk>
 % Copyright ? 2016 University of Oxford
-% Version: 0.1.1
+% Version: 0.1.2
 %
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -56,65 +55,110 @@ else
     dim = 2;
 end
 
-% Euler angles & generate rotation matrix
+%% case 1 = images are a stack of SA acquisitions
 if numel(props.psi) == 1;
+    % Euler angles & generate rotation matrix
     psi = props.psi;
     % c = 1;
-elseif numel(props.psi) > 1;
-    
-    psi = props.psi(end);
-    
-end
+    phi = props.phi;
+    theta = props.theta;
+    rotm = rotatematrix_varian(psi,theta,phi);
 
-phi = props.phi;
-theta = props.theta;
-rotm = rotatematrix_varian(psi,theta,phi);
+    % Resolution
+    di = props.x_res;
+    dj = props.y_res;
+    dk = props.z_res + props.gap*10;
 
-% Resolution
-di = props.x_res;
-dj = props.y_res;
-dk = props.z_res + props.gap * 10;
+    % Field of view size in mm
+    FOVi = props.x_dim * di;
+    FOVj = props.y_dim * dj;
+    FOVk = props.z_dim * dk;
 
-% Field of view size in mm
-FOVi = props.x_dim * di;
-FOVj = props.y_dim * dj;
-FOVk = props.z_dim * dk;
+    % rotate bottom corner of image to real world coordinates
+    min_xyz = rotm * (-[FOVi, FOVj, FOVk] / 2)';
 
-% rotate bottom corner of image to real world coordinates
-min_xyz = rotm * (-[FOVi, FOVj, FOVk] / 2)';
+    % indices
+    [I, J, K] = ndgrid(1:size(img,1), 1:size(img,2), 1:size(img,3));
+    IJK = [I(:), J(:), K(:)];
 
-% indices
-[I, J, K] = ndgrid(1:size(img,1), 1:size(img,2), 1:size(img,3));
-IJK = [I(:), J(:), K(:)];
+    % every pixel in the image gets its coordinates converted to real world
+    % coordinates. The first of every slice then gets passed on to the scimat
+    % min + rot * (index * resolution)
+    XYZ = bsxfun(@plus, min_xyz, rotm * (bsxfun(@times, IJK - 0.5, [di dj dk]))')';
 
-% every pixel in the image gets its coordinates converted to real world
-% coordinates. The first of every slice then gets passed on to the scimat
-% min + rot * (index * resolution)
-XYZ = bsxfun(@plus, min_xyz, rotm * (bsxfun(@times, IJK - 0.5, [di dj dk]))')';
+    X = reshape(XYZ(:,1), size(img));
+    Y = reshape(XYZ(:,2), size(img));
+    Z = reshape(XYZ(:,3), size(img));
 
-X = reshape(XYZ(:,1), size(img));
-Y = reshape(XYZ(:,2), size(img));
-Z = reshape(XYZ(:,3), size(img));
+    % image data and rotation matrix are transposed here because of the varian
+    % convention
 
-% image data and rotation matrix are transposed here because of the varian
-% convention
+    if dim == 2
 
-if dim == 2
-    
-    for i = 1:size(img,3)
-        offset = [Y(1,1,i) X(1,1,i) Z(1,1,i)];
-        scimat(i) = scimat_im2scimat(((img(:, :, i).')), [di dj dk], offset, rotm');
+        for i = 1:size(img,3)
+            offset = [Y(1,1,i) X(1,1,i) (Z(1,1,i)-(dk + props.gap*10))];
+            scimat(i) = scimat_im2scimat(((img(:, :, i).')), [di dj dk], offset, rotm');
+        end
+
+    elseif dim == 3
+        % doesn't exist in the other case,3D will never have an array for psi.
+
+        % in case we do want a 3D image. (my HR images are 3D and I don't want a stack)
+        offset = [Y(1,1,1) X(1,1,1) Z(1,1,1)];
+        scimat = scimat_im2scimat(permute(img,[2 1 3]), [di dj dk], offset, rotm');
+
     end
-    
-elseif dim == 3
-    
-    % in case we do want a 3D image. (my HR images are 3D and I don't want a stack)
-    offset = [Y(1,1,1) X(1,1,1) Z(1,1,1)];
-    scimat = scimat_im2scimat(permute(img,[2 1 3]), [di dj dk], offset, rotm');
-    
+
+
+%% case 2 = images are a fan of LA acquisitions
+
+elseif numel(props.psi) > 1;
+     counter = 1;
+     for psi = props.psi;
+
+        phi = props.phi;
+        theta = props.theta;
+        rotm = rotatematrix_varian(psi,theta,phi);
+
+        % Resolution
+        di = props.x_res;
+        dj = props.y_res;
+        dk = props.z_res + props.gap * 10;
+
+        % Field of view size in mm
+        FOVi = props.x_dim * di;
+        FOVj = props.y_dim * dj;
+        FOVk = props.z_dim * dk;
+
+        % rotate bottom corner of image to real world coordinates
+        min_xyz = rotm * (-[FOVi, FOVj, FOVk] / 2)';
+
+        % indices
+        img1 = img(:,:,1,1);
+        [I, J, K] = ndgrid(1:size(img1,1), 1:size(img1,2), 1:size(img1,3));
+        IJK = [I(:), J(:), K(:)];
+
+        % every pixel in the image gets its coordinates converted to real world
+        % coordinates. The first of every slice then gets passed on to the scimat
+        % min + rot * (index * resolution)
+        XYZ = bsxfun(@plus, min_xyz, rotm * (bsxfun(@times, IJK - 0.5, [di dj dk]))')';
+
+        X = reshape(XYZ(:,1), size(img(:,:,1)));
+        Y = reshape(XYZ(:,2), size(img(:,:,1)));
+        Z = reshape(XYZ(:,3), size(img(:,:,1)));
+
+        % image data and rotation matrix are transposed here because of the varian
+        % convention
+
+        offset = [Y(1,1,1) X(1,1,1) Z(1,1,1)];
+        scimat(counter) = scimat_im2scimat(((img(:, :, counter).')), [di dj dk], offset, rotm');
+        counter = counter + 1;
+    end
 end
 
 end
+
+
 
 function rot = rotatematrix_varian(psi,theta,phi)
 % Get rotation matrix for Varian convention
@@ -299,4 +343,3 @@ for idx = 1:length(varargin)
 end
 
 end
-

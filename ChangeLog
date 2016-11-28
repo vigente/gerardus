@@ -1,3 +1,13 @@
+
+2016-11-28  Nicolas Basty  <nicolas.basty@eng.ox.ac.uk>
+
+	* matlab/FileFormatToolbox/scimat_varian2scimat.m (0.1.2)
+        Can now also convert acquisitions where the data is not acquired in stacks of parallel 2D images but rather
+        in spokes spanning different values of psi, stored in an array. In my case this is for LA views.
+	
+	*matlab/FileFormatToolbox/scimat_slice_GUI.m
+	Changing the view and axis
+	
 2016-11-23  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/ElastixToolbox/transformix_pts.m (0.1.2): Fix bug. Minus
