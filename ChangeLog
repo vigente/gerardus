@@ -1,3 +1,9 @@
+2016-12-05  Ramon Casero  <rcasero@gmail.com>
+
+	* FileFormatToolbox/scimat_load.m (0.5.11):
+	* FileFormatToolbox/scimat_save.m (0.6.8): Fix bug. Save/read
+	XPosition, YPosition fields to/from tiff files. This way we can
+	save/read the offset info of the image.
 
 2016-11-28  Nicolas Basty  <nicolas.basty@eng.ox.ac.uk>
 
