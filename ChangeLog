@@ -1,3 +1,9 @@
+2016-12-06  Ramon Casero  <rcasero@gmail.com>
+
+	* FiltersToolbox/scimat_crop.m (0.5.0): Add new syntax so that a
+	3D image volume can be provided as a list of files, each with a 2D
+	image.
+
 2016-12-05  Ramon Casero  <rcasero@gmail.com>
 
 	* FileFormatToolbox/scimat_load.m (0.5.11):
