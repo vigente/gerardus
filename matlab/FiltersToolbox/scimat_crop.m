@@ -47,7 +47,7 @@ function scimat = scimat_crop(scimat, from, to, ds)
 % -------------------------------------------------------------------------
 % Syntax to crop a 3D volume given slice-by-slice by a list of image files:
 %
-% SCIMAT = scimat_crop(FILE, FROM, TO)
+% SCIMAT = scimat_crop(FILE, FROM, TO, DS)
 %
 %   FILE is a cell vector with a list of path/filenames. Each filename
 %   corresponds to a 2D slice of the 3D volume. The files can be any format
@@ -55,10 +55,12 @@ function scimat = scimat_crop(scimat, from, to, ds)
 %
 %   FROM/TO are 1- to 3-vectors with the (row, col, slice) indices of the
 %   cropping. NaN values can be provided to mean first/last voxel.
+%
+%   DS is a scalar with the slice thickness. By default, DS=1.
 
 % Authors: Ramon Casero <rcasero@gmail.com>, Benjamin Villard <b.016434@gmail.com>
 % Copyright © 2011-2016 University of Oxford
-% Version: 0.5.0
+% Version: 0.5.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
