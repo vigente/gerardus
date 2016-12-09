@@ -53,14 +53,18 @@ function scimat = scimat_crop(scimat, from, to, ds)
 %   corresponds to a 2D slice of the 3D volume. The files can be any format
 %   that scimat_load() can read.
 %
-%   FROM/TO are 1- to 3-vectors with the (row, col, slice) indices of the
+%   FROM/TO are 3-vectors with the (row, col, slice) indices of the
 %   cropping. NaN values can be provided to mean first/last voxel.
+%
+%   FROM/TO can also be given as matrices. In that case, each row
+%   corresponds to a different crop of the 3D volume. That is, SCIMAT(i)
+%   corresponds to FROM(i,:), TO(i,:).
 %
 %   DS is a scalar with the slice thickness. By default, DS=1.
 
 % Authors: Ramon Casero <rcasero@gmail.com>, Benjamin Villard <b.016434@gmail.com>
 % Copyright © 2011-2016 University of Oxford
-% Version: 0.5.1
+% Version: 0.5.2
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -189,33 +193,56 @@ switch (class(scimat))
         NC = size(scimat_in.data, 2);
         NCh = size(scimat_in.data, 5);
         
+        if (size(from, 1) ~= size(to, 1))
+            error('FROM and TO must have the same number of rows, one from per crop')
+        end
+        if (size(from, 2) ~= 3 || size(to, 2) ~= 3)
+            error('FROM and TO must have 3 columns')
+        end
+        
         % replace slice NaN indices by whole range of slices
-        if (length(from) < 1 || isnan(from(1))), from(1) = 1; end
-        if (length(to) < 1 || isnan(to(1))), to(1) = NR; end
-        if (length(from) < 2 || isnan(from(2))), from(2) = 1; end
-        if (length(to) < 2 || isnan(to(2))), to(2) = NC; end
-        if (length(from) < 3 || isnan(from(3))), from(3) = 1; end
-        if (length(to) < 3 || isnan(to(3))), to(3) = NS; end
+        from(isnan(from)) = 1;
+        to(isnan(to(:, 1)), 1) = NR;
+        to(isnan(to(:, 2)), 2) = NC;
+        to(isnan(to(:, 3)), 3) = NS;
         
-        % offset of cropped volume
-        offset = scimat_index2world(from(1:2), scimat_in);
-        offset(3) = (from(3) - 1) * ds;
+        % box that contains all the crops
+        fromMin = min(from);
+        toMax = max(to);
         
-        % init output
-        scimat = scimat_im2scimat(...
-            zeros(to(1)-from(1)+1, to(2)-from(2)+1, to(3)-from(3)+1, 1, ...
-            NCh, 'like', scimat_in.data), ...
-            [scimat_in.axis.spacing ds], offset);
+        % prepare each of the crops (e.g. filling in missing parameters)
+        offset = zeros(size(from, 1), 3);
+        for N = 1:size(from, 1)
+            
+            % offset of cropped volume
+            offset(N, 1:2) = scimat_index2world(from(N, 1:2), scimat_in);
+            offset(N, 3) = (from(N, 3) - 1) * ds;
+            
+            % init output
+            scimat(N) = scimat_im2scimat(...
+                zeros(...
+                to(N, 1)-from(N, 1)+1, ...
+                to(N, 2)-from(N, 2)+1, ...
+                to(N, 3)-from(N, 3)+1, 1, NCh, 'like', scimat_in.data), ...
+                [scimat_in.axis.spacing ds], offset(N, :));
+            
+        end
         
         % loop files
-        for I = from(3):to(3)
-            disp(['I = ' num2str(I)])
-            % load file
+        for I = fromMin(3):toMax(3)
+
+            % load file with the 2D slice
             scimat_in = scimat_load(file{I});
             
-            % transfer cropped slice
-            scimat.data(:, :, I-from(3)+1, :, :) ...
-                = scimat_in.data(from(1):to(1), from(2):to(2), :, :, :);
+            % loop crops
+            for N = 1:size(from, 1)
+                
+                % transfer cropped slice
+                scimat(N).data(:, :, I-from(N, 3)+1, :, :) ...
+                    = scimat_in.data(from(N, 1):to(N, 1), ...
+                    from(N, 2):to(N, 2), :, :, :);
+                
+            end
             
         end
 

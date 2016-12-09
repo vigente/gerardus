@@ -1,3 +1,10 @@
+2016-12-09  Ramon Casero  <rcasero@gmail.com>
+
+	* FiltersToolbox/scimat_crop.m (0.5.2): When input is list of
+	files, now it's possible to select several crops at the same
+	time. This saves time, as every file only needs to be loaded once
+	for all crops.
+
 2016-12-07  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scimat_crop.m (0.5.1): Add info to the help
