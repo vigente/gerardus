@@ -69,8 +69,8 @@ function scimat = scimat_save(file, scimat, touint8, v73)
 % See also: scimat, scimat_load.
 
 % Author: Ramon Casero <rcasero@gmail.com>
-% Copyright © 2010-2015 University of Oxford
-% Version: 0.6.7
+% Copyright © 2010-2016 University of Oxford
+% Version: 0.6.8
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -274,6 +274,9 @@ switch lower(ext)
         tagstruct.ResolutionUnit = Tiff.ResolutionUnit.Centimeter; % resolution units are pixel/cm
         tagstruct.XResolution = 1 / (scimat.axis(2).spacing * 100);
         tagstruct.YResolution = 1 / (scimat.axis(1).spacing * 100);
+        offset = scimat_index2world([1 1], scimat); % image offset in pixels
+        tagstruct.XPosition = offset(1) * 100; % units are cm
+        tagstruct.YPosition = offset(2) * 100; % units are cm
         t.setTag(tagstruct);
         
         % write image data to file

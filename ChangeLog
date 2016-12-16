@@ -1,3 +1,176 @@
+2016-12-09  Ramon Casero  <rcasero@gmail.com>
+
+	* FiltersToolbox/scimat_crop.m (0.5.2): When input is list of
+	files, now it's possible to select several crops at the same
+	time. This saves time, as every file only needs to be loaded once
+	for all crops.
+
+2016-12-07  Ramon Casero  <rcasero@gmail.com>
+
+	* FiltersToolbox/scimat_crop.m (0.5.1): Add info to the help
+	header about input argument DS.
+
+2016-12-06  Ramon Casero  <rcasero@gmail.com>
+
+	* FiltersToolbox/scimat_crop.m (0.5.0): Add new syntax so that a
+	3D image volume can be provided as a list of files, each with a 2D
+	image.
+
+2016-12-05  Ramon Casero  <rcasero@gmail.com>
+
+	* FileFormatToolbox/scimat_load.m (0.5.11):
+	* FileFormatToolbox/scimat_save.m (0.6.8): Fix bug. Save/read
+	XPosition, YPosition fields to/from tiff files. This way we can
+	save/read the offset info of the image.
+
+2016-11-28  Nicolas Basty  <nicolas.basty@eng.ox.ac.uk>
+
+	* matlab/FileFormatToolbox/scimat_varian2scimat.m (0.1.2)
+        Can now also convert acquisitions where the data is not acquired in stacks of parallel 2D images but rather
+        in spokes spanning different values of psi, stored in an array. In my case this is for LA views.
+	
+	*matlab/FileFormatToolbox/scimat_slice_GUI.m
+	Changing the view and axis
+	
+2016-11-23  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/transformix_pts.m (0.1.2): Fix bug. Minus
+	sign of output x-coordinates was being ignored.
+
+2016-11-17  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	*  matlab/FileFormatToolbox/scimat_slice_GUI.m (0.1.1)
+	Fix bug. The GUI uses the matlab function surface, which wants corner
+	coordinates. It was being given pixel centres, so the whole image was 
+	off by half a pixel.
+
+	* matlab/FileFormatToolbox/scimat_varian2scimat.m (0.1.1)
+	Fix bug when gap between slices is not zero - it is now added to the 
+	slice thickness, which is obviously not the same thing as having thicker
+	slices, but at least the slice centres are in the right place now.
+
+2016-11-14  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	* Minor changes and some new functions for processing diffusion images:
+
+	modified:   matlab/DiffusionMRIToolbox/weighted_linear_fit.m
+	modified:   matlab/DiffusionMRIToolbox/wild_bootstrapping_DTI.m
+	modified:   matlab/FiltersToolbox/forward_TV.m
+	modified:   matlab/DiffusionMRIToolbox/quiver_image.m
+	modified:   matlab/DiffusionMRIToolbox/fit_DKI_model.m
+	modified:   matlab/DiffusionMRIToolbox/fit_DT.m
+	modified:   matlab/DiffusionMRIToolbox/fit_biexponential_tensor.m
+	new file:   matlab/DiffusionMRIToolbox/fit_triexponential_tensor.m
+	new file:   matlab/DiffusionMRIToolbox/plot_diffusion_profiles.m
+	new file:   matlab/CardiacToolbox/mask2LV_cavity.m
+	new file:   matlab/DiffusionMRIToolbox/dt2params.m
+
+	* Added some tools for kurtosis tensor processing:
+
+	new file:   matlab/DiffusionMRIToolbox/rotate_tensor.m
+	new file:   matlab/DiffusionMRIToolbox/kurtosis_3333_to_66.m
+	new file:   matlab/DiffusionMRIToolbox/kurtosis_66_to_3333.m
+	new file:   matlab/DiffusionMRIToolbox/kurtosis_ijkl_to_rc.m
+	new file:   matlab/DiffusionMRIToolbox/tensor2vector.m
+	new file:   matlab/DiffusionMRIToolbox/vector2tensor.m
+
+2016-11-03  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix_compose_afftransf.m (0.2.7): Fix
+	bug. Make sure that tfc.NumberOfParameters is correct at the
+	output.
+
+2016-10-31  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/FileFormatToolbox/nuimagesc.m (0.1.0): NUIMAGESC
+	imagesc() with non-uniform pixel spacing.
+
+2016-10-27  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix_fitgeotrans.m (0.2.0): Add input
+	argument alpha, to allow partial deformations of the image,
+	following Alexa 2002.
+
+	* Add matlab/ElastixToolbox/elastix_fitgeotrans.m (0.1.0):
+	Transformix struct for image transformation obtained from matching
+	two sets of landmarks.
+
+2016-10-26  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ElastixToolbox/elastix.m (0.5.5): Fix bug. When regParam
+	was given as a filename, the filename was replaced by a struct
+	before making a copy of the filename.
+
+2016-10-25  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/FileFormatToolbox/im_resize.m (0.1.0): IM_RESIZE
+	Resize a list of image files (.tif, .png, etc) with ImageMagick
+	convert, directly file to file.
+
+2016-10-24  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/FileFormatToolbox/scimat_load.m: (0.5.10) Fix bug. When
+	.tif images have a thumbnail, imfinfo() produces a 2-vector of
+	structs, one for the image and one for the thumbnail. Now we
+	discard the thumbnail metadata.
+
+2016-10-21  Nicolas Basty  <nicolas.basty@eng.ox.ac.uk>
+
+	* matlab\FileFormatToolbox\scimat_varian2scimat.m: This function
+	converts data from varian scanners, which follow an odd
+	convention, into scimat format. Either stacks of 2D images or
+	single 3D images. For example to visualise 2D data using the
+	scimat_slice_GUI.
+
+2016-10-11  Nicolas Basty  <nicolas.basty@eng.ox.ac.uk>
+
+	* matlab\FileFormatToolbox\scimat_im2scimat.m: Edited to handle 2D
+	slices in 3D space
+
+
+2016-10-09  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/PointsToolbox/cons_smacof_pip.m (0.4.6): Simplify code to
+	generate the objective function terms.
+
+2016-10-08  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m (0.5.1):
+	Fix bug. Edge length constraints: we can ignore edges where both
+	vertices are fixed. But if one or two vertices are free, we have
+	to write the constraint accordingly (for free vertices we use
+	variable names, and for fixed vertices we use the numerical value
+	of their coordinates).
+
+2016-10-07  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/tri_ccqp_smacof_nofold_sph_pip.m (0.5.0):
+	New input argument "lmax": Maximum length allowed to any edge of
+	the output parametrization. This can avoid triangles moving to the
+	opposite side of the sphere to become positive.
+
+2016-10-06  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/sphtri_foldcc.m (0.3.0): New input
+	isManuallyGood, to manually label vertices as good, even if they
+	belong to a bad triangle.
+
+	* matlab/ManifoldToolbox/sphtri_foldcc.m (0.2.1): Fix
+	bug. Function broke if there were no good vertices within any
+	fold.
+
+2016-10-05  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/ManifoldToolbox/sphtri_foldcc.m (0.2.0): Fix bug. The
+	function was not producing the right lists of vertices. Now the
+	code is simpler and seems to work well.
+
+2016-10-04  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/ManifoldToolbox/sphtri_foldcc.m (0.1.0):
+	SPHTRI_FOLDCC Find connected components of groups of vertices
+	causing a fold on the sphere.
+
 2016-09-27  Ramon Casero  <rcasero@gmail.com>
 
 	* Delete matlab/ManifoldToolbox/tri_sphparam.m: Move to

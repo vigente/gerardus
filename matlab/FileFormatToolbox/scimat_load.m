@@ -47,7 +47,7 @@ function scimat = scimat_load(file, varargin)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2010-2016 University of Oxford
-% Version: 0.5.9
+% Version: 0.5.11
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -512,6 +512,13 @@ switch lower(ext)
         % read image metadata header
         info = imfinfo(file);
         
+        % if the image has a thumbnail, we discard the thumbnail
+        if (length(info) > 1)
+            
+            info = info(1);
+            
+        end
+        
         if (headerOnly)
             
             scimat.data = [];
@@ -558,14 +565,22 @@ switch lower(ext)
             warning('File does not provide YResolution. Assuming ''1.0''')
             info.YResolution = 1.0;
         end
+        if (~isfield(info, 'XPosition') || isempty(info.XPosition))
+            warning('File does not provide XPosition. Assuming ''0.0''')
+            info.XPosition = 0.0;
+        end
+        if (~isfield(info, 'YPosition') || isempty(info.YPosition))
+            warning('File does not provide YPosition. Assuming ''0.0''')
+            info.YPosition = 0.0;
+        end
         
         % set scimat axes values
         scimat.axis(1).size = info.Height;
         scimat.axis(2).size = info.Width;
         scimat.axis(1).spacing = unit ./ info.YResolution;
         scimat.axis(2).spacing = unit ./ info.XResolution;
-        scimat.axis(1).min = -0.5 * scimat.axis(1).spacing;
-        scimat.axis(2).min = -0.5 * scimat.axis(2).spacing;
+        scimat.axis(1).min = info.YPosition * unit - 0.5 * scimat.axis(1).spacing;
+        scimat.axis(2).min = info.XPosition * unit - 0.5 * scimat.axis(2).spacing;
         
         % we assume that the image is oriented parallel to Cartesian axes
         scimat.rotmat = eye(2);

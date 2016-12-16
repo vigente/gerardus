@@ -304,6 +304,11 @@ elastix_delete_param_file.m
 
 	 ELASTIX_DELETE_PARAM_FILE  Delete sequence of transform files.
 	
+elastix_fitgeotrans.m
+
+	 ELASTIX_FITGEOTRANS  Transformix struct for image transformation obtained
+	 from matching two sets of landmarks
+	
 elastix_length.m
 
 	 ELASTIX_LENGTH  Number of transform levels in an elastix series.
@@ -369,6 +374,11 @@ imread_list.m
 
 	 IMREAD_LIST  Read list of image files into volume.
 	
+im_resize.m
+
+	 IM_RESIZE Resize a list of image files (.tif, .png, etc) with ImageMagick
+	 convert, directly file to file
+	
 load_dcm.m
 
 	 LOAD_DCM  Load array of DICOM filenames as 3D+t image and metainformation
@@ -392,6 +402,10 @@ ndpi_focus_points.m
 
 	 NDPI_FOCUS_POINTS  Read focus points coordinates from .ndpi image file
 	 obtained from a Hamamatsu microscope.
+	
+nuimagesc.m
+
+	 NUIMAGESC  imagesc() with non-uniform pixel spacing
 	
 parsave.m
 
@@ -441,6 +455,8 @@ scimat_tiff2scimat.m
 
 	 SCIMAT_TIFF2SCIMAT  Create SCIMAT struct from TIFF stack.
 	
+scimat_varian2scimat.m
+
 scimat_world2index.m
 
 	 SCIMAT_WORLD2INDEX  Convert real world coordinates to image indices for
@@ -779,6 +795,10 @@ graphcc.m
 
 	 GRAPHCC  Split a graph into connected components.
 	
+graph_gclosure.m
+
+	 GRAPH_GCLOSURE Geodetic closure of a subset of vertices on a graph.
+	
 lmdscale.m
 
 	 LMDSCALE  Local neighbourhood Multidimensional scaling on a plane
@@ -806,6 +826,11 @@ scimat_tri_to_raster.m
 smdscale.m
 
 	 SMDSCALE  Local neighbourhood Multidimensional scaling on a sphere
+	
+sphtri_foldcc.m
+
+	 SPHTRI_FOLDCC  Find connected components of groups of vertices causing a
+	 fold on the sphere
 	
 sphtri_signed_vol.m
 
@@ -1606,6 +1631,10 @@ select3d.m
 	
 tet2tri.m
 
+toolbox_graph.m
+
+	 toolbox_graph - a toolbox for graph manipulation and plotting.
+	
 triangulate.m
 
 	 triangulate - interface to 'triangle' library. 

@@ -120,7 +120,7 @@ end
     
 % turn off warnings (the / operator can generate them)
 warn_state = warning;
-%warning off;
+warning off;
     
 % fit the model without weighting
 M = Y / X;
@@ -131,10 +131,13 @@ R = Y - MX;
 fY = func(Y);
 Rf = fY - func(MX);
 
-
 if unique_weights || (size(Y,1) == 1)
+    
+    %pctRunOnAll warning('off')
+    
     M_weighted = zeros(size(M));
     parfor i = 1:size(Y, 1)
+        
         if rician
             V = fY(i,:).^2; % or possibly not ^2
         else
