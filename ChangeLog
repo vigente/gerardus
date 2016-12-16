@@ -1,3 +1,8 @@
+2016-12-16  Ramon Casero  <rcasero@gmail.com>
+
+	* matlab/CardiacToolbox/histology_preprocessing.m (0.5.0): Add
+	syntax for reference histogram.
+
 2016-12-09  Ramon Casero  <rcasero@gmail.com>
 
 	* FiltersToolbox/scimat_crop.m (0.5.2): When input is list of
