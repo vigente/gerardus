@@ -10,11 +10,11 @@ function scimat = scimat_im2scimat(im, res, offset, rotmat)
 %   logical, (u)int8, (u)int16, (u)int32, (u)int64, single or double. IM
 %   can have 3 to 4 dimensions.
 %
-%   RES is a vector with the voxel size and time increment between frames.
-%   By default, RES is 1.0 in each dimension.
+%   RES is a vector with the (dy, dx, dz, dt) voxel size and time increment 
+%   between frames. By default, RES is 1.0 in each dimension.
 %
-%   OFFSET is a 3-vector with the coordinates of the *centre* of the first
-%   voxel in the image.
+%   OFFSET is a vector with the (y, x, z, t) coordinates of the *centre* of 
+%   the first voxel in the image.
 %
 %   Note that the order of RES and OFFSET is the same as the axes in IM.
 %   E.g. for a 4D image
