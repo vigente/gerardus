@@ -73,7 +73,7 @@ function [imref, im, mask] = histology_preprocessing(imref, im, opts)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2014-2016 University of Oxford
-% Version: 0.5.0
+% Version: 0.5.1
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -236,6 +236,13 @@ for I = 1:N
             [im0.data, mask0.data] = individual_image_preprocessing(im0.data);
 
             im0.data = match_histograms_hist(imref, im0.data);
+            
+            % grayscale conversion of IM, if requested by user
+            if (opts.Grayscale)
+                
+                im0.data = rgb2gray(squeeze(im0.data));
+                
+            end
             
         otherwise
             
