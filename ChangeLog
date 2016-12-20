@@ -9,28 +9,28 @@
 
 2016-12-09  Ramon Casero  <rcasero@gmail.com>
 
-	* FiltersToolbox/scimat_crop.m (0.5.2): When input is list of
-	files, now it's possible to select several crops at the same
+	* matlab/FiltersToolbox/scimat_crop.m (0.5.2): When input is list
+	of files, now it's possible to select several crops at the same
 	time. This saves time, as every file only needs to be loaded once
 	for all crops.
 
 2016-12-07  Ramon Casero  <rcasero@gmail.com>
 
-	* FiltersToolbox/scimat_crop.m (0.5.1): Add info to the help
-	header about input argument DS.
+	* matlab/FiltersToolbox/scimat_crop.m (0.5.1): Add info to the
+	help header about input argument DS.
 
 2016-12-06  Ramon Casero  <rcasero@gmail.com>
 
-	* FiltersToolbox/scimat_crop.m (0.5.0): Add new syntax so that a
-	3D image volume can be provided as a list of files, each with a 2D
-	image.
+	* matlab/FiltersToolbox/scimat_crop.m (0.5.0): Add new syntax so
+	that a 3D image volume can be provided as a list of files, each
+	with a 2D image.
 
 2016-12-05  Ramon Casero  <rcasero@gmail.com>
 
-	* FileFormatToolbox/scimat_load.m (0.5.11):
-	* FileFormatToolbox/scimat_save.m (0.6.8): Fix bug. Save/read
-	XPosition, YPosition fields to/from tiff files. This way we can
-	save/read the offset info of the image.
+	* matlab/FileFormatToolbox/scimat_load.m (0.5.11):
+	* matlab/FileFormatToolbox/scimat_save.m (0.6.8): Fix
+	bug. Save/read XPosition, YPosition fields to/from tiff
+	files. This way we can save/read the offset info of the image.
 
 2016-11-28  Nicolas Basty  <nicolas.basty@eng.ox.ac.uk>
 
