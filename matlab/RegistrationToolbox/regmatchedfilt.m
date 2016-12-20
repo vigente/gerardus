@@ -31,6 +31,8 @@ function [tElx, cmax, imm] = regmatchedfilt(imf, imm, alpha)
 %   size = [1 1], offset = [0 0].
 %
 %   TELX is the transform in Elastix format that registers IMM onto IMF.
+%   Note that if IMF, IMM have different pixel size and/or offsets, TELX
+%   has the output pixel size and offset of IMF.
 %
 % TELX = REGMATCHEDFILT(..., ALPHA)
 %
@@ -55,7 +57,7 @@ function [tElx, cmax, imm] = regmatchedfilt(imf, imm, alpha)
 
 % Author: Ramon Casero <rcasero@gmail.com>
 % Copyright © 2015 University of Oxford
-% Version: 0.3.0
+% Version: 0.4.0
 % 
 % University of Oxford means the Chancellor, Masters and Scholars of
 % the University of Oxford, having an administrative office at
@@ -109,18 +111,42 @@ if (nargin < 3)
     alpha = 0;
 end
 
-% coordinates of the center of mass of the image. We are going to use this
-% as the centre of rotation. Units are (row, col) pixels, not physical
-% coordinates
+% if the moving image doesn't have the same pixel size as the fixed image,
+% we have to resize the moving image accordingly because the matched filter
+% assumes equal pixel size in both images
+if any([imm.axis.spacing] ~= [imf.axis.spacing])
+    
+    % offset of the moving image
+    offsetm = scimat_index2world([1 1], imm);
+    
+    % resizing factor (row, col)
+    K = [imm.axis.spacing] ./ [imf.axis.spacing];
+    
+    % new size of the moving image (note: the rounding introduces a small
+    % error in the output pixel size)
+    outsz = round(size(imm.data) .* K);
+    
+    % resize moving image so that it matches the pixel size of the fixed
+    % image
+    imm = scimat_im2scimat(imresize(imm.data, outsz), ...
+        [imf.axis.spacing], offsetm);
+    
+end
+
+% coordinates of the center of mass of the moving image. We are going to
+% use this as the centre of rotation. Units are (row, col) pixels, not
+% physical coordinates
 cm = imcmass(single(imm.data));
 
-% if we convolve imf with itself, then the convolution peak would be in the
-% center of the image. An (N,M)-image convolved with itself produces a
-% (2*N-1,2*M-1) convolution. The center of that convolution is at (N,M)
-conv_centre = size(imf.data);
-
-% template for the elastix transform for the rotation only
+% template for the elastix rigid transform
 tElx = elastix_transform(imf.data, imm.data, cm([2 1]));
+
+% Let A and B be images with the same object in the same position and
+% orientation, but the images can have different size. The operation
+% conv_fft2(A, B(end:-1:1, end:-1:1)) produces a maximum at
+% position=size(B). That is, if there is no translation between the
+% objects, the maximum is at position=size(B)
+conv_centre = size(imf.data);
 
 % loop angle values
 cmax = -Inf; % convolution maximum for any angle so far
@@ -153,23 +179,28 @@ for I = 1:length(alpha)
 
 end
 
-% set rotation to the best match
-tElx.TransformParameters(1) = alphaopt;
+% combine best rotation and translation. Note the order of composition
+% because translation is computed on the rotated image, rather than using
+% the rotation as InitialTransform
+tElx.TransformParameters = [alphaopt 0 0]; % rotation
+taux = tElx;
+taux.TransformParameters = [0, [copt, ropt] - conv_centre([2 1])]; % translation
+tElx = elastix_compose_afftransf(taux, tElx);
 
-% elastix transform for the translation only
-tElx2 = tElx;
-tElx2.TransformParameters(1) = 0;
-tElx2.TransformParameters(2:3) = [copt, ropt] - conv_centre([2 1]);
+% convert pixel to physical units of the fixed image, and correct the
+% translation to take into account that both images may have different
+% offsets 
+offsetf = scimat_index2world([1 1], imf); 
+offsetm = scimat_index2world([1 1], imm);
 
-% combine the rotation and translation
-tElx = elastix_compose_afftransf(tElx2, tElx);
-
-% convert pixel to physical units
 tElx.TransformParameters(2:3) = tElx.TransformParameters(2:3) ...
-    .* [imf.axis([2 1]).spacing];
+    .* [imf.axis([2 1]).spacing] ...
+     - offsetf + offsetm;
 tElx.Spacing = [imf.axis([2 1]).spacing];
-tElx.CenterOfRotationPoint = tElx.CenterOfRotationPoint ...
-    .* [imf.axis([2 1]).spacing];
+tElx.Origin = scimat_index2world(tElx.Origin([2 1])+[1 1], imf);
+tElx.CenterOfRotationPoint ...
+    = scimat_index2world(tElx.CenterOfRotationPoint([2 1])+[1 1], imf);
+tElx.Size = [imf.axis([2 1]).size];
 
 % if requested by the user, transform the moving image according to the
 % registration solution
