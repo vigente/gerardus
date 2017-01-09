@@ -1,4 +1,4 @@
-function scimat = scimat_varian2scimat(path)
+function scimat = scimat_varian2scimat(file_path)
 % SCIMAT_VARIAN2SCIMAT Create SCIMAT struct from data obtained from Varian MR system.
 %
 % This function creates a struct with the scimat format (see "help scimat"
@@ -44,9 +44,15 @@ function scimat = scimat_varian2scimat(path)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % Read in the properties from the procpar file
-props = init_params_nested(path); % Get properties from procpar
-n = load_nii([path filesep 'image_mag.nii']); % Load nifti, function in third party toolbox
-img = n.img; % getting image data from the nifti
+props = init_params_nested(file_path); % Get properties from procpar
+
+if exist([file_path filesep 'image_mag.nii'], 'file')
+    n = load_nii([file_path filesep 'image_mag.nii']); % Load nifti, function in third party toolbox
+    img = n.img; % getting image data from the nifti
+else
+    param = init_params(file_path);
+    img = abs(squeeze(recon_fid(file_path(1:end-6), str2double(file_path(end-5:end-4)), param)));
+end
 
 % Determine (fairly arbitrarily) if the data is a 2D stack or 3D image
 if size(img,1)/size(img,3) <5 && size(img,2)/size(img,3) < 5
@@ -55,11 +61,63 @@ else
     dim = 2;
 end
 
-%% case 1 = images are a stack of SA acquisitions
-if numel(props.psi) == 1;
-    % Euler angles & generate rotation matrix
+
+
+if dim == 2
+    
+    for i = 1:size(img, 3)
+        
+        if length(props.psi) > 1
+            psi = props.psi(i);
+        else
+            psi = props.psi;
+        end
+
+        phi = props.phi;
+        theta = props.theta;
+        rotm = rotatematrix_varian(psi,theta,phi);
+
+        % Resolution
+        di = props.x_res;
+        dj = props.y_res;
+        dk = props.z_res;
+
+        % Field of view size in mm
+        FOVi = props.x_dim * di;
+        FOVj = props.y_dim * dj;
+        FOVk = props.z_dim * (dk + props.gap * 10);
+
+        % rotate bottom corner of image to real world coordinates
+        min_xyz = rotm * (-[FOVi, FOVj, FOVk] / 2)';
+
+        if props.gap > 0
+            min_xyz = min_xyz + rotm * ([0 0 -(dk + props.gap * 10)])';
+        end
+        
+        % min includes half of the gap
+        
+        if length(props.psi) > 1
+            IJK = [1 1 1]; 
+        else
+            IJK = [1 1 i];
+        end
+
+        % every pixel in the image gets its coordinates converted to real world
+        % coordinates. The first of every slice then gets passed on to the scimat
+        % min + rot * (index * resolution)
+        XYZ = bsxfun(@plus, min_xyz, rotm * (bsxfun(@times, IJK - 0.5, [di dj dk+props.gap*10]))')';
+
+        offset = XYZ([2 1 3]);
+        scimat(i) = scimat_im2scimat(((img(:, :, i).')), [di dj dk], offset, rotm');
+
+    end
+    
+else % dim == 3
+
+    
+    
     psi = props.psi;
-    % c = 1;
+   
     phi = props.phi;
     theta = props.theta;
     rotm = rotatematrix_varian(psi,theta,phi);
@@ -67,7 +125,7 @@ if numel(props.psi) == 1;
     % Resolution
     di = props.x_res;
     dj = props.y_res;
-    dk = props.z_res + props.gap*10;
+    dk = props.z_res + props.gap * 10;
 
     % Field of view size in mm
     FOVi = props.x_dim * di;
@@ -77,86 +135,24 @@ if numel(props.psi) == 1;
     % rotate bottom corner of image to real world coordinates
     min_xyz = rotm * (-[FOVi, FOVj, FOVk] / 2)';
 
-    % indices
-    [I, J, K] = ndgrid(1:size(img,1), 1:size(img,2), 1:size(img,3));
-    IJK = [I(:), J(:), K(:)];
+    
+    IJK = [1 1 1]; 
+   
 
     % every pixel in the image gets its coordinates converted to real world
     % coordinates. The first of every slice then gets passed on to the scimat
     % min + rot * (index * resolution)
     XYZ = bsxfun(@plus, min_xyz, rotm * (bsxfun(@times, IJK - 0.5, [di dj dk]))')';
-
-    X = reshape(XYZ(:,1), size(img));
-    Y = reshape(XYZ(:,2), size(img));
-    Z = reshape(XYZ(:,3), size(img));
-
-    % image data and rotation matrix are transposed here because of the varian
-    % convention
-
-    if dim == 2
-
-        for i = 1:size(img,3)
-            offset = [Y(1,1,i) X(1,1,i) (Z(1,1,i)-(dk + props.gap*10))];
-            scimat(i) = scimat_im2scimat(((img(:, :, i).')), [di dj dk], offset, rotm');
-        end
-
-    elseif dim == 3
-        % doesn't exist in the other case,3D will never have an array for psi.
-
+    
         % in case we do want a 3D image. (my HR images are 3D and I don't want a stack)
-        offset = [Y(1,1,1) X(1,1,1) Z(1,1,1)];
-        scimat = scimat_im2scimat(permute(img,[2 1 3]), [di dj dk], offset, rotm');
-
-    end
+    offset = XYZ([2 1 3]);
+    scimat = scimat_im2scimat(permute(img,[2 1 3]), [di dj dk], offset, rotm');
 
 
-%% case 2 = images are a fan of LA acquisitions
-
-elseif numel(props.psi) > 1;
-     counter = 1;
-     for psi = props.psi;
-
-        phi = props.phi;
-        theta = props.theta;
-        rotm = rotatematrix_varian(psi,theta,phi);
-
-        % Resolution
-        di = props.x_res;
-        dj = props.y_res;
-        dk = props.z_res + props.gap * 10;
-
-        % Field of view size in mm
-        FOVi = props.x_dim * di;
-        FOVj = props.y_dim * dj;
-        FOVk = props.z_dim * dk;
-
-        % rotate bottom corner of image to real world coordinates
-        min_xyz = rotm * (-[FOVi, FOVj, FOVk] / 2)';
-
-        % indices
-        img1 = img(:,:,1,1);
-        [I, J, K] = ndgrid(1:size(img1,1), 1:size(img1,2), 1:size(img1,3));
-        IJK = [I(:), J(:), K(:)];
-
-        % every pixel in the image gets its coordinates converted to real world
-        % coordinates. The first of every slice then gets passed on to the scimat
-        % min + rot * (index * resolution)
-        XYZ = bsxfun(@plus, min_xyz, rotm * (bsxfun(@times, IJK - 0.5, [di dj dk]))')';
-
-        X = reshape(XYZ(:,1), size(img(:,:,1)));
-        Y = reshape(XYZ(:,2), size(img(:,:,1)));
-        Z = reshape(XYZ(:,3), size(img(:,:,1)));
-
-        % image data and rotation matrix are transposed here because of the varian
-        % convention
-
-        offset = [Y(1,1,1) X(1,1,1) Z(1,1,1)];
-        scimat(counter) = scimat_im2scimat(((img(:, :, counter).')), [di dj dk], offset, rotm');
-        counter = counter + 1;
-    end
 end
 
 end
+
 
 
 

@@ -73,9 +73,12 @@ if nargin < 4
 end
   
 
-
-
 VEC(isinf(VEC)) = 0;
+
+null_mask = double(max(abs(VEC), [], 4) == 0);
+null_mask(null_mask == 1) = NaN;
+null_mask(null_mask == 0) = 1;
+VEC = bsxfun(@times, VEC, null_mask);
 
 % reshape the image and vector field such that the collapseable dimension
 % is at the end
@@ -103,19 +106,25 @@ if ~isempty(get(AxesHandle, 'Children')) % if the current axis is not empty
     figure;
 end
 h = imagesc(IM);
+set(h,'alphadata',~isnan(VEC(:,:,dim_order1(1))));
+set(gca, 'Color', [0 0 0])
+
+
+
 colormap jet
 hold on; 
 
 % set the top left voxel to something high, so that the others are scaled
 % better
-VEC(1,1,dim_order1(1)) = max(VEC(:)) * 2;
+VEC(1,1,dim_order1(1)) = max(VEC(:))*sqrt(2);
+VEC(1,1,dim_order1(2)) = max(VEC(:))*sqrt(2);
 
-quiver(Y,X, VEC(:,:,dim_order1(2)), VEC(:,:,dim_order1(1)), 'k', 'LineWidth', 1.2);
-quiver(Y,X, -VEC(:,:,dim_order1(2)), -VEC(:,:,dim_order1(1)), 'k', 'LineWidth', 1.2);
+quiver(Y+ystep/2,X+xstep/2, VEC(:,:,dim_order1(2)), VEC(:,:,dim_order1(1)), 'k', 'LineWidth', 1.2);
+quiver(Y+ystep/2,X+xstep/2, -VEC(:,:,dim_order1(2)), -VEC(:,:,dim_order1(1)), 'k', 'LineWidth', 1.2);
 
 if nargin > 4
-    quiver(Y,X, VEC2(:,:,dim_order1(2)), VEC2(:,:,dim_order1(1)), 'w', 'LineWidth', 1.2);
-    quiver(Y,X, -VEC2(:,:,dim_order1(2)), -VEC2(:,:,dim_order1(1)), 'w', 'LineWidth', 1.2);
+    quiver(Y+ystep/2,X+xstep/2, VEC2(:,:,dim_order1(2)), VEC2(:,:,dim_order1(1)), 'w', 'LineWidth', 1.2);
+    quiver(Y+ystep/2,X+xstep/2, -VEC2(:,:,dim_order1(2)), -VEC2(:,:,dim_order1(1)), 'w', 'LineWidth', 1.2);
 end
 
 axis image

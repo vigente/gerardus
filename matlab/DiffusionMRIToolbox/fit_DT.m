@@ -1,4 +1,4 @@
-function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, method, weighting)
+function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, method)
 % FIT_DT    Fits the diffusion tensor model voxelwise to an image
 %           S = S0 exp(-bD)
 %
@@ -18,12 +18,11 @@ function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, metho
 %
 %   METHOD is a string, and can take the following values:
 %       'linear' fits the tensor in the log domain (default)
+%       'weighted linear' fits the tensor with a weighted linear regression
+%       (also quite fast, weights are automatically assigned)
 %       'nonlinear' fits the tensor in the signal domain (recommended for
 %       high b-values or when SNR is low)
 %
-%   WEIGHTING can be used to do a weighted linear tensor fit. It must be
-%   a vector of length N. This can help to minimise artefacts from linear
-%   fitting. (optional, not needed if SNR is good)
 %
 % Outputs:
 %
@@ -73,7 +72,7 @@ function [ DT, FA, ADC, VectorField, EigVals] = fit_DT( im, b, thresh_val, metho
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % check arguments
-narginchk(2, 5);
+narginchk(2, 4);
 nargoutchk(0, 5);
 
 sz = size(im);
@@ -82,22 +81,14 @@ if nargin < 3
     thresh_val = -inf;
 end
 
-if (nargin < 4) || isempty(method)% default method is linear least squares
-    method = 'linear';
+if (nargin < 4) || isempty(method)% default method is weighted linear least squares
+    method = 'weighted linear';
 end
 
-perform_weighting = false;
-if nargin > 4
-    perform_weighting = true;
-    if length(weighting) ~= sz(end)
-        disp('Weighting vector is wrong length')
-        perform_weighting = false;
-    end
-end
 
 % check that a valid method has been given
-if ~max([strcmp(method, 'linear'), strcmp(method, 'nonlinear')])
-    disp('Unrecognised method, performing fast linear fitting')
+if ~max([strcmp(method, 'linear'), strcmp(method, 'weighted linear'), strcmp(method, 'nonlinear')])
+    disp('Unrecognised method, performing weighted linear fitting')
 end
 
 
@@ -165,16 +156,17 @@ Bv = [Bv, -ones(size(Bv,1), 1)];
 % This is the same as (pinv(Bv) * (-imlog'))';
 % also same as (pinv(Bv' * Bv) * Bv' * (-imlog'))';
 % weighting (NxN) goes   ^ here      ^ and here
-if perform_weighting
-
-    W = eye(length(Bv));
-    W(W == 1) = weighting(:);
-    M = (pinv(Bv' * (W.^2) * Bv) * Bv' * (W.^2) * (-imlog'))';
+if strcmp(method, 'linear')
+    M = (Bv \ -imlog')';%
 else
+    % this will always yield a lower solution than the linear fitting
+    % because there is a check in there that replaces any voxels that fail
+    % with the linear fit version!
+    
     param.rician = 1;
     param.unique_weights = 1;
     param.verbose = 0;
-    M = weighted_linear_fit(-imlog, Bv', @(z)exp(-z), param);%M = (Bv \ -imlog')';%
+    M = weighted_linear_fit(-imlog, Bv', @(z)exp(-z), param);
 end
 
 % convert log(S0) to S0

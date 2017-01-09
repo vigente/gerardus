@@ -1,3 +1,20 @@
+2017-01-09  Darryl McClymont  <darryl.mcclymont@gmail.com>
+
+	new file:   matlab/FileFormatToolbox/scimat_tformarray.m
+	* this function will transform any 3D array in scimat format to another space, defined
+	by the new rotation matrix, min, etc. Tested with preclinical data.	
+	
+	modified:   matlab/FileFormatToolbox/scimat_varian2scimat.m
+	* Sorry I trampled on your edits to this function Nick, but I think we did the same thing, 
+	and my version works with the non-zero slice gap. 
+
+	Minor:
+		modified:   matlab/DiffusionMRIToolbox/fit_DT.m
+		modified:   matlab/DiffusionMRIToolbox/quiver_image.m
+		modified:   matlab/DiffusionMRIToolbox/view_tensors.m
+		modified:   matlab/DiffusionMRIToolbox/weighted_linear_fit.m
+
+
 2016-12-20  Ramon Casero  <rcasero@gmail.com>
 
 	* matlab/RegistrationToolbox/regmatchedfilt.m (0.4.0): Fix

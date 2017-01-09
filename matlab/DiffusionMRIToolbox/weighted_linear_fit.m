@@ -133,7 +133,17 @@ Rf = fY - func(MX);
 
 if unique_weights || (size(Y,1) == 1)
     
-    %pctRunOnAll warning('off')
+    v = ver('MATLAB');
+    
+    if str2double(v.Version) > 8.1 % R2015
+        if ~isempty(gcp('nocreate'))
+            pctRunOnAll warning('off')
+        end
+    else % R2013
+        if matlabpool('size') ~= 0
+            pctRunOnAll warning('off')
+        end
+    end
     
     M_weighted = zeros(size(M));
     parfor i = 1:size(Y, 1)
@@ -177,6 +187,6 @@ end
 RMSE_unweighted = sum(Rf.^2, 2);
 RMSE_weighted = sum(R_weighted.^2,2);
 M_weighted(RMSE_unweighted < RMSE_weighted,:) = M(RMSE_unweighted < RMSE_weighted,:);
-
+M_weighted(isnan(RMSE_weighted), :) = M(isnan(RMSE_weighted),:);
 
 end

@@ -88,6 +88,12 @@ hold on;
 for i=1:nx
     for j=1:ny
         
+        % don't waste time on nulled voxels
+        if DT_33(1,1,i,j) == 0
+            continue
+        end
+        
+        
         % Jet colourmap
         if isnan(ha(i,j))
             C = [0.8 0.8 0.8];
