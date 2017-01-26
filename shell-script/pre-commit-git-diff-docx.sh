@@ -103,8 +103,8 @@ cd `git rev-parse --show-toplevel`
 # delete temp file with list of Mardown files to amend commit
 rm -f .commit-amend-markdown
 
-# create a Markdown copy of every .docx file that is committed
-for file in `git diff --cached --name-only | grep \.docx`
+# create a Markdown copy of every .docx file that is committed, excluding deleted files
+for file in `git diff --cached --name-only --diff-filter=d | grep \.docx`
 do
     # name of Markdown file
     mdfile="${file%.docx}.md"
@@ -122,5 +122,16 @@ do
     # here, because that adds the files to the next commit, not to
     # this one
     echo "$mdfile" >> .commit-amend-markdown
+
+done
+
+# remove the Markdown copy of any file that is to be deleted from the repo
+for file in `git diff --cached --name-only --diff-filter=D | grep \.docx`
+do
+    # name of Markdown file
+    mdfile="${file%.docx}.md"
+    echo Removing Markdown copy of "$file"
+
+    rm "$mdfile"
 
 done
