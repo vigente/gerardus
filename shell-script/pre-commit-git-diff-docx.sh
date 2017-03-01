@@ -64,8 +64,8 @@
 # installed in the system.
 
 # Author: Ramon Casero <rcasero@gmail.com>
-# Version: 0.2.0
-# Copyright © 2016 University of Oxford
+# Version: 0.3.0
+# Copyright © 2016-2017 University of Oxford
 # 
 # University of Oxford means the Chancellor, Masters and Scholars of
 # the University of Oxford, having an administrative office at
@@ -132,6 +132,16 @@ do
     mdfile="${file%.docx}.md"
     echo Removing Markdown copy of "$file"
 
-    rm "$mdfile"
+    if [ -e "$mdfile" ]
+       then
+	   # delete the Markdown file
+	   git rm "$mdfile"
+	   
+	   # list the Markdown files that need to be added to the
+	   # amended commit in the post-commit hook. Note that we
+	   # cannot `git add` here, because that adds the files to the
+	   # next commit, not to this one
+	   echo "$mdfile" >> .commit-amend-markdown
+    fi
 
 done

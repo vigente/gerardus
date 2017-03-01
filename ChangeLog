@@ -1,3 +1,13 @@
+2017-03-01  Ramón Casero  <rcasero@gmail.com>
+
+	* shell-script/pre-commit-git-diff-docx.sh: (0.3.0) Fix
+	bug. dtdoering's patch avoids trying to create the .md file with
+	pandoc if the .docx has been deleted. It also deletes the .md file
+	if the .docx file has been deleted. But the delete is not
+	commited. Now we add the deleted .md file to
+	.commit-amend-markdown so that the post-commit hook commits the
+	delete.
+
 2017-01-09  Darryl McClymont  <darryl.mcclymont@gmail.com>
 
 	new file:   matlab/FileFormatToolbox/scimat_tformarray.m
