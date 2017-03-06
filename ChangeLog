@@ -1,3 +1,10 @@
+2017-03-06  Ramón Casero  <rcasero@marcel>
+
+	* Add python/imgproc/matchHist.py (1.0.0): Modify image
+	intensities to match the histogram of a reference image.
+
+	* Add python/ for python functions.
+
 2017-03-01  Ramón Casero  <rcasero@gmail.com>
 
 	* shell-script/pre-commit-git-diff-docx.sh: (0.3.0) Fix
