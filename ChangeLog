@@ -1,5 +1,11 @@
 2017-03-06  Ramón Casero  <rcasero@marcel>
 
+	* Remove python/, I've created a new github project called "pysto"
+	to put python code there. Gerardus already has too much misc code.
+
+	* Add python/requirements.txt: pip dependencies of the python
+	library.
+
 	* Add python/imgproc/matchHist.py (1.0.0): Modify image
 	intensities to match the histogram of a reference image.
 
