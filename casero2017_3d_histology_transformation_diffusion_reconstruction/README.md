@@ -2,7 +2,13 @@
 
 In this "src/" directory we provide the Matlab scripts and
 dependencies that we used for the experiments, figures and results in
-this paper.
+the paper
+
+Casero et al. "Transformation Diffusion Reconstruction of
+Three-Dimensional Histology Volumes from Two-Dimensional Image
+Stacks", Medical Image Analysis, 2017.
+
+http://www.sciencedirect.com/science/article/pii/S1361841517300397
 
 In the "src/hand_tracing/" directory we provide landmarks and masks
 that we traced by hand, so that readers can reproduce our results. The
