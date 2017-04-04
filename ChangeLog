@@ -1,3 +1,10 @@
+2017-04-04  Ramon Casero  <rcasero@gmail.com>
+
+	* Add matlab/RegistrationToolbox/transfdiff.m
+	* Add matlab/RegistrationToolbox/transfdiffreg.m: Functions
+	implementing the Transformation Diffusion Reconstruction from
+	Casero2017 MIA paper.
+
 2017-03-06  Ramón Casero  <rcasero@marcel>
 
 	* Remove python/, I've created a new github project called "pysto"
