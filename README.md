@@ -1,6 +1,4 @@
-=============================================================================================================
-About
-=============================================================================================================
+# About
 
 Gerardus is an ecclectic collection of Matlab toolboxes, bash scripts and C++ programs produced as a result
 of research carried out by post docs and students who collaborate with Prof. Vicente Grau at the Institute of
@@ -22,9 +20,7 @@ it would be less of a personal project.
 Trivia: Gerardus Mercator (1512–1594) was a Flemish cartographer, and the first to use the word 
 "atlas" to describe a collection of maps.
 
-=============================================================================================================
-Contact
-=============================================================================================================
+# Contact
 
 Please send your questions to the mailing list,
 
@@ -32,9 +28,7 @@ Mailing list: gerardus-users@googlegroups.com
 
 You can email the mailing list as a guest without subscribing. To subscribe, visit: http://groups.google.com/group/gerardus-users/
 
-=============================================================================================================
-Download and build
-=============================================================================================================
+# Download and build
 
 The latest version of the code can be pulled from the master branch of this GitHub repository.
 
@@ -49,8 +43,7 @@ See the most updated list of all available functions:
 * [java code](java/README)
 * [C++/ITK command line programs](cpp/README)
 
-=============================================================================================================
-Papers
-=============================================================================================================
+# Papers
+
 The code for published papers can be found in the folder here: https://github.com/rcasero/gerardus/tree/papers
 
