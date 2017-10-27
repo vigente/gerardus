@@ -22,11 +22,7 @@ Trivia: Gerardus Mercator (1512–1594) was a Flemish cartographer, and the firs
 
 # Contact
 
-Please send your questions to the mailing list,
-
-Mailing list: gerardus-users@googlegroups.com
-
-You can email the mailing list as a guest without subscribing. To subscribe, visit: http://groups.google.com/group/gerardus-users/
+For questions, please open a new issue in the [issues list](https://github.com/vigente/gerardus/issues).
 
 # Download and build
 
