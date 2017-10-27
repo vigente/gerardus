@@ -1,3 +1,21 @@
+# Table of Contents
+
+   * [Overview](#overview)
+      * [Source code](#source-code)
+      * [Data](#data)
+      * [Manual landmarks and masks](#manual-landmarks-and-masks)
+   * [Summary of scripts](#summary-of-scripts)
+      * [paper_figures.m](#paper_figuresm)
+      * [blockface_mouse.m](#blockface_mousem)
+      * [manual_landmarks.m](#manual_landmarksm)
+      * [histology_blockface_mouse.m](#histology_blockface_mousem)
+      * [study_stopping_criterion_rigid_refinement.m](#study_stopping_criterion_rigid_refinementm)
+      * [study_stopping_criterion_bsp_refinement.m](#study_stopping_criterion_bsp_refinementm)
+      * [histology_noblockface_mouse.m](#histology_noblockface_mousem)
+      * [histology_refinement_without_diffusion.m](#histology_refinement_without_diffusionm)
+
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
+
 # Overview
 
 ## Source code
