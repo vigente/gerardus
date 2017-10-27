@@ -37,7 +37,7 @@ However, it's quite likely that later versions of Gerardus will work with these 
 
 ## Data
 
-The original histology stack can be downloaded from ["Serial histology and blockface images. Full mouse heart, 600 sections"](https://ora.ox.ac.uk/objects/uuid:75f09b9e-e7d5-4b48-9519-619177cea1ef), DOI: [10.5287/bodleian:bpM4PmPvo](https://doi.org/10.5287/bodleian:bpM4PmPvo).
+The original histology and blockface stacks can be downloaded from ["Serial histology and blockface images. Full mouse heart, 600 sections"](https://ora.ox.ac.uk/objects/uuid:75f09b9e-e7d5-4b48-9519-619177cea1ef), DOI: [10.5287/bodleian:bpM4PmPvo](https://doi.org/10.5287/bodleian:bpM4PmPvo).
 
 The reconstructed histology with our method can be downloaded from ["3D histology reconstruction with external blockface reference. Full mouse heart, 600 sections"](https://ora.ox.ac.uk/objects/uuid:716fe2ef-f965-40ff-8da4-8a5ad48f4aea), DOI: [10.5287/bodleian:o8eNyrzbX](https://doi.org/10.5287/bodleian:o8eNyrzbX).
 
