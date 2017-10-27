@@ -1,7 +1,6 @@
 # Overview
 
-In this directory we provide the Matlab scripts and
-dependencies that we used for the experiments, figures and results in
+In this directory we provide the Matlab scripts that we used for the experiments, figures and results in
 the paper
 
 Casero et al. "Transformation Diffusion Reconstruction of
@@ -10,7 +9,13 @@ Stacks", Medical Image Analysis, 2017.
 
 http://www.sciencedirect.com/science/article/pii/S1361841517300397
 
-In the "src/hand_tracing/" directory we provide landmarks and masks
+These scripts depend on [Matlab code from the gerardus project](https://github.com/vigente/gerardus).
+You can clone the code and add the toolboxes to your Matlab path following the "Quickstart" section in the [instructions to build and install Gerardus](https://github.com/rcasero/gerardus/wiki/Build-instructions). (Basically, you'll need to clone the gerardus project, run `gerardus/matlab/add_gerardus_paths.m`, and install the [elastix binaries](http://elastix.isi.uu.nl/).
+
+Note: Strictly speaking, the paper above was run with [Gerardus tag "casero2017_3d_histology_transformation_diffusion_reconstruction"](https://github.com/vigente/gerardus/releases/tag/casero2017_3d_histology_transformation_diffusion_reconstruction). 
+However, it's quite likely that later versions of Gerardus will work with these scripts too. It's worth giving a try to the current master version.
+
+In the `hand_tracing/` directory we provide landmarks and masks
 that we traced by hand, so that readers can reproduce our results. The
 data (blockface and histology images) are not provided in this
 directory, but in the location stated in the paper.
