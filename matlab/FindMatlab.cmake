@@ -43,7 +43,7 @@ SET(MATLAB_FOUND 0)
 IF(WIN32)
 
   # Search for a version of Matlab available, starting from the most modern one to older versions
-  FOREACH(MATVER "8.0" "7.20" "7.19" "7.18" "7.17" "7.16" "7.15" "7.14" "7.13" "7.12" "7.11" "7.10" "7.9" "7.8" "7.7" "7.6" "7.5" "7.4")
+  FOREACH(MATVER "9.3" "9.2" "9.1" "9.0" "8.6" "8.5" "8.4" "8.3" "8.2" "8.1" "8.0" "7.20" "7.19" "7.18" "7.17" "7.16" "7.15" "7.14" "7.13" "7.12" "7.11" "7.10" "7.9" "7.8" "7.7" "7.6" "7.5" "7.4")
     IF((NOT DEFINED MATLAB_ROOT) 
         OR ("${MATLAB_ROOT}" STREQUAL "")
         OR ("${MATLAB_ROOT}" STREQUAL "/registry"))
