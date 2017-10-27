@@ -1,5 +1,7 @@
 # Overview
 
+## Source code
+
 In this directory we provide the Matlab scripts that we used for the experiments, figures and results in
 the paper
 
@@ -15,10 +17,20 @@ You can clone the code and add the toolboxes to your Matlab path following the "
 Note: Strictly speaking, the paper above was run with [Gerardus tag "casero2017_3d_histology_transformation_diffusion_reconstruction"](https://github.com/vigente/gerardus/releases/tag/casero2017_3d_histology_transformation_diffusion_reconstruction). 
 However, it's quite likely that later versions of Gerardus will work with these scripts too. It's worth giving a try to the current master version.
 
+## Data
+
+The original histology stack can be downloaded from ["Serial histology and blockface images. Full mouse heart, 600 sections"](https://ora.ox.ac.uk/objects/uuid:75f09b9e-e7d5-4b48-9519-619177cea1ef), DOI: [10.5287/bodleian:bpM4PmPvo](https://doi.org/10.5287/bodleian:bpM4PmPvo).
+
+The reconstructed histology with our method can be downloaded from ["3D histology reconstruction with external blockface reference. Full mouse heart, 600 sections"](https://ora.ox.ac.uk/objects/uuid:716fe2ef-f965-40ff-8da4-8a5ad48f4aea), DOI: [10.5287/bodleian:o8eNyrzbX](https://doi.org/10.5287/bodleian:o8eNyrzbX).
+
+## Manual landmarks and masks
+
 In the `hand_tracing/` directory we provide landmarks and masks
 that we traced by hand, so that readers can reproduce our results. The
 data (blockface and histology images) are not provided in this
 directory, but in the location stated in the paper.
+
+# Summary of scripts
 
 A list of all main scripts and their purpose can be found below. We
 ran the scripts on Matlab 8.3.0.532 (R2014a).
@@ -30,8 +42,6 @@ what each part is doing.
 
 Note also that variables that point to the location of the data will
 need to be edited to suit the local configuration of each user.
-
-# Summary of scripts
 
 ## paper_figures.m
 
