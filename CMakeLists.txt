@@ -113,6 +113,14 @@ if(NOT WIN32)
     set(GCC_VERSION_REQUIRED_BY_MATLAB "4.7")
   elseif("${MATLAB_VERSION}" MATCHES "R2015b")
     set(GCC_VERSION_REQUIRED_BY_MATLAB "4.7")
+  elseif("${MATLAB_VERSION}" MATCHES "R2016a")
+    set(GCC_VERSION_REQUIRED_BY_MATLAB "4.7")
+  elseif("${MATLAB_VERSION}" MATCHES "R2016b")
+    set(GCC_VERSION_REQUIRED_BY_MATLAB "4.9")
+  elseif("${MATLAB_VERSION}" MATCHES "R2017a")
+    set(GCC_VERSION_REQUIRED_BY_MATLAB "4.9")
+  elseif("${MATLAB_VERSION}" MATCHES "R2017b")
+    set(GCC_VERSION_REQUIRED_BY_MATLAB "4.9")
   else()
     message(FATAL_ERROR 
       "I do not know which version of gcc/g++ is needed for Matlab ${MATLAB_VERSION}.\nPlease update gerardus/CMakeLists.txt with this information.")
@@ -439,12 +447,12 @@ endif()
 find_package(ITK)
 if(NOT ITK_FOUND)
   if (WIN32)
-    message(FATAL_ERROR "You need to download and install ITK v4.3.1: http://downloads.sourceforge.net/sourceforge/itk/InsightApplications-4.3.0.zip")
+    message(FATAL_ERROR "You need to download and install ITK v4.3.2: https://sourceforge.net/projects/itk/files/itk/4.3/InsightToolkit-4.3.2.zip")
   else(WIN32)
     # to make things easier for the user, we are going to build ITK
     
-    set(ITK_TARBALL_URL "http://downloads.sourceforge.net/project/itk/itk/4.3")
-    set(ITK_TARBALL_FILENAME "${CMAKE_BINARY_DIR}/InsightToolkit-4.3.1.tar.gz")
+    set(ITK_TARBALL_URL "https://sourceforge.net/projects/itk/files/itk/4.3/")
+    set(ITK_TARBALL_FILENAME "${CMAKE_BINARY_DIR}/InsightToolkit-4.3.2.tar.gz")
     set(ITK_SOURCE_DIR "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/InsightToolkit-4.3.1")
 
     if(EXISTS ${ITK_TARBALL_FILENAME})
@@ -469,7 +477,7 @@ if(NOT ITK_FOUND)
       endif()
     endif(EXISTS ${ITK_TARBALL_FILENAME})
   
-    # uncompress the Boost tarball if necessary
+    # uncompress the ITK tarball if necessary
     if(NOT EXISTS "${ITK_SOURCE_DIR}")
       execute_process(
 	COMMAND ${CMAKE_COMMAND} -E tar xzf ${ITK_TARBALL_FILENAME}
@@ -625,12 +633,12 @@ if(NOT Boost_version_hpp)
 
   if(WIN32)
     set(BOOST_TARBALL_URL 
-      http://downloads.sourceforge.net/project/boost/boost/${AUX_BOOST_VERSION}.0/boost_${AUX_BOOST_VERSION_}_0.tar.gz)
+      https://sourceforge.net/projects/boost/files/boost/${AUX_BOOST_VERSION}.0/boost_${AUX_BOOST_VERSION_}_0.tar.gz)
     set(BOOST_TARBALL_FILENAME
       ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_${AUX_BOOST_VERSION_}_0.tar.gz)
   else()
     set(BOOST_TARBALL_URL 
-      http://downloads.sourceforge.net/project/boost/boost/${AUX_BOOST_VERSION}/boost_${AUX_BOOST_VERSION_}.tar.gz)
+      https://sourceforge.net/projects/boost/files/boost/${AUX_BOOST_VERSION}/boost_${AUX_BOOST_VERSION_}.tar.gz)
     set(BOOST_TARBALL_FILENAME
       ${GERARDUS_SOURCE_DIR}/cpp/src/third-party/boost_${AUX_BOOST_VERSION_}.tar.gz)
   endif()
