@@ -1,3 +1,8 @@
+2017-10-27  Ramon Casero  <rcasero@marcel>
+
+	* Update build to Matlab2016b and new sourceforge paths for ITK
+	and Boost.
+
 2017-04-04  Ramon Casero  <rcasero@gmail.com>
 
 	* Add matlab/RegistrationToolbox/transfdiff.m
