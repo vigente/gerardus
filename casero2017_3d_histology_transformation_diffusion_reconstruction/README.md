@@ -1,6 +1,6 @@
 # Overview
 
-In this "src/" directory we provide the Matlab scripts and
+In this directory we provide the Matlab scripts and
 dependencies that we used for the experiments, figures and results in
 the paper
 
