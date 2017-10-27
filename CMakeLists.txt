@@ -1,6 +1,6 @@
 # Author: Ramon Casero <rcasero@gmail.com>
-# Copyright © 2011-2016 University of Oxford
-# Version: 0.9.6
+# Copyright © 2011-2017 University of Oxford
+# Version: 0.9.7
 #
 # University of Oxford means the Chancellor, Masters and Scholars of
 # the University of Oxford, having an administrative office at
@@ -133,61 +133,61 @@ if(NOT WIN32)
   # if the user has provided environmental variables with the
   # compilers, we are going to check that they have the correct
   # version
-  if(DEFINED ENV{CC})
-    message(STATUS "User wants to use as gcc the following binary: $ENV{CC}")
+  # if(DEFINED ENV{CC})
+  #   message(STATUS "User wants to use as gcc the following binary: $ENV{CC}")
     
-    # get version of the C compiler
-    exec_program(
-      $ENV{CC}
-      ARGS                    --version
-      OUTPUT_VARIABLE _compiler_output)
-    string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
-      gcc_compiler_version ${_compiler_output})
-    message(STATUS "This binary corresponds to version: ${gcc_compiler_version}")
-    string(REGEX MATCH "[0-9]\\.[0-9]"
-      gcc_compiler_version ${gcc_compiler_version})
+  #   # get version of the C compiler
+  #   exec_program(
+  #     $ENV{CC}
+  #     ARGS                    --version
+  #     OUTPUT_VARIABLE _compiler_output)
+  #   string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
+  #     gcc_compiler_version ${_compiler_output})
+  #   message(STATUS "This binary corresponds to version: ${gcc_compiler_version}")
+  #   string(REGEX MATCH "[0-9]\\.[0-9]"
+  #     gcc_compiler_version ${gcc_compiler_version})
     
-    if(NOT gcc_compiler_version VERSION_EQUAL "${GCC_VERSION_REQUIRED_BY_MATLAB}")
-      message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires gcc ${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  #   if(NOT gcc_compiler_version VERSION_EQUAL "${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  #     message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires gcc ${GCC_VERSION_REQUIRED_BY_MATLAB}")
       
-    else()
-      message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
-    endif()
+  #   else()
+  #     message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
+  #   endif()
     
-  else()
-    # if the user does not provide an environmental variable with
-    # the compiler, we set it up
+  # else()
+  #   # if the user does not provide an environmental variable with
+  #   # the compiler, we set it up
     set(ENV{CC} "gcc-${GCC_VERSION_REQUIRED_BY_MATLAB}")
-  endif()
+#  endif()
   
 ################# g++ version
 
-  if(DEFINED ENV{CXX})
-    message(STATUS "User wants to use as g++ the following binary: $ENV{CXX}")
+  # if(DEFINED ENV{CXX})
+  #   message(STATUS "User wants to use as g++ the following binary: $ENV{CXX}")
     
-    # get version of the C++ compiler
-    exec_program(
-      $ENV{CXX}
-      ARGS                    --version
-      OUTPUT_VARIABLE _compiler_output)
+  #   # get version of the C++ compiler
+  #   exec_program(
+  #     $ENV{CXX}
+  #     ARGS                    --version
+  #     OUTPUT_VARIABLE _compiler_output)
     
-    string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
-      gxx_compiler_version ${_compiler_output})
-    message(STATUS "This binary corresponds to version: ${gxx_compiler_version}")
-    string(REGEX MATCH "[0-9]\\.[0-9]"
-      gxx_compiler_version ${gxx_compiler_version})
+  #   string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
+  #     gxx_compiler_version ${_compiler_output})
+  #   message(STATUS "This binary corresponds to version: ${gxx_compiler_version}")
+  #   string(REGEX MATCH "[0-9]\\.[0-9]"
+  #     gxx_compiler_version ${gxx_compiler_version})
     
-    if(NOT gxx_compiler_version VERSION_EQUAL "${GCC_VERSION_REQUIRED_BY_MATLAB}")
-      message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires g++ ${GCC_VERSION_REQUIRED_BY_MATLAB}")
-    else()
-      message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
-    endif()
+  #   if(NOT gxx_compiler_version VERSION_EQUAL "${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  #     message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires g++ ${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  #   else()
+  #     message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
+  #   endif()
 
-  else()
-    # if the user does not provide an environmental variable with
-    # the compiler, we set it up
+  # else()
+  #   # if the user does not provide an environmental variable with
+  #   # the compiler, we set it up
     set(ENV{CXX} "g++-${GCC_VERSION_REQUIRED_BY_MATLAB}")
-  endif()
+#  endif()
 
 ################# gfortran version
 
@@ -444,16 +444,16 @@ endif(WIN32 AND NOT CYGWIN)
 if(WIN32)
   set(ITK_DIR "C:/Program Files/ITK/lib/cmake/ITK-4.3")
 endif()
-find_package(ITK)
+find_package(ITK NO_MODULE)
 if(NOT ITK_FOUND)
   if (WIN32)
     message(FATAL_ERROR "You need to download and install ITK v4.3.2: https://sourceforge.net/projects/itk/files/itk/4.3/InsightToolkit-4.3.2.zip")
   else(WIN32)
     # to make things easier for the user, we are going to build ITK
     
-    set(ITK_TARBALL_URL "https://sourceforge.net/projects/itk/files/itk/4.3/")
+    set(ITK_TARBALL_URL "https://sourceforge.net/projects/itk/files/itk/4.3/InsightToolkit-4.3.2.tar.gz/download")
     set(ITK_TARBALL_FILENAME "${CMAKE_BINARY_DIR}/InsightToolkit-4.3.2.tar.gz")
-    set(ITK_SOURCE_DIR "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/InsightToolkit-4.3.1")
+    set(ITK_SOURCE_DIR "${GERARDUS_SOURCE_DIR}/cpp/src/third-party/InsightToolkit-4.3.2")
 
     if(EXISTS ${ITK_TARBALL_FILENAME})
       
