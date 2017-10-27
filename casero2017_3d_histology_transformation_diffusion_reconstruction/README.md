@@ -23,9 +23,9 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 In this directory we provide the Matlab scripts that we used for the experiments, figures and results in
 the paper
 
-Casero et al. "Transformation Diffusion Reconstruction of
+Casero et al. _Transformation Diffusion Reconstruction of
 Three-Dimensional Histology Volumes from Two-Dimensional Image
-Stacks", Medical Image Analysis, 2017, DOI: [10.1016/j.media.2017.03.004](https://doi.org/10.1016/j.media.2017.03.004).
+Stacks_, Medical Image Analysis, 2017, DOI: [10.1016/j.media.2017.03.004](https://doi.org/10.1016/j.media.2017.03.004).
 
 http://www.sciencedirect.com/science/article/pii/S1361841517300397
 
