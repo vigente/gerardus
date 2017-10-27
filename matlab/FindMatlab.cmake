@@ -128,7 +128,6 @@ ELSE(WIN32) # Linux or Mac
     # get path to the Matlab root directory
     execute_process(
       COMMAND which matlab
-      COMMAND xargs readlink
       COMMAND xargs dirname
       COMMAND xargs dirname
       COMMAND xargs echo -n
