@@ -25,7 +25,7 @@ the paper
 
 Casero et al. "Transformation Diffusion Reconstruction of
 Three-Dimensional Histology Volumes from Two-Dimensional Image
-Stacks", Medical Image Analysis, 2017.
+Stacks", Medical Image Analysis, 2017, DOI: [10.1016/j.media.2017.03.004](https://doi.org/10.1016/j.media.2017.03.004).
 
 http://www.sciencedirect.com/science/article/pii/S1361841517300397
 
