@@ -160,13 +160,14 @@ ELSE(WIN32) # Linux or Mac
   # if we cannot read it from the mbuild script, then launch Matlab
   # and run the "version" function
   if (NOT MATLAB_VERSION)
-    
+
+    set(BRACKET_SYMBOL \))
     execute_process(
       COMMAND "${MATLAB_BINARY}" -nosplash -nodesktop -nojvm -r "version, exit"
       COMMAND grep ans -A 2
       COMMAND tail -n 1
-      COMMAND awk "{print $2}"
-      COMMAND tr -d "()"
+      COMMAND sed "s,.*R,R,"
+      COMMAND sed "s,[^a-zA-Z0-9],,g"
       COMMAND xargs echo -n
       OUTPUT_VARIABLE MATLAB_VERSION
       )
