@@ -17,7 +17,7 @@
 # (Note that the original file does work for Ubuntu Natty)
 #
 # Author: Ramon Casero <rcasero@gmail.com>, Tom Doel
-# Version: 0.2.10
+# Version: 0.2.11
 #
 # The original file was copied from an Ubuntu Linux install
 # /usr/share/cmake-2.8/Modules/FindMatlab.cmake
