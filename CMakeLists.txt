@@ -288,25 +288,30 @@ else(WIN32 AND NOT CYGWIN) # linux builds
       "\"sudo apt-get install m4\"")
   endif (NOT M4)
 
-  # download, build and install GMP
-  ExternalProject_Add(GMP_GERARDUS
-    PREFIX ${GMP_SOURCE_DIR}
-    STAMP_DIR ${GMP_SOURCE_DIR}/output
-    SOURCE_DIR ${GMP_SOURCE_DIR}
-    DOWNLOAD_COMMAND ""
-    CONFIGURE_COMMAND ./configure --prefix=${GMP_SOURCE_DIR}/output 
-           CC=gcc-${GCC_VERSION_REQUIRED_BY_MATLAB} CXX=g++-${GCC_VERSION_REQUIRED_BY_MATLAB}
-    BINARY_DIR ${GMP_SOURCE_DIR}
-    BUILD_COMMAND make
-    TEST_BEFORE_INSTALL 1
-    TEST_COMMAND make check
-    INSTALL_DIR ${GMP_SOURCE_DIR}/output
-    INSTALL_COMMAND make install
-    LOG_CONFIGURE 1
-    LOG_BUILD 1
-    LOG_TEST 1
-    LOG_INSTALL 1
-    )
+  # build and install GMP
+  message(STATUS "Building and installing GMP")
+  # to avoid repeating this every time we run cmake, we use libgmp.so as
+  # an indicator of whether GMP has been built and installed
+  if (NOT EXISTS ${GMP_SOURCE_DIR}/output/lib/libgmp.so)
+    execute_process(
+      COMMAND ./configure --prefix=${GMP_SOURCE_DIR}/output 
+      CC=gcc-${GCC_VERSION_REQUIRED_BY_MATLAB} CXX=g++-${GCC_VERSION_REQUIRED_BY_MATLAB}
+      WORKING_DIRECTORY ${GMP_SOURCE_DIR}
+      )
+    execute_process(
+      COMMAND make
+      WORKING_DIRECTORY ${GMP_SOURCE_DIR}
+      )
+    execute_process(
+      COMMAND make check
+      WORKING_DIRECTORY ${GMP_SOURCE_DIR}
+      )
+    execute_process(
+      COMMAND make install
+      WORKING_DIRECTORY ${GMP_SOURCE_DIR}
+      )
+  endif(NOT EXISTS ${GMP_SOURCE_DIR}/output/lib/libgmp.so)
+  
   add_library(gmp SHARED IMPORTED GLOBAL)
   set_property(TARGET gmp PROPERTY IMPORTED_LOCATION ${GMP_SOURCE_DIR}/output/lib/libgmp.so)
 #  set(GMP_FOUND TRUE 
@@ -321,28 +326,32 @@ else(WIN32 AND NOT CYGWIN) # linux builds
     CACHE PATH "Path to GMP library")
   # this line needed by CGAL to avoid looking for GMP in the system
   set(GMP_LIBRARIES "${GMP_SOURCE_DIR}/output/lib/libgmp.so") 
-  
-  # download, build and install MPFR
-  ExternalProject_Add(MPFR_GERARDUS
-    DEPENDS GMP_GERARDUS
-    PREFIX ${MPFR_SOURCE_DIR}
-    STAMP_DIR ${MPFR_SOURCE_DIR}/output
-    SOURCE_DIR ${MPFR_SOURCE_DIR}
-    DOWNLOAD_COMMAND ""
-    CONFIGURE_COMMAND ./configure --prefix=${MPFR_SOURCE_DIR}/output 
+
+  # build and install MPFR
+  message(STATUS "Building and installing MPFR")
+  # to avoid repeating this every time we run cmake, we use libmpfr.so as
+  # an indicator of whether GMP has been built and installed
+  if (NOT EXISTS ${MPFR_SOURCE_DIR}/output/lib/libmpfr.so)
+    execute_process(
+      COMMAND ./configure --prefix=${MPFR_SOURCE_DIR}/output 
            --with-gmp-include=${GMP_SOURCE_DIR}/output/include --with-gmp-lib=${GMP_SOURCE_DIR}/output/lib
            CC=gcc-${GCC_VERSION_REQUIRED_BY_MATLAB} CXX=g++-${GCC_VERSION_REQUIRED_BY_MATLAB}
-    BINARY_DIR ${MPFR_SOURCE_DIR}
-    BUILD_COMMAND make
-    TEST_BEFORE_INSTALL 1
-    TEST_COMMAND make check
-    INSTALL_DIR ${MPFR_SOURCE_DIR}/output
-    INSTALL_COMMAND make install
-    LOG_CONFIGURE 1
-    LOG_BUILD 1
-    LOG_TEST 1
-    LOG_INSTALL 1
-    )
+      WORKING_DIRECTORY ${MPFR_SOURCE_DIR}
+      )
+    execute_process(
+      COMMAND make
+      WORKING_DIRECTORY ${MPFR_SOURCE_DIR}
+      )
+    execute_process(
+      COMMAND make check
+      WORKING_DIRECTORY ${MPFR_SOURCE_DIR}
+      )
+    execute_process(
+      COMMAND make install
+      WORKING_DIRECTORY ${MPFR_SOURCE_DIR}
+      )
+  endif(NOT EXISTS ${MPFR_SOURCE_DIR}/output/lib/libmpfr.so)
+  
   add_library(mpfr SHARED IMPORTED GLOBAL)
   set_property(TARGET mpfr PROPERTY IMPORTED_LOCATION ${MPFR_SOURCE_DIR}/output/lib/libmpfr.so)
 #  set(MPFR_FOUND TRUE 
