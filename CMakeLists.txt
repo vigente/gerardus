@@ -86,15 +86,15 @@ else()
   message(FATAL_ERROR "Matlab not found")
 endif(MATLAB_FOUND)
 
-# some versions of Matlab or some libraries are not compatible with
+# Some versions of Matlab or some libraries are not compatible with
 # more advanced gcc versions
 #
-# the compiler version has to be set up before project(), otherwise we
+# The compiler version has to be set up before project(), otherwise we
 # will get an infinite loop. We force the compiler version setting the
-# corresponding environmental variables (equivalent to running e.g.  
-# $ CC=gcc-4.4 CXX=g++-4.4 cmake ..  This is a better way than directly
-# setting MAKE_C_COMPILER, CMAKE_CXX_COMPILER. For example, if we set these
-# variables after project(), this creates an infinite loop.
+# corresponding environmental variables (equivalent to running e.g.
+# $ CC=gcc-4.4 CXX=g++-4.4 cmake ..
+#
+# We also set MAKE_C_COMPILER and CMAKE_CXX_COMPILER, because CGAL uses those
 if(NOT WIN32)
 
   if("${MATLAB_VERSION}" MATCHES "R2012a")
@@ -125,69 +125,20 @@ if(NOT WIN32)
     message(FATAL_ERROR 
       "I do not know which version of gcc/g++ is needed for Matlab ${MATLAB_VERSION}.\nPlease update gerardus/CMakeLists.txt with this information.")
   endif()
-#  message(STATUS "Matlab ${MATLAB_VERSION} requires gcc, g++ and gfortran version: ${GCC_VERSION_REQUIRED_BY_MATLAB}")
   message(STATUS "Matlab ${MATLAB_VERSION} requires gcc and g++ version: ${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  message(STATUS "Switching to gcc and g++ ${GCC_VERSION_REQUIRED_BY_MATLAB}")
 
 ################# gcc version
 
-  # if the user has provided environmental variables with the
-  # compilers, we are going to check that they have the correct
-  # version
-  # if(DEFINED ENV{CC})
-  #   message(STATUS "User wants to use as gcc the following binary: $ENV{CC}")
-    
-  #   # get version of the C compiler
-  #   exec_program(
-  #     $ENV{CC}
-  #     ARGS                    --version
-  #     OUTPUT_VARIABLE _compiler_output)
-  #   string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
-  #     gcc_compiler_version ${_compiler_output})
-  #   message(STATUS "This binary corresponds to version: ${gcc_compiler_version}")
-  #   string(REGEX MATCH "[0-9]\\.[0-9]"
-  #     gcc_compiler_version ${gcc_compiler_version})
-    
-  #   if(NOT gcc_compiler_version VERSION_EQUAL "${GCC_VERSION_REQUIRED_BY_MATLAB}")
-  #     message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires gcc ${GCC_VERSION_REQUIRED_BY_MATLAB}")
-      
-  #   else()
-  #     message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
-  #   endif()
-    
-  # else()
-  #   # if the user does not provide an environmental variable with
-  #   # the compiler, we set it up
-    set(ENV{CC} "gcc-${GCC_VERSION_REQUIRED_BY_MATLAB}")
-#  endif()
+  find_program(FULL_PATH_TO_GCC "gcc-${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  set(ENV{CC} "${FULL_PATH_TO_GCC}" CACHE FILEPATH "Compiler required by current Matlab version" FORCE)
+  set(CMAKE_C_COMPILER "${FULL_PATH_TO_GCC}" CACHE FILEPATH "Compiler required by current Matlab version" FORCE)
   
 ################# g++ version
 
-  # if(DEFINED ENV{CXX})
-  #   message(STATUS "User wants to use as g++ the following binary: $ENV{CXX}")
-    
-  #   # get version of the C++ compiler
-  #   exec_program(
-  #     $ENV{CXX}
-  #     ARGS                    --version
-  #     OUTPUT_VARIABLE _compiler_output)
-    
-  #   string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
-  #     gxx_compiler_version ${_compiler_output})
-  #   message(STATUS "This binary corresponds to version: ${gxx_compiler_version}")
-  #   string(REGEX MATCH "[0-9]\\.[0-9]"
-  #     gxx_compiler_version ${gxx_compiler_version})
-    
-  #   if(NOT gxx_compiler_version VERSION_EQUAL "${GCC_VERSION_REQUIRED_BY_MATLAB}")
-  #     message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires g++ ${GCC_VERSION_REQUIRED_BY_MATLAB}")
-  #   else()
-  #     message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
-  #   endif()
-
-  # else()
-  #   # if the user does not provide an environmental variable with
-  #   # the compiler, we set it up
-    set(ENV{CXX} "g++-${GCC_VERSION_REQUIRED_BY_MATLAB}")
-#  endif()
+  find_program(FULL_PATH_TO_GXX "g++-${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  set(ENV{CXX} "${FULL_PATH_TO_GXX}" CACHE FILEPATH "Compiler required by current Matlab version" FORCE)
+  set(CMAKE_CXX_COMPILER "${FULL_PATH_TO_GXX}" CACHE FILEPATH "Compiler required by current Matlab version" FORCE)
 
 ################# gfortran version
 
