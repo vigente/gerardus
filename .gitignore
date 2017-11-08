@@ -14,12 +14,12 @@
 /cpp/src/third-party/gmp-5.1.2
 /cpp/src/third-party/mpfr-3.1.2
 /cpp/src/third-party/CGAL-4.2/include/CGAL/compiler_config.h
-/cpp/src/third-party/boost_1_49_0.tar.gz
-/cpp/src/third-party/boost_1_49_0
+/cpp/src/third-party/boost_*
 /matlab/pathdef.m
 /matlab/FileFormatToolbox/mccExcludedFiles.log
 /matlab/FileFormatToolbox/readme.txt
 /matlab/FileFormatToolbox/requiredMCRProducts.txt
 /matlab/FileFormatToolbox/run_vmu2png.sh
 /matlab/FileFormatToolbox/vmu2png
-/cpp/src/third-party/boost_1_44_0
+/build/
+/cpp/src/third-party/InsightToolkit-4.3.2/

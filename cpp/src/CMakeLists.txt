@@ -36,6 +36,9 @@ PROJECT(GERARDUS_CPP)
 ## configuration of binary programs
 ################################################################
 
+# suppress "variable defined but not used" warnings
+set(CMAKE_CXX_FLAGS "-Wno-unused-local-typedefs ${CMAKE_CXX_FLAGS}")
+
 # add Boost libraries to the include and linking paths of the binary
 # programs generated here
 include_directories(${Boost_INCLUDE_DIRS})

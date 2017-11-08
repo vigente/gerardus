@@ -86,15 +86,15 @@ else()
   message(FATAL_ERROR "Matlab not found")
 endif(MATLAB_FOUND)
 
-# some versions of Matlab or some libraries are not compatible with
+# Some versions of Matlab or some libraries are not compatible with
 # more advanced gcc versions
 #
-# the compiler version has to be set up before project(), otherwise we
+# The compiler version has to be set up before project(), otherwise we
 # will get an infinite loop. We force the compiler version setting the
-# corresponding environmental variables (equivalent to running e.g.  
-# $ CC=gcc-4.4 CXX=g++-4.4 cmake ..  This is a better way than directly
-# setting MAKE_C_COMPILER, CMAKE_CXX_COMPILER. For example, if we set these
-# variables after project(), this creates an infinite loop.
+# corresponding environmental variables (equivalent to running e.g.
+# $ CC=gcc-4.4 CXX=g++-4.4 cmake ..
+#
+# We also set MAKE_C_COMPILER and CMAKE_CXX_COMPILER, because CGAL uses those
 if(NOT WIN32)
 
   if("${MATLAB_VERSION}" MATCHES "R2012a")
@@ -125,69 +125,20 @@ if(NOT WIN32)
     message(FATAL_ERROR 
       "I do not know which version of gcc/g++ is needed for Matlab ${MATLAB_VERSION}.\nPlease update gerardus/CMakeLists.txt with this information.")
   endif()
-#  message(STATUS "Matlab ${MATLAB_VERSION} requires gcc, g++ and gfortran version: ${GCC_VERSION_REQUIRED_BY_MATLAB}")
   message(STATUS "Matlab ${MATLAB_VERSION} requires gcc and g++ version: ${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  message(STATUS "Switching to gcc and g++ ${GCC_VERSION_REQUIRED_BY_MATLAB}")
 
 ################# gcc version
 
-  # if the user has provided environmental variables with the
-  # compilers, we are going to check that they have the correct
-  # version
-  # if(DEFINED ENV{CC})
-  #   message(STATUS "User wants to use as gcc the following binary: $ENV{CC}")
-    
-  #   # get version of the C compiler
-  #   exec_program(
-  #     $ENV{CC}
-  #     ARGS                    --version
-  #     OUTPUT_VARIABLE _compiler_output)
-  #   string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
-  #     gcc_compiler_version ${_compiler_output})
-  #   message(STATUS "This binary corresponds to version: ${gcc_compiler_version}")
-  #   string(REGEX MATCH "[0-9]\\.[0-9]"
-  #     gcc_compiler_version ${gcc_compiler_version})
-    
-  #   if(NOT gcc_compiler_version VERSION_EQUAL "${GCC_VERSION_REQUIRED_BY_MATLAB}")
-  #     message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires gcc ${GCC_VERSION_REQUIRED_BY_MATLAB}")
-      
-  #   else()
-  #     message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
-  #   endif()
-    
-  # else()
-  #   # if the user does not provide an environmental variable with
-  #   # the compiler, we set it up
-    set(ENV{CC} "gcc-${GCC_VERSION_REQUIRED_BY_MATLAB}")
-#  endif()
+  find_program(FULL_PATH_TO_GCC "gcc-${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  set(ENV{CC} "${FULL_PATH_TO_GCC}" CACHE FILEPATH "Compiler required by current Matlab version" FORCE)
+  set(CMAKE_C_COMPILER "${FULL_PATH_TO_GCC}" CACHE FILEPATH "Compiler required by current Matlab version" FORCE)
   
 ################# g++ version
 
-  # if(DEFINED ENV{CXX})
-  #   message(STATUS "User wants to use as g++ the following binary: $ENV{CXX}")
-    
-  #   # get version of the C++ compiler
-  #   exec_program(
-  #     $ENV{CXX}
-  #     ARGS                    --version
-  #     OUTPUT_VARIABLE _compiler_output)
-    
-  #   string(REGEX MATCH "[0-9]\\.[0-9]\\.[0-9]"
-  #     gxx_compiler_version ${_compiler_output})
-  #   message(STATUS "This binary corresponds to version: ${gxx_compiler_version}")
-  #   string(REGEX MATCH "[0-9]\\.[0-9]"
-  #     gxx_compiler_version ${gxx_compiler_version})
-    
-  #   if(NOT gxx_compiler_version VERSION_EQUAL "${GCC_VERSION_REQUIRED_BY_MATLAB}")
-  #     message(FATAL_ERROR "Matlab ${MATLAB_VERSION} requires g++ ${GCC_VERSION_REQUIRED_BY_MATLAB}")
-  #   else()
-  #     message(STATUS "This compiler version is valid for Matlab ${MATLAB_VERSION}")
-  #   endif()
-
-  # else()
-  #   # if the user does not provide an environmental variable with
-  #   # the compiler, we set it up
-    set(ENV{CXX} "g++-${GCC_VERSION_REQUIRED_BY_MATLAB}")
-#  endif()
+  find_program(FULL_PATH_TO_GXX "g++-${GCC_VERSION_REQUIRED_BY_MATLAB}")
+  set(ENV{CXX} "${FULL_PATH_TO_GXX}" CACHE FILEPATH "Compiler required by current Matlab version" FORCE)
+  set(CMAKE_CXX_COMPILER "${FULL_PATH_TO_GXX}" CACHE FILEPATH "Compiler required by current Matlab version" FORCE)
 
 ################# gfortran version
 
@@ -288,25 +239,30 @@ else(WIN32 AND NOT CYGWIN) # linux builds
       "\"sudo apt-get install m4\"")
   endif (NOT M4)
 
-  # download, build and install GMP
-  ExternalProject_Add(GMP_GERARDUS
-    PREFIX ${GMP_SOURCE_DIR}
-    STAMP_DIR ${GMP_SOURCE_DIR}/output
-    SOURCE_DIR ${GMP_SOURCE_DIR}
-    DOWNLOAD_COMMAND ""
-    CONFIGURE_COMMAND ./configure --prefix=${GMP_SOURCE_DIR}/output 
-           CC=gcc-${GCC_VERSION_REQUIRED_BY_MATLAB} CXX=g++-${GCC_VERSION_REQUIRED_BY_MATLAB}
-    BINARY_DIR ${GMP_SOURCE_DIR}
-    BUILD_COMMAND make
-    TEST_BEFORE_INSTALL 1
-    TEST_COMMAND make check
-    INSTALL_DIR ${GMP_SOURCE_DIR}/output
-    INSTALL_COMMAND make install
-    LOG_CONFIGURE 1
-    LOG_BUILD 1
-    LOG_TEST 1
-    LOG_INSTALL 1
-    )
+  # build and install GMP
+  message(STATUS "Building and installing GMP")
+  # to avoid repeating this every time we run cmake, we use libgmp.so as
+  # an indicator of whether GMP has been built and installed
+  if (NOT EXISTS ${GMP_SOURCE_DIR}/output/lib/libgmp.so)
+    execute_process(
+      COMMAND ./configure --prefix=${GMP_SOURCE_DIR}/output 
+      CC=gcc-${GCC_VERSION_REQUIRED_BY_MATLAB} CXX=g++-${GCC_VERSION_REQUIRED_BY_MATLAB}
+      WORKING_DIRECTORY ${GMP_SOURCE_DIR}
+      )
+    execute_process(
+      COMMAND make
+      WORKING_DIRECTORY ${GMP_SOURCE_DIR}
+      )
+    execute_process(
+      COMMAND make check
+      WORKING_DIRECTORY ${GMP_SOURCE_DIR}
+      )
+    execute_process(
+      COMMAND make install
+      WORKING_DIRECTORY ${GMP_SOURCE_DIR}
+      )
+  endif(NOT EXISTS ${GMP_SOURCE_DIR}/output/lib/libgmp.so)
+  
   add_library(gmp SHARED IMPORTED GLOBAL)
   set_property(TARGET gmp PROPERTY IMPORTED_LOCATION ${GMP_SOURCE_DIR}/output/lib/libgmp.so)
 #  set(GMP_FOUND TRUE 
@@ -321,28 +277,32 @@ else(WIN32 AND NOT CYGWIN) # linux builds
     CACHE PATH "Path to GMP library")
   # this line needed by CGAL to avoid looking for GMP in the system
   set(GMP_LIBRARIES "${GMP_SOURCE_DIR}/output/lib/libgmp.so") 
-  
-  # download, build and install MPFR
-  ExternalProject_Add(MPFR_GERARDUS
-    DEPENDS GMP_GERARDUS
-    PREFIX ${MPFR_SOURCE_DIR}
-    STAMP_DIR ${MPFR_SOURCE_DIR}/output
-    SOURCE_DIR ${MPFR_SOURCE_DIR}
-    DOWNLOAD_COMMAND ""
-    CONFIGURE_COMMAND ./configure --prefix=${MPFR_SOURCE_DIR}/output 
+
+  # build and install MPFR
+  message(STATUS "Building and installing MPFR")
+  # to avoid repeating this every time we run cmake, we use libmpfr.so as
+  # an indicator of whether GMP has been built and installed
+  if (NOT EXISTS ${MPFR_SOURCE_DIR}/output/lib/libmpfr.so)
+    execute_process(
+      COMMAND ./configure --prefix=${MPFR_SOURCE_DIR}/output 
            --with-gmp-include=${GMP_SOURCE_DIR}/output/include --with-gmp-lib=${GMP_SOURCE_DIR}/output/lib
            CC=gcc-${GCC_VERSION_REQUIRED_BY_MATLAB} CXX=g++-${GCC_VERSION_REQUIRED_BY_MATLAB}
-    BINARY_DIR ${MPFR_SOURCE_DIR}
-    BUILD_COMMAND make
-    TEST_BEFORE_INSTALL 1
-    TEST_COMMAND make check
-    INSTALL_DIR ${MPFR_SOURCE_DIR}/output
-    INSTALL_COMMAND make install
-    LOG_CONFIGURE 1
-    LOG_BUILD 1
-    LOG_TEST 1
-    LOG_INSTALL 1
-    )
+      WORKING_DIRECTORY ${MPFR_SOURCE_DIR}
+      )
+    execute_process(
+      COMMAND make
+      WORKING_DIRECTORY ${MPFR_SOURCE_DIR}
+      )
+    execute_process(
+      COMMAND make check
+      WORKING_DIRECTORY ${MPFR_SOURCE_DIR}
+      )
+    execute_process(
+      COMMAND make install
+      WORKING_DIRECTORY ${MPFR_SOURCE_DIR}
+      )
+  endif(NOT EXISTS ${MPFR_SOURCE_DIR}/output/lib/libmpfr.so)
+  
   add_library(mpfr SHARED IMPORTED GLOBAL)
   set_property(TARGET mpfr PROPERTY IMPORTED_LOCATION ${MPFR_SOURCE_DIR}/output/lib/libmpfr.so)
 #  set(MPFR_FOUND TRUE 
