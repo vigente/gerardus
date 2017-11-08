@@ -122,7 +122,7 @@ ELSE(WIN32) # Linux or Mac
       OUTPUT_VARIABLE MATLAB_ROOT
       )
     if("${MATLAB_ROOT}" STREQUAL "")
-      message(FATAL_ERROR "MATLAB_ROOT variable not provider by the user, and 'matlab' command not in the path either. I do not know where to search for Matlab.")
+      message(FATAL_ERROR "MATLAB_ROOT variable not provided by the user, and 'matlab' command not in the path either. I do not know where to search for Matlab.")
     endif()
 
     # get path to the Matlab root directory
