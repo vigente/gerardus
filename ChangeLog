@@ -1,3 +1,13 @@
+2017-11-07  Ramon  <rcasero@MRC1006>
+
+	* release v0.12.0. Fixed some long standing issues in the linux
+	build. Current version builds successfully in Ubuntu zesty, Matlab
+	R2016b, g++ 4.9, cmake 3.7.2
+
+	- Matlab determined gcc version now used across the project.
+	- GMP and MPFR are built at cmake .. time
+	- Suppress warnings from initialised variables that are not used
+
 2017-10-27  Ramon Casero  <rcasero@marcel>
 
 	* Update build to Matlab2016b and new sourceforge paths for ITK
