@@ -1,6 +1,6 @@
 # About
 
-Gerardus is an ecclectic collection of Matlab toolboxes, bash scripts and C++ programs produced as a result
+Gerardus is an eclectic collection of Matlab toolboxes, bash scripts and C++ programs produced as a result
 of research carried out by post docs and students who collaborate with Prof. Vicente Grau at the Institute of
 Biomedical Engineering, University of Oxford, UK.
 
