@@ -287,12 +287,12 @@ switch lower(ext)
                     
                     warning('File did not provide CompressedDataSize. Trying to read to the end of file')
                     scimat.data = fread(fid, prod(sz) * nchannel, ...
-                        [data_type '=>' data_type]);
+                        'uint8=>uint8');
                     
                 else
                     
                     scimat.data = fread(fid, compressedSize, ...
-                        [data_type '=>' data_type]);
+                        'uint8=>uint8');
                     
                 end
 
