@@ -199,9 +199,9 @@ else
     %temporal.
     for S = 1:size(dcminfo,1)
         if size(dcminfo,1) == 1 % So that NaN errors don't come up due to the mean(diff())
-            scimat.axis(3).spacing = abs(mean([dcminfo(:,1).SliceLocation])) * 1e-3; % units: m 
+            scimat.axis(3).spacing = abs(mean([dcminfo(:,1).SliceThickness])) * 1e-3; % units: m 
         else
-            scimat.axis(3).spacing = abs(mean(diff([dcminfo(:,1).SliceLocation]))) * 1e-3; % units: m
+            scimat.axis(3).spacing = abs(mean(diff([dcminfo(:,1).SliceThickness]))) * 1e-3; % units: m
         end
     end
     %Check if data is temporal
