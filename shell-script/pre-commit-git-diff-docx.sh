@@ -104,44 +104,62 @@ cd `git rev-parse --show-toplevel`
 rm -f .commit-amend-markdown
 
 # create a Markdown copy of every .docx file that is committed, excluding deleted files
-for file in `git diff --cached --name-only --diff-filter=d | grep "\.docx$"`
+FILE_LIST=`git diff --cached --name-only --diff-filter=d | grep "\.docx$"`
+TEMP=""
+for file in $FILE_LIST
 do
-    # name of Markdown file
-    mdfile="${file%.docx}.md"
-    echo Creating Markdown copy of "$file"
-    #echo "$mdfile"
+    if [[ $file == *.docx ]]
+    then
+        # name of Markdown file
+        FILE_TO_BE_MARKED_DOWN="$TEMP$file"
+        mdfile="${FILE_TO_BE_MARKED_DOWN%.docx}.md"
+    
+        # convert .docx file to Markdown
+        pandoc "$FILE_TO_BE_MARKED_DOWN" -o "$mdfile" || {
+        	echo "Creating Markdown failed";
+        	exit 1;
+        }
 
-    # convert .docx file to Markdown
-    pandoc "$file" -o "$mdfile" || {
-    	echo "Conversion to Markdown failed";
-    	exit 1;
-    }
-
-    # list the Markdown files that need to be added to the amended
-    # commit in the post-commit hook. Note that we cannot `git add`
-    # here, because that adds the files to the next commit, not to
-    # this one
-    echo "$mdfile" >> .commit-amend-markdown
-
+        # list the Markdown files that need to be added to the amended
+        # commit in the post-commit hook. Note that we cannot `git add`
+        # here, because that adds the files to the next commit, not to
+        # this one
+        echo "'$mdfile'" >> .commit-amend-markdown
+        TEMP=""
+    elif [[ $TEMP == "" ]]
+    then
+        TEMP="$file "
+    else
+        TEMP="$TEMP$file "
+    fi
 done
 
 # remove the Markdown copy of any file that is to be deleted from the repo
-for file in `git diff --cached --name-only --diff-filter=D | grep "\.docx$"`
+FILE_LIST=`git diff --cached --name-only --diff-filter=D | grep "\.docx$"`
+for file in $FILE_LIST
 do
-    # name of Markdown file
-    mdfile="${file%.docx}.md"
-    echo Removing Markdown copy of "$file"
+    if [[ $file == *.docx ]]
+    then
+        # name of Markdown file
+        FILE_TO_BE_REMOVED="$TEMP$file"
+        mdfile="${FILE_TO_BE_REMOVED%.docx}.md"
 
-    if [ -e "$mdfile" ]
-       then
-	   # delete the Markdown file
-	   git rm "$mdfile"
-	   
-	   # list the Markdown files that need to be added to the
-	   # amended commit in the post-commit hook. Note that we
-	   # cannot `git add` here, because that adds the files to the
-	   # next commit, not to this one
-	   echo "$mdfile" >> .commit-amend-markdown
+        if [ -e "$mdfile" ]
+        then
+            # delete the Markdown file
+            git rm "'$mdfile'"
+            # list the Markdown files that need to be added to the
+            # amended commit in the post-commit hook. Note that we
+            # cannot `git add` here, because that adds the files to the
+            # next commit, not to this one
+            echo "$mdfile" >> .commit-amend-markdown
+        fi
+        TEMP=""
+    elif [[ $TEMP == "" ]]
+    then
+        TEMP="$file "
+    else
+        TEMP="$TEMP$file "
     fi
 
 done
